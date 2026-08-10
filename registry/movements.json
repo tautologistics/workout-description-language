@@ -202,6 +202,19 @@
       "defaultLaterality": "both"
     },
     {
+      "id": "burpee-box-jump-over",
+      "title": "Burpee Box Jump-Over",
+      "pattern": [
+        "squat",
+        "horizontal-push",
+        "locomotion"
+      ],
+      "related": [
+        "burpee",
+        "box-jump"
+      ]
+    },
+    {
       "id": "burpee-broad-jump",
       "title": "Burpee Broad Jump",
       "measures": [
@@ -581,6 +594,19 @@
       ],
       "related": [
         "push-jerk"
+      ]
+    },
+    {
+      "id": "jog",
+      "title": "Jog",
+      "measures": [
+        "distance"
+      ],
+      "pattern": [
+        "locomotion"
+      ],
+      "related": [
+        "run"
       ]
     },
     {

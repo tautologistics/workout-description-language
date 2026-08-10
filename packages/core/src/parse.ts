@@ -8,6 +8,16 @@ import { parseQuantity, parseDuration, parseTarget } from './units.ts';
 
 export interface ParseError { line: number; message: string; text: string; }
 
+/** Expand `1..10..1` into every step between the given waypoints. */
+function expandRuns(points: number[]): number[] {
+  const out: number[] = [points[0]];
+  for (let i = 1; i < points.length; i++) {
+    const from = points[i - 1], to = points[i], dir = to >= from ? 1 : -1;
+    for (let v = from + dir; dir > 0 ? v <= to : v >= to; v += dir) out.push(v);
+  }
+  return out;
+}
+
 const SECTIONS = new Set([
   'warmup', 'warm-up', 'strength', 'skill', 'conditioning', 'accessory', 'cooldown', 'cool-down',
 ]);
@@ -92,7 +102,7 @@ class Parser {
       [/\s+(first|second|left|right)\s+(arm|leg|side)$/i, (m) => { step.side = m[1].toLowerCase() as any; step.limb = m[2].toLowerCase(); }],
       [/\s+(shared|synchronized|each)$/i, (m) => { step.team = m[1].toLowerCase() as any; }],
       [/\s+(alternating|alt)$/i, () => { step.laterality = 'split'; step.notes.push('alternating'); }],
-      [/\s+(unbroken|building)$/i, (m) => { step.flags.push(m[1].toLowerCase()); }],
+      [/\s+(unbroken|building|reversed)$/i, (m) => { step.flags.push(m[1].toLowerCase()); }],
     ];
     let t = text.trim(), changed = true;
     while (changed) {
@@ -126,7 +136,7 @@ class Parser {
     if (/^alternating$|^alt$/i.test(t)) { step.laterality = 'split'; step.notes.push('alternating'); return; }
     if (/^(shared|each|synchronized)$/i.test(t)) { step.team = t.toLowerCase() as any; return; }
     if ((m = t.match(/^note:\s*"?(.*?)"?$/i))) { step.notes.push(m[1]); return; }
-    if (/^(building|unbroken|open)$/i.test(t)) { step.flags.push(t.toLowerCase()); return; }
+    if (/^(building|unbroken|open|reversed)$/i.test(t)) { step.flags.push(t.toLowerCase()); return; }
     if (/^ramp\s/i.test(t) || /^wearing\s/i.test(t)) { step.notes.push(t); return; }
 
     step.notes.push(t);
@@ -191,6 +201,10 @@ class Parser {
       block.type = 'attempts'; block.count = +m[1];
     } else if ((m = head.match(/^team\s+of\s+(\d+)$/i))) {
       block.type = 'team'; block.count = +m[1];
+    } else if (/^\d+(\.\.\d+)+$/.test(head)) {
+      // `1..10`, `10..1`, `1..10..1` — a run, expanded. Ten-tier schemes are
+      // common enough that spelling every number out is its own error source.
+      block.type = 'ladder'; block.scheme = expandRuns(head.split('..').map(Number));
     } else if (/^(\d+)(-\d+)+$/.test(head)) {
       block.type = 'ladder'; block.scheme = head.split('-').map(Number);
     } else if ((m = head.match(/^for\s+(\S+)$/i)) && parseDuration(m[1], true)) {

@@ -213,6 +213,24 @@ The distinction is recovery rest versus interval rest, and the presence of an ex
   - Pull-Up
 ```
 
+**Runs may be written with `..`.** `1..10` expands to every tier between the endpoints, and a turning point makes a pyramid — `1..10..1` is the nineteen-tier scheme of Open 22.2. Canonical output collapses a contiguous scheme back to a run and leaves anything else explicit, so `21-15-9` and `50-40-30-20-10` stay as written.
+
+```wdl
+10..1:                 // 10, 9, 8 … 1
+1..10..1:              // 1 … 10 … 1
+```
+
+**`reversed` pairs a movement against the scheme.** A step marked `reversed` takes the mirrored tier, which is the ascending/descending couplet — one movement climbing while the other descends:
+
+```wdl
+for time:
+  1..10:
+    - Squat Clean @ 185lb
+    - Parallette Handstand Push-Up, reversed
+```
+
+Round one is one clean and ten push-ups; round ten is ten and one. Every documented example of this shape — J.J., "The Ladder", and guest-programmed couplets — is an exact reversal rather than two independent schemes, which is why one keyword covers it. If a genuinely independent pair ever appears, it can be written as two blocks.
+
 **A rep scheme is sugar.** It desugars to a repeat whose per-round rep count comes from the list, applied to every step lacking its own quantity. Open 25.2 proved this must be sugar rather than a primitive — it looks like `21-18-15` but changes movement *and* load per tier, so it's written as an explicit sequence instead (§13.25).
 
 ### 5.4 Time-boxed repeat (AMRAP)

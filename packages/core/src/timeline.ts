@@ -139,6 +139,9 @@ function mergeTargets(own: Target[], inherited: Target[]): Target[] {
 
 interface Ctx {
   inherited: Target[];
+  /** The enclosing rep scheme, so a `reversed` step can index from the far end. */
+  scheme?: number[];
+  schemeIndex?: number;
   /** Round index (1-based) when expanding a bounded repeat. */
   round?: number;
   /** Quantity imposed by an enclosing rep scheme. */
@@ -150,8 +153,14 @@ function compileStep(s: Step, ctx: Ctx, pacing: Pacing, seconds?: number): Timel
   let quantity = s.quantity;
 
   // A rep scheme supplies the count for steps that don't carry their own.
+  // `reversed` takes the mirrored tier — the ascending/descending pairing that
+  // J.J., "The Ladder", and Open 22.2's couplet are all built on.
   if (ctx.schemeReps !== undefined && quantity.kind === 'open') {
-    quantity = { kind: 'reps', value: ctx.schemeReps };
+    const reversed = s.flags.includes('reversed');
+    const value = reversed && ctx.scheme && ctx.schemeIndex !== undefined
+      ? ctx.scheme[ctx.scheme.length - 1 - ctx.schemeIndex]
+      : ctx.schemeReps;
+    quantity = { kind: 'reps', value };
   }
   // `+N each round`, resolved when the round is known.
   if (s.perRound && ctx.round !== undefined && quantity.kind === 'reps') {
@@ -272,7 +281,9 @@ function compileBlock(b: Block, parent: Ctx, enclosing: { clock?: boolean; cappe
         const round: TimelineGroup = {
           kind: 'group', type: 'sequence', rounds: 1, equipment: [],
           label: `round ${i + 1} — ${reps}`,
-          items: compileNodes(children, { ...ctx, schemeReps: reps, round: i + 1 }, here),
+          items: compileNodes(children, {
+            ...ctx, schemeReps: reps, round: i + 1, scheme: b.scheme, schemeIndex: i,
+          }, here),
         };
         group.items.push(round);
       });

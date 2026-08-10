@@ -78,3 +78,45 @@ describe('corpus round two', () => {
     }
   });
 });
+
+describe('paired and pyramid rep schemes', () => {
+  const sch = (h: string) => (parse(`for time:\n  ${h}:\n    - Burpee`).workout.body[0] as Block).children[0] as any;
+
+  it('expands a run into every tier', () => {
+    eq(sch('1..10').scheme, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    eq(sch('10..1').scheme, [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]);
+  });
+
+  it('expands a pyramid through its turning point', () => {
+    // Open 22.2 is 1 up to 10 and back down, without repeating the 10.
+    eq(sch('1..10..1').scheme.length, 19);
+    eq(sch('1..10..1').scheme.slice(8, 12), [9, 10, 9, 8]);
+  });
+
+  it('leaves a non-contiguous scheme explicit in canonical output', () => {
+    for (const h of ['21-15-9', '50-40-30-20-10', '30-25-20-15-10-5', '9-7-5']) {
+      ok(format(parse(`for time:\n  ${h}:\n    - Burpee`).workout).includes(`${h}:`), h);
+    }
+  });
+
+  it('collapses a contiguous scheme to a run', () => {
+    ok(format(parse('for time:\n  10-9-8-7-6-5-4-3-2-1:\n    - Burpee').workout).includes('10..1:'));
+  });
+
+  it('gives a reversed step the mirrored tier', () => {
+    // J.J.: 1 squat clean paired with 10 push-ups, then 2 with 9.
+    const t = compile(parse('for time:\n  1..10:\n    - Squat Clean @ 185lb\n' +
+                            '    - Parallette Handstand Push-Up, reversed').workout);
+    // root -> for-time group -> ladder group -> one group per tier -> steps
+    const ladder = (t.root.items[0] as any).items[0];
+    const pair = (i: number) => ladder.items[i].items.map((s: any) => s.quantity.value);
+    eq(pair(0), [1, 10]);
+    eq(pair(1), [2, 9]);
+    eq(pair(9), [10, 1]);
+  });
+
+  it('round-trips a reversed step', () => {
+    const src = 'for time:\n  10..1:\n    - Burpee\n    - Sit-Up, reversed';
+    eq(format(parse(src).workout).trim(), src);
+  });
+});

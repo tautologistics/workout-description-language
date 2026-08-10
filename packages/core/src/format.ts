@@ -59,13 +59,26 @@ function scoreText(s: Score): string {
   return `score: ${s.raw}`;
 }
 
+/** Collapse contiguous runs of 1 into `a..b`; anything else stays explicit. */
+function formatScheme(scheme: number[]): string {
+  const points: number[] = [scheme[0]];
+  for (let i = 1; i < scheme.length; i++) {
+    const d = scheme[i] - scheme[i - 1];
+    if (Math.abs(d) !== 1) return scheme.join('-');
+    const prev = scheme[i - 1] - (points.length > 1 || i > 1 ? scheme[i - 2] ?? scheme[i - 1] : scheme[i - 1]);
+    if (i > 1 && Math.sign(d) !== Math.sign(scheme[i - 1] - scheme[i - 2])) points.push(scheme[i - 1]);
+  }
+  points.push(scheme[scheme.length - 1]);
+  return scheme.length > 3 ? points.join('..') : scheme.join('-');
+}
+
 function headerText(b: Block): string {
   let head = '';
   switch (b.type) {
     case 'repeat': head = `${b.count} ${b.flags.includes('sets') ? 'sets' : 'rounds'}`; break;
     case 'attempts': head = `${b.count} attempts`; break;
     case 'team': head = `team of ${b.count}`; break;
-    case 'ladder': head = b.scheme!.join('-'); break;
+    case 'ladder': head = formatScheme(b.scheme!); break;
     case 'amrap':
       head = b.flags.includes('for-duration') ? `for ${dur(b.duration)}` : `AMRAP ${dur(b.duration)}`.trim();
       break;
