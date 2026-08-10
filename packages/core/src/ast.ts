@@ -41,6 +41,10 @@ export interface Step {
   /** The limb noun the author used, preserved for display: arm, leg, side, hand. */
   limb?: string;
   tempo?: string;
+  /** Repeat this exact step N times — `3 Bench Press @ 80% 1RM x5`.
+   *  Percentage waves are written this way everywhere strength work is
+   *  programmed, and spelling out five identical lines is how errors get in. */
+  sets?: number;
   /** Per-round delta, e.g. `+3 each round` (spec §8.1). */
   perRound?: { delta: number; unit: string };
   team?: 'shared' | 'each' | 'synchronized';

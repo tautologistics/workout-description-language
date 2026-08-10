@@ -27,6 +27,7 @@ function stepText(s: Step): string {
 
   // Team words trail the target, since they qualify the whole prescription.
   if (s.team) out += ` ${s.team}`;
+  if (s.sets) out += ` x${s.sets}`;
 
   const quals: string[] = [];
   if (s.tempo) quals.push(`tempo ${s.tempo}`);

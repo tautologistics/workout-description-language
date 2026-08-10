@@ -11,7 +11,7 @@
  * wrong tier, or a repeat count applied at the wrong level all change a total.
  */
 
-import type { Timeline, TimelineItem } from './timeline.ts';
+import type { Timeline, TimelineItem, TimelineStep } from './timeline.ts';
 
 export interface MovementVolume {
   reps: number;
@@ -39,7 +39,20 @@ function addInto(target: MovementVolume, src: MovementVolume, times: number) {
   target.seconds += src.seconds * times;
 }
 
-export function volume(t: Timeline): Volume {
+/**
+ * Optional filter, so a caller can ask a narrower question — "only work at or
+ * above 50% of a 1RM", which is how powerlifting counts its number of lifts.
+ * Without one, everything counts.
+ */
+export type StepFilter = (step: TimelineStep) => boolean;
+
+/** True when a step carries a percentage load at or above `min`. */
+export function atOrAbove(min: number): StepFilter {
+  return (s) => s.targets.some((t) =>
+    t.kind === 'load' && t.load.kind === 'percent' && t.load.value >= min);
+}
+
+export function volume(t: Timeline, keep?: StepFilter): Volume {
   const byMovement: Record<string, MovementVolume> = {};
   const totals = zero();
   let unbounded = false;
@@ -48,6 +61,7 @@ export function volume(t: Timeline): Volume {
     if (item.kind === 'rest') return;
 
     if (item.kind === 'step') {
+      if (keep && !keep(item)) return;
       const q = item.quantity;
       const v = zero();
       switch (q.kind) {

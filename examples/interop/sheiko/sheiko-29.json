@@ -1,0 +1,78 @@
+{
+  "program": "Sheiko #29",
+  "$comment": "Prescriptions in Sheiko's own notation: percentage × reps × sets, where a missing third number means one set. Percentages are of a competition 1RM. Source: liftosaur.com/programs/sheiko-29-32. Kept verbatim so the rep totals can be derived from it independently of any WDL parsing.",
+  "competitionLifts": ["Squat", "Bench Press", "Deadlift"],
+  "days": [
+    { "id": "w1d1", "exercises": [
+      { "movement": "Bench Press", "sets": "50%x5, 60%x4, 60%x4, 70%x3, 70%x3, 80%x3x5" },
+      { "movement": "Squat", "sets": "50%x5, 60%x5, 60%x5, 70%x5x5" },
+      { "movement": "Bench Press", "sets": "50%x5, 60%x5, 70%x4x4" },
+      { "movement": "Dumbbell Bench Press", "sets": "30lbx5x10" },
+      { "movement": "Barbell Good Morning", "sets": "65lbx5x5" } ] },
+    { "id": "w1d2", "exercises": [
+      { "movement": "Halting Deadlift", "sets": "50%x3, 60%x3, 60%x3, 70%x3x4" },
+      { "movement": "Dumbbell Bench Press", "sets": "30lbx4x6" },
+      { "movement": "Skullcrusher", "sets": "40lbx5x5" },
+      { "movement": "Block Deadlift", "sets": "50%x4, 60%x4, 60%x4, 70%x4, 70%x4, 80%x2x4, 85%x4x3" },
+      { "movement": "Barbell Lunge", "sets": "45lbx5x5" } ] },
+    { "id": "w1d3", "exercises": [
+      { "movement": "Bench Press", "sets": "50%x5, 60%x5, 70%x4, 80%x2x3, 85%x2x2, 80%x2x3, 70%x4, 60%x6, 50%x8" },
+      { "movement": "Dumbbell Bench Press", "sets": "30lbx5x10" },
+      { "movement": "Squat", "sets": "50%x5, 60%x4, 60%x4, 70%x3x2, 80%x5x3" },
+      { "movement": "Barbell Good Morning", "sets": "65lbx5x5" } ] },
+    { "id": "w2d1", "exercises": [
+      { "movement": "Squat", "sets": "50%x5, 60%x4, 70%x2x3, 80%x5x2" },
+      { "movement": "Bench Press", "sets": "50%x5, 60%x4, 70%x2x3, 80%x5x3" },
+      { "movement": "Dumbbell Bench Press", "sets": "30lbx5x10" },
+      { "movement": "Skullcrusher", "sets": "40lbx5x10" },
+      { "movement": "Barbell Good Morning", "sets": "65lbx5x5" } ] },
+    { "id": "w2d2", "exercises": [
+      { "movement": "Halting Deadlift", "sets": "50%x3, 60%x3, 70%x2x3, 80%x4x2" },
+      { "movement": "Bench Press", "sets": "50%x6, 60%x2x6, 65%x4x6" },
+      { "movement": "Dumbbell Bench Press", "sets": "30lbx5x10" },
+      { "movement": "Block Deadlift", "sets": "50%x4, 60%x4, 70%x2x4, 80%x4x4" },
+      { "movement": "Barbell Lunge", "sets": "45lbx5x5" } ] },
+    { "id": "w2d3", "exercises": [
+      { "movement": "Squat", "sets": "50%x5, 60%x4, 70%x2x3, 80%x5x2" },
+      { "movement": "Bench Press", "sets": "50%x5, 60%x4, 70%x2x3, 80%x2x2, 75%x3, 65%x5, 55%x7" },
+      { "movement": "Dumbbell Bench Press", "sets": "30lbx5x10" },
+      { "movement": "Squat", "sets": "50%x5, 60%x2x5, 70%x4x4" },
+      { "movement": "Barbell Good Morning", "sets": "65lbx5x5" } ] },
+    { "id": "w3d1", "exercises": [
+      { "movement": "Squat", "sets": "50%x5, 60%x4, 70%x2x3, 80%x4x2" },
+      { "movement": "Bench Press", "sets": "50%x5, 60%x4, 70%x2x3, 80%x6x3" },
+      { "movement": "Dumbbell Bench Press", "sets": "30lbx5x10" },
+      { "movement": "Skullcrusher", "sets": "40lbx5x10" },
+      { "movement": "Squat", "sets": "50%x3, 60%x3, 70%x3, 80%x4x3" },
+      { "movement": "Barbell Good Morning", "sets": "65lbx5x5" } ] },
+    { "id": "w3d2", "exercises": [
+      { "movement": "Deficit Deadlift", "sets": "70%x2x3, 80%x2x3, 87.5%x4x3" },
+      { "movement": "Bench Press", "sets": "50%x5, 60%x4, 70%x2x3, 80%x3x2, 85%x2x2, 80%x2x3" },
+      { "movement": "Dumbbell Bench Press", "sets": "30lbx5x10" },
+      { "movement": "Block Deadlift", "sets": "60%x4, 70%x2x4, 85%x2x3, 90%x3x2" },
+      { "movement": "Barbell Lunge", "sets": "45lbx5x5" } ] },
+    { "id": "w3d3", "exercises": [
+      { "movement": "Squat", "sets": "50%x5, 60%x4, 70%x2x3, 80%x6x3" },
+      { "movement": "Bench Press", "sets": "50%x5, 60%x4, 70%x2x3, 80%x7x3" },
+      { "movement": "Dumbbell Bench Press", "sets": "30lbx5x10" },
+      { "movement": "Barbell Overhead Press", "sets": "65lbx5x4" },
+      { "movement": "Barbell Good Morning", "sets": "65lbx5x5" } ] },
+    { "id": "w4d1", "exercises": [
+      { "movement": "Squat", "sets": "50%x5, 60%x4, 70%x2x3, 80%x5x3" },
+      { "movement": "Bench Press", "sets": "50%x5, 60%x5, 70%x5x4" },
+      { "movement": "Dumbbell Bench Press", "sets": "30lbx5x10" },
+      { "movement": "Skullcrusher", "sets": "40lbx5x8" },
+      { "movement": "Barbell Good Morning", "sets": "65lbx5x5" } ] },
+    { "id": "w4d2", "exercises": [
+      { "movement": "Bench Press", "sets": "50%x5, 60%x4, 70%x2x3, 80%x2x3, 85%x3x2" },
+      { "movement": "Deadlift", "sets": "50%x3, 60%x3, 70%x2x3, 85%x2x3, 90%x3x2, 85%x3x2" },
+      { "movement": "Bench Press", "sets": "50%x5, 60%x5, 70%x4x5" },
+      { "movement": "Dumbbell Bench Press", "sets": "30lbx5x10" } ] },
+    { "id": "w4d3", "exercises": [
+      { "movement": "Squat", "sets": "50%x5, 60%x4, 70%x2x3, 80%x6x3" },
+      { "movement": "Bench Press", "sets": "50%x6, 60%x5, 70%x2x4, 80%x2x3, 85%x2x2, 80%x2x3, 70%x4, 60%x6, 50%x8" },
+      { "movement": "Dumbbell Bench Press", "sets": "30lbx5x10" },
+      { "movement": "Skullcrusher", "sets": "40lbx5x8" },
+      { "movement": "Barbell Good Morning", "sets": "65lbx5x5" } ] }
+  ]
+}

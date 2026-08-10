@@ -35,6 +35,7 @@ errors            6/6    parse-level failures report file and line
 external truth   56/56   totals checked against facts outside this codebase
 golden         190/190   interpretation of every corpus file, snapshotted
 zwo interop     42/42    38 real Zwift files: XML duration sum == compiled duration
+sheiko interop  17/17    12 Sheiko days: published number-of-lifts == parsed reps
 validation     130/130   errors, warnings, and never-guess questions
 ```
 

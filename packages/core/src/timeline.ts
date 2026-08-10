@@ -241,7 +241,9 @@ function compileNodes(nodes: Node[], ctx: Ctx, enclosing: { clock?: boolean; cap
   const out: TimelineItem[] = [];
   for (const n of nodes) {
     if (n.node === 'step') {
-      out.push(compileStep(n, ctx, enclosing));
+      const compiled = compileStep(n, ctx, enclosing);
+      // `x5` is five identical sets, expanded so totals and timelines are right.
+      for (let i = 0; i < (n.sets ?? 1); i++) out.push(compiled);
     } else if (n.node === 'rest') {
       out.push(compileRest(n));
     } else if (n.node === 'interrupt') {

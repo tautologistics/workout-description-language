@@ -103,6 +103,7 @@ class Parser {
       [/\s+(shared|synchronized|each)$/i, (m) => { step.team = m[1].toLowerCase() as any; }],
       [/\s+(alternating|alt)$/i, () => { step.laterality = 'split'; step.notes.push('alternating'); }],
       [/\s+(unbroken|building|reversed)$/i, (m) => { step.flags.push(m[1].toLowerCase()); }],
+      [/\s+x\s*(\d+)$/i, (m) => { step.sets = +m[1]; }],
     ];
     let t = text.trim(), changed = true;
     while (changed) {
@@ -137,6 +138,7 @@ class Parser {
     if (/^(shared|each|synchronized)$/i.test(t)) { step.team = t.toLowerCase() as any; return; }
     if ((m = t.match(/^note:\s*"?(.*?)"?$/i))) { step.notes.push(m[1]); return; }
     if (/^(building|unbroken|open|reversed)$/i.test(t)) { step.flags.push(t.toLowerCase()); return; }
+    if ((m = t.match(/^x\s*(\d+)$/i))) { step.sets = +m[1]; return; }
     if (/^ramp\s/i.test(t) || /^wearing\s/i.test(t)) { step.notes.push(t); return; }
 
     step.notes.push(t);

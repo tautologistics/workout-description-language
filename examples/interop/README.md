@@ -23,6 +23,22 @@ we could quietly bend to match.
 2. the same holds after a full trip out to canonical WDL text and back
 3. the imported workout validates without errors
 
+## `sheiko/` — Sheiko #29, twelve training days
+
+Source: [liftosaur.com/programs/sheiko-29-32](https://www.liftosaur.com/programs/sheiko-29-32), kept
+verbatim in [`sheiko-29.json`](sheiko/sheiko-29.json) in Sheiko's own notation — percentage × reps ×
+sets, where a missing third number means one set.
+
+The oracle here is **number of lifts**, powerlifting's standard volume measure: reps at or above 50%
+of a competition 1RM, on the competition lifts only. It is arithmetic over Sheiko's notation, done
+without touching the parser, and the counting rule is a published convention rather than one of ours.
+
+This is the strength-side check the suite was missing. Everything else in the corpus verifies reps
+and distance; percentage-based loading had no external oracle at all.
+
+Week totals come out at 243, 239, 225, and 233 competition lifts, against Sheiko's documented
+200–400 per week.
+
 ## Wanted
 
 Other formats that publish a checkable summary alongside the workout:
@@ -30,4 +46,3 @@ Other formats that publish a checkable summary alongside the workout:
 - `.erg` / `.mrc` — time/power tables; total duration and work are both derivable
 - Garmin FIT workout files — step counts and durations, and a binary format worth proving against
 - intervals.icu text workouts — durations and training load, and a text format to compare notation against
-- Structured strength programs that publish per-session tonnage (Sheiko is the classic)

@@ -1,6 +1,6 @@
 {
  "$comment": "Movement registry seed. Only id and title are required; everything else is advisory (movement_registry_design.md \u00a72). Classification data serves balance analysis only.",
- "version": "2026.4",
+ "version": "2026.5",
  "movements": [
   {
    "id": "3-4-sit-up",
@@ -881,6 +881,25 @@
    "source": "free-exercise-db"
   },
   {
+   "id": "barbell-good-morning",
+   "title": "Barbell Good Morning",
+   "implements": 1,
+   "load": "total",
+   "pattern": [
+    "hinge"
+   ],
+   "muscles": {
+    "primary": [
+     "hamstrings",
+     "erectors",
+     "glutes"
+    ]
+   },
+   "related": [
+    "deadlift"
+   ]
+  },
+  {
    "id": "barbell-guillotine-bench-press",
    "title": "Barbell Guillotine Bench Press",
    "equipment": "barbell",
@@ -982,6 +1001,18 @@
    "force": "push",
    "mechanic": "compound",
    "source": "free-exercise-db"
+  },
+  {
+   "id": "barbell-overhead-press",
+   "title": "Barbell Overhead Press",
+   "implements": 1,
+   "load": "total",
+   "pattern": [
+    "vertical-push"
+   ],
+   "related": [
+    "shoulder-press"
+   ]
   },
   {
    "id": "barbell-rear-delt-row",
@@ -1614,6 +1645,21 @@
    ],
    "pattern": [
     "locomotion"
+   ]
+  },
+  {
+   "id": "block-deadlift",
+   "title": "Block Deadlift",
+   "aliases": [
+    "rack pull"
+   ],
+   "implements": 1,
+   "load": "total",
+   "pattern": [
+    "hinge"
+   ],
+   "related": [
+    "deadlift"
    ]
   },
   {
@@ -5427,6 +5473,18 @@
    "force": "push",
    "mechanic": "compound",
    "source": "free-exercise-db"
+  },
+  {
+   "id": "halting-deadlift",
+   "title": "Halting Deadlift",
+   "implements": 1,
+   "load": "total",
+   "pattern": [
+    "hinge"
+   ],
+   "related": [
+    "deadlift"
+   ]
   },
   {
    "id": "hammer-curls",
@@ -11952,6 +12010,23 @@
     "vertical-pull",
     "core"
    ]
+  },
+  {
+   "id": "skullcrusher",
+   "title": "Skullcrusher",
+   "aliases": [
+    "lying triceps extension"
+   ],
+   "implements": 1,
+   "load": "total",
+   "pattern": [
+    "elbow-extension"
+   ],
+   "muscles": {
+    "primary": [
+     "triceps"
+    ]
+   }
   },
   {
    "id": "sled-drag-harness",

@@ -89,6 +89,16 @@ Units never convert silently. A file written in `kg` stays in `kg`; display conv
 
 Shape: `- <quantity> <Movement> [<inline qualifier>]* [@ <target>]* [, <qualifier>]*`
 
+**`xN` repeats a step.** Percentage waves are written this way everywhere strength work is programmed — Sheiko's own notation is `80%x3x5`, five sets of three at eighty percent — and spelling out five identical lines is how transcription errors get in:
+
+```wdl
+strength:
+  - 5 Bench Press @ 50% 1RM
+  - 4 Bench Press @ 60% 1RM x2
+  - 3 Bench Press @ 70% 1RM x2
+  - 3 Bench Press @ 80% 1RM x5
+```
+
 **Laterality and side attach to the movement and precede the target**; team words trail it, because they qualify the whole prescription:
 
 ```
