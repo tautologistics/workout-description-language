@@ -137,8 +137,20 @@ function mergeTargets(own: Target[], inherited: Target[]): Target[] {
   return [...own, ...inherited.filter((t) => !has(t.kind))];
 }
 
+/** Turn a scheme tier into a quantity of the scheme's declared unit. */
+function schemeQuantity(value: number, unit?: string): Unit {
+  switch (unit) {
+    case undefined: case 'reps': return { kind: 'reps', value };
+    case 'cal': return { kind: 'calories', value };
+    case 's': return { kind: 'duration', seconds: value };
+    case 'min': return { kind: 'duration', seconds: value * 60 };
+    default: return { kind: 'distance', value, unit: unit as any };
+  }
+}
+
 interface Ctx {
   inherited: Target[];
+  schemeUnit?: string;
   /** The enclosing rep scheme, so a `reversed` step can index from the far end. */
   scheme?: number[];
   schemeIndex?: number;
@@ -160,7 +172,7 @@ function compileStep(s: Step, ctx: Ctx, pacing: Pacing, seconds?: number): Timel
     const value = reversed && ctx.scheme && ctx.schemeIndex !== undefined
       ? ctx.scheme[ctx.scheme.length - 1 - ctx.schemeIndex]
       : ctx.schemeReps;
-    quantity = { kind: 'reps', value };
+    quantity = schemeQuantity(value, ctx.schemeUnit);
   }
   // `+N each round`, resolved when the round is known.
   if (s.perRound && ctx.round !== undefined && quantity.kind === 'reps') {
@@ -276,13 +288,14 @@ function compileBlock(b: Block, parent: Ctx, enclosing: { clock?: boolean; cappe
     case 'ladder': {
       // A rep scheme is sugar: expand it into one explicit round per tier.
       group.type = 'sequence';
-      group.label = b.scheme!.join('-');
+      group.label = b.scheme!.join('-') + (b.schemeUnit ? ' ' + b.schemeUnit : '');
       b.scheme!.forEach((reps, i) => {
         const round: TimelineGroup = {
           kind: 'group', type: 'sequence', rounds: 1, equipment: [],
           label: `round ${i + 1} — ${reps}`,
           items: compileNodes(children, {
             ...ctx, schemeReps: reps, round: i + 1, scheme: b.scheme, schemeIndex: i,
+            schemeUnit: b.schemeUnit,
           }, here),
         };
         group.items.push(round);

@@ -201,6 +201,12 @@ class Parser {
       block.type = 'attempts'; block.count = +m[1];
     } else if ((m = head.match(/^team\s+of\s+(\d+)$/i))) {
       block.type = 'team'; block.count = +m[1];
+    } else if ((m = head.match(/^(\d+(?:(?:\.\.|-)\d+)+)\s+(m|km|mi|ft|yd|s|min|cal)$/i))) {
+      // A scheme may count something other than reps: `1..5..1 min:` is the
+      // interval pyramid, `250-500-750 m:` the rowing one.
+      block.type = 'ladder';
+      block.scheme = m[1].includes('..') ? expandRuns(m[1].split('..').map(Number)) : m[1].split('-').map(Number);
+      block.schemeUnit = m[2].toLowerCase();
     } else if (/^\d+(\.\.\d+)+$/.test(head)) {
       // `1..10`, `10..1`, `1..10..1` — a run, expanded. Ten-tier schemes are
       // common enough that spelling every number out is its own error source.

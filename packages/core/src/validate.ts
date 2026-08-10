@@ -212,9 +212,11 @@ export function validate(w: Workout, opts: ValidateOptions = {}): Diagnostic[] {
 
   const top = w.score?.primary ?? '';
   if (/rounds/.test(top)) {
-    const openEnded = w.body.some((n) =>
-      n.node === 'block' && (n.type === 'amrap' || n.type === 'clock'));
-    if (!openEnded) {
+    // The open-ended block may be nested — `3 rounds: AMRAP 5min: … rest 5min`
+    // scores rounds+reps per interval, so search the whole tree, not just the top.
+    const openEnded = (nodes: Node[]): boolean => nodes.some((n) =>
+      n.node === 'block' && (n.type === 'amrap' || n.type === 'clock' || openEnded(n.children)));
+    if (!openEnded(w.body)) {
       add({ severity: 'error', code: 'rounds-score-on-fixed-work',
             message: '`rounds + reps` needs an open-ended block; this workout has none' });
     }

@@ -117,3 +117,18 @@ describe('validation: corpus', () => {
     });
   }
 });
+
+describe('validation: nesting', () => {
+  it('finds an open-ended block however deeply it is nested', () => {
+    // `3 rounds: AMRAP 5min: … rest 5min` scores rounds+reps per interval.
+    // Searching only the top level wrongly rejected it.
+    const src = '3 rounds:\n  AMRAP 5min:\n    - 10 Wall Ball @ 20lb\n  rest 5min\n' +
+                'score: rounds + reps per round';
+    eq(codes(src).includes('rounds-score-on-fixed-work'), false);
+  });
+
+  it('still rejects a rounds score with no open-ended block anywhere', () => {
+    ok(codes('3 rounds:\n  5 sets:\n    - 10 Burpee\nscore: rounds + reps')
+      .includes('rounds-score-on-fixed-work'));
+  });
+});

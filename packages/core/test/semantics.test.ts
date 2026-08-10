@@ -120,11 +120,12 @@ describe('prescriptions', () => {
        { kind: 'load', load: { kind: 'percent', value: 85, of: 'heavy-single' } });
   });
 
-  it('the rowing pyramid rests for as long as the work took', () => {
-    const seq = b(load('36-rowing-pyramid.wdl').body[0]);
-    const rests = seq.children.filter((c) => c.node === 'rest') as Rest[];
-    eq(rests.length, 6);
-    ok(rests.every((r) => r.dynamic === 'equal-to-work'), 'every rest is dynamic');
+  it('the rowing pyramid is a distance scheme with dynamic rest', () => {
+    const ladder = b(load('36-rowing-pyramid.wdl').body[0]);
+    eq(ladder.type, 'ladder');
+    eq(ladder.scheme, [250, 500, 750, 1000, 750, 500, 250]);
+    eq(ladder.schemeUnit, 'm');
+    eq((ladder.children[1] as Rest).dynamic, 'equal-to-work');
   });
 
   it('Hyrox carries two implements, not one', () => {

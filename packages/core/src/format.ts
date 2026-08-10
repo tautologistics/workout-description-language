@@ -78,7 +78,7 @@ function headerText(b: Block): string {
     case 'repeat': head = `${b.count} ${b.flags.includes('sets') ? 'sets' : 'rounds'}`; break;
     case 'attempts': head = `${b.count} attempts`; break;
     case 'team': head = `team of ${b.count}`; break;
-    case 'ladder': head = formatScheme(b.scheme!); break;
+    case 'ladder': head = formatScheme(b.scheme!) + (b.schemeUnit ? ` ${b.schemeUnit}` : ''); break;
     case 'amrap':
       head = b.flags.includes('for-duration') ? `for ${dur(b.duration)}` : `AMRAP ${dur(b.duration)}`.trim();
       break;

@@ -120,3 +120,30 @@ describe('paired and pyramid rep schemes', () => {
     eq(format(parse(src).workout).trim(), src);
   });
 });
+
+describe('scheme units', () => {
+  const ladder = (h: string) => (parse(`sequence:\n  ${h}:\n    - Row`).workout.body[0] as Block).children[0] as any;
+
+  it('counts reps unless the scheme says otherwise', () => {
+    eq(ladder('21-15-9').schemeUnit, undefined);
+  });
+
+  it('accepts distance, duration, and calorie schemes', () => {
+    eq(ladder('250-500-750 m').schemeUnit, 'm');
+    eq(ladder('1..5..1 min').schemeUnit, 'min');
+    eq(ladder('10-20-30 cal').schemeUnit, 'cal');
+  });
+
+  it('builds the right quantity for each tier', () => {
+    const t = compile(parse('1..3 min:\n  - Run').workout);
+    const rounds = (t.root.items[0] as any).items;
+    eq(rounds.map((r: any) => r.items[0].quantity),
+       [60, 120, 180].map((seconds) => ({ kind: 'duration', seconds })));
+  });
+
+  it('round-trips a scheme unit', () => {
+    for (const src of ['250-500-750 m:\n  - Row', '1..5..1 min:\n  - Run']) {
+      eq(format(parse(src).workout).trim(), src);
+    }
+  });
+});

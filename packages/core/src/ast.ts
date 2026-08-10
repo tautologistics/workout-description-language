@@ -82,6 +82,8 @@ export interface Block {
   count?: number;
   /** ladder rep scheme */
   scheme?: number[];
+  /** What the scheme's numbers are. Reps unless stated — `1..5..1 min:`. */
+  schemeUnit?: string;
   /** amrap/clock/build window */
   duration?: Unit;
   /** clock cadence */
