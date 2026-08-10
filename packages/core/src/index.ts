@@ -10,3 +10,5 @@ export {
 export { Registry, fold, foldTokens, depluralize, type MovementEntry, type Resolution } from './fold.ts';
 export { defaultRegistry } from './registry.ts';
 export { validate, errorsOnly, type Diagnostic, type ValidateOptions } from './validate.ts';
+export { importZwo, zwoDurationSeconds } from './adapters/zwo.ts';
+export { volume, repsOf, type Volume } from './volume.ts';

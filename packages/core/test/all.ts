@@ -11,5 +11,6 @@ import './errors.test.ts';
 import './validate.test.ts';
 import './truth.test.ts';
 import './golden.test.ts';
+import './interop.test.ts';
 import { report } from './lib.ts';
 process.exit(report());
