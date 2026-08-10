@@ -31,17 +31,27 @@ FIT workout steps, Zwift `.zwo` elements, and WorkoutKit interval blocks are all
 
 ## Tests
 
-`npm test` runs six suites through one runner ([`test/all.ts`](test/all.ts)).
+`npm test` runs everything through one runner ([`test/all.ts`](test/all.ts)). The suites are
+layered by how much they actually prove:
 
-The distinction that matters: **round-tripping proves the parser and formatter agree with each
-other, not that either is right.** A workout could parse into the wrong AST and still round-trip
-perfectly. [`semantics.test.ts`](test/semantics.test.ts) is the correctness layer — it asserts
-that Fran's scheme is `[21,15,9]`, that Kalsu is an interrupt rather than a sequence, that Murph
-holds a tally block, that Fight Gone Bad measures calories on a duration-completed step.
+| Layer | What it proves | What it does **not** |
+|---|---|---|
+| Round-trip, idempotence ([corpus](test/corpus.test.ts)) | parser and formatter agree with each other | that either is right — a workout misread the same way twice still passes |
+| Validation ([validate](test/validate.test.ts)) | no rule of ours fires | anything about rules we did not write |
+| Semantics ([semantics](test/semantics.test.ts)) | specific ASTs match what the workout means | only ~25 workouts are asserted by hand |
+| **External truth** ([truth](test/truth.test.ts)) | **totals match facts that exist outside this codebase** | — |
+| Golden ([golden](test/golden.test.ts)) | interpretation has not *changed* | that the recorded interpretation was right to begin with |
 
-[`errors.test.ts`](test/errors.test.ts) also records **pending** cases: checks the suite
-acknowledges but does not yet enforce, so that missing validation stays visible instead of being
-implied as covered by silence.
+The external-truth layer is the one that answers "how do you know it's correct." Fran contains 45
+thrusters, Linda 55 reps of each lift, Open 22.2 exactly 100 deadlifts, Fight Gone Bad 17 minutes,
+a Hyrox race 8 km of running. Those are facts about the workouts, not about this parser, and any
+misread rep scheme, off-by-one in a ladder, wrong `reversed` tier, or repeat applied at the wrong
+level changes the number. [`volume.ts`](src/volume.ts) derives the totals; `truth.test.ts` checks
+them against the outside world.
+
+The golden snapshot ([`test/golden/interpretations.json`](test/golden/interpretations.json))
+records a compact digest of how each of the 190 files is understood — structure, totals, pacing,
+duration. Regenerate it deliberately with `node test/golden/generate.ts` and read the diff.
 
 ## Not yet built
 

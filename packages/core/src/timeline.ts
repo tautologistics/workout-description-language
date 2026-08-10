@@ -161,7 +161,7 @@ interface Ctx {
   warnings: string[];
 }
 
-function compileStep(s: Step, ctx: Ctx, pacing: Pacing, seconds?: number): TimelineStep {
+function compileStep(s: Step, ctx: Ctx, enclosing: { clock?: boolean; capped?: boolean }): TimelineStep {
   let quantity = s.quantity;
 
   // A rep scheme supplies the count for steps that don't carry their own.
@@ -178,6 +178,11 @@ function compileStep(s: Step, ctx: Ctx, pacing: Pacing, seconds?: number): Timel
   if (s.perRound && ctx.round !== undefined && quantity.kind === 'reps') {
     quantity = { kind: 'reps', value: quantity.value + s.perRound.delta * (ctx.round - 1) };
   }
+
+  // Pacing and duration follow the resolved quantity: `1..5..1 min:` makes an
+  // otherwise open step a timed one, and the scheme is only known here.
+  const pacing = pacingFor(quantity, enclosing);
+  const seconds = quantity.kind === 'duration' ? quantity.seconds : undefined;
 
   const targets = mergeTargets(s.targets, ctx.inherited);
   const parts = [quantityLabel(quantity), s.movement].filter(Boolean);
@@ -236,8 +241,7 @@ function compileNodes(nodes: Node[], ctx: Ctx, enclosing: { clock?: boolean; cap
   const out: TimelineItem[] = [];
   for (const n of nodes) {
     if (n.node === 'step') {
-      const secs = n.quantity.kind === 'duration' ? n.quantity.seconds : undefined;
-      out.push(compileStep(n, ctx, pacingFor(n.quantity, enclosing), secs));
+      out.push(compileStep(n, ctx, enclosing));
     } else if (n.node === 'rest') {
       out.push(compileRest(n));
     } else if (n.node === 'interrupt') {

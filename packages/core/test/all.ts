@@ -9,5 +9,7 @@ import './timeline.test.ts';
 import './accepted.test.ts';
 import './errors.test.ts';
 import './validate.test.ts';
+import './truth.test.ts';
+import './golden.test.ts';
 import { report } from './lib.ts';
 process.exit(report());

@@ -1,0 +1,5763 @@
+{
+ "01-5-5-back-squat.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 25,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Back Squat": [
+    25,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "02-partner-amrap.wdl": {
+  "errors": [],
+  "shape": "sequence[team[amrap@1200s[step,step,step]]]",
+  "seconds": 1200,
+  "pacing": {
+   "capped": 3
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "03-one-mile-run.wdl": {
+  "errors": [],
+  "shape": "sequence[step]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 1609.34,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    1609.34,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "04-fran.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 6
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 90,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Thruster": [
+    45,
+    0,
+    0,
+    0
+   ],
+   "Pull-Up": [
+    45,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "05-cindy.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@1200s[step,step,step]]",
+  "seconds": 1200,
+  "pacing": {
+   "capped": 3
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "06-grace.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 30,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Clean & Jerk": [
+    30,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "07-helen.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx3[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 99,
+   "distanceM": 1200,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    1200,
+    0,
+    0
+   ],
+   "KB Swing": [
+    63,
+    0,
+    0,
+    0
+   ],
+   "Pull-Up": [
+    36,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "08-annie.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 10
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 300,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Double-Under": [
+    150,
+    0,
+    0,
+    0
+   ],
+   "Sit-Up": [
+    150,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "09-barbara.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,step,step,step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 700,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Pull-Up": [
+    100,
+    0,
+    0,
+    0
+   ],
+   "Push-Up": [
+    150,
+    0,
+    0,
+    0
+   ],
+   "Sit-Up": [
+    200,
+    0,
+    0,
+    0
+   ],
+   "Air Squat": [
+    250,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "10-chelsea.wdl": {
+  "errors": [],
+  "shape": "sequence[clockx30@1800s[step,step,step]]",
+  "seconds": 1800,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 900,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Pull-Up": [
+    150,
+    0,
+    0,
+    0
+   ],
+   "Push-Up": [
+    300,
+    0,
+    0,
+    0
+   ],
+   "Air Squat": [
+    450,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "100-sweet-spot-bike.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,repeatx3[step,step],step]]",
+  "seconds": 6000,
+  "pacing": {
+   "timed": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 6000
+  },
+  "movements": {
+   "Bike": [
+    0,
+    0,
+    0,
+    6000
+   ]
+  },
+  "warnings": 0
+ },
+ "101-over-unders.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,repeatx4[repeatx3[step,step],rest],step]]",
+  "seconds": 4260,
+  "pacing": {
+   "timed": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 3360
+  },
+  "movements": {
+   "Bike": [
+    0,
+    0,
+    0,
+    3360
+   ]
+  },
+  "warnings": 0
+ },
+ "102-brick.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 45000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Bike": [
+    0,
+    40000,
+    0,
+    0
+   ],
+   "Run": [
+    0,
+    5000,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "103-tempo-run.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 12000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    12000,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "104-navy-seal-pst.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,rest,step,rest,step,rest,step,rest,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3,
+   "timed": 2
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 2871.22,
+   "calories": 0,
+   "seconds": 240
+  },
+  "movements": {
+   "Swim": [
+    0,
+    457.2,
+    0,
+    0
+   ],
+   "Push-Up": [
+    0,
+    0,
+    0,
+    120
+   ],
+   "Sit-Up": [
+    0,
+    0,
+    0,
+    120
+   ],
+   "Run": [
+    0,
+    2414.02,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "105-acft.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 4,
+   "timed": 1
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 3,
+   "distanceM": 3468.69,
+   "calories": 0,
+   "seconds": 120
+  },
+  "movements": {
+   "Deadlift": [
+    3,
+    0,
+    0,
+    0
+   ],
+   "Hand-Release Push-Up": [
+    0,
+    0,
+    0,
+    120
+   ],
+   "Sprint-Drag-Carry": [
+    0,
+    250,
+    0,
+    0
+   ],
+   "Run": [
+    0,
+    3218.69,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "106-fgb-style-test.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx1[step,step,step,step]]",
+  "seconds": 240,
+  "pacing": {
+   "timed": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 240
+  },
+  "movements": {
+   "Burpee": [
+    0,
+    0,
+    0,
+    60
+   ],
+   "Wall Ball": [
+    0,
+    0,
+    0,
+    60
+   ],
+   "Row": [
+    0,
+    0,
+    0,
+    60
+   ],
+   "Double-Under": [
+    0,
+    0,
+    0,
+    60
+   ]
+  },
+  "warnings": 0
+ },
+ "107-strongman-medley.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx4[step,step,step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 12,
+   "distanceM": 121.92,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Yoke Carry": [
+    0,
+    60.96,
+    0,
+    0
+   ],
+   "Farmers Carry": [
+    0,
+    60.96,
+    0,
+    0
+   ],
+   "Atlas Stone to Shoulder": [
+    12,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "108-tire-and-sled.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,step,step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 150,
+   "distanceM": 152.4,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Tire Flip": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "Sled Push": [
+    0,
+    152.4,
+    0,
+    0
+   ],
+   "Sledgehammer Strike": [
+    100,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "109-log-press-emom.wdl": {
+  "errors": [],
+  "shape": "sequence[clockx12@720s[sequence[step],sequence[step]]]",
+  "seconds": 720,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 36,
+   "distanceM": 146.3,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Log Press": [
+    36,
+    0,
+    0,
+    0
+   ],
+   "Sandbag Carry": [
+    0,
+    146.3,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "11-mary.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@1200s[step,step,step]]",
+  "seconds": 1200,
+  "pacing": {
+   "capped": 3
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "110-deck-of-cards.wdl": {
+  "errors": [],
+  "shape": "sequence[tally[step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 520,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Burpee": [
+    130,
+    0,
+    0,
+    0
+   ],
+   "Push-Up": [
+    130,
+    0,
+    0,
+    0
+   ],
+   "Air Squat": [
+    130,
+    0,
+    0,
+    0
+   ],
+   "Sit-Up": [
+    130,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 1
+ },
+ "111-open-22-2.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
+  "seconds": 600,
+  "pacing": {
+   "capped": 38
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 200,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Deadlift": [
+    100,
+    0,
+    0,
+    0
+   ],
+   "Bar-Facing Burpee": [
+    100,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "112-the-ladder.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 20
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 110,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Burpee": [
+    55,
+    0,
+    0,
+    0
+   ],
+   "Sit-Up": [
+    55,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "113-king-kb-ladder.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 20
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 110,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "KB Snatch": [
+    55,
+    0,
+    0,
+    0
+   ],
+   "Burpee Box Jump-Over": [
+    55,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "114-pyramid-intervals.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,sequence[sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest]],step]]",
+  "seconds": 3780,
+  "pacing": {
+   "timed": 11
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 2700
+  },
+  "movements": {
+   "Run": [
+    0,
+    0,
+    0,
+    2700
+   ]
+  },
+  "warnings": 0
+ },
+ "115-randy.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 75,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Power Snatch": [
+    75,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "116-tommy-v.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 6
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 45,
+   "distanceM": 13.72,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Thruster": [
+    45,
+    0,
+    0,
+    0
+   ],
+   "Rope Climb": [
+    0,
+    13.72,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "117-the-seven.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx7[step,step,step,step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 7
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 343,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Handstand Push-Up": [
+    49,
+    0,
+    0,
+    0
+   ],
+   "Thruster": [
+    49,
+    0,
+    0,
+    0
+   ],
+   "Knees-to-Elbow": [
+    49,
+    0,
+    0,
+    0
+   ],
+   "Deadlift": [
+    49,
+    0,
+    0,
+    0
+   ],
+   "Burpee": [
+    49,
+    0,
+    0,
+    0
+   ],
+   "KB Swing": [
+    49,
+    0,
+    0,
+    0
+   ],
+   "Pull-Up": [
+    49,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "118-wittman.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx7[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 315,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "KB Swing": [
+    105,
+    0,
+    0,
+    0
+   ],
+   "Power Clean": [
+    105,
+    0,
+    0,
+    0
+   ],
+   "Box Jump": [
+    105,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "119-glen.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 5
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 140,
+   "distanceM": 3218.69,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Clean & Jerk": [
+    30,
+    0,
+    0,
+    0
+   ],
+   "Run": [
+    0,
+    3218.69,
+    0,
+    0
+   ],
+   "Rope Climb": [
+    10,
+    0,
+    0,
+    0
+   ],
+   "Burpee": [
+    100,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "12-dt.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 135,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Deadlift": [
+    60,
+    0,
+    0,
+    0
+   ],
+   "Hang Power Clean": [
+    45,
+    0,
+    0,
+    0
+   ],
+   "Push Jerk": [
+    30,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "120-blake.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx4[step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 240,
+   "distanceM": 121.92,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Walking Lunge": [
+    0,
+    121.92,
+    0,
+    0
+   ],
+   "Box Jump": [
+    120,
+    0,
+    0,
+    0
+   ],
+   "Wall Ball": [
+    80,
+    0,
+    0,
+    0
+   ],
+   "Handstand Push-Up": [
+    40,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "121-white.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 170,
+   "distanceM": 2000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Rope Climb": [
+    15,
+    0,
+    0,
+    0
+   ],
+   "Toes-to-Bar": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "Walking Lunge": [
+    105,
+    0,
+    0,
+    0
+   ],
+   "Run": [
+    0,
+    2000,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "122-hansen.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 450,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "KB Swing": [
+    150,
+    0,
+    0,
+    0
+   ],
+   "Burpee": [
+    150,
+    0,
+    0,
+    0
+   ],
+   "GHD Sit-Up": [
+    150,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "123-mcghee.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@1800s[step,step,step]]",
+  "seconds": 1800,
+  "pacing": {
+   "capped": 3
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "124-badger.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx3[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 180,
+   "distanceM": 2400,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Squat Clean": [
+    90,
+    0,
+    0,
+    0
+   ],
+   "Pull-Up": [
+    90,
+    0,
+    0,
+    0
+   ],
+   "Run": [
+    0,
+    2400,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "125-joshie.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx3[step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 126,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "DB Snatch": [
+    63,
+    0,
+    0,
+    0
+   ],
+   "L-Pull-Up": [
+    63,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "126-jason.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step],sequencex1[step],sequencex1[step],sequencex1[step]],step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 5
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 255,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Air Squat": [
+    250,
+    0,
+    0,
+    0
+   ],
+   "Muscle-Up": [
+    5,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "127-rankel.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@1200s[step,step,step,step]]",
+  "seconds": 1200,
+  "pacing": {
+   "capped": 4
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "128-ricky.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 125,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Pull-Up": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "Handstand Push-Up": [
+    25,
+    0,
+    0,
+    0
+   ],
+   "DB Snatch": [
+    50,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "129-collin.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx6[step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 216,
+   "distanceM": 2400,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Sandbag Carry": [
+    0,
+    2400,
+    0,
+    0
+   ],
+   "Push Press": [
+    72,
+    0,
+    0,
+    0
+   ],
+   "Box Jump": [
+    72,
+    0,
+    0,
+    0
+   ],
+   "Sumo Deadlift High-Pull": [
+    72,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "13-filthy-fifty.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step,step,step,step,step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 10
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 500,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Box Jump": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "Jumping Pull-Up": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "KB Swing": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "Walking Lunge": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "Knees-to-Elbow": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "Push Press": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "Back Extension": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "Wall Ball": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "Burpee": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "Double-Under": [
+    50,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "130-tk.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@1200s[step,step,step]]",
+  "seconds": 1200,
+  "pacing": {
+   "capped": 3
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "131-luce.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx3[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 330,
+   "distanceM": 3000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    3000,
+    0,
+    0
+   ],
+   "Muscle-Up": [
+    30,
+    0,
+    0,
+    0
+   ],
+   "Air Squat": [
+    300,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "132-war-frank.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx3[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 480,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Muscle-Up": [
+    75,
+    0,
+    0,
+    0
+   ],
+   "Air Squat": [
+    300,
+    0,
+    0,
+    0
+   ],
+   "GHD Sit-Up": [
+    105,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "133-adrian.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx7[step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 168,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Forward Roll": [
+    21,
+    0,
+    0,
+    0
+   ],
+   "Wall Climb": [
+    35,
+    0,
+    0,
+    0
+   ],
+   "Toes-to-Bar": [
+    49,
+    0,
+    0,
+    0
+   ],
+   "Box Jump": [
+    63,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "134-bert.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step,step,step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 8
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 500,
+   "distanceM": 1600,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Burpee": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "Run": [
+    0,
+    1600,
+    0,
+    0
+   ],
+   "Push-Up": [
+    100,
+    0,
+    0,
+    0
+   ],
+   "Walking Lunge": [
+    150,
+    0,
+    0,
+    0
+   ],
+   "Air Squat": [
+    200,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "135-open-11-1.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@600s[step,step]]",
+  "seconds": 600,
+  "pacing": {
+   "capped": 2
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "136-open-12-1.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@420s[step]]",
+  "seconds": 420,
+  "pacing": {
+   "timed": 1
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "137-open-13-1.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@1020s[step,step,step,step,step,step,step,step]]",
+  "seconds": 1020,
+  "pacing": {
+   "capped": 7,
+   "timed": 1
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "138-open-14-4.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@840s[step,step,step,step,step]]",
+  "seconds": 840,
+  "pacing": {
+   "capped": 5
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "139-open-15-5.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step],sequencex1[step],sequencex1[step],sequencex1[step]],step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 5
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 27,
+   "distanceM": 0,
+   "calories": 72,
+   "seconds": 0
+  },
+  "movements": {
+   "Row": [
+    0,
+    0,
+    72,
+    0
+   ],
+   "Thruster": [
+    27,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "14-murph.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,tally[step,step,step],step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 5
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 600,
+   "distanceM": 3218.69,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    3218.69,
+    0,
+    0
+   ],
+   "Pull-Up": [
+    100,
+    0,
+    0,
+    0
+   ],
+   "Push-Up": [
+    200,
+    0,
+    0,
+    0
+   ],
+   "Air Squat": [
+    300,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 1
+ },
+ "140-open-16-1.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@1200s[step,step,step,step]]",
+  "seconds": 1200,
+  "pacing": {
+   "capped": 4
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "141-open-17-1.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step],sequencex1[step],sequencex1[step],sequencex1[step],sequencex1[step]],step]]",
+  "seconds": 1200,
+  "pacing": {
+   "capped": 6
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 165,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "DB Snatch": [
+    150,
+    0,
+    0,
+    0
+   ],
+   "Burpee Box Jump-Over": [
+    15,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "142-open-18-1.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@1200s[step,step,step]]",
+  "seconds": 1200,
+  "pacing": {
+   "capped": 3
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "143-open-19-1.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@900s[step,step]]",
+  "seconds": 900,
+  "pacing": {
+   "capped": 2
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "144-open-20-1.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx10[step,step]]",
+  "seconds": 900,
+  "pacing": {
+   "capped": 2
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 180,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Ground-to-Overhead": [
+    80,
+    0,
+    0,
+    0
+   ],
+   "Bar-Facing Burpee": [
+    100,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "145-open-21-1.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step],sequencex1[step],sequencex1[step],sequencex1[step],sequencex1[step]],step]]",
+  "seconds": 900,
+  "pacing": {
+   "capped": 6
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 25,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Wall Walk": [
+    15,
+    0,
+    0,
+    0
+   ],
+   "Double-Under": [
+    10,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "146-open-23-1.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@840s[step,step,step,step,step]]",
+  "seconds": 840,
+  "pacing": {
+   "capped": 5
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "147-oly-complex.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[sequence[step,step,step],rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 20,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Power Clean": [
+    5,
+    0,
+    0,
+    0
+   ],
+   "Front Squat": [
+    10,
+    0,
+    0,
+    0
+   ],
+   "Push Jerk": [
+    5,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "148-snatch-technique.wdl": {
+  "errors": [],
+  "shape": "sequence[clockx8[step]]",
+  "seconds": 720,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 16,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Squat Snatch": [
+    16,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "149-powerlifting-meet.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[attemptsx3[step],attemptsx3[step],attemptsx3[step]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 9,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Back Squat": [
+    3,
+    0,
+    0,
+    0
+   ],
+   "Bench Press": [
+    3,
+    0,
+    0,
+    0
+   ],
+   "Deadlift": [
+    3,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "15-linda.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step,step,step],sequencex1[step,step,step],sequencex1[step,step,step],sequencex1[step,step,step],sequencex1[step,step,step],sequencex1[step,step,step],sequencex1[step,step,step],sequencex1[step,step,step],sequencex1[step,step,step],sequencex1[step,step,step]]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 30
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 165,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Deadlift": [
+    55,
+    0,
+    0,
+    0
+   ],
+   "Bench Press": [
+    55,
+    0,
+    0,
+    0
+   ],
+   "Clean": [
+    55,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "150-smolov-base.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[repeatx4[step,rest]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 36,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Back Squat": [
+    36,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "151-gzclp-t1.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[repeatx5[step,rest],step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 18,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Back Squat": [
+    18,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "152-pause-squat.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 15,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Back Squat": [
+    15,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "153-drop-set.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 16,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Bench Press": [
+    16,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "154-wendler-joker.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 5
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 11,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Deadlift": [
+    11,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "155-simple-and-sinister.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[repeatx10[step,rest],repeatx5[step,rest]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 125,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "KB Swing": [
+    100,
+    0,
+    0,
+    0
+   ],
+   "Turkish Get-Up": [
+    25,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "156-kb-abc.wdl": {
+  "errors": [],
+  "shape": "sequence[clockx20[sequence[step,step,step]]]",
+  "seconds": 1200,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 120,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "KB Clean": [
+    40,
+    0,
+    0,
+    0
+   ],
+   "KB Press": [
+    20,
+    0,
+    0,
+    0
+   ],
+   "Front Squat": [
+    60,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "157-kb-snatch-test.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@600s[step]]",
+  "seconds": 600,
+  "pacing": {
+   "timed": 1
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "158-fartlek.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,repeatx10[step,step],step]]",
+  "seconds": 3000,
+  "pacing": {
+   "timed": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 3000
+  },
+  "movements": {
+   "Run": [
+    0,
+    0,
+    0,
+    3000
+   ]
+  },
+  "warnings": 0
+ },
+ "159-progression-run.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 9000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    9000,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "16-bear-complex.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[repeatx7[step,step,step,step,step]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 5
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 175,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Power Clean": [
+    35,
+    0,
+    0,
+    0
+   ],
+   "Front Squat": [
+    35,
+    0,
+    0,
+    0
+   ],
+   "Push Press": [
+    70,
+    0,
+    0,
+    0
+   ],
+   "Back Squat": [
+    35,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "160-track-1000s.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 5000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    5000,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "161-descending-row-ladder.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 5
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 1500,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Row": [
+    0,
+    1500,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "162-c2-30min.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@1800s[step]]",
+  "seconds": 1800,
+  "pacing": {
+   "timed": 1
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "163-bike-sprints.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx10[step,rest]]",
+  "seconds": 2730,
+  "pacing": {
+   "timed": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 300
+  },
+  "movements": {
+   "Bike": [
+    0,
+    0,
+    0,
+    300
+   ]
+  },
+  "warnings": 0
+ },
+ "164-swim-descend.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,repeatx4[step,rest],step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 800,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Swim": [
+    0,
+    800,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "165-triathlon-brick.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 51500,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Swim": [
+    0,
+    1500,
+    0,
+    0
+   ],
+   "Bike": [
+    0,
+    40000,
+    0,
+    0
+   ],
+   "Run": [
+    0,
+    10000,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "166-tempo-intervals.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx4[step,rest]]",
+  "seconds": 2940,
+  "pacing": {
+   "timed": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 2400
+  },
+  "movements": {
+   "Run": [
+    0,
+    0,
+    0,
+    2400
+   ]
+  },
+  "warnings": 0
+ },
+ "167-handstand-practice.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[clockx10[step]]]",
+  "seconds": 600,
+  "pacing": {
+   "timed": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 300
+  },
+  "movements": {
+   "Handstand Hold": [
+    0,
+    0,
+    0,
+    300
+   ]
+  },
+  "warnings": 0
+ },
+ "168-muscle-up-emom.wdl": {
+  "errors": [],
+  "shape": "sequence[clockx12@720s[sequence[step],sequence[step],sequence[rest]]]",
+  "seconds": 720,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 108,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Muscle-Up": [
+    36,
+    0,
+    0,
+    0
+   ],
+   "Ring Dip": [
+    72,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "169-strict-pull-ladder.wdl": {
+  "errors": [],
+  "shape": "sequence[clockx?[step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 1
+ },
+ "17-kalsu.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step]+every60s[step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 105,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Thruster": [
+    100,
+    0,
+    0,
+    0
+   ],
+   "Burpee": [
+    5,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "170-l-sit.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "171-upper-accessory.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[repeatx3[sequence[step,step],rest]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 81,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Dumbbell Row": [
+    36,
+    0,
+    0,
+    0
+   ],
+   "Face Pull": [
+    45,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "172-leg-day.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[repeatx4[step,rest],repeatx3[step,rest]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 76,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Bulgarian Split Squat": [
+    40,
+    0,
+    0,
+    0
+   ],
+   "Romanian Deadlift": [
+    36,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "173-core-circuit.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx3[step,step,step,rest]]",
+  "seconds": 525,
+  "pacing": {
+   "timed": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 405
+  },
+  "movements": {
+   "Plank": [
+    0,
+    0,
+    0,
+    135
+   ],
+   "Hollow Hold": [
+    0,
+    0,
+    0,
+    135
+   ],
+   "Side Plank": [
+    0,
+    0,
+    0,
+    135
+   ]
+  },
+  "warnings": 0
+ },
+ "174-hyrox-pro.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step,step,step,step,step,step,step,step,step,step,step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 16
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 75,
+   "distanceM": 10480,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    8000,
+    0,
+    0
+   ],
+   "SkiErg": [
+    0,
+    1000,
+    0,
+    0
+   ],
+   "Sled Push": [
+    0,
+    50,
+    0,
+    0
+   ],
+   "Sled Pull": [
+    0,
+    50,
+    0,
+    0
+   ],
+   "Burpee Broad Jump": [
+    0,
+    80,
+    0,
+    0
+   ],
+   "Row": [
+    0,
+    1000,
+    0,
+    0
+   ],
+   "Farmers Carry": [
+    0,
+    200,
+    0,
+    0
+   ],
+   "Sandbag Lunge": [
+    0,
+    100,
+    0,
+    0
+   ],
+   "Wall Ball": [
+    75,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "175-hyrox-half-sim.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[repeatx4[step,step],step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 50,
+   "distanceM": 7000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    5000,
+    0,
+    0
+   ],
+   "SkiErg": [
+    0,
+    2000,
+    0,
+    0
+   ],
+   "Wall Ball": [
+    50,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "176-compromised-running.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 100,
+   "distanceM": 5000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    5000,
+    0,
+    0
+   ],
+   "Burpee Broad Jump": [
+    100,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "177-sled-intervals.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx8[step,step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 400,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Sled Push": [
+    0,
+    200,
+    0,
+    0
+   ],
+   "Sled Pull": [
+    0,
+    200,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "178-ruck-march.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 19312.13,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    19312.13,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "179-usmc-pft.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2,
+   "timed": 1
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 4828.03,
+   "calories": 0,
+   "seconds": 120
+  },
+  "movements": {
+   "Sit-Up": [
+    0,
+    0,
+    0,
+    120
+   ],
+   "Run": [
+    0,
+    4828.03,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "18-fight-gone-bad.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx3[step,step,step,step,step,rest]]",
+  "seconds": 1020,
+  "pacing": {
+   "timed": 5
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 900
+  },
+  "movements": {
+   "Wall Ball": [
+    0,
+    0,
+    0,
+    180
+   ],
+   "Sumo Deadlift High-Pull": [
+    0,
+    0,
+    0,
+    180
+   ],
+   "Box Jump": [
+    0,
+    0,
+    0,
+    180
+   ],
+   "Push Press": [
+    0,
+    0,
+    0,
+    180
+   ],
+   "Row": [
+    0,
+    0,
+    0,
+    180
+   ]
+  },
+  "warnings": 0
+ },
+ "180-tactical-circuit.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,step,step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 100,
+   "distanceM": 2500,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Buddy Carry": [
+    0,
+    500,
+    0,
+    0
+   ],
+   "Burpee": [
+    100,
+    0,
+    0,
+    0
+   ],
+   "Run": [
+    0,
+    2000,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "181-general-warmup.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[repeatx3[step,step,step,step]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 90,
+   "distanceM": 750,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Row": [
+    0,
+    750,
+    0,
+    0
+   ],
+   "Air Squat": [
+    30,
+    0,
+    0,
+    0
+   ],
+   "Push-Up": [
+    30,
+    0,
+    0,
+    0
+   ],
+   "Sit-Up": [
+    30,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "182-barbell-warmup.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[repeatx2[sequence[step,step,step,step]]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 40,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Deadlift": [
+    10,
+    0,
+    0,
+    0
+   ],
+   "Hang Power Clean": [
+    10,
+    0,
+    0,
+    0
+   ],
+   "Front Squat": [
+    10,
+    0,
+    0,
+    0
+   ],
+   "Push Press": [
+    10,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "183-accumulate.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step]]",
+  "seconds": 300,
+  "pacing": {
+   "timed": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 300
+  },
+  "movements": {
+   "Handstand Hold": [
+    0,
+    0,
+    0,
+    300
+   ]
+  },
+  "warnings": 0
+ },
+ "184-max-unbroken.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx3[step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "185-density-block.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@720s[step]]",
+  "seconds": 720,
+  "pacing": {
+   "capped": 1
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "186-amrap-intervals.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx3[amrap@300s[step,step],rest]]",
+  "seconds": 1500,
+  "pacing": {
+   "capped": 2
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "187-team-relay.wdl": {
+  "errors": [],
+  "shape": "sequence[team[sequence[step,step,step]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 200,
+   "distanceM": 8000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Row": [
+    0,
+    8000,
+    0,
+    0
+   ],
+   "Burpee": [
+    200,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "188-buy-in-cash-out.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,repeatx5[step,step],step]]",
+  "seconds": 1500,
+  "pacing": {
+   "capped": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 300,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Double-Under": [
+    200,
+    0,
+    0,
+    0
+   ],
+   "Thruster": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "Toes-to-Bar": [
+    50,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "189-death-by-two.wdl": {
+  "errors": [],
+  "shape": "sequence[clockx?[step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 1
+ },
+ "19-tabata-this.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[repeatx8[sequence[step],rest],rest,repeatx8[sequence[step],rest],rest,repeatx8[sequence[step],rest],rest,repeatx8[sequence[step],rest],rest,repeatx8[sequence[step],rest]]]",
+  "seconds": 1440,
+  "pacing": {
+   "timed": 5
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 800
+  },
+  "movements": {
+   "Pull-Up": [
+    0,
+    0,
+    0,
+    160
+   ],
+   "Push-Up": [
+    0,
+    0,
+    0,
+    160
+   ],
+   "Sit-Up": [
+    0,
+    0,
+    0,
+    160
+   ],
+   "Air Squat": [
+    0,
+    0,
+    0,
+    160
+   ],
+   "Row": [
+    0,
+    0,
+    0,
+    160
+   ]
+  },
+  "warnings": 0
+ },
+ "190-tabata-squat.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx8[sequence[step],rest]]",
+  "seconds": 240,
+  "pacing": {
+   "timed": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 160
+  },
+  "movements": {
+   "Air Squat": [
+    0,
+    0,
+    0,
+    160
+   ]
+  },
+  "warnings": 0
+ },
+ "20-death-by-burpees.wdl": {
+  "errors": [],
+  "shape": "sequence[clockx?[step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 1
+ },
+ "21-open-24-1.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step]]]]",
+  "seconds": 900,
+  "pacing": {
+   "capped": 12
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 180,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "DB Snatch": [
+    90,
+    0,
+    0,
+    0
+   ],
+   "Lateral Burpee over Dumbbell": [
+    90,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "22-open-24-2.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@1200s[step,step,step]]",
+  "seconds": 1200,
+  "pacing": {
+   "capped": 3
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "23-open-24-3.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[repeatx5[step,step],rest,repeatx5[step,step]]]",
+  "seconds": 900,
+  "pacing": {
+   "capped": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 170,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Thruster": [
+    85,
+    0,
+    0,
+    0
+   ],
+   "Chest-to-Bar Pull-Up": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "Bar Muscle-Up": [
+    35,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "24-open-25-1.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@900s[step,step,step]]",
+  "seconds": 900,
+  "pacing": {
+   "capped": 3
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "25-open-25-2.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step,step,step,step,step,step,step]]",
+  "seconds": 720,
+  "pacing": {
+   "capped": 9
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 216,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Pull-Up": [
+    21,
+    0,
+    0,
+    0
+   ],
+   "Double-Under": [
+    108,
+    0,
+    0,
+    0
+   ],
+   "Thruster": [
+    54,
+    0,
+    0,
+    0
+   ],
+   "Chest-to-Bar Pull-Up": [
+    18,
+    0,
+    0,
+    0
+   ],
+   "Bar Muscle-Up": [
+    15,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "26-open-25-3.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step,step,step,step,step,step,step,step]]",
+  "seconds": 1200,
+  "pacing": {
+   "capped": 10
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 100,
+   "distanceM": 0,
+   "calories": 100,
+   "seconds": 0
+  },
+  "movements": {
+   "Wall Walk": [
+    25,
+    0,
+    0,
+    0
+   ],
+   "Row": [
+    0,
+    0,
+    100,
+    0
+   ],
+   "Deadlift": [
+    25,
+    0,
+    0,
+    0
+   ],
+   "Clean": [
+    25,
+    0,
+    0,
+    0
+   ],
+   "Snatch": [
+    25,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "27-remainder.wdl": {
+  "errors": [],
+  "shape": "sequence[clockx5[step,step]]",
+  "seconds": 900,
+  "pacing": {
+   "athlete": 1,
+   "timed": 1
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 2000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    2000,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "28-e2mom-alternating.wdl": {
+  "errors": [],
+  "shape": "sequence[clockx20@1200s[sequence[step],sequence[step]]]",
+  "seconds": 1200,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 200,
+   "distanceM": 0,
+   "calories": 240,
+   "seconds": 0
+  },
+  "movements": {
+   "Row": [
+    0,
+    0,
+    240,
+    0
+   ],
+   "DB Snatch": [
+    200,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "29-building-to-a-heavy-double.wdl": {
+  "errors": [],
+  "shape": "sequence[clockx6[step]]",
+  "seconds": 540,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 12,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Front Squat": [
+    12,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "30-5-3-1-week-1.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 15,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Back Squat": [
+    15,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "31-build-to-a-heavy-single.wdl": {
+  "errors": [],
+  "shape": "sequence[build@720s[step]]",
+  "seconds": 720,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "32-cross-block-reference.wdl": {
+  "errors": [],
+  "shape": "sequence[build@720s[step],repeatx3[step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 9,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Back Squat": [
+    9,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "33-crossfit-total.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[attemptsx3[step],attemptsx3[step],attemptsx3[step]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 9,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Back Squat": [
+    3,
+    0,
+    0,
+    0
+   ],
+   "Shoulder Press": [
+    3,
+    0,
+    0,
+    0
+   ],
+   "Deadlift": [
+    3,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "34-tempo-front-squat.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx4[step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 24,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Front Squat": [
+    24,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "35-interval-run.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx8[step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 3200,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    3200,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "36-rowing-pyramid.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 7
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 4000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Row": [
+    0,
+    4000,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "37-bike-intervals.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,repeatx4[step,step],step]]",
+  "seconds": 4080,
+  "pacing": {
+   "timed": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 4080
+  },
+  "movements": {
+   "Bike": [
+    0,
+    0,
+    0,
+    4080
+   ]
+  },
+  "warnings": 0
+ },
+ "38-swim-send-off.wdl": {
+  "errors": [],
+  "shape": "sequence[clockx10[step]]",
+  "seconds": 1050,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 1000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Swim": [
+    0,
+    1000,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "39-hyrox-open.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step,step,step,step,step,step,step,step,step,step,step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 16
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 100,
+   "distanceM": 10480,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    8000,
+    0,
+    0
+   ],
+   "SkiErg": [
+    0,
+    1000,
+    0,
+    0
+   ],
+   "Sled Push": [
+    0,
+    50,
+    0,
+    0
+   ],
+   "Sled Pull": [
+    0,
+    50,
+    0,
+    0
+   ],
+   "Burpee Broad Jump": [
+    0,
+    80,
+    0,
+    0
+   ],
+   "Row": [
+    0,
+    1000,
+    0,
+    0
+   ],
+   "Farmers Carry": [
+    0,
+    200,
+    0,
+    0
+   ],
+   "Sandbag Lunge": [
+    0,
+    100,
+    0,
+    0
+   ],
+   "Wall Ball": [
+    100,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "40-hyrox-doubles.wdl": {
+  "errors": [],
+  "shape": "sequence[team[sequence[step,step]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 2000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    1000,
+    0,
+    0
+   ],
+   "SkiErg": [
+    0,
+    1000,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "41-angie.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 400,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Pull-Up": [
+    100,
+    0,
+    0,
+    0
+   ],
+   "Push-Up": [
+    100,
+    0,
+    0,
+    0
+   ],
+   "Sit-Up": [
+    100,
+    0,
+    0,
+    0
+   ],
+   "Air Squat": [
+    100,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "42-diane.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 6
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 90,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Deadlift": [
+    45,
+    0,
+    0,
+    0
+   ],
+   "Handstand Push-Up": [
+    45,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "43-elizabeth.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 6
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 90,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Squat Clean": [
+    45,
+    0,
+    0,
+    0
+   ],
+   "Ring Dip": [
+    45,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "44-isabel.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 30,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Snatch": [
+    30,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "45-jackie.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 80,
+   "distanceM": 1000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Row": [
+    0,
+    1000,
+    0,
+    0
+   ],
+   "Thruster": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "Pull-Up": [
+    30,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "46-karen.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 150,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Wall Ball": [
+    150,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "47-nancy.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 75,
+   "distanceM": 2000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    2000,
+    0,
+    0
+   ],
+   "Overhead Squat": [
+    75,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "48-amanda.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 6
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 42,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Muscle-Up": [
+    21,
+    0,
+    0,
+    0
+   ],
+   "Squat Snatch": [
+    21,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "49-nasty-girls.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx3[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 201,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Air Squat": [
+    150,
+    0,
+    0,
+    0
+   ],
+   "Muscle-Up": [
+    21,
+    0,
+    0,
+    0
+   ],
+   "Hang Power Clean": [
+    30,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "50-eva.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 300,
+   "distanceM": 4000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    4000,
+    0,
+    0
+   ],
+   "KB Swing": [
+    150,
+    0,
+    0,
+    0
+   ],
+   "Pull-Up": [
+    150,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "51-kelly.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 300,
+   "distanceM": 2000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    2000,
+    0,
+    0
+   ],
+   "Box Jump": [
+    150,
+    0,
+    0,
+    0
+   ],
+   "Wall Ball": [
+    150,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "52-lynne.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "53-nicole.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@1200s[step,step]]",
+  "seconds": 1200,
+  "pacing": {
+   "capped": 1,
+   "timed": 1
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "54-gwen.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequencex1[step],sequencex1[step],sequencex1[step]],rest]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 36,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Clean & Jerk": [
+    36,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "55-maggie.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 600,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Handstand Push-Up": [
+    100,
+    0,
+    0,
+    0
+   ],
+   "Pistol": [
+    200,
+    0,
+    0,
+    0
+   ],
+   "Pull-Up": [
+    300,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "56-nutts.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step]],step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 41
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 220,
+   "distanceM": 400,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Handstand Push-Up": [
+    55,
+    0,
+    0,
+    0
+   ],
+   "Deadlift": [
+    55,
+    0,
+    0,
+    0
+   ],
+   "Box Jump": [
+    55,
+    0,
+    0,
+    0
+   ],
+   "Pull-Up": [
+    55,
+    0,
+    0,
+    0
+   ],
+   "Run": [
+    0,
+    400,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "57-hope.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx3[step,step,step,step,step,rest]]",
+  "seconds": 1020,
+  "pacing": {
+   "timed": 5
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 900
+  },
+  "movements": {
+   "Burpee": [
+    0,
+    0,
+    0,
+    180
+   ],
+   "Power Snatch": [
+    0,
+    0,
+    0,
+    180
+   ],
+   "Box Jump": [
+    0,
+    0,
+    0,
+    180
+   ],
+   "Thruster": [
+    0,
+    0,
+    0,
+    180
+   ],
+   "Chest-to-Bar Pull-Up": [
+    0,
+    0,
+    0,
+    180
+   ]
+  },
+  "warnings": 0
+ },
+ "58-candy.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 600,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Pull-Up": [
+    100,
+    0,
+    0,
+    0
+   ],
+   "Push-Up": [
+    200,
+    0,
+    0,
+    0
+   ],
+   "Air Squat": [
+    300,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "59-lola.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@300s[step,step]]",
+  "seconds": 300,
+  "pacing": {
+   "capped": 2
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "60-haley.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 100,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Snatch": [
+    100,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "61-jt.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step,step,step],sequencex1[step,step,step],sequencex1[step,step,step]]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 9
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 135,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Handstand Push-Up": [
+    45,
+    0,
+    0,
+    0
+   ],
+   "Ring Dip": [
+    45,
+    0,
+    0,
+    0
+   ],
+   "Push-Up": [
+    45,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "62-michael.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx3[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 300,
+   "distanceM": 2400,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    2400,
+    0,
+    0
+   ],
+   "Back Extension": [
+    150,
+    0,
+    0,
+    0
+   ],
+   "Sit-Up": [
+    150,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "63-daniel.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step,step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 7
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 142,
+   "distanceM": 1600,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Pull-Up": [
+    100,
+    0,
+    0,
+    0
+   ],
+   "Run": [
+    0,
+    1600,
+    0,
+    0
+   ],
+   "Thruster": [
+    42,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "64-josh.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 6
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 135,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Overhead Squat": [
+    45,
+    0,
+    0,
+    0
+   ],
+   "Pull-Up": [
+    90,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "65-jerry.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 5218.69,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    3218.69,
+    0,
+    0
+   ],
+   "Row": [
+    0,
+    2000,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "66-nate.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@1200s[step,step,step]]",
+  "seconds": 1200,
+  "pacing": {
+   "capped": 3
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "67-danny.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@1200s[step,step,step]]",
+  "seconds": 1200,
+  "pacing": {
+   "capped": 3
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "68-johnson.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@1200s[step,step,step]]",
+  "seconds": 1200,
+  "pacing": {
+   "capped": 3
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "69-moore.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@1200s[step,step,step]]",
+  "seconds": 1200,
+  "pacing": {
+   "capped": 2,
+   "timed": 1
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "70-stephen.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step]]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 24
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 420,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "GHD Sit-Up": [
+    105,
+    0,
+    0,
+    0
+   ],
+   "Back Extension": [
+    105,
+    0,
+    0,
+    0
+   ],
+   "Knees-to-Elbow": [
+    105,
+    0,
+    0,
+    0
+   ],
+   "Stiff-Legged Deadlift": [
+    105,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "71-holbrook.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx10[step,step,step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 150,
+   "distanceM": 1000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Thruster": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "Pull-Up": [
+    100,
+    0,
+    0,
+    0
+   ],
+   "Sprint": [
+    0,
+    1000,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "72-hammer.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,step,step,step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 200,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Power Clean": [
+    25,
+    0,
+    0,
+    0
+   ],
+   "Front Squat": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "Jerk": [
+    25,
+    0,
+    0,
+    0
+   ],
+   "Pull-Up": [
+    100,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "73-hall.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,step,step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 115,
+   "distanceM": 1000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Clean": [
+    15,
+    0,
+    0,
+    0
+   ],
+   "Sprint": [
+    0,
+    1000,
+    0,
+    0
+   ],
+   "KB Snatch": [
+    100,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "74-severin.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 150,
+   "distanceM": 5000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Strict Pull-Up": [
+    50,
+    0,
+    0,
+    0
+   ],
+   "Push-Up": [
+    100,
+    0,
+    0,
+    0
+   ],
+   "Run": [
+    0,
+    5000,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "75-lumberjack-20.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step,step,step,step,step,step,step,step,step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 14
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 140,
+   "distanceM": 2800,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Deadlift": [
+    20,
+    0,
+    0,
+    0
+   ],
+   "Run": [
+    0,
+    2800,
+    0,
+    0
+   ],
+   "KB Swing": [
+    20,
+    0,
+    0,
+    0
+   ],
+   "Overhead Squat": [
+    20,
+    0,
+    0,
+    0
+   ],
+   "Burpee": [
+    20,
+    0,
+    0,
+    0
+   ],
+   "Chest-to-Bar Pull-Up": [
+    20,
+    0,
+    0,
+    0
+   ],
+   "Box Jump": [
+    20,
+    0,
+    0,
+    0
+   ],
+   "DB Squat Clean": [
+    20,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "76-clovis.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[tally[step,step]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 150,
+   "distanceM": 16093.44,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    16093.44,
+    0,
+    0
+   ],
+   "Burpee Pull-Up": [
+    150,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 1
+ },
+ "77-tiff.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,amrap[step,step,step]]]",
+  "seconds": 1500,
+  "pacing": {
+   "capped": 4
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 2414.02,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    2414.02,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "78-kev.wdl": {
+  "errors": [],
+  "shape": "sequence[team[amrap@1560s[step,step,step,step]]]",
+  "seconds": 1560,
+  "pacing": {
+   "capped": 4
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "79-horton.wdl": {
+  "errors": [],
+  "shape": "sequence[team[repeatx9[step,step,step]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 180,
+   "distanceM": 411.48,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Bar Muscle-Up": [
+    81,
+    0,
+    0,
+    0
+   ],
+   "Clean & Jerk": [
+    99,
+    0,
+    0,
+    0
+   ],
+   "Buddy Carry": [
+    0,
+    411.48,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "80-jj.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 20
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 110,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Squat Clean": [
+    55,
+    0,
+    0,
+    0
+   ],
+   "Parallette Handstand Push-Up": [
+    55,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "81-santora.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx3[step,step,step,step,step,rest]]",
+  "seconds": 1020,
+  "pacing": {
+   "timed": 5
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 900
+  },
+  "movements": {
+   "Squat Clean": [
+    0,
+    0,
+    0,
+    180
+   ],
+   "Shuttle Sprint": [
+    0,
+    0,
+    0,
+    180
+   ],
+   "Deadlift": [
+    0,
+    0,
+    0,
+    180
+   ],
+   "Burpee": [
+    0,
+    0,
+    0,
+    180
+   ],
+   "Jerk": [
+    0,
+    0,
+    0,
+    180
+   ]
+  },
+  "warnings": 0
+ },
+ "82-hidalgo.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,rest,step,step,step,step,step,rest,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 7
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 100,
+   "distanceM": 6437.38,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    6437.38,
+    0,
+    0
+   ],
+   "Squat Clean": [
+    40,
+    0,
+    0,
+    0
+   ],
+   "Box Jump": [
+    40,
+    0,
+    0,
+    0
+   ],
+   "Walking Lunge": [
+    20,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "83-bull.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx2[step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 4
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 600,
+   "distanceM": 3218.69,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Double-Under": [
+    400,
+    0,
+    0,
+    0
+   ],
+   "Overhead Squat": [
+    100,
+    0,
+    0,
+    0
+   ],
+   "Pull-Up": [
+    100,
+    0,
+    0,
+    0
+   ],
+   "Run": [
+    0,
+    3218.69,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "84-carse.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[sequence[sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step]],step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 29
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 336,
+   "distanceM": 50,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Squat Clean": [
+    84,
+    0,
+    0,
+    0
+   ],
+   "Double-Under": [
+    84,
+    0,
+    0,
+    0
+   ],
+   "Deadlift": [
+    84,
+    0,
+    0,
+    0
+   ],
+   "Box Jump": [
+    84,
+    0,
+    0,
+    0
+   ],
+   "Bear Crawl": [
+    0,
+    50,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "85-dallas-5.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[sequence[step],rest]]",
+  "seconds": null,
+  "pacing": {
+   "timed": 1
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "86-manuel.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx5[step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "timed": 3,
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 2000,
+   "calories": 0,
+   "seconds": 2100
+  },
+  "movements": {
+   "Rope Climb": [
+    0,
+    0,
+    0,
+    900
+   ],
+   "Air Squat": [
+    0,
+    0,
+    0,
+    600
+   ],
+   "Push-Up": [
+    0,
+    0,
+    0,
+    600
+   ],
+   "Run": [
+    0,
+    2000,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "87-starting-strength.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[repeatx3[step,rest],repeatx3[step,rest],repeatx1[step]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 35,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Back Squat": [
+    15,
+    0,
+    0,
+    0
+   ],
+   "Shoulder Press": [
+    15,
+    0,
+    0,
+    0
+   ],
+   "Deadlift": [
+    5,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "88-531-week2.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 9,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Deadlift": [
+    9,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "89-texas-method.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[repeatx5[step,rest],repeatx5[step,rest]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 50,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Back Squat": [
+    25,
+    0,
+    0,
+    0
+   ],
+   "Bench Press": [
+    25,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "90-wave-loading.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[repeatx3[step,step,step,rest]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 27,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Back Squat": [
+    27,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "91-bodybuilding-hypertrophy.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[repeatx4[step,rest],repeatx3[step,rest]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 62,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Dumbbell Curl": [
+    32,
+    0,
+    0,
+    0
+   ],
+   "Cable Fly": [
+    30,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "92-cluster-sets.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[repeatx5[step,rest,step,rest,step,rest]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 30,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Front Squat": [
+    30,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "93-find-3rm.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[build@1200s[step],repeatx3[step,rest]]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 2
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 9,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Back Squat": [
+    9,
+    0,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "94-emom-squat-ladder.wdl": {
+  "errors": [],
+  "shape": "sequence[clockx?[step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 1
+ },
+ "95-cooper-test.wdl": {
+  "errors": [],
+  "shape": "sequence[amrap@720s[step]]",
+  "seconds": 720,
+  "pacing": {
+   "timed": 1
+  },
+  "unbounded": true,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {},
+  "warnings": 0
+ },
+ "96-2k-row-test.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 2000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Row": [
+    0,
+    2000,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "97-yasso-800s.wdl": {
+  "errors": [],
+  "shape": "sequence[repeatx10[step,rest]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 1
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 8000,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Run": [
+    0,
+    8000,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ },
+ "98-hill-repeats.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,repeatx8[step,rest],step]]",
+  "seconds": 3060,
+  "pacing": {
+   "timed": 3
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 0,
+   "calories": 0,
+   "seconds": 2220
+  },
+  "movements": {
+   "Run": [
+    0,
+    0,
+    0,
+    2220
+   ]
+  },
+  "warnings": 0
+ },
+ "99-swim-pyramid.wdl": {
+  "errors": [],
+  "shape": "sequence[sequence[step,step,step,step,step,step,step,step,step]]",
+  "seconds": null,
+  "pacing": {
+   "athlete": 9
+  },
+  "unbounded": false,
+  "totals": {
+   "reps": 0,
+   "distanceM": 2200,
+   "calories": 0,
+   "seconds": 0
+  },
+  "movements": {
+   "Swim": [
+    0,
+    2200,
+    0,
+    0
+   ]
+  },
+  "warnings": 0
+ }
+}
