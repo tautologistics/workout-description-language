@@ -180,7 +180,15 @@ The default. A block with no header runs its steps in order.
   rest 3min after last
 ```
 
-The question doesn't arise in a clock-driven container (§5.5), where the cadence governs and Tabata's final ten seconds is part of the interval rather than a trailing step.
+**Except when the round is an interval.** A `work Xs:` block makes the rest paired with it *structural* rather than recovery, so it fires on every round including the last — which is why a Tabata block is exactly 4:00 and not 3:50:
+
+```
+8 rounds:
+  work 20s: Pull-Up
+  rest 10s
+```
+
+The distinction is recovery rest versus interval rest, and the presence of an explicit `work` block is what marks it. The question doesn't arise at all in a clock-driven container (§5.5), where the cadence governs directly.
 
 ### 5.3 Rep scheme (ladder)
 

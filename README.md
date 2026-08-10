@@ -18,7 +18,7 @@ Spec 0.1 draft with a working reference parser, formatter, and CLI. Zero depende
 core runs on Node 22+ via native TypeScript type stripping.
 
 ```
-npm test --prefix packages/core        # 104 passing, 8 pending
+npm test --prefix packages/core        # 164 passing, 8 pending
 
 units            11/11   quantities, loads, targets, duration decomposition
 lines             9/9    indentation tree, comments, brace continuations
@@ -27,12 +27,14 @@ prescriptions     6/6    relative loads, labels, dynamic rest, paired implements
 laterality/teams  3/3    counting modes, side selectors, shared totals
 scoring           6/6    per-round, aggregates, tiebreaks, attempts
 corpus           40/40   parse, round-trip, and formatter idempotence
+timeline         56/56   desugaring, pacing, duration, and what can't be a timeline
 accepted input   13/13   documented variants canonicalize as specified
 errors            6/6    plus 8 pending — gaps awaiting semantic validation
 ```
 
 ```bash
-node packages/core/bin/wdl.ts fmt examples/corpus/04-fran.wdl
+node packages/core/bin/wdl.ts fmt      examples/corpus/04-fran.wdl
+node packages/core/bin/wdl.ts timeline examples/corpus/18-fight-gone-bad.wdl
 ```
 
 ## Layout
@@ -56,6 +58,6 @@ node packages/core/bin/wdl.ts fmt examples/corpus/04-fran.wdl
 
 ## Next
 
-Semantic validation, the movement registry, and the timeline compiler that the display runtime
-and every exporter depend on. Then a tree-sitter grammar and a language-neutral conformance
-suite so other languages get correctness, not just a parser (roadmap §5.1).
+The movement registry and semantic validation, then the interop adapters — all three consume the
+timeline. After that, a tree-sitter grammar and a language-neutral conformance suite so other
+languages get correctness, not just a parser (roadmap §5.1).

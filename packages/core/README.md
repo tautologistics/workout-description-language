@@ -7,6 +7,7 @@ Zero dependencies. Runs on Node 22+ using native TypeScript type stripping.
 ```bash
 node bin/wdl.ts fmt   file.wdl [-w]   # canonical formatting; -w rewrites in place
 node bin/wdl.ts check file.wdl        # parse and report errors
+node bin/wdl.ts timeline file.wdl     # compile to an execution outline
 npm test                              # every check, one summary
 ```
 
@@ -20,6 +21,13 @@ Parsing is **two-phase** (roadmap §5.1), which is what keeps a port to another 
 | 2 | [`parse.ts`](src/parse.ts) | Line tree → AST. Ordinary context-free work, because phase 1 removed the indentation sensitivity. |
 
 [`ast.ts`](src/ast.ts) is the semantic contract; [`format.ts`](src/format.ts) emits canonical text.
+
+[`timeline.ts`](src/timeline.ts) compiles the AST into how a workout is *executed*: rep schemes
+expanded into explicit rounds, block-level targets pushed down onto steps, `+N each round`
+resolved where the round count is bounded, and every step classified as **timed**,
+**athlete-paced**, or **capped** — the axis a display runtime switches on. It also records what
+an ordered timeline cannot represent, so exporters report a gap instead of inventing an order.
+FIT workout steps, Zwift `.zwo` elements, and WorkoutKit interval blocks are all this shape.
 
 ## Tests
 
@@ -37,5 +45,4 @@ implied as covered by silence.
 
 ## Not yet built
 
-Semantic validation (the 8 pending cases), movement-registry resolution, timeline compilation,
-and the interop adapters.
+Semantic validation (the 8 pending cases), movement-registry resolution, and the interop adapters.
