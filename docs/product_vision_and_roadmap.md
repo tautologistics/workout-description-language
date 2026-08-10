@@ -268,6 +268,22 @@ TypeScript is the pragmatic choice: it runs in the web app, in React Native/Capa
 - **Mobile**: responsive PWA first (works in the gym), Capacitor wrapper when native features are needed.
 - **Sharing platform**: workouts stored as canonical text keyed by their id (§3.2.1), unique within the platform's repository, with a semantic digest used for dedup-on-import and benchmark recognition. Results reference the id and carry a snapshot, so leaderboards fall out. Forking copies the text and records `derived_from`.
 
+### 5.1 Portability: how other languages get a parser
+
+Writing one implementation per language doesn't scale, and waiting for volunteers means the format stays confined to whatever the reference implementation is written in. But **generating parsers from one grammar solves less of the problem than it appears to.**
+
+Parsing is the small part. The bulk of `@wdl/core` is the semantic layer — desugaring rep schemes into per-round expansion, resolving movement names through `fold()` and the registry, applying block-level inheritance, validating, emitting canonical text, compiling to a timeline. No grammar tool generates any of that, so a generated parser leaves an implementer with roughly 70% of the work still to do, and no way to know whether they did it right.
+
+The layered strategy, in order of leverage:
+
+1. **A normative grammar in the spec** (EBNF). The human contract — what everyone implements against.
+2. **A language-neutral conformance suite.** The [40 corpus files](../examples/corpus) paired with their expected ASTs as JSON, plus canonical-formatting and error cases. This is the highest-leverage artifact and the cheapest: it's what makes a third-party implementation *correct* rather than merely present, and it's how JSON, TOML, and CommonMark got broad independent implementations — a spec plus a test suite, not a generated parser.
+3. **A tree-sitter grammar** as the primary machine artifact. It's the right pick over ANTLR here for two specific reasons: it yields editor tooling (syntax highlighting for the builder's CodeMirror editor) from the same definition, and it handles **indentation sensitivity** through an external scanner written once in C and compiled everywhere — where ANTLR would need INDENT/DEDENT lexer logic rewritten by hand for every target language, which quietly defeats the point. Bindings exist for Rust, Python, Go, Java, Swift, C#, Ruby, and JS/WASM. Error-tolerant parsing is a bonus for the paste-in flow.
+4. **One reference implementation** (TypeScript) carrying the full semantic layer.
+5. **Later, only if demand appears:** a Rust core compiled to WASM, which gives every language the semantics rather than just the syntax.
+
+**Design consequence, and it's worth honoring regardless:** keep the language **line-oriented and two-phase** — an indentation pass that turns lines into a tree, then a context-free grammar over line content. The indentation pass is ~50 lines in any language and the line grammar is small and portable. That keeps the hard-to-generate part isolated and tiny, so a hand implementation stays a weekend rather than a project.
+
 ---
 
 ## 6. Roadmap
@@ -322,6 +338,7 @@ Whiteboard photo → WDL extraction (spec plan §23) — valuable but a separate
 | 7 | Results | Separate record type referencing the workout id + named variant, carrying a snapshot; map to openweight | Progress tracking, leaderboards |
 | 7a | Identity | Any unique string, optional `namespace:` prefix, unique within a repository, never derived from content (§3.2.1) | Results must outlive formatter and spec changes |
 | 8 | Implementation | TypeScript monorepo (`@wdl/core` + apps + adapters) | One core for web, mobile, Pi, server, CLI |
+| 8a | Portability | Normative EBNF + language-neutral conformance suite + tree-sitter grammar; line-oriented two-phase parse | Third parties need correctness, not just a parser (§5.1) |
 | 9 | Syntax influences | Formalize existing convention: whiteboard shorthand, `5x5 @ 225`, intervals.icu's section/`Nx` shape | Zero-friction adoption |
 | 10 | Movement library seed | Fork free-exercise-db rather than curating from zero | Metadata already exists |
 
