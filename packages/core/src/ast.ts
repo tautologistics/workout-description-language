@@ -7,6 +7,8 @@ export type Unit =
   | { kind: 'duration'; seconds: number }
   | { kind: 'max' }                                   // remainder of enclosing clock
   | { kind: 'floor'; value: number }                  // `5+` — at least N, then open
+  | { kind: 'range'; min: number; max: number }       // `8-12` — a rep range
+  | { kind: 'maxEffort' }                             // `max` with no clock — to failure
   | { kind: 'open' };
 
 export type Load =
@@ -52,6 +54,8 @@ export interface Rest {
   node: 'rest';
   duration?: Unit;
   dynamic?: 'as-needed' | 'equal-to-work';
+  /** Active recovery — `rest 400m Jog`. The interval is work, not a clock. */
+  active?: { quantity: Unit; movement: string };
   afterLast: boolean;                                  // spec §5.2, N1
   comments: string[];
   line: number;

@@ -54,12 +54,13 @@ Nesting is by indentation (two spaces canonical). A line ending in `:` opens a b
 | Kind | Canonical | Also accepted |
 |---|---|---|
 | Reps | `10` | `10 reps`, `10x` |
+| Rep range | `8-12` | — |
 | Distance | `400m` `1km` `1mi` `50ft` `25yd` | `400 meters`, `1 mile` |
 | Duration | `12min` `1h` `1min30s` `45s` | `12m`, `90s`, `1:30`, `90 sec`, `10` (in a duration position) |
 | Calories | `15cal` | `15 calories`, `15c` |
-| Load | `95lb` `60kg` | `95#`, `95 lbs` |
+| Load | `95lb` `60kg` `2pood` | `95#`, `95 lbs` |
 | Paired load | `2x24kg` | `2 x 24kg`, `24kg each hand` |
-| Relative load | `75%` `80% 1RM` `85% TM` `1.5x BW` | `75 percent` |
+| Relative load | `75%` `80% 1RM` `85% 3RM` `85% TM` `1.5x BW` | `75 percent` |
 | Effort | `RPE 8` `RIR 2` | |
 | Pace | `4:30/km` `2:00/500m` `7:00/mi` `5k pace` | `threshold pace`, `marathon pace` (§8.2) |
 | Power | `250W` `90% FTP` | |
@@ -88,9 +89,23 @@ Units never convert silently. A file written in `kg` stays in `kg`; display conv
 
 Shape: `- <quantity> <Movement> [<inline qualifier>]* [@ <target>]* [, <qualifier>]*`
 
+**Laterality and side attach to the movement and precede the target**; team words trail it, because they qualify the whole prescription:
+
+```
+- 10 Dumbbell Curl each arm @ 2x35lb
+- 21 DB Snatch first arm @ 50lb
+- 40 Wall Ball @ 20lb shared
+```
+
 **Laterality, side, and team words are written inline, without a comma.** They read as part of the prescription rather than as modifiers of it — `14 DB Curl each arm`, not `14 DB Curl, each side`. Everything else (tempo, `count cal`, `+3 each round`, notes) follows a comma. Both forms parse; canonical output uses the inline form for those three and commas for the rest, and preserves the limb noun the author wrote.
 
-**Completion conditions** (exactly one per step): reps, distance, calories, duration, `open`, `max` (the remainder of the enclosing clock — see §5.5), or `N+` meaning at least N then as many as possible.
+**Completion conditions** (exactly one per step): reps, a rep range (`8-12`), distance, calories, duration, `open`, `max`, or `N+` meaning at least N then as many as possible.
+
+**`max` means two different things, decided by what encloses it.** Inside a clock it is the *remainder* — `every 3min x 5: 400m Run, max Pull-Up` gives whatever time the run left. With no clock around it, it is a *max effort to failure* — Lynne's `5 rounds: max Bench Press, max Pull-Up` has nothing bounding a round. Compilation resolves which, and classifies the step timed or athlete-paced accordingly.
+
+**A duration and a max can combine.** `2min max Push-Up` ends on the clock and *measures* reps — the completion-versus-measurement distinction of N6, in its most common form. Military and benchmark tests are full of it.
+
+A rep range (`8-12`) is a step quantity; the same shape with a trailing colon (`21-15-9:`) is a block-level rep scheme. A range must ascend, which is what keeps `15-9` from being read as one.
 
 ```
 - 5+ Back Squat @ 85% TM       // 5/3/1 final set
@@ -261,6 +276,28 @@ for time, cap 15min:
 
 Wraps any container. On expiry the workout ends; scoring follows §9.5.
 
+**A cap can supply an AMRAP's window.** A bare `AMRAP:` is legal when something above it bounds the time — the "buy-in then AMRAP with whatever is left" shape:
+
+```wdl
+for time, cap 25min:
+  - 1.5mi Run
+  AMRAP:
+    - 11 Chest-to-Bar Pull-Up
+    - 7 Hang Squat Clean @ 155lb
+```
+
+Outside a cap, an AMRAP with no duration is an error.
+
+### 5.6.1 Duration-bounded blocks
+
+Not every timed block is an AMRAP. `for <duration>:` runs its contents for a fixed window with no repeat semantics — the Cooper test being the canonical case:
+
+```wdl
+for 12min:
+  - max Run
+score: distance
+```
+
 ### 5.7 Superset and complex
 
 ```
@@ -348,9 +385,10 @@ score: best
 ## 6. Rest
 
 ```
-rest 3min          // prescribed
-rest as needed     // athlete discretion
-rest = work        // dynamic: matches the preceding work interval
+rest 3min             // prescribed
+rest as needed        // athlete discretion
+rest = work           // dynamic: matches the preceding work interval
+rest 400m Jog         // active recovery — the interval is work, not a clock
 ```
 
 ---

@@ -44,6 +44,10 @@ class Parser {
       }
     }
 
+    // A qualifier may sit before the target as well as after it —
+    // `Dumbbell Curl each arm @ 2x35lb`. Peel the movement segment too.
+    head = this.peelTrailingQualifiers(head, step);
+
     // laterality in parentheses
     head = head.replace(/\((both|split|per-side|total)\)/i, (_m, mode) => {
       const m = mode.toLowerCase();
@@ -51,7 +55,18 @@ class Parser {
       return '';
     }).trim();
 
-    const { quantity, rest } = parseQuantity(head);
+    let { quantity, rest } = parseQuantity(head);
+
+    // `2min max Push-Up` — the clock ends the step, the reps are what it
+    // measures. Completion and measurement are different facts (spec §4, N6).
+    const maxAfter = rest.match(/^max\s+(.+)$/i);
+    if (maxAfter && quantity.kind === 'duration') {
+      step.measures = 'reps';
+      step.flags.push('max');
+      rest = maxAfter[1];
+    }
+    // `max Bench Press` with no enclosing clock is a max effort to failure,
+    // not a remainder — the two are resolved during compilation.
     step.quantity = quantity;
 
     // `10 alternating DB Snatch` — the word sits before the movement name, which
@@ -129,8 +144,14 @@ class Parser {
 
     if (t) {
       const d = parseDuration(t, true);
-      if (d) rest.duration = d;
-      else this.errors.push({ line: line.line, message: `unreadable rest duration "${t}"`, text: line.text });
+      if (d) { rest.duration = d; return rest; }
+      // Active recovery — `rest 400m Jog`. The rest interval is work, not a clock.
+      const { quantity, rest: movement } = parseQuantity(t);
+      if (quantity.kind !== 'open' && movement) {
+        rest.active = { quantity, movement };
+        return rest;
+      }
+      this.errors.push({ line: line.line, message: `unreadable rest duration "${t}"`, text: line.text });
     }
     return rest;
   }
@@ -172,6 +193,10 @@ class Parser {
       block.type = 'team'; block.count = +m[1];
     } else if (/^(\d+)(-\d+)+$/.test(head)) {
       block.type = 'ladder'; block.scheme = head.split('-').map(Number);
+    } else if ((m = head.match(/^for\s+(\S+)$/i)) && parseDuration(m[1], true)) {
+      // `for 12min:` — a duration-bounded block that is not an AMRAP (Cooper test).
+      block.type = 'amrap'; block.duration = parseDuration(m[1], true) ?? undefined;
+      block.flags.push('for-duration');
     } else if ((m = head.match(/^AMRAP(?:\s+(\S+))?$/i))) {
       block.type = 'amrap';
       block.duration = m[1] ? (parseDuration(m[1], true) ?? undefined) : undefined;

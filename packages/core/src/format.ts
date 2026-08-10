@@ -2,6 +2,10 @@
 
 import type { Workout, Node, Step, Rest, Block, Interrupt, Score } from './ast.ts';
 import { formatQuantity, formatDuration, formatTarget } from './units.ts';
+import type { Unit } from './ast.ts';
+
+/** Durations may legitimately be absent (`AMRAP:` inside a cap), so never assume. */
+const dur = (u?: Unit) => (u ? formatDuration(u) : '');
 
 const IND = '  ';
 
@@ -9,22 +13,27 @@ function stepText(s: Step): string {
   let out = '- ';
   const q = formatQuantity(s.quantity);
   if (q) out += q + ' ';
+  if (s.flags.includes('max') && s.quantity.kind === 'duration') out += 'max ';
   out += s.movement;
-  if (s.laterality === 'both' || s.laterality === 'split') out += ` (${s.laterality})`;
-  for (const t of s.targets) out += ` @ ${formatTarget(t)}`;
 
-  // Laterality, side, and team words read as part of the prescription and are
-  // written inline without a comma (spec §4) — `14 DB Curl each arm`, not
-  // `14 DB Curl, each side`. Everything else is a comma-separated qualifier.
+  // Laterality and side attach to the movement, so they precede the targets —
+  // `10 Dumbbell Curl each arm @ 2x35lb`, not `… @ 2x35lb each arm`. All three
+  // counting modes emit in the same position (spec §4).
+  if (s.laterality === 'both' || s.laterality === 'split') out += ` (${s.laterality})`;
   if (s.laterality === 'per-side') out += ` each ${s.limb ?? 'side'}`;
   if (s.side) out += ` ${s.side} ${s.limb ?? 'arm'}`;
+
+  for (const t of s.targets) out += ` @ ${formatTarget(t)}`;
+
+  // Team words trail the target, since they qualify the whole prescription.
   if (s.team) out += ` ${s.team}`;
 
   const quals: string[] = [];
   if (s.tempo) quals.push(`tempo ${s.tempo}`);
   if (s.measures === 'calories') quals.push('count cal');
+  if (s.measures === 'reps' && !s.flags.includes('max')) quals.push('count reps');
   if (s.perRound) quals.push(`+${s.perRound.delta} each round`);
-  for (const f of s.flags) if (f !== 'tiebreak') quals.push(f);
+  for (const f of s.flags) if (f !== 'tiebreak' && f !== 'max') quals.push(f);
   for (const n of s.notes) quals.push(n);
   if (quals.length) out += ', ' + quals.join(', ');
   if (s.flags.includes('tiebreak')) out += ' @tiebreak';
@@ -34,6 +43,7 @@ function stepText(s: Step): string {
 function restText(r: Rest): string {
   if (r.dynamic === 'as-needed') return 'rest as needed';
   if (r.dynamic === 'equal-to-work') return 'rest = work';
+  if (r.active) return `rest ${formatQuantity(r.active.quantity)} ${r.active.movement}`;
   let out = `rest ${r.duration ? formatDuration(r.duration) : ''}`.trim();
   if (r.afterLast) out += ' after last';
   return out;
@@ -56,22 +66,24 @@ function headerText(b: Block): string {
     case 'attempts': head = `${b.count} attempts`; break;
     case 'team': head = `team of ${b.count}`; break;
     case 'ladder': head = b.scheme!.join('-'); break;
-    case 'amrap': head = `AMRAP ${formatDuration(b.duration!)}`; break;
+    case 'amrap':
+      head = b.flags.includes('for-duration') ? `for ${dur(b.duration)}` : `AMRAP ${dur(b.duration)}`.trim();
+      break;
     case 'clock': {
-      const every = b.every ? formatDuration(b.every) : '';
+      const every = dur(b.every);
       if (b.untilFailure) head = `every ${every} until failure`;
-      else if (b.duration && b.every?.seconds === 60) head = `EMOM ${formatDuration(b.duration)}`;
-      else if (b.duration) head = `every ${every} for ${formatDuration(b.duration)}`;
+      else if (b.duration && b.every?.seconds === 60) head = `EMOM ${dur(b.duration)}`;
+      else if (b.duration) head = `every ${every} for ${dur(b.duration)}`;
       else head = `every ${every} x ${b.count}`;
       break;
     }
-    case 'work': head = `work ${formatDuration(b.duration!)}`; break;
+    case 'work': head = `work ${dur(b.duration)}`.trim(); break;
     case 'cycleEntry': head = `min ${b.count}`; break;
     case 'tally': head = 'any order'; break;
     case 'superset': head = 'superset'; break;
     case 'complex': head = 'complex'; break;
     case 'build':
-      head = `build to ${b.buildTarget} in ${formatDuration(b.duration!)}`;
+      head = `build to ${b.buildTarget} in ${dur(b.duration)}`.trim();
       if (b.label) head += ` as ${b.label}`;
       break;
     case 'section': head = b.name!; break;
@@ -87,10 +99,10 @@ function headerText(b: Block): string {
   for (const t of b.inherited) head += ` @ ${formatTarget(t)}`;
 
   const mods: string[] = [];
-  if (b.cap) mods.push(`cap ${formatDuration(b.cap)}`);
+  if (b.cap) mods.push(`cap ${dur(b.cap)}`);
   if (b.onOverrun) mods.push(`${b.onOverrun} on overrun`);
   for (const e of b.equipment) mods.push(`wearing ${e}`);
-  for (const f of b.flags) if (f !== 'sets' && f !== 'rounds') mods.push(f);
+  for (const f of b.flags) if (!['sets', 'rounds', 'for-duration'].includes(f)) mods.push(f);
 
   return [head, ...mods].join(', ') + ':';
 }

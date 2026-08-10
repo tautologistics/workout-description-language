@@ -1,6 +1,6 @@
 {
   "$comment": "Movement registry seed. Only id and title are required; everything else is advisory (movement_registry_design.md \u00a72). Classification data serves balance analysis only.",
-  "version": "2026.1",
+  "version": "2026.2",
   "movements": [
     {
       "id": "air-squat",
@@ -22,6 +22,16 @@
         "both"
       ],
       "defaultLaterality": "both"
+    },
+    {
+      "id": "atlas-stone-to-shoulder",
+      "title": "Atlas Stone to Shoulder",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "hinge",
+        "carry"
+      ]
     },
     {
       "id": "back-extension",
@@ -64,6 +74,17 @@
       "defaultLaterality": "both"
     },
     {
+      "id": "bar-facing-burpee",
+      "title": "Bar-Facing Burpee",
+      "pattern": [
+        "squat",
+        "horizontal-push"
+      ],
+      "related": [
+        "burpee"
+      ]
+    },
+    {
       "id": "bar-muscle-up",
       "title": "Bar Muscle-Up",
       "aliases": [
@@ -81,6 +102,17 @@
           "chest"
         ]
       }
+    },
+    {
+      "id": "bear-crawl",
+      "title": "Bear Crawl",
+      "measures": [
+        "distance"
+      ],
+      "pattern": [
+        "locomotion",
+        "core"
+      ]
     },
     {
       "id": "bench-press",
@@ -140,6 +172,16 @@
       "defaultLaterality": "both"
     },
     {
+      "id": "buddy-carry",
+      "title": "Buddy Carry",
+      "measures": [
+        "distance"
+      ],
+      "pattern": [
+        "carry"
+      ]
+    },
+    {
       "id": "burpee",
       "title": "Burpee",
       "pattern": [
@@ -170,6 +212,32 @@
         "horizontal-push",
         "locomotion"
       ]
+    },
+    {
+      "id": "burpee-pull-up",
+      "title": "Burpee Pull-Up",
+      "pattern": [
+        "squat",
+        "vertical-pull"
+      ],
+      "related": [
+        "burpee",
+        "pull-up"
+      ]
+    },
+    {
+      "id": "cable-fly",
+      "title": "Cable Fly",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "horizontal-push"
+      ],
+      "muscles": {
+        "primary": [
+          "chest"
+        ]
+      }
     },
     {
       "id": "chest-to-bar-pull-up",
@@ -240,46 +308,6 @@
       "defaultLaterality": "both"
     },
     {
-      "id": "dumbbell-hang-clean-to-overhead",
-      "title": "Dumbbell Hang Clean to Overhead",
-      "aliases": [
-        "db hang clean to overhead",
-        "dumbbell hang clean and jerk"
-      ],
-      "implements": 1,
-      "load": "total",
-      "laterality": [
-        "split",
-        "per-side"
-      ],
-      "pattern": [
-        "hinge",
-        "vertical-push"
-      ],
-      "defaultLaterality": "split"
-    },
-    {
-      "id": "dumbbell-snatch",
-      "title": "Dumbbell Snatch",
-      "aliases": [
-        "db snatch"
-      ],
-      "implements": 1,
-      "load": "total",
-      "laterality": [
-        "split",
-        "per-side"
-      ],
-      "pattern": [
-        "hinge",
-        "vertical-push"
-      ],
-      "related": [
-        "snatch"
-      ],
-      "defaultLaterality": "split"
-    },
-    {
       "id": "deadlift",
       "title": "Deadlift",
       "implements": 1,
@@ -322,6 +350,101 @@
         "both"
       ],
       "defaultLaterality": "both"
+    },
+    {
+      "id": "dumbbell-curl",
+      "title": "Dumbbell Curl",
+      "aliases": [
+        "db curl",
+        "bicep curl"
+      ],
+      "implements": 2,
+      "load": "per-implement",
+      "laterality": [
+        "both",
+        "split",
+        "per-side"
+      ],
+      "pattern": [
+        "elbow-flexion"
+      ],
+      "muscles": {
+        "primary": [
+          "biceps"
+        ]
+      }
+    },
+    {
+      "id": "dumbbell-hang-clean-to-overhead",
+      "title": "Dumbbell Hang Clean to Overhead",
+      "aliases": [
+        "db hang clean to overhead",
+        "dumbbell hang clean and jerk"
+      ],
+      "implements": 1,
+      "load": "total",
+      "laterality": [
+        "split",
+        "per-side"
+      ],
+      "pattern": [
+        "hinge",
+        "vertical-push"
+      ],
+      "defaultLaterality": "split"
+    },
+    {
+      "id": "dumbbell-snatch",
+      "title": "Dumbbell Snatch",
+      "aliases": [
+        "db snatch"
+      ],
+      "implements": 1,
+      "load": "total",
+      "laterality": [
+        "split",
+        "per-side"
+      ],
+      "pattern": [
+        "hinge",
+        "vertical-push"
+      ],
+      "related": [
+        "snatch"
+      ],
+      "defaultLaterality": "split"
+    },
+    {
+      "id": "dumbbell-squat-clean",
+      "title": "Dumbbell Squat Clean",
+      "aliases": [
+        "db squat clean"
+      ],
+      "implements": 2,
+      "load": "per-implement",
+      "pattern": [
+        "hinge",
+        "squat"
+      ]
+    },
+    {
+      "id": "dumbbell-thruster",
+      "title": "Dumbbell Thruster",
+      "aliases": [
+        "db thruster"
+      ],
+      "implements": 2,
+      "load": "per-implement",
+      "laterality": [
+        "both"
+      ],
+      "pattern": [
+        "squat",
+        "vertical-push"
+      ],
+      "related": [
+        "thruster"
+      ]
     },
     {
       "id": "farmers-carry",
@@ -370,6 +493,32 @@
       "defaultLaterality": "both"
     },
     {
+      "id": "ghd-sit-up",
+      "title": "GHD Sit-Up",
+      "pattern": [
+        "core"
+      ],
+      "muscles": {
+        "primary": [
+          "abs",
+          "hip-flexors"
+        ]
+      },
+      "related": [
+        "sit-up"
+      ]
+    },
+    {
+      "id": "hand-release-push-up",
+      "title": "Hand-Release Push-Up",
+      "pattern": [
+        "horizontal-push"
+      ],
+      "related": [
+        "push-up"
+      ]
+    },
+    {
       "id": "handstand-push-up",
       "title": "Handstand Push-Up",
       "aliases": [
@@ -410,6 +559,31 @@
       "defaultLaterality": "both"
     },
     {
+      "id": "hang-squat-clean",
+      "title": "Hang Squat Clean",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "hinge",
+        "squat"
+      ],
+      "related": [
+        "clean"
+      ]
+    },
+    {
+      "id": "jerk",
+      "title": "Jerk",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "vertical-push"
+      ],
+      "related": [
+        "push-jerk"
+      ]
+    },
+    {
       "id": "jumping-pull-up",
       "title": "Jumping Pull-Up",
       "pattern": [
@@ -418,6 +592,24 @@
       ],
       "related": [
         "pull-up"
+      ]
+    },
+    {
+      "id": "kettlebell-snatch",
+      "title": "Kettlebell Snatch",
+      "aliases": [
+        "kb snatch"
+      ],
+      "implements": 1,
+      "load": "total",
+      "laterality": [
+        "split",
+        "per-side"
+      ],
+      "defaultLaterality": "split",
+      "pattern": [
+        "hinge",
+        "vertical-push"
       ]
     },
     {
@@ -480,6 +672,67 @@
       ]
     },
     {
+      "id": "log-press",
+      "title": "Log Press",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "vertical-push"
+      ]
+    },
+    {
+      "id": "muscle-up",
+      "title": "Muscle-Up",
+      "pattern": [
+        "vertical-pull",
+        "horizontal-push"
+      ],
+      "related": [
+        "bar-muscle-up"
+      ]
+    },
+    {
+      "id": "overhead-squat",
+      "title": "Overhead Squat",
+      "aliases": [
+        "ohs"
+      ],
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "squat"
+      ],
+      "muscles": {
+        "primary": [
+          "quads",
+          "glutes",
+          "shoulders"
+        ]
+      }
+    },
+    {
+      "id": "parallette-handstand-push-up",
+      "title": "Parallette Handstand Push-Up",
+      "pattern": [
+        "vertical-push"
+      ],
+      "related": [
+        "handstand-push-up"
+      ]
+    },
+    {
+      "id": "partner-barbell-carry",
+      "title": "Partner Barbell Carry",
+      "implements": 1,
+      "load": "total",
+      "measures": [
+        "distance"
+      ],
+      "pattern": [
+        "carry"
+      ]
+    },
+    {
       "id": "pistol",
       "title": "Pistol",
       "aliases": [
@@ -502,6 +755,18 @@
       "defaultLaterality": "split"
     },
     {
+      "id": "plank",
+      "title": "Plank",
+      "pattern": [
+        "core"
+      ],
+      "muscles": {
+        "primary": [
+          "abs"
+        ]
+      }
+    },
+    {
       "id": "power-clean",
       "title": "Power Clean",
       "implements": 1,
@@ -516,6 +781,19 @@
         "both"
       ],
       "defaultLaterality": "both"
+    },
+    {
+      "id": "power-snatch",
+      "title": "Power Snatch",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "hinge",
+        "vertical-push"
+      ],
+      "related": [
+        "snatch"
+      ]
     },
     {
       "id": "pull-up",
@@ -598,6 +876,36 @@
       "defaultLaterality": "both"
     },
     {
+      "id": "ring-dip",
+      "title": "Ring Dip",
+      "pattern": [
+        "vertical-push"
+      ],
+      "muscles": {
+        "primary": [
+          "triceps",
+          "chest"
+        ]
+      }
+    },
+    {
+      "id": "rope-climb",
+      "title": "Rope Climb",
+      "measures": [
+        "distance"
+      ],
+      "pattern": [
+        "vertical-pull"
+      ],
+      "muscles": {
+        "primary": [
+          "lats",
+          "biceps",
+          "grip"
+        ]
+      }
+    },
+    {
       "id": "row",
       "title": "Row",
       "aliases": [
@@ -630,6 +938,18 @@
           "calves"
         ]
       }
+    },
+    {
+      "id": "sandbag-carry",
+      "title": "Sandbag Carry",
+      "implements": 1,
+      "load": "total",
+      "measures": [
+        "distance"
+      ],
+      "pattern": [
+        "carry"
+      ]
     },
     {
       "id": "sandbag-lunge",
@@ -667,6 +987,16 @@
         "both"
       ],
       "defaultLaterality": "both"
+    },
+    {
+      "id": "shuttle-sprint",
+      "title": "Shuttle Sprint",
+      "measures": [
+        "distance"
+      ],
+      "pattern": [
+        "locomotion"
+      ]
     },
     {
       "id": "sit-up",
@@ -731,6 +1061,18 @@
       ]
     },
     {
+      "id": "sledgehammer-strike",
+      "title": "Sledgehammer Strike",
+      "laterality": [
+        "split",
+        "per-side"
+      ],
+      "defaultLaterality": "per-side",
+      "pattern": [
+        "core"
+      ]
+    },
+    {
       "id": "snatch",
       "title": "Snatch",
       "implements": 1,
@@ -746,6 +1088,78 @@
         "both"
       ],
       "defaultLaterality": "both"
+    },
+    {
+      "id": "sprint",
+      "title": "Sprint",
+      "measures": [
+        "distance"
+      ],
+      "pattern": [
+        "locomotion"
+      ],
+      "related": [
+        "run"
+      ]
+    },
+    {
+      "id": "sprint-drag-carry",
+      "title": "Sprint-Drag-Carry",
+      "measures": [
+        "distance"
+      ],
+      "pattern": [
+        "locomotion",
+        "carry"
+      ]
+    },
+    {
+      "id": "squat-clean",
+      "title": "Squat Clean",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "hinge",
+        "squat"
+      ],
+      "related": [
+        "clean"
+      ]
+    },
+    {
+      "id": "squat-snatch",
+      "title": "Squat Snatch",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "hinge",
+        "squat"
+      ],
+      "related": [
+        "snatch"
+      ]
+    },
+    {
+      "id": "stiff-legged-deadlift",
+      "title": "Stiff-Legged Deadlift",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "hinge"
+      ],
+      "related": [
+        "deadlift"
+      ]
+    },
+    {
+      "id": "strict-pull-up",
+      "title": "Strict Pull-Up",
+      "pattern": [
+        "vertical-pull"
+      ],
+      "related": [
+        "pull-up"
+      ]
     },
     {
       "id": "sumo-deadlift-high-pull",
@@ -803,22 +1217,11 @@
       "defaultLaterality": "both"
     },
     {
-      "id": "dumbbell-thruster",
-      "title": "Dumbbell Thruster",
-      "aliases": [
-        "db thruster"
-      ],
-      "implements": 2,
-      "load": "per-implement",
-      "laterality": [
-        "both"
-      ],
+      "id": "tire-flip",
+      "title": "Tire Flip",
       "pattern": [
-        "squat",
-        "vertical-push"
-      ],
-      "related": [
-        "thruster"
+        "hinge",
+        "horizontal-push"
       ]
     },
     {
@@ -902,6 +1305,18 @@
           "core"
         ]
       }
+    },
+    {
+      "id": "yoke-carry",
+      "title": "Yoke Carry",
+      "implements": 1,
+      "load": "total",
+      "measures": [
+        "distance"
+      ],
+      "pattern": [
+        "carry"
+      ]
     }
   ]
 }

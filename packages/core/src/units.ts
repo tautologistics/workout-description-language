@@ -75,6 +75,11 @@ export function parseQuantity(text: string): { quantity: Unit; rest: string } {
   const rest = t.slice(first.length).trim();
 
   let m: RegExpMatchArray | null;
+  // `8-12 Dumbbell Curl` — a rep range. At block level the same shape is a rep
+  // scheme (`21-15-9:`); the trailing colon is what separates them.
+  if ((m = first.match(/^(\d+)-(\d+)$/)) && +m[1] < +m[2]) {
+    return { quantity: { kind: 'range', min: +m[1], max: +m[2] }, rest };
+  }
   if ((m = first.match(FLOOR))) return { quantity: { kind: 'floor', value: +m[1] }, rest };
   if ((m = first.match(DIST)))
     return { quantity: { kind: 'distance', value: +m[1], unit: m[2] as any }, rest };
@@ -95,12 +100,14 @@ export function formatQuantity(u: Unit): string {
     case 'duration': return formatDuration(u);
     case 'max': return 'max';
     case 'floor': return `${u.value}+`;
+    case 'range': return `${u.min}-${u.max}`;
+    case 'maxEffort': return 'max';
     case 'open': return '';
   }
 }
 
-const LOAD_ABS = /^(\d+(?:\.\d+)?)\s*(lbs?|kgs?|#)$/i;
-const LOAD_PAIR = /^(\d+)\s*x\s*(\d+(?:\.\d+)?)\s*(lbs?|kgs?|#)$/i;
+const LOAD_ABS = /^(\d+(?:\.\d+)?)\s*(lbs?|kgs?|#|pood)$/i;
+const LOAD_PAIR = /^(\d+)\s*x\s*(\d+(?:\.\d+)?)\s*(lbs?|kgs?|#|pood)$/i;
 const LOAD_PCT = /^(\d+(?:\.\d+)?)%(?:\s+(.+))?$/;
 const LOAD_MULT = /^(\d+(?:\.\d+)?)x\s+(.+)$/i;
 const HEIGHT = /^(\d+(?:\.\d+)?)\s*(in|cm|ft|")$/i;
@@ -110,6 +117,7 @@ export function parseTarget(text: string): Target {
   let m: RegExpMatchArray | null;
 
   const norm = (u: string) => (u === '#' ? 'lb' : u.toLowerCase().replace(/s$/, ''));
+  // A pood is a Russian unit CrossFit still uses for kettlebells: 16.38 kg.
   if ((m = t.match(LOAD_PAIR)))
     return { kind: 'load', load: { kind: 'absolute', value: +m[2], unit: norm(m[3]) as any, implements: +m[1] } };
   if ((m = t.match(LOAD_ABS)))

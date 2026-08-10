@@ -108,6 +108,8 @@ function quantityLabel(u: Unit): string {
     case 'duration': return fmtClock(u.seconds);
     case 'max': return 'max';
     case 'floor': return `${u.value}+`;
+    case 'range': return `${u.min}-${u.max}`;
+    case 'maxEffort': return 'max';
     case 'open': return '';
   }
 }
@@ -192,7 +194,8 @@ function compileRest(r: Rest): TimelineRest {
     dynamic: r.dynamic,
     afterLast: r.afterLast,
     pacing: seconds !== undefined ? 'timed' : 'athlete',
-    label: r.dynamic === 'equal-to-work' ? 'rest (equal to work)'
+    label: r.active ? `rest — ${quantityLabel(r.active.quantity)} ${r.active.movement}`
+      : r.dynamic === 'equal-to-work' ? 'rest (equal to work)'
       : r.dynamic === 'as-needed' ? 'rest as needed'
       : `rest ${seconds !== undefined ? fmtClock(seconds) : ''}`.trim(),
   };
@@ -201,7 +204,9 @@ function compileRest(r: Rest): TimelineRest {
 /** Pacing for a step, given what encloses it. */
 function pacingFor(q: Unit, enclosing: { clock?: boolean; capped?: boolean }): Pacing {
   if (q.kind === 'duration') return 'timed';
-  if (q.kind === 'max') return 'timed';        // bounded by the enclosing clock
+  // `max` is a remainder only when a clock encloses it. With no clock it is a
+  // max effort to failure, which the athlete ends (Lynne, not an EMOM).
+  if (q.kind === 'max') return enclosing.clock || enclosing.capped ? 'timed' : 'athlete';
   if (enclosing.capped) return 'capped';
   return 'athlete';
 }

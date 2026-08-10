@@ -4,6 +4,7 @@ import './fold.test.ts';
 import './lines.test.ts';
 import './semantics.test.ts';
 import './corpus.test.ts';
+import './corpus2.test.ts';
 import './timeline.test.ts';
 import './accepted.test.ts';
 import './errors.test.ts';

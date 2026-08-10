@@ -80,3 +80,20 @@ describe('units', () => {
     eq(parseTarget('24in').kind, 'height');
   });
 });
+
+describe('units: found by the expanded corpus', () => {
+  it('parses pood, the unit CrossFit still uses for kettlebells', () => {
+    eq(parseTarget('2pood'), { kind: 'load', load: { kind: 'absolute', value: 2, unit: 'pood' } });
+    eq(parseTarget('1.5pood'), { kind: 'load', load: { kind: 'absolute', value: 1.5, unit: 'pood' } });
+  });
+
+  it('parses a rep range', () => {
+    eq(parseQuantity('8-12 Dumbbell Curl').quantity, { kind: 'range', min: 8, max: 12 });
+    eq(parseQuantity('8-12 Dumbbell Curl').rest, 'Dumbbell Curl');
+  });
+
+  it('does not read a descending scheme as a range', () => {
+    // `21-15-9` is a block header, not a step quantity; and a range must ascend.
+    eq(parseQuantity('15-9 Thruster').quantity.kind, 'open');
+  });
+});

@@ -41,7 +41,7 @@ export function validate(w: Workout, opts: ValidateOptions = {}): Diagnostic[] {
 
   // ---- structural checks -------------------------------------------------
 
-  const walkBlocks = (nodes: Node[], inForTime: boolean) => {
+  const walkBlocks = (nodes: Node[], inForTime: boolean, inCap = false) => {
     for (const n of nodes) {
       if (n.node === 'step') { checkStep(n); continue; }
       if (n.node === 'interrupt') { for (const b of n.body) if (b.node === 'step') checkStep(b); continue; }
@@ -49,9 +49,11 @@ export function validate(w: Workout, opts: ValidateOptions = {}): Diagnostic[] {
 
       if (n.label) labels.add(n.label);
 
-      if (n.type === 'amrap' && !n.duration) {
+      // A bare `AMRAP:` is legal only where an enclosing cap supplies the
+      // window — "run 1.5 miles, then AMRAP in the time remaining".
+      if (n.type === 'amrap' && !n.duration && !inCap) {
         add({ severity: 'error', code: 'amrap-no-duration', line: n.line,
-              message: 'an AMRAP needs a duration — `AMRAP 12min:`' });
+              message: 'an AMRAP needs a duration, or an enclosing time cap to take it from' });
       }
       if (n.type === 'clock' && !n.every) {
         add({ severity: 'error', code: 'clock-no-cadence', line: n.line,
@@ -90,7 +92,7 @@ export function validate(w: Workout, opts: ValidateOptions = {}): Diagnostic[] {
               message: '`rounds + reps` needs an open-ended block — a fixed-round or for-time workout scores time' });
       }
 
-      walkBlocks(n.children, forTime);
+      walkBlocks(n.children, forTime, inCap || n.cap !== undefined);
     }
   };
 
@@ -107,8 +109,8 @@ export function validate(w: Workout, opts: ValidateOptions = {}): Diagnostic[] {
       }
       if (t.kind === 'load' && t.load.kind === 'percent' && t.load.of) {
         const ref = t.load.of;
-        const known = new Set(['1RM', 'TM', 'FTP', 'BW', ...(opts.profile ?? [])]);
-        if (!known.has(ref) && !labels.has(ref)) {
+        const known = new Set(['TM', 'FTP', 'BW', ...(opts.profile ?? [])]);
+        if (!known.has(ref) && !/^\d+RM$/.test(ref) && !labels.has(ref)) {
           add({ severity: 'warning', code: 'unknown-reference', line,
                 message: `\`${ref}\` is neither an athlete-profile value nor a block label in this workout` });
         }

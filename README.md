@@ -18,20 +18,21 @@ Spec 0.1 draft with a working reference parser, formatter, and CLI. Zero depende
 core runs on Node 22+ via native TypeScript type stripping.
 
 ```
-npm test --prefix packages/core        # 237 passing
+npm test --prefix packages/core        # 459 passing
 
 units            11/11   quantities, loads, targets, duration decomposition
 fold/registry    17/17   name normalization, aliases, abbreviations, ambiguity
+corpus round 2    9/9    structures found by growing the corpus to 110
 lines             9/9    indentation tree, comments, brace continuations
 structure        10/10   containers parse to what the workout means
 prescriptions     6/6    relative loads, labels, dynamic rest, paired implements
 laterality/teams  3/3    counting modes, side selectors, shared totals
 scoring           6/6    per-round, aggregates, tiebreaks, attempts
-corpus           40/40   parse, round-trip, and formatter idempotence
-timeline         56/56   desugaring, pacing, duration, and what can't be a timeline
+corpus         110/110   parse, round-trip, and formatter idempotence
+timeline       126/126   desugaring, pacing, duration, and what can't be a timeline
 accepted input   13/13   documented variants canonicalize as specified
 errors            6/6    parse-level failures report file and line
-validation       56/56   errors, warnings, and never-guess questions
+validation     126/126   errors, warnings, and never-guess questions
 ```
 
 ```bash
@@ -45,10 +46,10 @@ node packages/core/bin/wdl.ts check    examples/corpus/*.wdl
 | Path | What's there |
 |---|---|
 | [`spec/spec-0.1.md`](spec/spec-0.1.md) | The notation. §13 encodes all 40 corpus workouts; §14 records what that found. |
-| [`examples/corpus/`](examples/corpus) | The 40 workouts as `.wdl` files — the parser's test suite. |
+| [`examples/corpus/`](examples/corpus) | 110 workouts as `.wdl` files — the conformance suite. |
 | [`examples/falsification-corpus.md`](examples/falsification-corpus.md) | The model test: what broke, and why. |
 | [`packages/core/`](packages/core) | Reference implementation: parser, formatter, timeline compiler, validator, `wdl` CLI. |
-| [`registry/movements.json`](registry/movements.json) | Movement registry — 47 entries covering the corpus. |
+| [`registry/movements.json`](registry/movements.json) | Movement registry — 80 entries covering the corpus. |
 | [`docs/`](docs) | Vision and roadmap, prior art, movement registry design, adversarial review. |
 
 ## Reading order
