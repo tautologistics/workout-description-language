@@ -321,7 +321,11 @@ Pinning is optional and rarely needed — the stability rules below are designed
 
 **Governance.** Start as a repo with PR review and a schema-validating CI check (ID format, `fold(title) == id`, no alias collisions across entries, required metadata present). That's sufficient for a long time and keeps the barrier low. Formal governance is a problem worth having later.
 
-**Seeding.** Fork [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (~800 movements, public domain, muscles and equipment already tagged), map its records onto the entry schema, then hand-curate the ~150 movements the initial corpus actually uses. Cross-reference [wger](https://github.com/wger-project/wger) and Garmin's FIT `exercise_category`/`exercise_name` enums to populate `external` mappings while the data is fresh.
+**Seeding — done.** [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (873 movements, public domain under the Unlicense) is imported for titles, muscles, and equipment; imported entries carry `source: free-exercise-db`. Hand-curated entries are authoritative wherever the two overlap, and an import is skipped rather than allowed to shadow one.
+
+The import produced **zero fold collisions** against the curated set — 873 real exercise names, none of them colliding with a curated id, title, or alias, and none colliding with each other. That is a useful independent check on the fold rules, since the vocabulary was written by people who had never seen them.
+
+Notably the import did *not* cover the CrossFit, Hyrox, and strongman vocabulary — Turkish get-ups, wall walks, sled pulls, ground-to-overhead, atlas stones — so the curated layer remains where the corpus is actually served. The registry now holds 952 entries. Cross-reference [wger](https://github.com/wger-project/wger) and Garmin's FIT `exercise_category`/`exercise_name` enums to populate `external` mappings while the data is fresh.
 
 ---
 
