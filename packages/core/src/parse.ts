@@ -172,8 +172,9 @@ class Parser {
       block.type = 'team'; block.count = +m[1];
     } else if (/^(\d+)(-\d+)+$/.test(head)) {
       block.type = 'ladder'; block.scheme = head.split('-').map(Number);
-    } else if ((m = head.match(/^AMRAP\s+(\S+)$/i))) {
-      block.type = 'amrap'; block.duration = parseDuration(m[1], true) ?? undefined;
+    } else if ((m = head.match(/^AMRAP(?:\s+(\S+))?$/i))) {
+      block.type = 'amrap';
+      block.duration = m[1] ? (parseDuration(m[1], true) ?? undefined) : undefined;
       block.score ??= { primary: 'rounds + reps', raw: 'rounds + reps', implied: true };
     } else if ((m = head.match(/^E(\d*)MOM\s+(\S+)$/i))) {
       block.type = 'clock';
@@ -183,6 +184,8 @@ class Parser {
       block.type = 'clock'; block.every = parseDuration(m[1], true) ?? undefined; block.untilFailure = true;
     } else if ((m = head.match(/^every\s+(\S+)\s*(?:x|×)\s*(\d+)$/i))) {
       block.type = 'clock'; block.every = parseDuration(m[1], true) ?? undefined; block.count = +m[2];
+    } else if ((m = head.match(/^every\s+(\S+)$/i))) {
+      block.type = 'clock'; block.every = parseDuration(m[1], true) ?? undefined;
     } else if ((m = head.match(/^work\s+(\S+)$/i))) {
       block.type = 'work'; block.duration = parseDuration(m[1], true) ?? undefined;
     } else if ((m = head.match(/^min(?:ute)?\s+(\d+)$/i))) {

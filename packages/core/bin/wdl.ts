@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { parse } from '../src/parse.ts';
 import { format } from '../src/format.ts';
 import { compile, outline, fmtClock } from '../src/timeline.ts';
+import { validate } from '../src/validate.ts';
 
 const [cmd, ...args] = process.argv.slice(2);
 const write = args.includes('-w') || args.includes('--write');
@@ -33,8 +34,15 @@ for (const file of files) {
       ? `\n  duration: ${fmtClock(t.estimatedSeconds)}`
       : '\n  duration: athlete-paced');
     for (const w of t.warnings) console.log(`  warning: ${w}`);
-  } else if (!errors.length) {
-    console.log(`${file}: ok`);
+  } else if (cmd === 'check') {
+    const diags = validate(workout);
+    for (const d of diags) {
+      const where = d.line ? `${file}:${d.line}` : file;
+      console.log(`${where}: ${d.severity}: ${d.message}`);
+      for (const c of d.candidates ?? []) console.log(`    - ${c}`);
+    }
+    if (diags.some((d) => d.severity === 'error')) failed++;
+    if (!errors.length && !diags.length) console.log(`${file}: ok`);
   }
 }
 process.exit(failed ? 1 : 0);

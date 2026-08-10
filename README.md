@@ -18,9 +18,10 @@ Spec 0.1 draft with a working reference parser, formatter, and CLI. Zero depende
 core runs on Node 22+ via native TypeScript type stripping.
 
 ```
-npm test --prefix packages/core        # 164 passing, 8 pending
+npm test --prefix packages/core        # 237 passing
 
 units            11/11   quantities, loads, targets, duration decomposition
+fold/registry    17/17   name normalization, aliases, abbreviations, ambiguity
 lines             9/9    indentation tree, comments, brace continuations
 structure        10/10   containers parse to what the workout means
 prescriptions     6/6    relative loads, labels, dynamic rest, paired implements
@@ -29,12 +30,14 @@ scoring           6/6    per-round, aggregates, tiebreaks, attempts
 corpus           40/40   parse, round-trip, and formatter idempotence
 timeline         56/56   desugaring, pacing, duration, and what can't be a timeline
 accepted input   13/13   documented variants canonicalize as specified
-errors            6/6    plus 8 pending — gaps awaiting semantic validation
+errors            6/6    parse-level failures report file and line
+validation       56/56   errors, warnings, and never-guess questions
 ```
 
 ```bash
 node packages/core/bin/wdl.ts fmt      examples/corpus/04-fran.wdl
 node packages/core/bin/wdl.ts timeline examples/corpus/18-fight-gone-bad.wdl
+node packages/core/bin/wdl.ts check    examples/corpus/*.wdl
 ```
 
 ## Layout
@@ -44,7 +47,8 @@ node packages/core/bin/wdl.ts timeline examples/corpus/18-fight-gone-bad.wdl
 | [`spec/spec-0.1.md`](spec/spec-0.1.md) | The notation. §13 encodes all 40 corpus workouts; §14 records what that found. |
 | [`examples/corpus/`](examples/corpus) | The 40 workouts as `.wdl` files — the parser's test suite. |
 | [`examples/falsification-corpus.md`](examples/falsification-corpus.md) | The model test: what broke, and why. |
-| [`packages/core/`](packages/core) | Reference implementation: two-phase parser, canonical formatter, `wdl` CLI. |
+| [`packages/core/`](packages/core) | Reference implementation: parser, formatter, timeline compiler, validator, `wdl` CLI. |
+| [`registry/movements.json`](registry/movements.json) | Movement registry — 47 entries covering the corpus. |
 | [`docs/`](docs) | Vision and roadmap, prior art, movement registry design, adversarial review. |
 
 ## Reading order
@@ -58,6 +62,6 @@ node packages/core/bin/wdl.ts timeline examples/corpus/18-fight-gone-bad.wdl
 
 ## Next
 
-The movement registry and semantic validation, then the interop adapters — all three consume the
-timeline. After that, a tree-sitter grammar and a language-neutral conformance suite so other
-languages get correctness, not just a parser (roadmap §5.1).
+Interop adapters — FIT, Zwift `.zwo`, `.erg`/`.mrc`, intervals.icu — which consume the timeline.
+Then a tree-sitter grammar and a language-neutral conformance suite so other languages get
+correctness, not just a parser (roadmap §5.1).

@@ -4,7 +4,7 @@
  * `pending` entries below keep that gap visible in the suite rather than
  * letting silence imply coverage.
  */
-import { describe, it, eq, ok, pending } from './lib.ts';
+import { describe, it, eq, ok } from './lib.ts';
 import { parse } from '../src/parse.ts';
 
 const errs = (src: string) => parse(src).errors;
@@ -46,12 +46,5 @@ describe('errors', () => {
     eq((workout.body[0] as any).children[0].notes, ['wearing a hat']);
   });
 
-  pending('rejects an AMRAP with no duration', 'needs semantic validation');
-  pending('rejects negative or zero repetitions', 'needs semantic validation');
-  pending('rejects a rep scheme whose length mismatches its movements', 'needs semantic validation');
-  pending('asks which reading `95/65` means', 'ambiguity prompts not implemented (spec §12)');
-  pending('asks which erg `Erg` means', 'needs the movement registry');
-  pending('asks for a counting mode when the registry has no default', 'needs the movement registry');
-  pending('rejects `rounds + reps` on a fixed for-time workout', 'needs semantic validation');
-  pending('warns when a percentage load has no reference max', 'needs the athlete profile');
+  // The eight cases formerly pending here are now enforced in validate.test.ts.
 });

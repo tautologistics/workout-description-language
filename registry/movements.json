@@ -1,0 +1,907 @@
+{
+  "$comment": "Movement registry seed. Only id and title are required; everything else is advisory (movement_registry_design.md \u00a72). Classification data serves balance analysis only.",
+  "version": "2026.1",
+  "movements": [
+    {
+      "id": "air-squat",
+      "title": "Air Squat",
+      "aliases": [
+        "bodyweight squat",
+        "squat"
+      ],
+      "pattern": [
+        "squat"
+      ],
+      "muscles": {
+        "primary": [
+          "quads",
+          "glutes"
+        ]
+      },
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "back-extension",
+      "title": "Back Extension",
+      "aliases": [
+        "hip extension"
+      ],
+      "pattern": [
+        "hinge"
+      ],
+      "muscles": {
+        "primary": [
+          "erectors",
+          "glutes",
+          "hamstrings"
+        ]
+      }
+    },
+    {
+      "id": "back-squat",
+      "title": "Back Squat",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "squat"
+      ],
+      "muscles": {
+        "primary": [
+          "quads",
+          "glutes"
+        ],
+        "secondary": [
+          "erectors",
+          "core"
+        ]
+      },
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "bar-muscle-up",
+      "title": "Bar Muscle-Up",
+      "aliases": [
+        "bmu"
+      ],
+      "pattern": [
+        "vertical-pull",
+        "horizontal-push"
+      ],
+      "muscles": {
+        "primary": [
+          "lats",
+          "biceps",
+          "triceps",
+          "chest"
+        ]
+      }
+    },
+    {
+      "id": "bench-press",
+      "title": "Bench Press",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "horizontal-push"
+      ],
+      "muscles": {
+        "primary": [
+          "chest",
+          "triceps",
+          "shoulders"
+        ]
+      },
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "bike",
+      "title": "Bike",
+      "aliases": [
+        "assault bike",
+        "echo bike",
+        "air bike",
+        "bike erg",
+        "bikeerg"
+      ],
+      "measures": [
+        "distance",
+        "calories"
+      ],
+      "pattern": [
+        "locomotion"
+      ]
+    },
+    {
+      "id": "box-jump",
+      "title": "Box Jump",
+      "pattern": [
+        "squat",
+        "locomotion"
+      ],
+      "muscles": {
+        "primary": [
+          "quads",
+          "glutes",
+          "calves"
+        ]
+      },
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "burpee",
+      "title": "Burpee",
+      "pattern": [
+        "squat",
+        "horizontal-push",
+        "locomotion"
+      ],
+      "muscles": {
+        "primary": [
+          "chest",
+          "quads",
+          "core"
+        ]
+      },
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "burpee-broad-jump",
+      "title": "Burpee Broad Jump",
+      "measures": [
+        "distance"
+      ],
+      "pattern": [
+        "squat",
+        "horizontal-push",
+        "locomotion"
+      ]
+    },
+    {
+      "id": "chest-to-bar-pull-up",
+      "title": "Chest-to-Bar Pull-Up",
+      "aliases": [
+        "c2b",
+        "ctb",
+        "chest to bar"
+      ],
+      "pattern": [
+        "vertical-pull"
+      ],
+      "muscles": {
+        "primary": [
+          "lats",
+          "biceps"
+        ]
+      },
+      "related": [
+        "pull-up"
+      ]
+    },
+    {
+      "id": "clean",
+      "title": "Clean",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "hinge",
+        "squat"
+      ],
+      "muscles": {
+        "primary": [
+          "glutes",
+          "hamstrings",
+          "traps",
+          "quads"
+        ]
+      },
+      "related": [
+        "power-clean",
+        "hang-power-clean"
+      ],
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "clean-and-jerk",
+      "title": "Clean and Jerk",
+      "aliases": [
+        "clean & jerk",
+        "c&j"
+      ],
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "hinge",
+        "vertical-push"
+      ],
+      "related": [
+        "clean"
+      ],
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "dumbbell-hang-clean-to-overhead",
+      "title": "Dumbbell Hang Clean to Overhead",
+      "aliases": [
+        "db hang clean to overhead",
+        "dumbbell hang clean and jerk"
+      ],
+      "implements": 1,
+      "load": "total",
+      "laterality": [
+        "split",
+        "per-side"
+      ],
+      "pattern": [
+        "hinge",
+        "vertical-push"
+      ],
+      "defaultLaterality": "split"
+    },
+    {
+      "id": "dumbbell-snatch",
+      "title": "Dumbbell Snatch",
+      "aliases": [
+        "db snatch"
+      ],
+      "implements": 1,
+      "load": "total",
+      "laterality": [
+        "split",
+        "per-side"
+      ],
+      "pattern": [
+        "hinge",
+        "vertical-push"
+      ],
+      "related": [
+        "snatch"
+      ],
+      "defaultLaterality": "split"
+    },
+    {
+      "id": "deadlift",
+      "title": "Deadlift",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "hinge"
+      ],
+      "muscles": {
+        "primary": [
+          "hamstrings",
+          "glutes",
+          "erectors"
+        ],
+        "secondary": [
+          "lats",
+          "traps"
+        ]
+      },
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "double-under",
+      "title": "Double-Under",
+      "aliases": [
+        "du",
+        "double unders"
+      ],
+      "pattern": [
+        "locomotion"
+      ],
+      "muscles": {
+        "primary": [
+          "calves"
+        ]
+      },
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "farmers-carry",
+      "title": "Farmers Carry",
+      "aliases": [
+        "farmer carry",
+        "farmers walk"
+      ],
+      "implements": 2,
+      "load": "per-implement",
+      "measures": [
+        "distance"
+      ],
+      "pattern": [
+        "carry"
+      ],
+      "muscles": {
+        "primary": [
+          "traps",
+          "forearms",
+          "core"
+        ]
+      }
+    },
+    {
+      "id": "front-squat",
+      "title": "Front Squat",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "squat"
+      ],
+      "muscles": {
+        "primary": [
+          "quads",
+          "glutes"
+        ],
+        "secondary": [
+          "core",
+          "upper-back"
+        ]
+      },
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "handstand-push-up",
+      "title": "Handstand Push-Up",
+      "aliases": [
+        "hspu"
+      ],
+      "pattern": [
+        "vertical-push"
+      ],
+      "muscles": {
+        "primary": [
+          "shoulders",
+          "triceps"
+        ]
+      },
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "hang-power-clean",
+      "title": "Hang Power Clean",
+      "aliases": [
+        "hpc"
+      ],
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "hinge"
+      ],
+      "related": [
+        "clean",
+        "power-clean"
+      ],
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "jumping-pull-up",
+      "title": "Jumping Pull-Up",
+      "pattern": [
+        "vertical-pull",
+        "squat"
+      ],
+      "related": [
+        "pull-up"
+      ]
+    },
+    {
+      "id": "kettlebell-swing",
+      "title": "Kettlebell Swing",
+      "aliases": [
+        "kb swing",
+        "russian swing",
+        "american swing"
+      ],
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "hinge"
+      ],
+      "muscles": {
+        "primary": [
+          "glutes",
+          "hamstrings"
+        ],
+        "secondary": [
+          "shoulders",
+          "core"
+        ]
+      }
+    },
+    {
+      "id": "knees-to-elbow",
+      "title": "Knees-to-Elbow",
+      "aliases": [
+        "k2e",
+        "knees to elbows"
+      ],
+      "pattern": [
+        "core"
+      ],
+      "muscles": {
+        "primary": [
+          "abs",
+          "hip-flexors"
+        ]
+      },
+      "related": [
+        "toes-to-bar"
+      ]
+    },
+    {
+      "id": "lateral-burpee-over-dumbbell",
+      "title": "Lateral Burpee over Dumbbell",
+      "aliases": [
+        "lateral burpee over db"
+      ],
+      "pattern": [
+        "squat",
+        "horizontal-push",
+        "locomotion"
+      ],
+      "related": [
+        "burpee"
+      ]
+    },
+    {
+      "id": "pistol",
+      "title": "Pistol",
+      "aliases": [
+        "single leg squat",
+        "pistol squat"
+      ],
+      "laterality": [
+        "split",
+        "per-side"
+      ],
+      "pattern": [
+        "squat"
+      ],
+      "muscles": {
+        "primary": [
+          "quads",
+          "glutes"
+        ]
+      },
+      "defaultLaterality": "split"
+    },
+    {
+      "id": "power-clean",
+      "title": "Power Clean",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "hinge"
+      ],
+      "related": [
+        "clean"
+      ],
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "pull-up",
+      "title": "Pull-Up",
+      "aliases": [
+        "pullup",
+        "pull ups"
+      ],
+      "pattern": [
+        "vertical-pull"
+      ],
+      "muscles": {
+        "primary": [
+          "lats",
+          "biceps"
+        ]
+      },
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "push-jerk",
+      "title": "Push Jerk",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "vertical-push"
+      ],
+      "related": [
+        "push-press"
+      ],
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "push-press",
+      "title": "Push Press",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "vertical-push"
+      ],
+      "muscles": {
+        "primary": [
+          "shoulders",
+          "triceps"
+        ],
+        "secondary": [
+          "quads"
+        ]
+      },
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "push-up",
+      "title": "Push-Up",
+      "aliases": [
+        "pushup",
+        "press-up"
+      ],
+      "pattern": [
+        "horizontal-push"
+      ],
+      "muscles": {
+        "primary": [
+          "chest",
+          "triceps"
+        ]
+      },
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "row",
+      "title": "Row",
+      "aliases": [
+        "rower",
+        "concept2",
+        "c2"
+      ],
+      "measures": [
+        "distance",
+        "calories"
+      ],
+      "pattern": [
+        "horizontal-pull",
+        "locomotion"
+      ]
+    },
+    {
+      "id": "run",
+      "title": "Run",
+      "measures": [
+        "distance"
+      ],
+      "pattern": [
+        "locomotion"
+      ],
+      "muscles": {
+        "primary": [
+          "quads",
+          "hamstrings",
+          "calves"
+        ]
+      }
+    },
+    {
+      "id": "sandbag-lunge",
+      "title": "Sandbag Lunge",
+      "implements": 1,
+      "load": "total",
+      "measures": [
+        "distance"
+      ],
+      "pattern": [
+        "squat",
+        "carry"
+      ]
+    },
+    {
+      "id": "shoulder-press",
+      "title": "Shoulder Press",
+      "aliases": [
+        "strict press",
+        "press",
+        "overhead press"
+      ],
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "vertical-push"
+      ],
+      "muscles": {
+        "primary": [
+          "shoulders",
+          "triceps"
+        ]
+      },
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "sit-up",
+      "title": "Sit-Up",
+      "aliases": [
+        "situp",
+        "abmat sit-up"
+      ],
+      "pattern": [
+        "core"
+      ],
+      "muscles": {
+        "primary": [
+          "abs",
+          "hip-flexors"
+        ]
+      },
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "skierg",
+      "title": "SkiErg",
+      "aliases": [
+        "ski",
+        "ski erg"
+      ],
+      "measures": [
+        "distance",
+        "calories"
+      ],
+      "pattern": [
+        "vertical-pull",
+        "core"
+      ]
+    },
+    {
+      "id": "sled-pull",
+      "title": "Sled Pull",
+      "implements": 1,
+      "load": "total",
+      "measures": [
+        "distance"
+      ],
+      "pattern": [
+        "horizontal-pull"
+      ]
+    },
+    {
+      "id": "sled-push",
+      "title": "Sled Push",
+      "implements": 1,
+      "load": "total",
+      "measures": [
+        "distance"
+      ],
+      "pattern": [
+        "horizontal-push",
+        "locomotion"
+      ]
+    },
+    {
+      "id": "snatch",
+      "title": "Snatch",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "hinge",
+        "vertical-push"
+      ],
+      "related": [
+        "dumbbell-snatch"
+      ],
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "sumo-deadlift-high-pull",
+      "title": "Sumo Deadlift High-Pull",
+      "aliases": [
+        "sdhp"
+      ],
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "hinge",
+        "vertical-pull"
+      ],
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "swim",
+      "title": "Swim",
+      "measures": [
+        "distance"
+      ],
+      "pattern": [
+        "locomotion"
+      ]
+    },
+    {
+      "id": "thruster",
+      "title": "Thruster",
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "squat",
+        "vertical-push"
+      ],
+      "muscles": {
+        "primary": [
+          "quads",
+          "glutes",
+          "shoulders"
+        ],
+        "secondary": [
+          "core",
+          "triceps"
+        ]
+      },
+      "related": [
+        "dumbbell-thruster"
+      ],
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "dumbbell-thruster",
+      "title": "Dumbbell Thruster",
+      "aliases": [
+        "db thruster"
+      ],
+      "implements": 2,
+      "load": "per-implement",
+      "laterality": [
+        "both"
+      ],
+      "pattern": [
+        "squat",
+        "vertical-push"
+      ],
+      "related": [
+        "thruster"
+      ]
+    },
+    {
+      "id": "toes-to-bar",
+      "title": "Toes-to-Bar",
+      "aliases": [
+        "t2b",
+        "ttb"
+      ],
+      "pattern": [
+        "core"
+      ],
+      "muscles": {
+        "primary": [
+          "abs",
+          "hip-flexors",
+          "lats"
+        ]
+      }
+    },
+    {
+      "id": "walking-lunge",
+      "title": "Walking Lunge",
+      "aliases": [
+        "lunge"
+      ],
+      "measures": [
+        "distance"
+      ],
+      "laterality": [
+        "split",
+        "per-side"
+      ],
+      "pattern": [
+        "squat"
+      ],
+      "muscles": {
+        "primary": [
+          "quads",
+          "glutes"
+        ]
+      },
+      "defaultLaterality": "split"
+    },
+    {
+      "id": "wall-ball",
+      "title": "Wall Ball",
+      "aliases": [
+        "wallball",
+        "wall ball shot",
+        "wb"
+      ],
+      "implements": 1,
+      "load": "total",
+      "pattern": [
+        "squat",
+        "vertical-push"
+      ],
+      "muscles": {
+        "primary": [
+          "quads",
+          "glutes",
+          "shoulders"
+        ]
+      },
+      "laterality": [
+        "both"
+      ],
+      "defaultLaterality": "both"
+    },
+    {
+      "id": "wall-walk",
+      "title": "Wall Walk",
+      "pattern": [
+        "vertical-push",
+        "core"
+      ],
+      "muscles": {
+        "primary": [
+          "shoulders",
+          "core"
+        ]
+      }
+    }
+  ]
+}
