@@ -14,8 +14,19 @@ for time:
 
 ## Status
 
-Pre-implementation. The semantic model has been tested against 40 real workouts and the first
-notation is drafted; no parser exists yet.
+Spec 0.1 draft with a working reference parser, formatter, and CLI. Zero dependencies — the
+core runs on Node 22+ via native TypeScript type stripping.
+
+```
+parse     40/40      all corpus workouts parse without error
+roundtrip 40/40      parse -> format -> parse yields an equivalent AST
+canonical 40/40      the formatter is idempotent on its own output
+accepted  13/13      documented input variants canonicalize as specified
+```
+
+```bash
+node packages/core/bin/wdl.ts fmt examples/corpus/04-fran.wdl
+```
 
 ## Layout
 
@@ -24,6 +35,7 @@ notation is drafted; no parser exists yet.
 | [`spec/spec-0.1.md`](spec/spec-0.1.md) | The notation. §13 encodes all 40 corpus workouts; §14 records what that found. |
 | [`examples/corpus/`](examples/corpus) | The 40 workouts as `.wdl` files — the parser's test suite. |
 | [`examples/falsification-corpus.md`](examples/falsification-corpus.md) | The model test: what broke, and why. |
+| [`packages/core/`](packages/core) | Reference implementation: two-phase parser, canonical formatter, `wdl` CLI. |
 | [`docs/`](docs) | Vision and roadmap, prior art, movement registry design, adversarial review. |
 
 ## Reading order
@@ -37,4 +49,6 @@ notation is drafted; no parser exists yet.
 
 ## Next
 
-Parser, formatter, and validator in `@wdl/core`, tested by round-tripping `examples/corpus/`.
+Semantic validation, the movement registry, and the timeline compiler that the display runtime
+and every exporter depend on. Then a tree-sitter grammar and a language-neutral conformance
+suite so other languages get correctness, not just a parser (roadmap §5.1).

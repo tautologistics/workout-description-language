@@ -1029,9 +1029,13 @@ All 40 encode. Eleven problems surfaced (N1–N11), none structural — every on
 
 ## 16. Open syntax questions
 
-Four remain, and all four are best settled against a working parser rather than on paper — each is a question about whether two spellings should both survive, which is easiest to judge when you can see what the formatter does with them.
+**Settled by building the parser** ([`@wdl/core`](../packages/core)):
 
-- Is the `{ … }` inline-block form (§13.19, §13.33) worth having, or should everything be indented? It keeps Tabata This readable, but two ways to write one thing is a cost.
+- **The `{ … }` inline-block form is accepted input, not canonical output.** Writing the formatter forced the issue: normalizing braces to indentation exposed a genuine ambiguity, because a `score:` line at the *same* indent as its block header is indistinguishable from a sibling statement. The fix generalizes — **a `score:` nested inside a block belongs to that block; at the top level it belongs to the workout.** One rule, no ambiguity, and the inline form survives as sugar the formatter quietly removes. Tabata This and CrossFit Total round-trip through it.
+- **Units may be spaced.** `15 cal Row`, `400 meters Run`, `rest 3 m`, `155 lbs`, `135#`, `24"` all parse; duration words are matched before a bare `m` so `12 min` is minutes and `400 m` is metres. Also `EMOM 10` and `AMRAP 12` — a bare number in a duration position is minutes.
+- **`alternating` may precede the movement name.** `10 alternating DB Snatch` is how it is written on a whiteboard; it is a counting mode rather than part of the name, so it maps to `(split)` and survives as a note. The original draft only accepted it as a trailing qualifier.
+
+**Still open**, and best judged against real usage rather than more design:
 - `rounds` vs `sets` preserved as authored — right call, or false precision?
 - `EMOM 20min:` with a two-minute cycle and `every 2min x 10:` say the same thing (§13.28). Should one be canonical?
 - Does `+3 each round` need a subtractive form, or is a literal list always clearer for descending schemes?

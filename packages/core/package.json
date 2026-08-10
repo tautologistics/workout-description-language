@@ -1,0 +1,19 @@
+{
+  "name": "@wdl/core",
+  "version": "0.1.0",
+  "description": "Parser, formatter, and AST for the Workout Definition Language",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "node test/run.ts && node test/accepted.ts",
+    "fmt": "node bin/wdl.ts fmt",
+    "check": "node bin/wdl.ts check"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT",
+  "bin": {
+    "wdl": "bin/wdl.ts"
+  }
+}
