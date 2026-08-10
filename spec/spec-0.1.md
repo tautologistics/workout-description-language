@@ -55,7 +55,7 @@ Nesting is by indentation (two spaces canonical). A line ending in `:` opens a b
 |---|---|---|
 | Reps | `10` | `10 reps`, `10x` |
 | Distance | `400m` `1km` `1mi` `50ft` `25yd` | `400 meters`, `1 mile` |
-| Duration | `90s` `12min` `1h` `1min30s` | `12m`, `1:30`, `90 sec` |
+| Duration | `12min` `1h` `1min30s` `45s` | `12m`, `90s`, `1:30`, `90 sec`, `10` (in a duration position) |
 | Calories | `15cal` | `15 calories`, `15c` |
 | Load | `95lb` `60kg` | `95#`, `95 lbs` |
 | Paired load | `2x24kg` | `2 x 24kg`, `24kg each hand` |
@@ -66,6 +66,8 @@ Nesting is by indentation (two spaces canonical). A line ending in `:` opens a b
 | Heart rate | `150-160bpm` `Z2` | |
 | Height | `24in` `50cm` | `24"` |
 | Tempo | `31X1` | |
+
+**Durations decompose into the largest units that express the value exactly.** Ninety seconds is written `1min30s`, not `90s`; forty-five seconds stays `45s`. One rule, no threshold — the alternative (seconds below some cutoff, decomposed above) is an arbitrary line that gets forgotten. Both spellings parse.
 
 **Paired loads state the arity in the notation itself.** `@ 2x24kg` is 24kg in *each* hand — two implements, 48kg carried — and `@ 24kg` is a single implement or a barbell. The number is never inferred from the movement's name, so a step parses correctly whether or not the movement is registered; registry metadata only enables validation ("this movement takes a per-implement load — did you mean `2x24kg`?") and correct volume math.
 
@@ -84,7 +86,9 @@ Units never convert silently. A file written in `kg` stays in `kg`; display conv
 - 14 DB Curl each arm
 ```
 
-Shape: `- <quantity> <Movement> [@ <target>]*[, <qualifier>]*`
+Shape: `- <quantity> <Movement> [<inline qualifier>]* [@ <target>]* [, <qualifier>]*`
+
+**Laterality, side, and team words are written inline, without a comma.** They read as part of the prescription rather than as modifiers of it — `14 DB Curl each arm`, not `14 DB Curl, each side`. Everything else (tempo, `count cal`, `+3 each round`, notes) follows a comma. Both forms parse; canonical output uses the inline form for those three and commas for the rest, and preserves the limb noun the author wrote.
 
 **Completion conditions** (exactly one per step): reps, distance, calories, duration, `open`, `max` (the remainder of the enclosing clock — see §5.5), or `N+` meaning at least N then as many as possible.
 

@@ -13,13 +13,17 @@ function stepText(s: Step): string {
   if (s.laterality === 'both' || s.laterality === 'split') out += ` (${s.laterality})`;
   for (const t of s.targets) out += ` @ ${formatTarget(t)}`;
 
+  // Laterality, side, and team words read as part of the prescription and are
+  // written inline without a comma (spec §4) — `14 DB Curl each arm`, not
+  // `14 DB Curl, each side`. Everything else is a comma-separated qualifier.
+  if (s.laterality === 'per-side') out += ` each ${s.limb ?? 'side'}`;
+  if (s.side) out += ` ${s.side} ${s.limb ?? 'arm'}`;
+  if (s.team) out += ` ${s.team}`;
+
   const quals: string[] = [];
-  if (s.laterality === 'per-side') quals.push('each side');
-  if (s.side) quals.push(`${s.side} arm`);
   if (s.tempo) quals.push(`tempo ${s.tempo}`);
   if (s.measures === 'calories') quals.push('count cal');
   if (s.perRound) quals.push(`+${s.perRound.delta} each round`);
-  if (s.team) quals.push(s.team);
   for (const f of s.flags) if (f !== 'tiebreak') quals.push(f);
   for (const n of s.notes) quals.push(n);
   if (quals.length) out += ', ' + quals.join(', ');

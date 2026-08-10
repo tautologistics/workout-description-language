@@ -5,7 +5,7 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "test": "node test/run.ts && node test/accepted.ts",
+    "test": "node test/all.ts",
     "fmt": "node bin/wdl.ts fmt",
     "check": "node bin/wdl.ts check"
   },

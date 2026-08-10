@@ -18,10 +18,17 @@ Spec 0.1 draft with a working reference parser, formatter, and CLI. Zero depende
 core runs on Node 22+ via native TypeScript type stripping.
 
 ```
-parse     40/40      all corpus workouts parse without error
-roundtrip 40/40      parse -> format -> parse yields an equivalent AST
-canonical 40/40      the formatter is idempotent on its own output
-accepted  13/13      documented input variants canonicalize as specified
+npm test --prefix packages/core        # 104 passing, 8 pending
+
+units            11/11   quantities, loads, targets, duration decomposition
+lines             9/9    indentation tree, comments, brace continuations
+structure        10/10   containers parse to what the workout means
+prescriptions     6/6    relative loads, labels, dynamic rest, paired implements
+laterality/teams  3/3    counting modes, side selectors, shared totals
+scoring           6/6    per-round, aggregates, tiebreaks, attempts
+corpus           40/40   parse, round-trip, and formatter idempotence
+accepted input   13/13   documented variants canonicalize as specified
+errors            6/6    plus 8 pending — gaps awaiting semantic validation
 ```
 
 ```bash

@@ -36,6 +36,8 @@ export interface Step {
   measures?: 'reps' | 'calories' | 'distance';
   laterality?: Laterality;
   side?: 'first' | 'second' | 'left' | 'right';
+  /** The limb noun the author used, preserved for display: arm, leg, side, hand. */
+  limb?: string;
   tempo?: string;
   /** Per-round delta, e.g. `+3 each round` (spec §8.1). */
   perRound?: { delta: number; unit: string };

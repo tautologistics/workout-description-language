@@ -29,6 +29,11 @@ class Parser {
     // `@tiebreak` (no space) is a flag; `@ 95lb` (space) is a target.
     main = main.replace(/@(\w[\w-]*)/g, (_m, word) => { step.flags.push(word); return ''; }).trim();
 
+    // Qualifiers may trail the step without a comma — `40 Wall Ball @ 20lb shared`,
+    // `14 DB Curl each arm`, `21 DB Snatch first arm`. Peel them off the end before
+    // splitting on `@`, or they end up inside the load or the movement name.
+    main = this.peelTrailingQualifiers(main, step);
+
     const segments = main.split('@').map((s) => s.trim());
     let head = segments.shift() ?? '';
     for (const seg of segments) {
@@ -65,6 +70,26 @@ class Parser {
     return step;
   }
 
+  /** Repeatedly strip known qualifier phrases from the end of a step. */
+  peelTrailingQualifiers(text: string, step: Step): string {
+    const rules: [RegExp, (m: RegExpMatchArray) => void][] = [
+      [/\s+(each|per)\s+(arm|leg|side|hand)$/i, (m) => { step.laterality = 'per-side'; step.limb = m[2].toLowerCase(); }],
+      [/\s+(first|second|left|right)\s+(arm|leg|side)$/i, (m) => { step.side = m[1].toLowerCase() as any; step.limb = m[2].toLowerCase(); }],
+      [/\s+(shared|synchronized|each)$/i, (m) => { step.team = m[1].toLowerCase() as any; }],
+      [/\s+(alternating|alt)$/i, () => { step.laterality = 'split'; step.notes.push('alternating'); }],
+      [/\s+(unbroken|building)$/i, (m) => { step.flags.push(m[1].toLowerCase()); }],
+    ];
+    let t = text.trim(), changed = true;
+    while (changed) {
+      changed = false;
+      for (const [re, apply] of rules) {
+        const m = t.match(re);
+        if (m) { apply(m); t = t.slice(0, m.index).trim(); changed = true; break; }
+      }
+    }
+    return t;
+  }
+
   applyQualifier(step: Step, q: string, line: Line) {
     const t = q.trim();
     let m: RegExpMatchArray | null;
@@ -78,9 +103,11 @@ class Parser {
       step.perRound = { delta: +m[1], unit: 'reps' }; return;
     }
     if ((m = t.match(/^(first|second|left|right)\s+(arm|leg|side)$/i))) {
-      step.side = m[1].toLowerCase() as any; return;
+      step.side = m[1].toLowerCase() as any; step.limb = m[2].toLowerCase(); return;
     }
-    if (/^(each|per)\s+(arm|leg|side|hand)$/i.test(t)) { step.laterality = 'per-side'; return; }
+    if ((m = t.match(/^(each|per)\s+(arm|leg|side|hand)$/i))) {
+      step.laterality = 'per-side'; step.limb = m[2].toLowerCase(); return;
+    }
     if (/^alternating$|^alt$/i.test(t)) { step.laterality = 'split'; step.notes.push('alternating'); return; }
     if (/^(shared|each|synchronized)$/i.test(t)) { step.team = t.toLowerCase() as any; return; }
     if ((m = t.match(/^note:\s*"?(.*?)"?$/i))) { step.notes.push(m[1]); return; }

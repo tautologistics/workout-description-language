@@ -5,6 +5,7 @@
  * text it must produce. This is the half of the conformance suite that pins
  * down what "accepted" actually means for a third-party implementation.
  */
+import { describe, it, eq } from './lib.ts';
 import { parse } from '../src/parse.ts';
 import { format } from '../src/format.ts';
 
@@ -27,14 +28,12 @@ const cases: [string, string][] = [
   ['3 rounds for time:\n  - 1:30 Plank',       '3 rounds for time:\n  - 1min30s Plank'],
 ];
 
-let pass = 0;
-const fails: string[] = [];
-for (const [input, want] of cases) {
-  const { workout, errors } = parse(input);
-  const got = format(workout).trim();
-  if (got === want && !errors.length) pass++;
-  else fails.push(`  input:    ${JSON.stringify(input)}\n  expected: ${JSON.stringify(want)}\n  got:      ${JSON.stringify(got)}${errors.length ? `\n  errors:   ${errors.map((e) => e.message).join('; ')}` : ''}`);
-}
-console.log(`\n  accepted  ${pass}/${cases.length}\n`);
-if (fails.length) { console.log(fails.join('\n\n')); console.log(); }
-process.exit(pass === cases.length ? 0 : 1);
+describe('accepted input', () => {
+  for (const [input, want] of cases) {
+    it(input.replace(/\n/g, ' ⏎ '), () => {
+      const { workout, errors } = parse(input);
+      eq(errors.map((e) => e.message), []);
+      eq(format(workout).trim(), want);
+    });
+  }
+});
