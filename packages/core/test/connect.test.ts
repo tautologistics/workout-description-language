@@ -88,26 +88,42 @@ describe('garmin connect: what FIT could not carry', () => {
     eq(steps.map((s) => s.endConditionValue), [12, 9, 6]);
   });
 
-  it('carries the barbell load FIT has no field for', () => {
-    // 155lb is 70.30682kg. Connect stores kilograms: sending 70307 made it
-    // display "155,000.4 lbs", which is 70307kg converted.
+  it('carries the barbell load FIT has no field for, in the unit it was written in', () => {
+    // `weightValue` is expressed in the unit `weightUnit` names, so a load
+    // written in pounds stays in pounds. Connect's own editor stores 135lb as
+    // 134.99786 because it converts through kilograms; writing it directly
+    // avoids that round trip.
     const step = everyStep(out('12-dt.wdl').json.workoutSegments[0].workoutSteps)
       .find((s) => s.category === 'DEADLIFT');
-    eq(step.weightValue, 70.307);
-    eq(step.weightUnit.unitKey, 'kilogram');
+    eq(step.weightValue, 155);
+    eq(step.weightUnit, { unitId: 9, unitKey: 'pound', factor: 453.59237 });
   });
 
-  it('converts kg and pood loads correctly', () => {
+  it('keeps kilograms as kilograms and converts pood, which Connect has no unit for', () => {
     const kg = exportGarminConnect(compile(parse('5 sets:\n  - 5 Deadlift @ 100kg').workout));
-    eq(JSON.parse(kg.output).workoutSegments[0].workoutSteps[0].workoutSteps[0].weightValue, 100);
+    const kgStep = JSON.parse(kg.output).workoutSegments[0].workoutSteps[0].workoutSteps[0];
+    eq(kgStep.weightValue, 100);
+    eq(kgStep.weightUnit.unitKey, 'kilogram');
     // A pood is 16.3805kg, so 2 pood is 32.761kg.
     const pood = exportGarminConnect(compile(parse('5 sets:\n  - 10 KB Swing @ 2pood').workout));
-    eq(JSON.parse(pood.output).workoutSegments[0].workoutSteps[0].workoutSteps[0].weightValue, 32.761);
+    const poodStep = JSON.parse(pood.output).workoutSegments[0].workoutSteps[0].workoutSteps[0];
+    eq(poodStep.weightValue, 32.761);
+    eq(poodStep.weightUnit.unitKey, 'kilogram');
   });
 
   it('counts paired implements as the total moved', () => {
     const r = exportGarminConnect(compile(parse('5 sets:\n  - 10 Farmers Carry @ 2x24kg').workout));
     eq(JSON.parse(r.output).workoutSegments[0].workoutSteps[0].workoutSteps[0].weightValue, 48);
+  });
+
+  it('sets skipLastRestStep, which is Connect\'s name for our trailing-rest rule', () => {
+    // A trailing rest fires between rounds, not after the last (spec §5.2).
+    // Connect exposes exactly this as a "Skip Last Rest" checkbox.
+    const skip = exportGarminConnect(compile(parse('3 sets:\n  - 9 Barbell Row @ 135lb\n  rest 3min').workout));
+    eq(JSON.parse(skip.output).workoutSegments[0].workoutSteps[0].skipLastRestStep, true);
+    // `rest after last` opts back in, and must clear the flag.
+    const keep = exportGarminConnect(compile(parse('3 sets:\n  - 9 Barbell Row @ 135lb\n  rest 3min after last').workout));
+    eq(JSON.parse(keep.output).workoutSegments[0].workoutSteps[0].skipLastRestStep, false);
   });
 });
 

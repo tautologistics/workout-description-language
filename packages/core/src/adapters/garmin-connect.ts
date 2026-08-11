@@ -29,8 +29,17 @@ const SportType = {
   strength_training: 5, cardio_training: 6,
 } as const;
 
-/** Connect stores weight in kilograms under this unit tag. */
-const WEIGHT_UNIT_KILOGRAM = { unitId: 8, unitKey: 'kilogram', factor: 1000.0 };
+/**
+ * `weightValue` is expressed *in the unit named here*, and `factor` is grams
+ * per unit — settled by a natively created workout, where 135lb was stored as
+ * `134.998` tagged `pound`. So a load written in pounds can be sent as pounds,
+ * which avoids a conversion round trip: Connect's own UI stores 135lb as
+ * 134.99786 because it converts through kilograms and back.
+ */
+const WEIGHT_UNITS = {
+  kg: { unitId: 8, unitKey: 'kilogram', factor: 1000.0 },
+  lb: { unitId: 9, unitKey: 'pound', factor: 453.59237 },
+} as const;
 
 const stepType = (id: number, key: string, displayOrder: number) =>
   ({ stepTypeId: id, stepTypeKey: key, displayOrder });
@@ -91,12 +100,15 @@ function powerWatts(s: TimelineStep, ftp?: number): number | undefined {
   return undefined;
 }
 
-function weightKg(s: TimelineStep): number | undefined {
+/** The load, kept in the unit it was written in where Connect has one. */
+function weightOf(s: TimelineStep): { value: number; unit: 'kg' | 'lb' } | undefined {
   for (const t of s.targets) {
     if (t.kind !== 'load' || t.load.kind !== 'absolute') continue;
     const { value, unit, implements: n } = t.load;
-    const each = unit === 'kg' ? value : unit === 'pood' ? value * POOD_TO_KG : value * LB_TO_KG;
-    return each * (n ?? 1);                          // paired implements are the total moved
+    const total = value * (n ?? 1);                  // paired implements are the total moved
+    if (unit === 'lb') return { value: total, unit: 'lb' };
+    if (unit === 'kg') return { value: total, unit: 'kg' };
+    return { value: total * POOD_TO_KG, unit: 'kg' }; // pood has no Connect unit
   }
   return undefined;
 }
@@ -167,25 +179,29 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
       } else {
         warnings.push(`"${s.movement}" is not in Connect's exercise catalogue — exported as a plain rep step`);
       }
-      const kg = weightKg(s);
-      if (kg !== undefined) {
-        // Kilograms, not grams. Sending 70307 for a 155lb bar made Connect
-        // display "155,000.4 lbs" — it read the number as kg — which settles a
-        // reference implementation whose comment says grams.
-        step.weightValue = Math.round(kg * 1000) / 1000;
-        step.weightUnit = { ...WEIGHT_UNIT_KILOGRAM };
+      const w = weightOf(s);
+      if (w !== undefined) {
+        step.weightValue = Math.round(w.value * 1000) / 1000;
+        step.weightUnit = { ...WEIGHT_UNITS[w.unit] };
       }
-    } else if (weightKg(s) !== undefined) {
+    } else if (weightOf(s) !== undefined) {
       warnings.push(`"${s.movement}": load dropped — Connect carries weight only on strength workouts`);
     }
     return step;
   };
 
-  const repeatGroup = (iterations: number, children: unknown[]): Record<string, unknown> => ({
+  const repeatGroup = (
+    iterations: number,
+    children: unknown[],
+    skipLastRest = false,
+  ): Record<string, unknown> => ({
     type: 'RepeatGroupDTO',
     stepOrder: next(),
     stepType: stepType(StepType.REPEAT, 'repeat', 6),
     numberOfIterations: iterations,
+    // Connect's own name for spec §5.2: a trailing rest fires between rounds,
+    // not after the last one. Its editor exposes this as "Skip Last Rest".
+    skipLastRestStep: skipLastRest,
     smartRepeat: false,
     endCondition: endCondition(ConditionType.ITERATIONS, 'iterations', 7, false),
     endConditionValue: iterations,
@@ -217,7 +233,9 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
       // The group takes an order number before its children, matching Connect.
       const at = next();
       const children = g.items.flatMap(build);
-      const group = repeatGroup(g.rounds, children);
+      const last = g.items[g.items.length - 1];
+      const skipLastRest = last?.kind === 'rest' && !last.afterLast;
+      const group = repeatGroup(g.rounds, children, skipLastRest);
       group.stepOrder = at;
       order--;                                        // repeatGroup() consumed one
       return [group];
