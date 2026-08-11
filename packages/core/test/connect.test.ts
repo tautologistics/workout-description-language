@@ -14,6 +14,7 @@ import { describe, it, eq, ok } from './lib.ts';
 import { parse } from '../src/parse.ts';
 import { compile } from '../src/timeline.ts';
 import { exportGarminConnect } from '../src/adapters/garmin-connect.ts';
+import { garminCategories, resolveGarminExercise } from '../src/adapters/garmin-exercises.ts';
 
 const corpus = join(dirname(fileURLToPath(import.meta.url)), '../../../examples/corpus');
 const out = (f: string, opts = {}) => {
@@ -110,10 +111,6 @@ describe('garmin connect: what FIT could not carry', () => {
 });
 
 describe('garmin connect: fidelity is reported', () => {
-  it('says exercise names are guesses', () => {
-    ok(out('12-dt.wdl').warnings.some((w) => /catalogue/.test(w)));
-  });
-
   it('says an AMRAP cannot be expressed', () => {
     ok(out('05-cindy.wdl').warnings.some((w) => /unbounded repeat/.test(w)));
   });
@@ -128,5 +125,67 @@ describe('garmin connect: fidelity is reported', () => {
 
   it('says a rep range loses its upper bound', () => {
     ok(out('91-bodybuilding-hypertrophy.wdl').warnings.some((w) => /rep range/.test(w)));
+  });
+});
+
+describe('garmin connect: exercise catalogue', () => {
+  it('never sends a category outside Connect\'s own list', () => {
+    // The live API answers `{"message":"Invalid category"}` otherwise, which is
+    // how the first DT export failed.
+    const valid = new Set(garminCategories());
+    for (const f of ['12-dt.wdl', '01-5-5-back-squat.wdl', '117-the-seven.wdl', '15-linda.wdl']) {
+      for (const s of everyStep(out(f).json.workoutSegments[0].workoutSteps)) {
+        if (s.category !== undefined) ok(valid.has(s.category), `${f}: ${s.category}`);
+      }
+    }
+  });
+
+  it('resolves the movements that failed the first import', () => {
+    eq(resolveGarminExercise('Hang Power Clean'),
+       { category: 'OLYMPIC_LIFT', exercise: 'BARBELL_HANG_POWER_CLEAN', via: 'implied barbell' });
+    eq(resolveGarminExercise('Push Jerk')?.category, 'OLYMPIC_LIFT');
+    eq(resolveGarminExercise('Deadlift'), { category: 'DEADLIFT', exercise: 'DEADLIFT', via: 'name' });
+  });
+
+  it('prefers a display name over an exercise code', () => {
+    // BACK_SQUAT is also a code under SANDBAG; matching codes first filed a
+    // barbell back squat as sandbag work.
+    eq(resolveGarminExercise('Back Squat')?.category, 'SQUAT');
+    eq(resolveGarminExercise('Front Squat')?.category, 'SQUAT');
+  });
+
+  it('resolves abbreviations through our own registry first', () => {
+    eq(resolveGarminExercise('KB Swing')?.exercise, 'KETTLEBELL_SWING');
+    eq(resolveGarminExercise('DB Snatch')?.category !== undefined, true);
+  });
+
+  it('ships no strength fields at all when a movement is unknown', () => {
+    const r = exportGarminConnect(compile(parse('3 sets:\n  - 10 Sandbag Bear Hug Carry @ 50lb').workout));
+    const step = JSON.parse(r.output).workoutSegments[0].workoutSteps[0].workoutSteps[0];
+    eq(step.category, undefined);
+    ok(r.warnings.some((w) => /not in Connect's exercise catalogue/.test(w)));
+  });
+});
+
+describe('garmin connect: names and targets', () => {
+  it('never sends an empty workout name', () => {
+    // `??` let an empty label through, and Connect imported the workout untitled.
+    for (const f of ['37-bike-intervals.wdl', '12-dt.wdl', '36-rowing-pyramid.wdl']) {
+      ok(out(f).json.workoutName.length > 0, f);
+    }
+  });
+
+  it('omits power targets by default, since that payload is known to import', () => {
+    const steps = everyStep(out('37-bike-intervals.wdl').json.workoutSegments[0].workoutSteps);
+    ok(steps.every((s) => s.targetType === undefined || s.targetType.workoutTargetTypeKey === 'no.target'));
+  });
+
+  it('emits a power range when asked and given an FTP', () => {
+    const { json, warnings } = out('37-bike-intervals.wdl', { powerTargets: true, ftp: 250 });
+    const work = everyStep(json.workoutSegments[0].workoutSteps)
+      .find((s) => s.targetType?.workoutTargetTypeKey === 'power.zone');
+    // 95% of 250 is 237.5W, with a 3% band either side.
+    eq([work.targetValueOne, work.targetValueTwo], [230, 245]);
+    ok(warnings.some((w) => /not yet confirmed against the live API/.test(w)));
   });
 });

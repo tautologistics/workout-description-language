@@ -17,6 +17,7 @@
 
 import type { Timeline, TimelineItem, TimelineGroup, TimelineStep } from '../timeline.ts';
 import type { ExportResult } from './zwo.ts';
+import { resolveGarminExercise } from './garmin-exercises.ts';
 
 // --- Connect's own enum values, from /workout-service/workout/types ---------
 
@@ -45,6 +46,14 @@ export interface ConnectExportOptions {
   /** Overrides the sport Connect files the workout under. */
   sport?: keyof typeof SportType;
   description?: string;
+  /**
+   * Emit power targets. Off by default: a payload with no targets is known to
+   * import, and this field shape is not yet confirmed against the live API, so
+   * turning it on trades a working import for an unverified one.
+   */
+  powerTargets?: boolean;
+  /** Resolves `% FTP` targets into the watts Connect stores. */
+  ftp?: number;
 }
 
 /** Guess the sport, since Connect files workouts by it and a wrong guess hides them. */
@@ -58,6 +67,22 @@ function sportOf(steps: TimelineStep[]): keyof typeof SportType {
   return lifting > 0 ? 'strength_training' : 'cardio_training';
 }
 
+/** Absolute watts for a step, resolving `% FTP` when an FTP is supplied. */
+function powerWatts(s: TimelineStep, ftp?: number): number | undefined {
+  for (const t of s.targets) {
+    if (t.kind === 'power') {
+      const w = t.text.match(/^(\d+(?:\.\d+)?)W$/i);
+      if (w) return Number(w[1]);
+      const p = t.text.match(/^(\d+(?:\.\d+)?)%\s*FTP$/i);
+      if (p && ftp) return (Number(p[1]) / 100) * ftp;
+    }
+    if (t.kind === 'load' && t.load.kind === 'percent' && /^FTP$/i.test(t.load.of ?? '') && ftp) {
+      return (t.load.value / 100) * ftp;
+    }
+  }
+  return undefined;
+}
+
 function weightKg(s: TimelineStep): number | undefined {
   for (const t of s.targets) {
     if (t.kind !== 'load' || t.load.kind !== 'absolute') continue;
@@ -68,9 +93,6 @@ function weightKg(s: TimelineStep): number | undefined {
   return undefined;
 }
 
-/** Connect's exercise catalogue is SCREAMING_SNAKE; this is a best-effort mapping. */
-const exerciseCategory = (movement: string) =>
-  movement.trim().toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_|_$/g, '');
 
 export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}): ExportResult {
   const warnings: string[] = [...t.warnings];
@@ -116,9 +138,27 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
       description: s.label,
     };
 
+    if (opts.powerTargets) {
+      const watts = powerWatts(s, opts.ftp);
+      if (watts !== undefined) {
+        step.targetType = { workoutTargetTypeId: TargetType.POWER_ZONE, workoutTargetTypeKey: 'power.zone', displayOrder: 2 };
+        step.targetValueOne = Math.round(watts * 0.97);
+        step.targetValueTwo = Math.round(watts * 1.03);
+        step.zoneNumber = null;
+      }
+    }
+
     if (sport === 'strength_training' && (q.kind === 'reps' || q.kind === 'floor' || q.kind === 'range')) {
-      step.category = exerciseCategory(s.movement);
-      step.exerciseName = '';
+      // Connect refuses a category outside its own 47 with "Invalid category",
+      // so an unresolved movement ships without the strength fields rather
+      // than with a guess that fails the whole import.
+      const ex = resolveGarminExercise(s.movement);
+      if (ex) {
+        step.category = ex.category;
+        step.exerciseName = ex.exercise;
+      } else {
+        warnings.push(`"${s.movement}" is not in Connect's exercise catalogue — exported as a plain rep step`);
+      }
       const kg = weightKg(s);
       if (kg !== undefined) {
         // Connect stores grams under a kilogram unit tag. Round at the gram,
@@ -206,15 +246,15 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
   const workoutSteps = build(t.root);
 
   const payload = {
-    workoutName: (opts.name ?? t.root.label ?? 'Workout').slice(0, 80),
+    workoutName: (opts.name || t.root.label || 'Workout').slice(0, 80),
     description: opts.description ?? '',
     sportType,
     estimatedDurationInSecs: t.estimatedSeconds ?? 0,
     workoutSegments: [{ segmentOrder: 1, sportType, workoutSteps }],
   };
 
-  if (sport === 'strength_training') {
-    warnings.push('exercise names are guessed from movement names — Connect only shows ones matching its catalogue');
+  if (opts.powerTargets) {
+    warnings.push('power targets are enabled: this field shape is not yet confirmed against the live API, and a payload without them is known to import');
   }
 
   return { output: JSON.stringify(payload, null, 2), warnings };
