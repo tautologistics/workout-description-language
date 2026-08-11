@@ -186,6 +186,6 @@ describe('garmin connect: names and targets', () => {
       .find((s) => s.targetType?.workoutTargetTypeKey === 'power.zone');
     // 95% of 250 is 237.5W, with a 3% band either side.
     eq([work.targetValueOne, work.targetValueTwo], [230, 245]);
-    ok(warnings.some((w) => /not yet confirmed against the live API/.test(w)));
+    ok(warnings.some((w) => /not yet confirmed by a successful import/.test(w)));
   });
 });
