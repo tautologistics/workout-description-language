@@ -170,6 +170,27 @@
       ],
       "notes": "This is the official specification, and unlike the Connect JSON API it is public. All 22 enum values our FIT exporter writes were verified against it \u2014 every one matched, including duration_type 29 (reps), which we had earlier and wrongly claimed did not exist.",
       "mirror": "docs/references/fit-profile-enums.json"
+    },
+    {
+      "id": "everkinetic",
+      "name": "Everkinetic exercise data",
+      "url": "https://github.com/everkinetic/data",
+      "fetch": "https://raw.githubusercontent.com/everkinetic/data/HEAD/dist/exercises.json",
+      "licence": "CC-BY-SA 4.0",
+      "licenceClass": "share-alike",
+      "redistributable": "with attribution and share-alike",
+      "retrieved": "2026-08-11",
+      "records": 289,
+      "provides": [
+        "exercises",
+        "primary and secondary muscles",
+        "equipment",
+        "instructions"
+      ],
+      "usedIn": [
+        "registry/movements.canonical.json"
+      ],
+      "notes": "Share-alike. Merged into the canonical corpus at the user's direction with licensing deferred; every record names its sources so the decision stays reversible."
     }
   ],
   "candidates": [
@@ -186,24 +207,8 @@
         "equipment",
         "translations in many languages"
       ],
-      "status": "not imported",
-      "notes": "Share-alike. Merging it into registry/movements.json would put that file under CC-BY-SA. Viable as a separate enrichment layer, not as part of a permissive core."
-    },
-    {
-      "id": "everkinetic",
-      "name": "Everkinetic exercise data",
-      "url": "https://github.com/everkinetic/data",
-      "licence": "CC-BY-SA 4.0",
-      "licenceClass": "share-alike",
-      "records": 290,
-      "provides": [
-        "exercises",
-        "muscles",
-        "step-by-step instructions",
-        "images"
-      ],
-      "status": "not imported",
-      "notes": "Same share-alike constraint as wger."
+      "status": "fetch pending",
+      "notes": "Share-alike. Merging it into registry/movements.json would put that file under CC-BY-SA. Viable as a separate enrichment layer, not as part of a permissive core. The public API times out repeatedly when paged; a database dump or a slower retry is needed."
     },
     {
       "id": "exercisedb",
@@ -249,5 +254,9 @@
       "status": "not imported",
       "notes": "The only source of *measured* rather than editorially assigned muscle involvement. No consolidated open dataset exists \u2014 it is per-study, heterogeneous in protocol, and covers a few hundred exercises at most. Valuable as targeted evidence for a small set of movements; unusable as a bulk import."
     }
-  ]
+  ],
+  "mergedCorpora": {
+    "registry/movements.canonical.json": "2599 movements from wdl-curated, garmin, free-exercise-db and everkinetic. Every record names its sources.",
+    "registry/workouts.canonical.json": "202 workouts with source text, parsed AST and derived summary."
+  }
 }

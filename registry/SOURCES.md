@@ -76,3 +76,21 @@ it exists anywhere**, official or community. The nearest things are prose
 inside client libraries. Everything we know about that format came from reading those, then testing
 against a live account — which is why an import that failed with `Invalid category` taught us more
 than any amount of further reading would have.
+
+## The merged corpora
+
+Two canonical files, rebuilt by `scripts/build-canonical.ts`:
+
+| File | Records | Contents |
+|---|---:|---|
+| `movements.canonical.json` | 2599 | Every movement we hold, 2534 with muscle data and 1510 carrying a Garmin mapping |
+| `workouts.canonical.json` | 202 | Every workout, with source text, parsed AST, and a derived summary |
+
+**Every record names the sources that contributed to it.** That is what keeps the merge reversible:
+the licence question is deferred, not dissolved, and a record can be traced or dropped later.
+
+One honest caveat on the movement merge: only about 150 of the 2599 appear in more than one source.
+The catalogues use genuinely different naming, so `fold()` only unifies exact matches, and the true
+overlap is certainly higher than the merge detects. Deduplicating further would mean matching on
+muscles and equipment rather than names alone — worth doing before treating the count as a count of
+*distinct* movements rather than of *records*.
