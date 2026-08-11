@@ -187,8 +187,10 @@ function compileStep(s: Step, ctx: Ctx, enclosing: { clock?: boolean; capped?: b
   const seconds = quantity.kind === 'duration' ? quantity.seconds : undefined;
 
   const targets = mergeTargets(s.targets, ctx.inherited);
-  const parts = [quantityLabel(quantity), s.movement].filter(Boolean);
-  let label = parts.join(' ');
+  // A threshold reads as a condition on the movement, so it trails it.
+  const trailing = quantity.kind === 'threshold';
+  const q = quantityLabel(quantity);
+  let label = (trailing ? [s.movement, q] : [q, s.movement]).filter(Boolean).join(' ');
   if (s.laterality === 'per-side') label += ` each ${s.limb ?? 'side'}`;
   if (s.side) label += ` ${s.side} ${s.limb ?? 'arm'}`;
   for (const t of targets) label += ` @ ${targetLabel(t)}`;
