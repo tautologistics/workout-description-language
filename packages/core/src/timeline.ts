@@ -22,9 +22,10 @@ import type {
 
 /** What advances a step. The axis the display runtime switches on. */
 export type Pacing =
-  | 'timed'     // a clock ends it; auto-advances
-  | 'athlete'   // the athlete ends it; needs an input to advance
-  | 'capped';   // athlete-paced, but a running clock can end it first
+  | 'timed'      // a clock ends it; auto-advances
+  | 'athlete'    // the athlete ends it; needs an input to advance
+  | 'capped'     // athlete-paced, but a running clock can end it first
+  | 'threshold'; // a sensor reading ends it — advance on heart rate or power
 
 export interface TimelineStep {
   kind: 'step';
@@ -110,6 +111,7 @@ function quantityLabel(u: Unit): string {
     case 'floor': return `${u.value}+`;
     case 'range': return `${u.min}-${u.max}`;
     case 'maxEffort': return 'max';
+    case 'threshold': return `until ${u.metric === 'hr' ? 'HR' : 'power'} ${u.compare === 'lt' ? '<' : '>'} ${u.value}${u.unit}`;
     case 'open': return '';
   }
 }
@@ -214,13 +216,15 @@ function compileStep(s: Step, ctx: Ctx, enclosing: { clock?: boolean; capped?: b
 
 function compileRest(r: Rest): TimelineRest {
   const seconds = secondsOf(r.duration);
+  const threshold = r.duration?.kind === 'threshold';
   return {
     kind: 'rest',
     seconds,
     dynamic: r.dynamic,
     afterLast: r.afterLast,
-    pacing: seconds !== undefined ? 'timed' : 'athlete',
-    label: r.active ? `rest — ${quantityLabel(r.active.quantity)} ${r.active.movement}`
+    pacing: threshold ? 'threshold' : seconds !== undefined ? 'timed' : 'athlete',
+    label: threshold ? `rest ${quantityLabel(r.duration!)}`
+      : r.active ? `rest — ${quantityLabel(r.active.quantity)} ${r.active.movement}`
       : r.dynamic === 'equal-to-work' ? 'rest (equal to work)'
       : r.dynamic === 'as-needed' ? 'rest as needed'
       : `rest ${seconds !== undefined ? fmtClock(seconds) : ''}`.trim(),
@@ -232,6 +236,7 @@ function pacingFor(q: Unit, enclosing: { clock?: boolean; capped?: boolean }): P
   if (q.kind === 'duration') return 'timed';
   // `max` is a remainder only when a clock encloses it. With no clock it is a
   // max effort to failure, which the athlete ends (Lynne, not an EMOM).
+  if (q.kind === 'threshold') return 'threshold';
   if (q.kind === 'max') return enclosing.clock || enclosing.capped ? 'timed' : 'athlete';
   if (enclosing.capped) return 'capped';
   return 'athlete';

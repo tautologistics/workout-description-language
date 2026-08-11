@@ -305,6 +305,15 @@ export function exportFit(t: Timeline, opts: FitExportOptions = {}): ExportResul
     else if (s.distanceM !== undefined) { durationType = 1; durationValue = Math.round(s.distanceM * 100); }
     else if (s.calories !== undefined) { durationType = 4; durationValue = s.calories; }
     else if (s.reps !== undefined) { durationType = 29; durationValue = s.reps; }
+    else if (s.threshold?.metric === 'hr') {
+      // FIT has carried this since the beginning: 2 is hr_less_than, 3 is
+      // hr_greater_than, and a bpm threshold is stored with a +100 offset.
+      durationType = s.threshold.compare === 'lt' ? 2 : 3;
+      durationValue = s.threshold.value + 100;
+    } else if (s.threshold?.metric === 'power') {
+      durationType = s.threshold.compare === 'lt' ? 14 : 15;
+      durationValue = s.threshold.value + 1000;
+    }
 
     // Custom power and heart-rate ranges carry a +1000 / +100 offset in FIT.
     let targetType = 2, targetValue = 0, low = NONE, high = NONE;

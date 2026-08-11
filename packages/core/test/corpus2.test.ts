@@ -147,3 +147,36 @@ describe('scheme units', () => {
     }
   });
 });
+
+describe('threshold completion conditions', () => {
+  it('reads `until HR < 130bpm` on a rest', () => {
+    const r = (one('sequence:\n  - 5min Bike\n  rest until HR < 130bpm').body[0] as Block).children[1] as Rest;
+    eq(r.duration, { kind: 'threshold', metric: 'hr', compare: 'lt', value: 130, unit: 'bpm' });
+  });
+
+  it('reads a threshold on a step, and on power as well as heart rate', () => {
+    const s = firstStep('sequence:\n  - Bike until HR > 160bpm');
+    eq(s.quantity, { kind: 'threshold', metric: 'hr', compare: 'gt', value: 160, unit: 'bpm' });
+    const p = firstStep('sequence:\n  - Bike until power > 250W');
+    eq(p.quantity, { kind: 'threshold', metric: 'power', compare: 'gt', value: 250, unit: 'W' });
+  });
+
+  it('accepts the wordier spellings', () => {
+    for (const src of ['rest until heart rate below 130bpm', 'rest until HR under 130']) {
+      const r = (one(`sequence:\n  - 5min Bike\n  ${src}`).body[0] as Block).children[1] as Rest;
+      eq(r.duration?.kind, 'threshold', src);
+    }
+  });
+
+  it('classifies it as sensor-paced — neither the clock nor the athlete ends it', () => {
+    const t = compile(one('sequence:\n  - 5min Bike\n  rest until HR < 130bpm'));
+    const items = (t.root.items[0] as any).items;
+    eq(items.map((i: any) => i.pacing), ['timed', 'threshold']);
+    eq(t.estimatedSeconds, undefined, 'and the workout has no known length');
+  });
+
+  it('round-trips', () => {
+    const src = 'sequence:\n  - 5min Bike @ 90% FTP\n  rest until HR < 130bpm';
+    eq(format(one(src)).trim(), src);
+  });
+});

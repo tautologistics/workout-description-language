@@ -111,6 +111,16 @@ strength:
 
 **Completion conditions** (exactly one per step): reps, a rep range (`8-12`), distance, calories, duration, `open`, `max`, or `N+` meaning at least N then as many as possible.
 
+**A step or a rest may end on a sensor reading.** `until HR < 130bpm` is how recovery intervals are actually written, and both FIT and Garmin Connect have carried it all along — FIT as `hr_less_than`, Connect as an end condition of `heart.rate` with a comparison. Neither the clock nor the athlete decides when it ends; the device does, which is why compilation classifies it as its own pacing kind rather than folding it into the other three.
+
+```wdl
+sequence:
+  - Bike until HR > 160bpm
+  rest until HR < 130bpm
+```
+
+Accepted spellings: `<` / `>` or `below` / `above` / `under` / `over`, and `bpm` is optional. Power thresholds work the same way — `until power > 250W`. A threshold on a step trails the movement; on a rest it follows `rest`.
+
 **`max` means two different things, decided by what encloses it.** Inside a clock it is the *remainder* — `every 3min x 5: 400m Run, max Pull-Up` gives whatever time the run left. With no clock around it, it is a *max effort to failure* — Lynne's `5 rounds: max Bench Press, max Pull-Up` has nothing bounding a round. Compilation resolves which, and classifies the step timed or athlete-paced accordingly.
 
 **A duration and a max can combine.** `2min max Push-Up` ends on the clock and *measures* reps — the completion-versus-measurement distinction of N6, in its most common form. Military and benchmark tests are full of it.

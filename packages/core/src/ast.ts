@@ -9,6 +9,13 @@ export type Unit =
   | { kind: 'floor'; value: number }                  // `5+` — at least N, then open
   | { kind: 'range'; min: number; max: number }       // `8-12` — a rep range
   | { kind: 'maxEffort' }                             // `max` with no clock — to failure
+  /**
+   * Ends when a sensor reading crosses a bound — `until HR < 130bpm`. Neither
+   * the clock nor the athlete decides; the device does. Both FIT and Garmin
+   * Connect have carried this all along (`hr_less_than`, `heart.rate` with a
+   * comparison), and recovery intervals are written this way constantly.
+   */
+  | { kind: 'threshold'; metric: 'hr' | 'power'; compare: 'lt' | 'gt'; value: number; unit: string }
   | { kind: 'open' };
 
 export type Load =

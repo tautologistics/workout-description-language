@@ -46,6 +46,7 @@ A step is a movement plus:
   - **open** (`Bike easy`) — advances when told, or when the enclosing container ends
   - **remainder** (`max-rep Pull-Up in time remaining`) — runs until the enclosing container's clock expires *(F2)*
   - **floor-then-open** (`5+ reps`) — a minimum, then as many as possible *(F5, from 5/3/1)*
+  - **threshold** (`until HR < 130bpm`) — a sensor reading ends it. Found by exporting to Garmin: both FIT and Connect have carried heart-rate end conditions all along, and recovery intervals are written this way constantly. It is a fourth pacing kind, since neither the clock nor the athlete decides.
 - **A quantity that may be an expression, not a literal** *(F1, F5, F6, F7)* — over the iteration index (`3 × round` for ascending AMRAPs, `round` for death-by), over athlete-profile values (`1.5 × bodyweight`, `85% training max`), over values produced earlier in the session (`85% of today's single`), or over a measured prior step (`rest = previous work duration`). One mechanism covers all five cases; it requires an athlete-profile record to resolve against.
 - **Possibly no prescribed load at all** *(F6)* — "build to a heavy single," Bear Complex. Load is an *output* of the workout, and the score.
 - **Zero or more targets/qualifiers**, each optional and modality-flavored but structurally identical — a typed value or range attached to the step:

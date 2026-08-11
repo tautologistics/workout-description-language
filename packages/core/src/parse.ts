@@ -4,7 +4,7 @@ import type {
   Workout, Node, Step, Rest, Block, Interrupt, Score, Target, Laterality,
 } from './ast.ts';
 import { readLines, expandInline, splitTopLevel, type Line } from './lines.ts';
-import { parseQuantity, parseDuration, parseTarget } from './units.ts';
+import { parseQuantity, parseDuration, parseTarget, parseThreshold } from './units.ts';
 
 export interface ParseError { line: number; message: string; text: string; }
 
@@ -64,6 +64,19 @@ class Parser {
       step.laterality = (m === 'total' ? 'split' : m) as Laterality;
       return '';
     }).trim();
+
+    // `Bike until HR > 160bpm` — the threshold trails the movement, the way
+    // every other step qualifier does.
+    const trailing = head.match(/^(.*?)\s+(until\s+.+)$/i);
+    if (trailing) {
+      const th = parseThreshold(trailing[2]);
+      if (th) {
+        step.quantity = th;
+        step.movement = this.peelTrailingQualifiers(trailing[1], step).trim();
+        for (const q of parts) this.applyQualifier(step, q, line);
+        return step;
+      }
+    }
 
     let { quantity, rest } = parseQuantity(head);
 
@@ -151,6 +164,8 @@ class Parser {
     let t = text.replace(/^rest\s*/i, '').trim();
 
     if (/after\s+last$/i.test(t)) { rest.afterLast = true; t = t.replace(/after\s+last$/i, '').trim(); }
+    const threshold = parseThreshold(t);
+    if (threshold) { rest.duration = threshold; return rest; }
     if (/^as\s+needed$/i.test(t)) { rest.dynamic = 'as-needed'; return rest; }
     if (/^=\s*work$/i.test(t) || /^equal\s+to\s+work$/i.test(t)) { rest.dynamic = 'equal-to-work'; return rest; }
 

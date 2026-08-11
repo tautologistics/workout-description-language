@@ -18,6 +18,8 @@ export interface FlatStep {
   watts?: number;
   /** Absolute external load. No endurance format carries this. */
   weight?: { value: number; unit: string };
+  /** Ends on a sensor reading rather than a clock or a rep count. */
+  threshold?: { metric: 'hr' | 'power'; compare: 'lt' | 'gt'; value: number };
   intensity: 'active' | 'rest' | 'warmup' | 'cooldown';
   label: string;
 }
@@ -83,7 +85,13 @@ export function flatten(t: Timeline): Flattened {
   };
 
   const emitRest = (r: TimelineRest) => {
-    steps.push({ movement: 'Rest', seconds: r.seconds, intensity: 'rest', label: r.label });
+    const m = r.label.match(/until (HR|power) ([<>]) (\d+)/i);
+    steps.push({
+      movement: 'Rest', seconds: r.seconds, intensity: 'rest', label: r.label,
+      threshold: m
+        ? { metric: /hr/i.test(m[1]) ? 'hr' : 'power', compare: m[2] === '<' ? 'lt' : 'gt', value: Number(m[3]) }
+        : undefined,
+    });
   };
 
   const walk = (item: TimelineItem, times: number) => {

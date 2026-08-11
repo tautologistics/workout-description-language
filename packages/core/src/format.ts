@@ -11,10 +11,14 @@ const IND = '  ';
 
 function stepText(s: Step): string {
   let out = '- ';
+  // A threshold reads as a condition on the movement, so it trails it —
+  // `Bike until HR > 160bpm`, not `until HR > 160bpm Bike`.
+  const trailing = s.quantity.kind === 'threshold';
   const q = formatQuantity(s.quantity);
-  if (q) out += q + ' ';
+  if (q && !trailing) out += q + ' ';
   if (s.flags.includes('max') && s.quantity.kind === 'duration') out += 'max ';
   out += s.movement;
+  if (trailing) out += ` ${q}`;
 
   // Laterality and side attach to the movement, so they precede the targets —
   // `10 Dumbbell Curl each arm @ 2x35lb`, not `… @ 2x35lb each arm`. All three
@@ -45,6 +49,7 @@ function restText(r: Rest): string {
   if (r.dynamic === 'as-needed') return 'rest as needed';
   if (r.dynamic === 'equal-to-work') return 'rest = work';
   if (r.active) return `rest ${formatQuantity(r.active.quantity)} ${r.active.movement}`;
+  if (r.duration?.kind === 'threshold') return `rest ${formatQuantity(r.duration)}`;
   let out = `rest ${r.duration ? formatDuration(r.duration) : ''}`.trim();
   if (r.afterLast) out += ' after last';
   return out;

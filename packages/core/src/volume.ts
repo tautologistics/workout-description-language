@@ -71,7 +71,7 @@ export function volume(t: Timeline, keep?: StepFilter): Volume {
         case 'duration': v.seconds = q.seconds; break;
         case 'distance': v.distanceM = q.value * (TO_METRES[q.unit] ?? 1); break;
         case 'floor': v.reps = q.value; unbounded = true; break;
-        case 'max': case 'maxEffort': case 'open': unbounded = true; break;
+        case 'max': case 'maxEffort': case 'open': case 'threshold': unbounded = true; break;
       }
       if (item.perRound) unbounded = true;   // ascending inside an unbounded repeat
       const key = item.movement || '(unnamed)';

@@ -47,8 +47,22 @@ export function formatDuration(u: Unit): string {
 }
 
 /** Parse the leading quantity of a step. Returns the unit and the rest of the text. */
+/** `until HR < 130bpm`, `until power > 250W`. */
+export function parseThreshold(text: string): Unit | null {
+  const m = text.trim().match(
+    /^until\s+(hr|heart\s*rate|power)\s*(<|>|below|above|under|over)\s*(\d+(?:\.\d+)?)\s*(bpm|w|watts)?$/i,
+  );
+  if (!m) return null;
+  const metric = /power/i.test(m[1]) ? 'power' : 'hr';
+  const compare = /^(<|below|under)$/i.test(m[2]) ? 'lt' : 'gt';
+  return { kind: 'threshold', metric, compare, value: Number(m[3]), unit: metric === 'hr' ? 'bpm' : 'W' };
+}
+
 export function parseQuantity(text: string): { quantity: Unit; rest: string } {
   const t = text.trim();
+
+  const threshold = parseThreshold(t);
+  if (threshold) return { quantity: threshold, rest: '' };
 
   if (/^max\b/i.test(t)) return { quantity: { kind: 'max' }, rest: t.slice(3).trim() };
 
@@ -102,6 +116,7 @@ export function formatQuantity(u: Unit): string {
     case 'floor': return `${u.value}+`;
     case 'range': return `${u.min}-${u.max}`;
     case 'maxEffort': return 'max';
+    case 'threshold': return `until ${u.metric === 'hr' ? 'HR' : 'power'} ${u.compare === 'lt' ? '<' : '>'} ${u.value}${u.unit}`;
     case 'open': return '';
   }
 }

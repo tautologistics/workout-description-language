@@ -22,7 +22,7 @@ import { resolveGarminExercise } from './garmin-exercises.ts';
 // --- Connect's own enum values, from /workout-service/workout/types ---------
 
 const StepType = { WARMUP: 1, COOLDOWN: 2, INTERVAL: 3, RECOVERY: 4, REST: 5, REPEAT: 6 } as const;
-const ConditionType = { LAP_BUTTON: 1, TIME: 2, DISTANCE: 3, CALORIES: 4, ITERATIONS: 7, REPS: 10 } as const;
+const ConditionType = { LAP_BUTTON: 1, TIME: 2, DISTANCE: 3, CALORIES: 4, POWER: 5, HEART_RATE: 6, ITERATIONS: 7, REPS: 10 } as const;
 const TargetType = { NO_TARGET: 1, POWER_ZONE: 2, CADENCE: 3, HEART_RATE_ZONE: 4, PACE_ZONE: 6 } as const;
 const SportType = {
   running: 1, cycling: 2, other: 3, swimming: 4,
@@ -74,6 +74,26 @@ function sportOf(steps: TimelineStep[]): keyof typeof SportType {
   const lifting = steps.filter((s) => s.targets.some(
     (t) => t.kind === 'load' && t.load.kind === 'absolute')).length;
   return lifting > 0 ? 'strength_training' : 'cardio_training';
+}
+
+/** A heart-rate target range in bpm, if the step carries one. */
+function heartRate(s: TimelineStep): { low: number; high: number } | undefined {
+  for (const t of s.targets) {
+    if (t.kind !== 'heartRate') continue;
+    const range = t.text.match(/^(\d+)\s*-\s*(\d+)\s*bpm$/i);
+    if (range) return { low: Number(range[1]), high: Number(range[2]) };
+  }
+  return undefined;
+}
+
+/** A heart-rate zone number, which Connect stores instead of a range. */
+function heartRateZone(s: TimelineStep): number | undefined {
+  for (const t of s.targets) {
+    if (t.kind !== 'heartRate') continue;
+    const z = t.text.match(/^Z(\d)$/i);
+    if (z) return Number(z[1]);
+  }
+  return undefined;
 }
 
 /** Absolute watts for a step, resolving `% FTP` when an FTP is supplied. */
@@ -143,22 +163,45 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
       value = q.value * ({ m: 1, km: 1000, mi: 1609.344, ft: 0.3048, yd: 0.9144 }[q.unit] ?? 1);
     } else if (q.kind === 'calories') { condition = endCondition(ConditionType.CALORIES, 'calories', 4); value = q.value; }
     else if (q.kind === 'reps' || q.kind === 'floor') { condition = endCondition(ConditionType.REPS, 'reps', 10); value = q.value; }
+    else if (q.kind === 'threshold') {
+      // Confirmed by a natively created workout: a rest ending on heart rate
+      // uses conditionTypeKey "heart.rate" with endConditionCompare "gt"/"lt".
+      const isHr = q.metric === 'hr';
+      condition = endCondition(isHr ? ConditionType.HEART_RATE : ConditionType.POWER,
+                               isHr ? 'heart.rate' : 'power', isHr ? 6 : 5);
+      value = q.value;
+      step.__compare = q.compare;
+    }
     else if (q.kind === 'range') {
       condition = endCondition(ConditionType.REPS, 'reps', 10); value = q.min;
       warnings.push(`"${s.movement}": a rep range exports as its lower bound — Connect stores a single rep count`);
     }
 
     const step: Record<string, unknown> = {
+      __compare: undefined as string | undefined,
       type: 'ExecutableStepDTO',
       stepOrder: next(),
       stepType: type,
       endCondition: condition,
       endConditionValue: value,
       targetType: noTarget,
+      endConditionCompare: null as string | null,
       description: s.label,
     };
+    if (step.__compare) step.endConditionCompare = step.__compare;
+    delete step.__compare;
 
     if (opts.powerTargets !== false) {
+      // Heart rate takes precedence: a step written `@ Z2` or `@ 150-160bpm`
+      // means to hold that, and Connect keeps one target per step.
+      const hr = heartRate(s), zone = heartRateZone(s);
+      if (hr || zone !== undefined) {
+        step.targetType = { workoutTargetTypeId: TargetType.HEART_RATE_ZONE, workoutTargetTypeKey: 'heart.rate.zone', displayOrder: 4 };
+        step.targetValueOne = hr?.low ?? null;
+        step.targetValueTwo = hr?.high ?? null;
+        step.zoneNumber = zone ?? null;
+        return step;
+      }
       const watts = powerWatts(s, opts.ftp);
       if (watts !== undefined) {
         step.targetType = { workoutTargetTypeId: TargetType.POWER_ZONE, workoutTargetTypeKey: 'power.zone', displayOrder: 2 };
@@ -190,6 +233,12 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
     return step;
   };
 
+  /** A rest whose label says it ends on heart rate. */
+  const hrRest = (item: { label: string }) => {
+    const m = item.label.match(/until HR ([<>]) (\d+)/i);
+    return m ? { compare: m[1] === '<' ? 'lt' : 'gt', value: Number(m[2]) } : undefined;
+  };
+
   const repeatGroup = (
     iterations: number,
     children: unknown[],
@@ -215,10 +264,13 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
         type: 'ExecutableStepDTO',
         stepOrder: next(),
         stepType: stepType(StepType.REST, 'rest', 5),
-        endCondition: item.seconds !== undefined
-          ? endCondition(ConditionType.TIME, 'time', 2)
-          : endCondition(ConditionType.LAP_BUTTON, 'lap.button', 1),
-        endConditionValue: item.seconds ?? null,
+        endCondition: hrRest(item)
+          ? endCondition(ConditionType.HEART_RATE, 'heart.rate', 6)
+          : item.seconds !== undefined
+            ? endCondition(ConditionType.TIME, 'time', 2)
+            : endCondition(ConditionType.LAP_BUTTON, 'lap.button', 1),
+        endConditionValue: hrRest(item)?.value ?? item.seconds ?? null,
+        endConditionCompare: hrRest(item)?.compare ?? null,
         targetType: noTarget,
         description: item.label,
       }];

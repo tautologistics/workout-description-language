@@ -248,3 +248,40 @@ describe('garmin connect: catalogue from Connect\'s own data', () => {
     eq(resolveGarminExercise('Turkish Get-Up')?.exercise, 'TURKISH_GET_UP');
   });
 });
+
+describe('heart rate: as a target and as an end condition', () => {
+  const hrOut = (src: string) => {
+    const r = exportGarminConnect(compile(parse(src).workout), { ftp: 250 });
+    return { json: JSON.parse(r.output), warnings: r.warnings };
+  };
+
+  it('ends a rest on heart rate, the way a native workout does', () => {
+    // Confirmed against a workout built in Connect's own editor:
+    // conditionTypeKey "heart.rate" with endConditionCompare "gt"/"lt".
+    const s = hrOut('sequence:\n  - 5min Bike\n  rest until HR < 130bpm')
+      .json.workoutSegments[0].workoutSteps[1];
+    eq(s.endCondition.conditionTypeKey, 'heart.rate');
+    eq(s.endConditionValue, 130);
+    eq(s.endConditionCompare, 'lt');
+  });
+
+  it('holds a heart-rate zone as a target', () => {
+    const s = hrOut('sequence:\n  - 20min Run @ Z2').json.workoutSegments[0].workoutSteps[0];
+    eq(s.targetType.workoutTargetTypeKey, 'heart.rate.zone');
+    eq(s.zoneNumber, 2);
+  });
+
+  it('holds an explicit bpm range as a target', () => {
+    const s = hrOut('sequence:\n  - 10min Run @ 150-160bpm').json.workoutSegments[0].workoutSteps[0];
+    eq([s.targetValueOne, s.targetValueTwo], [150, 160]);
+    eq(s.zoneNumber, null);
+  });
+
+  it('prefers heart rate over power when a step carries both', () => {
+    // Connect keeps one target per step, and a stated heart rate is the more
+    // specific instruction.
+    const s = hrOut('sequence:\n  - 10min Bike @ 90% FTP @ 140-150bpm')
+      .json.workoutSegments[0].workoutSteps[0];
+    eq(s.targetType.workoutTargetTypeKey, 'heart.rate.zone');
+  });
+});
