@@ -1,0 +1,234 @@
+{
+  "$comment": "Provenance for every external dataset in this repository. Each entry records where the data came from, what licence it carries, what we take from it, and how to refresh it. `scripts/refresh-sources.ts` reads this file.",
+  "updated": "2026-08-11",
+  "sources": [
+    {
+      "id": "free-exercise-db",
+      "name": "Free Exercise DB",
+      "url": "https://github.com/yuhonas/free-exercise-db",
+      "fetch": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json",
+      "licence": "Unlicense",
+      "licenceClass": "public-domain",
+      "redistributable": true,
+      "retrieved": "2026-08-10",
+      "records": 873,
+      "provides": [
+        "exercise names",
+        "primary and secondary muscles",
+        "equipment",
+        "force",
+        "mechanic"
+      ],
+      "usedIn": [
+        "registry/movements.json (856 imported entries, tagged source: free-exercise-db)"
+      ],
+      "notes": "Public domain, so it imposes no obligations on anything it is merged into. This is why it is the base layer.",
+      "mirror": "docs/references/free-exercise-db.json"
+    },
+    {
+      "id": "garmin-exercises",
+      "name": "Garmin Connect exercise catalogue",
+      "url": "https://connect.garmin.com/web-api/web-data/exercises/Exercises.json",
+      "fetch": "https://connect.garmin.com/web-api/web-data/exercises/Exercises.json",
+      "licence": "none stated",
+      "licenceClass": "unlicensed-vendor-data",
+      "redistributable": "unclear",
+      "retrieved": "2026-08-11",
+      "records": 1510,
+      "provides": [
+        "Garmin exercise categories and codes",
+        "primary and secondary muscles"
+      ],
+      "usedIn": [
+        "registry/garmin-exercises.json",
+        "docs/references/Exercises.json"
+      ],
+      "notes": "Garmin publishes no licence for this. We keep it because interoperating with Connect is impossible without the exact enum values, which are facts about an interface rather than creative work. Treat redistribution as unresolved rather than settled. The endpoint returns 403 without a Connect session, so refreshing means opening the URL in a logged-in browser and saving the response.",
+      "fetchNeedsSession": true
+    },
+    {
+      "id": "garmin-benchmarks",
+      "name": "Garmin Connect strength benchmarks",
+      "url": "https://connect.garmin.com/gc-api/workout-service/benchmarks",
+      "fetch": "https://connect.garmin.com/gc-api/workout-service/benchmarks",
+      "licence": "none stated",
+      "licenceClass": "unlicensed-vendor-data",
+      "redistributable": "unclear",
+      "retrieved": "2026-08-11",
+      "records": 17,
+      "provides": [
+        "the lifts Connect tracks a 1RM for"
+      ],
+      "usedIn": [
+        "registry/garmin-benchmarks.json",
+        "docs/references/bechmarks.json"
+      ],
+      "notes": "Decides whether `@ 85% 1RM` can resolve to a real weight on a device. The endpoint returns 403 without a Connect session, so refreshing means opening the URL in a logged-in browser and saving the response.",
+      "fetchNeedsSession": true
+    },
+    {
+      "id": "garmin-connect-schema",
+      "name": "python-garminconnect workout payloads",
+      "url": "https://github.com/cyberjunky/python-garminconnect",
+      "licence": "MIT",
+      "licenceClass": "permissive",
+      "redistributable": true,
+      "retrieved": "2026-08-11",
+      "provides": [
+        "Connect workout JSON shape",
+        "step/condition/target/sport enum values",
+        "display names for Garmin exercises"
+      ],
+      "usedIn": [
+        "packages/core/src/adapters/garmin-connect.ts",
+        "registry/garmin-exercises.json (display names only)"
+      ],
+      "notes": "Its comment describing weightValue as grams is wrong; a natively created workout shows the value is in the unit weightUnit names. See docs/references/README.md."
+    },
+    {
+      "id": "zwift-workouts",
+      "name": "Zwift .zwo workout files",
+      "url": "https://github.com/bdcheung/zwift_workouts",
+      "licence": "none stated",
+      "licenceClass": "unlicensed-third-party",
+      "redistributable": "unclear",
+      "retrieved": "2026-08-10",
+      "records": 38,
+      "provides": [
+        "real third-party workouts as a cross-format oracle"
+      ],
+      "usedIn": [
+        "examples/interop/zwo/"
+      ],
+      "notes": "Used as test fixtures, not shipped as product data. Each file states its own segment durations, which is what makes it an oracle."
+    },
+    {
+      "id": "goldencheetah-erg",
+      "name": "GoldenCheetah test workouts",
+      "url": "https://github.com/GoldenCheetah/GoldenCheetah",
+      "licence": "GPL-2.0",
+      "licenceClass": "copyleft",
+      "redistributable": "with GPL terms",
+      "retrieved": "2026-08-11",
+      "records": 24,
+      "provides": [
+        ".erg and .mrc courses as a cross-format oracle"
+      ],
+      "usedIn": [
+        "examples/interop/erg/"
+      ],
+      "notes": "Test fixtures only. If the licence ever matters, these are trivially regenerable from any ERG source."
+    },
+    {
+      "id": "fit-workout-fixtures",
+      "name": "Garmin FIT SDK workout examples",
+      "url": "https://github.com/dtcooper/python-fitparse",
+      "licence": "MIT",
+      "licenceClass": "permissive",
+      "redistributable": true,
+      "retrieved": "2026-08-11",
+      "records": 4,
+      "provides": [
+        "canonical FIT workout binaries covering steps, repeats, and custom targets"
+      ],
+      "usedIn": [
+        "examples/interop/fit/"
+      ]
+    },
+    {
+      "id": "sheiko-29",
+      "name": "Sheiko #29 training block",
+      "url": "https://www.liftosaur.com/programs/sheiko-29-32",
+      "licence": "none stated",
+      "licenceClass": "unlicensed-third-party",
+      "redistributable": "unclear",
+      "retrieved": "2026-08-10",
+      "records": 12,
+      "provides": [
+        "percentage-based strength prescriptions with a published number-of-lifts oracle"
+      ],
+      "usedIn": [
+        "examples/interop/sheiko/"
+      ],
+      "notes": "Prescriptions are factual training data. Kept verbatim in Sheiko's own notation so the rep totals stay independently derivable."
+    }
+  ],
+  "candidates": [
+    {
+      "id": "wger",
+      "name": "wger exercise database",
+      "url": "https://wger.de/api/v2/exerciseinfo/?format=json",
+      "licence": "CC-BY-SA 4.0",
+      "licenceClass": "share-alike",
+      "records": 863,
+      "provides": [
+        "exercises",
+        "primary and secondary muscles",
+        "equipment",
+        "translations in many languages"
+      ],
+      "status": "not imported",
+      "notes": "Share-alike. Merging it into registry/movements.json would put that file under CC-BY-SA. Viable as a separate enrichment layer, not as part of a permissive core."
+    },
+    {
+      "id": "everkinetic",
+      "name": "Everkinetic exercise data",
+      "url": "https://github.com/everkinetic/data",
+      "licence": "CC-BY-SA 4.0",
+      "licenceClass": "share-alike",
+      "records": 290,
+      "provides": [
+        "exercises",
+        "muscles",
+        "step-by-step instructions",
+        "images"
+      ],
+      "status": "not imported",
+      "notes": "Same share-alike constraint as wger."
+    },
+    {
+      "id": "exercisedb",
+      "name": "ExerciseDB",
+      "url": "https://github.com/ExerciseDB/exercisedb-api",
+      "licence": "AGPL-3.0 (code); data licence unclear",
+      "licenceClass": "copyleft",
+      "records": 11000,
+      "provides": [
+        "exercises",
+        "target muscles",
+        "equipment",
+        "media"
+      ],
+      "status": "not imported",
+      "notes": "Largest catalogue found, but the AGPL covers the API code and the data's own licence is not stated. Would need clarifying before use."
+    },
+    {
+      "id": "musclewiki",
+      "name": "MuscleWiki API",
+      "url": "https://api.musclewiki.com/",
+      "licence": "commercial",
+      "licenceClass": "proprietary",
+      "records": 1900,
+      "provides": [
+        "exercises",
+        "45 muscle groups",
+        "video",
+        "14 languages"
+      ],
+      "status": "not imported",
+      "notes": "Commercial terms. Not redistributable."
+    },
+    {
+      "id": "emg-literature",
+      "name": "EMG activation studies",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/",
+      "licence": "per-paper",
+      "licenceClass": "cite-only",
+      "provides": [
+        "measured %MVIC activation per exercise"
+      ],
+      "status": "not imported",
+      "notes": "The only source of *measured* rather than editorially assigned muscle involvement. No consolidated open dataset exists \u2014 it is per-study, heterogeneous in protocol, and covers a few hundred exercises at most. Valuable as targeted evidence for a small set of movements; unusable as a bulk import."
+    }
+  ]
+}
