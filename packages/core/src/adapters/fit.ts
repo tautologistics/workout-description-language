@@ -239,55 +239,106 @@ const NAME_LEN = 16;
  * steps, plus intensity roles. What it does not carry is rep-based strength
  * work, which has no duration type, so those become open steps.
  */
-export function exportFit(t: Timeline, meta: { name?: string } = {}): ExportResult {
+export interface FitExportOptions {
+  name?: string;
+  /** Needed to turn `% FTP` targets into the watts a device expects. */
+  ftp?: number;
+  /** Fixed by default so exports stay byte-identical run to run. */
+  createdAt?: Date;
+}
+
+/** FIT counts seconds from 1989-12-31, not 1970. */
+const FIT_EPOCH = 631065600;
+
+const SPORT = { generic: 0, running: 1, cycling: 2, swimming: 5, training: 10 } as const;
+
+/** Guess the sport from the movements, so the watch files the workout correctly. */
+function sportOf(movements: string[]): number {
+  const j = movements.join(' ').toLowerCase();
+  if (/\bbike\b|cycl/.test(j)) return SPORT.cycling;
+  if (/\bswim\b/.test(j)) return SPORT.swimming;
+  if (/\brun\b|sprint|jog/.test(j)) return SPORT.running;
+  return SPORT.training;
+}
+
+export function exportFit(t: Timeline, opts: FitExportOptions = {}): ExportResult {
   const { steps, warnings } = flatten(t);
   const w = new Writer();
-  const name = (meta.name ?? t.root.label ?? 'Workout').slice(0, NAME_LEN - 1);
+  const name = (opts.name ?? t.root.label ?? 'Workout').slice(0, NAME_LEN - 1);
+  const created = Math.round(((opts.createdAt?.getTime() ?? Date.UTC(2026, 0, 1)) / 1000) - FIT_EPOCH);
 
   // --- file_id (global 0), local 0
-  w.u8(0x40); w.u8(0); w.u8(0); w.u16(0); w.u8(3);
+  w.u8(0x40); w.u8(0); w.u8(0); w.u16(0); w.u8(4);
   w.u8(0); w.u8(1); w.u8(0x00);            // type: enum
   w.u8(1); w.u8(2); w.u8(0x84);            // manufacturer: uint16
+  w.u8(2); w.u8(2); w.u8(0x84);            // product: uint16
   w.u8(4); w.u8(4); w.u8(0x86);            // time_created: uint32
-  w.u8(0x00); w.u8(5); w.u16(255); w.u32(0);
+  w.u8(0x00); w.u8(5); w.u16(255); w.u16(0); w.u32(created);
 
   // --- workout (global 26), local 1
   w.u8(0x41); w.u8(0); w.u8(0); w.u16(26); w.u8(3);
   w.u8(8); w.u8(NAME_LEN); w.u8(0x07);     // wkt_name: string
   w.u8(4); w.u8(1); w.u8(0x00);            // sport: enum
   w.u8(6); w.u8(2); w.u8(0x84);            // num_valid_steps: uint16
-  w.u8(0x01); w.str(name, NAME_LEN); w.u8(0); w.u16(steps.length);
+  w.u8(0x01); w.str(name, NAME_LEN);
+  w.u8(sportOf(steps.map((s) => s.movement))); w.u16(steps.length);
 
   // --- workout_step (global 27), local 2
-  w.u8(0x42); w.u8(0); w.u8(0); w.u16(27); w.u8(6);
+  w.u8(0x42); w.u8(0); w.u8(0); w.u16(27); w.u8(9);
   w.u8(254); w.u8(2); w.u8(0x84);          // message_index: uint16
   w.u8(0); w.u8(NAME_LEN); w.u8(0x07);     // wkt_step_name: string
   w.u8(1); w.u8(1); w.u8(0x00);            // duration_type: enum
   w.u8(2); w.u8(4); w.u8(0x86);            // duration_value: uint32
   w.u8(3); w.u8(1); w.u8(0x00);            // target_type: enum
+  w.u8(4); w.u8(4); w.u8(0x86);            // target_value: uint32
+  w.u8(5); w.u8(4); w.u8(0x86);            // custom_target_value_low: uint32
+  w.u8(6); w.u8(4); w.u8(0x86);            // custom_target_value_high: uint32
   w.u8(7); w.u8(1); w.u8(0x00);            // intensity: enum
 
   const INTENSITY: Record<string, number> = { active: 0, rest: 1, warmup: 2, cooldown: 3 };
-  let unsupported = 0;
+  const NONE = 0xffffffff;
+  let unconverted = 0;
 
   steps.forEach((s, i) => {
-    let durationType = 5, durationValue = 0xffffffff;    // open
+    let durationType = 5, durationValue = NONE;          // open
     if (s.seconds !== undefined) { durationType = 0; durationValue = s.seconds * 1000; }
     else if (s.distanceM !== undefined) { durationType = 1; durationValue = Math.round(s.distanceM * 100); }
     else if (s.calories !== undefined) { durationType = 4; durationValue = s.calories; }
-    else if (s.reps !== undefined) unsupported++;        // FIT has no rep-count duration
+    else if (s.reps !== undefined) { durationType = 29; durationValue = s.reps; }
+
+    // Custom power and heart-rate ranges carry a +1000 / +100 offset in FIT.
+    let targetType = 2, targetValue = 0, low = NONE, high = NONE;
+    const watts = s.watts ?? (s.ftp !== undefined && opts.ftp ? Math.round(s.ftp * opts.ftp) : undefined);
+    if (watts !== undefined) {
+      targetType = 4; targetValue = 0;
+      low = 1000 + Math.round(watts * 0.97);
+      high = 1000 + Math.round(watts * 1.03);
+    } else if (s.ftp !== undefined) {
+      unconverted++;
+    }
 
     w.u8(0x02);
     w.u16(i);
     w.str(s.movement.slice(0, NAME_LEN - 1), NAME_LEN);
     w.u8(durationType);
     w.u32(durationValue);
-    w.u8(2);                                             // target_type: open
+    w.u8(targetType);
+    w.u32(targetValue);
+    w.u32(low);
+    w.u32(high);
     w.u8(INTENSITY[s.intensity] ?? 0);
   });
 
-  if (unsupported) {
-    warnings.push(`${unsupported} rep-based step(s) exported as open: FIT has no rep-count duration type, so a watch will advance them on a button press`);
+  const ramps = steps.filter((s) => s.rampTo !== undefined).length;
+  if (ramps) {
+    warnings.push(`${ramps} ramp(s) exported at their starting target: a FIT workout step holds one target range, so a changing target flattens`);
+  }
+  const weighted = steps.filter((s) => s.weight).length;
+  if (weighted) {
+    warnings.push(`${weighted} step(s) exported without their load: a FIT workout step has no external-weight field, so the barbell weight is lost`);
+  }
+  if (unconverted) {
+    warnings.push(`${unconverted} step(s) exported without a power target: FIT stores watts, so an FTP is needed to resolve a percentage — pass one to keep them`);
   }
   if (steps.length > 50) {
     warnings.push(`${steps.length} steps: repeats are expanded rather than emitted as repeat markers, and most devices refuse workouts beyond about 50 steps`);

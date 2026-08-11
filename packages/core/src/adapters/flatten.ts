@@ -16,6 +16,8 @@ export interface FlatStep {
   ftp?: number;
   rampTo?: number;
   watts?: number;
+  /** Absolute external load. No endurance format carries this. */
+  weight?: { value: number; unit: string };
   intensity: 'active' | 'rest' | 'warmup' | 'cooldown';
   label: string;
 }
@@ -61,7 +63,9 @@ export function flatten(t: Timeline): Flattened {
         continue;
       }
       if (target.kind === 'load' && target.load.kind === 'absolute') {
-        flat.watts = target.load.value;
+        // A barbell load is a weight, not a power target. Treating 155lb as
+        // 155W put a deadlift on a power meter.
+        flat.weight = { value: target.load.value, unit: target.load.unit };
         continue;
       }
       const text = (target as any).text as string | undefined;

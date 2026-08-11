@@ -83,9 +83,11 @@ describe('export: fidelity is reported, never silent', () => {
     ok(w.some((x) => /power curve/.test(x)), w.join(' | '));
   });
 
-  it('says when FIT has no rep-count duration', () => {
+  it('says what FIT loses on strength work', () => {
+    // FIT does carry rep counts (duration_type 29). What it has no field for is
+    // the external load, so that is what gets reported.
     const w = exportFit(wdl('04-fran.wdl')).warnings;
-    ok(w.some((x) => /rep-based/.test(x)), w.join(' | '));
+    ok(w.some((x) => /no external-weight field/.test(x)), w.join(' | '));
   });
 
   it('carries the timeline warnings through — a tally block cannot be ordered', () => {
@@ -144,6 +146,53 @@ describe('export: hand-written WDL, not just imported files', () => {
     const t = wdl('12-dt.wdl');
     const out = exportFit(t) as any;
     eq(readFit(out.bytes).filter((m) => m.global === 27).length, 15);   // 5 rounds x 3
-    ok(out.warnings.some((w: string) => /rep-based/.test(w)), 'and says FIT cannot hold reps');
+    ok(out.warnings.some((w: string) => /no external-weight field/.test(w)),
+       'and says the barbell load is what FIT cannot hold');
+  });
+});
+
+describe('export: FIT binary is well-formed', () => {
+  it('writes as many field definitions as it declares', () => {
+    // Declaring 8 fields and writing 9 desynchronises every record after the
+    // first. Our own reader limped past it; a third-party decoder did not.
+    // Reading a step back and finding every value proves the alignment holds.
+    const out = exportFit(wdl('12-dt.wdl')) as any;
+    const steps = readFit(out.bytes).filter((m: any) => m.global === 27);
+    eq(steps.length, 15);
+    steps.forEach((m: any, i: number) => {
+      eq(m.fields[254], i, 'message_index');
+      eq(m.fields[1], 29, 'duration_type is reps');
+    });
+    eq(steps.map((m: any) => m.fields[2]).slice(0, 3), [12, 9, 6]);
+  });
+
+  it('uses the rep duration type FIT actually has', () => {
+    // An earlier version claimed FIT had no rep-count duration and exported
+    // strength work as open steps. duration_type 29 is `reps`.
+    const out = exportFit(wdl('01-5-5-back-squat.wdl')) as any;
+    const steps = readFit(out.bytes).filter((m: any) => m.global === 27);
+    ok(steps.some((m: any) => m.fields[1] === 29), 'rep steps use type 29');
+  });
+
+  it('carries power targets when given an FTP, and says so when not', () => {
+    const t = wdl('37-bike-intervals.wdl');
+    const withFtp = exportFit(t, { ftp: 250 }) as any;
+    const steps = readFit(withFtp.bytes).filter((m: any) => m.global === 27);
+    // 95% of 250 is 237.5W; FIT stores watts with a +1000 offset.
+    ok(steps.some((m: any) => m.fields[5] === 1231 && m.fields[6] === 1245), 'power range written');
+    ok(exportFit(t).warnings.some((w: string) => /FTP is needed/.test(w)), 'and warns without one');
+  });
+
+  it('reports what a FIT step cannot hold', () => {
+    const w = exportFit(wdl('12-dt.wdl')).warnings;
+    ok(w.some((x) => /no external-weight field/.test(x)), 'barbell load is lost');
+    const r = exportFit(wdl('37-bike-intervals.wdl'), { ftp: 250 }).warnings;
+    ok(r.some((x) => /ramp/.test(x)), 'a ramp flattens to its starting target');
+  });
+
+  it('is byte-identical run to run', () => {
+    const a = exportFit(wdl('12-dt.wdl')) as any;
+    const b = exportFit(wdl('12-dt.wdl')) as any;
+    eq(Array.from(a.bytes), Array.from(b.bytes));
   });
 });

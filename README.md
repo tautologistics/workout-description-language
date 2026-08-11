@@ -38,7 +38,7 @@ zwo interop     42/42    38 real Zwift files: XML duration sum == compiled durat
 sheiko interop  17/17    12 Sheiko days: published number-of-lifts == parsed reps
 erg interop      4/4     24 ERG/MRC courses: final timestamp == compiled duration
 fit interop      6/6     4 Garmin FIT binaries: declared step counts == parsed
-export          17/17    import -> export round trips, and fidelity is reported
+export          22/22    import -> export round trips, fidelity reported, FIT verified
 validation     130/130   errors, warnings, and never-guess questions
 ```
 
