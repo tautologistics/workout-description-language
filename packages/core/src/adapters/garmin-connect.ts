@@ -29,7 +29,7 @@ const SportType = {
   strength_training: 5, cardio_training: 6,
 } as const;
 
-/** Connect stores weight in grams, tagged with the kilogram unit. */
+/** Connect stores weight in kilograms under this unit tag. */
 const WEIGHT_UNIT_KILOGRAM = { unitId: 8, unitKey: 'kilogram', factor: 1000.0 };
 
 const stepType = (id: number, key: string, displayOrder: number) =>
@@ -47,12 +47,9 @@ export interface ConnectExportOptions {
   sport?: keyof typeof SportType;
   description?: string;
   /**
-   * Emit power targets. The shape — `targetValueOne`/`targetValueTwo` on the
-   * step rather than nested in `targetType`, watts for power, and the numeric
-   * `workoutTargetTypeId` being what Garmin actually reads — is corroborated by
-   * two independent implementations. It is still not confirmed by a successful
-   * import, which is why this stays off: a payload without targets is known to
-   * work, and corroboration is not verification.
+   * Emit power targets. On by default: verified by import, where Connect
+   * showed "230-245 W Intensity Target" on the work intervals. Set false to
+   * fall back to an untargeted workout.
    */
   powerTargets?: boolean;
   /** Resolves `% FTP` targets into the watts Connect stores. */
@@ -82,6 +79,14 @@ function powerWatts(s: TimelineStep, ftp?: number): number | undefined {
     if (t.kind === 'load' && t.load.kind === 'percent' && /^FTP$/i.test(t.load.of ?? '') && ftp) {
       return (t.load.value / 100) * ftp;
     }
+  }
+  // A ramp keeps its bounds in a note, and Connect holds one target per step,
+  // so the best available answer is where the ramp starts.
+  for (const n of s.notes) {
+    const m = n.match(/ramp\s+(\d+(?:\.\d+)?)%\s*->/i);
+    if (m && ftp) return (Number(m[1]) / 100) * ftp;
+    const w = n.match(/ramp\s+(\d+(?:\.\d+)?)W\s*->/i);
+    if (w) return Number(w[1]);
   }
   return undefined;
 }
@@ -141,7 +146,7 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
       description: s.label,
     };
 
-    if (opts.powerTargets) {
+    if (opts.powerTargets !== false) {
       const watts = powerWatts(s, opts.ftp);
       if (watts !== undefined) {
         step.targetType = { workoutTargetTypeId: TargetType.POWER_ZONE, workoutTargetTypeKey: 'power.zone', displayOrder: 2 };
@@ -164,9 +169,10 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
       }
       const kg = weightKg(s);
       if (kg !== undefined) {
-        // Connect stores grams under a kilogram unit tag. Round at the gram,
-        // not the kilogram — rounding kg first loses a pood's third decimal.
-        step.weightValue = Math.round(kg * 1000);
+        // Kilograms, not grams. Sending 70307 for a 155lb bar made Connect
+        // display "155,000.4 lbs" — it read the number as kg — which settles a
+        // reference implementation whose comment says grams.
+        step.weightValue = Math.round(kg * 1000) / 1000;
         step.weightUnit = { ...WEIGHT_UNIT_KILOGRAM };
       }
     } else if (weightKg(s) !== undefined) {
@@ -248,6 +254,11 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
 
   const workoutSteps = build(t.root);
 
+  const ramps = allSteps.filter((s) => s.notes.some((n) => /^ramp /i.test(n))).length;
+  if (ramps && opts.powerTargets !== false) {
+    warnings.push(`${ramps} ramp(s) target their starting power — Connect holds one target per step`);
+  }
+
   const payload = {
     workoutName: (opts.name || t.root.label || 'Workout').slice(0, 80),
     description: opts.description ?? '',
@@ -256,9 +267,7 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
     workoutSegments: [{ segmentOrder: 1, sportType, workoutSteps }],
   };
 
-  if (opts.powerTargets) {
-    warnings.push('power targets are enabled: the field shape is corroborated by two independent implementations but not yet confirmed by a successful import');
-  }
+
 
   return { output: JSON.stringify(payload, null, 2), warnings };
 }

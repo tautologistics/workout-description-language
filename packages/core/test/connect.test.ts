@@ -89,24 +89,25 @@ describe('garmin connect: what FIT could not carry', () => {
   });
 
   it('carries the barbell load FIT has no field for', () => {
-    // 155lb is 70.30682kg, and Connect stores grams under a kilogram unit tag.
+    // 155lb is 70.30682kg. Connect stores kilograms: sending 70307 made it
+    // display "155,000.4 lbs", which is 70307kg converted.
     const step = everyStep(out('12-dt.wdl').json.workoutSegments[0].workoutSteps)
       .find((s) => s.category === 'DEADLIFT');
-    eq(step.weightValue, 70307);
+    eq(step.weightValue, 70.307);
     eq(step.weightUnit.unitKey, 'kilogram');
   });
 
   it('converts kg and pood loads correctly', () => {
     const kg = exportGarminConnect(compile(parse('5 sets:\n  - 5 Deadlift @ 100kg').workout));
-    eq(JSON.parse(kg.output).workoutSegments[0].workoutSteps[0].workoutSteps[0].weightValue, 100000);
+    eq(JSON.parse(kg.output).workoutSegments[0].workoutSteps[0].workoutSteps[0].weightValue, 100);
     // A pood is 16.3805kg, so 2 pood is 32.761kg.
     const pood = exportGarminConnect(compile(parse('5 sets:\n  - 10 KB Swing @ 2pood').workout));
-    eq(JSON.parse(pood.output).workoutSegments[0].workoutSteps[0].workoutSteps[0].weightValue, 32761);
+    eq(JSON.parse(pood.output).workoutSegments[0].workoutSteps[0].workoutSteps[0].weightValue, 32.761);
   });
 
   it('counts paired implements as the total moved', () => {
     const r = exportGarminConnect(compile(parse('5 sets:\n  - 10 Farmers Carry @ 2x24kg').workout));
-    eq(JSON.parse(r.output).workoutSegments[0].workoutSteps[0].workoutSteps[0].weightValue, 48000);
+    eq(JSON.parse(r.output).workoutSegments[0].workoutSteps[0].workoutSteps[0].weightValue, 48);
   });
 });
 
@@ -175,17 +176,25 @@ describe('garmin connect: names and targets', () => {
     }
   });
 
-  it('omits power targets by default, since that payload is known to import', () => {
-    const steps = everyStep(out('37-bike-intervals.wdl').json.workoutSegments[0].workoutSteps);
-    ok(steps.every((s) => s.targetType === undefined || s.targetType.workoutTargetTypeKey === 'no.target'));
+  it('emits a power range, verified by import against the live site', () => {
+    // Connect showed "230-245 W Intensity Target" on the work intervals.
+    const { json } = out('37-bike-intervals.wdl', { ftp: 250 });
+    // The work intervals live inside the repeat group; the first targeted step
+    // overall is the warmup ramp.
+    const group = json.workoutSegments[0].workoutSteps.find((s: any) => s.type === 'RepeatGroupDTO');
+    eq([group.workoutSteps[0].targetValueOne, group.workoutSteps[0].targetValueTwo], [230, 245]);
   });
 
-  it('emits a power range when asked and given an FTP', () => {
-    const { json, warnings } = out('37-bike-intervals.wdl', { powerTargets: true, ftp: 250 });
-    const work = everyStep(json.workoutSegments[0].workoutSteps)
-      .find((s) => s.targetType?.workoutTargetTypeKey === 'power.zone');
-    // 95% of 250 is 237.5W, with a 3% band either side.
-    eq([work.targetValueOne, work.targetValueTwo], [230, 245]);
-    ok(warnings.some((w) => /not yet confirmed by a successful import/.test(w)));
+  it('can be turned off, back to the untargeted payload', () => {
+    const steps = everyStep(out('37-bike-intervals.wdl', { powerTargets: false }).json.workoutSegments[0].workoutSteps)
+      .filter((s) => s.type === 'ExecutableStepDTO');
+    ok(steps.every((s) => s.targetType.workoutTargetTypeKey === 'no.target'));
+  });
+
+  it('gives a ramp its starting power, since Connect holds one target per step', () => {
+    const { json, warnings } = out('37-bike-intervals.wdl', { ftp: 250 });
+    const first = json.workoutSegments[0].workoutSteps[0];
+    eq([first.targetValueOne, first.targetValueTwo], [121, 129]);   // 50% of 250
+    ok(warnings.some((w) => /starting power/.test(w)));
   });
 });
