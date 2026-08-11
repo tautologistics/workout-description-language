@@ -2,2570 +2,9 @@
  "$comment": "Likely-duplicate movements across sources, for review. Nothing here has been merged. `high` means the two names use identical word sets and the sources agree on primary muscles; `conflicting` means identical word sets but disagreeing muscles, which usually means the sources disagree rather than the exercises differing; `possible` means partial name overlap and needs a human.",
  "generated": "2026-08-11",
  "counts": {
-  "high": 86,
-  "conflicting": 13,
-  "likely": 2,
-  "possible": 946
+  "possible": 694
  },
  "candidates": [
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "band-external-rotation",
-    "title": "Band External Rotation",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "external-rotation-band",
-    "title": "External Rotation with Band",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 0.5,
-   "a": {
-    "id": "band-internal-rotation",
-    "title": "Band Internal Rotation",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest",
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "internal-rotation-band",
-    "title": "Internal Rotation with Band",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "cable-external-rotation",
-    "title": "Cable External Rotation",
-    "sources": [
-     "garmin",
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "external-rotation-cable",
-    "title": "External Rotation with Cable",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-dumbbell-one-arm",
-    "title": "Bench Press: Dumbbell (One Arm)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "one-arm-dumbbell-bench-press",
-    "title": "One Arm Dumbbell Bench Press",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "bent-arm-dumbbell-pullover",
-    "title": "Bent-Arm Dumbbell Pullover",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-bent-arm-pullover",
-    "title": "Dumbbell Bent Arm Pullover",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "cable-one-arm-tricep-extension",
-    "title": "Cable One Arm Tricep Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "one-arm-tricep-extension-cable",
-    "title": "One Arm Tricep Extension with Cable",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-one-arm-triceps-extension",
-    "title": "Dumbbell One-Arm Triceps Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-dumbbell-one-arm",
-    "title": "Triceps Extension: Dumbbell (One Arm)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "one-arm-dumbbell-preacher-curl",
-    "title": "One Arm Dumbbell Preacher Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "preacher-curl-dumbbell-one-arm",
-    "title": "Preacher Curl: Dumbbell (One Arm)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "preacher-curl-dumbbell-two-arm",
-    "title": "Preacher Curl: Dumbbell (Two Arm)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "two-arm-dumbbell-preacher-curl",
-    "title": "Two-Arm Dumbbell Preacher Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "standing-one-arm-curl-over-incline-bench-dumbbell",
-    "title": "Standing One Arm Curl Over Incline Bench with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "standing-one-arm-dumbbell-curl-over-incline-bench",
-    "title": "Standing One-Arm Dumbbell Curl Over Incline Bench",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "standing-one-arm-dumbbell-triceps-extension",
-    "title": "Standing One-Arm Dumbbell Triceps Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-dumbbell-standing-one-arm",
-    "title": "Triceps Extension: Dumbbell (Standing, One Arm)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-seated-one-leg-calf-raise",
-    "title": "Dumbbell Seated One-Leg Calf Raise",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "calves"
-    ]
-   },
-   "b": {
-    "id": "seated-one-leg-calf-raise-dumbbell",
-    "title": "Seated One Leg Calf Raise with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "calves"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "one-leg-barbell-squat",
-    "title": "One Leg Barbell Squat",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "one-leg-squat-barbell",
-    "title": "One Leg Squat with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "single-leg-extension",
-    "title": "Single Leg Extension",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "single-leg-leg-extension",
-    "title": "Single-Leg Leg Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 0.5,
-   "a": {
-    "id": "barbell-front-squat",
-    "title": "Barbell Front Squat",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "front-barbell-squat",
-    "title": "Front Barbell Squat",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 0.5,
-   "a": {
-    "id": "barbell-front-squat",
-    "title": "Barbell Front Squat",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "front-squat-barbell",
-    "title": "Front Squat with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 0.5,
-   "a": {
-    "id": "barbell-hack-squat",
-    "title": "Barbell Hack Squat",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "hack-squat-barbell",
-    "title": "Hack Squat: Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "front-barbell-squat",
-    "title": "Front Barbell Squat",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "front-squat-barbell",
-    "title": "Front Squat with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 0.5,
-   "a": {
-    "id": "wide-stance-barbell-squat",
-    "title": "Wide-stance Barbell Squat",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "wide-stance-squat-barbell",
-    "title": "Wide Stance Squat with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "push-up-wide",
-    "title": "Push-Up Wide",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "wide-push-up",
-    "title": "Wide Push-Up",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-seated-calf-raise",
-    "title": "Barbell Seated Calf Raise",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "calves"
-    ]
-   },
-   "b": {
-    "id": "seated-calf-raise-barbell",
-    "title": "Seated Calf Raise with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "calves"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "standing-calf-raise-dumbbell",
-    "title": "Standing Calf Raise with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "calves"
-    ]
-   },
-   "b": {
-    "id": "standing-dumbbell-calf-raise",
-    "title": "Standing Dumbbell Calf Raise",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "calves"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 0.5,
-   "a": {
-    "id": "cable-front-raise",
-    "title": "Cable Front Raise",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest",
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "front-cable-raise",
-    "title": "Front Cable Raise",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 0.5,
-   "a": {
-    "id": "cable-front-raise",
-    "title": "Cable Front Raise",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest",
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "front-raise-cable",
-    "title": "Front Raise (Cable)",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "front-cable-raise",
-    "title": "Front Cable Raise",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "front-raise-cable",
-    "title": "Front Raise (Cable)",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 0.5,
-   "a": {
-    "id": "barbell-walking-lunge",
-    "title": "Barbell Walking Lunge",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "walking-barbell-lunge",
-    "title": "Walking Barbell Lunge",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 0.5,
-   "a": {
-    "id": "ab-rollout-barbell",
-    "title": "Ab Rollout with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "abs"
-    ]
-   },
-   "b": {
-    "id": "barbell-ab-rollout",
-    "title": "Barbell Ab Rollout",
-    "sources": [
-     "free-exercise-db",
-     "wger"
-    ],
-    "muscles": [
-     "abs",
-     "obliques"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "ab-rollout-on-knees-barbell",
-    "title": "Ab Rollout on Knees with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "abs"
-    ]
-   },
-   "b": {
-    "id": "barbell-ab-rollout-on-knees",
-    "title": "Barbell Ab Rollout - On Knees",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "abs"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "alternating-dumbbell-hammer-curl",
-    "title": "Alternating dumbbell hammer curl",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "alternating-hammer-curl-dumbbell",
-    "title": "Alternating Hammer Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "cross-body-dumbbell-hammer-curl",
-    "title": "Cross-body Dumbbell Hammer Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "cross-body-hammer-curl-dumbbell",
-    "title": "Cross Body Hammer Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "preacher-curl-dumbbell-hammer",
-    "title": "Preacher Curl: Dumbbell (Hammer)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "preacher-hammer-dumbbell-curl",
-    "title": "Preacher Hammer Dumbbell Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-biceps-curl",
-    "title": "Barbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "biceps-curl-barbell",
-    "title": "Biceps Curl: Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "biceps-curl-cable",
-    "title": "Biceps Curl With Cable",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "cable-biceps-curl",
-    "title": "Cable Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "biceps-curl-dumbbell",
-    "title": "Biceps Curl: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-biceps-curl",
-    "title": "Dumbbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "cable-preacher-curl",
-    "title": "Cable Preacher Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "preacher-curl-cable",
-    "title": "Preacher Curl with Cable",
-    "sources": [
-     "garmin",
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-incline-curl",
-    "title": "Dumbbell Incline Curl",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "incline-dumbbell-curl",
-    "title": "Incline Dumbbell Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "incline-biceps-curl-dumbbell",
-    "title": "Incline Biceps Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "incline-dumbbell-biceps-curl",
-    "title": "Incline Dumbbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "overhead-cable-curl",
-    "title": "Overhead Cable Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "overhead-curl-cable",
-    "title": "Overhead Curl with Cable",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "seated-dumbbell-inner-biceps-curl",
-    "title": "Seated Dumbbell Inner Biceps Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "seated-inner-biceps-curl-dumbbell",
-    "title": "Seated Inner Biceps Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "standing-biceps-cable-curl",
-    "title": "Standing Biceps Cable Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "standing-biceps-curl-cable",
-    "title": "Standing Biceps Curl with Cable",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "flexor-incline-curls-dumbbell",
-    "title": "Flexor Incline Curls with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "flexor-incline-dumbbell-curls",
-    "title": "Flexor Incline Dumbbell Curls",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-step-ups",
-    "title": "Barbell Step Ups",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "step-ups-barbell",
-    "title": "Step Ups: Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-step-ups",
-    "title": "Dumbbell Step Ups",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "step-ups-dumbbell",
-    "title": "Step Ups: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-shoulder-press",
-    "title": "Barbell Shoulder Press",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "shoulder-press-barbell",
-    "title": "Shoulder Press, Barbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-bench-press",
-    "title": "Barbell Bench Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "bench-press-barbell",
-    "title": "Bench Press: Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-overhead-press",
-    "title": "Barbell Overhead Press",
-    "sources": [
-     "wdl-curated",
-     "garmin"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "overhead-barbell-press",
-    "title": "Overhead Barbell Press",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-barbell-decline",
-    "title": "Bench Press: Barbell (Decline)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "decline-barbell-bench-press",
-    "title": "Decline Barbell Bench Press",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-barbell-decline",
-    "title": "Bench Press: Barbell (Decline)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "decline-bench-press-barbell",
-    "title": "Decline Bench Press Barbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-barbell-decline-wide-grip",
-    "title": "Bench Press: Barbell (Decline, Wide Grip)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "wide-grip-decline-barbell-bench-press",
-    "title": "Wide-Grip Decline Barbell Bench Press",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-barbell-incline",
-    "title": "Bench Press: Barbell (Incline)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "incline-barbell-bench-press",
-    "title": "Incline Barbell Bench Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-barbell-incline",
-    "title": "Bench Press: Barbell (Incline)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "incline-bench-press-barbell",
-    "title": "Incline Bench Press - Barbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-barbell-wide-grip",
-    "title": "Bench Press: Barbell (Wide Grip)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "wide-grip-barbell-bench-press",
-    "title": "Wide-grip Barbell Bench Press",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-dumbbell",
-    "title": "Bench Press: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-bench-press",
-    "title": "Dumbbell Bench Press",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-dumbbell-decline",
-    "title": "Bench Press: Dumbbell (Decline)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "decline-bench-press-dumbbell",
-    "title": "Decline Bench Press Dumbbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-dumbbell-decline",
-    "title": "Bench Press: Dumbbell (Decline)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "decline-dumbbell-bench-press",
-    "title": "Decline Dumbbell Bench Press",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-dumbbell-incline",
-    "title": "Bench Press: Dumbbell (Incline)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "incline-bench-press-dumbbell",
-    "title": "Incline Bench Press - Dumbbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-dumbbell-incline",
-    "title": "Bench Press: Dumbbell (Incline)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "incline-dumbbell-bench-press",
-    "title": "Incline Dumbbell Bench Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-machine",
-    "title": "Bench Press: Machine",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "machine-bench-press",
-    "title": "Machine Bench Press",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-smith-machine",
-    "title": "Bench Press: Smith Machine",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "smith-machine-bench-press",
-    "title": "Smith Machine Bench Press",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-smith-machine-close-grip",
-    "title": "Bench Press: Smith Machine (Close Grip)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "smith-machine-close-grip-bench-press",
-    "title": "Smith Machine Close-Grip Bench Press",
-    "sources": [
-     "free-exercise-db",
-     "wger"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-smith-machine-incline",
-    "title": "Bench Press: Smith Machine (Incline)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "incline-smith-machine-bench-press",
-    "title": "Incline Smith Machine Bench Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-smith-machine-incline",
-    "title": "Bench Press: Smith Machine (Incline)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "smith-machine-incline-bench-press",
-    "title": "Smith Machine Incline Bench Press",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "cable-chest-press-incline",
-    "title": "Cable Chest Press - Incline",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "incline-cable-chest-press",
-    "title": "Incline Cable Chest Press",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "decline-barbell-bench-press",
-    "title": "Decline Barbell Bench Press",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "decline-bench-press-barbell",
-    "title": "Decline Bench Press Barbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "decline-bench-press-dumbbell",
-    "title": "Decline Bench Press Dumbbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "decline-dumbbell-bench-press",
-    "title": "Decline Dumbbell Bench Press",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-bench-press-neutral-grip",
-    "title": "Dumbbell Bench Press with Neutral Grip",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "neutral-grip-dumbbell-bench-press",
-    "title": "Neutral Grip Dumbbell Bench Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "incline-barbell-bench-press",
-    "title": "Incline Barbell Bench Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "incline-bench-press-barbell",
-    "title": "Incline Bench Press - Barbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "incline-bench-press-dumbbell",
-    "title": "Incline Bench Press - Dumbbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "incline-dumbbell-bench-press",
-    "title": "Incline Dumbbell Bench Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "incline-smith-machine-bench-press",
-    "title": "Incline Smith Machine Bench Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "smith-machine-incline-bench-press",
-    "title": "Smith Machine Incline Bench Press",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "lying-close-grip-barbell-triceps-press-chin",
-    "title": "Lying Close-Grip Barbell Triceps Press To Chin",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "lying-close-grip-triceps-press-chin-barbell",
-    "title": "Lying Close Grip Triceps Press to Chin with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "cable-incline-triceps-extension",
-    "title": "Cable Incline Triceps Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-cable-incline",
-    "title": "Triceps Extension: Cable (Incline)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "decline-dumbbell-triceps-extension",
-    "title": "Decline Dumbbell Triceps Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-dumbbell-decline",
-    "title": "Triceps Extension: Dumbbell (Decline)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-lying-triceps-extension",
-    "title": "Dumbbell Lying Triceps Extension",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-dumbbell-lying",
-    "title": "Triceps Extension: Dumbbell (Lying)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "incline-barbell-triceps-extension",
-    "title": "Incline Barbell Triceps Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-barbell-incline",
-    "title": "Triceps Extension: Barbell (Incline)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "kneeling-cable-triceps-extension",
-    "title": "Kneeling Cable Triceps Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-cable-kneeling",
-    "title": "Triceps Extension: Cable (Kneeling)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "low-cable-triceps-extension",
-    "title": "Low Cable Triceps Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-cable-low",
-    "title": "Triceps Extension: Cable (Low)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "lying-close-grip-barbell-triceps-extension-behind-head",
-    "title": "Lying Close-Grip Barbell Triceps Extension Behind The Head",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-barbell-lying-close-grip-behind-head",
-    "title": "Triceps Extension: Barbell (Lying, Close Grip, Behind the Head)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "machine-triceps-extension",
-    "title": "Machine Triceps Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-machine",
-    "title": "Triceps Extension: Machine",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "seated-barbell-overhead-triceps-extension",
-    "title": "Seated Barbell Overhead Triceps Extension",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-barbell-seated-overhead",
-    "title": "Triceps Extension: Barbell (Seated, Overhead)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "standing-dumbbell-triceps-extension",
-    "title": "Standing Dumbbell Triceps Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-dumbbell-standing",
-    "title": "Triceps Extension: Dumbbell (Standing)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "standing-overhead-barbell-triceps-extension",
-    "title": "Standing Overhead Barbell Triceps Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-barbell-standing-overhead",
-    "title": "Triceps Extension: Barbell (Standing, Overhead)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "standing-towel-triceps-extension",
-    "title": "Standing Towel Triceps Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-towel-standing",
-    "title": "Triceps Extension: Towel (Standing)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 0.5,
-   "a": {
-    "id": "barbell-upright-row",
-    "title": "Barbell Upright Row",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "shoulders",
-     "traps"
-    ]
-   },
-   "b": {
-    "id": "upright-barbell-row",
-    "title": "Upright Barbell Row",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "cable-fly",
-    "title": "Cable Fly",
-    "sources": [
-     "wdl-curated"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "fly-cable",
-    "title": "Fly With Cable",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 1,
-   "a": {
-    "id": "behind-back-smith-machine-shrug",
-    "title": "Behind The Back Smith Machine Shrug",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "traps"
-    ]
-   },
-   "b": {
-    "id": "smith-machine-behind-back-shrug",
-    "title": "Smith Machine Behind the Back Shrug",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "traps"
-    ]
-   }
-  },
-  {
-   "confidence": "high",
-   "name": 1,
-   "muscles": 0.5,
-   "a": {
-    "id": "dumbbell-side-bend",
-    "title": "Dumbbell Side Bend",
-    "sources": [
-     "free-exercise-db",
-     "wger"
-    ],
-    "muscles": [
-     "abs",
-     "obliques"
-    ]
-   },
-   "b": {
-    "id": "side-bend-dumbbell",
-    "title": "Side Bend with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "abs"
-    ]
-   }
-  },
-  {
-   "confidence": "conflicting",
-   "name": 1,
-   "muscles": 0,
-   "a": {
-    "id": "cable-internal-rotation",
-    "title": "Cable Internal Rotation",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest",
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "internal-cable-rotation",
-    "title": "Internal Cable Rotation",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid"
-    ]
-   }
-  },
-  {
-   "confidence": "conflicting",
-   "name": 1,
-   "muscles": 0,
-   "a": {
-    "id": "dumbbell-one-arm-shoulder-press",
-    "title": "Dumbbell One-Arm Shoulder Press",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "one-arm-dumbbell-shoulder-press",
-    "title": "One Arm Dumbbell Shoulder Press",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid"
-    ]
-   }
-  },
-  {
-   "confidence": "conflicting",
-   "name": 1,
-   "muscles": 0,
-   "a": {
-    "id": "dumbbell-one-arm-upright-row",
-    "title": "Dumbbell One-Arm Upright Row",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "upright-row-dumbbell-one-arm",
-    "title": "Upright Row: Dumbbell (One Arm)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid"
-    ]
-   }
-  },
-  {
-   "confidence": "conflicting",
-   "name": 1,
-   "muscles": 0,
-   "a": {
-    "id": "leg-curls-standing",
-    "title": "Leg Curls (standing)",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "hamstrings"
-    ]
-   },
-   "b": {
-    "id": "standing-leg-curls",
-    "title": "Standing Leg Curls",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "ischiocrural-muscles"
-    ]
-   }
-  },
-  {
-   "confidence": "conflicting",
-   "name": 1,
-   "muscles": 0.25,
-   "a": {
-    "id": "overhead-barbell-squat",
-    "title": "Overhead Barbell Squat",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads",
-     "shoulders",
-     "traps"
-    ]
-   },
-   "b": {
-    "id": "overhead-squat-barbell",
-    "title": "Overhead Squat with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "conflicting",
-   "name": 1,
-   "muscles": 0.33,
-   "a": {
-    "id": "dumbbell-front-raise",
-    "title": "Dumbbell Front Raise",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest",
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "front-dumbbell-raise",
-    "title": "Front Dumbbell Raise",
-    "sources": [
-     "free-exercise-db",
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid",
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "conflicting",
-   "name": 1,
-   "muscles": 0,
-   "a": {
-    "id": "dumbbell-lunges",
-    "title": "Dumbbell Lunges",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "lunges-dumbbell",
-    "title": "Lunges: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "ischiocrural-muscles"
-    ]
-   }
-  },
-  {
-   "confidence": "conflicting",
-   "name": 1,
-   "muscles": 0,
-   "a": {
-    "id": "dumbbell-lunges-walking",
-    "title": "Dumbbell Lunges Walking",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "lunges-dumbbell-walking",
-    "title": "Lunges: Dumbbell (Walking)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "ischiocrural-muscles"
-    ]
-   }
-  },
-  {
-   "confidence": "conflicting",
-   "name": 1,
-   "muscles": 0,
-   "a": {
-    "id": "bench-press-barbell-close-grip",
-    "title": "Bench Press: Barbell (Close Grip)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "close-grip-barbell-bench-press",
-    "title": "Close-grip Barbell Bench Press",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "conflicting",
-   "name": 1,
-   "muscles": 0,
-   "a": {
-    "id": "bent-over-barbell-row",
-    "title": "Bent Over Barbell Row",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "mid-back"
-    ]
-   },
-   "b": {
-    "id": "bent-over-row-barbell",
-    "title": "Bent-over Row with Barbell",
-    "sources": [
-     "garmin",
-     "everkinetic"
-    ],
-    "muscles": [
-     "lats",
-     "traps"
-    ]
-   }
-  },
-  {
-   "confidence": "conflicting",
-   "name": 1,
-   "muscles": 0,
-   "a": {
-    "id": "dumbbell-upright-row",
-    "title": "Dumbbell Upright Row",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "upright-row-dumbbell",
-    "title": "Upright Row: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid"
-    ]
-   }
-  },
-  {
-   "confidence": "conflicting",
-   "name": 1,
-   "muscles": 0,
-   "a": {
-    "id": "smith-machine-upright-row",
-    "title": "Smith Machine Upright Row",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "traps"
-    ]
-   },
-   "b": {
-    "id": "upright-row-smith-machine",
-    "title": "Upright Row: Smith Machine",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid"
-    ]
-   }
-  },
-  {
-   "confidence": "conflicting",
-   "name": 1,
-   "muscles": 0,
-   "a": {
-    "id": "cable-incline-pushdown",
-    "title": "Cable Incline Pushdown",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "lats"
-    ]
-   },
-   "b": {
-    "id": "incline-pushdown-cable",
-    "title": "Incline Pushdown with Cable",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "likely",
-   "name": 1,
-   "muscles": null,
-   "a": {
-    "id": "cable-wrist-curl",
-    "title": "Cable Wrist Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "forearms"
-    ]
-   },
-   "b": {
-    "id": "wrist-curl-cable",
-    "title": "Wrist curl, cable",
-    "sources": [
-     "wger"
-    ],
-    "muscles": []
-   }
-  },
-  {
-   "confidence": "likely",
-   "name": 1,
-   "muscles": null,
-   "a": {
-    "id": "dumbbell-incline-row",
-    "title": "Dumbbell Incline Row",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "mid-back"
-    ]
-   },
-   "b": {
-    "id": "incline-dumbbell-row",
-    "title": "Incline Dumbbell Row",
-    "sources": [
-     "wger"
-    ],
-    "muscles": []
-   }
-  },
   {
    "confidence": "possible",
    "name": 0.83,
@@ -2689,31 +128,6 @@
     ],
     "muscles": [
      "lats"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.8,
-   "muscles": 0,
-   "a": {
-    "id": "one-arm-dumbbell-row",
-    "title": "One-Arm Dumbbell Row",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "mid-back"
-    ]
-   },
-   "b": {
-    "id": "upright-row-dumbbell-one-arm",
-    "title": "Upright Row: Dumbbell (One Arm)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid"
     ]
    }
   },
@@ -2877,31 +291,6 @@
    "name": 0.8,
    "muscles": 1,
    "a": {
-    "id": "incline-dumbbell-biceps-curl",
-    "title": "Incline Dumbbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "incline-inner-biceps-curl-dumbbell",
-    "title": "Incline Inner Biceps Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.8,
-   "muscles": 1,
-   "a": {
     "id": "lying-supine-biceps-curl-dumbbell",
     "title": "Lying Supine Biceps Curl with Dumbbell",
     "sources": [
@@ -2916,56 +305,6 @@
     "title": "Lying Supine Dumbbell Curl",
     "sources": [
      "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.8,
-   "muscles": 1,
-   "a": {
-    "id": "seated-dumbbell-biceps-curl",
-    "title": "Seated Dumbbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "seated-dumbbell-inner-biceps-curl",
-    "title": "Seated Dumbbell Inner Biceps Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.8,
-   "muscles": 1,
-   "a": {
-    "id": "seated-dumbbell-biceps-curl",
-    "title": "Seated Dumbbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "seated-inner-biceps-curl-dumbbell",
-    "title": "Seated Inner Biceps Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
     ],
     "muscles": [
      "biceps"
@@ -3050,93 +389,20 @@
   },
   {
    "confidence": "possible",
-   "name": 0.8,
-   "muscles": 1,
-   "a": {
-    "id": "kneeling-cable-triceps-extension",
-    "title": "Kneeling Cable Triceps Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "kneeling-triceps-concentration-extension-cable",
-    "title": "Kneeling Triceps Concentration Extension with Cable",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
    "name": 0.75,
-   "muscles": 0.5,
+   "muscles": 0.33,
    "a": {
     "id": "cable-internal-rotation",
     "title": "Cable Internal Rotation",
     "sources": [
      "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest",
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "shoulder-internal-rotation-cable",
-    "title": "Shoulder Internal Rotation (Cable)",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 1,
-   "a": {
-    "id": "external-rotation-cable",
-    "title": "External Rotation with Cable",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "shoulder-external-rotation-cable",
-    "title": "Shoulder External Rotation (Cable)",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 0,
-   "a": {
-    "id": "internal-cable-rotation",
-    "title": "Internal Cable Rotation",
-    "sources": [
+     "free-exercise-db",
      "everkinetic"
     ],
     "muscles": [
-     "deltoid"
+     "chest",
+     "deltoid",
+     "shoulders"
     ]
    },
    "b": {
@@ -3231,63 +497,13 @@
   {
    "confidence": "possible",
    "name": 0.75,
-   "muscles": 0.5,
-   "a": {
-    "id": "barbell-front-squat",
-    "title": "Barbell Front Squat",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "front-barbell-squat-bench",
-    "title": "Front Barbell Squat To A Bench",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 1,
-   "a": {
-    "id": "front-barbell-squat-bench",
-    "title": "Front Barbell Squat To A Bench",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "front-squat-barbell",
-    "title": "Front Squat with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
    "muscles": 0.33,
    "a": {
     "id": "push-up-wide",
     "title": "Push-Up Wide",
     "sources": [
-     "free-exercise-db"
+     "free-exercise-db",
+     "wger"
     ],
     "muscles": [
      "chest"
@@ -3314,7 +530,8 @@
     "id": "push-up-wide",
     "title": "Push-Up Wide",
     "sources": [
-     "free-exercise-db"
+     "free-exercise-db",
+     "wger"
     ],
     "muscles": [
      "chest"
@@ -3329,59 +546,6 @@
     "muscles": [
      "chest",
      "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 0.33,
-   "a": {
-    "id": "wide-grip-push-up",
-    "title": "Wide-grip Push-up",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest",
-     "shoulders",
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "wide-push-up",
-    "title": "Wide Push-Up",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 0.5,
-   "a": {
-    "id": "wide-hands-push-up",
-    "title": "Wide-hands Push-up",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest",
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "wide-push-up",
-    "title": "Wide Push-Up",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
     ]
    }
   },
@@ -3685,58 +849,6 @@
    "name": 0.75,
    "muscles": 1,
    "a": {
-    "id": "ab-rollout-barbell",
-    "title": "Ab Rollout with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "abs"
-    ]
-   },
-   "b": {
-    "id": "barbell-ab-rollout-on-knees",
-    "title": "Barbell Ab Rollout - On Knees",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "abs"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 0.5,
-   "a": {
-    "id": "ab-rollout-on-knees-barbell",
-    "title": "Ab Rollout on Knees with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "abs"
-    ]
-   },
-   "b": {
-    "id": "barbell-ab-rollout",
-    "title": "Barbell Ab Rollout",
-    "sources": [
-     "free-exercise-db",
-     "wger"
-    ],
-    "muscles": [
-     "abs",
-     "obliques"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 1,
-   "a": {
     "id": "biceps-curl-dumbbell-hammer",
     "title": "Biceps Curl: Dumbbell (Hammer)",
     "sources": [
@@ -3772,34 +884,10 @@
     ]
    },
    "b": {
-    "id": "preacher-curl-dumbbell-hammer",
-    "title": "Preacher Curl: Dumbbell (Hammer)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-hammer-curl",
-    "title": "Dumbbell Hammer Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
     "id": "preacher-hammer-dumbbell-curl",
     "title": "Preacher Hammer Dumbbell Curl",
     "sources": [
+     "everkinetic",
      "free-exercise-db"
     ],
     "muscles": [
@@ -3838,135 +926,11 @@
    "name": 0.75,
    "muscles": 1,
    "a": {
-    "id": "biceps-curl-barbell",
-    "title": "Biceps Curl: Barbell",
+    "id": "dumbbell-incline-curl",
+    "title": "Dumbbell Incline Curl",
     "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "cheating-barbell-biceps-curl",
-    "title": "Cheating Barbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 1,
-   "a": {
-    "id": "biceps-curl-dumbbell-hammer",
-    "title": "Biceps Curl: Dumbbell (Hammer)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-biceps-curl",
-    "title": "Dumbbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 1,
-   "a": {
-    "id": "biceps-curl-squat-dumbbell",
-    "title": "Biceps Curl: Squat with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-biceps-curl",
-    "title": "Dumbbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-bicep-curl",
-    "title": "Dumbbell Bicep Curl",
-    "sources": [
+     "wger",
      "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-bicep-curl-press",
-    "title": "Dumbbell bicep curl to press",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-incline-curl",
-    "title": "Dumbbell Incline Curl",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "incline-biceps-curl-dumbbell",
-    "title": "Incline Biceps Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-incline-curl",
-    "title": "Dumbbell Incline Curl",
-    "sources": [
-     "wger"
     ],
     "muscles": [
      "biceps"
@@ -3976,6 +940,7 @@
     "id": "incline-dumbbell-biceps-curl",
     "title": "Incline Dumbbell Biceps Curl",
     "sources": [
+     "everkinetic",
      "garmin"
     ],
     "muscles": [
@@ -4002,56 +967,6 @@
     "title": "EZ-Bar Preacher Curl",
     "sources": [
      "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 1,
-   "a": {
-    "id": "incline-biceps-curl-dumbbell",
-    "title": "Incline Biceps Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "incline-dumbbell-curl",
-    "title": "Incline Dumbbell Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 1,
-   "a": {
-    "id": "incline-dumbbell-biceps-curl",
-    "title": "Incline Dumbbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "incline-dumbbell-curl",
-    "title": "Incline Dumbbell Curl",
-    "sources": [
-     "free-exercise-db"
     ],
     "muscles": [
      "biceps"
@@ -4113,34 +1028,10 @@
    "name": 0.75,
    "muscles": 1,
    "a": {
-    "id": "seated-bicep-curl-dumbbell",
-    "title": "Seated Bicep Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "seated-dumbbell-curl",
-    "title": "Seated Dumbbell Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 1,
-   "a": {
     "id": "seated-dumbbell-biceps-curl",
     "title": "Seated Dumbbell Biceps Curl",
     "sources": [
+     "everkinetic",
      "garmin"
     ],
     "muscles": [
@@ -4151,7 +1042,8 @@
     "id": "seated-dumbbell-curl",
     "title": "Seated Dumbbell Curl",
     "sources": [
-     "free-exercise-db"
+     "free-exercise-db",
+     "wger"
     ],
     "muscles": [
      "biceps"
@@ -4216,7 +1108,8 @@
     "id": "barbell-bench-press",
     "title": "Barbell Bench Press",
     "sources": [
-     "garmin"
+     "garmin",
+     "everkinetic"
     ],
     "muscles": [
      "chest"
@@ -4227,56 +1120,6 @@
     "title": "Barbell Guillotine Bench Press",
     "sources": [
      "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-board-bench-press",
-    "title": "Barbell Board Bench Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "bench-press-barbell",
-    "title": "Bench Press: Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-guillotine-bench-press",
-    "title": "Barbell Guillotine Bench Press",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "bench-press-barbell",
-    "title": "Bench Press: Barbell",
-    "sources": [
-     "everkinetic"
     ],
     "muscles": [
      "chest"
@@ -4338,32 +1181,6 @@
    "name": 0.75,
    "muscles": 1,
    "a": {
-    "id": "incline-bench-press-dumbbell",
-    "title": "Incline Bench Press - Dumbbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "incline-dumbbell-press",
-    "title": "Incline Dumbbell Press",
-    "sources": [
-     "free-exercise-db",
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 1,
-   "a": {
     "id": "incline-chest-press",
     "title": "Incline Chest Press",
     "sources": [
@@ -4378,32 +1195,6 @@
     "title": "Leverage Incline Chest Press",
     "sources": [
      "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.75,
-   "muscles": 1,
-   "a": {
-    "id": "incline-dumbbell-bench-press",
-    "title": "Incline Dumbbell Bench Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "incline-dumbbell-press",
-    "title": "Incline Dumbbell Press",
-    "sources": [
-     "free-exercise-db",
-     "everkinetic"
     ],
     "muscles": [
      "chest"
@@ -4494,7 +1285,8 @@
     "title": "T-Bar Row",
     "sources": [
      "garmin",
-     "wger"
+     "wger",
+     "everkinetic"
     ],
     "muscles": [
      "lats",
@@ -4773,31 +1565,6 @@
   },
   {
    "confidence": "possible",
-   "name": 0.71,
-   "muscles": 1,
-   "a": {
-    "id": "seated-close-grip-concentration-barbell-curl",
-    "title": "Seated Close-Grip Concentration Barbell Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "seated-close-grip-concentration-curls-barbell",
-    "title": "Seated Close Grip Concentration Curls with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
    "name": 0.67,
    "muscles": 0.5,
    "a": {
@@ -4875,56 +1642,6 @@
   {
    "confidence": "possible",
    "name": 0.67,
-   "muscles": 0,
-   "a": {
-    "id": "bench-press-dumbbell-one-arm",
-    "title": "Bench Press: Dumbbell (One Arm)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-one-arm-shoulder-press",
-    "title": "Dumbbell One-Arm Shoulder Press",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 0,
-   "a": {
-    "id": "one-arm-dumbbell-bench-press",
-    "title": "One Arm Dumbbell Bench Press",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "one-arm-dumbbell-shoulder-press",
-    "title": "One Arm Dumbbell Shoulder Press",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
    "muscles": 0.5,
    "a": {
     "id": "straight-arm-pull-down",
@@ -4969,33 +1686,6 @@
     ],
     "muscles": [
      "lats"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 0,
-   "a": {
-    "id": "bridge-leg-extension",
-    "title": "Bridge with Leg Extension",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "abs",
-     "glutes",
-     "hip-flexors"
-    ]
-   },
-   "b": {
-    "id": "leg-extension",
-    "title": "Leg Extension",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "quads"
     ]
    }
   },
@@ -5246,33 +1936,6 @@
   {
    "confidence": "possible",
    "name": 0.67,
-   "muscles": 0.5,
-   "a": {
-    "id": "dumbbell-squat",
-    "title": "Dumbbell Squat",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "pile-squat-dumbbell",
-    "title": "Pile Squat with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
    "muscles": 0.33,
    "a": {
     "id": "freehand-jump-squat",
@@ -5288,7 +1951,8 @@
     "id": "jump-squat",
     "title": "Jump Squat",
     "sources": [
-     "garmin"
+     "garmin",
+     "wger"
     ],
     "muscles": [
      "calves",
@@ -5349,34 +2013,6 @@
      "free-exercise-db"
     ],
     "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 0.25,
-   "a": {
-    "id": "squat-jumps",
-    "title": "Squat Jumps",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squat-jumps-in-out",
-    "title": "Squat Jumps In and Out",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "abductors",
-     "adductors",
-     "calves",
      "quads"
     ]
    }
@@ -5844,32 +2480,6 @@
   {
    "confidence": "possible",
    "name": 0.67,
-   "muscles": 0.5,
-   "a": {
-    "id": "rack-pull",
-    "title": "Rack Pull",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "erectors",
-     "hamstrings"
-    ]
-   },
-   "b": {
-    "id": "rack-pull-bands",
-    "title": "Rack Pull with Bands",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "erectors"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
    "muscles": 1,
    "a": {
     "id": "abdominal-draw-in",
@@ -6235,7 +2845,9 @@
     "id": "barbell-biceps-curl",
     "title": "Barbell Biceps Curl",
     "sources": [
-     "garmin"
+     "garmin",
+     "everkinetic",
+     "wger"
     ],
     "muscles": [
      "biceps"
@@ -6275,31 +2887,6 @@
     ],
     "muscles": [
      "forearms"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-curl",
-    "title": "Barbell Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "biceps-curl-barbell",
-    "title": "Biceps Curl: Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
     ]
    }
   },
@@ -6383,84 +2970,6 @@
    "name": 0.67,
    "muscles": 1,
    "a": {
-    "id": "biceps-curl-dumbbell",
-    "title": "Biceps Curl: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-curl",
-    "title": "Dumbbell Curl",
-    "sources": [
-     "wdl-curated",
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-bicep-curl",
-    "title": "Dumbbell Bicep Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-curl",
-    "title": "Dumbbell Curl",
-    "sources": [
-     "wdl-curated",
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-biceps-curl",
-    "title": "Dumbbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-curl",
-    "title": "Dumbbell Curl",
-    "sources": [
-     "wdl-curated",
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 1,
-   "a": {
     "id": "dumbbell-curl",
     "title": "Dumbbell Curl",
     "sources": [
@@ -6479,32 +2988,6 @@
     ],
     "muscles": [
      "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 0,
-   "a": {
-    "id": "dumbbell-curl",
-    "title": "Dumbbell Curl",
-    "sources": [
-     "wdl-curated",
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-wrist-curl",
-    "title": "Dumbbell Wrist Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "forearms"
     ]
    }
   },
@@ -6781,32 +3264,6 @@
     ]
    },
    "b": {
-    "id": "shoulder-press-dumbbells",
-    "title": "Shoulder Press, Dumbbells",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 0.5,
-   "a": {
-    "id": "shoulder-press",
-    "title": "Shoulder Press",
-    "sources": [
-     "wdl-curated"
-    ],
-    "muscles": [
-     "shoulders",
-     "triceps"
-    ]
-   },
-   "b": {
     "id": "shoulder-press-on-multi-press",
     "title": "Shoulder Press, on Multi Press",
     "sources": [
@@ -6859,59 +3316,11 @@
     ]
    },
    "b": {
-    "id": "bench-press-barbell-incline",
-    "title": "Bench Press: Barbell (Incline)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-incline-bench-press-medium-grip",
-    "title": "Barbell Incline Bench Press - Medium Grip",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
     "id": "incline-barbell-bench-press",
     "title": "Incline Barbell Bench Press",
     "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-incline-bench-press-medium-grip",
-    "title": "Barbell Incline Bench Press - Medium Grip",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "incline-bench-press-barbell",
-    "title": "Incline Bench Press - Barbell",
-    "sources": [
+     "everkinetic",
+     "garmin",
      "wger"
     ],
     "muscles": [
@@ -7036,108 +3445,6 @@
    "name": 0.67,
    "muscles": 1,
    "a": {
-    "id": "bench-press-dumbbell-incline-hammer-grip",
-    "title": "Bench Press: Dumbbell (Incline, Hammer Grip)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "incline-bench-press-dumbbell",
-    "title": "Incline Bench Press - Dumbbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-dumbbell-incline-hammer-grip",
-    "title": "Bench Press: Dumbbell (Incline, Hammer Grip)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "incline-dumbbell-bench-press",
-    "title": "Incline Dumbbell Bench Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 0.33,
-   "a": {
-    "id": "bench-press-smith-machine-incline",
-    "title": "Bench Press: Smith Machine (Incline)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "high-incline-smith-machine-press",
-    "title": "High-Incline Smith Machine Press",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest",
-     "shoulders",
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-smith-machine-incline",
-    "title": "Bench Press: Smith Machine (Incline)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "smith-machine-slight-incline-press",
-    "title": "Smith Machine Slight Incline Press",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 1,
-   "a": {
     "id": "chest-press",
     "title": "Chest Press",
     "sources": [
@@ -7230,33 +3537,8 @@
     "id": "incline-smith-machine-bench-press",
     "title": "Incline Smith Machine Bench Press",
     "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 0.33,
-   "a": {
-    "id": "high-incline-smith-machine-press",
-    "title": "High-Incline Smith Machine Press",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest",
-     "shoulders",
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "smith-machine-incline-bench-press",
-    "title": "Smith Machine Incline Bench Press",
-    "sources": [
+     "everkinetic",
+     "garmin",
      "free-exercise-db"
     ],
     "muscles": [
@@ -7272,7 +3554,9 @@
     "id": "incline-smith-machine-bench-press",
     "title": "Incline Smith Machine Bench Press",
     "sources": [
-     "garmin"
+     "everkinetic",
+     "garmin",
+     "free-exercise-db"
     ],
     "muscles": [
      "chest"
@@ -7363,31 +3647,6 @@
    "name": 0.67,
    "muscles": 1,
    "a": {
-    "id": "smith-machine-incline-bench-press",
-    "title": "Smith Machine Incline Bench Press",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "smith-machine-slight-incline-press",
-    "title": "Smith Machine Slight Incline Press",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 1,
-   "a": {
     "id": "chest-dips",
     "title": "Chest Dips",
     "sources": [
@@ -7413,35 +3672,11 @@
    "name": 0.67,
    "muscles": 1,
    "a": {
-    "id": "dumbbell-lying-triceps-extension",
-    "title": "Dumbbell Lying Triceps Extension",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-dumbbell-lying-across-face",
-    "title": "Triceps Extension: Dumbbell (Lying, Across Face)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 1,
-   "a": {
     "id": "machine-triceps-extension",
     "title": "Machine Triceps Extension",
     "sources": [
-     "free-exercise-db"
+     "free-exercise-db",
+     "everkinetic"
     ],
     "muscles": [
      "triceps"
@@ -7511,31 +3746,6 @@
   {
    "confidence": "possible",
    "name": 0.67,
-   "muscles": 1,
-   "a": {
-    "id": "triceps-extension-machine",
-    "title": "Triceps Extension: Machine",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-on-machine",
-    "title": "Triceps on Machine",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
    "muscles": 0.2,
    "a": {
     "id": "back-extension",
@@ -7568,61 +3778,6 @@
    "name": 0.67,
    "muscles": 0,
    "a": {
-    "id": "barbell-row",
-    "title": "Barbell Row",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "lats",
-     "traps"
-    ]
-   },
-   "b": {
-    "id": "upright-barbell-row",
-    "title": "Upright Barbell Row",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 0,
-   "a": {
-    "id": "dumbbell-row",
-    "title": "Dumbbell Row",
-    "sources": [
-     "wdl-curated",
-     "garmin"
-    ],
-    "muscles": [
-     "biceps",
-     "lats",
-     "mid-back",
-     "traps"
-    ]
-   },
-   "b": {
-    "id": "upright-row-dumbbell",
-    "title": "Upright Row: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 0,
-   "a": {
     "id": "high-row",
     "title": "High Row",
     "sources": [
@@ -7640,31 +3795,6 @@
     ],
     "muscles": [
      "mid-back"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 0,
-   "a": {
-    "id": "upright-row",
-    "title": "Upright Row",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "upright-row-bands",
-    "title": "Upright Row - With Bands",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "traps"
     ]
    }
   },
@@ -7909,57 +4039,6 @@
   {
    "confidence": "possible",
    "name": 0.67,
-   "muscles": 0.5,
-   "a": {
-    "id": "elbow-knee",
-    "title": "Elbow to Knee",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "abs"
-    ]
-   },
-   "b": {
-    "id": "elbow-knee-crunch",
-    "title": "Elbow-to-Knee Crunch",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "abs",
-     "obliques"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 1,
-   "a": {
-    "id": "elbow-knee",
-    "title": "Elbow to Knee",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "abs"
-    ]
-   },
-   "b": {
-    "id": "plank-knee-elbow",
-    "title": "Plank with Knee-to-Elbow",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "abs"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
    "muscles": 1,
    "a": {
     "id": "glute-bridge",
@@ -8011,31 +4090,6 @@
   {
    "confidence": "possible",
    "name": 0.67,
-   "muscles": 1,
-   "a": {
-    "id": "squats-bands",
-    "title": "Squats - With Bands",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squats-exercise-bands",
-    "title": "Squats: Exercise Bands",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
    "muscles": 0.5,
    "a": {
     "id": "front-lever",
@@ -8078,7 +4132,8 @@
     "title": "Wall Ball",
     "sources": [
      "wdl-curated",
-     "garmin"
+     "garmin",
+     "wger"
     ],
     "muscles": [
      "glutes",
@@ -8138,57 +4193,6 @@
   {
    "confidence": "possible",
    "name": 0.67,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-shrug",
-    "title": "Barbell Shrug",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "traps"
-    ]
-   },
-   "b": {
-    "id": "barbell-silverback-shrug",
-    "title": "Barbell Silverback Shrug",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "traps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
-   "muscles": 1,
-   "a": {
-    "id": "cable-shrugs",
-    "title": "Cable Shrugs",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "traps"
-    ]
-   },
-   "b": {
-    "id": "shoulder-shrugs-cable",
-    "title": "Shoulder Shrugs: Cable",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "traps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.67,
    "muscles": 0,
    "a": {
     "id": "upper-back",
@@ -8209,6 +4213,32 @@
     ],
     "muscles": [
      "mid-back"
+    ]
+   }
+  },
+  {
+   "confidence": "possible",
+   "name": 0.67,
+   "muscles": 1,
+   "a": {
+    "id": "cable-shrugs",
+    "title": "Cable Shrugs",
+    "sources": [
+     "wger",
+     "free-exercise-db"
+    ],
+    "muscles": [
+     "traps"
+    ]
+   },
+   "b": {
+    "id": "shoulder-shrugs-cable",
+    "title": "Shoulder Shrugs: Cable",
+    "sources": [
+     "everkinetic"
+    ],
+    "muscles": [
+     "traps"
     ]
    }
   },
@@ -8241,95 +4271,21 @@
    "name": 0.6,
    "muscles": 1,
    "a": {
-    "id": "45-degree-cable-external-rotation",
-    "title": " 45 Degree Cable External Rotation",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "external-rotation-cable",
-    "title": "External Rotation with Cable",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "90-degree-cable-external-rotation",
-    "title": " 90 Degree Cable External Rotation",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "external-rotation-cable",
-    "title": "External Rotation with Cable",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
     "id": "band-external-rotation",
     "title": "Band External Rotation",
     "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "band-pull-apart-external-rotation",
-    "title": "Band pull-apart with external rotation",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "band-pull-apart-external-rotation",
-    "title": "Band pull-apart with external rotation",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "external-rotation-band",
-    "title": "External Rotation with Band",
-    "sources": [
+     "garmin",
      "free-exercise-db"
+    ],
+    "muscles": [
+     "shoulders"
+    ]
+   },
+   "b": {
+    "id": "band-pull-apart-external-rotation",
+    "title": "Band pull-apart with external rotation",
+    "sources": [
+     "wger"
     ],
     "muscles": [
      "shoulders"
@@ -8345,10 +4301,12 @@
     "title": "Cable Internal Rotation",
     "sources": [
      "garmin",
-     "free-exercise-db"
+     "free-exercise-db",
+     "everkinetic"
     ],
     "muscles": [
      "chest",
+     "deltoid",
      "shoulders"
     ]
    },
@@ -8360,31 +4318,6 @@
     ],
     "muscles": [
      "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 0,
-   "a": {
-    "id": "cable-tri-extension-internal-rotation",
-    "title": "Cable Tri Extension - Internal Rotation",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "internal-cable-rotation",
-    "title": "Internal Cable Rotation",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid"
     ]
    }
   },
@@ -8757,32 +4690,6 @@
   {
    "confidence": "possible",
    "name": 0.6,
-   "muscles": 0,
-   "a": {
-    "id": "single-leg-deadlift-barbell",
-    "title": "Single Leg Deadlift With Barbell",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "erectors",
-     "hamstrings"
-    ]
-   },
-   "b": {
-    "id": "single-leg-squat-barbell",
-    "title": "Single Leg Squat with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
    "muscles": 0.5,
    "a": {
     "id": "single-leg-hamstring-curl",
@@ -8803,112 +4710,6 @@
     "muscles": [
      "abs",
      "hamstrings"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 0.33,
-   "a": {
-    "id": "barbell-front-squat-push-press",
-    "title": "Barbell Front Squat To Push Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads",
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "front-barbell-squat",
-    "title": "Front Barbell Squat",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 0.33,
-   "a": {
-    "id": "barbell-front-squat-push-press",
-    "title": "Barbell Front Squat To Push Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads",
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "front-squat-barbell",
-    "title": "Front Squat with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 0.5,
-   "a": {
-    "id": "crossed-arm-barbell-front-squat",
-    "title": "Crossed-arm Barbell Front Squat",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "front-barbell-squat",
-    "title": "Front Barbell Squat",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 0.5,
-   "a": {
-    "id": "crossed-arm-barbell-front-squat",
-    "title": "Crossed-arm Barbell Front Squat",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "front-squat-barbell",
-    "title": "Front Squat with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
     ]
    }
   },
@@ -9038,57 +4839,6 @@
      "chest",
      "shoulders",
      "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 0.5,
-   "a": {
-    "id": "cable-front-raise",
-    "title": "Cable Front Raise",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest",
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "cable-front-raise-small-bar",
-    "title": "Cable Front Raise with a small bar",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "cable-front-raise-small-bar",
-    "title": "Cable Front Raise with a small bar",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "front-cable-raise",
-    "title": "Front Cable Raise",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
     ]
    }
   },
@@ -9291,206 +5041,6 @@
   {
    "confidence": "possible",
    "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "biceps-curl-dumbbell-hammer",
-    "title": "Biceps Curl: Dumbbell (Hammer)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "preacher-hammer-dumbbell-curl",
-    "title": "Preacher Hammer Dumbbell Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "cross-body-hammer-curl-dumbbell",
-    "title": "Cross Body Hammer Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-hammer-curl",
-    "title": "Dumbbell Hammer Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "alternating-bicep-curl-dumbbell",
-    "title": "Alternating Bicep Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "alternating-dumbbell-biceps-curl",
-    "title": "Alternating Dumbbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "alternating-bicep-curl-dumbbell",
-    "title": "Alternating Bicep Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "alternating-dumbbell-hammer-curl",
-    "title": "Alternating dumbbell hammer curl",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "alternating-dumbbell-biceps-curl",
-    "title": "Alternating Dumbbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "alternating-dumbbell-hammer-curl",
-    "title": "Alternating dumbbell hammer curl",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "alternating-dumbbell-biceps-curl",
-    "title": "Alternating Dumbbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "alternating-hammer-curl-dumbbell",
-    "title": "Alternating Hammer Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-biceps-curl",
-    "title": "Barbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dead-lift-barbell-biceps-curl",
-    "title": "Dead Lift: Barbell (Biceps Curl)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "biceps-curl-dumbbell",
-    "title": "Biceps Curl: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-biceps-curl-static-hold",
-    "title": "Dumbbell Biceps Curl With Static Hold",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
    "muscles": 0,
    "a": {
     "id": "biceps-curl-dumbbell-reverse",
@@ -9521,7 +5071,8 @@
     "id": "dumbbell-incline-curl",
     "title": "Dumbbell Incline Curl",
     "sources": [
-     "wger"
+     "wger",
+     "free-exercise-db"
     ],
     "muscles": [
      "biceps"
@@ -9546,56 +5097,7 @@
     "id": "dumbbell-incline-curl",
     "title": "Dumbbell Incline Curl",
     "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "incline-offset-thumb-dumbbell-curl",
-    "title": "Incline Offset Thumb Dumbbell Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "incline-dumbbell-curl",
-    "title": "Incline Dumbbell Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "incline-inner-biceps-curl-dumbbell",
-    "title": "Incline Inner Biceps Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "incline-dumbbell-curl",
-    "title": "Incline Dumbbell Curl",
-    "sources": [
+     "wger",
      "free-exercise-db"
     ],
     "muscles": [
@@ -9643,31 +5145,6 @@
    "name": 0.6,
    "muscles": 1,
    "a": {
-    "id": "preacher-curl-dumbbell-zottman",
-    "title": "Preacher Curl: Dumbbell (Zottman)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "preacher-hammer-dumbbell-curl",
-    "title": "Preacher Hammer Dumbbell Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
     "id": "reverse-barbell-curl",
     "title": "Reverse Barbell Curl",
     "sources": [
@@ -9682,56 +5159,6 @@
     "title": "Reverse-grip Barbell Biceps Curl",
     "sources": [
      "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "seated-bicep-curl-dumbbell",
-    "title": "Seated Bicep Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "seated-dumbbell-biceps-curl",
-    "title": "Seated Dumbbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "seated-dumbbell-curl",
-    "title": "Seated Dumbbell Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "seated-inner-biceps-curl-dumbbell",
-    "title": "Seated Inner Biceps Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
     ],
     "muscles": [
      "biceps"
@@ -9791,31 +5218,6 @@
   {
    "confidence": "possible",
    "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "alternating-biceps-curls-dumbbell",
-    "title": "Alternating Biceps Curls With Dumbbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "alternating-dumbbell-biceps-curl",
-    "title": "Alternating Dumbbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
    "muscles": 0,
    "a": {
     "id": "dumbbell-incline-shoulder-raise",
@@ -9846,42 +5248,18 @@
     "id": "barbell-bench-press",
     "title": "Barbell Bench Press",
     "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "barbell-bench-press-medium-grip",
-    "title": "Barbell Bench Press - Medium Grip",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-bench-press-medium-grip",
-    "title": "Barbell Bench Press - Medium Grip",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "bench-press-barbell",
-    "title": "Bench Press: Barbell",
-    "sources": [
+     "garmin",
      "everkinetic"
+    ],
+    "muscles": [
+     "chest"
+    ]
+   },
+   "b": {
+    "id": "barbell-bench-press-medium-grip",
+    "title": "Barbell Bench Press - Medium Grip",
+    "sources": [
+     "free-exercise-db"
     ],
     "muscles": [
      "chest"
@@ -9966,56 +5344,6 @@
   {
    "confidence": "possible",
    "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-barbell",
-    "title": "Bench Press: Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "triple-stop-barbell-bench-press",
-    "title": "Triple Stop Barbell Bench Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 0,
-   "a": {
-    "id": "bench-press-smith-machine",
-    "title": "Bench Press: Smith Machine",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "smith-machine-leg-press",
-    "title": "Smith Machine Leg Press",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
    "muscles": 0.2,
    "a": {
     "id": "double-kettlebell-clean-press",
@@ -10064,56 +5392,6 @@
     ],
     "muscles": [
      "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 0,
-   "a": {
-    "id": "incline-bench-press-dumbbell",
-    "title": "Incline Bench Press - Dumbbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "incline-shoulder-press-dumbbell",
-    "title": "Incline Shoulder Press Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 0,
-   "a": {
-    "id": "incline-dumbbell-bench-press",
-    "title": "Incline Dumbbell Bench Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "incline-shoulder-press-dumbbell",
-    "title": "Incline Shoulder Press Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid"
     ]
    }
   },
@@ -10275,157 +5553,6 @@
   {
    "confidence": "possible",
    "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "cable-lying-triceps-extension",
-    "title": "Cable Lying Triceps Extension",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "lying-tricep-extension-cable",
-    "title": "Lying Tricep Extension with Cable",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "cable-overhead-triceps-extension",
-    "title": "Cable Overhead Triceps Extension",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "overhead-cable-tricep-extension",
-    "title": "Overhead Cable Tricep Extension",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-lying-triceps-extension",
-    "title": "Dumbbell Lying Triceps Extension",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "lying-dumbbell-tricep-extension",
-    "title": "Lying Dumbbell Tricep Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "lying-dumbbell-pullover-extension",
-    "title": "Lying Dumbbell Pullover To Extension",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "lying-dumbbell-tricep-extension",
-    "title": "Lying Dumbbell Tricep Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "lying-dumbbell-pullover-extension",
-    "title": "Lying Dumbbell Pullover To Extension",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-dumbbell-lying",
-    "title": "Triceps Extension: Dumbbell (Lying)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 1,
-   "a": {
-    "id": "lying-dumbbell-tricep-extension",
-    "title": "Lying Dumbbell Tricep Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-dumbbell-lying",
-    "title": "Triceps Extension: Dumbbell (Lying)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
    "muscles": 0,
    "a": {
     "id": "barbell-rear-delt-row",
@@ -10445,33 +5572,6 @@
     ],
     "muscles": [
      "deltoid"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 0,
-   "a": {
-    "id": "dumbbell-incline-row",
-    "title": "Dumbbell Incline Row",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "mid-back"
-    ]
-   },
-   "b": {
-    "id": "incline-chest-supported-dumbbell-row",
-    "title": "Incline Chest-Supported Dumbbell Row",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps",
-     "lats",
-     "traps"
     ]
    }
   },
@@ -10597,32 +5697,6 @@
    "b": {
     "id": "reverse-grip-barbell-row",
     "title": "Reverse-grip Barbell Row",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "lats",
-     "traps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.6,
-   "muscles": 0.5,
-   "a": {
-    "id": "bent-over-dumbbell-rows",
-    "title": "Bent Over Dumbbell Rows",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "lats"
-    ]
-   },
-   "b": {
-    "id": "bent-over-row-dumbbell",
-    "title": "Bent-over Row with Dumbbell",
     "sources": [
      "garmin"
     ],
@@ -10887,56 +5961,6 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "bench-press-dumbbell-one-arm",
-    "title": "Bench Press: Dumbbell (One Arm)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "one-arm-dumbbell-row",
-    "title": "One-Arm Dumbbell Row",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "mid-back"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "cable-one-arm-tricep-extension",
-    "title": "Cable One Arm Tricep Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-cable-one-arm-low-pulley",
-    "title": "Triceps Extension: Cable (One Arm, Low-Pulley)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": 0.5,
    "a": {
     "id": "db-single-arm-row-5kg",
@@ -10957,81 +5981,6 @@
     "muscles": [
      "lats",
      "traps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "one-arm-dumbbell-row",
-    "title": "One-Arm Dumbbell Row",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "mid-back"
-    ]
-   },
-   "b": {
-    "id": "one-arm-dumbbell-shoulder-press",
-    "title": "One Arm Dumbbell Shoulder Press",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "one-arm-dumbbell-row",
-    "title": "One-Arm Dumbbell Row",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "mid-back"
-    ]
-   },
-   "b": {
-    "id": "preacher-curl-dumbbell-one-arm",
-    "title": "Preacher Curl: Dumbbell (One Arm)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "one-arm-dumbbell-row",
-    "title": "One-Arm Dumbbell Row",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "mid-back"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-dumbbell-one-arm",
-    "title": "Triceps Extension: Dumbbell (One Arm)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
     ]
    }
   },
@@ -11083,31 +6032,6 @@
     "muscles": [
      "lats",
      "traps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "one-arm-triceps-extensions-on-cable",
-    "title": "One Arm Triceps Extensions on Cable",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-cable-one-arm-low-pulley",
-    "title": "Triceps Extension: Cable (One Arm, Low-Pulley)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
     ]
    }
   },
@@ -11263,31 +6187,6 @@
      "glutes",
      "quads",
      "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "standing-palm-in-one-arm-dumbbell-press",
-    "title": "Standing Palm-In One-Arm Dumbbell Press",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-dumbbell-standing-one-arm",
-    "title": "Triceps Extension: Dumbbell (Standing, One Arm)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
     ]
    }
   },
@@ -11475,31 +6374,6 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "leg-curls-standing",
-    "title": "Leg Curls (standing)",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "hamstrings"
-    ]
-   },
-   "b": {
-    "id": "standing-leg-curl",
-    "title": "Standing Leg Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "hamstrings"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": 0,
    "a": {
     "id": "leg-raises-lying",
@@ -11519,56 +6393,6 @@
     ],
     "muscles": [
      "hamstrings"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "leg-raises-standing",
-    "title": "Leg Raises, Standing",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "abs"
-    ]
-   },
-   "b": {
-    "id": "standing-leg-curl",
-    "title": "Standing Leg Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "hamstrings"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "leg-raises-standing",
-    "title": "Leg Raises, Standing",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "abs"
-    ]
-   },
-   "b": {
-    "id": "standing-leg-curls",
-    "title": "Standing Leg Curls",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "ischiocrural-muscles"
     ]
    }
   },
@@ -11768,31 +6592,7 @@
     "id": "single-leg-extension",
     "title": "Single Leg Extension",
     "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "single-leg-dip",
-    "title": "Single-leg Dip",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "single-leg-leg-extension",
-    "title": "Single-Leg Leg Extension",
-    "sources": [
+     "wger",
      "free-exercise-db"
     ],
     "muscles": [
@@ -11856,31 +6656,6 @@
    "name": 0.5,
    "muscles": 0,
    "a": {
-    "id": "single-leg-leg-extension",
-    "title": "Single-Leg Leg Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "single-leg-rdl",
-    "title": "Single Leg RDL",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "hamstrings"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
     "id": "single-leg-side-glute-press",
     "title": "Single-leg side glute press",
     "sources": [
@@ -11908,36 +6683,12 @@
    "name": 0.5,
    "muscles": 0,
    "a": {
-    "id": "standing-leg-curl",
-    "title": "Standing Leg Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "hamstrings"
-    ]
-   },
-   "b": {
-    "id": "standing-leg-curls",
-    "title": "Standing Leg Curls",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "ischiocrural-muscles"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
     "id": "box-jump",
     "title": "Box Jump",
     "sources": [
      "wdl-curated",
-     "garmin"
+     "garmin",
+     "wger"
     ],
     "muscles": [
      "calves",
@@ -12067,33 +6818,6 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "back-squat",
-    "title": "Back Squat",
-    "sources": [
-     "wdl-curated"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "back-squat-body-bar",
-    "title": "Back Squat with Body Bar",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": 0.5,
    "a": {
     "id": "barbell-box-squat",
@@ -12110,7 +6834,8 @@
     "id": "barbell-squat-bench",
     "title": "Barbell Squat To A Bench",
     "sources": [
-     "free-exercise-db"
+     "free-exercise-db",
+     "everkinetic"
     ],
     "muscles": [
      "quads"
@@ -12137,7 +6862,8 @@
     "id": "front-barbell-squat-bench",
     "title": "Front Barbell Squat To A Bench",
     "sources": [
-     "free-exercise-db"
+     "free-exercise-db",
+     "everkinetic"
     ],
     "muscles": [
      "quads"
@@ -12164,7 +6890,8 @@
     "id": "barbell-squat-bench",
     "title": "Barbell Squat To A Bench",
     "sources": [
-     "free-exercise-db"
+     "free-exercise-db",
+     "everkinetic"
     ],
     "muscles": [
      "quads"
@@ -12190,7 +6917,8 @@
     "id": "barbell-squat-bench",
     "title": "Barbell Squat To A Bench",
     "sources": [
-     "free-exercise-db"
+     "free-exercise-db",
+     "everkinetic"
     ],
     "muscles": [
      "quads"
@@ -12232,7 +6960,8 @@
     "id": "barbell-squat-bench",
     "title": "Barbell Squat To A Bench",
     "sources": [
-     "free-exercise-db"
+     "free-exercise-db",
+     "everkinetic"
     ],
     "muscles": [
      "quads"
@@ -12260,7 +6989,8 @@
     "id": "barbell-squat-bench",
     "title": "Barbell Squat To A Bench",
     "sources": [
-     "free-exercise-db"
+     "free-exercise-db",
+     "everkinetic"
     ],
     "muscles": [
      "quads"
@@ -12277,60 +7007,6 @@
      "quads",
      "shoulders",
      "traps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "belt-squat",
-    "title": "Belt Squat",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squat",
-    "title": "Squat",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "biceps-curl-squat-dumbbell",
-    "title": "Biceps Curl: Squat with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-squat",
-    "title": "Dumbbell Squat",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
     ]
    }
   },
@@ -12357,35 +7033,6 @@
     ],
     "muscles": [
      "hamstrings",
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.67,
-   "a": {
-    "id": "box-squat",
-    "title": "Box Squat",
-    "sources": [
-     "free-exercise-db",
-     "wger"
-    ],
-    "muscles": [
-     "calves",
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squat",
-    "title": "Squat",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
      "quads"
     ]
    }
@@ -12433,34 +7080,8 @@
     "id": "squat",
     "title": "Squat",
     "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "cossack-squat",
-    "title": "Cossack squat",
-    "sources": [
+     "garmin",
      "wger"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squat",
-    "title": "Squat",
-    "sources": [
-     "garmin"
     ],
     "muscles": [
      "glutes",
@@ -12487,35 +7108,10 @@
     "id": "front-barbell-squat-bench",
     "title": "Front Barbell Squat To A Bench",
     "sources": [
-     "free-exercise-db"
+     "free-exercise-db",
+     "everkinetic"
     ],
     "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "dragon-squat",
-    "title": "Dragon squat",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squat",
-    "title": "Squat",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
      "quads"
     ]
    }
@@ -12540,7 +7136,8 @@
     "id": "dumbbell-squat-bench",
     "title": "Dumbbell Squat To A Bench",
     "sources": [
-     "free-exercise-db"
+     "free-exercise-db",
+     "everkinetic"
     ],
     "muscles": [
      "quads"
@@ -12609,7 +7206,8 @@
     "id": "dumbbell-squat-bench",
     "title": "Dumbbell Squat To A Bench",
     "sources": [
-     "free-exercise-db"
+     "free-exercise-db",
+     "everkinetic"
     ],
     "muscles": [
      "quads"
@@ -12638,7 +7236,8 @@
     "id": "dumbbell-squat-bench",
     "title": "Dumbbell Squat To A Bench",
     "sources": [
-     "free-exercise-db"
+     "free-exercise-db",
+     "everkinetic"
     ],
     "muscles": [
      "quads"
@@ -12655,31 +7254,6 @@
      "quads",
      "shoulders",
      "traps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-squat-bench",
-    "title": "Dumbbell Squat To A Bench",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "pile-squat-dumbbell",
-    "title": "Pile Squat with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
     ]
    }
   },
@@ -12815,7 +7389,8 @@
     "id": "squat",
     "title": "Squat",
     "sources": [
-     "garmin"
+     "garmin",
+     "wger"
     ],
     "muscles": [
      "glutes",
@@ -12858,33 +7433,8 @@
     "id": "front-squat",
     "title": "Front Squat",
     "sources": [
-     "wdl-curated"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "front-squat-bench-barbells",
-    "title": "Front Squat to Bench with Barbells",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "front-squat",
-    "title": "Front Squat",
-    "sources": [
-     "wdl-curated"
+     "wdl-curated",
+     "wger"
     ],
     "muscles": [
      "glutes",
@@ -12949,33 +7499,8 @@
     "id": "squat",
     "title": "Squat",
     "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "pendulum-squat",
-    "title": "Pendulum Squat",
-    "sources": [
+     "garmin",
      "wger"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squat",
-    "title": "Squat",
-    "sources": [
-     "garmin"
     ],
     "muscles": [
      "glutes",
@@ -13011,92 +7536,13 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 0.67,
+   "muscles": 0.5,
    "a": {
-    "id": "pin-squat",
-    "title": "Pin Squat",
+    "id": "squat",
+    "title": "Squat",
     "sources": [
+     "garmin",
      "wger"
-    ],
-    "muscles": [
-     "glutes",
-     "hamstrings",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squat",
-    "title": "Squat",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "slow-squat",
-    "title": "Slow Squat",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squat",
-    "title": "Squat",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "squat",
-    "title": "Squat",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squat-bands",
-    "title": "Squat with Bands",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "squat",
-    "title": "Squat",
-    "sources": [
-     "garmin"
     ],
     "muscles": [
      "glutes",
@@ -13122,7 +7568,8 @@
     "id": "squat",
     "title": "Squat",
     "sources": [
-     "garmin"
+     "garmin",
+     "wger"
     ],
     "muscles": [
      "glutes",
@@ -13146,7 +7593,8 @@
     "id": "squat",
     "title": "Squat",
     "sources": [
-     "garmin"
+     "garmin",
+     "wger"
     ],
     "muscles": [
      "glutes",
@@ -13167,38 +7615,13 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "squat",
-    "title": "Squat",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squat-jumps",
-    "title": "Squat Jumps",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": null,
    "a": {
     "id": "squat",
     "title": "Squat",
     "sources": [
-     "garmin"
+     "garmin",
+     "wger"
     ],
     "muscles": [
      "glutes",
@@ -13212,89 +7635,6 @@
      "wdl-curated"
     ],
     "muscles": []
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "squat",
-    "title": "Squat",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squat-thrust",
-    "title": "Squat Thrust",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "abs",
-     "calves",
-     "glutes",
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.33,
-   "a": {
-    "id": "squat",
-    "title": "Squat",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "wall-squat",
-    "title": "Wall Squat",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "hamstrings",
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.33,
-   "a": {
-    "id": "squat-jumps",
-    "title": "Squat Jumps",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squat-jumps-in-n-out",
-    "title": "Squat Jumps In N' Out",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "calves",
-     "glutes",
-     "quads"
-    ]
    }
   },
   {
@@ -16459,31 +10799,6 @@
    "name": 0.5,
    "muscles": 1,
    "a": {
-    "id": "calf-raises-bands",
-    "title": "Calf Raises - With Bands",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "calves"
-    ]
-   },
-   "b": {
-    "id": "sitting-calf-raises",
-    "title": "Sitting Calf Raises",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "calves"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
     "id": "calf-stretch",
     "title": "Calf Stretch",
     "sources": [
@@ -16785,29 +11100,6 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": null,
-   "a": {
-    "id": "band-pull-apart",
-    "title": "Band Pull Apart",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "band-pull-aparts",
-    "title": "Band pull-aparts",
-    "sources": [
-     "wger"
-    ],
-    "muscles": []
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": 0.25,
    "a": {
     "id": "bear-crawl-pull-through",
@@ -17012,31 +11304,6 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "abdominal-crunch",
-    "title": "Abdominal Crunch",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "abs"
-    ]
-   },
-   "b": {
-    "id": "crunch",
-    "title": "Crunch",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "abs"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": 0,
    "a": {
     "id": "cross-body-crunch",
@@ -17059,56 +11326,6 @@
      "glutes",
      "obliques",
      "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "crunch",
-    "title": "Crunch",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "abs"
-    ]
-   },
-   "b": {
-    "id": "levitation-crunch",
-    "title": "Levitation Crunch",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "abs"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "crunch",
-    "title": "Crunch",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "abs"
-    ]
-   },
-   "b": {
-    "id": "tuck-crunch",
-    "title": "Tuck Crunch",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "abs"
     ]
    }
   },
@@ -17223,7 +11440,8 @@
     "id": "lunge",
     "title": "Lunge",
     "sources": [
-     "garmin"
+     "garmin",
+     "wger"
     ],
     "muscles": [
      "glutes",
@@ -18308,31 +12526,6 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "biceps-curl-dumbbell-hammer",
-    "title": "Biceps Curl: Dumbbell (Hammer)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "cross-body-dumbbell-hammer-curl",
-    "title": "Cross-body Dumbbell Hammer Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": 0.33,
    "a": {
     "id": "biceps-curl-dumbbell-hammer",
@@ -18354,56 +12547,6 @@
      "biceps",
      "quads",
      "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "cross-body-dumbbell-hammer-curl",
-    "title": "Cross-body Dumbbell Hammer Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "preacher-curl-dumbbell-hammer",
-    "title": "Preacher Curl: Dumbbell (Hammer)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "cross-body-dumbbell-hammer-curl",
-    "title": "Cross-body Dumbbell Hammer Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "preacher-hammer-dumbbell-curl",
-    "title": "Preacher Hammer Dumbbell Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
     ]
    }
   },
@@ -18425,6 +12568,8 @@
     "id": "db-cross-body-hammer-curls",
     "title": "DB Cross Body Hammer Curls",
     "sources": [
+     "garmin",
+     "everkinetic",
      "wger"
     ],
     "muscles": [
@@ -18435,58 +12580,6 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "cross-body-hammer-curl-dumbbell",
-    "title": "Cross Body Hammer Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "preacher-hammer-dumbbell-curl",
-    "title": "Preacher Hammer Dumbbell Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.33,
-   "a": {
-    "id": "dumbbell-hammer-curl-lunge-press",
-    "title": "Dumbbell Hammer Curl To Lunge To Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps",
-     "quads",
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "preacher-curl-dumbbell-hammer",
-    "title": "Preacher Curl: Dumbbell (Hammer)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": 0.33,
    "a": {
     "id": "dumbbell-hammer-curl-lunge-press",
@@ -18504,6 +12597,7 @@
     "id": "preacher-hammer-dumbbell-curl",
     "title": "Preacher Hammer Dumbbell Curl",
     "sources": [
+     "everkinetic",
      "free-exercise-db"
     ],
     "muscles": [
@@ -18542,81 +12636,6 @@
    "name": 0.5,
    "muscles": 1,
    "a": {
-    "id": "barbell-biceps-curl",
-    "title": "Barbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "drag-curl-barbell",
-    "title": "Drag Curl with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-biceps-curl",
-    "title": "Barbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "preacher-curl-barbell",
-    "title": "Preacher Curl: Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-biceps-curl",
-    "title": "Barbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "spider-curl-barbell",
-    "title": "Spider Curl with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
     "id": "barbell-curl",
     "title": "Barbell Curl",
     "sources": [
@@ -18631,32 +12650,6 @@
     "title": "Cheating Barbell Biceps Curl",
     "sources": [
      "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "barbell-wrist-curl",
-    "title": "Barbell Wrist Curl",
-    "sources": [
-     "garmin",
-     "wger"
-    ],
-    "muscles": [
-     "forearms"
-    ]
-   },
-   "b": {
-    "id": "biceps-curl-barbell",
-    "title": "Biceps Curl: Barbell",
-    "sources": [
-     "everkinetic"
     ],
     "muscles": [
      "biceps"
@@ -18771,232 +12764,6 @@
    "name": 0.5,
    "muscles": 1,
    "a": {
-    "id": "biceps-curl-cable",
-    "title": "Biceps Curl With Cable",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "cable-hammer-curl",
-    "title": "Cable Hammer Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "biceps-curl-cable",
-    "title": "Biceps Curl With Cable",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "cable-preacher-curl",
-    "title": "Cable Preacher Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "biceps-curl-cable",
-    "title": "Biceps Curl With Cable",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "cable-wrist-curl",
-    "title": "Cable Wrist Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "forearms"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "biceps-curl-cable",
-    "title": "Biceps Curl With Cable",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "preacher-curl-cable",
-    "title": "Preacher Curl with Cable",
-    "sources": [
-     "garmin",
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "biceps-curl-dumbbell",
-    "title": "Biceps Curl: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-bicep-curl",
-    "title": "Dumbbell Bicep Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "biceps-curl-dumbbell",
-    "title": "Biceps Curl: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-cheat-curl",
-    "title": "Dumbbell Cheat Curl",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "biceps-curl-dumbbell",
-    "title": "Biceps Curl: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-concentration-curl",
-    "title": "Dumbbell Concentration Curl",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "biceps-curl-dumbbell",
-    "title": "Biceps Curl: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-hammer-curl",
-    "title": "Dumbbell Hammer Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "biceps-curl-dumbbell",
-    "title": "Biceps Curl: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-wrist-curl",
-    "title": "Dumbbell Wrist Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "forearms"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
     "id": "biceps-curl-dumbbell-hammer",
     "title": "Biceps Curl: Dumbbell (Hammer)",
     "sources": [
@@ -19037,32 +12804,6 @@
     "sources": [
      "wdl-curated",
      "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "biceps-curl-machine",
-    "title": "Biceps Curl Machine",
-    "sources": [
-     "wger",
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "machine-bicep-curl",
-    "title": "Machine Bicep Curl",
-    "sources": [
-     "free-exercise-db"
     ],
     "muscles": [
      "biceps"
@@ -19125,104 +12866,6 @@
    "name": 0.5,
    "muscles": 1,
    "a": {
-    "id": "cable-biceps-curl",
-    "title": "Cable Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "cable-concentration-curl",
-    "title": "Cable Concentration Curl",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "cable-biceps-curl",
-    "title": "Cable Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "cable-preacher-curl",
-    "title": "Cable Preacher Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "cable-biceps-curl",
-    "title": "Cable Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "cable-wrist-curl",
-    "title": "Cable Wrist Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "forearms"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": null,
-   "a": {
-    "id": "cable-biceps-curl",
-    "title": "Cable Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "wrist-curl-cable",
-    "title": "Wrist curl, cable",
-    "sources": [
-     "wger"
-    ],
-    "muscles": []
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
     "id": "cable-concentration-curl",
     "title": "Cable Concentration Curl",
     "sources": [
@@ -19240,56 +12883,6 @@
     ],
     "muscles": [
      "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "cable-concentration-curl",
-    "title": "Cable Concentration Curl",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "cable-preacher-curl",
-    "title": "Cable Preacher Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "cable-concentration-curl",
-    "title": "Cable Concentration Curl",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "cable-wrist-curl",
-    "title": "Cable Wrist Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "forearms"
     ]
    }
   },
@@ -19311,33 +12904,9 @@
     "id": "preacher-curl-cable",
     "title": "Preacher Curl with Cable",
     "sources": [
+     "free-exercise-db",
      "garmin",
      "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "cable-hammer-curl",
-    "title": "Cable Hammer Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "cable-preacher-curl",
-    "title": "Cable Preacher Curl",
-    "sources": [
-     "free-exercise-db"
     ],
     "muscles": [
      "biceps"
@@ -19362,82 +12931,11 @@
     "id": "cable-wrist-curl",
     "title": "Cable Wrist Curl",
     "sources": [
-     "free-exercise-db"
+     "free-exercise-db",
+     "wger"
     ],
     "muscles": [
      "forearms"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": null,
-   "a": {
-    "id": "cable-hammer-curl",
-    "title": "Cable Hammer Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "wrist-curl-cable",
-    "title": "Wrist curl, cable",
-    "sources": [
-     "wger"
-    ],
-    "muscles": []
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": null,
-   "a": {
-    "id": "cable-preacher-curl",
-    "title": "Cable Preacher Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "wrist-curl-cable",
-    "title": "Wrist curl, cable",
-    "sources": [
-     "wger"
-    ],
-    "muscles": []
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "cable-wrist-curl",
-    "title": "Cable Wrist Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "forearms"
-    ]
-   },
-   "b": {
-    "id": "preacher-curl-cable",
-    "title": "Preacher Curl with Cable",
-    "sources": [
-     "garmin",
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
     ]
    }
   },
@@ -19584,7 +13082,8 @@
     "id": "preacher-curl",
     "title": "Preacher Curl",
     "sources": [
-     "free-exercise-db"
+     "free-exercise-db",
+     "wger"
     ],
     "muscles": [
      "biceps"
@@ -19646,131 +13145,6 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-bicep-curl",
-    "title": "Dumbbell Bicep Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-biceps-curl",
-    "title": "Dumbbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-bicep-curl",
-    "title": "Dumbbell Bicep Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-cheat-curl",
-    "title": "Dumbbell Cheat Curl",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-bicep-curl",
-    "title": "Dumbbell Bicep Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-concentration-curl",
-    "title": "Dumbbell Concentration Curl",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-bicep-curl",
-    "title": "Dumbbell Bicep Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-hammer-curl",
-    "title": "Dumbbell Hammer Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "dumbbell-bicep-curl",
-    "title": "Dumbbell Bicep Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-wrist-curl",
-    "title": "Dumbbell Wrist Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "forearms"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": 0.33,
    "a": {
     "id": "dumbbell-bicep-curl-press",
@@ -19800,56 +13174,6 @@
    "name": 0.5,
    "muscles": 1,
    "a": {
-    "id": "dumbbell-biceps-curl",
-    "title": "Dumbbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-cheat-curl",
-    "title": "Dumbbell Cheat Curl",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-biceps-curl",
-    "title": "Dumbbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-concentration-curl",
-    "title": "Dumbbell Concentration Curl",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
     "id": "dumbbell-cheat-curl",
     "title": "Dumbbell Cheat Curl",
     "sources": [
@@ -19873,36 +13197,12 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "dumbbell-cheat-curl",
-    "title": "Dumbbell Cheat Curl",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-wrist-curl",
-    "title": "Dumbbell Wrist Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "forearms"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": 1,
    "a": {
     "id": "dumbbell-concentration-curl",
     "title": "Dumbbell Concentration Curl",
     "sources": [
+     "everkinetic",
      "wger"
     ],
     "muscles": [
@@ -19914,57 +13214,6 @@
     "title": "Dumbbell Hammer Curl",
     "sources": [
      "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "dumbbell-concentration-curl",
-    "title": "Dumbbell Concentration Curl",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-wrist-curl",
-    "title": "Dumbbell Wrist Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "forearms"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-curl",
-    "title": "Dumbbell Curl",
-    "sources": [
-     "wdl-curated",
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "preacher-curl-dumbbell-hammer",
-    "title": "Preacher Curl: Dumbbell (Hammer)",
-    "sources": [
-     "everkinetic"
     ],
     "muscles": [
      "biceps"
@@ -20016,135 +13265,12 @@
     "id": "preacher-hammer-dumbbell-curl",
     "title": "Preacher Hammer Dumbbell Curl",
     "sources": [
+     "everkinetic",
      "free-exercise-db"
     ],
     "muscles": [
      "biceps"
     ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "incline-biceps-curl-dumbbell",
-    "title": "Incline Biceps Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "incline-offset-thumb-dumbbell-curl",
-    "title": "Incline Offset Thumb Dumbbell Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "machine-bicep-curl",
-    "title": "Machine Bicep Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "preacher-curl-machine",
-    "title": "Preacher Curl: Machine",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "preacher-curl",
-    "title": "Preacher Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "preacher-curl-externally-rotated",
-    "title": "Preacher Curl - Externally Rotated",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "preacher-curl",
-    "title": "Preacher Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "preacher-curl-internally-rotated",
-    "title": "Preacher Curl - Internally Rotated",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": null,
-   "a": {
-    "id": "preacher-curl-cable",
-    "title": "Preacher Curl with Cable",
-    "sources": [
-     "garmin",
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "wrist-curl-cable",
-    "title": "Wrist curl, cable",
-    "sources": [
-     "wger"
-    ],
-    "muscles": []
    }
   },
   {
@@ -20277,31 +13403,6 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "seated-bicep-curl-dumbbell",
-    "title": "Seated Bicep Curl with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "seated-dumbbell-inner-biceps-curl",
-    "title": "Seated Dumbbell Inner Biceps Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": 0,
    "a": {
     "id": "seated-leg-curl",
@@ -20354,54 +13455,6 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "standing-bicep-curl",
-    "title": "Standing Bicep Curl",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "standing-leg-curl",
-    "title": "Standing Leg Curl",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "hamstrings"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": null,
-   "a": {
-    "id": "wrist-curl-dumbbells",
-    "title": "Wrist curl, dumbbells",
-    "sources": [
-     "wger"
-    ],
-    "muscles": []
-   },
-   "b": {
-    "id": "zottman-curl-dumbbells",
-    "title": "Zottman Curl with Dumbbells",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": 1,
    "a": {
     "id": "zottman-curl-dumbbells",
@@ -20427,156 +13480,6 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "biceps-curls-dumbbell",
-    "title": "Biceps Curls With Dumbbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "concentration-curls-dumbbell",
-    "title": "Concentration Curls with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "concentration-curls-dumbbell",
-    "title": "Concentration Curls with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-drag-curls",
-    "title": "Dumbbell drag curls",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-biceps-curl",
-    "title": "Barbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "biceps-curls-barbell",
-    "title": "Biceps Curls With Barbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "biceps-curl-barbell",
-    "title": "Biceps Curl: Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "biceps-curls-barbell",
-    "title": "Biceps Curls With Barbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "biceps-curl-dumbbell",
-    "title": "Biceps Curl: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "biceps-curls-dumbbell",
-    "title": "Biceps Curls With Dumbbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "biceps-curls-dumbbell",
-    "title": "Biceps Curls With Dumbbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-biceps-curl",
-    "title": "Dumbbell Biceps Curl",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": 0,
    "a": {
     "id": "barbell-step-over",
@@ -20592,31 +13495,7 @@
     "id": "barbell-step-ups",
     "title": "Barbell Step Ups",
     "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "barbell-step-over",
-    "title": "Barbell Step-over",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "hip-flexors"
-    ]
-   },
-   "b": {
-    "id": "step-ups-barbell",
-    "title": "Step Ups: Barbell",
-    "sources": [
+     "free-exercise-db",
      "everkinetic"
     ],
     "muscles": [
@@ -20643,32 +13522,7 @@
     "id": "barbell-step-ups",
     "title": "Barbell Step Ups",
     "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "barbell-step-up",
-    "title": "Barbell Step-up",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "step-ups-barbell",
-    "title": "Step Ups: Barbell",
-    "sources": [
+     "free-exercise-db",
      "everkinetic"
     ],
     "muscles": [
@@ -20694,31 +13548,7 @@
     "id": "dumbbell-step-ups",
     "title": "Dumbbell Step Ups",
     "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "dumbbell-step-over",
-    "title": "Dumbbell Step-over",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "hip-flexors"
-    ]
-   },
-   "b": {
-    "id": "step-ups-dumbbell",
-    "title": "Step Ups: Dumbbell",
-    "sources": [
+     "free-exercise-db",
      "everkinetic"
     ],
     "muscles": [
@@ -20745,32 +13575,7 @@
     "id": "dumbbell-step-ups",
     "title": "Dumbbell Step Ups",
     "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "dumbbell-step-up",
-    "title": "Dumbbell Step-up",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "step-ups-dumbbell",
-    "title": "Step Ups: Dumbbell",
-    "sources": [
+     "free-exercise-db",
      "everkinetic"
     ],
     "muscles": [
@@ -21212,62 +14017,6 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "dumbbell-shoulder-press",
-    "title": "Dumbbell Shoulder Press",
-    "sources": [
-     "garmin",
-     "free-exercise-db",
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid",
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-shoulder-rotations",
-    "title": "Dumbbell Shoulder Rotations",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "dumbbell-shoulder-press",
-    "title": "Dumbbell Shoulder Press",
-    "sources": [
-     "garmin",
-     "free-exercise-db",
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid",
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "shoulder-raise-dumbbell",
-    "title": "Shoulder Raise (Dumbbell)",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": 0,
    "a": {
     "id": "dumbbell-shoulder-rotations",
@@ -21385,32 +14134,6 @@
     ]
    },
    "b": {
-    "id": "shoulder-press-dumbbells",
-    "title": "Shoulder Press, Dumbbells",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "inverted-shoulder-press",
-    "title": "Inverted Shoulder Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest",
-     "shoulders"
-    ]
-   },
-   "b": {
     "id": "shoulder-press-on-multi-press",
     "title": "Shoulder Press, on Multi Press",
     "sources": [
@@ -21436,58 +14159,8 @@
     ]
    },
    "b": {
-    "id": "shoulder-press-dumbbells",
-    "title": "Shoulder Press, Dumbbells",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "leverage-shoulder-press",
-    "title": "Leverage Shoulder Press",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
     "id": "shoulder-press-on-multi-press",
     "title": "Shoulder Press, on Multi Press",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "shoulder-press-bands",
-    "title": "Shoulder Press - With Bands",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "shoulder-press-dumbbells",
-    "title": "Shoulder Press, Dumbbells",
     "sources": [
      "wger"
     ],
@@ -21543,31 +14216,6 @@
     ],
     "muscles": [
      "traps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "arnold-dumbbell-press",
-    "title": "Arnold Dumbbell Press",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "bench-press-dumbbell",
-    "title": "Bench Press: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
     ]
    }
   },
@@ -21704,7 +14352,8 @@
     "id": "barbell-bench-press",
     "title": "Barbell Bench Press",
     "sources": [
-     "garmin"
+     "garmin",
+     "everkinetic"
     ],
     "muscles": [
      "chest"
@@ -21718,56 +14367,6 @@
     ],
     "muscles": [
      "chest",
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-bench-press",
-    "title": "Barbell Bench Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "barbell-neck-press",
-    "title": "Barbell Neck Press",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "barbell-bench-press",
-    "title": "Barbell Bench Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "shoulder-press-barbell",
-    "title": "Shoulder Press, Barbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
      "shoulders"
     ]
    }
@@ -21878,59 +14477,6 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "barbell-clean-press",
-    "title": "Barbell Clean and press",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest",
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "barbell-shoulder-press",
-    "title": "Barbell Shoulder Press",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "barbell-clean-press",
-    "title": "Barbell Clean and press",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest",
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "bench-press-barbell",
-    "title": "Bench Press: Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": 1,
    "a": {
     "id": "barbell-floor-press",
@@ -21950,56 +14496,6 @@
     ],
     "muscles": [
      "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-floor-press",
-    "title": "Barbell Floor Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "bench-press-barbell",
-    "title": "Bench Press: Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "barbell-floor-press",
-    "title": "Barbell Floor Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "shoulder-press-barbell",
-    "title": "Shoulder Press, Barbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
     ]
    }
   },
@@ -22072,260 +14568,7 @@
     "title": "Barbell Shoulder Press",
     "sources": [
      "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "barbell-neck-press",
-    "title": "Barbell Neck Press",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "shoulder-press-barbell",
-    "title": "Shoulder Press, Barbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "barbell-push-press",
-    "title": "Barbell Push Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "bench-press-barbell",
-    "title": "Bench Press: Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-push-press",
-    "title": "Barbell Push Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "shoulder-press-barbell",
-    "title": "Shoulder Press, Barbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "barbell-shoulder-press",
-    "title": "Barbell Shoulder Press",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "bench-press-barbell",
-    "title": "Bench Press: Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "bench-press-barbell",
-    "title": "Bench Press: Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "shoulder-press-barbell",
-    "title": "Shoulder Press, Barbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "bench-press-dumbbell",
-    "title": "Bench Press: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-bradford-press",
-    "title": "Dumbbell Bradford press",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "bench-press-dumbbell",
-    "title": "Bench Press: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-floor-press",
-    "title": "Dumbbell Floor Press",
-    "sources": [
-     "garmin",
      "free-exercise-db",
-     "wger"
-    ],
-    "muscles": [
-     "chest",
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "bench-press-dumbbell",
-    "title": "Bench Press: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-frog-press",
-    "title": "Dumbbell Frog Press",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "glutes"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "bench-press-dumbbell",
-    "title": "Bench Press: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-push-press",
-    "title": "Dumbbell Push Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "bench-press-machine",
-    "title": "Bench Press: Machine",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "shoulder-press-on-machine",
-    "title": "Shoulder Press, on Machine",
-    "sources": [
      "wger"
     ],
     "muscles": [
@@ -22579,32 +14822,6 @@
     ]
    },
    "b": {
-    "id": "dumbbell-bench-press",
-    "title": "Dumbbell Bench Press",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "cuban-dumbbell-press",
-    "title": "Cuban Dumbbell Press",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid"
-    ]
-   },
-   "b": {
     "id": "dumbbell-bradford-press",
     "title": "Dumbbell Bradford press",
     "sources": [
@@ -22751,6 +14968,7 @@
     "id": "dumbbell-bench-press",
     "title": "Dumbbell Bench Press",
     "sources": [
+     "everkinetic",
      "garmin",
      "free-exercise-db"
     ],
@@ -22777,6 +14995,7 @@
     "id": "dumbbell-bench-press",
     "title": "Dumbbell Bench Press",
     "sources": [
+     "everkinetic",
      "garmin",
      "free-exercise-db"
     ],
@@ -22792,32 +15011,6 @@
     ],
     "muscles": [
      "glutes"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "dumbbell-bench-press",
-    "title": "Dumbbell Bench Press",
-    "sources": [
-     "garmin",
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "tate-press-dumbbell",
-    "title": "Tate Press with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
     ]
    }
   },
@@ -22842,34 +15035,6 @@
      "garmin"
     ],
     "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "dumbbell-bradford-press",
-    "title": "Dumbbell Bradford press",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-shoulder-press",
-    "title": "Dumbbell Shoulder Press",
-    "sources": [
-     "garmin",
-     "free-exercise-db",
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid",
      "shoulders"
     ]
    }
@@ -22948,34 +15113,6 @@
      "garmin"
     ],
     "muscles": [
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "dumbbell-frog-press",
-    "title": "Dumbbell Frog Press",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "glutes"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-shoulder-press",
-    "title": "Dumbbell Shoulder Press",
-    "sources": [
-     "garmin",
-     "free-exercise-db",
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid",
      "shoulders"
     ]
    }
@@ -23193,6 +15330,7 @@
     "id": "machine-bench-press",
     "title": "Machine Bench Press",
     "sources": [
+     "everkinetic",
      "free-exercise-db"
     ],
     "muscles": [
@@ -23291,106 +15429,6 @@
    "name": 0.5,
    "muscles": 1,
    "a": {
-    "id": "cable-triceps-press",
-    "title": "Cable Triceps Press",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-pushdown-cable",
-    "title": "Triceps Pushdown: Cable",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "dumbbell-triceps-extension",
-    "title": "Dumbbell Triceps Extension",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-kickback-dumbbell",
-    "title": "Triceps Kickback with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "lying-close-grip-barbell-triceps-extension-behind-head",
-    "title": "Lying Close-Grip Barbell Triceps Extension Behind The Head",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "lying-close-grip-triceps-press-chin-barbell",
-    "title": "Lying Close Grip Triceps Press to Chin with Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "lying-close-grip-barbell-triceps-press-chin",
-    "title": "Lying Close-Grip Barbell Triceps Press To Chin",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-barbell-lying-close-grip-behind-head",
-    "title": "Triceps Extension: Barbell (Lying, Close Grip, Behind the Head)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
     "id": "lying-triceps-extensions",
     "title": "Lying Triceps Extensions",
     "sources": [
@@ -23430,56 +15468,6 @@
     "title": "Lying Triceps Press",
     "sources": [
      "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "machine-triceps-extension",
-    "title": "Machine Triceps Extension",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-dips-machine",
-    "title": "Triceps Dips: Machine",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "triceps-extensions-on-cable",
-    "title": "Triceps Extensions on Cable",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-pushdown-cable",
-    "title": "Triceps Pushdown: Cable",
-    "sources": [
-     "everkinetic"
     ],
     "muscles": [
      "triceps"
@@ -23580,31 +15568,7 @@
     "id": "machine-triceps-extension",
     "title": "Machine Triceps Extension",
     "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "machine-glute-extension",
-    "title": "Machine glute extension",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "glutes"
-    ]
-   },
-   "b": {
-    "id": "triceps-extension-machine",
-    "title": "Triceps Extension: Machine",
-    "sources": [
+     "free-exercise-db",
      "everkinetic"
     ],
     "muscles": [
@@ -23673,9 +15637,11 @@
     "id": "dumbbell-one-arm-upright-row",
     "title": "Dumbbell One-Arm Upright Row",
     "sources": [
-     "free-exercise-db"
+     "free-exercise-db",
+     "everkinetic"
     ],
     "muscles": [
+     "deltoid",
      "shoulders"
     ]
    },
@@ -23793,34 +15759,6 @@
     ],
     "muscles": [
      "traps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "one-legged-dumbbell-row",
-    "title": "One-legged Dumbbell Row",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "hamstrings",
-     "lats",
-     "traps"
-    ]
-   },
-   "b": {
-    "id": "upright-row-dumbbell-one-arm",
-    "title": "Upright Row: Dumbbell (One Arm)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid"
     ]
    }
   },
@@ -24403,58 +16341,6 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "rowing-t-bar",
-    "title": "Rowing, T-bar",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "lats"
-    ]
-   },
-   "b": {
-    "id": "t-bar-rows",
-    "title": "T-Bar Rows",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "lats"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "t-bar-row",
-    "title": "T-Bar Row",
-    "sources": [
-     "garmin",
-     "wger"
-    ],
-    "muscles": [
-     "lats",
-     "traps"
-    ]
-   },
-   "b": {
-    "id": "t-bar-rows",
-    "title": "T-Bar Rows",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "lats"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": null,
    "a": {
     "id": "atlas-stone-shoulder",
@@ -24478,7 +16364,7 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 0.33,
+   "muscles": 0.25,
    "a": {
     "id": "axle-deadlift",
     "title": "Axle Deadlift",
@@ -24494,12 +16380,14 @@
     "title": "Deadlift",
     "sources": [
      "wdl-curated",
-     "garmin"
+     "garmin",
+     "wger"
     ],
     "muscles": [
      "erectors",
      "glutes",
-     "hamstrings"
+     "hamstrings",
+     "lats"
     ]
    }
   },
@@ -24522,19 +16410,21 @@
     "title": "Deadlift",
     "sources": [
      "wdl-curated",
-     "garmin"
+     "garmin",
+     "wger"
     ],
     "muscles": [
      "erectors",
      "glutes",
-     "hamstrings"
+     "hamstrings",
+     "lats"
     ]
    }
   },
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 0.33,
+   "muscles": 0.25,
    "a": {
     "id": "clean-deadlift",
     "title": "Clean Deadlift",
@@ -24550,30 +16440,34 @@
     "title": "Deadlift",
     "sources": [
      "wdl-curated",
-     "garmin"
+     "garmin",
+     "wger"
     ],
     "muscles": [
      "erectors",
      "glutes",
-     "hamstrings"
+     "hamstrings",
+     "lats"
     ]
    }
   },
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 0.33,
+   "muscles": 0.25,
    "a": {
     "id": "deadlift",
     "title": "Deadlift",
     "sources": [
      "wdl-curated",
-     "garmin"
+     "garmin",
+     "wger"
     ],
     "muscles": [
      "erectors",
      "glutes",
-     "hamstrings"
+     "hamstrings",
+     "lats"
     ]
    },
    "b": {
@@ -24590,18 +16484,20 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 0.33,
+   "muscles": 0.25,
    "a": {
     "id": "deadlift",
     "title": "Deadlift",
     "sources": [
      "wdl-curated",
-     "garmin"
+     "garmin",
+     "wger"
     ],
     "muscles": [
      "erectors",
      "glutes",
-     "hamstrings"
+     "hamstrings",
+     "lats"
     ]
    },
    "b": {
@@ -24624,12 +16520,14 @@
     "title": "Deadlift",
     "sources": [
      "wdl-curated",
-     "garmin"
+     "garmin",
+     "wger"
     ],
     "muscles": [
      "erectors",
      "glutes",
-     "hamstrings"
+     "hamstrings",
+     "lats"
     ]
    },
    "b": {
@@ -24646,46 +16544,20 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 0.33,
-   "a": {
-    "id": "deadlift",
-    "title": "Deadlift",
-    "sources": [
-     "wdl-curated",
-     "garmin"
-    ],
-    "muscles": [
-     "erectors",
-     "glutes",
-     "hamstrings"
-    ]
-   },
-   "b": {
-    "id": "rack-deadlift",
-    "title": "Rack Deadlift",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "glutes"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": 0,
    "a": {
     "id": "deadlift",
     "title": "Deadlift",
     "sources": [
      "wdl-curated",
-     "garmin"
+     "garmin",
+     "wger"
     ],
     "muscles": [
      "erectors",
      "glutes",
-     "hamstrings"
+     "hamstrings",
+     "lats"
     ]
    },
    "b": {
@@ -24702,18 +16574,20 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 0.33,
+   "muscles": 0.25,
    "a": {
     "id": "deadlift",
     "title": "Deadlift",
     "sources": [
      "wdl-curated",
-     "garmin"
+     "garmin",
+     "wger"
     ],
     "muscles": [
      "erectors",
      "glutes",
-     "hamstrings"
+     "hamstrings",
+     "lats"
     ]
    },
    "b": {
@@ -24724,135 +16598,6 @@
     ],
     "muscles": [
      "hamstrings"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.67,
-   "a": {
-    "id": "deadlift",
-    "title": "Deadlift",
-    "sources": [
-     "wdl-curated",
-     "garmin"
-    ],
-    "muscles": [
-     "erectors",
-     "glutes",
-     "hamstrings"
-    ]
-   },
-   "b": {
-    "id": "speed-deadlift",
-    "title": "Speed Deadlift",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "glutes",
-     "hamstrings"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "cable-fly",
-    "title": "Cable Fly",
-    "sources": [
-     "wdl-curated"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "cable-fly-lower-chest",
-    "title": "Cable Fly Lower Chest",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "cable-fly",
-    "title": "Cable Fly",
-    "sources": [
-     "wdl-curated"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "cable-fly-middle-chest",
-    "title": "Cable Fly Middle Chest",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "cable-fly",
-    "title": "Cable Fly",
-    "sources": [
-     "wdl-curated"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "cable-fly-upper-chest",
-    "title": "Cable Fly Upper Chest",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "cable-fly",
-    "title": "Cable Fly",
-    "sources": [
-     "wdl-curated"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "low-pulley-cable-fly",
-    "title": "Low Pulley Cable Fly",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
     ]
    }
   },
@@ -24944,182 +16689,6 @@
    "name": 0.5,
    "muscles": 1,
    "a": {
-    "id": "jefferson-squats",
-    "title": "Jefferson Squats",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squats",
-    "title": "Squats",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "sit-squats",
-    "title": "Sit Squats",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squats",
-    "title": "Squats",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "speed-squats",
-    "title": "Speed Squats",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squats",
-    "title": "Squats",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "squats",
-    "title": "Squats",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squats-bands",
-    "title": "Squats - With Bands",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "squats",
-    "title": "Squats",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squats-dumbbells",
-    "title": "Squats: Dumbbells",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0.5,
-   "a": {
-    "id": "squats",
-    "title": "Squats",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "suitcase-squats",
-    "title": "Suitcase Squats",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "glutes",
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "squats",
-    "title": "Squats",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "zecher-squats",
-    "title": "Zecher Squats",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
     "id": "ball-crunches",
     "title": "Ball crunches",
     "sources": [
@@ -25137,33 +16706,6 @@
     ],
     "muscles": [
      "abs"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "barbell-good-morning",
-    "title": "Barbell Good Morning",
-    "sources": [
-     "wdl-curated"
-    ],
-    "muscles": [
-     "erectors",
-     "glutes",
-     "hamstrings"
-    ]
-   },
-   "b": {
-    "id": "good-mornings-barbell",
-    "title": "Good Mornings: Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "erector-spinae"
     ]
    }
   },
@@ -25268,162 +16810,12 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "barbell-upright-row",
-    "title": "Barbell Upright Row",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "shoulders",
-     "traps"
-    ]
-   },
-   "b": {
-    "id": "upright-barbell-rows",
-    "title": "Upright Barbell Rows",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "upright-barbell-row",
-    "title": "Upright Barbell Row",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "shoulders"
-    ]
-   },
-   "b": {
-    "id": "upright-barbell-rows",
-    "title": "Upright Barbell Rows",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "deltoid"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "barbell-bench-press",
-    "title": "Barbell Bench Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "barbell-squat-bench",
-    "title": "Barbell Squat To A Bench",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "barbell-bench-press",
-    "title": "Barbell Bench Press",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "squats-barbell-bench",
-    "title": "Squats: Barbell (to Bench)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "barbell-squat-bench",
-    "title": "Barbell Squat To A Bench",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "bench-press-barbell",
-    "title": "Bench Press: Barbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "barbell-squat-bench",
-    "title": "Barbell Squat To A Bench",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   },
-   "b": {
-    "id": "squats-barbell-bench",
-    "title": "Squats: Barbell (to Bench)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": 0.5,
    "a": {
     "id": "bench-dips",
     "title": "Bench Dips",
     "sources": [
+     "garmin",
      "free-exercise-db",
      "everkinetic"
     ],
@@ -25440,81 +16832,6 @@
     "muscles": [
      "biceps",
      "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "bench-press-dumbbell",
-    "title": "Bench Press: Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-squat-bench",
-    "title": "Dumbbell Squat To A Bench",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "quads"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "bench-press-dumbbell-incline",
-    "title": "Bench Press: Dumbbell (Incline)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "incline-dumbbell-bench-palms-facing-in",
-    "title": "Incline Dumbbell Bench With Palms Facing In",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "incline-bench-press-dumbbell",
-    "title": "Incline Bench Press - Dumbbell",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "incline-dumbbell-bench-palms-facing-in",
-    "title": "Incline Dumbbell Bench With Palms Facing In",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "chest"
     ]
    }
   },
@@ -25587,61 +16904,12 @@
     "id": "incline-dumbbell-bench-press",
     "title": "Incline Dumbbell Bench Press",
     "sources": [
+     "everkinetic",
+     "wger",
      "garmin"
     ],
     "muscles": [
      "chest"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "bench-press-barbell-wide-grip",
-    "title": "Bench Press: Barbell (Wide Grip)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "wide-grip-barbell-deadlift",
-    "title": "Wide-grip Barbell Deadlift",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "erectors",
-     "hamstrings"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 0,
-   "a": {
-    "id": "bench-press-barbell-wide-grip",
-    "title": "Bench Press: Barbell (Wide Grip)",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "chest"
-    ]
-   },
-   "b": {
-    "id": "wide-grip-barbell-shrug",
-    "title": "Wide-grip Barbell Shrug",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "traps"
     ]
    }
   },
@@ -25919,33 +17187,6 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 0.33,
-   "a": {
-    "id": "bent-over-row-dumbbell",
-    "title": "Bent-over Row with Dumbbell",
-    "sources": [
-     "garmin"
-    ],
-    "muscles": [
-     "lats",
-     "traps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-bent-over-face-pull",
-    "title": "Dumbbell Bent Over Face Pull",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "lats",
-     "shoulders"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": 0,
    "a": {
     "id": "bent-over-rowing-reverse",
@@ -26114,6 +17355,7 @@
     "id": "bench-dips",
     "title": "Bench Dips",
     "sources": [
+     "garmin",
      "free-exercise-db",
      "everkinetic"
     ],
@@ -26375,31 +17617,6 @@
   {
    "confidence": "possible",
    "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "concentration-curls-dumbbell",
-    "title": "Concentration Curls with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "dumbbell-concentration-curl",
-    "title": "Dumbbell Concentration Curl",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
    "muscles": null,
    "a": {
     "id": "lower-back-curl",
@@ -26440,79 +17657,6 @@
     ],
     "muscles": [
      "erectors"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "tricep-pushdown-on-cable",
-    "title": "Tricep Pushdown on Cable",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-pushdown-cable",
-    "title": "Triceps Pushdown: Cable",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "machine-preacher-curls",
-    "title": "Machine Preacher Curls",
-    "sources": [
-     "free-exercise-db"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   },
-   "b": {
-    "id": "preacher-curl-machine",
-    "title": "Preacher Curl: Machine",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "biceps"
-    ]
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": null,
-   "a": {
-    "id": "stiff-legged-deadlift",
-    "title": "Stiff-Legged Deadlift",
-    "sources": [
-     "wdl-curated"
-    ],
-    "muscles": []
-   },
-   "b": {
-    "id": "stiff-legged-deadlifts",
-    "title": "Stiff-legged Deadlifts",
-    "sources": [
-     "wger"
-    ],
-    "muscles": [
-     "hamstrings"
     ]
    }
   },
@@ -26666,32 +17810,6 @@
      "wger"
     ],
     "muscles": []
-   }
-  },
-  {
-   "confidence": "possible",
-   "name": 0.5,
-   "muscles": 1,
-   "a": {
-    "id": "tricep-dumbbell-kickback",
-    "title": "Tricep Dumbbell Kickback",
-    "sources": [
-     "free-exercise-db",
-     "wger"
-    ],
-    "muscles": [
-     "triceps"
-    ]
-   },
-   "b": {
-    "id": "triceps-kickback-dumbbell",
-    "title": "Triceps Kickback with Dumbbell",
-    "sources": [
-     "everkinetic"
-    ],
-    "muscles": [
-     "triceps"
-    ]
    }
   },
   {

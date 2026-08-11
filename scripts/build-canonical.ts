@@ -20,5 +20,9 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 console.log('Rebuilding registry/movements.canonical.json and registry/workouts.canonical.json');
 console.log('Inputs are listed in registry/SOURCES.json; refresh them first with refresh-sources.ts.');
 execFileSync('node', [join(root, 'scripts/build-movements.mjs')], { cwd: root, stdio: 'inherit' });
+execFileSync('node', [join(root, 'scripts/link-families.mjs'), '--apply'], { cwd: root, stdio: 'inherit' });
 execFileSync('node', [join(root, 'scripts/dedupe-movements.mjs'), '--apply'], { cwd: root, stdio: 'inherit' });
+// Families are linked before dedup so sibling pairs are vetoed, then relinked
+// afterwards because merging changes which ids survive.
+execFileSync('node', [join(root, 'scripts/link-families.mjs'), '--apply'], { cwd: root, stdio: 'inherit' });
 execFileSync('node', [join(root, 'scripts/build-workouts.mjs')], { cwd: root, stdio: 'inherit' });

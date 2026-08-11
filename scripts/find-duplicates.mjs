@@ -57,7 +57,16 @@ const jaccard = (a, b) => {
   return inter / (A.size + B.size - inter);
 };
 
-const movements = JSON.parse(readFileSync('registry/movements.canonical.json', 'utf8')).movements;
+const doc = JSON.parse(readFileSync('registry/movements.canonical.json', 'utf8'));
+const movements = doc.movements;
+
+/**
+ * Two records in the same family are siblings a human deliberately listed
+ * separately — `Deadlift` and `Rack Deadlift` are not the same lift. Family
+ * membership is a veto on merging, not encouragement.
+ */
+const family = new Map();
+for (const f of doc.families ?? []) for (const m of f.members) family.set(m, f.id);
 const primary = (r) => new Set(r.muscles?.primary ?? []);
 
 const buckets = new Map();
@@ -80,6 +89,8 @@ for (const [, idxs] of buckets) {
 
     const A = movements[a], B = movements[b];
     if (A.sources.some((s) => B.sources.includes(s))) continue;   // same source: assume deliberate
+    const fa = family.get(A.id);
+    if (fa && fa === family.get(B.id)) continue;                  // siblings, not duplicates
 
     const ta = toks(A.title), tb = toks(B.title);
     const name = jaccard(ta, tb);

@@ -172,3 +172,30 @@ one catalogue rather than hiding behind different spellings.
 One ordering bug worth remembering: variants were originally computed *before* the collapse, so
 half the links pointed at records about to be absorbed — `barbell-burpee` came out as a variant of
 both `burpee` and `burpees`. They are computed after now.
+
+
+## Families: the sources' own opinion
+
+wger's editors group exercises into variation families — every squat variant, every bench press
+variant. `scripts/link-families.mjs` attaches those to the canonical corpus, and they turn out to be
+a better signal than anything derived from names.
+
+A family is a **sibling** relation, which is a different thing from the `variantOf` parent links.
+Those can only relate names where one contains the other, so they cannot know that an Arnold press
+and a push press are both shoulder presses. Of 629 within-family pairs, our subset heuristic already
+related only **120**; the other **509** are relationships no string comparison would ever find.
+
+The more useful half is that it cuts the other way. Two records in the same family are
+**deliberately distinct** — a human listed them separately — so family membership is a *veto* on
+merging, not encouragement. `Deadlift` and `Rack Deadlift` were sitting in the candidate list and are
+now blocked outright.
+
+50 families cover 221 movements. All 221 wger members resolved onto our records with none left over,
+which is a decent independent check on the fold and dedup work: a vocabulary we did not write mapped
+cleanly onto ours.
+
+Ordering matters in the pipeline. Families are linked *before* dedup so sibling pairs are vetoed,
+then relinked *after* it because merging changes which ids survive.
+
+Duplicate candidates are down from 1047 to **694**, all in the weakest tier, and none of them are
+same-family pairs.

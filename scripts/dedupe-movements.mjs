@@ -68,6 +68,10 @@ const DISCRIMINATIVE = new Set([
 
 const doc = JSON.parse(readFileSync('registry/movements.canonical.json', 'utf8'));
 const movements = doc.movements;
+
+/** Same family means deliberately distinct — never collapse siblings. */
+const family = new Map();
+for (const f of doc.families ?? []) for (const m of f.members) family.set(m, f.id);
 const sets = movements.map((r) => new Set(toks(r.title)));
 const key = movements.map((_, i) => [...sets[i]].sort().join(' '));
 
@@ -85,10 +89,18 @@ movements.forEach((_, i) => {
 });
 
 const merges = [];
+let familyBlocked = 0;
 for (const [k, idxs] of byKey) {
   if (idxs.length < 2 || !k) continue;
-  for (let i = 1; i < idxs.length; i++) union(idxs[0], idxs[i]);
-  merges.push({ key: k, members: idxs.map((i) => ({ id: movements[i].id, title: movements[i].title, sources: movements[i].sources })) });
+  const keep = [idxs[0]];
+  for (const i of idxs.slice(1)) {
+    const fa = family.get(movements[idxs[0]].id), fb = family.get(movements[i].id);
+    if (fa && fb && fa !== fb) { familyBlocked++; continue; }   // different families: distinct
+    keep.push(i);
+  }
+  if (keep.length < 2) continue;
+  for (let i = 1; i < keep.length; i++) union(keep[0], keep[i]);
+  merges.push({ key: k, members: keep.map((i) => ({ id: movements[i].id, title: movements[i].title, sources: movements[i].sources })) });
 }
 
 // --- collapse ------------------------------------------------------------
@@ -167,6 +179,7 @@ for (const r of merged) {
 console.log(`${movements.length} records in`);
 console.log(`  clusters merged:        ${merges.length}  (${movements.length - merged.length} records absorbed)`);
 console.log(`  variant links recorded: ${variantsApplied}`);
+console.log(`  blocked by family:      ${familyBlocked}`);
 console.log(`  records out:            ${merged.length}`);
 
 if (!apply) { console.log('\nReport only. Re-run with --apply to rewrite the canonical file.'); process.exit(0); }
@@ -178,6 +191,7 @@ writeFileSync('registry/dedupe-audit.json', JSON.stringify({
 }, null, 1) + '\n');
 
 doc.movements = merged;
+if (doc.families) doc.families = doc.families.filter((f) => f.members.some((m) => merged.some((r) => r.id === m)));
 doc.count = merged.length;
 doc.deduplicated = true;
 writeFileSync('registry/movements.canonical.json', JSON.stringify(doc, null, 0) + '\n');
