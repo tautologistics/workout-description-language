@@ -8,7 +8,7 @@ Zero dependencies. Runs on Node 22+ using native TypeScript type stripping.
 node bin/wdl.ts fmt   file.wdl [-w]   # canonical formatting; -w rewrites in place
 node bin/wdl.ts check file.wdl        # parse and report errors
 node bin/wdl.ts timeline file.wdl     # compile to an execution outline
-node bin/wdl.ts export --to zwo file.wdl          # also erg, mrc, fit (fit needs -o)
+node bin/wdl.ts export --to zwo file.wdl          # also erg, mrc, connect; fit needs -o
 npm test                              # every check, one summary
 ```
 
@@ -56,8 +56,13 @@ duration. Regenerate it deliberately with `node test/golden/generate.ts` and rea
 
 ## Adapters
 
-Import and export for Zwift `.zwo`, `.erg`/`.mrc`, and Garmin `.fit`, all consuming the compiled
-timeline. Every exporter returns warnings rather than degrading silently — reps and distance have
+Import and export for Zwift `.zwo`, `.erg`/`.mrc`, and Garmin `.fit`, plus export to **Garmin
+Connect workout JSON** — all consuming the compiled timeline.
+
+Connect JSON is the better Garmin target. FIT is the *device* format and reaches a watch only by
+USB copy into `GARMIN/NewFiles`; JSON is the *service* format, and a workout posted to an account
+syncs over the air. It also carries two things FIT cannot: a real rep-based end condition, and an
+external load, so a barbell weight survives. Every exporter returns warnings rather than degrading silently — reps and distance have
 no representation in a power curve, a tally block has no order to write down, and an unbounded
 repeat has no length, so each is reported.
 

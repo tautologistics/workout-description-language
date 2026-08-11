@@ -8,12 +8,13 @@ import { validate } from '../src/validate.ts';
 import { exportZwo } from '../src/adapters/zwo.ts';
 import { exportErg } from '../src/adapters/erg.ts';
 import { exportFit } from '../src/adapters/fit.ts';
+import { exportGarminConnect } from '../src/adapters/garmin-connect.ts';
 
 const [cmd, ...args] = process.argv.slice(2);
 const write = args.includes('-w') || args.includes('--write');
 const files = args.filter((a, i) => !a.startsWith('-') && args[i - 1] !== '--to' && args[i - 1] !== '-o');
 
-const EXPORTERS = ['zwo', 'erg', 'mrc', 'fit'] as const;
+const EXPORTERS = ['zwo', 'erg', 'mrc', 'fit', 'connect'] as const;
 const toIdx = args.indexOf('--to');
 const to = toIdx >= 0 ? args[toIdx + 1] : undefined;
 const outIdx = args.indexOf('-o');
@@ -22,7 +23,7 @@ const outPath = outIdx >= 0 ? args[outIdx + 1] : undefined;
 if (!cmd || !['fmt', 'check', 'timeline', 'export'].includes(cmd) || files.length === 0
     || (cmd === 'export' && !EXPORTERS.includes(to as any))) {
   console.error('usage: wdl <fmt|check|timeline> [-w] <file.wdl>...');
-  console.error('       wdl export --to <zwo|erg|mrc|fit> [-o out] <file.wdl>');
+  console.error('       wdl export --to <zwo|erg|mrc|fit|connect> [-o out] <file.wdl>');
   process.exit(2);
 }
 
@@ -42,6 +43,7 @@ for (const file of files) {
     const t = compile(workout);
     const name = workout.title;
     const r = to === 'zwo' ? exportZwo(t, { name })
+      : to === 'connect' ? exportGarminConnect(t, { name })
       : to === 'fit' ? exportFit(t, { name })
       : exportErg(t, { mrc: to === 'mrc', name });
     for (const warn of r.warnings) console.error(`${file}: warning: ${warn}`);

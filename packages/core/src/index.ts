@@ -18,3 +18,4 @@ export { exportZwo, type ExportResult } from './adapters/zwo.ts';
 export { exportErg } from './adapters/erg.ts';
 export { exportFit, fitCrc } from './adapters/fit.ts';
 export { flatten, type FlatStep } from './adapters/flatten.ts';
+export { exportGarminConnect, type ConnectExportOptions } from './adapters/garmin-connect.ts';

@@ -39,6 +39,7 @@ sheiko interop  17/17    12 Sheiko days: published number-of-lifts == parsed rep
 erg interop      4/4     24 ERG/MRC courses: final timestamp == compiled duration
 fit interop      6/6     4 Garmin FIT binaries: declared step counts == parsed
 export          22/22    import -> export round trips, fidelity reported, FIT verified
+connect         17/17    Garmin Connect workout JSON against a known-accepted schema
 validation     130/130   errors, warnings, and never-guess questions
 ```
 
