@@ -47,9 +47,12 @@ export interface ConnectExportOptions {
   sport?: keyof typeof SportType;
   description?: string;
   /**
-   * Emit power targets. Off by default: a payload with no targets is known to
-   * import, and this field shape is not yet confirmed against the live API, so
-   * turning it on trades a working import for an unverified one.
+   * Emit power targets. The shape — `targetValueOne`/`targetValueTwo` on the
+   * step rather than nested in `targetType`, watts for power, and the numeric
+   * `workoutTargetTypeId` being what Garmin actually reads — is corroborated by
+   * two independent implementations. It is still not confirmed by a successful
+   * import, which is why this stays off: a payload without targets is known to
+   * work, and corroboration is not verification.
    */
   powerTargets?: boolean;
   /** Resolves `% FTP` targets into the watts Connect stores. */
@@ -254,7 +257,7 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
   };
 
   if (opts.powerTargets) {
-    warnings.push('power targets are enabled: this field shape is not yet confirmed against the live API, and a payload without them is known to import');
+    warnings.push('power targets are enabled: the field shape is corroborated by two independent implementations but not yet confirmed by a successful import');
   }
 
   return { output: JSON.stringify(payload, null, 2), warnings };
