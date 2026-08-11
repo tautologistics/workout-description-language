@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /** wdl — format and check WDL files. */
 import { readFileSync, writeFileSync } from 'node:fs';
+import { basename } from 'node:path';
 import { parse } from '../src/parse.ts';
 import { format } from '../src/format.ts';
 import { compile, outline, fmtClock } from '../src/timeline.ts';
@@ -26,7 +27,7 @@ const outPath = outIdx >= 0 ? args[outIdx + 1] : undefined;
 if (!cmd || !['fmt', 'check', 'timeline', 'export'].includes(cmd) || files.length === 0
     || (cmd === 'export' && !EXPORTERS.includes(to as any))) {
   console.error('usage: wdl <fmt|check|timeline> [-w] <file.wdl>...');
-  console.error('       wdl export --to <zwo|erg|mrc|fit|connect> [-o out] [--ftp N] [--power-targets] <file.wdl>');
+  console.error('       wdl export --to <zwo|erg|mrc|fit|connect> [-o out] [--ftp N] [--no-power-targets] <file.wdl>');
   process.exit(2);
 }
 
@@ -44,9 +45,9 @@ for (const file of files) {
     else process.stdout.write(out);
   } else if (cmd === 'export') {
     const t = compile(workout);
-    const name = workout.title;
+    const name = workout.title || basename(file).replace(/\.wdl$/i, '');
     const r = to === 'zwo' ? exportZwo(t, { name })
-      : to === 'connect' ? exportGarminConnect(t, { name, powerTargets: args.includes('--power-targets'), ftp: ftpArg })
+      : to === 'connect' ? exportGarminConnect(t, { name, powerTargets: !args.includes('--no-power-targets'), ftp: ftpArg })
       : to === 'fit' ? exportFit(t, { name })
       : exportErg(t, { mrc: to === 'mrc', name });
     for (const warn of r.warnings) console.error(`${file}: warning: ${warn}`);
