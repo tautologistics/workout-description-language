@@ -151,6 +151,25 @@
         "examples/interop/sheiko/"
       ],
       "notes": "Prescriptions are factual training data. Kept verbatim in Sheiko's own notation so the rep totals stay independently derivable."
+    },
+    {
+      "id": "fit-profile",
+      "name": "Garmin FIT SDK Profile",
+      "url": "https://developer.garmin.com/fit/",
+      "fetch": "https://github.com/garmin/fit-sdk-tools/raw/main/Profile.xlsx",
+      "licence": "Garmin FIT SDK licence (freely downloadable)",
+      "licenceClass": "vendor-published",
+      "redistributable": "the spec is public; we keep only the enum values we use",
+      "retrieved": "2026-08-11",
+      "provides": [
+        "every FIT message and type, including wkt_step_duration, wkt_step_target, intensity, file and sport"
+      ],
+      "usedIn": [
+        "docs/references/fit-profile-enums.json",
+        "packages/core/src/adapters/fit.ts"
+      ],
+      "notes": "This is the official specification, and unlike the Connect JSON API it is public. All 22 enum values our FIT exporter writes were verified against it \u2014 every one matched, including duration_type 29 (reps), which we had earlier and wrongly claimed did not exist.",
+      "mirror": "docs/references/fit-profile-enums.json"
     }
   ],
   "candidates": [

@@ -57,3 +57,22 @@ records the position as unresolved rather than settled.
 
 Both endpoints return 403 without a Connect session, so refreshing means opening the URL in a
 logged-in browser and saving the response over the copy in `docs/references/`.
+
+## Is there a published spec?
+
+Two different answers, and the distinction matters.
+
+**FIT: yes, and it is fully public.** Garmin publishes the [FIT SDK](https://developer.garmin.com/fit/)
+openly, and [`garmin/fit-sdk-tools`](https://github.com/garmin/fit-sdk-tools) carries `Profile.xlsx`
+— every message and every type, updated with each release. It is the authority. All 22 enum values
+our FIT exporter writes were checked against it and every one matched; the mistake we made earlier
+(claiming FIT had no rep-count duration) would have been caught in a minute by reading it.
+
+**Garmin Connect JSON: no.** There is an official [Training API](https://developer.garmin.com/gc-developer-program/training-api/),
+but it is partner-gated — you apply, Garmin approves, and the specification is not public. What
+Connect's own web app posts to `/workout-service/workout` is undocumented, and **no JSON Schema for
+it exists anywhere**, official or community. The nearest things are prose
+([n1t3k/garmin-strength-api](https://github.com/n1t3k/garmin-strength-api)) and the payload shapes
+inside client libraries. Everything we know about that format came from reading those, then testing
+against a live account — which is why an import that failed with `Invalid category` taught us more
+than any amount of further reading would have.
