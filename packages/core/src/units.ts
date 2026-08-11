@@ -49,13 +49,29 @@ export function formatDuration(u: Unit): string {
 /** Parse the leading quantity of a step. Returns the unit and the rest of the text. */
 /** `until HR < 130bpm`, `until power > 250W`. */
 export function parseThreshold(text: string): Unit | null {
-  const m = text.trim().match(
-    /^until\s+(hr|heart\s*rate|power)\s*(<|>|below|above|under|over)\s*(\d+(?:\.\d+)?)\s*(bpm|w|watts)?$/i,
-  );
+  const t = text.trim();
+  const CMP = '(<|>|below|above|under|over)';
+  const lt = (c: string) => /^(<|below|under)$/i.test(c);
+
+  // `until HR < Z2` — a zone rather than a reading. Connect keeps a field for
+  // exactly this, and coaches write recovery in zones far more often than bpm.
+  const z = t.match(new RegExp(`^until\\s+(hr|heart\\s*rate|power)\\s*${CMP}\\s*(?:zone\\s*)?Z?(\\d)$`, 'i'));
+  if (z) {
+    return {
+      kind: 'threshold',
+      metric: /power/i.test(z[1]) ? 'power' : 'hr',
+      compare: lt(z[2]) ? 'lt' : 'gt',
+      zone: Number(z[3]),
+    };
+  }
+
+  const m = t.match(new RegExp(`^until\\s+(hr|heart\\s*rate|power)\\s*${CMP}\\s*(\\d+(?:\\.\\d+)?)\\s*(bpm|w|watts)?$`, 'i'));
   if (!m) return null;
   const metric = /power/i.test(m[1]) ? 'power' : 'hr';
-  const compare = /^(<|below|under)$/i.test(m[2]) ? 'lt' : 'gt';
-  return { kind: 'threshold', metric, compare, value: Number(m[3]), unit: metric === 'hr' ? 'bpm' : 'W' };
+  return {
+    kind: 'threshold', metric, compare: lt(m[2]) ? 'lt' : 'gt',
+    value: Number(m[3]), unit: metric === 'hr' ? 'bpm' : 'W',
+  };
 }
 
 export function parseQuantity(text: string): { quantity: Unit; rest: string } {
@@ -116,7 +132,7 @@ export function formatQuantity(u: Unit): string {
     case 'floor': return `${u.value}+`;
     case 'range': return `${u.min}-${u.max}`;
     case 'maxEffort': return 'max';
-    case 'threshold': return `until ${u.metric === 'hr' ? 'HR' : 'power'} ${u.compare === 'lt' ? '<' : '>'} ${u.value}${u.unit}`;
+    case 'threshold': return `until ${u.metric === 'hr' ? 'HR' : 'power'} ${u.compare === 'lt' ? '<' : '>'} ${u.zone !== undefined ? `Z${u.zone}` : `${u.value}${u.unit}`}`;
     case 'open': return '';
   }
 }
@@ -151,6 +167,7 @@ export function parseTarget(text: string): Target {
     return { kind: 'height', value: +m[1], unit: m[2] === '"' ? 'in' : m[2].toLowerCase() };
   if (/pace$|\/km$|\/mi$|\/500m$/i.test(t)) return { kind: 'pace', text: t };
   if (/^\d+W$|FTP$/i.test(t)) return { kind: 'power', text: t };
+  if (/^power\s*(zone\s*)?Z?\d$/i.test(t)) return { kind: 'power', text: `power Z${t.match(/(\d)$/)![1]}` };
   if (/^Z\d$|bpm$/i.test(t)) return { kind: 'heartRate', text: t };
   if (/^RPE|^RIR/i.test(t)) return { kind: 'effort', text: t };
   return { kind: 'raw', text: t };

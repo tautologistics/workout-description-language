@@ -298,6 +298,7 @@ export function exportFit(t: Timeline, opts: FitExportOptions = {}): ExportResul
   const INTENSITY: Record<string, number> = { active: 0, rest: 1, warmup: 2, cooldown: 3 };
   const NONE = 0xffffffff;
   let unconverted = 0;
+  let zoneThresholds = 0;
 
   steps.forEach((s, i) => {
     let durationType = 5, durationValue = NONE;          // open
@@ -305,7 +306,13 @@ export function exportFit(t: Timeline, opts: FitExportOptions = {}): ExportResul
     else if (s.distanceM !== undefined) { durationType = 1; durationValue = Math.round(s.distanceM * 100); }
     else if (s.calories !== undefined) { durationType = 4; durationValue = s.calories; }
     else if (s.reps !== undefined) { durationType = 29; durationValue = s.reps; }
-    else if (s.threshold?.metric === 'hr') {
+    else if (s.threshold?.zone !== undefined) {
+      // FIT stores an hr threshold as bpm+100, or 1-100 as a percentage of max
+      // heart rate. It has no zone number, and a zone only becomes a percentage
+      // once you know the athlete's own boundaries.
+      zoneThresholds++;
+      durationType = 5; durationValue = NONE;
+    } else if (s.threshold?.metric === 'hr') {
       // FIT has carried this since the beginning: 2 is hr_less_than, 3 is
       // hr_greater_than, and a bpm threshold is stored with a +100 offset.
       durationType = s.threshold.compare === 'lt' ? 2 : 3;
@@ -337,6 +344,10 @@ export function exportFit(t: Timeline, opts: FitExportOptions = {}): ExportResul
     w.u32(high);
     w.u8(INTENSITY[s.intensity] ?? 0);
   });
+
+  if (zoneThresholds) {
+    warnings.push(`${zoneThresholds} zone threshold(s) exported as open steps: FIT stores heart rate as bpm or a percentage of maximum, with no zone number`);
+  }
 
   const ramps = steps.filter((s) => s.rampTo !== undefined).length;
   if (ramps) {

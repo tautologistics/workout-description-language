@@ -111,7 +111,7 @@ function quantityLabel(u: Unit): string {
     case 'floor': return `${u.value}+`;
     case 'range': return `${u.min}-${u.max}`;
     case 'maxEffort': return 'max';
-    case 'threshold': return `until ${u.metric === 'hr' ? 'HR' : 'power'} ${u.compare === 'lt' ? '<' : '>'} ${u.value}${u.unit}`;
+    case 'threshold': return `until ${u.metric === 'hr' ? 'HR' : 'power'} ${u.compare === 'lt' ? '<' : '>'} ${u.zone !== undefined ? `Z${u.zone}` : `${u.value}${u.unit}`}`;
     case 'open': return '';
   }
 }

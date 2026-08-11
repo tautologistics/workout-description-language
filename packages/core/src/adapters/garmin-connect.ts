@@ -156,6 +156,8 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
 
     let condition = endCondition(ConditionType.LAP_BUTTON, 'lap.button', 1);
     let value: number | null = null;
+    let compare: string | null = null;
+    let endZone: number | null = null;
     const q = s.quantity;
     if (q.kind === 'duration') { condition = endCondition(ConditionType.TIME, 'time', 2); value = q.seconds; }
     else if (q.kind === 'distance') {
@@ -169,8 +171,11 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
       const isHr = q.metric === 'hr';
       condition = endCondition(isHr ? ConditionType.HEART_RATE : ConditionType.POWER,
                                isHr ? 'heart.rate' : 'power', isHr ? 6 : 5);
-      value = q.value;
-      step.__compare = q.compare;
+      value = q.value ?? null;
+      compare = q.compare;
+      // Connect's own export carries an `endConditionZone` field alongside the
+      // value; a zone goes there rather than being flattened into a number.
+      if (q.zone !== undefined) endZone = q.zone;
     }
     else if (q.kind === 'range') {
       condition = endCondition(ConditionType.REPS, 'reps', 10); value = q.min;
@@ -178,18 +183,16 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
     }
 
     const step: Record<string, unknown> = {
-      __compare: undefined as string | undefined,
       type: 'ExecutableStepDTO',
       stepOrder: next(),
       stepType: type,
       endCondition: condition,
       endConditionValue: value,
       targetType: noTarget,
-      endConditionCompare: null as string | null,
+      endConditionCompare: compare,
+      endConditionZone: endZone,
       description: s.label,
     };
-    if (step.__compare) step.endConditionCompare = step.__compare;
-    delete step.__compare;
 
     if (opts.powerTargets !== false) {
       // Heart rate takes precedence: a step written `@ Z2` or `@ 150-160bpm`
@@ -200,6 +203,14 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
         step.targetValueOne = hr?.low ?? null;
         step.targetValueTwo = hr?.high ?? null;
         step.zoneNumber = zone ?? null;
+        return step;
+      }
+      const pz = s.targets.find((t) => t.kind === 'power' && /^power Z\d$/.test(t.text));
+      if (pz) {
+        step.targetType = { workoutTargetTypeId: TargetType.POWER_ZONE, workoutTargetTypeKey: 'power.zone', displayOrder: 2 };
+        step.targetValueOne = null;
+        step.targetValueTwo = null;
+        step.zoneNumber = Number((pz as any).text.slice(-1));
         return step;
       }
       const watts = powerWatts(s, opts.ftp);
@@ -233,10 +244,16 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
     return step;
   };
 
-  /** A rest whose label says it ends on heart rate. */
-  const hrRest = (item: { label: string }) => {
-    const m = item.label.match(/until HR ([<>]) (\d+)/i);
-    return m ? { compare: m[1] === '<' ? 'lt' : 'gt', value: Number(m[2]) } : undefined;
+  /** A rest whose label says it ends on a sensor reading. */
+  const sensorRest = (item: { label: string }) => {
+    const m = item.label.match(/until (HR|power) ([<>]) (Z)?(\d+)/i);
+    if (!m) return undefined;
+    return {
+      metric: /hr/i.test(m[1]) ? 'hr' as const : 'power' as const,
+      compare: m[2] === '<' ? 'lt' : 'gt',
+      value: m[3] ? null : Number(m[4]),
+      zone: m[3] ? Number(m[4]) : null,
+    };
   };
 
   const repeatGroup = (
@@ -264,13 +281,16 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
         type: 'ExecutableStepDTO',
         stepOrder: next(),
         stepType: stepType(StepType.REST, 'rest', 5),
-        endCondition: hrRest(item)
-          ? endCondition(ConditionType.HEART_RATE, 'heart.rate', 6)
+        endCondition: sensorRest(item)
+          ? sensorRest(item)!.metric === 'hr'
+            ? endCondition(ConditionType.HEART_RATE, 'heart.rate', 6)
+            : endCondition(ConditionType.POWER, 'power', 5)
           : item.seconds !== undefined
             ? endCondition(ConditionType.TIME, 'time', 2)
             : endCondition(ConditionType.LAP_BUTTON, 'lap.button', 1),
-        endConditionValue: hrRest(item)?.value ?? item.seconds ?? null,
-        endConditionCompare: hrRest(item)?.compare ?? null,
+        endConditionValue: sensorRest(item) ? sensorRest(item)!.value : item.seconds ?? null,
+        endConditionCompare: sensorRest(item)?.compare ?? null,
+        endConditionZone: sensorRest(item)?.zone ?? null,
         targetType: noTarget,
         description: item.label,
       }];

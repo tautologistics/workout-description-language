@@ -285,3 +285,32 @@ describe('heart rate: as a target and as an end condition', () => {
     eq(s.targetType.workoutTargetTypeKey, 'heart.rate.zone');
   });
 });
+
+describe('heart rate and power: zones', () => {
+  const z = (src: string) =>
+    JSON.parse(exportGarminConnect(compile(parse(src).workout)).output)
+      .workoutSegments[0].workoutSteps;
+
+  it('ends a rest on a zone, using the field Connect keeps for it', () => {
+    const s = z('sequence:\n  - 5min Bike\n  rest until HR < Z2')[1];
+    eq(s.endCondition.conditionTypeKey, 'heart.rate');
+    eq([s.endConditionValue, s.endConditionZone, s.endConditionCompare], [null, 2, 'lt']);
+  });
+
+  it('ends a step on a zone too, not only a rest', () => {
+    const s = z('sequence:\n  - Bike until HR > Z4')[0];
+    eq([s.endCondition.conditionTypeKey, s.endConditionZone, s.endConditionCompare],
+       ['heart.rate', 4, 'gt']);
+  });
+
+  it('handles power zones on both sides', () => {
+    eq(z('sequence:\n  - 10min Bike @ power Z3')[0].targetType.workoutTargetTypeKey, 'power.zone');
+    eq(z('sequence:\n  - 10min Bike @ power Z3')[0].zoneNumber, 3);
+    const rest = z('sequence:\n  - 5min Bike\n  rest until power < Z2')[1];
+    eq([rest.endCondition.conditionTypeKey, rest.endConditionZone], ['power', 2]);
+  });
+
+  it('keeps a bare Z as heart rate, which is the established convention', () => {
+    eq(z('sequence:\n  - 20min Run @ Z2')[0].targetType.workoutTargetTypeKey, 'heart.rate.zone');
+  });
+});

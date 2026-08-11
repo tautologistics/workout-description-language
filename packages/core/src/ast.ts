@@ -15,7 +15,16 @@ export type Unit =
    * Connect have carried this all along (`hr_less_than`, `heart.rate` with a
    * comparison), and recovery intervals are written this way constantly.
    */
-  | { kind: 'threshold'; metric: 'hr' | 'power'; compare: 'lt' | 'gt'; value: number; unit: string }
+  | {
+      kind: 'threshold';
+      metric: 'hr' | 'power';
+      compare: 'lt' | 'gt';
+      /** An absolute reading — 130bpm, 250W. */
+      value?: number;
+      unit?: string;
+      /** Or a zone, which Connect stores in its own `endConditionZone` field. */
+      zone?: number;
+    }
   | { kind: 'open' };
 
 export type Load =
