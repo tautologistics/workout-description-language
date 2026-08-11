@@ -95,3 +95,48 @@ overlap is certainly far higher than the merge detects — five sources each hol
 to 1500 exercises will not have 93% disjoint vocabularies. Deduplicating properly would mean
 matching on muscles and equipment rather than names alone. Until then the count is of *records*,
 not of *distinct movements*.
+
+
+## Provenance inside a merged record
+
+Every record in `movements.canonical.json` carries three layers of it:
+
+- **`sources`** — which catalogues contributed, at record level.
+- **`origin`** — each source's own identifier and the name *it* used, so a merged record can be
+  traced back to the exact upstream row. Garmin's is `CATEGORY/EXERCISE`, wger's is its uuid.
+- **`muscleClaims`** — each source's muscle assignment, kept separately **wherever they disagree**.
+  178 records have this. The unioned `muscles` field is convenient; `muscleClaims` is the truth
+  about what each catalogue actually says.
+
+The raw, unmerged source files are mirrored under `docs/references/`, so the merge is always
+reproducible from originals rather than being the only surviving copy.
+
+That last point was a real gap: Everkinetic had only ever existed in `/tmp`, and would have been
+lost on reboot.
+
+## Finding the same movement under different names
+
+`scripts/find-duplicates.mjs` proposes matches and never merges. Word-level, not character-level:
+character edit distance is the wrong tool, because `Barbell Bench Press` and `Dumbbell Bench Press`
+are two characters apart and are different exercises, while `Band External Rotation` and
+`External Rotation with Band` are far apart and are the same one. Comparing token *sets* is both
+order-insensitive and blind to spelling noise, which is the actual shape of the problem.
+
+Two halves to the score. **Similarity** is Jaccard overlap of the folded, stopword-stripped tokens.
+**Veto** is a token that distinguishes rather than describes — implement, side, grip, stance,
+tempo — present in one name and missing from the other, which rules the pair out outright.
+
+The veto list is the whole game, and it is where this goes wrong if it goes wrong. An earlier draft
+omitted `internal` and `external`, and duly proposed merging internal and external rotations.
+
+Current output on 3335 records:
+
+| Confidence | Pairs | Meaning |
+|---|---:|---|
+| `high` | 86 | Identical word sets, sources agree on primary muscles |
+| `conflicting` | 13 | Identical word sets, sources *disagree* on muscles — usually the catalogues differing, not the exercises |
+| `possible` | 946 | Partial overlap; needs a human |
+
+The `conflicting` tier is the interesting one. `Dumbbell Lunges` and `Lunges: Dumbbell` are plainly
+the same movement, and the muscle disagreement is a fact about the sources rather than evidence
+against the match — which is exactly why `muscleClaims` is preserved rather than silently unioned.

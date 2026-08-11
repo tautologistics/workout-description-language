@@ -41,10 +41,21 @@ function add(key, title, source, f = {}) {
   let r = records.get(key);
   if (!r) {
     r = { id: slug(title) || key, title, aliases: new Set(), primary: new Set(), secondary: new Set(),
-          equipment: new Set(), pattern: new Set(), translations: {}, sources: [], external: {} };
+          equipment: new Set(), pattern: new Set(), translations: {}, sources: [], external: {},
+          // Which source contributed what: upstream ids, and the name each used.
+          origin: {}, muscleClaims: {} };
     records.set(key, r);
   }
   if (!r.sources.includes(source)) r.sources.push(source);
+  if (f.__upstream !== undefined || f.__name !== undefined) {
+    r.origin[source] = { id: f.__upstream ?? null, name: f.__name ?? title };
+    delete f.__upstream; delete f.__name;
+  }
+  // Record each source's own muscle claim before they are unioned away, since
+  // the sources disagree and the disagreement is worth keeping.
+  if (f.primary?.length || f.secondary?.length) {
+    r.muscleClaims[source] = { primary: [...(f.primary ?? [])], secondary: [...(f.secondary ?? [])] };
+  }
   for (const [k, v] of Object.entries(f)) {
     if (v === undefined || v === null) continue;
     if (r[k] instanceof Set) for (const x of v) r[k].add(x);
@@ -68,6 +79,7 @@ for (const e of JSON.parse(readFileSync('registry/garmin-exercises.json', 'utf8'
   add(fold(e.name), e.name, 'garmin', {
     primary: norm(e.primaryMuscles), secondary: norm(e.secondaryMuscles),
     external: { garminCategory: e.category, garminExercise: e.exercise },
+    __upstream: `${e.category}/${e.exercise}`, __name: e.name,
   });
 }
 // 3. free-exercise-db — public domain
@@ -75,7 +87,7 @@ for (const e of JSON.parse(readFileSync('docs/references/free-exercise-db.json',
   add(fold(e.name), e.name, 'free-exercise-db', {
     primary: norm(e.primaryMuscles), secondary: norm(e.secondaryMuscles),
     equipment: e.equipment && e.equipment !== 'body only' ? [e.equipment] : [],
-    force: e.force, mechanic: e.mechanic,
+    force: e.force, mechanic: e.mechanic, __upstream: e.id, __name: e.name,
   });
 }
 // 4. wger — the only source with translations
@@ -90,17 +102,19 @@ if (existsSync('docs/references/wger.json')) {
       primary: norm((e.muscles ?? []).map((m) => m.name_en || m.name)),
       secondary: norm((e.muscles_secondary ?? []).map((m) => m.name_en || m.name)),
       equipment: (e.equipment ?? []).map((q) => q.name).filter(Boolean),
-      translations: names,
+      translations: names, __upstream: e.uuid ?? e.id, __name: en,
+      variationGroup: e.variation_group ?? undefined,
     });
   }
 }
 // 5. everkinetic
-if (existsSync('/tmp/everkinetic.json')) {
-  for (const e of JSON.parse(readFileSync('/tmp/everkinetic.json', 'utf8'))) {
+if (existsSync('docs/references/everkinetic.json')) {
+  for (const e of JSON.parse(readFileSync('docs/references/everkinetic.json', 'utf8'))) {
     const t = e.title ?? e.name;
     if (!t) continue;
     add(fold(t), t, 'everkinetic', {
       primary: norm(e.primary), secondary: norm(e.secondary), equipment: e.equipment ?? [],
+      __upstream: e.id, __name: t,
     });
   }
 }
@@ -119,8 +133,16 @@ const out = [...records.values()].sort((a, b) => a.id.localeCompare(b.id)).map((
   for (const k of ['implements', 'load', 'measures', 'laterality', 'defaultLaterality', 'force', 'mechanic'])
     if (r[k] !== undefined) rec[k] = r[k];
   if (Object.keys(r.translations).length) rec.translations = r.translations;
+  if (r.variationGroup !== undefined) rec.variationGroup = r.variationGroup;
   if (Object.keys(r.external).length) rec.external = r.external;
   rec.sources = r.sources;
+  rec.origin = r.origin;
+  // Only keep the per-source claims where they actually differ.
+  const claims = Object.entries(r.muscleClaims);
+  if (claims.length > 1) {
+    const distinct = new Set(claims.map(([, c]) => JSON.stringify([c.primary.slice().sort(), c.secondary.slice().sort()])));
+    if (distinct.size > 1) rec.muscleClaims = Object.fromEntries(claims);
+  }
   return rec;
 });
 
@@ -137,5 +159,6 @@ console.log(`  with muscle data:      ${out.filter((r) => r.muscles).length}`);
 console.log(`  with a Garmin mapping: ${out.filter((r) => r.external?.garminCategory).length}`);
 console.log(`  with translations:     ${out.filter((r) => r.translations).length}`);
 console.log(`  in more than one source: ${out.filter((r) => r.sources.length > 1).length}`);
+console.log(`  where sources disagree on muscles: ${out.filter((r) => r.muscleClaims).length}`);
 console.log('\nby source combination:');
 for (const [k, v] of Object.entries(by).sort((a, b) => b[1] - a[1]).slice(0, 8)) console.log(`  ${String(v).padStart(5)}  ${k}`);
