@@ -11,8 +11,8 @@ Exercise catalogues are plentiful. What separates them is not size but what they
 |---|---:|---|---|
 | [free-exercise-db](https://github.com/yuhonas/free-exercise-db) | 873 | Unlicense | **Yes** — public domain, no obligations |
 | [Garmin Connect catalogue](https://connect.garmin.com/web-api/web-data/exercises/Exercises.json) | 1510 | none stated | Interop enums only; see below |
-| [wger](https://wger.de/api/v2/exerciseinfo/) | 863 | CC-BY-SA 4.0 | No — would make the registry share-alike |
-| [Everkinetic](https://github.com/everkinetic/data) | 290 | CC-BY-SA 4.0 | No — same |
+| [wger](https://wger.de/api/v2/exerciseinfo/) | 863 | CC-BY-SA 4.0 | Merged into the canonical corpus; keep out of a permissive core |
+| [Everkinetic](https://github.com/everkinetic/data) | 289 | CC-BY-SA 4.0 | Merged into the canonical corpus; keep out of a permissive core |
 | [ExerciseDB](https://github.com/ExerciseDB/exercisedb-api) | 11000 | AGPL (code); data unclear | Not until the data licence is stated |
 | [MuscleWiki](https://api.musclewiki.com/) | 1900 | commercial | No |
 | EMG literature | sparse | per-paper | Cite, never bulk-import |
@@ -83,14 +83,15 @@ Two canonical files, rebuilt by `scripts/build-canonical.ts`:
 
 | File | Records | Contents |
 |---|---:|---|
-| `movements.canonical.json` | 2599 | Every movement we hold, 2534 with muscle data and 1510 carrying a Garmin mapping |
+| `movements.canonical.json` | 3335 | Every movement we hold: 3161 with muscle data, 1510 with a Garmin mapping, 850 with names in other languages |
 | `workouts.canonical.json` | 202 | Every workout, with source text, parsed AST, and a derived summary |
 
 **Every record names the sources that contributed to it.** That is what keeps the merge reversible:
 the licence question is deferred, not dissolved, and a record can be traced or dropped later.
 
-One honest caveat on the movement merge: only about 150 of the 2599 appear in more than one source.
-The catalogues use genuinely different naming, so `fold()` only unifies exact matches, and the true
-overlap is certainly higher than the merge detects. Deduplicating further would mean matching on
-muscles and equipment rather than names alone — worth doing before treating the count as a count of
-*distinct* movements rather than of *records*.
+One honest caveat on the movement merge: only 233 of the 3335 appear in more than one source. The
+catalogues use genuinely different naming, so `fold()` only unifies exact matches, and the true
+overlap is certainly far higher than the merge detects — five sources each holding several hundred
+to 1500 exercises will not have 93% disjoint vocabularies. Deduplicating properly would mean
+matching on muscles and equipment rather than names alone. Until then the count is of *records*,
+not of *distinct movements*.

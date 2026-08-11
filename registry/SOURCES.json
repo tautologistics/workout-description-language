@@ -191,25 +191,33 @@
         "registry/movements.canonical.json"
       ],
       "notes": "Share-alike. Merged into the canonical corpus at the user's direction with licensing deferred; every record names its sources so the decision stays reversible."
-    }
-  ],
-  "candidates": [
+    },
     {
       "id": "wger",
       "name": "wger exercise database",
-      "url": "https://wger.de/api/v2/exerciseinfo/?format=json",
+      "url": "https://wger.de/api/v2/exerciseinfo/",
+      "fetch": "https://wger.de/api/v2/exerciseinfo/?limit=20&format=json",
       "licence": "CC-BY-SA 4.0",
       "licenceClass": "share-alike",
+      "redistributable": "with attribution and share-alike",
+      "retrieved": "2026-08-11",
       "records": 863,
       "provides": [
         "exercises",
         "primary and secondary muscles",
         "equipment",
-        "translations in many languages"
+        "names in 22 languages"
       ],
-      "status": "fetch pending",
-      "notes": "Share-alike. Merging it into registry/movements.json would put that file under CC-BY-SA. Viable as a separate enrichment layer, not as part of a permissive core. The public API times out repeatedly when paged; a database dump or a slower retry is needed."
-    },
+      "usedIn": [
+        "registry/movements.canonical.json",
+        "docs/references/wger.json"
+      ],
+      "mirror": "docs/references/wger.json",
+      "fetchScript": "scripts/fetch-wger.py",
+      "notes": "The only source carrying translations. Fetch with scripts/fetch-wger.py, which pages slowly and resumes: wger runs a small public instance. An earlier note here blamed the API for timing out \u2014 that was wrong. Node's fetch (undici) cannot connect to this host in some environments (UND_ERR_CONNECT_TIMEOUT) while curl and Python's urllib connect in well under a second, which is why the fetcher is Python."
+    }
+  ],
+  "candidates": [
     {
       "id": "exercisedb",
       "name": "ExerciseDB",
@@ -256,7 +264,7 @@
     }
   ],
   "mergedCorpora": {
-    "registry/movements.canonical.json": "2599 movements from wdl-curated, garmin, free-exercise-db and everkinetic. Every record names its sources.",
+    "registry/movements.canonical.json": "3335 movements from wdl-curated, garmin, free-exercise-db, wger and everkinetic. 3161 carry muscle data, 1510 a Garmin mapping, 850 names in other languages.",
     "registry/workouts.canonical.json": "202 workouts with source text, parsed AST and derived summary."
   }
 }
