@@ -214,7 +214,7 @@
       ],
       "mirror": "docs/references/wger.json",
       "fetchScript": "scripts/fetch-wger.py",
-      "notes": "The only source carrying translations. Fetch with scripts/fetch-wger.py, which pages slowly and resumes: wger runs a small public instance. An earlier note here blamed the API for timing out \u2014 that was wrong. Node's fetch (undici) cannot connect to this host in some environments (UND_ERR_CONNECT_TIMEOUT) while curl and Python's urllib connect in well under a second, which is why the fetcher is Python."
+      "notes": "The only source carrying translations. Fetch with scripts/fetch-wger.py, which pages slowly and resumes: wger runs a small public instance. Two earlier notes here were wrong. The API does not time out \u2014 it responds in well under a second. And the failure is not DNS resolution order: forcing ipv4first changes nothing. Node cannot reach this host by either route in this environment (undici gives UND_ERR_CONNECT_TIMEOUT, the core https module gives ECONNRESET) while curl and Python's urllib both succeed. Two different failure modes from two different Node clients suggests TLS negotiation, but that is unconfirmed."
     }
   ],
   "candidates": [

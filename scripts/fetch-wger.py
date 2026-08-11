@@ -8,8 +8,13 @@ each, exponential backoff on failure, and writes progress after every page —
 an interruption costs one request rather than the whole run, and re-running
 resumes from what is on disk.
 
-Written against urllib rather than Node's fetch: undici cannot connect to this
-host in some environments (UND_ERR_CONNECT_TIMEOUT) while curl and urllib can.
+Written against urllib rather than Node. In this environment Node cannot reach
+wger.de by either route — `fetch`/undici gives UND_ERR_CONNECT_TIMEOUT, and the
+core `https` module gives ECONNRESET — while curl and urllib both connect in
+well under a second. Forcing `--dns-result-order=ipv4first` does not help, so it
+is not resolution order; two different failure modes from two different Node
+clients points at TLS negotiation rather than DNS, but the cause is unconfirmed.
+Do not "fix" this by porting it back to Node without testing first.
 """
 import json, os, sys, time, urllib.request, urllib.error
 
