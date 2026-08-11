@@ -140,3 +140,35 @@ Current output on 3335 records:
 The `conflicting` tier is the interesting one. `Dumbbell Lunges` and `Lunges: Dumbbell` are plainly
 the same movement, and the muscle disagreement is a fact about the sources rather than evidence
 against the match — which is exactly why `muscleClaims` is preserved rather than silently unioned.
+
+
+## Automated deduplication
+
+`scripts/dedupe-movements.mjs` collapses the merge. It reports by default and rewrites only with
+`--apply`, and every decision lands in `dedupe-audit.json` so a cluster can be inspected or unpicked.
+
+Three ideas do the work:
+
+**Lemmas.** Token sets are compared after depluralising and folding a small synonym table, so
+`Tricep Extensions` and `Triceps Extension` become the same set rather than a near miss. Most of
+what looked like partial overlap was this.
+
+**Veto tokens.** A token that distinguishes rather than describes blocks the pair outright, however
+similar the rest looks. `Band Internal Rotation` and `Band External Rotation` stay separate.
+
+**A strict subset is a variant, not a duplicate.** If one token set contains the other and the extra
+words are all qualifiers, the longer name is a *more specific* exercise — `45 Degree Cable External
+Rotation` is not `Cable External Rotation`. These become `variantOf` links instead of merges, which
+is where a plain similarity threshold does its worst damage. 1108 such links now exist, each
+pointing at the closest parent rather than the broadest.
+
+Merging is transitive via union-find, so three spellings of the same curl collapse to one record
+rather than to two overlapping pairs.
+
+Result: **3335 → 3148 records**, 164 clusters absorbing 187 duplicates. Cross-source records rose
+from 233 to 338, which is the real measure — those are movements now known to exist in more than
+one catalogue rather than hiding behind different spellings.
+
+One ordering bug worth remembering: variants were originally computed *before* the collapse, so
+half the links pointed at records about to be absorbed — `barbell-burpee` came out as a variant of
+both `burpee` and `burpees`. They are computed after now.
