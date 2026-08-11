@@ -163,7 +163,7 @@ describe('garmin connect: exercise catalogue', () => {
   it('ships no strength fields at all when nothing in the name resolves', () => {
     // A sandbag carry now generalises to CARRY, so this needs a movement whose
     // words Connect knows nothing about.
-    const r = exportGarminConnect(compile(parse('3 sets:\n  - 10 Forward Roll').workout));
+    const r = exportGarminConnect(compile(parse('3 sets:\n  - 10 Forward Roll @ 20lb').workout));
     const step = JSON.parse(r.output).workoutSegments[0].workoutSteps[0].workoutSteps[0];
     eq(step.category, undefined);
     ok(r.warnings.some((w) => /not in Connect's exercise catalogue/.test(w)));
