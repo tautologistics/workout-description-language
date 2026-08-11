@@ -12,3 +12,5 @@ export { defaultRegistry } from './registry.ts';
 export { validate, errorsOnly, type Diagnostic, type ValidateOptions } from './validate.ts';
 export { importZwo, zwoDurationSeconds } from './adapters/zwo.ts';
 export { volume, repsOf, atOrAbove, type Volume, type StepFilter } from './volume.ts';
+export { importErg, parseErg, ergDurationSeconds } from './adapters/erg.ts';
+export { importFit, readFit, fitStepCounts } from './adapters/fit.ts';

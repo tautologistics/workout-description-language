@@ -158,3 +158,123 @@ describe('sheiko: percentage waves', () => {
     eq(volume(compile(parse(src).workout)).totals.reps, 15);
   });
 });
+
+// ---------------------------------------------------------------------------
+
+import { importErg, ergDurationSeconds } from '../src/adapters/erg.ts';
+import { importFit, readFit, fitStepCounts } from '../src/adapters/fit.ts';
+
+const ergDir = join(dirname(fileURLToPath(import.meta.url)), '../../../examples/interop/erg');
+const ergFiles = readdirSync(ergDir).filter((f) => /\.(erg|mrc)$/i.test(f)).sort();
+
+describe('erg/mrc import', () => {
+  it('total duration equals the final breakpoint in the file', () => {
+    // A course is a list of (minute, target) pairs, so the workout's length is
+    // literally the last timestamp — no interpretation needed to read it.
+    for (const f of ergFiles) {
+      const text = readFileSync(join(ergDir, f), 'utf8');
+      eq(compile(importErg(text)).estimatedSeconds, ergDurationSeconds(text), f);
+    }
+  });
+
+  it('survives a trip out to WDL text and back', () => {
+    for (const f of ergFiles) {
+      const text = readFileSync(join(ergDir, f), 'utf8');
+      const again = parse(format(importErg(text)));
+      eq(again.errors.map((e) => e.message), [], f);
+      eq(compile(again.workout).estimatedSeconds, ergDurationSeconds(text), f);
+    }
+  });
+
+  it('reads .mrc as percentages and .erg as watts', () => {
+    for (const f of ergFiles) {
+      const w = importErg(readFileSync(join(ergDir, f), 'utf8'));
+      const wanted = /\.mrc$/i.test(f) ? '% FTP' : 'W';
+      const targets = w.body.flatMap((n: any) => n.targets ?? []);
+      if (targets.length) ok((targets[0] as any).text.includes(wanted), `${f}: ${(targets[0] as any).text}`);
+    }
+  });
+
+  it('every imported step is clock-paced', () => {
+    const t = compile(importErg(readFileSync(join(ergDir, ergFiles[0]), 'utf8')));
+    const walk = (i: any): string[] =>
+      i.kind === 'step' ? [i.pacing] : i.kind === 'group' ? i.items.flatMap(walk) : [];
+    ok(walk(t.root).every((p) => p === 'timed'));
+  });
+});
+
+const fitDir = join(dirname(fileURLToPath(import.meta.url)), '../../../examples/interop/fit');
+const fitFiles = readdirSync(fitDir).filter((f) => f.endsWith('.fit')).sort();
+const fitBytes = (f: string) => new Uint8Array(readFileSync(join(fitDir, f)));
+
+/** Leaf work steps after expanding repeats — derived from raw fields only. */
+function fitExpandedSteps(buf: Uint8Array): number {
+  const steps = readFit(buf).filter((m) => m.global === 27);
+  const counts: number[] = [];          // leaf count contributed by each record
+  for (const m of steps) {
+    const type = m.fields[1] as number | null;
+    if (type !== null && type >= 6 && type <= 13) {
+      const from = (m.fields[2] as number) ?? 0;
+      const times = (m.fields[4] as number) ?? 2;
+      const inner = counts.slice(from).reduce((a, b) => a + b, 0);
+      counts.length = from;
+      counts.push(inner * times);
+    } else {
+      counts.push(1);
+    }
+  }
+  return counts.reduce((a, b) => a + b, 0);
+}
+
+describe('fit import', () => {
+  it('walks the binary record stream in order', () => {
+    // message_index is written by the encoder and must come back contiguous;
+    // any misread field width would desynchronise the stream and break it.
+    for (const f of fitFiles) {
+      const idx = readFit(fitBytes(f)).filter((m) => m.global === 27).map((m) => m.fields[254]);
+      eq(idx, idx.map((_, i) => i), f);
+    }
+  });
+
+  it('num_valid_steps equals the work steps, excluding repeat markers', () => {
+    for (const f of fitFiles) {
+      const { declared, present } = fitStepCounts(fitBytes(f));
+      const repeats = readFit(fitBytes(f)).filter((m) => m.global === 27)
+        .filter((m) => { const t = m.fields[1] as number | null; return t !== null && t >= 6 && t <= 13; }).length;
+      eq(present - repeats, declared, f);
+    }
+  });
+
+  it('expands repeats to the step count the raw fields imply', () => {
+    for (const f of fitFiles) {
+      const t = compile(importFit(fitBytes(f)));
+      const walk = (i: any): number =>
+        i.kind === 'step' ? 1
+          : i.kind === 'group' ? i.items.reduce((n: number, c: any) => n + walk(c), 0) * (i.rounds ?? 1)
+          : 0;
+      eq(walk(t.root), fitExpandedSteps(fitBytes(f)), f);
+    }
+  });
+
+  it('turns a repeat_until_steps_cmplt into a rounds block over the right steps', () => {
+    const w = importFit(fitBytes('WorkoutRepeatSteps.fit'));
+    const block = w.body.find((n) => n.node === 'block') as any;
+    eq(block.count, 3);
+    eq(block.children.map((c: any) => c.movement), ['B1_', 'B2_']);
+    eq(block.children[0].quantity, { kind: 'distance', value: 500, unit: 'm' });
+  });
+
+  it('carries intensity roles through', () => {
+    const w = importFit(fitBytes('WorkoutIndividualSteps.fit'));
+    const notes = w.body.map((n: any) => n.notes?.[0]).filter(Boolean);
+    ok(notes.includes('warmup') && notes.includes('cooldown'), notes.join(','));
+  });
+
+  it('survives a trip out to WDL text and back', () => {
+    for (const f of fitFiles) {
+      const again = parse(format(importFit(fitBytes(f))));
+      eq(again.errors.map((e) => e.message), [], f);
+      ok(again.workout.body.length > 0, f);
+    }
+  });
+});
