@@ -14,3 +14,7 @@ export { importZwo, zwoDurationSeconds } from './adapters/zwo.ts';
 export { volume, repsOf, atOrAbove, type Volume, type StepFilter } from './volume.ts';
 export { importErg, parseErg, ergDurationSeconds } from './adapters/erg.ts';
 export { importFit, readFit, fitStepCounts } from './adapters/fit.ts';
+export { exportZwo, type ExportResult } from './adapters/zwo.ts';
+export { exportErg } from './adapters/erg.ts';
+export { exportFit, fitCrc } from './adapters/fit.ts';
+export { flatten, type FlatStep } from './adapters/flatten.ts';

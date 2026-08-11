@@ -103,3 +103,55 @@ export function importErg(text: string): Workout {
   workout.directives.source = course.unit === 'percent' ? 'mrc' : 'erg';
   return workout;
 }
+
+// ---------------------------------------------------------------------------
+
+import type { Timeline } from '../timeline.ts';
+import { flatten } from './flatten.ts';
+import type { ExportResult } from './zwo.ts';
+
+/**
+ * Export to `.erg` (absolute watts) or `.mrc` (percentage of FTP).
+ *
+ * The thinnest of the three: a course is only a power curve, so every step
+ * becomes a pair of breakpoints and everything else is lost. Exporting `.erg`
+ * needs an FTP to turn percentages into watts.
+ */
+export function exportErg(
+  t: Timeline,
+  opts: { mrc?: boolean; ftp?: number; name?: string } = {},
+): ExportResult {
+  const { steps, warnings } = flatten(t);
+  const mrc = opts.mrc ?? false;
+  const ftp = opts.ftp ?? 250;
+  const rows: string[] = [];
+  let unsupported = 0;
+  let at = 0;
+
+  const value = (s: { ftp?: number; watts?: number }, which: 'start' | 'end', rampTo?: number) => {
+    const frac = which === 'end' && rampTo !== undefined ? rampTo : s.ftp;
+    if (frac !== undefined) return mrc ? frac * 100 : frac * ftp;
+    if (s.watts !== undefined) return mrc ? (s.watts / ftp) * 100 : s.watts;
+    return mrc ? 50 : ftp * 0.5;
+  };
+
+  for (const s of steps) {
+    if (s.seconds === undefined) { unsupported++; continue; }
+    const end = at + s.seconds / 60;
+    rows.push(`${at.toFixed(2)}\t${Math.round(value(s, 'start'))}`);
+    rows.push(`${end.toFixed(2)}\t${Math.round(value(s, 'end', s.rampTo))}`);
+    at = end;
+  }
+  if (unsupported) {
+    warnings.push(`${unsupported} step(s) not exported: an ${mrc ? 'MRC' : 'ERG'} course is a power curve, so only timed work survives`);
+  }
+  if (!mrc && !opts.ftp) warnings.push('no FTP supplied — percentages resolved against a default of 250W');
+
+  const out = [
+    '[COURSE HEADER]', 'VERSION = 2', 'UNITS = ENGLISH',
+    `DESCRIPTION = ${opts.name || t.root.label || 'Workout'}`,
+    `FTP = ${ftp}`, mrc ? 'MINUTES PERCENT' : 'MINUTES WATTS',
+    '[END COURSE HEADER]', '', '[COURSE DATA]', ...rows, '[END COURSE DATA]', '',
+  ].join('\n');
+  return { output: out, warnings };
+}

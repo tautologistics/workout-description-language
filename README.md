@@ -38,6 +38,7 @@ zwo interop     42/42    38 real Zwift files: XML duration sum == compiled durat
 sheiko interop  17/17    12 Sheiko days: published number-of-lifts == parsed reps
 erg interop      4/4     24 ERG/MRC courses: final timestamp == compiled duration
 fit interop      6/6     4 Garmin FIT binaries: declared step counts == parsed
+export          17/17    import -> export round trips, and fidelity is reported
 validation     130/130   errors, warnings, and never-guess questions
 ```
 
@@ -45,6 +46,7 @@ validation     130/130   errors, warnings, and never-guess questions
 node packages/core/bin/wdl.ts fmt      examples/corpus/04-fran.wdl
 node packages/core/bin/wdl.ts timeline examples/corpus/18-fight-gone-bad.wdl
 node packages/core/bin/wdl.ts check    examples/corpus/*.wdl
+node packages/core/bin/wdl.ts export --to zwo examples/corpus/37-bike-intervals.wdl
 ```
 
 ## Layout
@@ -69,6 +71,6 @@ node packages/core/bin/wdl.ts check    examples/corpus/*.wdl
 
 ## Next
 
-Interop adapters — FIT, Zwift `.zwo`, `.erg`/`.mrc`, intervals.icu — which consume the timeline.
-Then a tree-sitter grammar and a language-neutral conformance suite so other languages get
-correctness, not just a parser (roadmap §5.1).
+A tree-sitter grammar and a language-neutral conformance suite, so other languages get correctness
+rather than just a parser (roadmap §5.1). Then the builder and the display runtime, both of which
+consume the timeline that already exists.

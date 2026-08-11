@@ -191,3 +191,119 @@ export function fitStepCounts(buf: Uint8Array): { declared: number | null; prese
     present: msgs.filter((m) => m.global === MSG_WORKOUT_STEP).length,
   };
 }
+
+// ---------------------------------------------------------------------------
+
+import type { Timeline } from '../timeline.ts';
+import { flatten } from './flatten.ts';
+import type { ExportResult } from './zwo.ts';
+
+/** FIT's own CRC-16, over the header and then the whole file. */
+const CRC_TABLE = [
+  0x0000, 0xcc01, 0xd801, 0x1400, 0xf001, 0x3c00, 0x2800, 0xe401,
+  0xa001, 0x6c00, 0x7800, 0xb401, 0x5000, 0x9c01, 0x8801, 0x4400,
+];
+
+export function fitCrc(data: Uint8Array): number {
+  let crc = 0;
+  for (const byte of data) {
+    let tmp = CRC_TABLE[crc & 0xf];
+    crc = ((crc >> 4) & 0x0fff) ^ tmp ^ CRC_TABLE[byte & 0xf];
+    tmp = CRC_TABLE[crc & 0xf];
+    crc = ((crc >> 4) & 0x0fff) ^ tmp ^ CRC_TABLE[(byte >> 4) & 0xf];
+  }
+  return crc & 0xffff;
+}
+
+class Writer {
+  bytes: number[] = [];
+  u8(v: number) { this.bytes.push(v & 0xff); }
+  u16(v: number) { this.u8(v); this.u8(v >> 8); }
+  u32(v: number) { this.u16(v); this.u16(v >> 16); }
+  str(v: string, size: number) {
+    for (let i = 0; i < size; i++) this.u8(i < v.length ? v.charCodeAt(i) : 0);
+  }
+}
+
+const NAME_LEN = 16;
+
+/**
+ * Export to a Garmin `.fit` workout file.
+ *
+ * Writes a `file_id`, a `workout`, and one `workout_step` per step. Repeats are
+ * **expanded** rather than re-emitted as `repeat_until_steps_cmplt` markers:
+ * semantically identical, but it inflates the step count, and watches cap how
+ * many steps they will accept. That is reported, not hidden.
+ *
+ * FIT is the richest of the three targets — duration, distance and calorie
+ * steps, plus intensity roles. What it does not carry is rep-based strength
+ * work, which has no duration type, so those become open steps.
+ */
+export function exportFit(t: Timeline, meta: { name?: string } = {}): ExportResult {
+  const { steps, warnings } = flatten(t);
+  const w = new Writer();
+  const name = (meta.name ?? t.root.label ?? 'Workout').slice(0, NAME_LEN - 1);
+
+  // --- file_id (global 0), local 0
+  w.u8(0x40); w.u8(0); w.u8(0); w.u16(0); w.u8(3);
+  w.u8(0); w.u8(1); w.u8(0x00);            // type: enum
+  w.u8(1); w.u8(2); w.u8(0x84);            // manufacturer: uint16
+  w.u8(4); w.u8(4); w.u8(0x86);            // time_created: uint32
+  w.u8(0x00); w.u8(5); w.u16(255); w.u32(0);
+
+  // --- workout (global 26), local 1
+  w.u8(0x41); w.u8(0); w.u8(0); w.u16(26); w.u8(3);
+  w.u8(8); w.u8(NAME_LEN); w.u8(0x07);     // wkt_name: string
+  w.u8(4); w.u8(1); w.u8(0x00);            // sport: enum
+  w.u8(6); w.u8(2); w.u8(0x84);            // num_valid_steps: uint16
+  w.u8(0x01); w.str(name, NAME_LEN); w.u8(0); w.u16(steps.length);
+
+  // --- workout_step (global 27), local 2
+  w.u8(0x42); w.u8(0); w.u8(0); w.u16(27); w.u8(6);
+  w.u8(254); w.u8(2); w.u8(0x84);          // message_index: uint16
+  w.u8(0); w.u8(NAME_LEN); w.u8(0x07);     // wkt_step_name: string
+  w.u8(1); w.u8(1); w.u8(0x00);            // duration_type: enum
+  w.u8(2); w.u8(4); w.u8(0x86);            // duration_value: uint32
+  w.u8(3); w.u8(1); w.u8(0x00);            // target_type: enum
+  w.u8(7); w.u8(1); w.u8(0x00);            // intensity: enum
+
+  const INTENSITY: Record<string, number> = { active: 0, rest: 1, warmup: 2, cooldown: 3 };
+  let unsupported = 0;
+
+  steps.forEach((s, i) => {
+    let durationType = 5, durationValue = 0xffffffff;    // open
+    if (s.seconds !== undefined) { durationType = 0; durationValue = s.seconds * 1000; }
+    else if (s.distanceM !== undefined) { durationType = 1; durationValue = Math.round(s.distanceM * 100); }
+    else if (s.calories !== undefined) { durationType = 4; durationValue = s.calories; }
+    else if (s.reps !== undefined) unsupported++;        // FIT has no rep-count duration
+
+    w.u8(0x02);
+    w.u16(i);
+    w.str(s.movement.slice(0, NAME_LEN - 1), NAME_LEN);
+    w.u8(durationType);
+    w.u32(durationValue);
+    w.u8(2);                                             // target_type: open
+    w.u8(INTENSITY[s.intensity] ?? 0);
+  });
+
+  if (unsupported) {
+    warnings.push(`${unsupported} rep-based step(s) exported as open: FIT has no rep-count duration type, so a watch will advance them on a button press`);
+  }
+  if (steps.length > 50) {
+    warnings.push(`${steps.length} steps: repeats are expanded rather than emitted as repeat markers, and most devices refuse workouts beyond about 50 steps`);
+  }
+
+  // --- header, then CRCs
+  const data = Uint8Array.from(w.bytes);
+  const head = new Writer();
+  head.u8(14); head.u8(0x10); head.u16(2140); head.u32(data.length);
+  head.str('.FIT', 4);
+  const headBytes = Uint8Array.from(head.bytes);
+  const out = new Uint8Array(14 + data.length + 2);
+  out.set(headBytes, 0);
+  new DataView(out.buffer).setUint16(12, fitCrc(headBytes), true);
+  out.set(data, 14);
+  new DataView(out.buffer).setUint16(out.length - 2, fitCrc(out.subarray(0, out.length - 2)), true);
+
+  return { output: Buffer.from(out).toString('base64'), warnings, bytes: out } as ExportResult & { bytes: Uint8Array };
+}

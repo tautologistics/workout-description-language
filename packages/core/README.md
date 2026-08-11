@@ -8,6 +8,7 @@ Zero dependencies. Runs on Node 22+ using native TypeScript type stripping.
 node bin/wdl.ts fmt   file.wdl [-w]   # canonical formatting; -w rewrites in place
 node bin/wdl.ts check file.wdl        # parse and report errors
 node bin/wdl.ts timeline file.wdl     # compile to an execution outline
+node bin/wdl.ts export --to zwo file.wdl          # also erg, mrc, fit (fit needs -o)
 npm test                              # every check, one summary
 ```
 
@@ -53,6 +54,13 @@ The golden snapshot ([`test/golden/interpretations.json`](test/golden/interpreta
 records a compact digest of how each of the 190 files is understood — structure, totals, pacing,
 duration. Regenerate it deliberately with `node test/golden/generate.ts` and read the diff.
 
+## Adapters
+
+Import and export for Zwift `.zwo`, `.erg`/`.mrc`, and Garmin `.fit`, all consuming the compiled
+timeline. Every exporter returns warnings rather than degrading silently — reps and distance have
+no representation in a power curve, a tally block has no order to write down, and an unbounded
+repeat has no length, so each is reported.
+
 ## Not yet built
 
-Semantic validation (the 8 pending cases), movement-registry resolution, and the interop adapters.
+Apple WorkoutKit and openweight adapters; the sharing platform; the display runtime.

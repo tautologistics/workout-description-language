@@ -66,13 +66,19 @@ export function importZwo(xml: string): Workout {
       case 'Warmup':
       case 'Cooldown':
       case 'Ramp': {
-        const notes = rampNotes(el);
-        push(step(secs(a.Duration), notes.length ? [] : ftp(a.Power ?? a.PowerLow), notes, line));
+        // The role has to survive import, or an exporter cannot tell a warmup
+        // from ordinary work and will write it back as a steady segment.
+        const role = el.name === 'Warmup' ? ['warmup'] : el.name === 'Cooldown' ? ['cooldown'] : [];
+        const notes = [...rampNotes(el), ...role];
+        push(step(secs(a.Duration), rampNotes(el).length ? [] : ftp(a.Power ?? a.PowerLow), notes, line));
         break;
       }
-      case 'SteadyState':
-        push(step(secs(a.Duration), ftp(a.Power ?? a.PowerLow), [], line));
+      case 'SteadyState': {
+        // Some writers put PowerLow/PowerHigh on a SteadyState; read it as a ramp.
+        const ramp = rampNotes(el);
+        push(step(secs(a.Duration), ramp.length ? [] : ftp(a.Power ?? a.PowerLow), ramp, line));
         break;
+      }
       case 'FreeRide':
         push(step(secs(a.Duration), [], ['free ride'], line));
         break;
@@ -122,4 +128,50 @@ export function zwoDurationSeconds(xml: string): number {
     }
   }
   return total;
+}
+
+// ---------------------------------------------------------------------------
+
+import type { Timeline } from '../timeline.ts';
+import { flatten } from './flatten.ts';
+
+export interface ExportResult { output: string; warnings: string[]; bytes?: Uint8Array }
+
+const xmlEscape = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+/**
+ * Export to Zwift `.zwo`.
+ *
+ * Zwift models power over time and nothing else, so anything measured in reps,
+ * distance, or calories cannot be carried and is reported rather than dropped
+ * quietly. A step with no power target becomes a FreeRide of the same length.
+ */
+export function exportZwo(t: Timeline, meta: { name?: string; author?: string } = {}): ExportResult {
+  const { steps, warnings } = flatten(t);
+  const lines: string[] = ['<workout_file>'];
+  if (meta.author) lines.push(`  <author>${xmlEscape(meta.author)}</author>`);
+  lines.push(`  <name>${xmlEscape(meta.name || t.root.label || 'Workout')}</name>`);
+  lines.push('  <workout>');
+
+  let unsupported = 0;
+  for (const s of steps) {
+    if (s.seconds === undefined) { unsupported++; continue; }
+    const role = s.intensity === 'warmup' ? 'Warmup' : s.intensity === 'cooldown' ? 'Cooldown' : null;
+    if (s.rampTo !== undefined && s.ftp !== undefined) {
+      // A changing target is a Ramp, Warmup, or Cooldown — never a SteadyState,
+      // which carries a single Power and would silently flatten the ramp.
+      lines.push(`    <${role ?? 'Ramp'} Duration="${s.seconds}" PowerLow="${s.ftp}" PowerHigh="${s.rampTo}"/>`);
+    } else if (s.ftp !== undefined) {
+      const tag = role ?? 'SteadyState';
+      lines.push(`    <${tag} Duration="${s.seconds}" Power="${s.ftp}"/>`);
+    } else {
+      lines.push(`    <FreeRide Duration="${s.seconds}"/>`);
+    }
+  }
+  if (unsupported) {
+    warnings.push(`${unsupported} step(s) not exported: Zwift models power over time, so rep-, distance-, and calorie-based work has no representation`);
+  }
+  lines.push('  </workout>', '</workout_file>', '');
+  return { output: lines.join('\n'), warnings };
 }
