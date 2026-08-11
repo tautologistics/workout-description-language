@@ -1,0 +1,37 @@
+[
+  { "benchmarkKey": "BARBELL_BICEPS_CURL", "benchmarkCategoryKey": "CURL" },
+  {
+    "benchmarkKey": "BARBELL_HIP_THRUST_WITH_BENCH",
+    "benchmarkCategoryKey": "HIP_RAISE"
+  },
+  { "benchmarkKey": "BARBELL_SHRUG", "benchmarkCategoryKey": "SHRUG" },
+  { "benchmarkKey": "BARBELL_SNATCH", "benchmarkCategoryKey": "OLYMPIC_LIFT" },
+  {
+    "benchmarkKey": "BARBELL_BENCH_PRESS",
+    "benchmarkCategoryKey": "BENCH_PRESS"
+  },
+  {
+    "benchmarkKey": "STANDING_BARBELL_CALF_RAISE",
+    "benchmarkCategoryKey": "CALF_RAISE"
+  },
+  { "benchmarkKey": "CLEAN", "benchmarkCategoryKey": "OLYMPIC_LIFT" },
+  { "benchmarkKey": "BARBELL_DEADLIFT", "benchmarkCategoryKey": "DEADLIFT" },
+  {
+    "benchmarkKey": "OVERHEAD_BARBELL_PRESS",
+    "benchmarkCategoryKey": "SHOULDER_PRESS"
+  },
+  { "benchmarkKey": "BARBELL_ROW", "benchmarkCategoryKey": "ROW" },
+  { "benchmarkKey": "BARBELL_BACK_SQUAT", "benchmarkCategoryKey": "SQUAT" },
+  { "benchmarkKey": "DUMBBELL_SQUAT", "benchmarkCategoryKey": "SQUAT" },
+  {
+    "benchmarkKey": "DUMBBELL_BENCH_PRESS",
+    "benchmarkCategoryKey": "BENCH_PRESS"
+  },
+  { "benchmarkKey": "DUMBBELL_DEADLIFT", "benchmarkCategoryKey": "DEADLIFT" },
+  {
+    "benchmarkKey": "OVERHEAD_DUMBBELL_PRESS",
+    "benchmarkCategoryKey": "SHOULDER_PRESS"
+  },
+  { "benchmarkKey": "DUMBBELL_ROW", "benchmarkCategoryKey": "ROW" },
+  { "benchmarkKey": "DUMBBELL_BICEPS_CURL", "benchmarkCategoryKey": "CURL" }
+]

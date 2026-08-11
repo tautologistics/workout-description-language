@@ -1,0 +1,74 @@
+{
+ "$comment": "Exercises Garmin Connect tracks a personal benchmark (1RM) for. A WDL step written `@ 85% 1RM` can only resolve to a real weight on a device if the movement maps to one of these, so this is the list that makes percentage-based strength work portable to a watch.",
+ "source": "https://connect.garmin.com/gc-api/workout-service/benchmarks",
+ "benchmarks": [
+  {
+   "key": "BARBELL_BENCH_PRESS",
+   "category": "BENCH_PRESS"
+  },
+  {
+   "key": "DUMBBELL_BENCH_PRESS",
+   "category": "BENCH_PRESS"
+  },
+  {
+   "key": "STANDING_BARBELL_CALF_RAISE",
+   "category": "CALF_RAISE"
+  },
+  {
+   "key": "BARBELL_BICEPS_CURL",
+   "category": "CURL"
+  },
+  {
+   "key": "DUMBBELL_BICEPS_CURL",
+   "category": "CURL"
+  },
+  {
+   "key": "BARBELL_DEADLIFT",
+   "category": "DEADLIFT"
+  },
+  {
+   "key": "DUMBBELL_DEADLIFT",
+   "category": "DEADLIFT"
+  },
+  {
+   "key": "BARBELL_HIP_THRUST_WITH_BENCH",
+   "category": "HIP_RAISE"
+  },
+  {
+   "key": "BARBELL_SNATCH",
+   "category": "OLYMPIC_LIFT"
+  },
+  {
+   "key": "CLEAN",
+   "category": "OLYMPIC_LIFT"
+  },
+  {
+   "key": "BARBELL_ROW",
+   "category": "ROW"
+  },
+  {
+   "key": "DUMBBELL_ROW",
+   "category": "ROW"
+  },
+  {
+   "key": "OVERHEAD_BARBELL_PRESS",
+   "category": "SHOULDER_PRESS"
+  },
+  {
+   "key": "OVERHEAD_DUMBBELL_PRESS",
+   "category": "SHOULDER_PRESS"
+  },
+  {
+   "key": "BARBELL_SHRUG",
+   "category": "SHRUG"
+  },
+  {
+   "key": "BARBELL_BACK_SQUAT",
+   "category": "SQUAT"
+  },
+  {
+   "key": "DUMBBELL_SQUAT",
+   "category": "SQUAT"
+  }
+ ]
+}

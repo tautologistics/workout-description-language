@@ -198,3 +198,29 @@ describe('garmin connect: names and targets', () => {
     ok(warnings.some((w) => /starting power/.test(w)));
   });
 });
+
+describe('garmin connect: catalogue from Connect\'s own data', () => {
+  it('has all 47 categories and every exercise Connect ships', () => {
+    eq(garminCategories().length, 47);
+  });
+
+  it('generalises a movement Connect does not have to the closest one it does', () => {
+    // Connect has no chest-to-bar pull-up, but it has a pull-up. A step the
+    // watch can name beats one it cannot.
+    eq(resolveGarminExercise('Chest-to-Bar Pull-Up'),
+       { category: 'PULL_UP', exercise: 'PULL_UP', via: 'generalised to Pull-Up' });
+    eq(resolveGarminExercise('Yoke Carry')?.category, 'CARRY');
+    eq(resolveGarminExercise('Strict Pull-Up')?.category, 'PULL_UP');
+  });
+
+  it('prefers an exact match over a generalisation', () => {
+    // Dropping qualifiers must be the last resort, never the first answer.
+    eq(resolveGarminExercise('Romanian Deadlift'),
+       { category: 'DEADLIFT', exercise: 'ROMANIAN_DEADLIFT', via: 'name' });
+    eq(resolveGarminExercise('Overhead Squat')?.exercise, 'OVERHEAD_SQUAT');
+  });
+
+  it('picked up exercises the third-party extraction was missing', () => {
+    eq(resolveGarminExercise('Turkish Get-Up')?.exercise, 'TURKISH_GET_UP');
+  });
+});

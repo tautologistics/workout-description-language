@@ -76,5 +76,25 @@ export function resolveGarminExercise(movement: string): Resolved | undefined {
   for (const c of categories) {
     if (keys(c).some((k) => wanted.has(k))) return { category: c, exercise: '', via: 'category' };
   }
+
+  // Last resort: drop qualifiers from the front. Connect has no chest-to-bar
+  // pull-up, but it has a pull-up, and the closest real exercise beats a step
+  // the watch cannot name at all. Longest match wins, so we keep as much of
+  // the movement as Connect actually knows.
+  for (const base of names) {
+    const words = base.trim().split(/\s+/);
+    for (let i = 1; i < words.length; i++) {
+      const tail = words.slice(i).join(' ');
+      const tailKeys = new Set(keys(tail));
+      for (const e of exercises) {
+        if (keys(e.name).some((k) => tailKeys.has(k))) return hit(e, `generalised to ${tail}`);
+      }
+      for (const c of categories) {
+        if (keys(c).some((k) => tailKeys.has(k))) {
+          return { category: c, exercise: '', via: `generalised to ${tail}` };
+        }
+      }
+    }
+  }
   return undefined;
 }
