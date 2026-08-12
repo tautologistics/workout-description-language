@@ -12,6 +12,7 @@ import { exportFit } from '../src/adapters/fit.ts';
 import { exportGarminConnect } from '../src/adapters/garmin-connect.ts';
 import { parseGoals, check, checkSeries } from '../src/goals.ts';
 import { generate } from '../src/generate.ts';
+import { loadProgram, checkProgram } from '../src/program.ts';
 
 const [cmd, ...args] = process.argv.slice(2);
 const write = args.includes('-w') || args.includes('--write');
@@ -32,7 +33,7 @@ const seed = seedIdx >= 0 ? Number(args[seedIdx + 1]) : undefined;
 const equipIdx = args.indexOf('--equipment');
 const equipment = equipIdx >= 0 ? args[equipIdx + 1].split(',').map((x) => x.trim()) : undefined;
 
-if (!cmd || !['fmt', 'check', 'timeline', 'export', 'goals', 'generate'].includes(cmd) || files.length === 0
+if (!cmd || !['fmt', 'check', 'timeline', 'export', 'goals', 'generate', 'program'].includes(cmd) || files.length === 0
     || (cmd === 'export' && !EXPORTERS.includes(to as any))
     || ((cmd === 'goals' || cmd === 'generate') && !goalsPath)) {
   console.error('usage: wdl <fmt|check|timeline> [-w] <file.wdl>...');
@@ -40,7 +41,41 @@ if (!cmd || !['fmt', 'check', 'timeline', 'export', 'goals', 'generate'].include
   console.error('       wdl goals --goals <file.wdlg> <file.wdl>...   check workouts against a set of goals');
   console.error('       wdl generate --goals <file.wdlg> [--seed N] [--equipment a,b] <template.wdl>');
   console.error('              a template is a workout with `?` where a movement goes');
+  console.error('       wdl program <file.wdlp>   check a training block against the goals it names');
   process.exit(2);
+}
+
+// A program names its own goals and its own sessions, so it needs no flags.
+if (cmd === 'program') {
+  let bad = 0;
+  for (const file of files) {
+    const loaded = loadProgram(file);
+    for (const e of loaded.errors) {
+      console.error(`${file}${e.line ? `:${e.line}` : ''}: ${e.message}`);
+      bad++;
+    }
+    if (!loaded.sessions.length) continue;
+    const { perWorkout, findings } = checkProgram(loaded);
+    if (loaded.program.title) console.log(loaded.program.title);
+    console.log(`${loaded.sessions.length} sessions over ${loaded.program.cycles.length} cycles`
+      + `, in ${new Set(loaded.sessions.map((s) => s.slot)).size} slots`);
+    for (const { name, report } of perWorkout) {
+      const notes = [
+        ...(report.unresolved.length ? [`no muscle data for ${report.unresolved.join(', ')}`] : []),
+        ...(report.unbounded ? ['open-ended: amounts below are floors'] : []),
+      ];
+      console.log(`\n${name}${notes.length ? `  (${notes.join('; ')})` : ''}`);
+      if (!report.findings.length) console.log('  ok');
+      for (const f of report.findings) {
+        console.log(`  ${f.rule}: ${f.message}${f.count > 1 ? `  (×${f.count})` : ''}`);
+        bad++;
+      }
+    }
+    console.log('\nacross the block');
+    if (!findings.length) console.log('  ok');
+    for (const f of findings) { console.log(`  ${f.rule}: ${f.message}`); bad++; }
+  }
+  process.exit(bad ? 1 : 0);
 }
 
 // `generate` fills the `?` holes in a template so the result satisfies the

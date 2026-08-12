@@ -45,6 +45,14 @@ import type { MovementVolume } from './volume.ts';
  */
 export type Dimension = 'movements' | 'exposures' | 'reps' | 'seconds' | 'metres' | 'calories';
 
+/**
+ * What a rule is asked of. A floor on pushing volume is usually a statement
+ * about a training block — "don't let the push drop while ramping the pull" —
+ * and asked of every session it fires on leg day, which was never going to have
+ * any pushing in it.
+ */
+export type Scope = 'session' | 'block';
+
 /** A named amount in one dimension: `2 exposures`, `50 reps`, `+5%`. */
 export interface Amount {
   value: number;
@@ -82,6 +90,7 @@ export interface CoverRule {
   targets: Group[];
   bound: Amount;
   level: 'primary' | 'any';
+  scope: Scope;
   line: number;
 }
 
@@ -93,6 +102,7 @@ export interface BalanceRule {
   tolerance: number;
   measure: Dimension;
   level: 'primary' | 'any';
+  scope: Scope;
   line: number;
 }
 
@@ -177,6 +187,10 @@ export function parseGoals(source: string): Goals {
       return { name, muscles: ok };
     }).filter((g) => g.muscles.length);
     const level = (k.get('level')?.value === 'any' ? 'any' : 'primary') as 'primary' | 'any';
+    const scope: Scope = k.get('per')?.value === 'block' ? 'block' : 'session';
+    if (k.get('per') && !['session', 'block'].includes(k.get('per')!.value)) {
+      fail(node.line, `per: expected "session" or "block", got "${k.get('per')!.value}"`);
+    }
 
     // Each name becomes its own group, so a muscle is checked alone and a region
     // is checked as a whole.
@@ -218,7 +232,7 @@ export function parseGoals(source: string): Goals {
         if (!text) { fail(node.line, `${head}: needs an \`${key}:\` line`); break; }
         const bound = parseAmount(text, 'exposures');
         if (!bound || bound.relative) { fail(node.line, `${head}: cannot read "${text}" as an amount`); break; }
-        goals.rules.push({ kind: head, targets, bound, level, line: node.line });
+        goals.rules.push({ kind: head, targets, bound, level, scope, line: node.line });
         break;
       }
 
@@ -230,7 +244,7 @@ export function parseGoals(source: string): Goals {
         const within = parseAmount(k.get('within')?.value ?? '25%', 'exposures');
         if (!within?.relative) { fail(node.line, 'balance: `within:` must be a percentage'); break; }
         const measure = DIMENSIONS[k.get('measure')?.value ?? 'exposures'] ?? 'exposures';
-        goals.rules.push({ kind: 'balance', between: groups, tolerance: within.value, measure, level, line: node.line });
+        goals.rules.push({ kind: 'balance', between: groups, tolerance: within.value, measure, level, scope, line: node.line });
         break;
       }
 
@@ -315,7 +329,7 @@ const list = (xs: string[]) => xs.join(', ');
 export function check(t: Timeline, goals: Goals, opts: AttributionOptions = {}): CheckReport {
   const { list: exp, unresolved } = exposures(t, opts);
   return {
-    ...checkExposures(exp, goals, muscleLoad(t, opts).unbounded),
+    ...checkExposures(exp, goals, muscleLoad(t, opts).unbounded, 'session'),
     unresolved,
   };
 }
@@ -330,7 +344,7 @@ export function check(t: Timeline, goals: Goals, opts: AttributionOptions = {}):
  * template, and only the muscles change.
  */
 export function checkExposures(
-  exp: Exposure[], goals: Goals, unbounded = false,
+  exp: Exposure[], goals: Goals, unbounded = false, scope: Scope = 'session',
 ): Omit<CheckReport, 'unresolved'> {
   const found = new Map<string, Finding>();
   const findings = {
@@ -346,6 +360,9 @@ export function checkExposures(
     level === 'any' ? [...e.primary, ...e.secondary] : e.primary;
 
   for (const rule of goals.rules) {
+    // `no repeat` is about order, which only exists within a session. Everything
+    // else states which it is asked of, and is skipped by the other pass.
+    if (rule.kind === 'no repeat' ? scope !== 'session' : rule.kind !== 'progress' && rule.scope !== scope) continue;
     switch (rule.kind) {
       case 'no repeat': {
         const skip = new Set(rule.except);
@@ -402,29 +419,59 @@ export function checkExposures(
   return { findings: [...found.values()], unbounded };
 }
 
+/** One workout in a series, and which recurring session it is an instance of. */
+export interface SeriesEntry {
+  name: string;
+  timeline: Timeline;
+  /**
+   * Sessions with the same slot are compared to each other and to nothing else.
+   * Without it, "ramp the pulling volume" compares this week's pull session to
+   * this week's leg session, notices the pulling went down, and is wrong — the
+   * leg session was never supposed to have any pulling in it.
+   *
+   * Omitted, every workout shares one slot, which is right for a series that is
+   * genuinely one session repeated.
+   */
+  slot?: string;
+}
+
 /**
  * Check a series of workouts in order. `progress` rules live here — "ramp the
  * pulling volume" is a statement about a training block, and no single file can
  * be checked against it. Every other rule is applied to each workout in turn.
  */
 export function checkSeries(
-  series: { name: string; timeline: Timeline }[], goals: Goals, opts: AttributionOptions = {},
+  series: SeriesEntry[], goals: Goals, opts: AttributionOptions = {},
 ): { perWorkout: { name: string; report: CheckReport }[]; findings: Finding[] } {
   const perWorkout = series.map((s) => ({ name: s.name, report: check(s.timeline, goals, opts) }));
   const exps = series.map((s) => exposures(s.timeline, opts).list);
-  const findings: Finding[] = [];
+  // Block-scoped rules read the whole series at once. Indices are renumbered so
+  // nothing downstream mistakes two sessions' exposures for one.
+  const whole = exps.flat().map((e, i) => ({ ...e, index: i }));
+  const findings: Finding[] = checkExposures(
+    whole, goals, perWorkout.some((w) => w.report.unbounded), 'block',
+  ).findings;
+
+  // Positions grouped by slot, keeping the order they were given in.
+  const slots = new Map<string, number[]>();
+  series.forEach((s, i) => {
+    const key = s.slot ?? '';
+    (slots.get(key) ?? slots.set(key, []).get(key)!).push(i);
+  });
 
   for (const rule of goals.rules) {
     if (rule.kind !== 'progress') continue;
     for (const g of rule.targets) {
       const amounts = exps.map((e) => amountFor(e, g.muscles, rule.measure, rule.level));
-      for (let i = 1; i < amounts.length; i++) {
-        const prev = amounts[i - 1], now = amounts[i];
-        const need = rule.bound.relative ? prev * (1 + rule.bound.value) : prev + rule.bound.value;
-        if (now < need) {
+      for (const [slot, positions] of slots) {
+        for (let n = 1; n < positions.length; n++) {
+          const [a, b] = [positions[n - 1], positions[n]];
+          const prev = amounts[a], now = amounts[b];
+          const need = rule.bound.relative ? prev * (1 + rule.bound.value) : prev + rule.bound.value;
+          if (now >= need) continue;
           findings.push({
             rule: rule.kind, line: rule.line, count: 1,
-            message: `${g.name}: ${series[i - 1].name} ${prev} → ${series[i].name} ${now} ${rule.measure};`
+            message: `${g.name}${slot ? ` (${slot})` : ''}: ${series[a].name} ${prev} → ${series[b].name} ${now} ${rule.measure};`
               + ` ${rule.bound.relative ? `${Math.round(rule.bound.value * 100)}% more` : `${rule.bound.value} more`} required (${Math.round(need)})`,
           });
         }

@@ -229,3 +229,62 @@ workout:
   refusal.
 - A workout that still has holes in it reports **no** findings, because the
   rules were judged against something other than what was asked for.
+
+## Session rules and block rules
+
+`cover`, `limit` and `balance` take `per: session` (the default) or `per: block`.
+
+A floor on pushing volume is usually a statement about a training block — "don't
+let the push drop while ramping the pull". Asked of every session it fires on
+leg day, which was never going to have any pushing in it.
+
+```
+cover:
+  muscles: chest, shoulders
+  at least: 100 reps
+  per: block
+```
+
+`no repeat` is always a session rule. Order only exists inside a session; the
+last movement of Monday does not run before the first movement of Thursday.
+
+## Programs
+
+A program is an ordered block of training and the goals it is built against. It
+names its workouts rather than containing them, so each stays a file you can
+format, check and send to a watch on its own.
+
+```
+program: Winter build
+goals: ../../goals/ramp-the-pull.wdlg
+
+week 1:
+  - pull: w1-pull.wdl
+  - push: w1-push.wdl
+  - legs: w1-legs.wdl
+
+week 2:
+  - pull: w2-pull.wdl
+  - push: w2-push.wdl
+  - legs: w2-legs.wdl
+```
+
+```bash
+wdl program winter-build.wdlp
+```
+
+Paths resolve against the program file's own directory, so a program moves with
+its workouts.
+
+**The slot names are the point.** `pull`, `push`, `legs` — `progress` compares a
+session to the last session in the same slot and to nothing else. Without them,
+"ramp the pulling volume" compares this week's pull session against this week's
+leg session, notices the pulling has collapsed, and reports a failure that is
+really just the observation that leg day is not pull day. On the example block
+that is nine spurious findings against none.
+
+Slots are optional; unnamed entries are numbered by position, which is right for
+a block that is genuinely one session repeated.
+
+Cycle labels — `week 1`, `block A`, `Monday` — are yours. Nothing reads them but
+you; the order they appear in is what counts.

@@ -10,6 +10,11 @@ goals: Build the pull over a block
 
   // The pull goes up; the push holds. Without this the easiest way to satisfy
   // the rule above is to stop doing anything else.
+  //
+  // `per: block` because this is a statement about the block, not about every
+  // session in it. Asked of each session it fires on leg day, which was never
+  // going to have any pushing in it.
   cover:
     muscles: chest, shoulders
-    at least: 20 reps
+    at least: 100 reps
+    per: block

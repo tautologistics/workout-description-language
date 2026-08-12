@@ -1,0 +1,22 @@
+program: Winter build
+goals: ../../goals/ramp-the-pull.wdlg
+
+// The slot names are what make `progress` mean anything. Without them the
+// pull session in week 2 is compared to the leg session in week 1, and the
+// verdict is that the pulling collapsed — which is only the observation that
+// leg day is not pull day.
+
+week 1:
+  - pull: w1-pull.wdl
+  - push: w1-push.wdl
+  - legs: w1-legs.wdl
+
+week 2:
+  - pull: w2-pull.wdl
+  - push: w2-push.wdl
+  - legs: w2-legs.wdl
+
+week 3:
+  - pull: w3-pull.wdl
+  - push: w3-push.wdl
+  - legs: w3-legs.wdl

@@ -21,12 +21,16 @@ export {
   parseGoals, check, checkExposures, checkSeries,
   type Goals, type Rule, type Group, type Amount, type Dimension,
   type NoRepeatRule, type CoverRule, type BalanceRule, type ProgressRule,
-  type Finding, type CheckReport,
+  type Finding, type CheckReport, type SeriesEntry, type Scope,
 } from './goals.ts';
 export {
   generate,
   type GenerateOptions, type GenerateResult, type Hole,
 } from './generate.ts';
+export {
+  parseProgram, loadProgram, checkProgram,
+  type Program, type Cycle, type ProgramEntry, type LoadedProgram, type LoadedSession,
+} from './program.ts';
 export { importErg, parseErg, ergDurationSeconds } from './adapters/erg.ts';
 export { importFit, readFit, fitStepCounts } from './adapters/fit.ts';
 export { exportZwo, type ExportResult } from './adapters/zwo.ts';
