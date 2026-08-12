@@ -12,25 +12,13 @@
  * Garmin's catalogue ever sees it.
  */
 
-import { readFileSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { fold, depluralize } from '../fold.ts';
+import { required } from '../env.ts';
 import { defaultRegistry } from '../registry.ts';
 
 export interface GarminExercise { name: string; category: string; exercise: string }
 
-const here = dirname(fileURLToPath(import.meta.url));
-let catalogue: { categories: string[]; exercises: GarminExercise[] } | undefined;
-
-function load() {
-  if (!catalogue) {
-    catalogue = JSON.parse(
-      readFileSync(join(here, '../../../../registry/garmin-exercises.json'), 'utf8'),
-    );
-  }
-  return catalogue!;
-}
+const load = () => required('garminExercises');
 
 export const garminCategories = () => load().categories;
 

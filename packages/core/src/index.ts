@@ -28,9 +28,10 @@ export {
   type GenerateOptions, type GenerateResult, type GenerateSession, type GenerateProgramResult, type Hole,
 } from './generate.ts';
 export {
-  parseProgram, loadProgram, checkProgram,
-  type Program, type Cycle, type ProgramEntry, type LoadedProgram, type LoadedSession,
+  parseProgram,
+  type Program, type Cycle, type ProgramEntry,
 } from './program.ts';
+export { provide, has, required, reset, type CoreData, type MuscleRecord, type GarminCatalogue } from './env.ts';
 export { importErg, parseErg, ergDurationSeconds } from './adapters/erg.ts';
 export { importFit, readFit, fitStepCounts } from './adapters/fit.ts';
 export { exportZwo, type ExportResult } from './adapters/zwo.ts';

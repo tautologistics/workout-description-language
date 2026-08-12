@@ -12,7 +12,8 @@ import { describe, it, eq, ok } from './lib.ts';
 import { parse } from '../src/parse.ts';
 import { compile } from '../src/timeline.ts';
 import { parseGoals, checkSeries } from '../src/goals.ts';
-import { parseProgram, loadProgram, checkProgram } from '../src/program.ts';
+import { parseProgram } from '../src/program.ts';
+import { loadProgram, checkProgram } from '../../core/node/program.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '../../..');

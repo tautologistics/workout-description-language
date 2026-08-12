@@ -1,4 +1,12 @@
-/** Entry point: every check, one summary. Run with `npm test`. */
+/**
+ * Entry point: every check, one summary. Run with `npm test`.
+ *
+ * The node entry comes first because it is what hands the core its data. Nothing
+ * under src/ reads a file, so without this the first test to consult the
+ * movement registry throws.
+ */
+import '../node.ts';
+import './portable.test.ts';
 import './units.test.ts';
 import './fold.test.ts';
 import './lines.test.ts';

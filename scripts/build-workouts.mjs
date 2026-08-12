@@ -9,6 +9,7 @@
  */
 import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import '../packages/core/node.ts';
 import { parse } from '../packages/core/src/parse.ts';
 import { validate } from '../packages/core/src/validate.ts';
 import { compile } from '../packages/core/src/timeline.ts';

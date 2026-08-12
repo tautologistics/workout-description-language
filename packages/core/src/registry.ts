@@ -1,22 +1,25 @@
-/** Loads the bundled movement registry (registry/movements.json). */
-import { readFileSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { Registry, type MovementEntry } from './fold.ts';
+/**
+ * The movement registries, built from whatever the host provided.
+ *
+ * Reading them off disk is the host's job (`packages/core/node.ts` on Node, a
+ * fetch in a browser). This module only turns the records into a `Registry`,
+ * once, and hands the same one back.
+ */
+import { Registry } from './fold.ts';
+import { required } from './env.ts';
 
-const here = dirname(fileURLToPath(import.meta.url));
+let curated: Registry | undefined;
+let canonical: Registry | undefined;
+let curatedFrom: unknown;
+let canonicalFrom: unknown;
 
-let cached: Registry | undefined;
-let cachedCanonical: Registry | undefined;
-
-/** The registry shipped with this package. Loaded once, on first use. */
+/** The hand-kept registry. Small, vetted, and what validation consults. */
 export function defaultRegistry(): Registry {
-  if (!cached) {
-    const path = join(here, '../../../registry/movements.json');
-    const data = JSON.parse(readFileSync(path, 'utf8')) as { movements: MovementEntry[] };
-    cached = new Registry(data.movements);
-  }
-  return cached;
+  const data = required('movements');
+  // Rebuilt when the host provides different data — a test swapping in a
+  // three-movement registry must not keep getting the old one.
+  if (!curated || curatedFrom !== data) { curated = new Registry(data); curatedFrom = data; }
+  return curated;
 }
 
 /**
@@ -24,15 +27,9 @@ export function defaultRegistry(): Registry {
  * curated registry, which is the first source in the merge and wins on conflict,
  * so nothing is lost by preferring this one. Analysis uses it because the
  * curated file alone leaves most of the world's movements without muscle data.
- *
- * Loaded separately and lazily: it is an order of magnitude larger, and parsing
- * is not free for callers who only need to resolve a name.
  */
 export function canonicalRegistry(): Registry {
-  if (!cachedCanonical) {
-    const path = join(here, '../../../registry/movements.canonical.json');
-    const data = JSON.parse(readFileSync(path, 'utf8')) as { movements: MovementEntry[] };
-    cachedCanonical = new Registry(data.movements);
-  }
-  return cachedCanonical;
+  const data = required('canonicalMovements');
+  if (!canonical || canonicalFrom !== data) { canonical = new Registry(data); canonicalFrom = data; }
+  return canonical;
 }

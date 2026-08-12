@@ -3,11 +3,17 @@
   "version": "0.1.0",
   "description": "Parser, formatter, and AST for the Workout Definition Language",
   "type": "module",
-  "main": "src/index.ts",
+  "main": "node.ts",
+  "exports": {
+    ".": "./node.ts",
+    "./web": "./src/index.ts",
+    "./src/*": "./src/*"
+  },
   "scripts": {
     "test": "node test/all.ts",
     "fmt": "node bin/wdl.ts fmt",
-    "check": "node bin/wdl.ts check"
+    "check": "node bin/wdl.ts check",
+    "build:web": "node ../../scripts/build-web.mjs"
   },
   "engines": {
     "node": ">=22"

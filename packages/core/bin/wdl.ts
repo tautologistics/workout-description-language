@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 /** wdl — format and check WDL files. */
+import '../node.ts';   // hands the core its data; src/ reads no files itself
 import { readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import { parse } from '../src/parse.ts';
@@ -12,7 +13,7 @@ import { exportFit } from '../src/adapters/fit.ts';
 import { exportGarminConnect } from '../src/adapters/garmin-connect.ts';
 import { parseGoals, check, checkSeries } from '../src/goals.ts';
 import { generate, generateProgram } from '../src/generate.ts';
-import { loadProgram, checkProgram } from '../src/program.ts';
+import { loadProgram, checkProgram } from '../node/program.ts';
 
 const [cmd, ...args] = process.argv.slice(2);
 const write = args.includes('-w') || args.includes('--write');

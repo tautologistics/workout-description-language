@@ -23,31 +23,24 @@
  *    authoritative than they are.
  */
 
-import { readFileSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { Unit } from './ast.ts';
 import type { Timeline, TimelineItem, TimelineStep } from './timeline.ts';
 import type { Registry } from './fold.ts';
 import { canonicalRegistry } from './registry.ts';
 import { stepVolume, type MovementVolume } from './volume.ts';
+import { required, type MuscleRecord } from './env.ts';
 
-const here = dirname(fileURLToPath(import.meta.url));
-
-export interface Muscle {
-  id: string;
-  name: string;
-  region: 'upper' | 'core' | 'lower';
-}
+export type Muscle = MuscleRecord;
 
 let vocab: Map<string, Muscle> | undefined;
+let vocabFrom: unknown;
 
-/** The closed muscle set, in the order registry/muscles.json declares it. */
+/** The closed muscle set, in the order the host declared it. */
 export function muscles(): Map<string, Muscle> {
-  if (!vocab) {
-    const path = join(here, '../../../registry/muscles.json');
-    const data = JSON.parse(readFileSync(path, 'utf8')) as { muscles: Muscle[] };
-    vocab = new Map(data.muscles.map((m) => [m.id, { id: m.id, name: m.name, region: m.region }]));
+  const data = required('muscles');
+  if (!vocab || vocabFrom !== data) {
+    vocab = new Map(data.map((m) => [m.id, { id: m.id, name: m.name, region: m.region }]));
+    vocabFrom = data;
   }
   return vocab;
 }
