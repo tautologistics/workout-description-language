@@ -435,21 +435,33 @@ export interface SeriesEntry {
   slot?: string;
 }
 
+/** One workout's exposures, for a series checked without recompiling anything. */
+export interface SeriesExposures {
+  name: string;
+  slot?: string;
+  exp: Exposure[];
+  unbounded?: boolean;
+}
+
 /**
- * Check a series of workouts in order. `progress` rules live here — "ramp the
- * pulling volume" is a statement about a training block, and no single file can
- * be checked against it. Every other rule is applied to each workout in turn.
+ * Check a series in order. `progress` rules live here — "ramp the pulling
+ * volume" is a statement about a training block, and no single file can be
+ * checked against it. Block-scoped rules read the whole series at once. Every
+ * other rule is asked of each workout in turn.
  */
-export function checkSeries(
-  series: SeriesEntry[], goals: Goals, opts: AttributionOptions = {},
-): { perWorkout: { name: string; report: CheckReport }[]; findings: Finding[] } {
-  const perWorkout = series.map((s) => ({ name: s.name, report: check(s.timeline, goals, opts) }));
-  const exps = series.map((s) => exposures(s.timeline, opts).list);
+export function checkSeriesExposures(
+  series: SeriesExposures[], goals: Goals,
+): { perWorkout: { name: string; report: Omit<CheckReport, 'unresolved'> }[]; findings: Finding[] } {
+  const perWorkout = series.map((s) => ({
+    name: s.name,
+    report: checkExposures(s.exp, goals, s.unbounded ?? false, 'session'),
+  }));
+
   // Block-scoped rules read the whole series at once. Indices are renumbered so
   // nothing downstream mistakes two sessions' exposures for one.
-  const whole = exps.flat().map((e, i) => ({ ...e, index: i }));
+  const whole = series.flatMap((s) => s.exp).map((e, i) => ({ ...e, index: i }));
   const findings: Finding[] = checkExposures(
-    whole, goals, perWorkout.some((w) => w.report.unbounded), 'block',
+    whole, goals, series.some((s) => s.unbounded), 'block',
   ).findings;
 
   // Positions grouped by slot, keeping the order they were given in.
@@ -462,7 +474,7 @@ export function checkSeries(
   for (const rule of goals.rules) {
     if (rule.kind !== 'progress') continue;
     for (const g of rule.targets) {
-      const amounts = exps.map((e) => amountFor(e, g.muscles, rule.measure, rule.level));
+      const amounts = series.map((s) => amountFor(s.exp, g.muscles, rule.measure, rule.level));
       for (const [slot, positions] of slots) {
         for (let n = 1; n < positions.length; n++) {
           const [a, b] = [positions[n - 1], positions[n]];
@@ -471,7 +483,7 @@ export function checkSeries(
           if (now >= need) continue;
           findings.push({
             rule: rule.kind, line: rule.line, count: 1,
-            message: `${g.name}${slot ? ` (${slot})` : ''}: ${series[a].name} ${prev} → ${series[b].name} ${now} ${rule.measure};`
+            message: `${g.name}${slot ? ` (${slot})` : ''}: ${series[a].name} ${prev} \u2192 ${series[b].name} ${now} ${rule.measure};`
               + ` ${rule.bound.relative ? `${Math.round(rule.bound.value * 100)}% more` : `${rule.bound.value} more`} required (${Math.round(need)})`,
           });
         }
@@ -480,3 +492,19 @@ export function checkSeries(
   }
   return { perWorkout, findings };
 }
+
+/** The same, from compiled workouts. */
+export function checkSeries(
+  series: SeriesEntry[], goals: Goals, opts: AttributionOptions = {},
+): { perWorkout: { name: string; report: CheckReport }[]; findings: Finding[] } {
+  const each = series.map((s) => {
+    const { list, unresolved } = exposures(s.timeline, opts);
+    return { name: s.name, slot: s.slot, exp: list, unresolved, unbounded: muscleLoad(s.timeline, opts).unbounded };
+  });
+  const r = checkSeriesExposures(each, goals);
+  return {
+    perWorkout: r.perWorkout.map((w, i) => ({ name: w.name, report: { ...w.report, unresolved: each[i].unresolved } })),
+    findings: r.findings,
+  };
+}
+

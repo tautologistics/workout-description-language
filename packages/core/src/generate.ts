@@ -28,7 +28,7 @@ import { fold } from './fold.ts';
 import { canonicalRegistry } from './registry.ts';
 import { compile } from './timeline.ts';
 import { muscles, musclesFor, exposures, type Exposure, type AttributionOptions } from './muscles.ts';
-import { checkExposures, type Goals, type Finding } from './goals.ts';
+import { checkSeriesExposures, type Goals, type Finding } from './goals.ts';
 
 /**
  * A movement to be chosen. `constraint` is whatever followed the `?`, so
@@ -177,110 +177,193 @@ function shuffled<T>(xs: T[], seed: number): T[] {
 /** Findings, weighted by how many times each recurred. */
 const weigh = (fs: Finding[]) => fs.reduce((n, f) => n + f.count, 0);
 
-export function generate(template: Workout, goals: Goals, opts: GenerateOptions = {}): GenerateResult {
+/** Where a chosen movement lands: one session, one exposure in it. */
+interface Site {
+  session: number;
+  exposure: number;
+}
+
+/** A hole, plus every place its choice is written. */
+interface Group extends Hole {
+  key: string;
+  sites: Site[];
+}
+
+/** One workout to be filled, and what it is an instance of. */
+export interface GenerateSession {
+  name: string;
+  workout: Workout;
+  /**
+   * Holes in the same slot and the same position share a choice across cycles.
+   * Generating week 1 and week 2 of the pull session independently gives them
+   * different movements, which makes `progress` on the lats an accident rather
+   * than a plan.
+   */
+  slot?: string;
+}
+
+export interface GenerateProgramResult {
+  sessions: { name: string; slot?: string; workout: Workout }[];
+  groups: Hole[];
+  /** What was chosen for each group, by group index. */
+  chosen: (MovementEntry | undefined)[];
+  /** Session-level findings, per workout. Empty unless `solved`. */
+  perWorkout: { name: string; findings: Finding[] }[];
+  /** Findings about the block: `progress`, and anything scoped `per: block`. */
+  findings: Finding[];
+  solved: boolean;
+  unfilled: Hole[];
+  impossible: Hole[];
+  searched: number;
+  gaveUp: boolean;
+}
+
+/**
+ * Fill the holes across a whole block at once.
+ *
+ * Holes are grouped before the search, not after: every `? pull` sitting first
+ * in the pull slot is one decision, however many weeks the block runs. That is
+ * what makes a `progress` rule satisfiable — the volume can ramp because the
+ * movement stayed put.
+ */
+export function generateProgram(
+  sessions: GenerateSession[], goals: Goals, opts: GenerateOptions = {},
+): GenerateProgramResult {
   const reg: Registry = opts.registry ?? canonicalRegistry();
   const budget = opts.budget ?? 20_000;
   const seed = opts.seed ?? 1;
 
-  // 1. Find the holes and mark them, so they survive compilation identifiably.
-  const marked = clone(template);
-  const holes: Hole[] = [];
-  const stepOf: Step[] = [];
-  walkSteps(marked.body, (s) => {
-    const m = s.movement?.match(HOLE);
-    if (!m) return;
-    const i = holes.length;
-    holes.push({
-      index: i,
-      constraint: m[1].split(/[\s,]+/).map((x) => x.trim()).filter(Boolean),
-      line: s.line,
-      candidates: [],
+  // 1. Mark the holes. A group key is the slot and the position within it, so
+  //    the same hole in week 1 and week 5 is one decision.
+  const marked = sessions.map((s) => clone(s.workout));
+  const groups: Group[] = [];
+  const byKey = new Map<string, Group>();
+  const steps = new Map<string, Step[]>();
+  marked.forEach((w, si) => {
+    let ordinal = 0;
+    walkSteps(w.body, (step) => {
+      const m = step.movement?.match(HOLE);
+      if (!m) return;
+      const key = `${sessions[si].slot ?? `#${si}`}/${ordinal++}`;
+      let g = byKey.get(key);
+      if (!g) {
+        g = {
+          index: groups.length, key, sites: [], candidates: [],
+          constraint: [], line: step.line,
+        };
+        groups.push(g);
+        byKey.set(key, g);
+        steps.set(key, []);
+      }
+      // Constraints union across cycles: a token written in any week applies.
+      for (const t of m[1].split(/[\s,]+/).map((x) => x.trim()).filter(Boolean)) {
+        if (!g.constraint.includes(t)) g.constraint.push(t);
+      }
+      steps.get(key)!.push(step);
+      step.movement = sentinel(g.index);
     });
-    stepOf.push(s);
-    s.movement = sentinel(i);
   });
 
-  // 2. The pool, narrowed once per hole.
+  // 2. The pool, narrowed once per group. Every site's measurement has to work,
+  //    not just the first — week 1 may count reps where week 4 counts metres.
   const base = (opts.pool ?? reg.entries.filter((e) => (e as { core?: boolean }).core))
     .filter((e) => e.muscles?.primary?.length);
   const have = new Set((opts.equipment ?? []).map((e) => fold(e)));
-  for (const h of holes) {
-    h.candidates = shuffled(base.filter((e) =>
-      h.constraint.every((t) => satisfies(e, t))
+  for (const g of groups) {
+    g.candidates = shuffled(base.filter((e) =>
+      g.constraint.every((t) => satisfies(e, t))
       && (!have.size || usable(e, have))
-      && measurable(e, stepOf[h.index])), seed + h.index);
+      && steps.get(g.key)!.every((st) => measurable(e, st))), seed + g.index);
   }
 
-  // 3. One compilation. Every candidate shares this structure and differs only
-  //    in which muscles sit at the hole positions.
-  const exp = exposures(compile(marked), opts).list;
-  const holeAt = new Map<number, number[]>();   // hole index -> exposure indices
-  for (const e of exp) {
-    const i = sentinelIndex(e.movement);
-    if (i === undefined) continue;
-    (holeAt.get(i) ?? holeAt.set(i, []).get(i)!).push(e.index);
-  }
+  // 3. One compilation per session.
+  const exps = marked.map((w) => exposures(compile(w), opts).list);
+  exps.forEach((exp, si) => {
+    for (const e of exp) {
+      const i = sentinelIndex(e.movement);
+      if (i !== undefined) groups[i].sites.push({ session: si, exposure: e.index });
+    }
+  });
 
-  const impossible = holes.filter((h) => !h.candidates.length);
-  const attribution = holes.map((h) => h.candidates.map((e) => musclesFor(e.title, { ...opts, registry: reg })));
+  const impossible = groups.filter((g) => !g.candidates.length);
+  const attribution = groups.map((g) => g.candidates.map((e) => musclesFor(e.title, { ...opts, registry: reg })));
+  const series = () => sessions.map((s, i) => ({ name: s.name, slot: s.slot, exp: exps[i] }));
 
-  const chosen: (number | undefined)[] = holes.map(() => undefined);
-  let best: { pick: (number | undefined)[]; findings: Finding[]; score: number } | undefined;
+  const chosen: (number | undefined)[] = groups.map(() => undefined);
+  let best: {
+    pick: (number | undefined)[];
+    perWorkout: { name: string; findings: Finding[] }[];
+    findings: Finding[];
+    score: number;
+  } | undefined;
   let searched = 0;
   let gaveUp = false;
 
-  const apply = (hole: number, candidate: number | undefined) => {
-    const a = candidate === undefined ? undefined : attribution[hole][candidate];
-    for (const i of holeAt.get(hole) ?? []) {
-      exp[i].primary = a?.primary ?? [];
-      exp[i].secondary = a?.secondary ?? [];
-      exp[i].movement = candidate === undefined
-        ? sentinel(hole) : holes[hole].candidates[candidate].title;
-      exp[i].unattributed = !a;
+  const apply = (gi: number, candidate: number | undefined) => {
+    const a = candidate === undefined ? undefined : attribution[gi][candidate];
+    for (const site of groups[gi].sites) {
+      const e = exps[site.session][site.exposure];
+      e.primary = a?.primary ?? [];
+      e.secondary = a?.secondary ?? [];
+      e.movement = candidate === undefined ? sentinel(gi) : groups[gi].candidates[candidate].title;
+      e.unattributed = !a;
     }
+  };
+
+  const score = () => {
+    const r = checkSeriesExposures(series(), goals);
+    return {
+      perWorkout: r.perWorkout.map((w) => ({ name: w.name, findings: w.report.findings })),
+      findings: r.findings,
+      total: r.perWorkout.reduce((n, w) => n + weigh(w.report.findings), 0) + weigh(r.findings),
+    };
   };
 
   /**
-   * Score a partial assignment. Findings that name an unfilled hole are ignored:
-   * they are not yet true of anything. Findings about what *is* filled are, and
-   * they prune — a pair of stacked squats does not become unstacked by filling
-   * the rest of the workout.
+   * Prune on ordering only, and only where both ends are already filled: a pair
+   * of stacked squats does not become unstacked by filling the rest of the
+   * block, but a rule about volume can still be satisfied by what comes next.
    */
   const scorePartial = (upTo: number): number => {
-    const open = new Set<number>();
-    for (let h = upTo; h < holes.length; h++) for (const i of holeAt.get(h) ?? []) open.add(i);
-    const fs = checkExposures(exp, goals).findings.filter((f) =>
-      f.rule === 'no repeat' && !(f.where ?? []).some((i) => open.has(i)));
-    return weigh(fs);
+    const open = new Set<string>();
+    for (let g = upTo; g < groups.length; g++) {
+      for (const site of groups[g].sites) open.add(`${site.session}:${site.exposure}`);
+    }
+    let n = 0;
+    checkSeriesExposures(series(), goals).perWorkout.forEach((w, si) => {
+      for (const f of w.report.findings) {
+        if (f.rule !== 'no repeat') continue;
+        if ((f.where ?? []).some((i) => open.has(`${si}:${i}`))) continue;
+        n += f.count;
+      }
+    });
+    return n;
   };
 
-  const recurse = (hole: number, used: Set<string>, prune: boolean): boolean => {
-    if (hole === holes.length) {
+  const recurse = (gi: number, used: Set<string>, prune: boolean): boolean => {
+    if (gi === groups.length) {
       searched++;
-      const { findings } = checkExposures(exp, goals);
-      const score = weigh(findings);
-      if (!best || score < best.score) best = { pick: chosen.slice(), findings, score };
-      return score === 0;
+      const s = score();
+      if (!best || s.total < best.score) {
+        best = { pick: chosen.slice(), perWorkout: s.perWorkout, findings: s.findings, score: s.total };
+      }
+      return s.total === 0;
     }
-    const list = holes[hole].candidates;
-    if (!list.length) {   // nothing fits; leave it open and carry on
-      return recurse(hole + 1, used, prune);
-    }
+    const list = groups[gi].candidates;
+    if (!list.length) return recurse(gi + 1, used, prune);
     for (let c = 0; c < list.length; c++) {
       if (searched >= budget) { gaveUp = true; return false; }
       const key = list[c].id;
       if (!opts.repeatMovements && used.has(key)) continue;
-      chosen[hole] = c;
-      apply(hole, c);
-      // Ordering is the one thing a later hole cannot repair, so it is the one
-      // thing worth pruning on.
-      if (!prune || scorePartial(hole + 1) === 0) {
+      chosen[gi] = c;
+      apply(gi, c);
+      if (!prune || scorePartial(gi + 1) === 0) {
         used.add(key);
-        if (recurse(hole + 1, used, prune)) return true;
+        if (recurse(gi + 1, used, prune)) return true;
         used.delete(key);
       }
-      chosen[hole] = undefined;
-      apply(hole, undefined);
+      chosen[gi] = undefined;
+      apply(gi, undefined);
     }
     return false;
   };
@@ -290,37 +373,61 @@ export function generate(template: Workout, goals: Goals, opts: GenerateOptions 
   // pull that clashes with every squat leaves nothing at all. Rather than hand
   // back an unfilled template and call it a success, search again without the
   // prune and return the least-bad complete assignment.
-  if (!best && holes.some((h) => h.candidates.length)) {
-    for (let h = 0; h < holes.length; h++) { chosen[h] = undefined; apply(h, undefined); }
+  if (!best && groups.some((g) => g.candidates.length)) {
+    for (let g = 0; g < groups.length; g++) { chosen[g] = undefined; apply(g, undefined); }
     gaveUp = false;
     recurse(0, new Set(), false);
   }
 
-  // 4. Write the winner back into the workout.
-  const out = clone(template);
-  const pick = best?.pick ?? holes.map(() => undefined);
-  let n = 0;
-  walkSteps(out.body, (s) => {
-    if (!s.movement?.match(HOLE)) return;
-    const h = n++;
-    const c = pick[h];
-    if (c !== undefined) s.movement = holes[h].candidates[c].title;
+  // 4. Write the winner back into each session.
+  const pick = best?.pick ?? groups.map(() => undefined);
+  const out = sessions.map((s, si) => {
+    const w = clone(s.workout);
+    let ordinal = 0;
+    walkSteps(w.body, (step) => {
+      if (!step.movement?.match(HOLE)) return;
+      const g = byKey.get(`${s.slot ?? `#${si}`}/${ordinal++}`)!;
+      const c = pick[g.index];
+      if (c !== undefined) step.movement = g.candidates[c].title;
+    });
+    return { name: s.name, slot: s.slot, workout: w };
   });
 
-  // With holes left open, the rules were judged against a workout that is not
-  // the one asked for, so the findings say nothing. Report the holes instead.
-  const unfilled = holes.filter((h) => pick[h.index] === undefined);
-  for (let h = 0; h < holes.length; h++) apply(h, pick[h]);
+  // With holes left open, the rules were judged against something other than
+  // what was asked for, so the findings say nothing. Report the holes instead.
+  const unfilled = groups.filter((g) => pick[g.index] === undefined);
+  for (let g = 0; g < groups.length; g++) apply(g, pick[g]);
+  const plain = groups.map(({ index, constraint, line, candidates }) => ({ index, constraint, line, candidates }));
 
   return {
-    workout: out,
-    holes,
-    chosen: pick.map((c, h) => (c === undefined ? undefined : holes[h].candidates[c])),
+    sessions: out,
+    groups: plain,
+    chosen: pick.map((c, g) => (c === undefined ? undefined : groups[g].candidates[c])),
+    perWorkout: unfilled.length ? [] : best?.perWorkout ?? [],
     findings: unfilled.length ? [] : best?.findings ?? [],
     solved: !unfilled.length,
-    unfilled,
-    impossible,
+    unfilled: unfilled.map((g) => plain[g.index]),
+    impossible: impossible.map((g) => plain[g.index]),
     searched,
     gaveUp,
+  };
+}
+
+/**
+ * One workout. The block case with a single session in it, which is why the two
+ * cannot drift apart.
+ */
+export function generate(template: Workout, goals: Goals, opts: GenerateOptions = {}): GenerateResult {
+  const r = generateProgram([{ name: template.title ?? 'workout', workout: template }], goals, opts);
+  return {
+    workout: r.sessions[0].workout,
+    holes: r.groups,
+    chosen: r.chosen,
+    findings: [...(r.perWorkout[0]?.findings ?? []), ...r.findings],
+    solved: r.solved,
+    unfilled: r.unfilled,
+    impossible: r.impossible,
+    searched: r.searched,
+    gaveUp: r.gaveUp,
   };
 }

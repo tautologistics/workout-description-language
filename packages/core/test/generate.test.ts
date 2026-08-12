@@ -14,8 +14,9 @@ import { describe, it, eq, ok } from './lib.ts';
 import { parse } from '../src/parse.ts';
 import { format } from '../src/format.ts';
 import { compile } from '../src/timeline.ts';
-import { parseGoals, check } from '../src/goals.ts';
-import { generate } from '../src/generate.ts';
+import { parseGoals, check, checkSeries } from '../src/goals.ts';
+import { generate, generateProgram } from '../src/generate.ts';
+import { parseProgram } from '../src/program.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const example = (p: string) => readFileSync(join(here, '../../../examples', p), 'utf8');
@@ -151,5 +152,77 @@ describe('generate: the score means what check means', () => {
       }
     }
     ok(compared > 20, `compared ${compared} generated workouts`);
+  });
+});
+
+describe('generate: across a block', () => {
+  const rampGoals = () => parseGoals(example('goals/ramp-the-pull.wdlg'));
+  const block = () => {
+    const dir = join(here, '../../../examples/programs/ramp-block');
+    const p = parseProgram(readFileSync(join(dir, 'ramp-block.wdlp'), 'utf8'));
+    return p.cycles.flatMap((c) => c.entries.map((e) => ({
+      name: `${c.label} · ${e.slot}`,
+      slot: e.slot,
+      workout: parse(readFileSync(join(dir, e.file), 'utf8')).workout,
+    })));
+  };
+
+  it('gives one slot the same movements in every cycle', () => {
+    // Generating week 1 and week 2 of the pull session independently gives them
+    // different movements, and a `progress` rule on the lats then measures an
+    // accident rather than a plan.
+    const r = generateProgram(block(), rampGoals(), { seed: 2 });
+    eq(r.solved, true);
+    const perSlot = new Map<string, string[]>();
+    for (const s of r.sessions) {
+      const names: string[] = [];
+      const walk = (nodes: any[]) => {
+        for (const n of nodes) {
+          if (n.node === 'step') names.push(n.movement);
+          else if (n.children) walk(n.children);
+        }
+      };
+      walk(s.workout.body);
+      const seen = perSlot.get(s.slot!);
+      if (!seen) perSlot.set(s.slot!, names);
+      else eq(names, seen, `${s.slot} differs between cycles`);
+    }
+    eq([...perSlot.keys()].sort(), ['legs', 'pull']);
+  });
+
+  it('makes one decision per slot position, not one per session', () => {
+    const sessions = block();
+    const r = generateProgram(sessions, rampGoals(), { seed: 2 });
+    // Six sessions, two holes each, but only two slots: four decisions.
+    eq(r.groups.length, 4, `${sessions.length} sessions collapsed to ${r.groups.length} choices`);
+  });
+
+  it('satisfies the block rules, not only the session rules', () => {
+    const r = generateProgram(block(), rampGoals(), { seed: 2 });
+    eq(r.findings, [], 'progress and per-block cover');
+    for (const w of r.perWorkout) eq(w.findings, [], w.name);
+  });
+
+  it('agrees with an independent check of the block it produced', () => {
+    for (const seed of [1, 2, 3]) {
+      const r = generateProgram(block(), rampGoals(), { seed });
+      if (!r.solved) continue;
+      const real = checkSeries(r.sessions.map((s) => ({
+        name: s.name, slot: s.slot, timeline: compile(parse(format(s.workout)).workout),
+      })), rampGoals());
+      const key = (fs: { rule: string; message: string }[]) =>
+        fs.map((f) => `${f.rule}|${f.message}`).sort().join('\n');
+      eq(key(r.findings), key(real.findings), `block findings, seed ${seed}`);
+      r.perWorkout.forEach((w, i) => eq(key(w.findings), key(real.perWorkout[i].report.findings), w.name));
+    }
+  });
+
+  it('is the same code path as generating one workout', () => {
+    // `generate` is `generateProgram` with a single session, so a regression in
+    // one is a regression in both rather than a divergence nobody notices.
+    const one = parse(example('templates/metcon.wdl')).workout;
+    const viaProgram = generateProgram([{ name: 'x', workout: one }], rotate(), { seed: 5 });
+    const direct = generate(one, rotate(), { seed: 5 });
+    eq(direct.chosen.map((c) => c?.title), viaProgram.chosen.map((c) => c?.title));
   });
 });

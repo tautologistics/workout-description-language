@@ -1,0 +1,19 @@
+program: Three-week pull ramp
+goals: ../../goals/ramp-the-pull.wdlg
+
+// Templates, not workouts: the `?` holes are filled by `wdl generate --program`.
+// Because the slot and position are the same each week, the pull slot keeps the
+// same two movements across all three weeks — which is the only reason the
+// volume ramp means anything.
+
+week 1:
+  - pull: w1-pull.wdl
+  - legs: w1-legs.wdl
+
+week 2:
+  - pull: w2-pull.wdl
+  - legs: w2-legs.wdl
+
+week 3:
+  - pull: w3-pull.wdl
+  - legs: w3-legs.wdl

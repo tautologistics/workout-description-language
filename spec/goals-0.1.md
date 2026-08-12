@@ -288,3 +288,27 @@ a block that is genuinely one session repeated.
 
 Cycle labels — `week 1`, `block A`, `Monday` — are yours. Nothing reads them but
 you; the order they appear in is what counts.
+
+### Generating a block
+
+A program whose entries are templates can be filled all at once:
+
+```bash
+wdl generate --program ramp-block.wdlp --seed 2 -w
+```
+
+**Holes in the same slot and the same position are one decision**, however many
+cycles the block runs. Generating week 1 and week 2 of the pull session
+independently gives them different movements, and a `progress` rule on the lats
+then measures an accident rather than a plan. Six sessions with two holes each,
+across two slots, is four choices — not twelve.
+
+Every rule applies: session rules to each workout, `per: block` rules to the
+whole, and `progress` within each slot. So the block that comes out has a ramp
+in it because the ramp was asked for.
+
+Without `-w` the filled workouts go to stdout with their paths; with it they are
+written back over the templates.
+
+Generating against a program with no readable goals is refused rather than
+silently producing first-fit workouts.

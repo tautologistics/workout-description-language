@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** wdl — format and check WDL files. */
 import { readFileSync, writeFileSync } from 'node:fs';
-import { basename } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { parse } from '../src/parse.ts';
 import { format } from '../src/format.ts';
 import { compile, outline, fmtClock } from '../src/timeline.ts';
@@ -11,13 +11,13 @@ import { exportErg } from '../src/adapters/erg.ts';
 import { exportFit } from '../src/adapters/fit.ts';
 import { exportGarminConnect } from '../src/adapters/garmin-connect.ts';
 import { parseGoals, check, checkSeries } from '../src/goals.ts';
-import { generate } from '../src/generate.ts';
+import { generate, generateProgram } from '../src/generate.ts';
 import { loadProgram, checkProgram } from '../src/program.ts';
 
 const [cmd, ...args] = process.argv.slice(2);
 const write = args.includes('-w') || args.includes('--write');
 const files = args.filter((a, i) => !a.startsWith('-')
-  && !['--to', '-o', '--ftp', '--goals', '--seed', '--equipment'].includes(args[i - 1] ?? ''));
+  && !['--to', '-o', '--ftp', '--goals', '--seed', '--equipment', '--program'].includes(args[i - 1] ?? ''));
 
 const EXPORTERS = ['zwo', 'erg', 'mrc', 'fit', 'connect'] as const;
 const toIdx = args.indexOf('--to');
@@ -30,18 +30,23 @@ const goalsIdx = args.indexOf('--goals');
 const goalsPath = goalsIdx >= 0 ? args[goalsIdx + 1] : undefined;
 const seedIdx = args.indexOf('--seed');
 const seed = seedIdx >= 0 ? Number(args[seedIdx + 1]) : undefined;
+const programIdx = args.indexOf('--program');
+const programPath = programIdx >= 0 ? args[programIdx + 1] : undefined;
 const equipIdx = args.indexOf('--equipment');
 const equipment = equipIdx >= 0 ? args[equipIdx + 1].split(',').map((x) => x.trim()) : undefined;
 
-if (!cmd || !['fmt', 'check', 'timeline', 'export', 'goals', 'generate', 'program'].includes(cmd) || files.length === 0
+if (!cmd || !['fmt', 'check', 'timeline', 'export', 'goals', 'generate', 'program'].includes(cmd) || (files.length === 0 && !programPath)
     || (cmd === 'export' && !EXPORTERS.includes(to as any))
-    || ((cmd === 'goals' || cmd === 'generate') && !goalsPath)) {
+    || (cmd === 'goals' && !goalsPath)
+    || (cmd === 'generate' && !goalsPath && !programPath)) {
   console.error('usage: wdl <fmt|check|timeline> [-w] <file.wdl>...');
   console.error('       wdl export --to <zwo|erg|mrc|fit|connect> [-o out] [--ftp N] [--no-power-targets] <file.wdl>');
   console.error('       wdl goals --goals <file.wdlg> <file.wdl>...   check workouts against a set of goals');
   console.error('       wdl generate --goals <file.wdlg> [--seed N] [--equipment a,b] <template.wdl>');
   console.error('              a template is a workout with `?` where a movement goes');
   console.error('       wdl program <file.wdlp>   check a training block against the goals it names');
+  console.error('       wdl generate --program <file.wdlp> [-w] [--seed N] [--equipment a,b]');
+  console.error('              fill the holes across a whole block, one choice per slot');
   process.exit(2);
 }
 
@@ -80,6 +85,44 @@ if (cmd === 'program') {
 
 // `generate` fills the `?` holes in a template so the result satisfies the
 // goals. The structure stays the author's; only the movements are chosen.
+if (cmd === 'generate' && programPath) {
+  const loaded = loadProgram(programPath);
+  // Workouts that will not read are expected here: they are templates full of
+  // holes, and reading them is this command's job. Anything else is fatal.
+  for (const e of loaded.errors) console.error(`${programPath}${e.line ? `:${e.line}` : ''}: ${e.message}`);
+  // Generating against no rules is not generating; it is picking the first thing
+  // that fits. Refuse rather than write six files nobody asked for.
+  if (!loaded.goals.rules.length) {
+    console.error(`${programPath}: no goals to generate against`);
+    process.exit(2);
+  }
+  const dir = dirname(programPath);
+  const entries = loaded.program.cycles.flatMap((c) =>
+    c.entries.map((e) => ({ cycle: c.label, slot: e.slot, file: join(dir, e.file) })));
+  const r = generateProgram(
+    entries.map((e) => ({ name: `${e.cycle} · ${e.slot}`, slot: e.slot,
+      workout: parse(readFileSync(e.file, 'utf8')).workout })),
+    loaded.goals, { seed, equipment });
+
+  let bad = 0;
+  r.sessions.forEach((s, i) => {
+    const out = format(s.workout);
+    if (write) writeFileSync(entries[i].file, out);
+    else { console.log(`--- ${entries[i].file}`); process.stdout.write(out); }
+  });
+  for (const h of r.unfilled) {
+    console.error(`${programPath}: "? ${h.constraint.join(' ')}" left open — ${h.candidates.length
+      ? 'no choice for it leaves the rules satisfiable' : 'nothing in the pool satisfies it'}`);
+    bad++;
+  }
+  if (r.gaveUp) console.error(`${programPath}: gave up after ${r.searched} assignments; this is the best found`);
+  for (const w of r.perWorkout) {
+    for (const f of w.findings) { console.error(`${w.name}: ${f.rule}: ${f.message}`); bad++; }
+  }
+  for (const f of r.findings) { console.error(`across the block: ${f.rule}: ${f.message}`); bad++; }
+  process.exit(bad ? 1 : 0);
+}
+
 if (cmd === 'generate') {
   const goals = parseGoals(readFileSync(goalsPath!, 'utf8'));
   for (const e of goals.errors) console.error(`${goalsPath}:${e.line}: ${e.message}`);

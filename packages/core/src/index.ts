@@ -18,14 +18,14 @@ export {
   type Exposure, type Exposures, type MuscleLoad, type MuscleLoadReport,
 } from './muscles.ts';
 export {
-  parseGoals, check, checkExposures, checkSeries,
+  parseGoals, check, checkExposures, checkSeries, checkSeriesExposures,
   type Goals, type Rule, type Group, type Amount, type Dimension,
   type NoRepeatRule, type CoverRule, type BalanceRule, type ProgressRule,
-  type Finding, type CheckReport, type SeriesEntry, type Scope,
+  type Finding, type CheckReport, type SeriesEntry, type SeriesExposures, type Scope,
 } from './goals.ts';
 export {
-  generate,
-  type GenerateOptions, type GenerateResult, type Hole,
+  generate, generateProgram,
+  type GenerateOptions, type GenerateResult, type GenerateSession, type GenerateProgramResult, type Hole,
 } from './generate.ts';
 export {
   parseProgram, loadProgram, checkProgram,
