@@ -1,5 +1,5 @@
 {
- "$comment": "Movement registry seed. Only id and title are required; everything else is advisory (movement_registry_design.md \u00a72). Classification data serves balance analysis only.",
+ "$comment": "Movement registry seed. Only id and title are required; everything else is advisory (movement_registry_design.md §2). Classification data serves balance analysis only.",
  "version": "2026.5",
  "movements": [
   {
@@ -421,6 +421,20 @@
   {
    "id": "atlas-stone-to-shoulder",
    "title": "Atlas Stone to Shoulder",
+   "muscles": {
+    "primary": [
+     "glutes",
+     "hamstrings",
+     "erectors"
+    ],
+    "secondary": [
+     "traps",
+     "biceps",
+     "forearms",
+     "abs",
+     "quads"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -714,6 +728,19 @@
   {
    "id": "bar-facing-burpee",
    "title": "Bar-Facing Burpee",
+   "muscles": {
+    "primary": [
+     "chest",
+     "quads",
+     "shoulders"
+    ],
+    "secondary": [
+     "triceps",
+     "abs",
+     "glutes",
+     "calves"
+    ]
+   },
    "pattern": [
     "squat",
     "horizontal-push"
@@ -1005,6 +1032,17 @@
   {
    "id": "barbell-overhead-press",
    "title": "Barbell Overhead Press",
+   "muscles": {
+    "primary": [
+     "shoulders"
+    ],
+    "secondary": [
+     "triceps",
+     "traps",
+     "abs",
+     "erectors"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -1240,6 +1278,18 @@
   {
    "id": "bear-crawl",
    "title": "Bear Crawl",
+   "muscles": {
+    "primary": [
+     "shoulders",
+     "abs"
+    ],
+    "secondary": [
+     "triceps",
+     "quads",
+     "hip-flexors",
+     "obliques"
+    ]
+   },
    "measures": [
     "distance"
    ],
@@ -1639,6 +1689,16 @@
     "bike erg",
     "bikeerg"
    ],
+   "muscles": {
+    "primary": [
+     "quads"
+    ],
+    "secondary": [
+     "glutes",
+     "hamstrings",
+     "calves"
+    ]
+   },
    "measures": [
     "distance",
     "calories"
@@ -1653,6 +1713,19 @@
    "aliases": [
     "rack pull"
    ],
+   "muscles": {
+    "primary": [
+     "erectors",
+     "glutes",
+     "hamstrings"
+    ],
+    "secondary": [
+     "traps",
+     "forearms",
+     "lats",
+     "quads"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -1955,6 +2028,18 @@
   {
    "id": "buddy-carry",
    "title": "Buddy Carry",
+   "muscles": {
+    "primary": [
+     "erectors",
+     "traps",
+     "glutes"
+    ],
+    "secondary": [
+     "quads",
+     "abs",
+     "forearms"
+    ]
+   },
    "measures": [
     "distance"
    ],
@@ -2004,6 +2089,19 @@
   {
    "id": "burpee-box-jump-over",
    "title": "Burpee Box Jump-Over",
+   "muscles": {
+    "primary": [
+     "quads",
+     "chest",
+     "glutes"
+    ],
+    "secondary": [
+     "shoulders",
+     "triceps",
+     "calves",
+     "abs"
+    ]
+   },
    "pattern": [
     "squat",
     "horizontal-push",
@@ -2017,6 +2115,20 @@
   {
    "id": "burpee-broad-jump",
    "title": "Burpee Broad Jump",
+   "muscles": {
+    "primary": [
+     "quads",
+     "glutes",
+     "chest"
+    ],
+    "secondary": [
+     "shoulders",
+     "triceps",
+     "calves",
+     "abs",
+     "hamstrings"
+    ]
+   },
    "measures": [
     "distance"
    ],
@@ -2029,6 +2141,19 @@
   {
    "id": "burpee-pull-up",
    "title": "Burpee Pull-Up",
+   "muscles": {
+    "primary": [
+     "chest",
+     "lats",
+     "quads"
+    ],
+    "secondary": [
+     "shoulders",
+     "triceps",
+     "biceps",
+     "abs"
+    ]
+   },
    "pattern": [
     "squat",
     "vertical-pull"
@@ -2936,6 +3061,22 @@
     "clean & jerk",
     "c&j"
    ],
+   "muscles": {
+    "primary": [
+     "glutes",
+     "quads",
+     "shoulders"
+    ],
+    "secondary": [
+     "hamstrings",
+     "erectors",
+     "traps",
+     "triceps",
+     "calves",
+     "forearms",
+     "abs"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -4060,6 +4201,20 @@
     "db hang clean to overhead",
     "dumbbell hang clean and jerk"
    ],
+   "muscles": {
+    "primary": [
+     "shoulders",
+     "glutes",
+     "quads"
+    ],
+    "secondary": [
+     "hamstrings",
+     "traps",
+     "triceps",
+     "erectors",
+     "forearms"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "laterality": [
@@ -4392,6 +4547,20 @@
    "aliases": [
     "db snatch"
    ],
+   "muscles": {
+    "primary": [
+     "shoulders",
+     "glutes"
+    ],
+    "secondary": [
+     "hamstrings",
+     "erectors",
+     "traps",
+     "quads",
+     "forearms",
+     "abs"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "laterality": [
@@ -4451,6 +4620,19 @@
    "aliases": [
     "db squat clean"
    ],
+   "muscles": {
+    "primary": [
+     "quads",
+     "glutes",
+     "shoulders"
+    ],
+    "secondary": [
+     "hamstrings",
+     "traps",
+     "erectors",
+     "forearms"
+    ]
+   },
    "implements": 2,
    "load": "per-implement",
    "pattern": [
@@ -4482,6 +4664,18 @@
    "aliases": [
     "db thruster"
    ],
+   "muscles": {
+    "primary": [
+     "quads",
+     "glutes",
+     "shoulders"
+    ],
+    "secondary": [
+     "triceps",
+     "abs",
+     "erectors"
+    ]
+   },
    "implements": 2,
    "load": "per-implement",
    "laterality": [
@@ -4958,6 +5152,16 @@
   {
    "id": "forward-roll",
    "title": "Forward Roll",
+   "muscles": {
+    "primary": [
+     "abs"
+    ],
+    "secondary": [
+     "neck",
+     "shoulders",
+     "erectors"
+    ]
+   },
    "pattern": [
     "locomotion"
    ]
@@ -5439,6 +5643,20 @@
    "aliases": [
     "gtoh"
    ],
+   "muscles": {
+    "primary": [
+     "shoulders",
+     "glutes",
+     "quads"
+    ],
+    "secondary": [
+     "hamstrings",
+     "erectors",
+     "traps",
+     "triceps",
+     "forearms"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -5467,6 +5685,18 @@
   {
    "id": "halting-deadlift",
    "title": "Halting Deadlift",
+   "muscles": {
+    "primary": [
+     "erectors",
+     "hamstrings",
+     "glutes"
+    ],
+    "secondary": [
+     "traps",
+     "forearms",
+     "lats"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -5534,6 +5764,16 @@
   {
    "id": "hand-release-push-up",
    "title": "Hand-Release Push-Up",
+   "muscles": {
+    "primary": [
+     "chest",
+     "triceps"
+    ],
+    "secondary": [
+     "shoulders",
+     "abs"
+    ]
+   },
    "pattern": [
     "horizontal-push"
    ],
@@ -5640,6 +5880,20 @@
    "aliases": [
     "hpc"
    ],
+   "muscles": {
+    "primary": [
+     "glutes",
+     "hamstrings",
+     "traps"
+    ],
+    "secondary": [
+     "quads",
+     "erectors",
+     "forearms",
+     "shoulders",
+     "calves"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -5703,6 +5957,19 @@
   {
    "id": "hang-squat-clean",
    "title": "Hang Squat Clean",
+   "muscles": {
+    "primary": [
+     "glutes",
+     "quads",
+     "hamstrings"
+    ],
+    "secondary": [
+     "traps",
+     "erectors",
+     "forearms",
+     "shoulders"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -6477,6 +6744,19 @@
   {
    "id": "jerk",
    "title": "Jerk",
+   "muscles": {
+    "primary": [
+     "shoulders",
+     "triceps"
+    ],
+    "secondary": [
+     "quads",
+     "glutes",
+     "traps",
+     "abs",
+     "calves"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -6542,6 +6822,17 @@
   {
    "id": "jog",
    "title": "Jog",
+   "muscles": {
+    "primary": [
+     "quads",
+     "hamstrings",
+     "calves"
+    ],
+    "secondary": [
+     "glutes",
+     "hip-flexors"
+    ]
+   },
    "measures": [
     "distance"
    ],
@@ -6570,6 +6861,19 @@
   {
    "id": "jumping-pull-up",
    "title": "Jumping Pull-Up",
+   "muscles": {
+    "primary": [
+     "lats",
+     "biceps"
+    ],
+    "secondary": [
+     "quads",
+     "mid-back",
+     "shoulders",
+     "forearms",
+     "calves"
+    ]
+   },
    "pattern": [
     "vertical-pull",
     "squat"
@@ -6625,6 +6929,19 @@
    "aliases": [
     "kb clean"
    ],
+   "muscles": {
+    "primary": [
+     "glutes",
+     "hamstrings"
+    ],
+    "secondary": [
+     "erectors",
+     "traps",
+     "forearms",
+     "shoulders",
+     "quads"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "laterality": [
@@ -6769,6 +7086,17 @@
    "aliases": [
     "kb press"
    ],
+   "muscles": {
+    "primary": [
+     "shoulders"
+    ],
+    "secondary": [
+     "triceps",
+     "traps",
+     "abs",
+     "erectors"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "laterality": [
@@ -6819,6 +7147,19 @@
    "aliases": [
     "kb snatch"
    ],
+   "muscles": {
+    "primary": [
+     "shoulders",
+     "glutes",
+     "hamstrings"
+    ],
+    "secondary": [
+     "erectors",
+     "traps",
+     "forearms",
+     "abs"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "laterality": [
@@ -7195,6 +7536,18 @@
   {
    "id": "l-pull-up",
    "title": "L-Pull-Up",
+   "muscles": {
+    "primary": [
+     "lats",
+     "abs"
+    ],
+    "secondary": [
+     "biceps",
+     "mid-back",
+     "hip-flexors",
+     "forearms"
+    ]
+   },
    "pattern": [
     "vertical-pull",
     "core"
@@ -7303,6 +7656,20 @@
    "aliases": [
     "lateral burpee over db"
    ],
+   "muscles": {
+    "primary": [
+     "chest",
+     "quads",
+     "glutes"
+    ],
+    "secondary": [
+     "shoulders",
+     "triceps",
+     "abs",
+     "calves",
+     "abductors"
+    ]
+   },
    "pattern": [
     "squat",
     "horizontal-push",
@@ -7655,6 +8022,18 @@
   {
    "id": "log-press",
    "title": "Log Press",
+   "muscles": {
+    "primary": [
+     "shoulders",
+     "triceps"
+    ],
+    "secondary": [
+     "traps",
+     "abs",
+     "erectors",
+     "quads"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -8323,6 +8702,20 @@
   {
    "id": "muscle-up",
    "title": "Muscle-Up",
+   "muscles": {
+    "primary": [
+     "lats",
+     "chest",
+     "triceps"
+    ],
+    "secondary": [
+     "biceps",
+     "shoulders",
+     "abs",
+     "forearms",
+     "mid-back"
+    ]
+   },
    "pattern": [
     "vertical-pull",
     "horizontal-push"
@@ -9205,6 +9598,20 @@
   {
    "id": "overhead-walking-lunge",
    "title": "Overhead Walking Lunge",
+   "muscles": {
+    "primary": [
+     "quads",
+     "glutes",
+     "shoulders"
+    ],
+    "secondary": [
+     "hamstrings",
+     "abs",
+     "erectors",
+     "calves",
+     "triceps"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "measures": [
@@ -9331,6 +9738,17 @@
   {
    "id": "parallette-handstand-push-up",
    "title": "Parallette Handstand Push-Up",
+   "muscles": {
+    "primary": [
+     "shoulders",
+     "triceps"
+    ],
+    "secondary": [
+     "traps",
+     "chest",
+     "abs"
+    ]
+   },
    "pattern": [
     "vertical-push"
    ],
@@ -9341,6 +9759,19 @@
   {
    "id": "partner-barbell-carry",
    "title": "Partner Barbell Carry",
+   "muscles": {
+    "primary": [
+     "traps",
+     "erectors",
+     "shoulders"
+    ],
+    "secondary": [
+     "abs",
+     "forearms",
+     "quads",
+     "glutes"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "measures": [
@@ -9578,6 +10009,20 @@
   {
    "id": "power-clean",
    "title": "Power Clean",
+   "muscles": {
+    "primary": [
+     "glutes",
+     "hamstrings",
+     "traps"
+    ],
+    "secondary": [
+     "quads",
+     "erectors",
+     "forearms",
+     "shoulders",
+     "calves"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -9644,6 +10089,21 @@
   {
    "id": "power-snatch",
    "title": "Power Snatch",
+   "muscles": {
+    "primary": [
+     "shoulders",
+     "glutes",
+     "hamstrings"
+    ],
+    "secondary": [
+     "traps",
+     "erectors",
+     "quads",
+     "forearms",
+     "calves",
+     "abs"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -9819,6 +10279,19 @@
   {
    "id": "push-jerk",
    "title": "Push Jerk",
+   "muscles": {
+    "primary": [
+     "shoulders",
+     "triceps"
+    ],
+    "secondary": [
+     "quads",
+     "glutes",
+     "traps",
+     "abs",
+     "calves"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -10701,6 +11174,20 @@
     "concept2",
     "c2"
    ],
+   "muscles": {
+    "primary": [
+     "lats",
+     "mid-back",
+     "quads"
+    ],
+    "secondary": [
+     "biceps",
+     "erectors",
+     "hamstrings",
+     "glutes",
+     "forearms"
+    ]
+   },
    "measures": [
     "distance",
     "calories"
@@ -10794,6 +11281,19 @@
   {
    "id": "sandbag-carry",
    "title": "Sandbag Carry",
+   "muscles": {
+    "primary": [
+     "erectors",
+     "traps",
+     "abs"
+    ],
+    "secondary": [
+     "glutes",
+     "quads",
+     "forearms",
+     "shoulders"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "measures": [
@@ -10831,6 +11331,19 @@
   {
    "id": "sandbag-lunge",
    "title": "Sandbag Lunge",
+   "muscles": {
+    "primary": [
+     "quads",
+     "glutes"
+    ],
+    "secondary": [
+     "hamstrings",
+     "erectors",
+     "abs",
+     "calves",
+     "adductors"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "measures": [
@@ -11499,6 +12012,19 @@
   {
    "id": "shuttle-sprint",
    "title": "Shuttle Sprint",
+   "muscles": {
+    "primary": [
+     "quads",
+     "glutes",
+     "hamstrings"
+    ],
+    "secondary": [
+     "calves",
+     "hip-flexors",
+     "abductors",
+     "adductors"
+    ]
+   },
    "measures": [
     "distance"
    ],
@@ -11992,6 +12518,19 @@
     "ski",
     "ski erg"
    ],
+   "muscles": {
+    "primary": [
+     "lats",
+     "abs",
+     "triceps"
+    ],
+    "secondary": [
+     "shoulders",
+     "erectors",
+     "mid-back",
+     "quads"
+    ]
+   },
    "measures": [
     "distance",
     "calories"
@@ -12070,6 +12609,19 @@
   {
    "id": "sled-pull",
    "title": "Sled Pull",
+   "muscles": {
+    "primary": [
+     "lats",
+     "mid-back",
+     "biceps"
+    ],
+    "secondary": [
+     "quads",
+     "glutes",
+     "erectors",
+     "forearms"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "measures": [
@@ -12082,6 +12634,19 @@
   {
    "id": "sled-push",
    "title": "Sled Push",
+   "muscles": {
+    "primary": [
+     "quads",
+     "glutes",
+     "calves"
+    ],
+    "secondary": [
+     "hamstrings",
+     "shoulders",
+     "abs",
+     "erectors"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "measures": [
@@ -12125,6 +12690,19 @@
   {
    "id": "sledgehammer-strike",
    "title": "Sledgehammer Strike",
+   "muscles": {
+    "primary": [
+     "obliques",
+     "abs",
+     "shoulders"
+    ],
+    "secondary": [
+     "lats",
+     "forearms",
+     "triceps",
+     "erectors"
+    ]
+   },
    "laterality": [
     "split",
     "per-side"
@@ -12474,6 +13052,21 @@
   {
    "id": "snatch",
    "title": "Snatch",
+   "muscles": {
+    "primary": [
+     "shoulders",
+     "glutes",
+     "hamstrings"
+    ],
+    "secondary": [
+     "traps",
+     "erectors",
+     "quads",
+     "forearms",
+     "calves",
+     "abs"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -12822,6 +13415,19 @@
   {
    "id": "sprint",
    "title": "Sprint",
+   "muscles": {
+    "primary": [
+     "hamstrings",
+     "glutes",
+     "quads"
+    ],
+    "secondary": [
+     "calves",
+     "hip-flexors",
+     "abs",
+     "erectors"
+    ]
+   },
    "measures": [
     "distance"
    ],
@@ -12835,6 +13441,20 @@
   {
    "id": "sprint-drag-carry",
    "title": "Sprint-Drag-Carry",
+   "muscles": {
+    "primary": [
+     "quads",
+     "glutes",
+     "erectors"
+    ],
+    "secondary": [
+     "hamstrings",
+     "traps",
+     "forearms",
+     "abs",
+     "calves"
+    ]
+   },
    "measures": [
     "distance"
    ],
@@ -12886,6 +13506,20 @@
   {
    "id": "squat-clean",
    "title": "Squat Clean",
+   "muscles": {
+    "primary": [
+     "quads",
+     "glutes",
+     "hamstrings"
+    ],
+    "secondary": [
+     "traps",
+     "erectors",
+     "forearms",
+     "shoulders",
+     "calves"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -12939,6 +13573,20 @@
   {
    "id": "squat-snatch",
    "title": "Squat Snatch",
+   "muscles": {
+    "primary": [
+     "shoulders",
+     "quads",
+     "glutes"
+    ],
+    "secondary": [
+     "hamstrings",
+     "traps",
+     "erectors",
+     "forearms",
+     "abs"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -13741,6 +14389,17 @@
   {
    "id": "stiff-legged-deadlift",
    "title": "Stiff-Legged Deadlift",
+   "muscles": {
+    "primary": [
+     "hamstrings",
+     "glutes"
+    ],
+    "secondary": [
+     "erectors",
+     "forearms",
+     "lats"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -13861,6 +14520,18 @@
   {
    "id": "strict-pull-up",
    "title": "Strict Pull-Up",
+   "muscles": {
+    "primary": [
+     "lats",
+     "biceps"
+    ],
+    "secondary": [
+     "mid-back",
+     "shoulders",
+     "forearms",
+     "abs"
+    ]
+   },
    "pattern": [
     "vertical-pull"
    ],
@@ -13960,6 +14631,20 @@
    "aliases": [
     "sdhp"
    ],
+   "muscles": {
+    "primary": [
+     "glutes",
+     "quads",
+     "traps"
+    ],
+    "secondary": [
+     "hamstrings",
+     "shoulders",
+     "erectors",
+     "forearms",
+     "adductors"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -14146,6 +14831,19 @@
   {
    "id": "swim",
    "title": "Swim",
+   "muscles": {
+    "primary": [
+     "lats",
+     "shoulders"
+    ],
+    "secondary": [
+     "triceps",
+     "mid-back",
+     "abs",
+     "glutes",
+     "erectors"
+    ]
+   },
    "measures": [
     "distance"
    ],
@@ -14251,6 +14949,20 @@
   {
    "id": "tire-flip",
    "title": "Tire Flip",
+   "muscles": {
+    "primary": [
+     "glutes",
+     "quads",
+     "erectors"
+    ],
+    "secondary": [
+     "hamstrings",
+     "traps",
+     "shoulders",
+     "biceps",
+     "forearms"
+    ]
+   },
    "pattern": [
     "hinge",
     "horizontal-push"
@@ -14442,6 +15154,20 @@
    "aliases": [
     "tgu"
    ],
+   "muscles": {
+    "primary": [
+     "shoulders",
+     "abs"
+    ],
+    "secondary": [
+     "obliques",
+     "glutes",
+     "quads",
+     "triceps",
+     "erectors",
+     "hip-flexors"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "laterality": [
@@ -14770,6 +15496,18 @@
   {
    "id": "wall-climb",
    "title": "Wall Climb",
+   "muscles": {
+    "primary": [
+     "shoulders",
+     "abs"
+    ],
+    "secondary": [
+     "triceps",
+     "chest",
+     "erectors",
+     "quads"
+    ]
+   },
    "pattern": [
     "vertical-push",
     "core"
@@ -15180,6 +15918,20 @@
   {
    "id": "yoke-carry",
    "title": "Yoke Carry",
+   "muscles": {
+    "primary": [
+     "traps",
+     "erectors",
+     "quads"
+    ],
+    "secondary": [
+     "glutes",
+     "abs",
+     "shoulders",
+     "forearms",
+     "calves"
+    ]
+   },
    "implements": 1,
    "load": "total",
    "measures": [
@@ -15263,6 +16015,6 @@
  ],
  "$sources": {
   "curated": "Hand-written entries covering the example corpus. Authoritative where they overlap an import.",
-  "free-exercise-db": "https://github.com/yuhonas/free-exercise-db \u2014 public domain (Unlicense). Imported for titles, muscles, and equipment; entries carry source: free-exercise-db."
+  "free-exercise-db": "https://github.com/yuhonas/free-exercise-db — public domain (Unlicense). Imported for titles, muscles, and equipment; entries carry source: free-exercise-db."
  }
 }

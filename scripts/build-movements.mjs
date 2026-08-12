@@ -3,12 +3,15 @@
  * Merge every movement source into registry/movements.canonical.json.
  *
  * Merge order is wdl-curated > garmin > free-exercise-db > wger > everkinetic.
- * Earlier sources win on conflicting scalar fields; set-valued fields — muscles,
- * equipment, aliases, translations — are unioned. Every record names the
- * sources that contributed to it, so the merge stays reversible and the licence
- * question stays answerable.
+ * Earlier sources win on conflicting scalar fields; set-valued fields —
+ * equipment, aliases, translations — are unioned. Muscles are not unioned: each
+ * source's claim is recorded and the merged view is derived from all of them,
+ * so every muscle in the corpus can be traced back to who said so. Every record
+ * names the sources that contributed to it, so the merge stays reversible and
+ * the licence question stays answerable.
  */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { norm, deriveMuscles, unknownMuscles } from './lib/muscles.mjs';
 
 const STOP = new Set(['and', 'or', 'the', 'a', 'of', 'to', 'with']);
 const fold = (s) => String(s).normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
@@ -16,31 +19,12 @@ const fold = (s) => String(s).normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerC
 const slug = (s) => String(s).normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
   .split(/[^a-z0-9]+/).filter((t) => t && !STOP.has(t)).join('-');
 
-/** One vocabulary, so five sources can be compared at all. */
-const MUSCLE = {
-  abdominals: 'abs', abs: 'abs', quadriceps: 'quads', quads: 'quads', hamstrings: 'hamstrings',
-  glutes: 'glutes', 'lower back': 'erectors', erectors: 'erectors', 'middle back': 'mid-back',
-  lats: 'lats', biceps: 'biceps', triceps: 'triceps', chest: 'chest', shoulders: 'shoulders',
-  traps: 'traps', calves: 'calves', forearms: 'forearms', forearm: 'forearms', obliques: 'obliques',
-  hips: 'hip-flexors', 'hip-flexors': 'hip-flexors', abductors: 'abductors', adductors: 'adductors',
-  neck: 'neck', 'rear-delts': 'rear-delts', grip: 'forearms', core: 'abs', 'upper-back': 'mid-back',
-  soleus: 'calves', gastrocnemius: 'calves', 'anterior deltoid': 'shoulders', 'brachialis': 'biceps',
-  'pectoralis major': 'chest', 'latissimus dorsi': 'lats', 'biceps femoris': 'hamstrings',
-  'gluteus maximus': 'glutes', 'rectus abdominis': 'abs', 'trapezius': 'traps',
-  'quadriceps femoris': 'quads', 'triceps brachii': 'triceps', 'biceps brachii': 'biceps',
-  'serratus anterior': 'chest', 'obliquus externus abdominis': 'obliques', 'soleus muscle': 'calves',
-};
-const norm = (xs) => (xs ?? []).map((x) => {
-  const k = String(x ?? '').trim().toLowerCase().replace(/_/g, ' ');
-  return MUSCLE[k] ?? k.replace(/ /g, '-');
-}).filter(Boolean);
-
 const records = new Map();
 function add(key, title, source, f = {}) {
   if (!key || !title) return;
   let r = records.get(key);
   if (!r) {
-    r = { id: slug(title) || key, title, aliases: new Set(), primary: new Set(), secondary: new Set(),
+    r = { id: slug(title) || key, title, aliases: new Set(),
           equipment: new Set(), pattern: new Set(), translations: {}, sources: [], external: {},
           // Which source contributed what: upstream ids, and the name each used.
           origin: {}, muscleClaims: {} };
@@ -51,11 +35,12 @@ function add(key, title, source, f = {}) {
     r.origin[source] = { id: f.__upstream ?? null, name: f.__name ?? title };
     delete f.__upstream; delete f.__name;
   }
-  // Record each source's own muscle claim before they are unioned away, since
-  // the sources disagree and the disagreement is worth keeping.
+  // Each source's own muscle claim, kept separate rather than folded into a
+  // shared set: the sources disagree, and the disagreement is the useful part.
   if (f.primary?.length || f.secondary?.length) {
     r.muscleClaims[source] = { primary: [...(f.primary ?? [])], secondary: [...(f.secondary ?? [])] };
   }
+  delete f.primary; delete f.secondary;
   for (const [k, v] of Object.entries(f)) {
     if (v === undefined || v === null) continue;
     if (r[k] instanceof Set) for (const x of v) r[k].add(x);
@@ -119,16 +104,19 @@ if (existsSync('docs/references/everkinetic.json')) {
   }
 }
 
+if (unknownMuscles.size) {
+  console.error('Unknown muscle names. Add them to registry/muscles.json as synonyms of an existing');
+  console.error('muscle, or as a new muscle if they are genuinely one we do not track yet:');
+  for (const [k, n] of [...unknownMuscles].sort((a, b) => b[1] - a[1])) console.error(`  ${String(n).padStart(5)}  ${k}`);
+  process.exit(1);
+}
+
 const out = [...records.values()].sort((a, b) => a.id.localeCompare(b.id)).map((r) => {
   const rec = { id: r.id, title: r.title };
   const aliases = [...r.aliases].filter((a) => fold(a) !== fold(r.title));
   if (aliases.length) rec.aliases = aliases.sort();
-  if (r.primary.size || r.secondary.size) {
-    rec.muscles = {};
-    if (r.primary.size) rec.muscles.primary = [...r.primary].sort();
-    const sec = [...r.secondary].filter((m) => !r.primary.has(m));
-    if (sec.length) rec.muscles.secondary = sec.sort();
-  }
+  const derived = deriveMuscles(r.muscleClaims);
+  if (derived) rec.muscles = derived;
   for (const k of ['pattern', 'equipment']) if (r[k].size) rec[k] = [...r[k]].sort();
   for (const k of ['implements', 'load', 'measures', 'laterality', 'defaultLaterality', 'force', 'mechanic'])
     if (r[k] !== undefined) rec[k] = r[k];
@@ -137,12 +125,11 @@ const out = [...records.values()].sort((a, b) => a.id.localeCompare(b.id)).map((
   if (Object.keys(r.external).length) rec.external = r.external;
   rec.sources = r.sources;
   rec.origin = r.origin;
-  // Only keep the per-source claims where they actually differ.
-  const claims = Object.entries(r.muscleClaims);
-  if (claims.length > 1) {
-    const distinct = new Set(claims.map(([, c]) => JSON.stringify([c.primary.slice().sort(), c.secondary.slice().sort()])));
-    if (distinct.size > 1) rec.muscleClaims = Object.fromEntries(claims);
-  }
+  // Kept always, not just on disagreement. `muscles` is derived from these, so
+  // dropping them would leave the merged view unattributable — and it is the
+  // per-source counts that let a caller ask for muscles two sources agree on
+  // rather than everything anyone ever claimed.
+  if (Object.keys(r.muscleClaims).length) rec.muscleClaims = r.muscleClaims;
   return rec;
 });
 
@@ -159,6 +146,10 @@ console.log(`  with muscle data:      ${out.filter((r) => r.muscles).length}`);
 console.log(`  with a Garmin mapping: ${out.filter((r) => r.external?.garminCategory).length}`);
 console.log(`  with translations:     ${out.filter((r) => r.translations).length}`);
 console.log(`  in more than one source: ${out.filter((r) => r.sources.length > 1).length}`);
-console.log(`  where sources disagree on muscles: ${out.filter((r) => r.muscleClaims).length}`);
+const disagree = out.filter((r) => {
+  const c = Object.values(r.muscleClaims ?? {});
+  return c.length > 1 && new Set(c.map((x) => JSON.stringify([[...x.primary].sort(), [...x.secondary].sort()]))).size > 1;
+});
+console.log(`  where sources disagree on muscles: ${disagree.length}`);
 console.log('\nby source combination:');
 for (const [k, v] of Object.entries(by).sort((a, b) => b[1] - a[1]).slice(0, 8)) console.log(`  ${String(v).padStart(5)}  ${k}`);

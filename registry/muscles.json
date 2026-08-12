@@ -1,0 +1,31 @@
+{
+  "$comment": "The closed muscle vocabulary. Five sources name muscles five different ways — Latin, English, plural, misspelt — and unless they are collapsed onto one set, nothing can be compared. `synonyms` lists every spelling seen in an upstream source, lowercased with underscores read as spaces. Anything not listed here is a leak, and scripts/build-movements.mjs fails on it rather than passing it through.",
+  "regions": {
+    "upper": "Everything above the trunk that moves an arm or the head.",
+    "core": "The trunk itself, including the spinal erectors and the hip flexors that cross into it.",
+    "lower": "Everything below the trunk that moves a leg."
+  },
+  "muscles": [
+    { "id": "chest", "name": "Chest", "region": "upper", "synonyms": ["pectoralis major", "pectorals", "pecs", "serratus anterior"] },
+    { "id": "shoulders", "name": "Shoulders", "region": "upper", "synonyms": ["deltoid", "deltoids", "delts", "deltoideus (clavicula)", "anterior deltoid", "rear delts", "rear-delts", "should"] },
+    { "id": "biceps", "name": "Biceps", "region": "upper", "synonyms": ["biceps brachii", "bicpes", "brachialis"] },
+    { "id": "triceps", "name": "Triceps", "region": "upper", "synonyms": ["triceps brachii"] },
+    { "id": "forearms", "name": "Forearms", "region": "upper", "synonyms": ["forearm", "forerm", "grip"] },
+    { "id": "lats", "name": "Lats", "region": "upper", "synonyms": ["latissimus dorsi"] },
+    { "id": "mid-back", "name": "Mid-back", "region": "upper", "synonyms": ["middle back", "back", "rhomboids"] },
+    { "id": "traps", "name": "Traps", "region": "upper", "synonyms": ["trapezius", "upper back"] },
+    { "id": "neck", "name": "Neck", "region": "upper", "synonyms": [] },
+
+    { "id": "abs", "name": "Abs", "region": "core", "synonyms": ["abdominals", "core", "rectus abdominis"] },
+    { "id": "obliques", "name": "Obliques", "region": "core", "synonyms": ["obliquus externus abdominis"] },
+    { "id": "erectors", "name": "Erectors", "region": "core", "synonyms": ["lower back", "erector spinae", "spinal erectors"] },
+    { "id": "hip-flexors", "name": "Hip flexors", "region": "core", "synonyms": ["hips", "iliopsoas"] },
+
+    { "id": "glutes", "name": "Glutes", "region": "lower", "synonyms": ["glutaeus maximus", "gluteus maximus", "gluteus"] },
+    { "id": "quads", "name": "Quads", "region": "lower", "synonyms": ["quadriceps", "quadriceps femoris"] },
+    { "id": "hamstrings", "name": "Hamstrings", "region": "lower", "synonyms": ["ischiocrural muscles", "biceps femoris"] },
+    { "id": "calves", "name": "Calves", "region": "lower", "synonyms": ["soleus", "soleus muscle", "gastrocnemius"] },
+    { "id": "adductors", "name": "Adductors", "region": "lower", "synonyms": ["adductor"] },
+    { "id": "abductors", "name": "Abductors", "region": "lower", "synonyms": ["hip abductors", "abductor"] }
+  ]
+}

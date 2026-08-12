@@ -29,6 +29,7 @@
  * rather than two overlapping pairs.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
+import { deriveMuscles } from './lib/muscles.mjs';
 
 const apply = process.argv.includes('--apply');
 const STOP = new Set(['and', 'or', 'the', 'a', 'of', 'to', 'with', 'for', 'on', 'in']);
@@ -128,18 +129,25 @@ for (const [root, idxs] of clusters) {
   out.aliases = [...new Set(idxs.flatMap((i) => [movements[i].title, ...(movements[i].aliases ?? [])]))]
     .filter((t) => t !== out.title).sort();
   for (const f of ['pattern', 'equipment']) { const v = union2(f); if (v) out[f] = v; }
-  const prim = new Set(idxs.flatMap((i) => movements[i].muscles?.primary ?? []));
-  const sec = new Set(idxs.flatMap((i) => movements[i].muscles?.secondary ?? []));
-  if (prim.size || sec.size) out.muscles = {
-    ...(prim.size ? { primary: [...prim].sort() } : {}),
-    ...(sec.size ? { secondary: [...sec].filter((m) => !prim.has(m)).sort() } : {}),
-  };
   out.sources = [...new Set(idxs.flatMap((i) => movements[i].sources))];
   out.origin = Object.assign({}, ...idxs.map((i) => movements[i].origin ?? {}));
   out.external = Object.assign({}, ...idxs.map((i) => movements[i].external ?? {}));
   if (!Object.keys(out.external).length) delete out.external;
-  const claims = Object.assign({}, ...idxs.map((i) => movements[i].muscleClaims ?? {}));
-  if (Object.keys(claims).length > 1) out.muscleClaims = claims; else delete out.muscleClaims;
+  // Claims merge per source and the muscle lists are re-derived from them.
+  // Unioning the derived lists instead loses the attribution: two records both
+  // carrying a Garmin claim would keep one and silently orphan the other's
+  // muscles, which is how Thruster ended up claiming nine secondaries.
+  const claims = {};
+  for (const i of idxs) {
+    for (const [src, c] of Object.entries(movements[i].muscleClaims ?? {})) {
+      const into = (claims[src] ??= { primary: [], secondary: [] });
+      for (const k of ['primary', 'secondary']) {
+        for (const m of c[k] ?? []) if (!into[k].includes(m)) into[k].push(m);
+      }
+    }
+  }
+  if (Object.keys(claims).length) { out.muscleClaims = claims; out.muscles = deriveMuscles(claims); }
+  else { delete out.muscleClaims; delete out.muscles; }
   out.mergedFrom = idxs.filter((i) => i !== pick).map((i) => movements[i].id);
   merged.push(out);
 }
