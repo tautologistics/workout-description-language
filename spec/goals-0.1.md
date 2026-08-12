@@ -151,6 +151,10 @@ wdl goals --goals my-goals.wdlg week1.wdl week2.wdl week3.wdl
 Files are read as one block in the order given. Session rules are reported per
 file; `progress` is reported across the block.
 
+A fault that recurs is stated once with a count. A ten-tier ladder repeats its
+structure ten times, and reporting one structural fault ten times buries the
+other nine faults in the file.
+
 Two things are reported alongside the findings, because every number inherits
 them:
 

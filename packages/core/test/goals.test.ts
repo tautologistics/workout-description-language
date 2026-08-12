@@ -91,6 +91,14 @@ describe('goals: no repeat', () => {
   it('says nothing about a tally block, which has no order', () => {
     eq(findings('any order:\n  - 100 Air Squat\n  - 100 Front Squat').length, 0);
   });
+
+  it('states a recurring fault once, with a count', () => {
+    // A ten-tier ladder repeats its structure ten times. Reported ten times, one
+    // structural fault buries the other nine faults in the file.
+    const r = check(t('10..1:\n  - Air Squat\n  - Front Squat'), parseGoals('no repeat:\n'));
+    eq(r.findings.length, 2, 'squat→squat and, round to round, squat→squat');
+    eq(r.findings[0].count, 10);
+  });
 });
 
 describe('goals: amounts', () => {

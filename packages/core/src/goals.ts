@@ -266,6 +266,12 @@ export interface Finding {
   /** Source line of the rule that produced it. */
   line: number;
   message: string;
+  /**
+   * How many times the same thing was found. A ten-tier ladder repeats its
+   * structure ten times, and reporting one structural fault ten times buries
+   * the other nine faults. The fact is stated once, with its count.
+   */
+  count: number;
   /** Exposure indices implicated, where the rule is about a position. */
   where?: number[];
 }
@@ -309,7 +315,15 @@ const list = (xs: string[]) => xs.join(', ');
 export function check(t: Timeline, goals: Goals, opts: AttributionOptions = {}): CheckReport {
   const { list: exp, unresolved } = exposures(t, opts);
   const load = muscleLoad(t, opts);
-  const findings: Finding[] = [];
+  const found = new Map<string, Finding>();
+  const findings = {
+    push(f: Omit<Finding, 'count'>) {
+      const key = `${f.rule}|${f.line}|${f.message}`;
+      const seen = found.get(key);
+      if (seen) { seen.count++; if (f.where) seen.where!.push(...f.where); return; }
+      found.set(key, { ...f, count: 1, where: f.where ? [...f.where] : undefined });
+    },
+  };
 
   const worked = (e: Exposure, level: 'primary' | 'any') =>
     level === 'any' ? [...e.primary, ...e.secondary] : e.primary;
@@ -368,7 +382,7 @@ export function check(t: Timeline, goals: Goals, opts: AttributionOptions = {}):
     }
   }
 
-  return { findings, unresolved, unbounded: load.unbounded };
+  return { findings: [...found.values()], unresolved, unbounded: load.unbounded };
 }
 
 /**
@@ -392,7 +406,7 @@ export function checkSeries(
         const need = rule.bound.relative ? prev * (1 + rule.bound.value) : prev + rule.bound.value;
         if (now < need) {
           findings.push({
-            rule: rule.kind, line: rule.line,
+            rule: rule.kind, line: rule.line, count: 1,
             message: `${g.name}: ${series[i - 1].name} ${prev} → ${series[i].name} ${now} ${rule.measure};`
               + ` ${rule.bound.relative ? `${Math.round(rule.bound.value * 100)}% more` : `${rule.bound.value} more`} required (${Math.round(need)})`,
           });

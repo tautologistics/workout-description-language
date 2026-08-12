@@ -58,7 +58,7 @@ if (cmd === 'goals') {
     ];
     console.log(`\n${name}${notes.length ? `  (${notes.join('; ')})` : ''}`);
     if (!report.findings.length) console.log('  ok');
-    for (const f of report.findings) { console.log(`  ${f.rule}: ${f.message}`); bad++; }
+    for (const f of report.findings) { console.log(`  ${f.rule}: ${f.message}${f.count > 1 ? `  (×${f.count})` : ''}`); bad++; }
   }
   if (findings.length) {
     console.log(`\nacross the block`);
