@@ -2,6 +2,9 @@
  * Structures found by expanding the corpus from 40 to 110 workouts.
  * Each was a silent mis-parse or an outright failure before it was fixed.
  */
+import { readdirSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, it, eq, ok } from './lib.ts';
 import { parse } from '../src/parse.ts';
 import { format } from '../src/format.ts';
@@ -178,5 +181,34 @@ describe('threshold completion conditions', () => {
   it('round-trips', () => {
     const src = 'sequence:\n  - 5min Bike @ 90% FTP\n  rest until HR < 130bpm';
     eq(format(one(src)).trim(), src);
+  });
+});
+
+describe('the at-rest format stays whiteboard-shaped', () => {
+  it('never emits a nested object anywhere in canonical output', () => {
+    // A compound score used to canonicalise to `score: { primary: time, ... }`,
+    // which is JSON wearing a costume. If the resting format degenerates into
+    // that, the premise is gone — nobody writes braces on a whiteboard.
+    const dir = join(dirname(fileURLToPath(import.meta.url)), '../../../examples/corpus');
+    for (const f of readdirSync(dir).filter((x) => x.endsWith('.wdl'))) {
+      const out = format(parse(readFileSync(join(dir, f), 'utf8')).workout);
+      ok(!/[{}]/.test(out), `${f} emits braces:\n${out.split('\n').filter((l) => /[{}]/.test(l)).join('\n')}`);
+    }
+  });
+
+  it('writes a compound score as plain sibling lines', () => {
+    const src = 'for time, cap 12min:\n  - 21 Pull-Up\nscore: time\ntiebreak: checkpoints';
+    eq(format(parse(src).workout).trim(),
+       'for time, cap 12min:\n  - 21 Pull-Up\n\nscore: time\ntiebreak: checkpoints');
+    const w = parse(src).workout;
+    eq(w.score?.primary, 'time');
+    eq(w.score?.tiebreak, 'checkpoints');
+  });
+
+  it('still reads the old braced form, since forgiving input is the rule', () => {
+    const w = parse('for time:\n  - 21 Pull-Up\nscore: { primary: time, on cap: reps, tiebreak: checkpoints }').workout;
+    eq(w.score?.primary, 'time');
+    eq(w.score?.tiebreak, 'checkpoints');
+    ok(!/[{}]/.test(format(w)), 'and normalises it away');
   });
 });

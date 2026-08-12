@@ -328,7 +328,12 @@ class Parser {
       for (const k of kids) {
         // A `score:` nested inside a block belongs to that block; at the top
         // level it belongs to the workout. One rule, no ambiguity with siblings.
-        if (/^score:/i.test(k.text.trim())) { block.score = parseScore(k.text.trim()); continue; }
+        const kt = k.text.trim();
+        if (/^score:/i.test(kt)) { block.score = parseScore(kt); continue; }
+        let c = kt.match(/^on\s+cap:\s*(.+)$/i);
+        if (c && block.score) { block.score.onCap = c[1].trim(); continue; }
+        c = kt.match(/^tiebreak:\s*(.+)$/i);
+        if (c && block.score) { block.score.tiebreak = c[1].trim(); continue; }
         const n = this.parseNode(k);
         if (n) block.children.push(n);
       }
@@ -379,6 +384,11 @@ export function parse(source: string): { workout: Workout; errors: ParseError[] 
     if (dm) { workout.directives[dm[1]] = dm[2].trim(); continue; }
     if (text.startsWith('#')) { workout.title = text.replace(/^#+\s*/, ''); continue; }
     if (/^score:/i.test(text)) { workout.score = parseScore(text); continue; }
+    // `on cap:` and `tiebreak:` are continuations of the score above them.
+    let cont = text.match(/^on\s+cap:\s*(.+)$/i);
+    if (cont && workout.score) { workout.score.onCap = cont[1].trim(); continue; }
+    cont = text.match(/^tiebreak:\s*(.+)$/i);
+    if (cont && workout.score) { workout.score.tiebreak = cont[1].trim(); continue; }
     if (/^variants:$/i.test(text)) {
       workout.variants = {};
       for (const v of line.children) {

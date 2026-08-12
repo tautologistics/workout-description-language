@@ -55,14 +55,18 @@ function restText(r: Rest): string {
   return out;
 }
 
-function scoreText(s: Score): string {
-  if (s.onCap || s.tiebreak) {
-    const parts = [`primary: ${s.primary}`];
-    if (s.onCap) parts.push(`on cap: ${s.onCap}`);
-    if (s.tiebreak) parts.push(`tiebreak: ${s.tiebreak}`);
-    return `score: { ${parts.join(', ')} }`;
-  }
-  return `score: ${s.raw}`;
+/**
+ * Scoring emits as plain sibling lines, never a nested object. A compound score
+ * used to canonicalise to `score: { primary: time, on cap: reps }`, which is
+ * JSON wearing a costume — and if the at-rest format degenerates into that, the
+ * whole premise is gone: nobody writes braces on a whiteboard.
+ */
+function scoreLines(s: Score): string[] {
+  const out = [`score: ${s.onCap || s.tiebreak ? s.primary : s.raw}`];
+  // `on cap: reps` is the default when a cap exists, so only state it otherwise.
+  if (s.onCap && s.onCap !== 'reps') out.push(`on cap: ${s.onCap}`);
+  if (s.tiebreak) out.push(`tiebreak: ${s.tiebreak}`);
+  return out;
 }
 
 /** Collapse contiguous runs of 1 into `a..b`; anything else stays explicit. */
@@ -146,7 +150,7 @@ function emit(n: Node, depth: number, out: string[]) {
       }
       out.push(pad + headerText(n));
       for (const c of n.children) emit(c, depth + 1, out);
-      if (n.score && !n.score.implied) out.push(`${pad}${IND}${scoreText(n.score)}`);
+      if (n.score && !n.score.implied) for (const l of scoreLines(n.score)) out.push(`${pad}${IND}${l}`);
       return;
     }
   }
@@ -160,7 +164,7 @@ export function format(w: Workout): string {
 
   for (const n of w.body) emit(n, 0, out);
 
-  if (w.score) { out.push(''); out.push(scoreText(w.score)); }
+  if (w.score) { out.push(''); out.push(...scoreLines(w.score)); }
   if (w.variants) {
     out.push('');
     out.push('variants:');

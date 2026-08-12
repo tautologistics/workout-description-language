@@ -201,7 +201,9 @@ describe('scoring', () => {
     const marked = b(w.body[0]).children.map(s).filter((x) => x.flags.includes('tiebreak'));
     eq(marked.length, 5);
     eq(w.score?.tiebreak, 'checkpoints');
-    eq(w.score?.onCap, 'reps');
+    // `on cap: reps` is the default and no longer written out — stating the
+    // default was the only reason the score needed a nested object at all.
+    eq(w.score?.onCap, undefined);
   });
 
   it('a cap is recorded separately from the score', () => {

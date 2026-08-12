@@ -9,4 +9,5 @@ for time, cap 12min:
   - 15 Bar Muscle-Up
   - 30 Double-Under
   - 15 Thruster @ 135lb
-score: { primary: time, on cap: reps, tiebreak: checkpoints }
+score: time
+tiebreak: checkpoints

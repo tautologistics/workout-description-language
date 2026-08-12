@@ -10,4 +10,5 @@ for time, cap 20min:
   - 25 Snatch @ 95lb
   - 5 Wall Walk @tiebreak
   - 50cal Row
-score: { primary: time, on cap: reps, tiebreak: checkpoints }
+score: time
+tiebreak: checkpoints
