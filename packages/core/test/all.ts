@@ -16,5 +16,6 @@ import './export.test.ts';
 import './connect.test.ts';
 import './muscles.test.ts';
 import './goals.test.ts';
+import './generate.test.ts';
 import { report } from './lib.ts';
 process.exit(report());

@@ -54,7 +54,9 @@ for (const m of JSON.parse(readFileSync('registry/movements.json', 'utf8')).move
   if (m.source === 'free-exercise-db') continue;
   add(fold(m.title), m.title, 'wdl-curated', {
     aliases: m.aliases ?? [], primary: norm(m.muscles?.primary), secondary: norm(m.muscles?.secondary),
-    pattern: m.pattern ?? [], equipment: m.equipment ? [m.equipment] : [],
+    pattern: m.pattern ?? [],
+    // Curated records list several; the imported ones carry a single string.
+    equipment: Array.isArray(m.equipment) ? m.equipment : m.equipment ? [m.equipment] : [],
     implements: m.implements, load: m.load, measures: m.measures,
     laterality: m.laterality, defaultLaterality: m.defaultLaterality,
   });

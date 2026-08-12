@@ -18,11 +18,15 @@ export {
   type Exposure, type Exposures, type MuscleLoad, type MuscleLoadReport,
 } from './muscles.ts';
 export {
-  parseGoals, check, checkSeries,
+  parseGoals, check, checkExposures, checkSeries,
   type Goals, type Rule, type Group, type Amount, type Dimension,
   type NoRepeatRule, type CoverRule, type BalanceRule, type ProgressRule,
   type Finding, type CheckReport,
 } from './goals.ts';
+export {
+  generate,
+  type GenerateOptions, type GenerateResult, type Hole,
+} from './generate.ts';
 export { importErg, parseErg, ergDurationSeconds } from './adapters/erg.ts';
 export { importFit, readFit, fitStepCounts } from './adapters/fit.ts';
 export { exportZwo, type ExportResult } from './adapters/zwo.ts';

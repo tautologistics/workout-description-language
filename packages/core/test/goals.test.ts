@@ -49,7 +49,7 @@ describe('goals: reading the rules', () => {
   });
 
   it('takes the two example files without complaint', () => {
-    for (const f of readdirSync(join(here, '../../../examples/goals'))) {
+    for (const f of readdirSync(join(here, '../../../examples/goals')).filter((f) => f.endsWith('.wdlg'))) {
       const g = parseGoals(example(f));
       eq(g.errors, [], f);
       ok(g.rules.length > 0, `${f} has rules`);

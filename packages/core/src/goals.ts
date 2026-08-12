@@ -314,7 +314,24 @@ const list = (xs: string[]) => xs.join(', ');
 /** Check one workout against the rules that apply to a single session. */
 export function check(t: Timeline, goals: Goals, opts: AttributionOptions = {}): CheckReport {
   const { list: exp, unresolved } = exposures(t, opts);
-  const load = muscleLoad(t, opts);
+  return {
+    ...checkExposures(exp, goals, muscleLoad(t, opts).unbounded),
+    unresolved,
+  };
+}
+
+/**
+ * The rules, evaluated over an exposure list rather than a workout.
+ *
+ * Everything a session rule needs is in the list: what each step works, how
+ * much of it, how many rounds, and what may follow what. Nothing re-reads the
+ * timeline. That is what lets the generator try a thousand candidate workouts
+ * without compiling a thousand workouts — the structure is fixed by the
+ * template, and only the muscles change.
+ */
+export function checkExposures(
+  exp: Exposure[], goals: Goals, unbounded = false,
+): Omit<CheckReport, 'unresolved'> {
   const found = new Map<string, Finding>();
   const findings = {
     push(f: Omit<Finding, 'count'>) {
@@ -382,7 +399,7 @@ export function check(t: Timeline, goals: Goals, opts: AttributionOptions = {}):
     }
   }
 
-  return { findings: [...found.values()], unresolved, unbounded: load.unbounded };
+  return { findings: [...found.values()], unbounded };
 }
 
 /**

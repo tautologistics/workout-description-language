@@ -11,11 +11,12 @@ import { exportErg } from '../src/adapters/erg.ts';
 import { exportFit } from '../src/adapters/fit.ts';
 import { exportGarminConnect } from '../src/adapters/garmin-connect.ts';
 import { parseGoals, check, checkSeries } from '../src/goals.ts';
+import { generate } from '../src/generate.ts';
 
 const [cmd, ...args] = process.argv.slice(2);
 const write = args.includes('-w') || args.includes('--write');
 const files = args.filter((a, i) => !a.startsWith('-')
-  && !['--to', '-o', '--ftp', '--goals'].includes(args[i - 1] ?? ''));
+  && !['--to', '-o', '--ftp', '--goals', '--seed', '--equipment'].includes(args[i - 1] ?? ''));
 
 const EXPORTERS = ['zwo', 'erg', 'mrc', 'fit', 'connect'] as const;
 const toIdx = args.indexOf('--to');
@@ -26,14 +27,47 @@ const outIdx = args.indexOf('-o');
 const outPath = outIdx >= 0 ? args[outIdx + 1] : undefined;
 const goalsIdx = args.indexOf('--goals');
 const goalsPath = goalsIdx >= 0 ? args[goalsIdx + 1] : undefined;
+const seedIdx = args.indexOf('--seed');
+const seed = seedIdx >= 0 ? Number(args[seedIdx + 1]) : undefined;
+const equipIdx = args.indexOf('--equipment');
+const equipment = equipIdx >= 0 ? args[equipIdx + 1].split(',').map((x) => x.trim()) : undefined;
 
-if (!cmd || !['fmt', 'check', 'timeline', 'export', 'goals'].includes(cmd) || files.length === 0
+if (!cmd || !['fmt', 'check', 'timeline', 'export', 'goals', 'generate'].includes(cmd) || files.length === 0
     || (cmd === 'export' && !EXPORTERS.includes(to as any))
-    || (cmd === 'goals' && !goalsPath)) {
+    || ((cmd === 'goals' || cmd === 'generate') && !goalsPath)) {
   console.error('usage: wdl <fmt|check|timeline> [-w] <file.wdl>...');
   console.error('       wdl export --to <zwo|erg|mrc|fit|connect> [-o out] [--ftp N] [--no-power-targets] <file.wdl>');
   console.error('       wdl goals --goals <file.wdlg> <file.wdl>...   check workouts against a set of goals');
+  console.error('       wdl generate --goals <file.wdlg> [--seed N] [--equipment a,b] <template.wdl>');
+  console.error('              a template is a workout with `?` where a movement goes');
   process.exit(2);
+}
+
+// `generate` fills the `?` holes in a template so the result satisfies the
+// goals. The structure stays the author's; only the movements are chosen.
+if (cmd === 'generate') {
+  const goals = parseGoals(readFileSync(goalsPath!, 'utf8'));
+  for (const e of goals.errors) console.error(`${goalsPath}:${e.line}: ${e.message}`);
+  if (goals.errors.length) process.exit(2);
+
+  let bad = 0;
+  for (const file of files) {
+    const r = generate(parse(readFileSync(file, 'utf8')).workout, goals, { seed, equipment });
+    process.stdout.write(format(r.workout));
+    for (const h of r.unfilled) {
+      const why = h.candidates.length
+        ? `no choice for it leaves the rules satisfiable`
+        : `nothing in the pool satisfies it`;
+      console.error(`${file}${h.line ? `:${h.line}` : ''}: "? ${h.constraint.join(' ')}" left open — ${why}`);
+      bad++;
+    }
+    if (r.gaveUp) console.error(`${file}: gave up after ${r.searched} assignments; this is the best found`);
+    for (const f of r.findings) {
+      console.error(`${file}: ${f.rule}: ${f.message}${f.count > 1 ? `  (×${f.count})` : ''}`);
+      bad++;
+    }
+  }
+  process.exit(bad ? 1 : 0);
 }
 
 // `goals` reads every file as one block, in the order given, because a

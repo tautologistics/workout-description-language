@@ -176,3 +176,56 @@ than it is.
 
 **Severity.** Every finding is a finding. Whether a stacked pair of glute
 movements matters is a judgement for the person reading, not for the rule.
+
+## Generating
+
+The rules a workout must satisfy are the rules a generator works backwards
+from. A **template** is an ordinary workout file with `?` where a movement
+would go:
+
+```
+# Generated metcon
+5 rounds for time:
+  - 12 ? squat
+  - 10 ? pull
+  - 15 ? push
+  - 200m ?
+```
+
+```bash
+wdl generate --goals rotate-muscles.wdlg --equipment "dumbbell,pull-up bar" templates/metcon.wdl
+```
+
+The structure — rounds, rep schemes, loads, rests — stays the author's. Only
+the movements are chosen. Deciding how hard a workout should be is a judgement
+about the athlete; deciding what not to put next to what is a mechanical
+question the rules already answer.
+
+What follows the `?` narrows the choice. A token is read as a muscle first,
+then a region, then a movement pattern — so `? lats` wants a movement that
+works them, `? lower` anything below the waist, and `? pull` both the vertical
+and horizontal kinds. Several tokens all have to hold.
+
+Two constraints apply without being asked for. A step in metres needs a
+movement that reports metres, and a step in reps rules out the movements
+counted by ground covered — nobody does ten reps of a run.
+
+`--seed` changes the answer and repeats it: the same template, goals and seed
+always give the same workout, and a different seed gives a different one.
+
+`--equipment` restricts the pool. **A movement with no equipment declared is
+excluded**, not assumed to be bodyweight — bodyweight is declared explicitly.
+An absent field is not a claim, and reading it as one put a sandbag carry in a
+workout generated for a dumbbell and a pull-up bar.
+
+### When it cannot
+
+Generation reports its failures rather than hiding them in a plausible-looking
+workout:
+
+- A hole no candidate fits comes back as a hole, with the constraint named.
+- When no complete assignment satisfies every rule, the least-bad one is
+  returned along with the rules it breaks — a workout you can judge beats a
+  refusal.
+- A workout that still has holes in it reports **no** findings, because the
+  rules were judged against something other than what was asked for.
