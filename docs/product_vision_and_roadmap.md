@@ -10,11 +10,28 @@ See also [prior_art.md](prior_art.md). Summary: endurance formats (FIT, Zwift, i
 
 **One human-writable format for any workout, in any modality, that can be converted to and from the formats that already exist.**
 
-Two goals define the project:
+This is built for its author first, and for a handful of training partners after
+that. It is not competing for adoption, and no decision here should be justified
+by what would make the format popular. Two things are the point:
 
-**Goal 1 — Universal coverage.** Straight endurance/cardio, interval training, classical strength and weightlifting, CrossFit-style metcons, and Hyrox-style station races are all first-class. None is the "primary" modality with the others bolted on. The claim being tested is that these mostly share one set of primitives, with a small number of carve-outs for genuinely more complex loops and patterns (AMRAP, EMOM, ladders, partner alternation).
+**Goal 1 — It reads on a whiteboard.** The at-rest format is what you would write
+up before a session and glance at during one: steps, flow, repeats and rules all
+plain at arm's length. This is a hard constraint, not a preference. It is the
+reason the format is not JSON, and the reason a canonical output that grew braces
+around a compound score was a bug rather than a formatting choice — if the stored
+form degenerates into a data format, the premise is gone.
 
-**Goal 2 — Interoperability by design.** Importers and exporters for Garmin FIT, Zwift `.zwo`, `.erg`/`.mrc`, Apple WorkoutKit, and intervals.icu are core deliverables, not a someday-milestone. Import is the faster win: it bootstraps the corpus and immediately proves or disproves expressiveness. If a real Zwift workout can't round-trip through WDL, the format is missing something — that's a test, not a chore.
+**Goal 2 — Workouts can be checked and generated against a stated intent.** "Ramp
+these muscles week over week." "Don't put two movements that hit the same thing
+back to back." Those are rules, and a workout can be measured against them or
+built to satisfy them. This is the larger half of the project and the one the
+whole registry and analysis layer exists to serve.
+
+Two means, not ends, follow from those:
+
+**Universal coverage.** Straight endurance/cardio, interval training, classical strength and weightlifting, CrossFit-style metcons, and Hyrox-style station races are all first-class. None is the "primary" modality with the others bolted on. The claim being tested is that these mostly share one set of primitives, with a small number of carve-outs for genuinely more complex loops and patterns (AMRAP, EMOM, ladders, partner alternation).
+
+**Interoperability by design.** Importers and exporters for Garmin FIT, Zwift `.zwo`, `.erg`/`.mrc`, Apple WorkoutKit, and intervals.icu. Import is the faster win: it bootstraps the corpus and immediately proves or disproves expressiveness. If a real Zwift workout can't round-trip through WDL, the format is missing something — that's a test, not a chore.
 
 On that foundation sits the product ecosystem:
 
@@ -271,6 +288,13 @@ TypeScript is the pragmatic choice: it runs in the web app, in React Native/Capa
 
 ### 5.1 Portability: how other languages get a parser
 
+> **Deprioritised.** This section is an argument for a format seeking independent
+> implementations; this one is not seeking any. It is kept because the reasoning
+> holds if that ever changes, and because point 4 — one reference implementation
+> carrying the semantic layer — is what actually got built. The two-phase parse
+> was adopted, and has paid for itself three times over: workouts, goals and
+> programs are each a line grammar over the same indentation reader.
+
 Writing one implementation per language doesn't scale, and waiting for volunteers means the format stays confined to whatever the reference implementation is written in. But **generating parsers from one grammar solves less of the problem than it appears to.**
 
 Parsing is the small part. The bulk of `@wdl/core` is the semantic layer — desugaring rep schemes into per-round expansion, resolving movement names through `fold()` and the registry, applying block-level inheritance, validating, emitting canonical text, compiling to a timeline. No grammar tool generates any of that, so a generated parser leaves an implementer with roughly 70% of the work still to do, and no way to know whether they did it right.
@@ -291,11 +315,11 @@ The layered strategy, in order of leverage:
 
 Each product milestone is scheduled to **stress-test the spec** before it stabilizes.
 
-**A — Corpus & model** *(spec P0–P1)*
+**A — Corpus & model** *(spec P0–P1)* — *shipped*
 Started: [falsification-corpus.md](../examples/falsification-corpus.md) covers 40 hostile cases and produced gaps F1–F11. Extend toward 100 spanning all modalities (§3.4), partly by importing real ZWO/ERG/FIT/icu files. Design the two subsystems the corpus flagged as underspecified — scoring (§2.6) and the prescription-expression/athlete-profile mechanism — then re-encode the corpus against the revised model.
 *Exit:* new examples stop forcing model changes; all 40 existing cases encode; the ✅/⚠️/❌ split stops moving.
 
-**B — Minimal language + core library** *(spec P2–P3)*
+**B — Minimal language + core library** *(spec P2–P3)* — *shipped*
 Grammar for the 80% case. Implement `@wdl/core`: parser, AST, validator, canonical formatter, **the timeline compiler** (pulled forward — §4 depends on it), and **movement `fold()` + resolution order** against a stub registry (the algorithm is needed at parse time even before the data is curated). Ship as npm + CLI (`wdl fmt`, `wdl check`, `wdl compile`).
 *Exit:* the whole corpus round-trips text → AST → canonical text → identical AST.
 
@@ -303,7 +327,7 @@ Grammar for the 80% case. Implement `@wdl/core`: parser, AST, validator, canonic
 Paste/drop text → visual structure → GUI edits regenerate canonical text, live both ways. CodeMirror editor with errors and autocomplete. Local-only, no accounts.
 *The first real product and the best spec test* — every awkward GUI interaction is a spec smell.
 
-**D — Adapters, round one**
+**D — Adapters, round one** — *shipped*
 Import: intervals.icu text, `.zwo`, `.erg`/`.mrc`, FIT. Export: FIT, `.zwo`, `.erg`/`.mrc`. Fidelity reporting throughout. Import failures feed straight back into the grammar.
 *Exit:* a corpus of real third-party workouts imports, canonicalizes, and re-exports with only documented losses.
 
@@ -315,14 +339,35 @@ The "run workout" view over the compiled timeline: timers, current/next step, ro
 Variants/scaling syntax; variant picker in builder and display. Result record format (§3.2), logging, history view.
 *D, E, and F are largely parallelizable — sequence by what you want to use first.*
 
-**G — Movement registry & analysis**
-Stand up the registry as its own repo with schema-validating CI. Curate the ~150 movements covering the corpus, seeded from free-exercise-db, with `external` mappings for FIT export. Builder gains canonical autocomplete, unregistered-movement flagging with a submit path, muscle/pattern summaries, adjacent-same-pattern warnings, and substitution suggestions.
+**G — Movement registry & analysis** — *shipped, differently*
+Not a separate repo: `registry/` in this one, rebuilt by `scripts/build-canonical.ts`.
+Not ~150 movements: 3148 merged from five sources, of which 181 are marked core
+and 101 cover the corpus. Every record names the sources that contributed to it
+and keeps their muscle claims separately, so the merge stays reversible and the
+licence question stays answerable. Muscle names are a closed 19-entry vocabulary
+in `registry/muscles.json`; an unrecognised name fails the build rather than
+becoming a new muscle. What is still outstanding is the builder-side use of it:
+autocomplete, unregistered-movement flagging, substitution suggestions.
 
 **H — Adapters round two + platform + spec 1.0** *(spec P6–P7)*
 JSON Schema for the AST, WorkoutKit export (needs the iOS app), openweight mapping. Accounts, publish/browse/fork, results and leaderboards. Stabilize at 1.0 only after real usage.
 
+**I — Goals, analysis and generation** — *shipped*
+See [goals-0.1.md](../spec/goals-0.1.md). Goals are a **separate artifact**, never part of
+the workout syntax: a workout says what to do, and what you were trying to
+achieve by writing it is supplied alongside. Five rules — `no repeat`, `cover`,
+`limit`, `balance`, `progress` — over a muscle attribution layer with a closed
+19-muscle vocabulary and per-source provenance. `wdl goals` checks; `wdl generate`
+fills `?` holes in a template until the rules are satisfied; `wdl program` checks
+a training block, with slots so `progress` compares pull day to pull day.
+
 **Parking lot**
-Whiteboard photo → WDL extraction (spec plan §23) — valuable but a separate project; slot after F. Watch companion; HR integration on the display. AI-assisted building (the movement library + validator make generated output checkable). Program-level constructs — multi-week progressions referencing workout files, the one place Liftosaur is meaningfully ahead.
+Whiteboard photo → WDL extraction (spec plan §23) — valuable but a separate project; slot after F. Watch companion; HR integration on the display.
+
+**Deprioritised** *(by the author, deliberately)*
+Tree-sitter grammar, language-neutral conformance suite, third-party
+implementations. These matter for a format seeking adoption; this one is not.
+Revisit only if someone outside actually wants to implement it.
 
 ---
 
@@ -339,7 +384,9 @@ Whiteboard photo → WDL extraction (spec plan §23) — valuable but a separate
 | 7 | Results | Separate record type referencing the workout id + named variant, carrying a snapshot; map to openweight | Progress tracking, leaderboards |
 | 7a | Identity | Any unique string, optional `namespace:` prefix, unique within a repository, never derived from content (§3.2.1) | Results must outlive formatter and spec changes |
 | 8 | Implementation | TypeScript monorepo (`@wdl/core` + apps + adapters) | One core for web, mobile, Pi, server, CLI |
-| 8a | Portability | Normative EBNF + language-neutral conformance suite + tree-sitter grammar; line-oriented two-phase parse | Third parties need correctness, not just a parser (§5.1) |
+| 8a | Portability | Line-oriented two-phase parse. The conformance suite and tree-sitter grammar are **deprioritised** — the two-phase split has already paid for itself three times over (workouts, goals, programs each being a line grammar over one indentation reader), which was the real argument for it | §5.1 |
+| 11 | Intent lives outside the workout | Goals are a separate artifact supplied alongside a workout, never syntax inside it | The same workout is good against one intent and bad against another; burying the intent makes that unsayable |
+| 12 | Nothing converts reps to load | Analysis counts reps, metres, seconds and exposures, and says so. No 1RM model, no fatigue score | An invented number looks more authoritative than it is; the honest limit is stated instead |
 | 9 | Syntax influences | Formalize existing convention: whiteboard shorthand, `5x5 @ 225`, intervals.icu's section/`Nx` shape | Zero-friction adoption |
 | 10 | Movement library seed | Fork free-exercise-db rather than curating from zero | Metadata already exists |
 
