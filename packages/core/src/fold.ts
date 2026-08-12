@@ -72,7 +72,14 @@ export interface MovementEntry {
   defaultLaterality?: 'both' | 'split' | 'per-side';
   /** Classification, for balance analysis only. */
   pattern?: string[];
-  muscles?: { primary?: string[]; secondary?: string[] };
+  muscles?: {
+    primary?: string[];
+    secondary?: string[];
+    /** Per muscle, how many sources named it [as a primary mover, as an assister]. */
+    support?: Record<string, [number, number]>;
+    /** How many sources made any muscle claim about this movement. */
+    sources?: number;
+  };
   related?: string[];
   external?: Record<string, string>;
 }

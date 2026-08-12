@@ -14,5 +14,6 @@ import './golden.test.ts';
 import './interop.test.ts';
 import './export.test.ts';
 import './connect.test.ts';
+import './muscles.test.ts';
 import { report } from './lib.ts';
 process.exit(report());

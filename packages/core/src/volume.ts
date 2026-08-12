@@ -46,6 +46,28 @@ function addInto(target: MovementVolume, src: MovementVolume, times: number) {
  */
 export type StepFilter = (step: TimelineStep) => boolean;
 
+/**
+ * One step's work, in whichever dimension it is measured. `open` is true when
+ * the step has no fixed amount — a max effort, an open-ended remainder — which
+ * makes any total containing it a floor rather than a figure.
+ */
+export function stepVolume(step: TimelineStep): { volume: MovementVolume; open: boolean } {
+  const v = zero();
+  let open = false;
+  const q = step.quantity;
+  switch (q.kind) {
+    case 'reps': v.reps = q.value; break;
+    case 'range': v.reps = q.min; open = true; break;   // a range has no single total
+    case 'calories': v.calories = q.value; break;
+    case 'duration': v.seconds = q.seconds; break;
+    case 'distance': v.distanceM = q.value * (TO_METRES[q.unit] ?? 1); break;
+    case 'floor': v.reps = q.value; open = true; break;
+    case 'max': case 'maxEffort': case 'open': case 'threshold': open = true; break;
+  }
+  if (step.perRound) open = true;   // ascending inside an unbounded repeat
+  return { volume: v, open };
+}
+
 /** True when a step carries a percentage load at or above `min`. */
 export function atOrAbove(min: number): StepFilter {
   return (s) => s.targets.some((t) =>
@@ -62,18 +84,8 @@ export function volume(t: Timeline, keep?: StepFilter): Volume {
 
     if (item.kind === 'step') {
       if (keep && !keep(item)) return;
-      const q = item.quantity;
-      const v = zero();
-      switch (q.kind) {
-        case 'reps': v.reps = q.value; break;
-        case 'range': v.reps = q.min; unbounded = true; break;   // a range has no single total
-        case 'calories': v.calories = q.value; break;
-        case 'duration': v.seconds = q.seconds; break;
-        case 'distance': v.distanceM = q.value * (TO_METRES[q.unit] ?? 1); break;
-        case 'floor': v.reps = q.value; unbounded = true; break;
-        case 'max': case 'maxEffort': case 'open': case 'threshold': unbounded = true; break;
-      }
-      if (item.perRound) unbounded = true;   // ascending inside an unbounded repeat
+      const { volume: v, open } = stepVolume(item);
+      if (open) unbounded = true;
       const key = item.movement || '(unnamed)';
       byMovement[key] ??= zero();
       addInto(byMovement[key], v, times);

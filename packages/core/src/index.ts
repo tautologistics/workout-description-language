@@ -8,10 +8,15 @@ export {
   type TimelineRest, type GroupType, type Pacing,
 } from './timeline.ts';
 export { Registry, fold, foldTokens, depluralize, type MovementEntry, type Resolution } from './fold.ts';
-export { defaultRegistry } from './registry.ts';
+export { defaultRegistry, canonicalRegistry } from './registry.ts';
 export { validate, errorsOnly, type Diagnostic, type ValidateOptions } from './validate.ts';
 export { importZwo, zwoDurationSeconds } from './adapters/zwo.ts';
-export { volume, repsOf, atOrAbove, type Volume, type StepFilter } from './volume.ts';
+export { volume, repsOf, atOrAbove, stepVolume, type Volume, type MovementVolume, type StepFilter } from './volume.ts';
+export {
+  muscles, musclesFor, exposures, adjacent, muscleLoad,
+  type Muscle, type Attribution, type AttributionOptions,
+  type Exposure, type Exposures, type MuscleLoad, type MuscleLoadReport,
+} from './muscles.ts';
 export { importErg, parseErg, ergDurationSeconds } from './adapters/erg.ts';
 export { importFit, readFit, fitStepCounts } from './adapters/fit.ts';
 export { exportZwo, type ExportResult } from './adapters/zwo.ts';
