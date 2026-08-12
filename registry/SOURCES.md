@@ -199,3 +199,41 @@ then relinked *after* it because merging changes which ids survive.
 
 Duplicate candidates are down from 1047 to **694**, all in the weakest tier, and none of them are
 same-family pairs.
+
+
+## Where this stops: a core, and a long tail left alone
+
+Chasing duplicates through 3148 records is diminishing returns. The tail is machine variants, banded
+rehab work and cable isolation nobody writes into a workout, and two of those staying separate costs
+nothing. What matters is that the *common* movements each have exactly one canonical record.
+
+`scripts/mark-core.mjs` scores every record on evidence of commonality rather than opinion:
+
+| Signal | Points |
+|---|---:|
+| Referenced by a workout in our corpus | +3 |
+| Hand-curated | +3 |
+| A lift Garmin tracks a 1RM for | +2 |
+| Each source beyond the first | +2 |
+| Is the base of a variation family | +1 |
+| Absorbed a duplicate during dedup | +1 |
+
+Four or more is the core: **181 records**. Deadlift, Bench Press, Clean, Snatch, Thruster, Plank,
+Kettlebell Swing all land at the top, which is the sanity check. The score stays on every record so
+the line can be redrawn later.
+
+Checking those 181 against each other found **one** genuine duplicate — `Dumbbell Bicep Curl` and
+`Dumbbell Curl` — now merged by alias. Everything else that name similarity flagged is a real
+distinction: `Hang Power Clean` is not `Power Clean`, close-grip bench is not wide-grip bench.
+
+### Why name similarity stops here
+
+The test that found those 48 "duplicates" was wrong, and instructively so. It asked whether two names
+differed only by non-distinguishing words — but the *head noun* is the most distinguishing token of
+any exercise name, and treating it as generic makes `Barbell Deadlift` and `Barbell Shrug` look
+identical. In a vocabulary where nearly every name is `<qualifier> <qualifier> <movement>`, string
+similarity cannot tell a qualifier from the thing being qualified without knowing which words name
+movements — and at that point it is a taxonomy, not a string comparison.
+
+So the core is clean, the tail is left as it is, and the useful structure that remains is the part
+that does not depend on names at all: 1108 `variantOf` links and 50 source-attested families.

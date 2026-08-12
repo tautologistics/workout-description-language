@@ -4014,8 +4014,11 @@
    "id": "dumbbell-curl",
    "title": "Dumbbell Curl",
    "aliases": [
+    "bicep curl",
+    "biceps curl",
     "db curl",
-    "bicep curl"
+    "dumbbell bicep curl",
+    "dumbbell biceps curl"
    ],
    "implements": 2,
    "load": "per-implement",
