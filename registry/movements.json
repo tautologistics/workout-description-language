@@ -3973,22 +3973,6 @@
    "source": "free-exercise-db"
   },
   {
-   "id": "dumbbell-bicep-curl",
-   "title": "Dumbbell Bicep Curl",
-   "equipment": "dumbbell",
-   "muscles": {
-    "primary": [
-     "biceps"
-    ],
-    "secondary": [
-     "forearms"
-    ]
-   },
-   "force": "pull",
-   "mechanic": "isolation",
-   "source": "free-exercise-db"
-  },
-  {
    "id": "dumbbell-clean",
    "title": "Dumbbell Clean",
    "equipment": "dumbbell",
@@ -4033,6 +4017,9 @@
    "muscles": {
     "primary": [
      "biceps"
+    ],
+    "secondary": [
+     "forearms"
     ]
    }
   },
