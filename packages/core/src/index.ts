@@ -13,10 +13,16 @@ export { validate, errorsOnly, type Diagnostic, type ValidateOptions } from './v
 export { importZwo, zwoDurationSeconds } from './adapters/zwo.ts';
 export { volume, repsOf, atOrAbove, stepVolume, type Volume, type MovementVolume, type StepFilter } from './volume.ts';
 export {
-  muscles, musclesFor, exposures, adjacent, muscleLoad,
+  muscles, musclesFor, exposures, adjacent, within, muscleLoad,
   type Muscle, type Attribution, type AttributionOptions,
   type Exposure, type Exposures, type MuscleLoad, type MuscleLoadReport,
 } from './muscles.ts';
+export {
+  parseGoals, check, checkSeries,
+  type Goals, type Rule, type Group, type Amount, type Dimension,
+  type NoRepeatRule, type CoverRule, type BalanceRule, type ProgressRule,
+  type Finding, type CheckReport,
+} from './goals.ts';
 export { importErg, parseErg, ergDurationSeconds } from './adapters/erg.ts';
 export { importFit, readFit, fitStepCounts } from './adapters/fit.ts';
 export { exportZwo, type ExportResult } from './adapters/zwo.ts';

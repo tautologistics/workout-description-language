@@ -1,0 +1,31 @@
+goals: Rotate the muscles, don't stack them
+
+  // Nothing should follow something that works the same muscle — the point of a
+  // mixed-modal workout is that one thing recovers while the next is worked.
+  // Grip and trunk are exempt because almost everything demands them, and a rule
+  // that can never be satisfied is a rule nobody reads twice.
+  no repeat:
+    level: primary
+    gap: 1
+    except: forearms, abs, obliques, erectors
+
+  // Every session touches all three regions. Not evenly — that is the next rule
+  // — but nothing is skipped entirely. Counted in movements rather than
+  // exposures, so adding a round does not satisfy it.
+  cover:
+    regions: upper, core, lower
+    at least: 2 movements
+
+  // Upper and lower within a quarter of each other, counted in movements rather
+  // than reps: fifty air squats and fifty pull-ups are not the same work, and
+  // pretending reps are comparable across movements would make this dishonest.
+  balance:
+    between: upper, lower
+    within: 25%
+    measure: movements
+
+  // A ceiling as well as a floor. Shoulders take everything overhead and are
+  // the first thing to give out.
+  limit:
+    muscles: shoulders
+    at most: 3 movements

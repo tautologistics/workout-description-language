@@ -10,11 +10,12 @@ import { exportZwo } from '../src/adapters/zwo.ts';
 import { exportErg } from '../src/adapters/erg.ts';
 import { exportFit } from '../src/adapters/fit.ts';
 import { exportGarminConnect } from '../src/adapters/garmin-connect.ts';
+import { parseGoals, check, checkSeries } from '../src/goals.ts';
 
 const [cmd, ...args] = process.argv.slice(2);
 const write = args.includes('-w') || args.includes('--write');
 const files = args.filter((a, i) => !a.startsWith('-')
-  && !['--to', '-o', '--ftp'].includes(args[i - 1] ?? ''));
+  && !['--to', '-o', '--ftp', '--goals'].includes(args[i - 1] ?? ''));
 
 const EXPORTERS = ['zwo', 'erg', 'mrc', 'fit', 'connect'] as const;
 const toIdx = args.indexOf('--to');
@@ -23,12 +24,47 @@ const ftpIdx = args.indexOf('--ftp');
 const ftpArg = ftpIdx >= 0 ? Number(args[ftpIdx + 1]) : undefined;
 const outIdx = args.indexOf('-o');
 const outPath = outIdx >= 0 ? args[outIdx + 1] : undefined;
+const goalsIdx = args.indexOf('--goals');
+const goalsPath = goalsIdx >= 0 ? args[goalsIdx + 1] : undefined;
 
-if (!cmd || !['fmt', 'check', 'timeline', 'export'].includes(cmd) || files.length === 0
-    || (cmd === 'export' && !EXPORTERS.includes(to as any))) {
+if (!cmd || !['fmt', 'check', 'timeline', 'export', 'goals'].includes(cmd) || files.length === 0
+    || (cmd === 'export' && !EXPORTERS.includes(to as any))
+    || (cmd === 'goals' && !goalsPath)) {
   console.error('usage: wdl <fmt|check|timeline> [-w] <file.wdl>...');
   console.error('       wdl export --to <zwo|erg|mrc|fit|connect> [-o out] [--ftp N] [--no-power-targets] <file.wdl>');
+  console.error('       wdl goals --goals <file.wdlg> <file.wdl>...   check workouts against a set of goals');
   process.exit(2);
+}
+
+// `goals` reads every file as one block, in the order given, because a
+// `progress` rule is a statement about a series and cannot be checked one file
+// at a time.
+if (cmd === 'goals') {
+  const goals = parseGoals(readFileSync(goalsPath!, 'utf8'));
+  for (const e of goals.errors) console.error(`${goalsPath}:${e.line}: ${e.message}`);
+  if (goals.errors.length) process.exit(2);
+  if (goals.title) console.log(`goals: ${goals.title}`);
+
+  const series = files.map((f) => {
+    const w = parse(readFileSync(f, 'utf8')).workout;
+    return { name: w.title || basename(f).replace(/\.wdl$/i, ''), timeline: compile(w) };
+  });
+  const { perWorkout, findings } = checkSeries(series, goals);
+  let bad = 0;
+  for (const { name, report } of perWorkout) {
+    const notes = [
+      ...(report.unresolved.length ? [`no muscle data for ${report.unresolved.join(', ')}`] : []),
+      ...(report.unbounded ? ['open-ended: amounts below are floors'] : []),
+    ];
+    console.log(`\n${name}${notes.length ? `  (${notes.join('; ')})` : ''}`);
+    if (!report.findings.length) console.log('  ok');
+    for (const f of report.findings) { console.log(`  ${f.rule}: ${f.message}`); bad++; }
+  }
+  if (findings.length) {
+    console.log(`\nacross the block`);
+    for (const f of findings) { console.log(`  ${f.rule}: ${f.message}`); bad++; }
+  }
+  process.exit(bad ? 1 : 0);
 }
 
 let failed = 0;

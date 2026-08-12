@@ -1,0 +1,15 @@
+goals: Build the pull over a block
+
+  // A statement about a training block, not a session. No single workout can be
+  // checked against it — checkSeries walks the files in order and compares each
+  // to the one before.
+  progress:
+    muscles: lats, mid-back, biceps
+    at least: +10%
+    measure: reps
+
+  // The pull goes up; the push holds. Without this the easiest way to satisfy
+  // the rule above is to stop doing anything else.
+  cover:
+    muscles: chest, shoulders
+    at least: 20 reps

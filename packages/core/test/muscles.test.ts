@@ -88,7 +88,7 @@ describe('exposures: what is worked, in order', () => {
   });
 
   it('does not sequence a tally block, which has no order', () => {
-    const { list } = exposures(t('tally:\n  - 100 Push-Up\n  - 100 Air Squat'));
+    const { list } = exposures(t('any order:\n  - 100 Push-Up\n  - 100 Air Squat'));
     eq(list.length, 2);
     ok(list.every((e) => !e.cycle), 'nothing in a tally is adjacent to anything');
   });

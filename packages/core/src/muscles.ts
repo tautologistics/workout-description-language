@@ -115,6 +115,17 @@ export interface Exposure {
   secondary: string[];
   path: number[];
   cycle?: { path: number[]; rounds?: number };
+  /**
+   * The outermost enclosing group whose items have no prescribed order, if any.
+   * Two exposures sharing one are not before or after each other at all.
+   */
+  unordered?: number[];
+  /** How many times this step runs: enclosing bounded repeats multiplied out. */
+  rounds: number;
+  /** This step's work, once. Multiply by `rounds` for the total. */
+  volume: MovementVolume;
+  /** True when the amount is open-ended, so any total containing it is a floor. */
+  open: boolean;
   /** True when the step resolved to no muscle data at all. */
   unattributed: boolean;
 }
@@ -132,11 +143,15 @@ export function exposures(t: Timeline, opts: AttributionOptions = {}): Exposures
   const list: Exposure[] = [];
   const unresolved = new Set<string>();
 
-  const walk = (item: TimelineItem, path: number[], cycle: Exposure['cycle']) => {
+  const walk = (
+    item: TimelineItem, path: number[],
+    cycle: Exposure['cycle'], unordered: number[] | undefined, rounds: number,
+  ) => {
     if (item.kind === 'rest') return;
     if (item.kind === 'step') {
       const a = musclesFor(item.movement, opts);
       if (!a && item.movement) unresolved.add(item.movement);
+      const { volume, open } = stepVolume(item);
       list.push({
         index: list.length,
         movement: item.movement,
@@ -145,50 +160,88 @@ export function exposures(t: Timeline, opts: AttributionOptions = {}): Exposures
         secondary: a?.secondary ?? [],
         path,
         cycle,
+        unordered,
+        rounds,
+        volume,
+        open,
         unattributed: !a,
       });
       return;
     }
     // A tally block has no prescribed order, so nothing inside it is "before"
     // anything else and adjacency questions do not apply. It still contributes
-    // volume; it just cannot be sequenced.
-    const inner = REPEATING.has(item.type) && !item.freeOrder
-      ? { path, rounds: item.rounds }
-      : item.freeOrder ? undefined : cycle;
-    item.items.forEach((c, i) => walk(c, [...path, i], inner));
-    (item.interrupt?.items ?? []).forEach((c, i) => walk(c, [...path, -1 - i], inner));
+    // volume; it just cannot be sequenced. The outermost such group wins: once
+    // you are inside an unordered region, order below it is moot.
+    const nowUnordered = item.freeOrder ? unordered ?? path : unordered;
+    const inner = item.freeOrder ? undefined
+      : REPEATING.has(item.type) ? { path, rounds: item.rounds }
+      : cycle;
+    const bounded = item.rounds !== undefined && !item.untilFailure
+      && (item.type === 'repeat' || item.type === 'attempts' || item.type === 'clock');
+    const factor = bounded ? rounds * item.rounds! : rounds;
+    item.items.forEach((c, i) => walk(c, [...path, i], inner, nowUnordered, factor));
+    (item.interrupt?.items ?? []).forEach((c, i) => walk(c, [...path, -1 - i], inner, nowUnordered, factor));
   };
 
-  walk(t.root, [], undefined);
+  walk(t.root, [], undefined, undefined, 1);
   return { list, unresolved: [...unresolved] };
 }
 
+const inside = (e: Exposure, p: number[]) =>
+  e.cycle !== undefined && p.length <= e.cycle.path.length
+    && p.every((v, i) => v === e.cycle!.path[i]);
+
 /**
- * Consecutive pairs, including the wrap from a repeating group's last exposure
- * back to its first. Without the wrap, "no muscle twice in a row" passes a
- * round that ends and begins on the same movement, which is the case it exists
- * to catch.
+ * Ordered pairs no more than `gap` exposures apart, including the wrap from the
+ * end of a repeating group back to its start.
+ *
+ * The wrap is the whole point. Without it, "no muscle twice in a row" passes a
+ * round that ends and begins on the same muscle — which, since the round runs
+ * again immediately, is exactly the case the rule exists to catch. A group's
+ * exposures are contiguous in the list, so the linear pass covers everything
+ * except the pairs that cross the seam, and those are added on the ring.
  */
-export function adjacent(list: Exposure[]): [Exposure, Exposure][] {
+export function within(list: Exposure[], gap = 1): [Exposure, Exposure][] {
   const pairs: [Exposure, Exposure][] = [];
-  for (let i = 1; i < list.length; i++) pairs.push([list[i - 1], list[i]]);
+  const seenPair = new Set<string>();
+  // Two exposures inside the same unordered group are not before or after each
+  // other, so no rule about what follows what can speak to them.
+  const comparable = (a: Exposure, b: Exposure) =>
+    !(a.unordered && b.unordered && a.unordered.join() === b.unordered.join());
+  const push = (a: Exposure, b: Exposure) => {
+    const key = `${a.index}>${b.index}`;
+    if (a === b || seenPair.has(key) || !comparable(a, b)) return;
+    seenPair.add(key);
+    pairs.push([a, b]);
+  };
 
-  const inside = (e: Exposure, p: number[]) =>
-    e.cycle !== undefined && p.length <= e.cycle.path.length
-      && p.every((v, i) => v === e.cycle!.path[i]);
+  for (let i = 0; i < list.length; i++) {
+    for (let j = i + 1; j <= i + gap && j < list.length; j++) push(list[i], list[j]);
+  }
 
-  const seen = new Set<string>();
+  const seenGroup = new Set<string>();
   for (const e of list) {
-    if (!e.cycle) continue;
+    if (!e.cycle || e.cycle.rounds === 1) continue;
     const key = e.cycle.path.join(',');
-    if (seen.has(key)) continue;
-    seen.add(key);
+    if (seenGroup.has(key)) continue;
+    seenGroup.add(key);
     const members = list.filter((x) => inside(x, e.cycle!.path));
-    if (members.length > 1 && e.cycle.rounds !== 1) {
-      pairs.push([members[members.length - 1], members[0]]);
+    const n = members.length;
+    if (n < 2) continue;
+    for (let i = 0; i < n; i++) {
+      for (let d = 1; d <= gap; d++) {
+        const j = (i + d) % n;
+        if (j > i) continue;   // the linear pass already had this one
+        push(members[i], members[j]);
+      }
     }
   }
   return pairs;
+}
+
+/** Consecutive pairs. `within(list, 1)`, which is the common case by far. */
+export function adjacent(list: Exposure[]): [Exposure, Exposure][] {
+  return within(list, 1);
 }
 
 export interface MuscleLoad {
