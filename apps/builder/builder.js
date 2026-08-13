@@ -270,9 +270,18 @@ function renderReading() {
 
   const steps = document.createElement('div');
   steps.className = 'steps';
+  // A cue inside a cycle comes round again, and the list is the only place that
+  // is visible at a glance — the summary line says which cues repeat, but
+  // counting to them is work the reader should not have to do.
+  const cycleOf = (i) => laid.cycles.find((c) => i >= c.from && i < (c.to ?? laid.cues.length));
   for (const cue of laid.cues.slice(0, 24)) {
+    const cycle = cycleOf(cue.index);
     const row = document.createElement('div');
-    row.className = `cue ${cue.kind}`;
+    row.className = `cue ${cue.kind}${cycle ? ' looping' : ''}`;
+    if (cycle) {
+      if (cue.index === cycle.from) row.classList.add('cycle-start');
+      if (cue.index === (cycle.to ?? laid.cues.length) - 1) row.classList.add('cycle-end');
+    }
     const n = document.createElement('span');
     n.className = 'n';
     n.textContent = String(cue.index + 1);
@@ -658,11 +667,17 @@ function renderFindings() {
   const list = el('findings');
   const notes = el('goal-notes');
   list.innerHTML = '';
-  notes.textContent = '';
+  notes.replaceChildren();
   notes.hidden = true;
 
+  // One per line. Concatenated into a paragraph they ran together into a single
+  // sentence about two unrelated things — "…no fixed rep count. No muscle data
+  // for bike or rower or skierg, tiebreak: time + rounds, so no rule can see
+  // them." — which reads as one long complaint rather than two short facts.
   const note = (message) => {
-    notes.textContent = notes.textContent ? `${notes.textContent} ${message}` : message;
+    const div = document.createElement('div');
+    div.textContent = message;
+    notes.append(div);
     notes.hidden = false;
   };
   const say = (severity, message) => {
@@ -689,8 +704,8 @@ function renderFindings() {
   if (report.unbounded) {
     note('Open-ended, so the amounts are floors — an AMRAP has no fixed rep count.');
   }
-  if (report.unresolved.length) {
-    note(`No muscle data for ${report.unresolved.join(', ')}, so no rule can see ${report.unresolved.length > 1 ? 'them' : 'it'}.`);
+  for (const name of report.unresolved) {
+    note(`No muscle data for “${name}” — no rule can see it.`);
   }
 
   if (!report.findings.length) return say('ok', 'every rule satisfied');

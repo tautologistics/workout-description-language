@@ -295,3 +295,23 @@ button:hover, .button:hover { border-color: var(--dim); }
   line-height: 1.45;
   color: var(--dim);
 }
+
+/* Cues inside a cycle are marked by a rail down their left, closed at both
+   ends: the shape says "these come round again" without a word per row. */
+.summary .cue.looping { position: relative; }
+.summary .cue.looping::before {
+  content: ''; position: absolute; left: 1.9rem; top: 0; bottom: 0;
+  border-left: 2px solid var(--accent); opacity: .5;
+}
+.summary .cue.cycle-start::before { top: .35rem; border-top-left-radius: 3px; }
+.summary .cue.cycle-end::before { bottom: .35rem; border-bottom-left-radius: 3px; }
+.summary .cue.cycle-start::after,
+.summary .cue.cycle-end::after {
+  content: ''; position: absolute; left: 1.9rem; width: .4rem;
+  border-top: 2px solid var(--accent); opacity: .5;
+}
+.summary .cue.cycle-start::after { top: .35rem; }
+.summary .cue.cycle-end::after { bottom: .35rem; }
+
+/* Notes stack; each is its own fact. */
+.notes div + div { margin-top: .2rem; }

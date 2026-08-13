@@ -370,6 +370,18 @@ function parseScore(text: string): Score {
   return score;
 }
 
+/**
+ * `on cap:` and `tiebreak:` qualify the score above them, so one with no score
+ * above it qualifies nothing. It used to fall through to the step grammar and
+ * become a movement called `tiebreak: time + rounds` — which parsed, validated,
+ * and turned up in the cue list as something to do.
+ */
+const orphan = (line: { line: number; text: string }, key: string): ParseError => ({
+  line: line.line,
+  text: line.text,
+  message: `\`${key}:\` has no \`score:\` above it to qualify — add one, or drop this line`,
+});
+
 export function parse(source: string): { workout: Workout; errors: ParseError[] } {
   const p = new Parser();
   const workout: Workout = { node: 'workout', directives: {}, body: [], comments: [] };
@@ -401,8 +413,10 @@ export function parse(source: string): { workout: Workout; errors: ParseError[] 
     // `on cap:` and `tiebreak:` are continuations of the score above them.
     let cont = text.match(/^on\s+cap:\s*(.+)$/i);
     if (cont && workout.score) { workout.score.onCap = cont[1].trim(); continue; }
+    if (cont) { p.errors.push(orphan(line, 'on cap')); continue; }
     cont = text.match(/^tiebreak:\s*(.+)$/i);
     if (cont && workout.score) { workout.score.tiebreak = cont[1].trim(); continue; }
+    if (cont) { p.errors.push(orphan(line, 'tiebreak')); continue; }
     if (/^variants:$/i.test(text)) {
       workout.variants = {};
       for (const v of line.children) {

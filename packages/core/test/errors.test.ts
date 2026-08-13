@@ -76,3 +76,25 @@ describe('scoring a workout twice', () => {
     eq(inner.score.primary, 'rounds + reps');
   });
 });
+
+describe('a qualifier with nothing to qualify', () => {
+  it('reports `tiebreak:` with no score rather than making it a movement', () => {
+    // It used to fall through to the step grammar and become a movement called
+    // `tiebreak: time + rounds` — which parsed, validated, and turned up in the
+    // cue list as something to do.
+    const { workout, errors } = parse('For time:\n  - 10 Burpees\ntiebreak: time + rounds\n');
+    eq(workout.body.filter((n) => n.node === 'step').length, 0, 'not a step');
+    eq(errors.length, 1);
+    ok(errors[0].message.includes('no `score:` above it'), errors[0].message);
+  });
+
+  it('does the same for `on cap:`', () => {
+    ok(parse('For time:\n  - 10 Burpees\non cap: reps\n').errors[0].message.includes('on cap'));
+  });
+
+  it('accepts either once there is a score to qualify', () => {
+    const r = parse('For time:\n  - 10 Burpees\nscore: time\ntiebreak: rounds\n');
+    eq(r.errors, []);
+    eq(r.workout.score?.tiebreak, 'rounds');
+  });
+});
