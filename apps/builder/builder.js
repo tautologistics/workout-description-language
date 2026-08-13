@@ -634,9 +634,27 @@ function setGoalSource(text) {
   readGoals();
 }
 
+/**
+ * What the rules made of the workout.
+ *
+ * A caveat is not a finding. "The amounts are floors" is true of every AMRAP
+ * ever written and says how to *read* the findings; "quads: 2 movements, at
+ * most 1" says the workout breaks a rule you set. Listed together in the same
+ * colour, the first reads as a fifth complaint about a workout that has one.
+ * So they are separated: notes above, in the margin's voice, and the list holds
+ * only things that are actually wrong.
+ */
 function renderFindings() {
   const list = el('findings');
+  const notes = el('goal-notes');
   list.innerHTML = '';
+  notes.textContent = '';
+  notes.hidden = true;
+
+  const note = (message) => {
+    notes.textContent = notes.textContent ? `${notes.textContent} ${message}` : message;
+    notes.hidden = false;
+  };
   const say = (severity, message) => {
     const li = document.createElement('li');
     const body = document.createElement('span');
@@ -646,7 +664,7 @@ function renderFindings() {
     list.append(li);
   };
 
-  if (!goals || !goals.rules.length) return say('warning', 'no rules to check against');
+  if (!goals || !goals.rules.length) return note('No rules to check against.');
   if (!has('canonicalMovements') || !has('muscles')) {
     return say('warning', 'no muscle data loaded — nothing can be checked');
   }
@@ -656,10 +674,15 @@ function renderFindings() {
   } catch (e) {
     return say('error', `cannot check: ${e.message}`);
   }
-  if (report.unresolved.length) {
-    say('warning', `no muscle data for ${report.unresolved.join(', ')} — invisible to every rule`);
+
+  // Both of these change what the numbers mean, so they are said before them.
+  if (report.unbounded) {
+    note('Open-ended, so the amounts are floors — an AMRAP has no fixed rep count.');
   }
-  if (report.unbounded) say('warning', 'open-ended: the amounts below are floors');
+  if (report.unresolved.length) {
+    note(`No muscle data for ${report.unresolved.join(', ')}, so no rule can see ${report.unresolved.length > 1 ? 'them' : 'it'}.`);
+  }
+
   if (!report.findings.length) return say('ok', 'every rule satisfied');
   for (const f of report.findings) {
     say('error', `${f.rule}: ${f.message}${f.count > 1 ? `  (×${f.count})` : ''}`);

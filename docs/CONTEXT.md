@@ -102,6 +102,12 @@ movement unregistered and switches off half of `validate` without a word.
 **A filter must never widen.** The first muscle filter took the palette from 178
 to 279 on the first click, because it silently changed scope.
 
+**A caveat is not a finding.** "The amounts are floors" is true of every AMRAP
+ever written and says how to *read* the results; "quads: 2 movements, at most 1"
+says the workout breaks a rule. Both were list items in near-identical reds, so
+the caveat read as a complaint about a workout that had one. Severity classes
+are not enough when two things differ in *kind*: separate them structurally.
+
 **Union is not merge.** Muscles were accumulated into a shared set alongside the
 per-source claims, so deduplication kept one source's claim and orphaned
 another's. Thruster came out working nine muscles including chest and calves.
@@ -144,8 +150,6 @@ build script became one regex.
   count cannot grow; none used by the corpus.
 - `Quad Stretch` scored into the 178 core movements on source agreement. Visible
   when generating with a bare `?`.
-- The builder's four-column desktop layout has never been seen — the browser
-  tool is fixed at 800px, so only the stacked layout is verified by eye.
 - Templates and workouts share the `.wdl` extension, so `wdl fmt` on a template
   is easy to do by accident.
 - A capped for-time workout reports `duration: 12:00` in the builder, which

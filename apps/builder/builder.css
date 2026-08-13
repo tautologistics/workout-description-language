@@ -278,3 +278,12 @@ button:hover, .button:hover { border-color: var(--dim); }
   font-size: .85em; padding: .4rem; margin-bottom: .3rem;
   border: 1px solid var(--rule); background: transparent; color: inherit;
 }
+
+/* A note is not a finding: it says how to read the list, so it does not look
+   like an item in it. Dim and unlaboured, the way a margin remark should be. */
+.notes {
+  margin: .3rem 0 .1rem;
+  font-size: .82em;
+  line-height: 1.45;
+  color: var(--dim);
+}
