@@ -5,7 +5,7 @@ Parse, modify, generate — over one document.
 ```bash
 node scripts/build-web.mjs
 node scripts/serve.mjs 8081
-open http://localhost:8081/apps/builder/
+open http://localhost:8081/          # or go straight to /apps/builder/
 ```
 
 Open a `.wdl`, drop one on it, or type. Four panes over the same text: the

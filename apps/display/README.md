@@ -5,7 +5,7 @@ The workout as written, with a marker for where you are.
 ```bash
 node scripts/build-web.mjs      # emit the core as browser modules
 node scripts/serve.mjs 8081
-open http://localhost:8081/apps/display/
+open http://localhost:8081/          # or go straight to /apps/display/
 ```
 
 Drop a `.wdl` on it, paste one in, or pick a sample. The URL carries the
