@@ -1127,3 +1127,46 @@ All 40 encode. Eleven problems surfaced (N1–N11), none structural — every on
 - `rounds` vs `sets` preserved as authored — right call, or false precision?
 - `EMOM 20min:` with a two-minute cycle and `every 2min x 10:` say the same thing (§13.28). Should one be canonical?
 - Does `+3 each round` need a subtractive form, or is a literal list always clearer for descending schemes?
+
+
+## Pick one of
+
+A step may name alternatives. The athlete does one of them, so it takes one
+place in the order and counts once.
+
+**Inline**, when it fits on a line. `or`, `/` and `|` all separate:
+
+```
+- 30cal Bike or Row
+- 30cal Bike/Row
+- 1min Bike|Row|SkiErg
+```
+
+An alternative that names no amount takes the first one's, because nobody
+writes the minute three times. Each may carry its own where they differ:
+
+```
+- 800m Run or 25cal Bike or 20cal Row
+```
+
+**As a block**, when that is a mouthful — three options each with their own
+measure, which is what a run becomes when it rains:
+
+```
+choice:
+  - 800m Run
+  - 25cal Bike
+  - 20cal Row
+```
+
+Both round-trip in the shape they were written. The block form exists because
+one line was too long; rewriting it inline would undo the reason for it.
+
+`/` separates only when it is not between two digits, so `10 3/4 Sit-Up` is one
+movement and `30cal Bike/Row` is two.
+
+**The first is the prescription.** It is what `movement` and `quantity` hold, so
+everything that does not care about the choice is unaffected, and muscle
+analysis reads the thing you would do by default rather than a union of
+everything you might. A rule about lats should not fire because one of three
+options happened to involve them.

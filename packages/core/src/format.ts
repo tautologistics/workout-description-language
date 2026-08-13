@@ -44,8 +44,17 @@ function stepText(s: Step, scheme?: Scheme): string {
   // A whiteboard says `21 Thrusters`. Identity is unaffected — `fold()`
   // depluralizes — so this is only how the line reads.
   const count = countFor(s, scheme);
-  out += count !== undefined && count > 1 ? pluralize(s.movement) : s.movement;
+  const name = (m: string) => (count !== undefined && count > 1 ? pluralize(m) : m);
+  out += name(s.movement);
   if (trailing) out += ` ${q}`;
+
+  // `A or B`. An alternative measured the same way as the first says only its
+  // name — writing `1min Bike or 1min Row` where `1min Bike or Row` was meant is
+  // how a format starts reading like a form.
+  for (const opt of (s.options ?? []).slice(1)) {
+    const same = JSON.stringify(opt.quantity) === JSON.stringify(s.quantity);
+    out += ` or ${same ? name(opt.movement) : `${formatQuantity(opt.quantity)} ${name(opt.movement)}`}`;
+  }
 
   // Laterality and side attach to the movement, so they precede the targets —
   // `10 Dumbbell Curl each arm @ 2x35lb`, not `… @ 2x35lb each arm`. All three
@@ -162,7 +171,23 @@ function emit(n: Node, depth: number, out: string[], scheme?: Scheme) {
   for (const c of n.comments) out.push(`${pad}// ${c}`);
 
   switch (n.node) {
-    case 'step': out.push(pad + stepText(n, scheme)); return;
+    case 'step': {
+      // The block form is written back as a block: it was chosen because three
+      // measures on one line is a mouthful, and rewriting it inline would undo
+      // the reason.
+      if (n.optionsForm === 'block' && n.options && n.options.length > 1) {
+        out.push(`${pad}choice:`);
+        for (const o of n.options) {
+          const q = formatQuantity(o.quantity);
+          const count = o.quantity.kind === 'reps' ? o.quantity.value : undefined;
+          const name = count !== undefined && count > 1 ? pluralize(o.movement) : o.movement;
+          out.push(`${pad}${IND}- ${[q, name].filter(Boolean).join(' ')}`);
+        }
+        return;
+      }
+      out.push(pad + stepText(n, scheme));
+      return;
+    }
     case 'rest': out.push(pad + restText(n)); return;
     case 'interrupt':
       out.push(`${pad}every ${formatDuration(n.every)}: ${stepText(n.body[0] as Step).replace(/^- /, '')}`);

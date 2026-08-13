@@ -8,6 +8,8 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, eq, ok } from './lib.ts';
 import { parse } from '../src/parse.ts';
+import { format } from '../src/format.ts';
+import { compile } from '../src/timeline.ts';
 import type { Block, Step, Rest, Interrupt } from '../src/ast.ts';
 
 const dir = join(dirname(fileURLToPath(import.meta.url)), '../../../examples/corpus');
@@ -208,5 +210,57 @@ describe('scoring', () => {
 
   it('a cap is recorded separately from the score', () => {
     eq(b(load('25-open-25-2.wdl').body[0]).cap, { kind: 'duration', seconds: 720 });
+  });
+});
+
+describe('pick one of', () => {
+  const step = (src: string) => (parse(`sequence:\n${src}\n`).workout.body[0] as any).children[0];
+  const canon = (src: string) => format(parse(`sequence:\n${src}\n`).workout).trim();
+
+  it('takes `or`, `/` and `|` as the same thing', () => {
+    for (const src of ['  - 30cal Bike or Row', '  - 30cal Bike/Row', '  - 30cal Bike|Row']) {
+      eq(step(src).options?.map((o: any) => o.movement), ['Bike', 'Row'], src);
+    }
+  });
+
+  it('gives an option with no measure of its own the first one’s', () => {
+    // `1min Bike or Row` is a minute of either, and nobody writes the minute twice.
+    const s = step('  - 1min Bike or Row or SkiErg');
+    eq(s.options.map((o: any) => o.quantity.seconds), [60, 60, 60]);
+  });
+
+  it('lets each option carry its own, which is how a run becomes a machine', () => {
+    const s = step('  - 800m Run or 25cal Bike or 20cal Row');
+    eq(s.options.map((o: any) => [o.movement, o.quantity.kind]),
+       [['Run', 'distance'], ['Bike', 'calories'], ['Row', 'calories']]);
+  });
+
+  it('does not cut a movement whose name contains a slash', () => {
+    eq(step('  - 10 3/4 Sit-Up').options, undefined);
+    eq(step('  - 10 3/4 Sit-Up').movement, '3/4 Sit-Up');
+  });
+
+  it('reads the block form, and writes it back as a block', () => {
+    const src = '  choice:\n    - 800m Run\n    - 25cal Bike\n    - 20cal Row';
+    eq(step(src).options.map((o: any) => o.movement), ['Run', 'Bike', 'Row']);
+    eq(step(src).optionsForm, 'block');
+    eq(canon(src), `sequence:\n${src}`, 'the shape it was written in survives');
+  });
+
+  it('is one step however many ways there are to do it', () => {
+    // The athlete does one of them, so it takes one place in the order.
+    const t = compile(parse('sequence:\n  choice:\n    - 800m Run\n    - 25cal Bike\n').workout);
+    eq((t.root.items[0] as any).items.length, 1);
+  });
+
+  it('prescribes the first, so analysis reads what you would do by default', () => {
+    const s = step('  - 800m Run or 25cal Bike');
+    eq(s.movement, 'Run');
+    eq(s.quantity, { kind: 'distance', value: 800, unit: 'm' });
+  });
+
+  it('reports a choice with nothing in it', () => {
+    const r = parse('sequence:\n  choice:\n');
+    ok(r.errors[0].message.includes('nothing to choose between'), JSON.stringify(r.errors));
   });
 });

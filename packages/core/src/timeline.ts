@@ -17,7 +17,7 @@
  */
 
 import type {
-  Workout, Node, Step, Rest, Block, Interrupt, Unit, Target, Score,
+  Workout, Node, Step, Rest, Block, Interrupt, Unit, Target, Score, StepOption,
 } from './ast.ts';
 import { pluralize } from './fold.ts';
 
@@ -57,6 +57,8 @@ export interface TimelineStep {
   team?: string;
   /** Retained when the round count is unbounded and the delta cannot be expanded. */
   perRound?: { delta: number; unit: string };
+  /** Alternatives the athlete picks between; the first is the prescription. */
+  options?: StepOption[];
   flags: string[];
   notes: string[];
   /** Human-readable line for a display. */
@@ -216,6 +218,13 @@ function compileStep(s: Step, ctx: Ctx, enclosing: { clock?: boolean; capped?: b
   const q = quantityLabel(quantity);
   const name = readAs(s.movement, quantity);
   let label = (trailing ? [name, q] : [q, name]).filter(Boolean).join(' ');
+  // The alternatives belong on the board: the choice is the athlete's, and a
+  // cue naming only the first is a cue that has quietly made it for them.
+  for (const opt of (s.options ?? []).slice(1)) {
+    const same = JSON.stringify(opt.quantity) === JSON.stringify(s.quantity);
+    label += ` or ${same ? readAs(opt.movement, quantity)
+      : `${quantityLabel(opt.quantity)} ${readAs(opt.movement, opt.quantity)}`}`;
+  }
   if (s.laterality === 'per-side') label += ` each ${s.limb ?? 'side'}`;
   if (s.side) label += ` ${s.side} ${s.limb ?? 'arm'}`;
   for (const t of targets) label += ` @ ${targetLabel(t)}`;
@@ -237,6 +246,7 @@ function compileStep(s: Step, ctx: Ctx, enclosing: { clock?: boolean; capped?: b
     perRound: s.perRound && ctx.round === undefined ? s.perRound : undefined,
     flags: s.flags,
     notes: s.notes,
+    options: s.options,
     label,
     line: s.line,
   };

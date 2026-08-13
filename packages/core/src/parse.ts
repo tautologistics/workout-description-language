@@ -27,7 +27,36 @@ class Parser {
 
   // ---------- steps ----------
 
+  /**
+   * `A or B or C` — one step, several ways to do it.
+   *
+   * Split before anything else is read, so each alternative goes through the
+   * whole step grammar and may carry its own quantity, load and qualifiers. An
+   * alternative that names no amount takes the first one's, which is what
+   * `1min Bike or Row` means and what nobody writes twice.
+   *
+   * The first is the prescription: it stays in `movement` and `quantity`, so
+   * every consumer that does not care about the choice is untouched, and muscle
+   * analysis reads the thing you would do by default rather than a union of
+   * everything you might.
+   */
   parseStep(text: string, line: Line): Step {
+    const pieces = splitOr(text);
+    if (pieces.length < 2) return this.parseOneStep(text, line);
+
+    const parsed = pieces.map((p) => this.parseOneStep(p, line));
+    const first = parsed[0];
+    // An alternative that is only a name parses to an open quantity; that is the
+    // shared-measure form, not an open-ended step.
+    first.options = parsed.map((s) => ({
+      movement: s.movement,
+      quantity: s.quantity.kind === 'open' ? first.quantity : s.quantity,
+    }));
+    first.optionsForm = 'inline';
+    return first;
+  }
+
+  parseOneStep(text: string, line: Line): Step {
     const step: Step = {
       node: 'step', movement: '', quantity: { kind: 'open' },
       targets: [], flags: [], notes: [], comments: line.comments, line: line.line,
@@ -302,6 +331,30 @@ class Parser {
     if (/^rest\b/i.test(text)) return this.parseRest(text, line);
 
     // `every 1min: 5 Burpee` with inline body is an interrupt overlay (spec §5.8);
+    // `choice:` with alternatives under it. Still one step — the athlete does
+    // one of them, so it takes one place in the order and counts once — but the
+    // block form exists because three options each with their own measure is a
+    // mouthful on one line, so the shape is remembered rather than normalised
+    // back to the shape it was written to avoid.
+    if (/^choice:$/i.test(text)) {
+      const opts = line.children
+        .map((c) => this.parseOneStep(c.text.replace(/^-\s*/, ''), c))
+        .filter((o) => o.movement);
+      if (!opts.length) {
+        this.errors.push({ line: line.line, message: '`choice:` with nothing to choose between', text: line.text });
+        return undefined;
+      }
+      const step = opts[0];
+      step.options = opts.map((o) => ({
+        movement: o.movement,
+        quantity: o.quantity.kind === 'open' ? opts[0].quantity : o.quantity,
+      }));
+      step.optionsForm = 'block';
+      step.line = line.line;
+      step.comments = line.comments;
+      return step;
+    }
+
     // `every 3min x 5:` with children is a clock-driven repeat.
     let m = text.match(/^every\s+(\S+):\s*(.+)$/i);
     if (m) {
@@ -381,6 +434,30 @@ const orphan = (line: { line: number; text: string }, key: string): ParseError =
   text: line.text,
   message: `\`${key}:\` has no \`score:\` above it to qualify — add one, or drop this line`,
 });
+
+/**
+ * Split on the word `or`, outside braces and parentheses. A single-character
+ * separator will not do here, and a bare `text.split(/ or /)` would cut a
+ * movement whose name contains the word.
+ */
+function splitOr(text: string): string[] {
+  // `|` never appears in a movement name. `/` does — `3/4 Sit-Up` — so it only
+  // separates when it is not sitting between two digits.
+  const marked = text.replace(/\|/g, ' or ').replace(/(?<!\d)\s*\/\s*(?!\d)/g, ' or ');
+  const out: string[] = [];
+  let depth = 0, quote = false, cur = '';
+  for (const w of marked.split(/(\s+)/)) {
+    for (const c of w) {
+      if (c === '"') quote = !quote;
+      else if (!quote && (c === '{' || c === '(')) depth++;
+      else if (!quote && (c === '}' || c === ')')) depth--;
+    }
+    if (!quote && depth === 0 && /^or$/i.test(w)) { out.push(cur.trim()); cur = ''; continue; }
+    cur += w;
+  }
+  if (cur.trim()) out.push(cur.trim());
+  return out.filter(Boolean);
+}
 
 export function parse(source: string): { workout: Workout; errors: ParseError[] } {
   const p = new Parser();

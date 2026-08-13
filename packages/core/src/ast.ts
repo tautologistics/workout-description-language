@@ -45,10 +45,34 @@ export type Target =
 /** How a step's reps are distributed across two limbs (registry §6). */
 export type Laterality = 'both' | 'split' | 'per-side';
 
+/** One of several things the athlete may pick between for a single step. */
+export interface StepOption {
+  movement: string;
+  quantity: Unit;
+}
+
 export interface Step {
   node: 'step';
   movement: string;
   quantity: Unit;
+  /**
+   * Alternatives, when the step was written as `A or B`. The first is the
+   * prescription and is duplicated in `movement`/`quantity` above, so anything
+   * that does not care about the choice keeps working unchanged.
+   *
+   * Two shapes, both common on a whiteboard: one measure across several
+   * machines — `1min Bike or Row or SkiErg` — and a different measure for each,
+   * which is how a run becomes a machine when it rains: `800m Run or 25cal Bike
+   * or 20cal Row`.
+   */
+  options?: StepOption[];
+  /**
+   * Which shape they were written in. Inline stays inline and a `choice:` block
+   * stays a block: the block form exists because three options each with their
+   * own measure is a mouthful on one line, and rewriting it back to one line
+   * would undo the reason it was chosen.
+   */
+  optionsForm?: 'inline' | 'block';
   targets: Target[];
   /** Measured output for scoring, distinct from what ends the step (spec §4, N6). */
   measures?: 'reps' | 'calories' | 'distance';

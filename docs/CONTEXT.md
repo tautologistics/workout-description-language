@@ -51,7 +51,7 @@ docs/                  this file, product_vision_and_roadmap.md, prior art, desi
 
 | | |
 |---|---|
-| **Format** | Parser, canonical formatter, validator, timeline compiler. 190-workout corpus round-trips. |
+| **Format** | Parser, canonical formatter, validator, timeline compiler. 190-workout corpus round-trips. Alternatives: `A or B`, `A/B`, `A|B`, and a `choice:` block. |
 | **Interop** | Import: `.zwo`, `.erg`/`.mrc`, FIT. Export: those plus Garmin Connect JSON. Verified against a real watch. |
 | **Registry** | 3120 movements merged from five sources, 178 marked core, 2983 with muscle data. Every record names its sources and keeps their claims separately. |
 | **Analysis** | Muscle attribution with a closed 19-muscle vocabulary; per-muscle volume; ordering with the repeat-wrap. |
