@@ -1,3 +1,4 @@
 # Grace
+
 for time:
-  - 30 Clean & Jerk @ 135lb
+  - 30 Clean & Jerks @ 135lb

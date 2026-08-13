@@ -1,5 +1,6 @@
 # Maggie
+
 5 rounds for time:
-  - 20 Handstand Push-Up
-  - 40 Pistol (split)
-  - 60 Pull-Up
+  - 20 Handstand Push-Ups
+  - 40 Pistols (split)
+  - 60 Pull-Ups

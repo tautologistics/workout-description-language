@@ -1,5 +1,6 @@
 # TK
+
 AMRAP 20min:
-  - 8 Strict Pull-Up
-  - 8 Box Jump @ 30in
-  - 12 KB Swing @ 2pood
+  - 8 Strict Pull-Ups
+  - 8 Box Jumps @ 30in
+  - 12 KB Swings @ 2pood

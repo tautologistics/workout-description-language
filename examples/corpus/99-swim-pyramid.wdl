@@ -1,4 +1,5 @@
 # Swim Pyramid
+
 sequence:
   - 400m Swim @ easy pace
   - 100m Swim

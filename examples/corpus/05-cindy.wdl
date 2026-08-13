@@ -1,5 +1,6 @@
 # Cindy
+
 AMRAP 20min:
-  - 5 Pull-Up
-  - 10 Push-Up
-  - 15 Air Squat
+  - 5 Pull-Ups
+  - 10 Push-Ups
+  - 15 Air Squats

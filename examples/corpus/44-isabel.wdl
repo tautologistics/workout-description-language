@@ -1,3 +1,4 @@
 # Isabel
+
 for time:
-  - 30 Snatch @ 135lb
+  - 30 Snatches @ 135lb

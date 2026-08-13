@@ -1,6 +1,6 @@
 {
  "$comment": "Every merge this pass made, and every variant-of link. Each cluster lists the records absorbed, so a merge can be inspected or unpicked.",
- "generated": "2026-08-12",
+ "generated": "2026-08-13",
  "clusters": [
   {
    "key": "abs barbell rollout",
@@ -918,6 +918,25 @@
    ]
   },
   {
+   "key": "bent lateral over raise",
+   "members": [
+    {
+     "id": "bent-over-lateral-raise",
+     "title": "Bent-over Lateral Raise",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "bent-over-lateral-raises",
+     "title": "Bent-over Lateral Raises",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
    "key": "biceps cable curl",
    "members": [
     {
@@ -1163,6 +1182,13 @@
      ]
     },
     {
+     "id": "front-cable-raises",
+     "title": "Front Cable Raises",
+     "sources": [
+      "everkinetic"
+     ]
+    },
+    {
      "id": "front-raise-cable",
      "title": "Front Raise (Cable)",
      "sources": [
@@ -1353,7 +1379,7 @@
    ]
   },
   {
-   "key": "band calf rais",
+   "key": "band calf raise",
    "members": [
     {
      "id": "calf-raises-band",
@@ -1496,6 +1522,26 @@
    ]
   },
   {
+   "key": "calf donkey raise",
+   "members": [
+    {
+     "id": "donkey-calf-raise",
+     "title": "Donkey Calf Raise",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "donkey-calf-raises",
+     "title": "Donkey Calf Raises",
+     "sources": [
+      "free-exercise-db",
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
    "key": "bench dumbbell grip neutral press",
    "members": [
     {
@@ -1594,6 +1640,25 @@
      "title": "Incline Dumbbell Row",
      "sources": [
       "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "dumbbell lateral raise",
+   "members": [
+    {
+     "id": "dumbbell-lateral-raise",
+     "title": "Dumbbell Lateral Raise",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "lateral-dumbbell-raises",
+     "title": "Lateral Dumbbell Raises",
+     "sources": [
+      "everkinetic"
      ]
     }
    ]
@@ -2028,6 +2093,45 @@
    ]
   },
   {
+   "key": "front plate raise",
+   "members": [
+    {
+     "id": "front-plate-raise",
+     "title": "Front Plate Raise",
+     "sources": [
+      "free-exercise-db"
+     ]
+    },
+    {
+     "id": "front-raises-plates",
+     "title": "Front Raises with Plates",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "front raise",
+   "members": [
+    {
+     "id": "front-raise",
+     "title": "Front Raise",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "front-raises",
+     "title": "Front Raises",
+     "sources": [
+      "wger",
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
    "key": "front squat",
    "members": [
     {
@@ -2059,6 +2163,26 @@
     {
      "id": "hack-squats",
      "title": "Hack Squats",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "hanging leg raise",
+   "members": [
+    {
+     "id": "hanging-leg-raise",
+     "title": "Hanging Leg Raise",
+     "sources": [
+      "garmin",
+      "free-exercise-db"
+     ]
+    },
+    {
+     "id": "hanging-leg-raises",
+     "title": "Hanging Leg Raises",
      "sources": [
       "wger"
      ]
@@ -2928,6 +3052,26 @@
    ]
   },
   {
+   "key": "calf raise standing",
+   "members": [
+    {
+     "id": "standing-calf-raise",
+     "title": "Standing Calf Raise",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "standing-calf-raises",
+     "title": "Standing Calf Raises",
+     "sources": [
+      "free-exercise-db",
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
    "key": "calf dumbbell raise standing",
    "members": [
     {
@@ -3317,6 +3461,1517 @@
   },
   {
    "key": "squat zercher",
+   "members": [
+    {
+     "id": "zercher-squat",
+     "title": "Zercher Squat",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "zercher-squats",
+     "title": "Zercher Squats",
+     "sources": [
+      "free-exercise-db"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "adductor",
+   "members": [
+    {
+     "id": "adductor",
+     "title": "Adductor",
+     "sources": [
+      "free-exercise-db"
+     ]
+    },
+    {
+     "id": "adductors",
+     "title": "Adductors",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "alternatingbicepscurldumbbell",
+   "members": [
+    {
+     "id": "alternating-bicep-curl-dumbbell",
+     "title": "Alternating Bicep Curl with Dumbbell",
+     "sources": [
+      "everkinetic"
+     ]
+    },
+    {
+     "id": "alternating-biceps-curls-dumbbell",
+     "title": "Alternating Biceps Curls With Dumbbell",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "backsquat",
+   "members": [
+    {
+     "id": "back-squat",
+     "title": "Back Squat",
+     "sources": [
+      "wdl-curated"
+     ]
+    },
+    {
+     "id": "back-squats",
+     "title": "Back Squats",
+     "sources": [
+      "garmin"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "bandpullapart",
+   "members": [
+    {
+     "id": "band-pull-apart",
+     "title": "Band Pull Apart",
+     "sources": [
+      "free-exercise-db"
+     ]
+    },
+    {
+     "id": "band-pull-aparts",
+     "title": "Band pull-aparts",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "bandedclamshell",
+   "members": [
+    {
+     "id": "banded-clam-shells",
+     "title": "Banded Clam Shells",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "banded-clamshell",
+     "title": "Banded Clamshell",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "barbellhacksquat",
+   "members": [
+    {
+     "id": "barbell-hack-squat",
+     "title": "Barbell Hack Squat",
+     "sources": [
+      "garmin",
+      "free-exercise-db"
+     ]
+    },
+    {
+     "id": "barbell-hack-squats",
+     "title": "Barbell Hack Squats",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "barbellshrug",
+   "members": [
+    {
+     "id": "barbell-shrug",
+     "title": "Barbell Shrug",
+     "sources": [
+      "garmin",
+      "free-exercise-db"
+     ]
+    },
+    {
+     "id": "barbell-shrugs",
+     "title": "Barbell Shrugs",
+     "sources": [
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "barbellstepup",
+   "members": [
+    {
+     "id": "barbell-step-up",
+     "title": "Barbell Step-up",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "barbell-step-ups",
+     "title": "Barbell Step Ups",
+     "sources": [
+      "free-exercise-db"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "battlerope",
+   "members": [
+    {
+     "id": "battle-rope",
+     "title": "Battle Rope",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "battle-ropes",
+     "title": "Battle Ropes",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "benchdip",
+   "members": [
+    {
+     "id": "bench-dip",
+     "title": "Bench Dip",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "bench-dips",
+     "title": "Bench Dips",
+     "sources": [
+      "free-exercise-db",
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "benchpressdumbbell",
+   "members": [
+    {
+     "id": "bench-press-dumbbell",
+     "title": "Bench Press: Dumbbell",
+     "sources": [
+      "everkinetic"
+     ]
+    },
+    {
+     "id": "benchpress-dumbbells",
+     "title": "Benchpress Dumbbells",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "bentoverlateralraise",
+   "members": [
+    {
+     "id": "bent-over-lateral-raise",
+     "title": "Bent-over Lateral Raise",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "bent-over-lateral-raises",
+     "title": "Bent-over Lateral Raises",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "bicepscurlbarbell",
+   "members": [
+    {
+     "id": "biceps-curl-barbell",
+     "title": "Biceps Curl: Barbell",
+     "sources": [
+      "everkinetic"
+     ]
+    },
+    {
+     "id": "biceps-curls-barbell",
+     "title": "Biceps Curls With Barbell",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "bicepscurldumbbell",
+   "members": [
+    {
+     "id": "biceps-curl-dumbbell",
+     "title": "Biceps Curl: Dumbbell",
+     "sources": [
+      "everkinetic"
+     ]
+    },
+    {
+     "id": "biceps-curls-dumbbell",
+     "title": "Biceps Curls With Dumbbell",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "bicyclecrunch",
+   "members": [
+    {
+     "id": "bicycle-crunch",
+     "title": "Bicycle Crunch",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "bicycle-crunches",
+     "title": "bicycle crunches",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "bodyup",
+   "members": [
+    {
+     "id": "body-up",
+     "title": "Body-Up",
+     "sources": [
+      "free-exercise-db"
+     ]
+    },
+    {
+     "id": "body-ups",
+     "title": "Body-Ups",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "boxjump",
+   "members": [
+    {
+     "id": "box-jump",
+     "title": "Box Jump",
+     "sources": [
+      "wdl-curated",
+      "garmin"
+     ]
+    },
+    {
+     "id": "box-jumps",
+     "title": "box jumps",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "burpee",
+   "members": [
+    {
+     "id": "burpee",
+     "title": "Burpee",
+     "sources": [
+      "wdl-curated",
+      "garmin"
+     ]
+    },
+    {
+     "id": "burpees",
+     "title": "Burpees",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "cableshrug",
+   "members": [
+    {
+     "id": "cable-shrug-in",
+     "title": "Cable Shrug-In",
+     "sources": [
+      "wger"
+     ]
+    },
+    {
+     "id": "cable-shrugs",
+     "title": "Cable Shrugs",
+     "sources": [
+      "free-exercise-db"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "calfraiseband",
+   "members": [
+    {
+     "id": "calf-raises-band",
+     "title": "Calf Raises with Band",
+     "sources": [
+      "everkinetic"
+     ]
+    },
+    {
+     "id": "calf-raises-bands",
+     "title": "Calf Raises - With Bands",
+     "sources": [
+      "free-exercise-db"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "chin",
+   "members": [
+    {
+     "id": "chin-up",
+     "title": "Chin-up",
+     "sources": [
+      "garmin",
+      "free-exercise-db",
+      "wger"
+     ]
+    },
+    {
+     "id": "chin-ups",
+     "title": "Chin Ups",
+     "sources": [
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "crunch",
+   "members": [
+    {
+     "id": "crunch",
+     "title": "Crunch",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "crunches",
+     "title": "Crunches",
+     "sources": [
+      "free-exercise-db",
+      "wger",
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "deadlift",
+   "members": [
+    {
+     "id": "deadlift",
+     "title": "Deadlift",
+     "sources": [
+      "wdl-curated",
+      "garmin"
+     ]
+    },
+    {
+     "id": "deadlifts",
+     "title": "Deadlifts",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "declinedumbbellfly",
+   "members": [
+    {
+     "id": "decline-dumbbell-fly",
+     "title": "Decline Dumbbell Fly",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "decline-dumbbell-fly-s",
+     "title": "Decline Dumbbell Fly's",
+     "sources": [
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "diamondpushup",
+   "members": [
+    {
+     "id": "diamond-push-up",
+     "title": "Diamond Push-up",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "diamond-push-ups",
+     "title": "Diamond push ups",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "donkeycalfraise",
+   "members": [
+    {
+     "id": "donkey-calf-raise",
+     "title": "Donkey Calf Raise",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "donkey-calf-raises",
+     "title": "Donkey Calf Raises",
+     "sources": [
+      "free-exercise-db",
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "dumbbellbicepscurl",
+   "members": [
+    {
+     "id": "dumbbell-bicep-curl",
+     "title": "Dumbbell Bicep Curl",
+     "sources": [
+      "free-exercise-db"
+     ]
+    },
+    {
+     "id": "dumbbell-biceps-curl",
+     "title": "Dumbbell Biceps Curl",
+     "sources": [
+      "garmin"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "dumbbellfly",
+   "members": [
+    {
+     "id": "dumbbell-fly",
+     "title": "Dumbbell Fly",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "dumbbell-flys",
+     "title": "Dumbbell Flys",
+     "sources": [
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "dumbbelllunge",
+   "members": [
+    {
+     "id": "dumbbell-lunge",
+     "title": "Dumbbell Lunge",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "dumbbell-lunges",
+     "title": "Dumbbell Lunges",
+     "sources": [
+      "free-exercise-db"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "dumbbellstepup",
+   "members": [
+    {
+     "id": "dumbbell-step-up",
+     "title": "Dumbbell Step-up",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "dumbbell-step-ups",
+     "title": "Dumbbell Step Ups",
+     "sources": [
+      "free-exercise-db"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "dumbbellthruster",
+   "members": [
+    {
+     "id": "dumbbell-thruster",
+     "title": "Dumbbell Thruster",
+     "sources": [
+      "wdl-curated",
+      "wger"
+     ]
+    },
+    {
+     "id": "dumbbell-thrusters",
+     "title": "Dumbbell Thrusters",
+     "sources": [
+      "garmin"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "frontcableraise",
+   "members": [
+    {
+     "id": "front-cable-raise",
+     "title": "Front Cable Raise",
+     "sources": [
+      "free-exercise-db"
+     ]
+    },
+    {
+     "id": "front-cable-raises",
+     "title": "Front Cable Raises",
+     "sources": [
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "frontraise",
+   "members": [
+    {
+     "id": "front-raise",
+     "title": "Front Raise",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "front-raises",
+     "title": "Front Raises",
+     "sources": [
+      "wger",
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "frontsquat",
+   "members": [
+    {
+     "id": "front-squat",
+     "title": "Front Squat",
+     "sources": [
+      "wdl-curated"
+     ]
+    },
+    {
+     "id": "front-squats",
+     "title": "Front Squats",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "ghdsitup",
+   "members": [
+    {
+     "id": "ghd-sit-up",
+     "title": "GHD Sit-Up",
+     "sources": [
+      "wdl-curated"
+     ]
+    },
+    {
+     "id": "ghd-sit-ups",
+     "title": "GHD Sit-ups",
+     "sources": [
+      "garmin"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "hacksquat",
+   "members": [
+    {
+     "id": "hack-squat",
+     "title": "Hack Squat",
+     "sources": [
+      "free-exercise-db"
+     ]
+    },
+    {
+     "id": "hack-squats",
+     "title": "Hack Squats",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "handstandpushup",
+   "members": [
+    {
+     "id": "handstand-push-up",
+     "title": "Handstand Push-Up",
+     "sources": [
+      "wdl-curated",
+      "garmin",
+      "wger"
+     ]
+    },
+    {
+     "id": "handstand-push-ups",
+     "title": "Handstand Push-Ups",
+     "sources": [
+      "free-exercise-db"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "hanginglegraise",
+   "members": [
+    {
+     "id": "hanging-leg-raise",
+     "title": "Hanging Leg Raise",
+     "sources": [
+      "garmin",
+      "free-exercise-db"
+     ]
+    },
+    {
+     "id": "hanging-leg-raises",
+     "title": "Hanging Leg Raises",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "hyperextension",
+   "members": [
+    {
+     "id": "hyperextension",
+     "title": "Hyperextension",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "hyperextensions",
+     "title": "Hyperextensions",
+     "sources": [
+      "wger",
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "inclinedumbbellfly",
+   "members": [
+    {
+     "id": "incline-dumbbell-fly",
+     "title": "Incline Dumbbell Fly",
+     "sources": [
+      "garmin",
+      "wger"
+     ]
+    },
+    {
+     "id": "incline-dumbbell-fly-s",
+     "title": "Incline Dumbbell Fly's",
+     "sources": [
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "invertedrow",
+   "members": [
+    {
+     "id": "inverted-row",
+     "title": "Inverted Row",
+     "sources": [
+      "garmin",
+      "free-exercise-db"
+     ]
+    },
+    {
+     "id": "inverted-rows",
+     "title": "Inverted Rows",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "jumpingpullup",
+   "members": [
+    {
+     "id": "jumping-pull-up",
+     "title": "Jumping Pull-Up",
+     "sources": [
+      "wdl-curated"
+     ]
+    },
+    {
+     "id": "jumping-pull-ups",
+     "title": "Jumping Pull-ups",
+     "sources": [
+      "garmin"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "kettlebelldeadlift",
+   "members": [
+    {
+     "id": "kettlebell-deadlift",
+     "title": "Kettlebell Deadlift",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "kettlebell-deadlifts",
+     "title": "Kettlebell deadlifts",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "kettlebellswing",
+   "members": [
+    {
+     "id": "kettlebell-swing",
+     "title": "Kettlebell Swing",
+     "sources": [
+      "wdl-curated",
+      "garmin",
+      "wger"
+     ]
+    },
+    {
+     "id": "kettlebell-swings",
+     "title": "Kettlebell Swings",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "legextension",
+   "members": [
+    {
+     "id": "leg-extension",
+     "title": "Leg Extension",
+     "sources": [
+      "wger"
+     ]
+    },
+    {
+     "id": "leg-extensions",
+     "title": "Leg Extensions",
+     "sources": [
+      "garmin",
+      "free-exercise-db",
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "lunge",
+   "members": [
+    {
+     "id": "lunge",
+     "title": "Lunge",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "lunges",
+     "title": "Lunges",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "mountainclimber",
+   "members": [
+    {
+     "id": "mountain-climber",
+     "title": "Mountain Climber",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "mountain-climbers",
+     "title": "Mountain Climbers",
+     "sources": [
+      "free-exercise-db",
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "onearmtricepsextensioncable",
+   "members": [
+    {
+     "id": "one-arm-tricep-extension-cable",
+     "title": "One Arm Tricep Extension with Cable",
+     "sources": [
+      "everkinetic"
+     ]
+    },
+    {
+     "id": "one-arm-triceps-extensions-on-cable",
+     "title": "One Arm Triceps Extensions on Cable",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "pikepushup",
+   "members": [
+    {
+     "id": "pike-push-up",
+     "title": "Pike Push-up",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "pike-push-ups",
+     "title": "Pike Push Ups",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "preachercurl",
+   "members": [
+    {
+     "id": "preacher-curl",
+     "title": "Preacher Curl",
+     "sources": [
+      "free-exercise-db"
+     ]
+    },
+    {
+     "id": "preacher-curls",
+     "title": "Preacher Curls",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "pull",
+   "members": [
+    {
+     "id": "pull-up",
+     "title": "Pull-Up",
+     "sources": [
+      "wdl-curated",
+      "garmin"
+     ]
+    },
+    {
+     "id": "pullups",
+     "title": "Pullups",
+     "sources": [
+      "free-exercise-db",
+      "wger",
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "push",
+   "members": [
+    {
+     "id": "push-up",
+     "title": "Push-Up",
+     "sources": [
+      "wdl-curated",
+      "garmin",
+      "wger"
+     ]
+    },
+    {
+     "id": "pushups",
+     "title": "Pushups",
+     "sources": [
+      "free-exercise-db"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "rackpull",
+   "members": [
+    {
+     "id": "rack-pull",
+     "title": "Rack Pull",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "rack-pulls",
+     "title": "Rack Pulls",
+     "sources": [
+      "free-exercise-db"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "ringdip",
+   "members": [
+    {
+     "id": "ring-dip",
+     "title": "Ring Dip",
+     "sources": [
+      "wdl-curated",
+      "garmin"
+     ]
+    },
+    {
+     "id": "ring-dips",
+     "title": "Ring Dips",
+     "sources": [
+      "free-exercise-db",
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "seatedcablerow",
+   "members": [
+    {
+     "id": "seated-cable-row",
+     "title": "Seated Cable Row",
+     "sources": [
+      "garmin",
+      "wger"
+     ]
+    },
+    {
+     "id": "seated-cable-rows",
+     "title": "Seated Cable Rows",
+     "sources": [
+      "free-exercise-db",
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "seateddumbbellcurl",
+   "members": [
+    {
+     "id": "seated-dumbbell-curl",
+     "title": "Seated Dumbbell Curl",
+     "sources": [
+      "free-exercise-db"
+     ]
+    },
+    {
+     "id": "seated-dumbbell-curls",
+     "title": "Seated Dumbbell Curls",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "sit",
+   "members": [
+    {
+     "id": "sit-up",
+     "title": "Sit-Up",
+     "sources": [
+      "wdl-curated",
+      "garmin",
+      "free-exercise-db"
+     ]
+    },
+    {
+     "id": "sit-ups",
+     "title": "Sit-ups",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "squat",
+   "members": [
+    {
+     "id": "squat",
+     "title": "Squat",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "squats",
+     "title": "Squats",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "squatband",
+   "members": [
+    {
+     "id": "squat-bands",
+     "title": "Squat with Bands",
+     "sources": [
+      "free-exercise-db"
+     ]
+    },
+    {
+     "id": "squats-band",
+     "title": "Squats with Band",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "squats-bands",
+     "title": "Squats - With Bands",
+     "sources": [
+      "free-exercise-db"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "standingcalfraise",
+   "members": [
+    {
+     "id": "standing-calf-raise",
+     "title": "Standing Calf Raise",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "standing-calf-raises",
+     "title": "Standing Calf Raises",
+     "sources": [
+      "free-exercise-db",
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "standinglegcurl",
+   "members": [
+    {
+     "id": "standing-leg-curl",
+     "title": "Standing Leg Curl",
+     "sources": [
+      "free-exercise-db"
+     ]
+    },
+    {
+     "id": "standing-leg-curls",
+     "title": "Standing Leg Curls",
+     "sources": [
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "standingsidecrunch",
+   "members": [
+    {
+     "id": "standing-side-crunch",
+     "title": "Standing Side Crunch",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "standing-side-crunches",
+     "title": "Standing Side Crunches",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "stepup",
+   "members": [
+    {
+     "id": "step-up",
+     "title": "Step-up",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "step-ups",
+     "title": "Step-ups",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "stiffleggeddeadlift",
+   "members": [
+    {
+     "id": "stiff-legged-deadlift",
+     "title": "Stiff-Legged Deadlift",
+     "sources": [
+      "wdl-curated"
+     ]
+    },
+    {
+     "id": "stiff-legged-deadlifts",
+     "title": "Stiff-legged Deadlifts",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "sumosquat",
+   "members": [
+    {
+     "id": "sumo-squat",
+     "title": "Sumo Squat",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "sumo-squats",
+     "title": "Sumo Squats",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "superman",
+   "members": [
+    {
+     "id": "superman",
+     "title": "Superman",
+     "sources": [
+      "free-exercise-db",
+      "wger"
+     ]
+    },
+    {
+     "id": "supermans",
+     "title": "Supermans",
+     "sources": [
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "tbarrow",
+   "members": [
+    {
+     "id": "t-bar-row",
+     "title": "T-Bar Row",
+     "sources": [
+      "garmin",
+      "wger"
+     ]
+    },
+    {
+     "id": "t-bar-rows",
+     "title": "T-Bar Rows",
+     "sources": [
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "thruster",
+   "members": [
+    {
+     "id": "thruster",
+     "title": "Thruster",
+     "sources": [
+      "wdl-curated",
+      "wger"
+     ]
+    },
+    {
+     "id": "thrusters",
+     "title": "Thrusters",
+     "sources": [
+      "garmin"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "tricepspushdowncable",
+   "members": [
+    {
+     "id": "tricep-pushdown-on-cable",
+     "title": "Tricep Pushdown on Cable",
+     "sources": [
+      "wger"
+     ]
+    },
+    {
+     "id": "triceps-pushdown-cable",
+     "title": "Triceps Pushdown: Cable",
+     "sources": [
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "uprightbarbellrow",
+   "members": [
+    {
+     "id": "upright-barbell-row",
+     "title": "Upright Barbell Row",
+     "sources": [
+      "free-exercise-db"
+     ]
+    },
+    {
+     "id": "upright-barbell-rows",
+     "title": "Upright Barbell Rows",
+     "sources": [
+      "everkinetic"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "wallball",
+   "members": [
+    {
+     "id": "wall-ball",
+     "title": "Wall Ball",
+     "sources": [
+      "wdl-curated",
+      "garmin"
+     ]
+    },
+    {
+     "id": "wall-balls",
+     "title": "Wall balls",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "wallslide",
+   "members": [
+    {
+     "id": "wall-slide",
+     "title": "Wall Slide",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "wall-slides",
+     "title": "Wall Slides",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "weightedcrunch",
+   "members": [
+    {
+     "id": "weighted-crunch",
+     "title": "Weighted Crunch",
+     "sources": [
+      "garmin",
+      "wger"
+     ]
+    },
+    {
+     "id": "weighted-crunches",
+     "title": "Weighted Crunches",
+     "sources": [
+      "free-exercise-db"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "weightedpullup",
+   "members": [
+    {
+     "id": "weighted-pull-up",
+     "title": "Weighted Pull-up",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "weighted-pull-ups",
+     "title": "Weighted Pull Ups",
+     "sources": [
+      "free-exercise-db"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "weightedpushup",
+   "members": [
+    {
+     "id": "weighted-push-up",
+     "title": "Weighted Push-up",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "weighted-push-ups",
+     "title": "Weighted push-ups",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "weightedstepup",
+   "members": [
+    {
+     "id": "weighted-step-up",
+     "title": "Weighted Step-up",
+     "sources": [
+      "garmin"
+     ]
+    },
+    {
+     "id": "weighted-step-ups",
+     "title": "Weighted Step-ups",
+     "sources": [
+      "wger"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "zerchersquat",
    "members": [
     {
      "id": "zercher-squat",
@@ -4573,67 +6228,6 @@
    "of": "pullover",
    "adds": [
     "machine"
-   ]
-  },
-  {
-   "variant": "sled-pull",
-   "of": "pullups",
-   "adds": [
-    "sled"
-   ]
-  },
-  {
-   "variant": "barbell-hang-pull",
-   "of": "pullups",
-   "adds": [
-    "barbell",
-    "hang"
-   ]
-  },
-  {
-   "variant": "dumbbell-hang-pull",
-   "of": "pullups",
-   "adds": [
-    "dumbbell",
-    "hang"
-   ]
-  },
-  {
-   "variant": "front-pull-narrow",
-   "of": "pullups",
-   "adds": [
-    "front",
-    "narrow"
-   ]
-  },
-  {
-   "variant": "front-pull-wide",
-   "of": "pullups",
-   "adds": [
-    "front",
-    "wide"
-   ]
-  },
-  {
-   "variant": "incline-bench-pull",
-   "of": "pullups",
-   "adds": [
-    "incline",
-    "bench"
-   ]
-  },
-  {
-   "variant": "sled-push",
-   "of": "pushups",
-   "adds": [
-    "sled"
-   ]
-  },
-  {
-   "variant": "wall-pushup",
-   "of": "pushups",
-   "adds": [
-    "wall"
    ]
   },
   {
@@ -6302,6 +7896,13 @@
    ]
   },
   {
+   "variant": "calf-raises-band",
+   "of": "calf-raise",
+   "adds": [
+    "band"
+   ]
+  },
+  {
    "variant": "seated-calf-raise",
    "of": "calf-raise",
    "adds": [
@@ -6309,7 +7910,7 @@
    ]
   },
   {
-   "variant": "standing-calf-raise",
+   "variant": "standing-calf-raises",
    "of": "calf-raise",
    "adds": [
     "standing"
@@ -6369,6 +7970,15 @@
    "adds": [
     "weighted",
     "standing"
+   ]
+  },
+  {
+   "variant": "smith-machine-reverse-calf-raises",
+   "of": "calf-raise",
+   "adds": [
+    "smith",
+    "machine",
+    "reverse"
    ]
   },
   {
@@ -6485,13 +8095,6 @@
    "of": "chin-up",
    "adds": [
     "band",
-    "assisted"
-   ]
-  },
-  {
-   "variant": "assisted-chin-ups",
-   "of": "chin-ups",
-   "adds": [
     "assisted"
    ]
   },
@@ -7170,57 +8773,8 @@
   },
   {
    "variant": "cable-front-raise",
-   "of": "front-raise",
+   "of": "front-raises",
    "adds": [
-    "cable"
-   ]
-  },
-  {
-   "variant": "front-dumbbell-raise",
-   "of": "front-raise",
-   "adds": [
-    "dumbbell"
-   ]
-  },
-  {
-   "variant": "front-incline-dumbbell-raise",
-   "of": "front-raise",
-   "adds": [
-    "incline",
-    "dumbbell"
-   ]
-  },
-  {
-   "variant": "front-two-dumbbell-raise",
-   "of": "front-raise",
-   "adds": [
-    "two",
-    "dumbbell"
-   ]
-  },
-  {
-   "variant": "side-laterals-front-raise",
-   "of": "front-raise",
-   "adds": [
-    "side",
-    "lateral"
-   ]
-  },
-  {
-   "variant": "side-lateral-raise-front-cable",
-   "of": "front-raise",
-   "adds": [
-    "side",
-    "lateral",
-    "cable"
-   ]
-  },
-  {
-   "variant": "straight-bar-cable-front-raise",
-   "of": "front-raise",
-   "adds": [
-    "straight",
-    "bar",
     "cable"
    ]
   },
@@ -7232,10 +8786,10 @@
    ]
   },
   {
-   "variant": "front-cable-raises",
+   "variant": "front-dumbbell-raise",
    "of": "front-raises",
    "adds": [
-    "cable"
+    "dumbbell"
    ]
   },
   {
@@ -7243,6 +8797,48 @@
    "of": "front-raises",
    "adds": [
     "lateral"
+   ]
+  },
+  {
+   "variant": "front-incline-dumbbell-raise",
+   "of": "front-raises",
+   "adds": [
+    "incline",
+    "dumbbell"
+   ]
+  },
+  {
+   "variant": "front-two-dumbbell-raise",
+   "of": "front-raises",
+   "adds": [
+    "two",
+    "dumbbell"
+   ]
+  },
+  {
+   "variant": "side-laterals-front-raise",
+   "of": "front-raises",
+   "adds": [
+    "side",
+    "lateral"
+   ]
+  },
+  {
+   "variant": "side-lateral-raise-front-cable",
+   "of": "front-raises",
+   "adds": [
+    "side",
+    "lateral",
+    "cable"
+   ]
+  },
+  {
+   "variant": "straight-bar-cable-front-raise",
+   "of": "front-raises",
+   "adds": [
+    "straight",
+    "bar",
+    "cable"
    ]
   },
   {
@@ -7940,7 +9536,7 @@
    ]
   },
   {
-   "variant": "lateral-dumbbell-raises",
+   "variant": "dumbbell-lateral-raise",
    "of": "lateral-raises",
    "adds": [
     "dumbbell"
@@ -7954,11 +9550,131 @@
    ]
   },
   {
+   "variant": "lateral-raise-bands",
+   "of": "lateral-raises",
+   "adds": [
+    "band"
+   ]
+  },
+  {
+   "variant": "machine-lateral-raise",
+   "of": "lateral-raises",
+   "adds": [
+    "machine"
+   ]
+  },
+  {
+   "variant": "seated-lateral-raise",
+   "of": "lateral-raises",
+   "adds": [
+    "seated"
+   ]
+  },
+  {
+   "variant": "side-lateral-raise",
+   "of": "lateral-raises",
+   "adds": [
+    "side"
+   ]
+  },
+  {
+   "variant": "cable-seated-lateral-raise",
+   "of": "lateral-raises",
+   "adds": [
+    "cable",
+    "seated"
+   ]
+  },
+  {
+   "variant": "lying-rear-lateral-raise",
+   "of": "lateral-raises",
+   "adds": [
+    "lying",
+    "rear"
+   ]
+  },
+  {
    "variant": "machine-side-lateral-raises",
    "of": "lateral-raises",
    "adds": [
     "machine",
     "side"
+   ]
+  },
+  {
+   "variant": "seated-rear-lateral-raise",
+   "of": "lateral-raises",
+   "adds": [
+    "seated",
+    "rear"
+   ]
+  },
+  {
+   "variant": "seated-side-lateral-raise",
+   "of": "lateral-raises",
+   "adds": [
+    "seated",
+    "side"
+   ]
+  },
+  {
+   "variant": "side-lateral-raise-cable",
+   "of": "lateral-raises",
+   "adds": [
+    "side",
+    "cable"
+   ]
+  },
+  {
+   "variant": "side-laterals-front-raise",
+   "of": "lateral-raises",
+   "adds": [
+    "side",
+    "front"
+   ]
+  },
+  {
+   "variant": "side-lying-lateral-raise",
+   "of": "lateral-raises",
+   "adds": [
+    "side",
+    "lying"
+   ]
+  },
+  {
+   "variant": "dumbbell-lying-rear-lateral-raise",
+   "of": "lateral-raises",
+   "adds": [
+    "dumbbell",
+    "lying",
+    "rear"
+   ]
+  },
+  {
+   "variant": "seated-rear-lateral-cable-raise",
+   "of": "lateral-raises",
+   "adds": [
+    "seated",
+    "rear",
+    "cable"
+   ]
+  },
+  {
+   "variant": "side-lateral-raise-back-cable",
+   "of": "lateral-raises",
+   "adds": [
+    "side",
+    "back",
+    "cable"
+   ]
+  },
+  {
+   "variant": "side-lateral-raise-front-cable",
+   "of": "lateral-raises",
+   "adds": [
+    "side",
+    "front",
+    "cable"
    ]
   },
   {
@@ -8106,6 +9822,41 @@
    ]
   },
   {
+   "variant": "front-leg-raises",
+   "of": "leg-raise",
+   "adds": [
+    "front"
+   ]
+  },
+  {
+   "variant": "kettlebell-leg-raises",
+   "of": "leg-raise",
+   "adds": [
+    "kettlebell"
+   ]
+  },
+  {
+   "variant": "leg-raises-lying",
+   "of": "leg-raise",
+   "adds": [
+    "lying"
+   ]
+  },
+  {
+   "variant": "leg-raises-standing",
+   "of": "leg-raise",
+   "adds": [
+    "standing"
+   ]
+  },
+  {
+   "variant": "rear-leg-raises",
+   "of": "leg-raise",
+   "adds": [
+    "rear"
+   ]
+  },
+  {
    "variant": "reverse-leg-raise",
    "of": "leg-raise",
    "adds": [
@@ -8113,10 +9864,25 @@
    ]
   },
   {
+   "variant": "side-leg-raises",
+   "of": "leg-raise",
+   "adds": [
+    "side"
+   ]
+  },
+  {
    "variant": "decline-bench-leg-raise",
    "of": "leg-raise",
    "adds": [
     "decline",
+    "bench"
+   ]
+  },
+  {
+   "variant": "flat-bench-leg-raises",
+   "of": "leg-raise",
+   "adds": [
+    "flat",
     "bench"
    ]
   },
@@ -8551,7 +10317,7 @@
    ]
   },
   {
-   "variant": "front-raises-plates",
+   "variant": "front-plate-raise",
    "of": "plate-raises",
    "adds": [
     "front"
@@ -9554,14 +11320,6 @@
    ]
   },
   {
-   "variant": "weighted-sit-ups-bands",
-   "of": "sit-ups",
-   "adds": [
-    "weighted",
-    "band"
-   ]
-  },
-  {
    "variant": "weighted-ski-moguls",
    "of": "ski-moguls",
    "adds": [
@@ -9968,36 +11726,6 @@
    "of": "step-up",
    "adds": [
     "lateral",
-    "dumbbell"
-   ]
-  },
-  {
-   "variant": "barbell-step-ups",
-   "of": "step-ups",
-   "adds": [
-    "barbell"
-   ]
-  },
-  {
-   "variant": "dumbbell-step-ups",
-   "of": "step-ups",
-   "adds": [
-    "dumbbell"
-   ]
-  },
-  {
-   "variant": "weighted-step-ups",
-   "of": "step-ups",
-   "adds": [
-    "weighted"
-   ]
-  },
-  {
-   "variant": "alternating-box-dumbbell-step-ups",
-   "of": "step-ups",
-   "adds": [
-    "alternating",
-    "box",
     "dumbbell"
    ]
   },
@@ -11112,7 +12840,7 @@
   },
   {
    "variant": "weighted-donkey-calf-raise",
-   "of": "donkey-calf-raise",
+   "of": "donkey-calf-raises",
    "adds": [
     "weighted"
    ]
@@ -11345,14 +13073,6 @@
    "of": "dumbbell-step-up",
    "adds": [
     "lateral"
-   ]
-  },
-  {
-   "variant": "alternating-box-dumbbell-step-ups",
-   "of": "dumbbell-step-ups",
-   "adds": [
-    "alternating",
-    "box"
    ]
   },
   {
@@ -11877,13 +13597,6 @@
    ]
   },
   {
-   "variant": "weighted-jumping-pull-ups",
-   "of": "jumping-pull-ups",
-   "adds": [
-    "weighted"
-   ]
-  },
-  {
    "variant": "weighted-kipping-pull-up",
    "of": "kipping-pull-up",
    "adds": [
@@ -11985,6 +13698,21 @@
    ]
   },
   {
+   "variant": "side-laterals-front-raise",
+   "of": "lateral-front-raises",
+   "adds": [
+    "side"
+   ]
+  },
+  {
+   "variant": "side-lateral-raise-front-cable",
+   "of": "lateral-front-raises",
+   "adds": [
+    "side",
+    "cable"
+   ]
+  },
+  {
    "variant": "weighted-lateral-leap-hop",
    "of": "lateral-leap-hop",
    "adds": [
@@ -12025,6 +13753,67 @@
    "adds": [
     "weighted",
     "single"
+   ]
+  },
+  {
+   "variant": "lying-straight-leg-raise",
+   "of": "leg-raises-lying",
+   "adds": [
+    "straight"
+   ]
+  },
+  {
+   "variant": "side-lying-leg-raise",
+   "of": "leg-raises-lying",
+   "adds": [
+    "side"
+   ]
+  },
+  {
+   "variant": "band-side-lying-leg-raise",
+   "of": "leg-raises-lying",
+   "adds": [
+    "band",
+    "side"
+   ]
+  },
+  {
+   "variant": "flat-bench-lying-leg-raise",
+   "of": "leg-raises-lying",
+   "adds": [
+    "flat",
+    "bench"
+   ]
+  },
+  {
+   "variant": "weighted-lying-straight-leg-raise",
+   "of": "leg-raises-lying",
+   "adds": [
+    "weighted",
+    "straight"
+   ]
+  },
+  {
+   "variant": "weighted-side-lying-leg-raise",
+   "of": "leg-raises-lying",
+   "adds": [
+    "weighted",
+    "side"
+   ]
+  },
+  {
+   "variant": "standing-rear-leg-raise",
+   "of": "leg-raises-standing",
+   "adds": [
+    "rear"
+   ]
+  },
+  {
+   "variant": "weighted-standing-rear-leg-raise",
+   "of": "leg-raises-standing",
+   "adds": [
+    "weighted",
+    "rear"
    ]
   },
   {
@@ -12164,6 +13953,13 @@
    "adds": [
     "incline",
     "smith"
+   ]
+  },
+  {
+   "variant": "machine-side-lateral-raises",
+   "of": "machine-lateral-raise",
+   "adds": [
+    "side"
    ]
   },
   {
@@ -12546,6 +14342,28 @@
    ]
   },
   {
+   "variant": "lying-rear-delt-raise",
+   "of": "rear-delt-raises",
+   "adds": [
+    "lying"
+   ]
+  },
+  {
+   "variant": "standing-rear-leg-raise",
+   "of": "rear-leg-raises",
+   "adds": [
+    "standing"
+   ]
+  },
+  {
+   "variant": "weighted-standing-rear-leg-raise",
+   "of": "rear-leg-raises",
+   "adds": [
+    "weighted",
+    "standing"
+   ]
+  },
+  {
    "variant": "reverse-band-sumo-deadlift",
    "of": "reverse-band-deadlift",
    "adds": [
@@ -12839,6 +14657,13 @@
    ]
   },
   {
+   "variant": "machine-side-lateral-raises",
+   "of": "side-lateral-raise",
+   "adds": [
+    "machine"
+   ]
+  },
+  {
    "variant": "seated-side-lateral-raise",
    "of": "side-lateral-raise",
    "adds": [
@@ -12880,6 +14705,29 @@
    "adds": [
     "front",
     "cable"
+   ]
+  },
+  {
+   "variant": "side-lying-leg-raise",
+   "of": "side-leg-raises",
+   "adds": [
+    "lying"
+   ]
+  },
+  {
+   "variant": "band-side-lying-leg-raise",
+   "of": "side-leg-raises",
+   "adds": [
+    "band",
+    "lying"
+   ]
+  },
+  {
+   "variant": "weighted-side-lying-leg-raise",
+   "of": "side-leg-raises",
+   "adds": [
+    "weighted",
+    "lying"
    ]
   },
   {
@@ -13110,21 +14958,21 @@
   },
   {
    "variant": "standing-barbell-calf-raise",
-   "of": "standing-calf-raise",
+   "of": "standing-calf-raises",
    "adds": [
     "barbell"
    ]
   },
   {
    "variant": "standing-dumbbell-calf-raise",
-   "of": "standing-calf-raise",
+   "of": "standing-calf-raises",
    "adds": [
     "dumbbell"
    ]
   },
   {
    "variant": "weighted-standing-calf-raise",
-   "of": "standing-calf-raise",
+   "of": "standing-calf-raises",
    "adds": [
     "weighted"
    ]
@@ -13583,13 +15431,6 @@
    ]
   },
   {
-   "variant": "weighted-jumping-pull-ups",
-   "of": "weighted-pull-ups",
-   "adds": [
-    "jumping"
-   ]
-  },
-  {
    "variant": "weighted-decline-push-up",
    "of": "weighted-push-up",
    "adds": [
@@ -13777,7 +15618,7 @@
   },
   {
    "variant": "bent-over-lateral-cable-raises",
-   "of": "bent-over-lateral-raises",
+   "of": "bent-over-lateral-raise",
    "adds": [
     "cable"
    ]
@@ -13914,6 +15755,13 @@
    "of": "flat-bench-leg-pull-in",
    "adds": [
     "seated"
+   ]
+  },
+  {
+   "variant": "flat-bench-lying-leg-raise",
+   "of": "flat-bench-leg-raises",
+   "adds": [
+    "lying"
    ]
   },
   {
@@ -14522,6 +16370,13 @@
    "of": "smith-machine-bench-press",
    "adds": [
     "incline"
+   ]
+  },
+  {
+   "variant": "smith-machine-reverse-calf-raises",
+   "of": "smith-machine-calf-raise",
+   "adds": [
+    "reverse"
    ]
   },
   {

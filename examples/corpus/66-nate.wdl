@@ -1,5 +1,6 @@
 # Nate
+
 AMRAP 20min:
-  - 2 Muscle-Up
-  - 4 Handstand Push-Up
-  - 8 KB Swing @ 2pood
+  - 2 Muscle-Ups
+  - 4 Handstand Push-Ups
+  - 8 KB Swings @ 2pood

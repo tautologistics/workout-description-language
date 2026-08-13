@@ -23,7 +23,7 @@ describe('structure', () => {
     const ladder = b(top.children[0]);
     eq(ladder.type, 'ladder');
     eq(ladder.scheme, [21, 15, 9]);
-    eq(ladder.children.map((c) => s(c).movement), ['Thruster', 'Pull-Up']);
+    eq(ladder.children.map((c) => s(c).movement), ['Thrusters', 'Pull-Ups']);
   });
 
   it('Annie descends 50 to 10', () => {
@@ -46,7 +46,7 @@ describe('structure', () => {
     const int = top.children[1] as Interrupt;
     eq(int.node, 'interrupt');
     eq(int.every, { kind: 'duration', seconds: 60 });
-    eq(s(int.body[0]).movement, 'Burpee');
+    eq(s(int.body[0]).movement, 'Burpees');
   });
 
   it('Murph partitions freely and carries a vest', () => {
@@ -152,7 +152,7 @@ describe('laterality and teams', () => {
 
   it('Open 24.1 selects a side rather than a counting mode', () => {
     const ladder = b(b(load('21-open-24-1.wdl').body[0]).children[0]);
-    const snatches = ladder.children.map(s).filter((x) => x.movement === 'DB Snatch');
+    const snatches = ladder.children.map(s).filter((x) => x.movement === 'DB Snatches');
     eq(snatches.map((x) => x.side), ['first', 'second']);
     ok(snatches.every((x) => x.laterality === undefined), 'a side selector needs no counting mode');
   });

@@ -1,6 +1,7 @@
 # Angie
+
 for time:
-  - 100 Pull-Up
-  - 100 Push-Up
-  - 100 Sit-Up
-  - 100 Air Squat
+  - 100 Pull-Ups
+  - 100 Push-Ups
+  - 100 Sit-Ups
+  - 100 Air Squats

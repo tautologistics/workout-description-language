@@ -1,5 +1,6 @@
 /** AST -> canonical text (spec §1 rule 2: forgiving on input, strict on output). */
 
+import { pluralize } from './fold.ts';
 import type { Workout, Node, Step, Rest, Block, Interrupt, Score } from './ast.ts';
 import { formatQuantity, formatDuration, formatTarget } from './units.ts';
 import type { Unit } from './ast.ts';
@@ -9,7 +10,30 @@ const dur = (u?: Unit) => (u ? formatDuration(u) : '');
 
 const IND = '  ';
 
-function stepText(s: Step): string {
+/**
+ * The count that decides how a movement reads, which is not always on the step.
+ *
+ * Under a rep scheme the step carries no number — `21-15-9:` then `- Thruster` —
+ * so the scheme supplies it. Every tier of a scheme is either all above one or
+ * it is not, and a scheme ending in a single rep is still a plural prescription:
+ * the largest tier is what the line reads as.
+ */
+function countFor(s: Step, scheme?: Scheme): number | undefined {
+  const q = s.quantity;
+  if (q.kind === 'reps' || q.kind === 'floor') return q.value;
+  if (q.kind === 'range') return q.max;
+  // A scheme in metres or seconds counts distance or time, not repetitions:
+  // `250-500-750 m: - Row` is one row of each distance, not 250 rows.
+  if (q.kind === 'open' && scheme?.tiers.length && (!scheme.unit || scheme.unit === 'reps')) {
+    return Math.max(...scheme.tiers);
+  }
+  return undefined;
+}
+
+/** A rep scheme, and what its numbers count. */
+interface Scheme { tiers: number[]; unit?: string }
+
+function stepText(s: Step, scheme?: Scheme): string {
   let out = '- ';
   // A threshold reads as a condition on the movement, so it trails it —
   // `Bike until HR > 160bpm`, not `until HR > 160bpm Bike`.
@@ -17,7 +41,10 @@ function stepText(s: Step): string {
   const q = formatQuantity(s.quantity);
   if (q && !trailing) out += q + ' ';
   if (s.flags.includes('max') && s.quantity.kind === 'duration') out += 'max ';
-  out += s.movement;
+  // A whiteboard says `21 Thrusters`. Identity is unaffected — `fold()`
+  // depluralizes — so this is only how the line reads.
+  const count = countFor(s, scheme);
+  out += count !== undefined && count > 1 ? pluralize(s.movement) : s.movement;
   if (trailing) out += ` ${q}`;
 
   // Laterality and side attach to the movement, so they precede the targets —
@@ -130,12 +157,12 @@ function headerText(b: Block): string {
   return [head, ...mods].join(', ') + ':';
 }
 
-function emit(n: Node, depth: number, out: string[]) {
+function emit(n: Node, depth: number, out: string[], scheme?: Scheme) {
   const pad = IND.repeat(depth);
   for (const c of n.comments) out.push(`${pad}// ${c}`);
 
   switch (n.node) {
-    case 'step': out.push(pad + stepText(n)); return;
+    case 'step': out.push(pad + stepText(n, scheme)); return;
     case 'rest': out.push(pad + restText(n)); return;
     case 'interrupt':
       out.push(`${pad}every ${formatDuration(n.every)}: ${stepText(n.body[0] as Step).replace(/^- /, '')}`);
@@ -144,12 +171,13 @@ function emit(n: Node, depth: number, out: string[]) {
       // `min 1: 12cal Row` and `work 20s: Burpee` stay on one line
       if ((n.type === 'cycleEntry' || n.type === 'work') && n.children.length === 1) {
         const c = n.children[0];
-        const inner = c.node === 'step' ? stepText(c).replace(/^- /, '') : restText(c as Rest);
+        const inner = c.node === 'step' ? stepText(c, scheme).replace(/^- /, '') : restText(c as Rest);
         out.push(`${pad}${headerText(n).replace(/:$/, '')}: ${inner}`);
         return;
       }
       out.push(pad + headerText(n));
-      for (const c of n.children) emit(c, depth + 1, out);
+      // A rep scheme reaches the steps under it, which carry no count of their own.
+      for (const c of n.children) emit(c, depth + 1, out, n.scheme ? { tiers: n.scheme, unit: n.schemeUnit } : scheme);
       if (n.score && !n.score.implied) for (const l of scoreLines(n.score)) out.push(`${pad}${IND}${l}`);
       return;
     }

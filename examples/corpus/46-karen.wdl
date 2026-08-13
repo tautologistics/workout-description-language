@@ -1,3 +1,4 @@
 # Karen
+
 for time:
-  - 150 Wall Ball @ 20lb to 10ft
+  - 150 Wall Balls @ 20lb @ 10ft

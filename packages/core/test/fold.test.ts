@@ -1,6 +1,6 @@
 import { describe, it, eq, ok } from './lib.ts';
-import { fold, depluralize, Registry } from '../src/fold.ts';
-import { defaultRegistry } from '../src/registry.ts';
+import { fold, depluralize, pluralize, Registry } from '../src/fold.ts';
+import { defaultRegistry, canonicalRegistry } from '../src/registry.ts';
 
 describe('fold', () => {
   it('collapses case, separators, and punctuation', () => {
@@ -123,5 +123,64 @@ describe('registry', () => {
     }
     const missing = [...names].filter(Boolean).filter((n) => reg.resolve(n).status !== 'ok');
     eq(missing, []);
+  });
+});
+
+describe('pluralize: how a name reads for more than one', () => {
+  const cases: [string, string][] = [
+    ['Thruster', 'Thrusters'],
+    ['Pull-Up', 'Pull-Ups'],
+    ['Burpee Box Jump-Over', 'Burpee Box Jump-Overs'],   // a trailing particle still takes an s
+    ['Bench Press', 'Bench Presses'],
+    ['Snatch', 'Snatches'],
+    ['Cable Fly', 'Cable Flies'],
+    ['Clean & Jerk', 'Clean & Jerks'],
+    ['Chest-to-Bar Pull-Up', 'Chest-to-Bar Pull-Ups'],   // the compound is only a modifier
+    // The head noun is not always last.
+    ['Lateral Burpee over Dumbbell', 'Lateral Burpees over Dumbbell'],
+    ['Atlas Stone to Shoulder', 'Atlas Stones to Shoulder'],
+    // A prepositional compound is a name in its own right.
+    ['Knees-to-Elbow', 'Knees-to-Elbow'],
+    ['Toes-to-Bar', 'Toes-to-Bar'],
+    ['Ground-to-Overhead', 'Ground-to-Overhead'],
+    // A hole is a constraint, not a noun.
+    ['? squat', '? squat'],
+  ];
+
+  for (const [singular, plural] of cases) {
+    it(`${singular} → ${plural}`, () => eq(pluralize(singular), plural));
+  }
+
+  it('is idempotent', () => {
+    for (const [, plural] of cases) eq(pluralize(plural), plural);
+  });
+
+  it('never changes which movement a name resolves to', () => {
+    // This is the load-bearing property. Pluralizing is how a name *reads*;
+    // if it changed what the name *is*, canonical text would silently point at
+    // a different record and every muscle total would move with it.
+    const reg = defaultRegistry();
+    const canon = canonicalRegistry();
+    const id = (r: ReturnType<typeof reg.resolve>) => (r.status === 'ok' ? r.entry.id : r.status);
+    // Unregistered on one side and resolved on the other is not a violation:
+    // the seed carries `Barbell Step Ups` without its singular, so pluralizing
+    // there finds a movement rather than pointing at a different one.
+    let checked = 0;
+    const split: string[] = [];
+    for (const entry of canon.entries) {
+      for (const r of [reg, canon]) {
+        const a = r.resolve(entry.title), b = r.resolve(pluralize(entry.title));
+        if (a.status === 'ok' && b.status === 'ok' && a.entry.id !== b.entry.id) {
+          split.push(`${entry.title}: ${a.entry.id} vs ${b.entry.id}`);
+        }
+      }
+      checked++;
+    }
+    ok(checked > 3000, `${checked} movements`);
+    // Any survivor is a singular and a plural still held as two records. Three
+    // remain in the long tail — Hindu Push-up, Rack Pull, Squat with Bands —
+    // none of which any workout uses. The number is pinned so it cannot quietly
+    // grow, and the corpus itself is checked separately and is clean.
+    ok(split.length <= 3, `${split.length} movements split by pluralizing:\n  ${split.join('\n  ')}`);
   });
 });

@@ -12,6 +12,7 @@
  */
 
 import type { Timeline, TimelineItem, TimelineStep } from './timeline.ts';
+import { fold, depluralize } from './fold.ts';
 
 export interface MovementVolume {
   reps: number;
@@ -121,7 +122,20 @@ export function volume(t: Timeline, keep?: StepFilter): Volume {
   return { byMovement, totals, unbounded };
 }
 
-/** Convenience for assertions: reps of one movement, by name as written. */
+/**
+ * Reps of one movement, found by what the name means rather than how it is
+ * spelt. `byMovement` is keyed by the name as written, and canonical text writes
+ * `21 Thrusters` where a caller is likely to ask for `Thruster` — the same
+ * movement, and `fold()` is what says so.
+ */
 export function repsOf(v: Volume, movement: string): number {
-  return v.byMovement[movement]?.reps ?? 0;
+  const direct = v.byMovement[movement];
+  if (direct) return direct.reps;
+  // Depluralized on both sides: `fold` keeps the s, and the whole point is that
+  // the plural and the singular are the same movement.
+  const want = depluralize(fold(movement));
+  for (const [name, m] of Object.entries(v.byMovement)) {
+    if (depluralize(fold(name)) === want) return m.reps;
+  }
+  return 0;
 }

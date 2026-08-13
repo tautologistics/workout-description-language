@@ -45,7 +45,8 @@ const SYNONYM = {
 const depluralize = (w) =>
   /(ss|sis|us)$/.test(w) ? w
   : /ies$/.test(w) ? `${w.slice(0, -3)}y`
-  : /(ch|sh|x|z|s)es$/.test(w) ? w.slice(0, -2)
+  // `ss`, not a lone `s`: `presses` is `press`, but `raises` is `raise`.
+  : /(ch|sh|x|z|ss)es$/.test(w) ? w.slice(0, -2)
   : /s$/.test(w) && w.length > 3 ? w.slice(0, -1) : w;
 
 const lemma = (w) => { const s = SYNONYM[w] ?? w; return SYNONYM[depluralize(s)] ?? depluralize(s); };
@@ -76,6 +77,17 @@ for (const f of doc.families ?? []) for (const m of f.members) family.set(m, f.i
 const sets = movements.map((r) => new Set(toks(r.title)));
 const key = movements.map((_, i) => [...sets[i]].sort().join(' '));
 
+/**
+ * The same name with the word boundaries taken out.
+ *
+ * `Pullups` is one token and `Pull-Up` is two, so a comparison of token sets
+ * calls them different movements — and the corpus carried both, each marked
+ * core, so muscle analysis read a different record depending on how you spelt
+ * it. Joining the lemmas and depluralizing the result collapses hyphenation and
+ * plurality together, which is the only difference between them.
+ */
+const solid = movements.map((r) => lemma(toks(r.title).join('')));
+
 // --- union-find, so equality is transitive -------------------------------
 const parent = movements.map((_, i) => i);
 const find = (i) => { while (parent[i] !== i) { parent[i] = parent[parent[i]]; i = parent[i]; } return i; };
@@ -89,10 +101,20 @@ movements.forEach((_, i) => {
   byKey.get(key[i]).push(i);
 });
 
+// The same, keyed on the solid form.
+const bySolid = new Map();
+movements.forEach((_, i) => {
+  if (!solid[i]) return;
+  if (!bySolid.has(solid[i])) bySolid.set(solid[i], []);
+  bySolid.get(solid[i]).push(i);
+});
+
 const merges = [];
 let familyBlocked = 0;
-for (const [k, idxs] of byKey) {
+let solidFound = 0;
+for (const [k, idxs] of [...byKey, ...bySolid]) {
   if (idxs.length < 2 || !k) continue;
+  if (idxs.every((i) => key[i] !== k)) solidFound++;   // found only by the solid form
   const keep = [idxs[0]];
   for (const i of idxs.slice(1)) {
     const fa = family.get(movements[idxs[0]].id), fb = family.get(movements[i].id);
@@ -188,6 +210,7 @@ console.log(`${movements.length} records in`);
 console.log(`  clusters merged:        ${merges.length}  (${movements.length - merged.length} records absorbed)`);
 console.log(`  variant links recorded: ${variantsApplied}`);
 console.log(`  blocked by family:      ${familyBlocked}`);
+console.log(`  found only by ignoring hyphenation: ${solidFound}`);
 console.log(`  records out:            ${merged.length}`);
 
 if (!apply) { console.log('\nReport only. Re-run with --apply to rewrite the canonical file.'); process.exit(0); }

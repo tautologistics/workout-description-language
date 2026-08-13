@@ -1,4 +1,5 @@
 # Pyramid Intervals
+
 sequence:
   - 10min Run @ easy pace
   1..5..1 min:

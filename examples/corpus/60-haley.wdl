@@ -1,3 +1,4 @@
 # Haley
+
 for time:
-  - 100 Snatch @ 135lb
+  - 100 Snatches @ 135lb

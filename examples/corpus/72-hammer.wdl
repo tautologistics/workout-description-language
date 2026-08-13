@@ -1,8 +1,10 @@
 # Hammer
+
 5 rounds @ 135lb:
-  - 5 Power Clean
-  - 10 Front Squat
-  - 5 Jerk
-  - 20 Pull-Up
-  rest 90s
+  - 5 Power Cleans
+  - 10 Front Squats
+  - 5 Jerks
+  - 20 Pull-Ups
+  rest 1min30s
+
 score: time per round

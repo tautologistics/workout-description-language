@@ -153,7 +153,7 @@ describe('sheiko: percentage waves', () => {
   });
 
   it('round-trips the compact sets form', () => {
-    const src = 'strength:\n  - 3 Bench Press @ 80% 1RM x5';
+    const src = 'strength:\n  - 3 Bench Presses @ 80% 1RM x5';
     eq(format(parse(src).workout).trim(), src);
     eq(volume(compile(parse(src).workout)).totals.reps, 15);
   });

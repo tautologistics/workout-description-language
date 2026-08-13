@@ -1,7 +1,8 @@
 # General Warm-Up
+
 warmup:
   3 rounds:
     - 250m Row
-    - 10 Air Squat
-    - 10 Push-Up
-    - 10 Sit-Up
+    - 10 Air Squats
+    - 10 Push-Ups
+    - 10 Sit-Ups

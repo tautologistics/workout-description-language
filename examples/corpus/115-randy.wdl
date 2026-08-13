@@ -1,3 +1,4 @@
 # Randy
+
 for time:
-  - 75 Power Snatch @ 75lb
+  - 75 Power Snatches @ 75lb

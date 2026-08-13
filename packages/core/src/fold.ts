@@ -49,9 +49,71 @@ export function fold(input: string): string {
 export function depluralize(key: string): string {
   if (/(ss|sis|us)$/.test(key)) return key;
   if (/ies$/.test(key)) return key.slice(0, -3) + 'y';
-  if (/(ch|sh|x|z|s)es$/.test(key)) return key.slice(0, -2);
+  // `ss`, not a lone `s`: `presses` is `press`, but `raises` is `raise`, and a
+  // lone `s` in the pattern took the `e` with it and left `rais`.
+  if (/(ch|sh|x|z|ss)es$/.test(key)) return key.slice(0, -2);
   if (/s$/.test(key) && key.length > 3) return key.slice(0, -1);
   return key;
+}
+
+/** Words that link two nouns, so the one before them is the head. */
+const PREPOSITION = new Set([
+  'to', 'over', 'under', 'onto', 'into', 'from', 'across', 'off', 'on', 'at', 'per', 'with',
+]);
+
+/** One word, made plural. The inverse of `depluralize` for the cases it handles. */
+function pluralizeWord(word: string): string {
+  if (/[^s]s$/i.test(word)) return word;                          // Knees, Toes: already plural
+  if (/(ss|ch|sh|x|z)$/i.test(word)) return `${word}es`;          // Press, Snatch
+  if (/[^aeiou]y$/i.test(word)) return `${word.slice(0, -1)}ies`; // Fly
+  return `${word}s`;
+}
+
+/**
+ * A movement name as it would be written for a count of more than one.
+ *
+ * A whiteboard says `21 Thrusters`, not `21 Thruster`, and a format whose whole
+ * premise is that you can read it mid-workout cannot get that wrong. Nothing
+ * about identity changes: `fold()` depluralizes, so the plural and the singular
+ * resolve to the same movement, and this is purely how it reads.
+ *
+ * The head noun is not always the last word. Three rules, each earned by a real
+ * name in the corpus:
+ *
+ * - A standalone preposition marks the head as the word before it, so
+ *   `Lateral Burpee over Dumbbell` becomes `Lateral Burpees over Dumbbell`
+ *   rather than pluralizing the dumbbell.
+ * - A hyphenated compound with a preposition *inside* it is a name in its own
+ *   right and is left alone: `Knees-to-Elbow`, `Toes-to-Bar`,
+ *   `Ground-to-Overhead`. A trailing particle is not the same thing, so
+ *   `Jump-Over` and `Pull-Up` still take an s.
+ * - Otherwise the last hyphen segment of the last word takes it:
+ *   `Chest-to-Bar Pull-Up` → `Chest-to-Bar Pull-Ups`, where the prepositional
+ *   compound is only a modifier.
+ */
+export function pluralize(name: string): string {
+  const words = name.split(' ');
+  if (!words.length || !name.trim()) return name;
+  // A template hole is a constraint, not a noun. `? squat` asks for a squat
+  // pattern; `? squats` asks for nothing the registry has ever heard of.
+  if (name.startsWith('?')) return name;
+
+  // The head is the word before a standalone preposition, or the last word —
+  // skipping anything with no letters in it, since `Back Flyes - With Bands`
+  // would otherwise pluralize the dash.
+  const letters = (w: string) => /[a-z]/i.test(w);
+  const at = words.findIndex((w) => PREPOSITION.has(w.toLowerCase()));
+  let head = at > 0 ? at - 1 : words.length - 1;
+  while (head > 0 && !letters(words[head])) head--;
+  if (!letters(words[head])) return name;
+
+  const segments = words[head].split('-');
+  // A preposition anywhere but the end makes this a name, not a compound noun.
+  if (segments.slice(0, -1).some((s) => PREPOSITION.has(s.toLowerCase()))) return name;
+
+  segments[segments.length - 1] = pluralizeWord(segments[segments.length - 1]);
+  words[head] = segments.join('-');
+  return words.join(' ');
 }
 
 export interface MovementEntry {

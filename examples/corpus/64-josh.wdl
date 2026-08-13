@@ -1,8 +1,9 @@
 # Josh
+
 for time @ 95lb:
-  - 21 Overhead Squat
-  - 42 Pull-Up
-  - 15 Overhead Squat
-  - 30 Pull-Up
-  - 9 Overhead Squat
-  - 18 Pull-Up
+  - 21 Overhead Squats
+  - 42 Pull-Ups
+  - 15 Overhead Squats
+  - 30 Pull-Ups
+  - 9 Overhead Squats
+  - 18 Pull-Ups

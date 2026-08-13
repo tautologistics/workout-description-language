@@ -1,4 +1,5 @@
 # Navy SEAL PST
+
 sequence:
   - 500yd Swim
   rest 10min

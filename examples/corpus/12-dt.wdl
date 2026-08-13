@@ -1,5 +1,6 @@
 # DT
+
 5 rounds for time @ 155lb:
-  - 12 Deadlift
-  - 9 Hang Power Clean
-  - 6 Push Jerk
+  - 12 Deadlifts
+  - 9 Hang Power Cleans
+  - 6 Push Jerks

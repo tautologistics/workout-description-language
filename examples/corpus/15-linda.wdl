@@ -1,6 +1,7 @@
 # Linda
+
 for time:
-  10-9-8-7-6-5-4-3-2-1:
-    - Deadlift @ 1.5x BW
-    - Bench Press @ 1x BW
-    - Clean @ 0.75x BW
+  10..1:
+    - Deadlifts @ 1.5x BW
+    - Bench Presses @ 1x BW
+    - Cleans @ 0.75x BW

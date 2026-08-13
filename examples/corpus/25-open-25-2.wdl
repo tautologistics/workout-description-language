@@ -1,13 +1,15 @@
 # Open 25.2
+
 for time, cap 12min:
-  - 21 Pull-Up
-  - 42 Double-Under
-  - 21 Thruster @ 95lb @tiebreak
-  - 18 Chest-to-Bar Pull-Up
-  - 36 Double-Under
-  - 18 Thruster @ 115lb @tiebreak
-  - 15 Bar Muscle-Up
-  - 30 Double-Under
-  - 15 Thruster @ 135lb
+  - 21 Pull-Ups
+  - 42 Double-Unders
+  - 21 Thrusters @ 95lb @tiebreak
+  - 18 Chest-to-Bar Pull-Ups
+  - 36 Double-Unders
+  - 18 Thrusters @ 115lb @tiebreak
+  - 15 Bar Muscle-Ups
+  - 30 Double-Unders
+  - 15 Thrusters @ 135lb
+
 score: time
 tiebreak: checkpoints

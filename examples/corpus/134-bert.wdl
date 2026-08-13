@@ -1,10 +1,11 @@
 # Bert
+
 for time:
-  - 50 Burpee
+  - 50 Burpees
   - 400m Run
-  - 100 Push-Up
+  - 100 Push-Ups
   - 400m Run
-  - 150 Walking Lunge (split)
+  - 150 Walking Lunges (split)
   - 400m Run
-  - 200 Air Squat
+  - 200 Air Squats
   - 400m Run

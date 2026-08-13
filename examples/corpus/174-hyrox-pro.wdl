@@ -1,4 +1,5 @@
 # HYROX Pro
+
 for time:
   - 1km Run
   - 1000m SkiErg
@@ -15,4 +16,4 @@ for time:
   - 1km Run
   - 100m Sandbag Lunge @ 30kg
   - 1km Run
-  - 75 Wall Ball @ 9kg to 10ft
+  - 75 Wall Balls @ 9kg @ 10ft

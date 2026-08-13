@@ -5881,7 +5881,8 @@
    "id": "handstand-push-up",
    "title": "Handstand Push-Up",
    "aliases": [
-    "hspu"
+    "hspu",
+    "Handstand Push-Ups"
    ],
    "pattern": [
     "vertical-push"
@@ -5896,21 +5897,6 @@
     "both"
    ],
    "defaultLaterality": "both"
-  },
-  {
-   "id": "handstand-push-ups",
-   "title": "Handstand Push-Ups",
-   "muscles": {
-    "primary": [
-     "shoulders"
-    ],
-    "secondary": [
-     "triceps"
-    ]
-   },
-   "force": "push",
-   "mechanic": "compound",
-   "source": "free-exercise-db"
   },
   {
    "id": "hang-clean",
@@ -10487,7 +10473,8 @@
    "title": "Push-Up",
    "aliases": [
     "pushup",
-    "press-up"
+    "press-up",
+    "Pushups"
    ],
    "pattern": [
     "horizontal-push"
@@ -10572,22 +10559,6 @@
    "id": "push-ups-feet-on-an-exercise-ball",
    "title": "Push-Ups With Feet On An Exercise Ball",
    "equipment": "exercise ball",
-   "muscles": {
-    "primary": [
-     "chest"
-    ],
-    "secondary": [
-     "shoulders",
-     "triceps"
-    ]
-   },
-   "force": "push",
-   "mechanic": "compound",
-   "source": "free-exercise-db"
-  },
-  {
-   "id": "pushups",
-   "title": "Pushups",
    "muscles": {
     "primary": [
      "chest"
@@ -11126,24 +11097,10 @@
      "triceps",
      "chest"
     ]
-   }
-  },
-  {
-   "id": "ring-dips",
-   "title": "Ring Dips",
-   "equipment": "other",
-   "muscles": {
-    "primary": [
-     "triceps"
-    ],
-    "secondary": [
-     "chest",
-     "shoulders"
-    ]
    },
-   "force": "push",
-   "mechanic": "compound",
-   "source": "free-exercise-db"
+   "aliases": [
+    "Ring Dips"
+   ]
   },
   {
    "id": "rocket-jump",

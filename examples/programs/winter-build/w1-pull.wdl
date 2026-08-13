@@ -1,5 +1,6 @@
 # Week 1 — pull
+
 5 sets:
-  - 6 Strict Pull-Up
-  - 10 Dumbbell Row @ 50lb
+  - 6 Strict Pull-Ups
+  - 10 Dumbbell Rows @ 50lb
   rest 2min

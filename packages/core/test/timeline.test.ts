@@ -62,11 +62,12 @@ describe('timeline: desugaring', () => {
   it('attaches an interrupt to its enclosing group', () => {
     const top = g(tl('17-kalsu.wdl').root.items[0]);
     eq(top.interrupt!.every, 60);
-    eq(s(top.interrupt!.items[0]).movement, 'Burpee');
+    eq(s(top.interrupt!.items[0]).movement, 'Burpees');
     eq(top.items.length, 1, 'the interrupt is not a sibling step');
   });
 
   it('turns a work block into a timed step', () => {
+    // Singular: a `work 20s` step is a duration, and only a rep count pluralizes.
     const all = steps(tl('19-tabata-this.wdl').root).filter((x) => x.movement === 'Pull-Up');
     eq(all[0].pacing, 'timed');
     eq(all[0].seconds, 20);

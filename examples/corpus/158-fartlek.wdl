@@ -1,4 +1,5 @@
 # Fartlek
+
 sequence:
   - 10min Run @ easy pace
   10 rounds:

@@ -1,4 +1,5 @@
 # Powerlifting Meet
+
 sequence:
   3 attempts:
     - 1 Back Squat
@@ -9,4 +10,5 @@ sequence:
   3 attempts:
     - 1 Deadlift
     score: best
+
 score: sum of blocks

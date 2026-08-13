@@ -1,3 +1,4 @@
-every 90s x 6:
-  - 2 Front Squat, building
+every 1min30s x 6:
+  - 2 Front Squats, building
+
 score: max load

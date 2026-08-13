@@ -19,6 +19,20 @@
 import type {
   Workout, Node, Step, Rest, Block, Interrupt, Unit, Target, Score,
 } from './ast.ts';
+import { pluralize } from './fold.ts';
+
+/**
+ * A movement reads plural when more than one of it is prescribed — `21
+ * Thrusters`, not `21 Thruster`. Only a rep count pluralizes: a step measured in
+ * distance or time is one continuous effort, so `400m Run` and `2min Plank`
+ * stay as they are.
+ */
+function readAs(movement: string, q: Unit): string {
+  const count = q.kind === 'reps' || q.kind === 'floor' ? q.value
+    : q.kind === 'range' ? q.max ?? q.min
+    : undefined;
+  return count !== undefined && count > 1 ? pluralize(movement) : movement;
+}
 
 /** What advances a step. The axis the display runtime switches on. */
 export type Pacing =
@@ -200,7 +214,8 @@ function compileStep(s: Step, ctx: Ctx, enclosing: { clock?: boolean; capped?: b
   // A threshold reads as a condition on the movement, so it trails it.
   const trailing = quantity.kind === 'threshold';
   const q = quantityLabel(quantity);
-  let label = (trailing ? [s.movement, q] : [q, s.movement]).filter(Boolean).join(' ');
+  const name = readAs(s.movement, quantity);
+  let label = (trailing ? [name, q] : [q, name]).filter(Boolean).join(' ');
   if (s.laterality === 'per-side') label += ` each ${s.limb ?? 'side'}`;
   if (s.side) label += ` ${s.side} ${s.limb ?? 'arm'}`;
   for (const t of targets) label += ` @ ${targetLabel(t)}`;

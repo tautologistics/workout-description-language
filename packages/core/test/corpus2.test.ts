@@ -36,8 +36,8 @@ describe('corpus round two', () => {
   });
 
   it('parses a bodybuilding rep range and keeps it through canonical form', () => {
-    eq(canon('4 sets:\n  - 8-12 Dumbbell Curl each arm @ 2x35lb'),
-       '4 sets:\n  - 8-12 Dumbbell Curl each arm @ 2x35lb');
+    eq(canon('4 sets:\n  - 8-12 Dumbbell Curls each arm @ 2x35lb'),
+       '4 sets:\n  - 8-12 Dumbbell Curls each arm @ 2x35lb');
   });
 
   it('peels a qualifier that sits before the target, not only after', () => {
@@ -119,7 +119,7 @@ describe('paired and pyramid rep schemes', () => {
   });
 
   it('round-trips a reversed step', () => {
-    const src = 'for time:\n  10..1:\n    - Burpee\n    - Sit-Up, reversed';
+    const src = 'for time:\n  10..1:\n    - Burpees\n    - Sit-Ups, reversed';
     eq(format(parse(src).workout).trim(), src);
   });
 });
@@ -197,16 +197,16 @@ describe('the at-rest format stays whiteboard-shaped', () => {
   });
 
   it('writes a compound score as plain sibling lines', () => {
-    const src = 'for time, cap 12min:\n  - 21 Pull-Up\nscore: time\ntiebreak: checkpoints';
+    const src = 'for time, cap 12min:\n  - 21 Pull-Ups\nscore: time\ntiebreak: checkpoints';
     eq(format(parse(src).workout).trim(),
-       'for time, cap 12min:\n  - 21 Pull-Up\n\nscore: time\ntiebreak: checkpoints');
+       'for time, cap 12min:\n  - 21 Pull-Ups\n\nscore: time\ntiebreak: checkpoints');
     const w = parse(src).workout;
     eq(w.score?.primary, 'time');
     eq(w.score?.tiebreak, 'checkpoints');
   });
 
   it('still reads the old braced form, since forgiving input is the rule', () => {
-    const w = parse('for time:\n  - 21 Pull-Up\nscore: { primary: time, on cap: reps, tiebreak: checkpoints }').workout;
+    const w = parse('for time:\n  - 21 Pull-Ups\nscore: { primary: time, on cap: reps, tiebreak: checkpoints }').workout;
     eq(w.score?.primary, 'time');
     eq(w.score?.tiebreak, 'checkpoints');
     ok(!/[{}]/.test(format(w)), 'and normalises it away');

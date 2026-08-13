@@ -1,5 +1,6 @@
 # Candy
+
 5 rounds for time:
-  - 20 Pull-Up
-  - 40 Push-Up
-  - 60 Air Squat
+  - 20 Pull-Ups
+  - 40 Push-Ups
+  - 60 Air Squats

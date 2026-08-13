@@ -1,3 +1,4 @@
 # Accumulate
+
 skill:
-  - 5min Handstand Hold, note: "accumulate across as many sets as needed"
+  - 5min Handstand Hold, accumulate across as many sets as needed

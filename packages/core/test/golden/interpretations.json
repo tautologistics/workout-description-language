@@ -14,7 +14,7 @@
    "seconds": 0
   },
   "movements": {
-   "Back Squat": [
+   "Back Squats": [
     25,
     0,
     0,
@@ -79,13 +79,13 @@
    "seconds": 0
   },
   "movements": {
-   "Thruster": [
+   "Thrusters": [
     45,
     0,
     0,
     0
    ],
-   "Pull-Up": [
+   "Pull-Ups": [
     45,
     0,
     0,
@@ -126,7 +126,7 @@
    "seconds": 0
   },
   "movements": {
-   "Clean & Jerk": [
+   "Clean & Jerks": [
     30,
     0,
     0,
@@ -156,13 +156,13 @@
     0,
     0
    ],
-   "KB Swing": [
+   "KB Swings": [
     63,
     0,
     0,
     0
    ],
-   "Pull-Up": [
+   "Pull-Ups": [
     36,
     0,
     0,
@@ -186,13 +186,13 @@
    "seconds": 0
   },
   "movements": {
-   "Double-Under": [
+   "Double-Unders": [
     150,
     0,
     0,
     0
    ],
-   "Sit-Up": [
+   "Sit-Ups": [
     150,
     0,
     0,
@@ -216,25 +216,25 @@
    "seconds": 0
   },
   "movements": {
-   "Pull-Up": [
+   "Pull-Ups": [
     100,
     0,
     0,
     0
    ],
-   "Push-Up": [
+   "Push-Ups": [
     150,
     0,
     0,
     0
    ],
-   "Sit-Up": [
+   "Sit-Ups": [
     200,
     0,
     0,
     0
    ],
-   "Air Squat": [
+   "Air Squats": [
     250,
     0,
     0,
@@ -258,19 +258,19 @@
    "seconds": 0
   },
   "movements": {
-   "Pull-Up": [
+   "Pull-Ups": [
     150,
     0,
     0,
     0
    ],
-   "Push-Up": [
+   "Push-Ups": [
     300,
     0,
     0,
     0
    ],
-   "Air Squat": [
+   "Air Squats": [
     450,
     0,
     0,
@@ -440,7 +440,7 @@
    "seconds": 120
   },
   "movements": {
-   "Deadlift": [
+   "Deadlifts": [
     3,
     0,
     0,
@@ -536,7 +536,7 @@
     0,
     0
    ],
-   "Atlas Stone to Shoulder": [
+   "Atlas Stones to Shoulder": [
     12,
     0,
     0,
@@ -560,7 +560,7 @@
    "seconds": 0
   },
   "movements": {
-   "Tire Flip": [
+   "Tire Flips": [
     50,
     0,
     0,
@@ -572,7 +572,7 @@
     0,
     0
    ],
-   "Sledgehammer Strike": [
+   "Sledgehammer Strikes": [
     100,
     0,
     0,
@@ -596,7 +596,7 @@
    "seconds": 0
   },
   "movements": {
-   "Log Press": [
+   "Log Presses": [
     36,
     0,
     0,
@@ -643,25 +643,25 @@
    "seconds": 0
   },
   "movements": {
-   "Burpee": [
+   "Burpees": [
     130,
     0,
     0,
     0
    ],
-   "Push-Up": [
+   "Push-Ups": [
     130,
     0,
     0,
     0
    ],
-   "Air Squat": [
+   "Air Squats": [
     130,
     0,
     0,
     0
    ],
-   "Sit-Up": [
+   "Sit-Ups": [
     130,
     0,
     0,
@@ -685,13 +685,13 @@
    "seconds": 0
   },
   "movements": {
-   "Deadlift": [
+   "Deadlifts": [
     100,
     0,
     0,
     0
    ],
-   "Bar-Facing Burpee": [
+   "Bar-Facing Burpees": [
     100,
     0,
     0,
@@ -715,13 +715,13 @@
    "seconds": 0
   },
   "movements": {
-   "Burpee": [
+   "Burpees": [
     55,
     0,
     0,
     0
    ],
-   "Sit-Up": [
+   "Sit-Ups": [
     55,
     0,
     0,
@@ -745,13 +745,13 @@
    "seconds": 0
   },
   "movements": {
-   "KB Snatch": [
+   "KB Snatches": [
     55,
     0,
     0,
     0
    ],
-   "Burpee Box Jump-Over": [
+   "Burpee Box Jump-Overs": [
     55,
     0,
     0,
@@ -799,7 +799,7 @@
    "seconds": 0
   },
   "movements": {
-   "Power Snatch": [
+   "Power Snatches": [
     75,
     0,
     0,
@@ -823,7 +823,7 @@
    "seconds": 0
   },
   "movements": {
-   "Thruster": [
+   "Thrusters": [
     45,
     0,
     0,
@@ -853,13 +853,13 @@
    "seconds": 0
   },
   "movements": {
-   "Handstand Push-Up": [
+   "Handstand Push-Ups": [
     49,
     0,
     0,
     0
    ],
-   "Thruster": [
+   "Thrusters": [
     49,
     0,
     0,
@@ -871,25 +871,25 @@
     0,
     0
    ],
-   "Deadlift": [
+   "Deadlifts": [
     49,
     0,
     0,
     0
    ],
-   "Burpee": [
+   "Burpees": [
     49,
     0,
     0,
     0
    ],
-   "KB Swing": [
+   "KB Swings": [
     49,
     0,
     0,
     0
    ],
-   "Pull-Up": [
+   "Pull-Ups": [
     49,
     0,
     0,
@@ -913,19 +913,19 @@
    "seconds": 0
   },
   "movements": {
-   "KB Swing": [
+   "KB Swings": [
     105,
     0,
     0,
     0
    ],
-   "Power Clean": [
+   "Power Cleans": [
     105,
     0,
     0,
     0
    ],
-   "Box Jump": [
+   "Box Jumps": [
     105,
     0,
     0,
@@ -949,7 +949,7 @@
    "seconds": 0
   },
   "movements": {
-   "Clean & Jerk": [
+   "Clean & Jerks": [
     30,
     0,
     0,
@@ -961,13 +961,13 @@
     0,
     0
    ],
-   "Rope Climb": [
+   "Rope Climbs": [
     10,
     0,
     0,
     0
    ],
-   "Burpee": [
+   "Burpees": [
     100,
     0,
     0,
@@ -991,19 +991,19 @@
    "seconds": 0
   },
   "movements": {
-   "Deadlift": [
+   "Deadlifts": [
     60,
     0,
     0,
     0
    ],
-   "Hang Power Clean": [
+   "Hang Power Cleans": [
     45,
     0,
     0,
     0
    ],
-   "Push Jerk": [
+   "Push Jerks": [
     30,
     0,
     0,
@@ -1033,19 +1033,19 @@
     0,
     0
    ],
-   "Box Jump": [
+   "Box Jumps": [
     120,
     0,
     0,
     0
    ],
-   "Wall Ball": [
+   "Wall Balls": [
     80,
     0,
     0,
     0
    ],
-   "Handstand Push-Up": [
+   "Handstand Push-Ups": [
     40,
     0,
     0,
@@ -1069,7 +1069,7 @@
    "seconds": 0
   },
   "movements": {
-   "Rope Climb": [
+   "Rope Climbs": [
     15,
     0,
     0,
@@ -1081,7 +1081,7 @@
     0,
     0
    ],
-   "Walking Lunge": [
+   "Walking Lunges": [
     105,
     0,
     0,
@@ -1111,19 +1111,19 @@
    "seconds": 0
   },
   "movements": {
-   "KB Swing": [
+   "KB Swings": [
     150,
     0,
     0,
     0
    ],
-   "Burpee": [
+   "Burpees": [
     150,
     0,
     0,
     0
    ],
-   "GHD Sit-Up": [
+   "GHD Sit-Ups": [
     150,
     0,
     0,
@@ -1164,13 +1164,13 @@
    "seconds": 0
   },
   "movements": {
-   "Squat Clean": [
+   "Squat Cleans": [
     90,
     0,
     0,
     0
    ],
-   "Pull-Up": [
+   "Pull-Ups": [
     90,
     0,
     0,
@@ -1200,13 +1200,13 @@
    "seconds": 0
   },
   "movements": {
-   "DB Snatch": [
+   "DB Snatches": [
     63,
     0,
     0,
     0
    ],
-   "L-Pull-Up": [
+   "L-Pull-Ups": [
     63,
     0,
     0,
@@ -1230,13 +1230,13 @@
    "seconds": 0
   },
   "movements": {
-   "Air Squat": [
+   "Air Squats": [
     250,
     0,
     0,
     0
    ],
-   "Muscle-Up": [
+   "Muscle-Ups": [
     5,
     0,
     0,
@@ -1277,19 +1277,19 @@
    "seconds": 0
   },
   "movements": {
-   "Pull-Up": [
+   "Pull-Ups": [
     50,
     0,
     0,
     0
    ],
-   "Handstand Push-Up": [
+   "Handstand Push-Ups": [
     25,
     0,
     0,
     0
    ],
-   "DB Snatch": [
+   "DB Snatches": [
     50,
     0,
     0,
@@ -1319,19 +1319,19 @@
     0,
     0
    ],
-   "Push Press": [
+   "Push Presses": [
     72,
     0,
     0,
     0
    ],
-   "Box Jump": [
+   "Box Jumps": [
     72,
     0,
     0,
     0
    ],
-   "Sumo Deadlift High-Pull": [
+   "Sumo Deadlift High-Pulls": [
     72,
     0,
     0,
@@ -1355,25 +1355,25 @@
    "seconds": 0
   },
   "movements": {
-   "Box Jump": [
+   "Box Jumps": [
     50,
     0,
     0,
     0
    ],
-   "Jumping Pull-Up": [
+   "Jumping Pull-Ups": [
     50,
     0,
     0,
     0
    ],
-   "KB Swing": [
+   "KB Swings": [
     50,
     0,
     0,
     0
    ],
-   "Walking Lunge": [
+   "Walking Lunges": [
     50,
     0,
     0,
@@ -1385,31 +1385,31 @@
     0,
     0
    ],
-   "Push Press": [
+   "Push Presses": [
     50,
     0,
     0,
     0
    ],
-   "Back Extension": [
+   "Back Extensions": [
     50,
     0,
     0,
     0
    ],
-   "Wall Ball": [
+   "Wall Balls": [
     50,
     0,
     0,
     0
    ],
-   "Burpee": [
+   "Burpees": [
     50,
     0,
     0,
     0
    ],
-   "Double-Under": [
+   "Double-Unders": [
     50,
     0,
     0,
@@ -1456,13 +1456,13 @@
     0,
     0
    ],
-   "Muscle-Up": [
+   "Muscle-Ups": [
     30,
     0,
     0,
     0
    ],
-   "Air Squat": [
+   "Air Squats": [
     300,
     0,
     0,
@@ -1486,19 +1486,19 @@
    "seconds": 0
   },
   "movements": {
-   "Muscle-Up": [
+   "Muscle-Ups": [
     75,
     0,
     0,
     0
    ],
-   "Air Squat": [
+   "Air Squats": [
     300,
     0,
     0,
     0
    ],
-   "GHD Sit-Up": [
+   "GHD Sit-Ups": [
     105,
     0,
     0,
@@ -1522,13 +1522,13 @@
    "seconds": 0
   },
   "movements": {
-   "Forward Roll": [
+   "Forward Rolls": [
     21,
     0,
     0,
     0
    ],
-   "Wall Climb": [
+   "Wall Climbs": [
     35,
     0,
     0,
@@ -1540,7 +1540,7 @@
     0,
     0
    ],
-   "Box Jump": [
+   "Box Jumps": [
     63,
     0,
     0,
@@ -1564,7 +1564,7 @@
    "seconds": 0
   },
   "movements": {
-   "Burpee": [
+   "Burpees": [
     50,
     0,
     0,
@@ -1576,19 +1576,19 @@
     0,
     0
    ],
-   "Push-Up": [
+   "Push-Ups": [
     100,
     0,
     0,
     0
    ],
-   "Walking Lunge": [
+   "Walking Lunges": [
     150,
     0,
     0,
     0
    ],
-   "Air Squat": [
+   "Air Squats": [
     200,
     0,
     0,
@@ -1687,7 +1687,7 @@
     72,
     0
    ],
-   "Thruster": [
+   "Thrusters": [
     27,
     0,
     0,
@@ -1717,19 +1717,19 @@
     0,
     0
    ],
-   "Pull-Up": [
+   "Pull-Ups": [
     100,
     0,
     0,
     0
    ],
-   "Push-Up": [
+   "Push-Ups": [
     200,
     0,
     0,
     0
    ],
-   "Air Squat": [
+   "Air Squats": [
     300,
     0,
     0,
@@ -1770,13 +1770,13 @@
    "seconds": 0
   },
   "movements": {
-   "DB Snatch": [
+   "DB Snatches": [
     150,
     0,
     0,
     0
    ],
-   "Burpee Box Jump-Over": [
+   "Burpee Box Jump-Overs": [
     15,
     0,
     0,
@@ -1840,7 +1840,7 @@
     0,
     0
    ],
-   "Bar-Facing Burpee": [
+   "Bar-Facing Burpees": [
     100,
     0,
     0,
@@ -1864,13 +1864,13 @@
    "seconds": 0
   },
   "movements": {
-   "Wall Walk": [
+   "Wall Walks": [
     15,
     0,
     0,
     0
    ],
-   "Double-Under": [
+   "Double-Unders": [
     10,
     0,
     0,
@@ -1917,7 +1917,7 @@
     0,
     0
    ],
-   "Front Squat": [
+   "Front Squats": [
     10,
     0,
     0,
@@ -1947,7 +1947,7 @@
    "seconds": 0
   },
   "movements": {
-   "Squat Snatch": [
+   "Squat Snatches": [
     16,
     0,
     0,
@@ -2007,19 +2007,19 @@
    "seconds": 0
   },
   "movements": {
-   "Deadlift": [
+   "Deadlifts": [
     55,
     0,
     0,
     0
    ],
-   "Bench Press": [
+   "Bench Presses": [
     55,
     0,
     0,
     0
    ],
-   "Clean": [
+   "Cleans": [
     55,
     0,
     0,
@@ -2043,7 +2043,7 @@
    "seconds": 0
   },
   "movements": {
-   "Back Squat": [
+   "Back Squats": [
     36,
     0,
     0,
@@ -2067,7 +2067,7 @@
    "seconds": 0
   },
   "movements": {
-   "Back Squat": [
+   "Back Squats": [
     18,
     0,
     0,
@@ -2091,7 +2091,7 @@
    "seconds": 0
   },
   "movements": {
-   "Back Squat": [
+   "Back Squats": [
     15,
     0,
     0,
@@ -2115,7 +2115,7 @@
    "seconds": 0
   },
   "movements": {
-   "Bench Press": [
+   "Bench Presses": [
     16,
     0,
     0,
@@ -2139,8 +2139,14 @@
    "seconds": 0
   },
   "movements": {
+   "Deadlifts": [
+    8,
+    0,
+    0,
+    0
+   ],
    "Deadlift": [
-    11,
+    3,
     0,
     0,
     0
@@ -2163,13 +2169,13 @@
    "seconds": 0
   },
   "movements": {
-   "KB Swing": [
+   "KB Swings": [
     100,
     0,
     0,
     0
    ],
-   "Turkish Get-Up": [
+   "Turkish Get-Ups": [
     25,
     0,
     0,
@@ -2193,7 +2199,7 @@
    "seconds": 0
   },
   "movements": {
-   "KB Clean": [
+   "KB Cleans": [
     40,
     0,
     0,
@@ -2205,7 +2211,7 @@
     0,
     0
    ],
-   "Front Squat": [
+   "Front Squats": [
     60,
     0,
     0,
@@ -2533,13 +2539,13 @@
    "seconds": 0
   },
   "movements": {
-   "Muscle-Up": [
+   "Muscle-Ups": [
     36,
     0,
     0,
     0
    ],
-   "Ring Dip": [
+   "Ring Dips": [
     72,
     0,
     0,
@@ -2580,13 +2586,13 @@
    "seconds": 0
   },
   "movements": {
-   "Thruster": [
+   "Thrusters": [
     100,
     0,
     0,
     0
    ],
-   "Burpee": [
+   "Burpees": [
     5,
     0,
     0,
@@ -2627,13 +2633,13 @@
    "seconds": 0
   },
   "movements": {
-   "Dumbbell Row": [
+   "Dumbbell Rows": [
     36,
     0,
     0,
     0
    ],
-   "Face Pull": [
+   "Face Pulls": [
     45,
     0,
     0,
@@ -2657,13 +2663,13 @@
    "seconds": 0
   },
   "movements": {
-   "Bulgarian Split Squat": [
+   "Bulgarian Split Squats": [
     40,
     0,
     0,
     0
    ],
-   "Romanian Deadlift": [
+   "Romanian Deadlifts": [
     36,
     0,
     0,
@@ -2771,7 +2777,7 @@
     0,
     0
    ],
-   "Wall Ball": [
+   "Wall Balls": [
     75,
     0,
     0,
@@ -2807,7 +2813,7 @@
     0,
     0
    ],
-   "Wall Ball": [
+   "Wall Balls": [
     50,
     0,
     0,
@@ -2837,7 +2843,7 @@
     0,
     0
    ],
-   "Burpee Broad Jump": [
+   "Burpee Broad Jumps": [
     100,
     0,
     0,
@@ -3000,7 +3006,7 @@
     0,
     0
    ],
-   "Burpee": [
+   "Burpees": [
     100,
     0,
     0,
@@ -3036,19 +3042,19 @@
     0,
     0
    ],
-   "Air Squat": [
+   "Air Squats": [
     30,
     0,
     0,
     0
    ],
-   "Push-Up": [
+   "Push-Ups": [
     30,
     0,
     0,
     0
    ],
-   "Sit-Up": [
+   "Sit-Ups": [
     30,
     0,
     0,
@@ -3072,25 +3078,25 @@
    "seconds": 0
   },
   "movements": {
-   "Deadlift": [
+   "Deadlifts": [
     10,
     0,
     0,
     0
    ],
-   "Hang Power Clean": [
+   "Hang Power Cleans": [
     10,
     0,
     0,
     0
    ],
-   "Front Squat": [
+   "Front Squats": [
     10,
     0,
     0,
     0
    ],
-   "Push Press": [
+   "Push Presses": [
     10,
     0,
     0,
@@ -3195,7 +3201,7 @@
     0,
     0
    ],
-   "Burpee": [
+   "Burpees": [
     200,
     0,
     0,
@@ -3219,13 +3225,13 @@
    "seconds": 0
   },
   "movements": {
-   "Double-Under": [
+   "Double-Unders": [
     200,
     0,
     0,
     0
    ],
-   "Thruster": [
+   "Thrusters": [
     50,
     0,
     0,
@@ -3361,13 +3367,13 @@
    "seconds": 0
   },
   "movements": {
-   "DB Snatch": [
+   "DB Snatches": [
     90,
     0,
     0,
     0
    ],
-   "Lateral Burpee over Dumbbell": [
+   "Lateral Burpees over Dumbbell": [
     90,
     0,
     0,
@@ -3408,19 +3414,19 @@
    "seconds": 0
   },
   "movements": {
-   "Thruster": [
+   "Thrusters": [
     85,
     0,
     0,
     0
    ],
-   "Chest-to-Bar Pull-Up": [
+   "Chest-to-Bar Pull-Ups": [
     50,
     0,
     0,
     0
    ],
-   "Bar Muscle-Up": [
+   "Bar Muscle-Ups": [
     35,
     0,
     0,
@@ -3461,31 +3467,31 @@
    "seconds": 0
   },
   "movements": {
-   "Pull-Up": [
+   "Pull-Ups": [
     21,
     0,
     0,
     0
    ],
-   "Double-Under": [
+   "Double-Unders": [
     108,
     0,
     0,
     0
    ],
-   "Thruster": [
+   "Thrusters": [
     54,
     0,
     0,
     0
    ],
-   "Chest-to-Bar Pull-Up": [
+   "Chest-to-Bar Pull-Ups": [
     18,
     0,
     0,
     0
    ],
-   "Bar Muscle-Up": [
+   "Bar Muscle-Ups": [
     15,
     0,
     0,
@@ -3509,7 +3515,7 @@
    "seconds": 0
   },
   "movements": {
-   "Wall Walk": [
+   "Wall Walks": [
     25,
     0,
     0,
@@ -3521,19 +3527,19 @@
     100,
     0
    ],
-   "Deadlift": [
+   "Deadlifts": [
     25,
     0,
     0,
     0
    ],
-   "Clean": [
+   "Cleans": [
     25,
     0,
     0,
     0
    ],
-   "Snatch": [
+   "Snatches": [
     25,
     0,
     0,
@@ -3588,7 +3594,7 @@
     240,
     0
    ],
-   "DB Snatch": [
+   "DB Snatches": [
     200,
     0,
     0,
@@ -3612,7 +3618,7 @@
    "seconds": 0
   },
   "movements": {
-   "Front Squat": [
+   "Front Squats": [
     12,
     0,
     0,
@@ -3636,7 +3642,7 @@
    "seconds": 0
   },
   "movements": {
-   "Back Squat": [
+   "Back Squats": [
     15,
     0,
     0,
@@ -3677,7 +3683,7 @@
    "seconds": 0
   },
   "movements": {
-   "Back Squat": [
+   "Back Squats": [
     9,
     0,
     0,
@@ -3737,7 +3743,7 @@
    "seconds": 0
   },
   "movements": {
-   "Front Squat": [
+   "Front Squats": [
     24,
     0,
     0,
@@ -3905,7 +3911,7 @@
     0,
     0
    ],
-   "Wall Ball": [
+   "Wall Balls": [
     100,
     0,
     0,
@@ -3959,25 +3965,25 @@
    "seconds": 0
   },
   "movements": {
-   "Pull-Up": [
+   "Pull-Ups": [
     100,
     0,
     0,
     0
    ],
-   "Push-Up": [
+   "Push-Ups": [
     100,
     0,
     0,
     0
    ],
-   "Sit-Up": [
+   "Sit-Ups": [
     100,
     0,
     0,
     0
    ],
-   "Air Squat": [
+   "Air Squats": [
     100,
     0,
     0,
@@ -4001,13 +4007,13 @@
    "seconds": 0
   },
   "movements": {
-   "Deadlift": [
+   "Deadlifts": [
     45,
     0,
     0,
     0
    ],
-   "Handstand Push-Up": [
+   "Handstand Push-Ups": [
     45,
     0,
     0,
@@ -4031,13 +4037,13 @@
    "seconds": 0
   },
   "movements": {
-   "Squat Clean": [
+   "Squat Cleans": [
     45,
     0,
     0,
     0
    ],
-   "Ring Dip": [
+   "Ring Dips": [
     45,
     0,
     0,
@@ -4061,7 +4067,7 @@
    "seconds": 0
   },
   "movements": {
-   "Snatch": [
+   "Snatches": [
     30,
     0,
     0,
@@ -4091,13 +4097,13 @@
     0,
     0
    ],
-   "Thruster": [
+   "Thrusters": [
     50,
     0,
     0,
     0
    ],
-   "Pull-Up": [
+   "Pull-Ups": [
     30,
     0,
     0,
@@ -4121,7 +4127,7 @@
    "seconds": 0
   },
   "movements": {
-   "Wall Ball": [
+   "Wall Balls": [
     150,
     0,
     0,
@@ -4151,7 +4157,7 @@
     0,
     0
    ],
-   "Overhead Squat": [
+   "Overhead Squats": [
     75,
     0,
     0,
@@ -4175,13 +4181,13 @@
    "seconds": 0
   },
   "movements": {
-   "Muscle-Up": [
+   "Muscle-Ups": [
     21,
     0,
     0,
     0
    ],
-   "Squat Snatch": [
+   "Squat Snatches": [
     21,
     0,
     0,
@@ -4205,19 +4211,19 @@
    "seconds": 0
   },
   "movements": {
-   "Air Squat": [
+   "Air Squats": [
     150,
     0,
     0,
     0
    ],
-   "Muscle-Up": [
+   "Muscle-Ups": [
     21,
     0,
     0,
     0
    ],
-   "Hang Power Clean": [
+   "Hang Power Cleans": [
     30,
     0,
     0,
@@ -4247,13 +4253,13 @@
     0,
     0
    ],
-   "KB Swing": [
+   "KB Swings": [
     150,
     0,
     0,
     0
    ],
-   "Pull-Up": [
+   "Pull-Ups": [
     150,
     0,
     0,
@@ -4283,13 +4289,13 @@
     0,
     0
    ],
-   "Box Jump": [
+   "Box Jumps": [
     150,
     0,
     0,
     0
    ],
-   "Wall Ball": [
+   "Wall Balls": [
     150,
     0,
     0,
@@ -4348,7 +4354,7 @@
    "seconds": 0
   },
   "movements": {
-   "Clean & Jerk": [
+   "Clean & Jerks": [
     36,
     0,
     0,
@@ -4372,19 +4378,19 @@
    "seconds": 0
   },
   "movements": {
-   "Handstand Push-Up": [
+   "Handstand Push-Ups": [
     100,
     0,
     0,
     0
    ],
-   "Pistol": [
+   "Pistols": [
     200,
     0,
     0,
     0
    ],
-   "Pull-Up": [
+   "Pull-Ups": [
     300,
     0,
     0,
@@ -4408,25 +4414,25 @@
    "seconds": 0
   },
   "movements": {
-   "Handstand Push-Up": [
+   "Handstand Push-Ups": [
     55,
     0,
     0,
     0
    ],
-   "Deadlift": [
+   "Deadlifts": [
     55,
     0,
     0,
     0
    ],
-   "Box Jump": [
+   "Box Jumps": [
     55,
     0,
     0,
     0
    ],
-   "Pull-Up": [
+   "Pull-Ups": [
     55,
     0,
     0,
@@ -4504,19 +4510,19 @@
    "seconds": 0
   },
   "movements": {
-   "Pull-Up": [
+   "Pull-Ups": [
     100,
     0,
     0,
     0
    ],
-   "Push-Up": [
+   "Push-Ups": [
     200,
     0,
     0,
     0
    ],
-   "Air Squat": [
+   "Air Squats": [
     300,
     0,
     0,
@@ -4557,7 +4563,7 @@
    "seconds": 0
   },
   "movements": {
-   "Snatch": [
+   "Snatches": [
     100,
     0,
     0,
@@ -4581,19 +4587,19 @@
    "seconds": 0
   },
   "movements": {
-   "Handstand Push-Up": [
+   "Handstand Push-Ups": [
     45,
     0,
     0,
     0
    ],
-   "Ring Dip": [
+   "Ring Dips": [
     45,
     0,
     0,
     0
    ],
-   "Push-Up": [
+   "Push-Ups": [
     45,
     0,
     0,
@@ -4623,13 +4629,13 @@
     0,
     0
    ],
-   "Back Extension": [
+   "Back Extensions": [
     150,
     0,
     0,
     0
    ],
-   "Sit-Up": [
+   "Sit-Ups": [
     150,
     0,
     0,
@@ -4653,7 +4659,7 @@
    "seconds": 0
   },
   "movements": {
-   "Pull-Up": [
+   "Pull-Ups": [
     100,
     0,
     0,
@@ -4665,7 +4671,7 @@
     0,
     0
    ],
-   "Thruster": [
+   "Thrusters": [
     42,
     0,
     0,
@@ -4689,13 +4695,13 @@
    "seconds": 0
   },
   "movements": {
-   "Overhead Squat": [
+   "Overhead Squats": [
     45,
     0,
     0,
     0
    ],
-   "Pull-Up": [
+   "Pull-Ups": [
     90,
     0,
     0,
@@ -4818,13 +4824,13 @@
    "seconds": 0
   },
   "movements": {
-   "GHD Sit-Up": [
+   "GHD Sit-Ups": [
     105,
     0,
     0,
     0
    ],
-   "Back Extension": [
+   "Back Extensions": [
     105,
     0,
     0,
@@ -4836,7 +4842,7 @@
     0,
     0
    ],
-   "Stiff-Legged Deadlift": [
+   "Stiff-Legged Deadlifts": [
     105,
     0,
     0,
@@ -4860,13 +4866,13 @@
    "seconds": 0
   },
   "movements": {
-   "Thruster": [
+   "Thrusters": [
     50,
     0,
     0,
     0
    ],
-   "Pull-Up": [
+   "Pull-Ups": [
     100,
     0,
     0,
@@ -4896,25 +4902,25 @@
    "seconds": 0
   },
   "movements": {
-   "Power Clean": [
+   "Power Cleans": [
     25,
     0,
     0,
     0
    ],
-   "Front Squat": [
+   "Front Squats": [
     50,
     0,
     0,
     0
    ],
-   "Jerk": [
+   "Jerks": [
     25,
     0,
     0,
     0
    ],
-   "Pull-Up": [
+   "Pull-Ups": [
     100,
     0,
     0,
@@ -4938,7 +4944,7 @@
    "seconds": 0
   },
   "movements": {
-   "Clean": [
+   "Cleans": [
     15,
     0,
     0,
@@ -4950,7 +4956,7 @@
     0,
     0
    ],
-   "KB Snatch": [
+   "KB Snatches": [
     100,
     0,
     0,
@@ -4974,13 +4980,13 @@
    "seconds": 0
   },
   "movements": {
-   "Strict Pull-Up": [
+   "Strict Pull-Ups": [
     50,
     0,
     0,
     0
    ],
-   "Push-Up": [
+   "Push-Ups": [
     100,
     0,
     0,
@@ -5010,7 +5016,7 @@
    "seconds": 0
   },
   "movements": {
-   "Deadlift": [
+   "Deadlifts": [
     20,
     0,
     0,
@@ -5022,37 +5028,37 @@
     0,
     0
    ],
-   "KB Swing": [
+   "KB Swings": [
     20,
     0,
     0,
     0
    ],
-   "Overhead Squat": [
+   "Overhead Squats": [
     20,
     0,
     0,
     0
    ],
-   "Burpee": [
+   "Burpees": [
     20,
     0,
     0,
     0
    ],
-   "Chest-to-Bar Pull-Up": [
+   "Chest-to-Bar Pull-Ups": [
     20,
     0,
     0,
     0
    ],
-   "Box Jump": [
+   "Box Jumps": [
     20,
     0,
     0,
     0
    ],
-   "DB Squat Clean": [
+   "DB Squat Cleans": [
     20,
     0,
     0,
@@ -5082,7 +5088,7 @@
     0,
     0
    ],
-   "Burpee Pull-Up": [
+   "Burpee Pull-Ups": [
     150,
     0,
     0,
@@ -5147,13 +5153,13 @@
    "seconds": 0
   },
   "movements": {
-   "Bar Muscle-Up": [
+   "Bar Muscle-Ups": [
     81,
     0,
     0,
     0
    ],
-   "Clean & Jerk": [
+   "Clean & Jerks": [
     99,
     0,
     0,
@@ -5183,13 +5189,13 @@
    "seconds": 0
   },
   "movements": {
-   "Squat Clean": [
+   "Squat Cleans": [
     55,
     0,
     0,
     0
    ],
-   "Parallette Handstand Push-Up": [
+   "Parallette Handstand Push-Ups": [
     55,
     0,
     0,
@@ -5267,19 +5273,19 @@
     0,
     0
    ],
-   "Squat Clean": [
+   "Squat Cleans": [
     40,
     0,
     0,
     0
    ],
-   "Box Jump": [
+   "Box Jumps": [
     40,
     0,
     0,
     0
    ],
-   "Walking Lunge": [
+   "Walking Lunges": [
     20,
     0,
     0,
@@ -5303,19 +5309,19 @@
    "seconds": 0
   },
   "movements": {
-   "Double-Under": [
+   "Double-Unders": [
     400,
     0,
     0,
     0
    ],
-   "Overhead Squat": [
+   "Overhead Squats": [
     100,
     0,
     0,
     0
    ],
-   "Pull-Up": [
+   "Pull-Ups": [
     100,
     0,
     0,
@@ -5345,25 +5351,25 @@
    "seconds": 0
   },
   "movements": {
-   "Squat Clean": [
+   "Squat Cleans": [
     84,
     0,
     0,
     0
    ],
-   "Double-Under": [
+   "Double-Unders": [
     84,
     0,
     0,
     0
    ],
-   "Deadlift": [
+   "Deadlifts": [
     84,
     0,
     0,
     0
    ],
-   "Box Jump": [
+   "Box Jumps": [
     84,
     0,
     0,
@@ -5453,19 +5459,19 @@
    "seconds": 0
   },
   "movements": {
-   "Back Squat": [
+   "Back Squats": [
     15,
     0,
     0,
     0
    ],
-   "Shoulder Press": [
+   "Shoulder Presses": [
     15,
     0,
     0,
     0
    ],
-   "Deadlift": [
+   "Deadlifts": [
     5,
     0,
     0,
@@ -5489,7 +5495,7 @@
    "seconds": 0
   },
   "movements": {
-   "Deadlift": [
+   "Deadlifts": [
     9,
     0,
     0,
@@ -5513,13 +5519,13 @@
    "seconds": 0
   },
   "movements": {
-   "Back Squat": [
+   "Back Squats": [
     25,
     0,
     0,
     0
    ],
-   "Bench Press": [
+   "Bench Presses": [
     25,
     0,
     0,
@@ -5543,8 +5549,14 @@
    "seconds": 0
   },
   "movements": {
+   "Back Squats": [
+    24,
+    0,
+    0,
+    0
+   ],
    "Back Squat": [
-    27,
+    3,
     0,
     0,
     0
@@ -5567,13 +5579,13 @@
    "seconds": 0
   },
   "movements": {
-   "Dumbbell Curl": [
+   "Dumbbell Curls": [
     32,
     0,
     0,
     0
    ],
-   "Cable Fly": [
+   "Cable Flies": [
     30,
     0,
     0,
@@ -5597,7 +5609,7 @@
    "seconds": 0
   },
   "movements": {
-   "Front Squat": [
+   "Front Squats": [
     30,
     0,
     0,
@@ -5621,7 +5633,7 @@
    "seconds": 0
   },
   "movements": {
-   "Back Squat": [
+   "Back Squats": [
     9,
     0,
     0,
