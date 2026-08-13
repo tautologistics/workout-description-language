@@ -8,7 +8,7 @@ to be wrong, record the correction rather than quietly editing history: the
 wrong turns are the expensive knowledge, and a reader who does not know a road
 was tried will try it again.
 
-*Last updated: 2026-08-13 (58 commits, 1233 tests passing).*
+*Last updated: 2026-08-13 (68 commits, 1257 tests passing).*
 
 ---
 
@@ -58,7 +58,7 @@ docs/                  this file, product_vision_and_roadmap.md, prior art, desi
 | **Goals** | Five rules — `no repeat`, `cover`, `limit`, `balance`, `progress` — in a separate file. `wdl goals`. |
 | **Generation** | `?` holes in a template, filled to satisfy the goals. `wdl generate`, single workout or a whole block. |
 | **Programs** | An ordered block with slots. `wdl program`. |
-| **Apps** | Builder and board, both running in a browser over the same core. Goals can be written, saved and downloaded from the builder. |
+| **Apps** | Builder and board, both in a browser over the same core. The builder has a movement palette with muscle filtering, drag-and-drop, and live goal checking; goals can be written, saved and downloaded from it. |
 
 ## What is not built
 
@@ -67,6 +67,46 @@ docs/                  this file, product_vision_and_roadmap.md, prior art, desi
   the biggest hole and the natural next thing.
 - **Sharing, accounts, a platform.** Deliberately far off.
 - **Whiteboard photo → WDL.** Interesting, separate project.
+
+## Ready to pick up
+
+Each of these is self-contained enough for its own session. Roughly in the order
+I would take them.
+
+**1. The board cannot loop a section.** `run()` returns `cycles` — the cue
+ranges that repeat, with each one's clock — and the builder uses them. The board
+still only knows how to loop the whole cue list, so a buy-in / AMRAP / buy-out
+runs straight through once. Everything it needs is already on the `Run`; this is
+board state, not core.
+*Touches: `apps/display/board.js`.*
+
+**2. `rx` should desugar into `variants:`.** Step-level `(women 105lb / men
+145lb)` and workout-level `variants:` are two mechanisms for one idea. `rx`
+should lower to a variant so `--variant women` covers both and exporters need
+know about only one.
+*Touches: `packages/core/src/parse.ts`, wherever variants are resolved.*
+
+**3. Results.** The largest piece, and the one that makes `progress` mean
+something. The board already knows the position and has the clock; a result is
+what it tracks, written down. Identity was settled long ago (§3.2.1: any unique
+string, optional `namespace:` prefix, never derived from content).
+*Touches: a new module, `apps/display/`, and `progress` in goals.ts.*
+
+**4. A capped for-time reports `duration` where it means "at most".** `run()`
+does not expose the cap separately from a computed total. Same class as the
+AMRAP `duration`/`window` conflation, one step along.
+*Touches: `packages/core/src/run.ts`, `apps/builder/builder.js`.*
+
+**5. Curate the generation pool.** `mark-core` scored 178 movements in on source
+agreement, which is a proxy for "commonly catalogued", not "worth putting in a
+workout" — `Quad Stretch` made the cut. Bounded, and it makes generation
+trustworthy.
+*Touches: `registry/movements.json`, `scripts/mark-core.mjs`.*
+
+**Nobody has run a session off the board.** Everything is verified by tests and
+by driving the UI. Every defect Chris has caught by *looking* — `21 Thruster`,
+the AMRAP clock, the run-on notes — was invisible to 1257 tests. A real session
+will reorder this list.
 
 ## Deliberately not done
 
@@ -108,6 +148,12 @@ in the tree, so a 20-minute AMRAP between a run and a row reported the entire
 workout as a seven-cue loop on a 20-minute clock. Neither number was true of
 the run or the row. Now only a group on the spine — an only child of an only
 child, up to the root — may speak for the workout.
+
+**Position is not a safe way to say which is which.** `(105/145)` for a
+women's and a men's Rx reads by *magnitude* — the larger is the men's — because
+whiteboards write `95/65` meaning men first, so anyone writing the lighter first
+would have had the heavier bar assigned to the lighter athlete. Magnitude cannot
+be written backwards.
 
 **A caveat is not a finding.** "The amounts are floors" is true of every AMRAP
 ever written and says how to *read* the results; "quads: 2 movements, at most 1"
