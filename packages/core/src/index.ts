@@ -3,6 +3,10 @@ export { parse, type ParseError } from './parse.ts';
 export { format } from './format.ts';
 export { readLines } from './lines.ts';
 export {
+  spans, move, shift, remove, duplicate, insertAfter, logicalText, replaceLogical, logicalEnd,
+  type Span,
+} from './edit.ts';
+export {
   compile, outline, fmtClock,
   type Timeline, type TimelineItem, type TimelineStep, type TimelineGroup,
   type TimelineRest, type GroupType, type Pacing,

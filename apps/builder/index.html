@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WDL — builder</title>
+<link rel="stylesheet" href="builder.css">
+</head>
+<body>
+
+<!--
+  The builder.
+
+  Two panes over one document. The outline gives you the shape — order, nesting,
+  duplication — with buttons, because those are the operations that are fiddly to
+  do by hand in text. Everything else stays a line you type, because a form per
+  field would always lag the grammar, and the grammar is the interesting part.
+
+  The text is the document. The outline edits it in place rather than
+  regenerating it, so comments, blank lines and your own spacing survive being
+  dragged around.
+-->
+
+<header>
+  <h1>Builder</h1>
+  <div class="row">
+    <button id="open">Open…</button>
+    <button id="canon" title="Rewrite in canonical form">Canonicalise</button>
+    <button id="download">Download .wdl</button>
+    <a id="board" class="button" target="_blank" rel="noopener">Open on the board ↗</a>
+  </div>
+</header>
+
+<main>
+  <section class="pane outline-pane">
+    <h2>Outline</h2>
+    <div id="outline" class="outline"></div>
+    <div class="add-row">
+      <button data-add="step">+ movement</button>
+      <button data-add="block">+ block</button>
+      <button data-add="rest">+ rest</button>
+    </div>
+  </section>
+
+  <section class="pane text-pane">
+    <h2>Text <span id="dirty" class="dirty" hidden>edited</span></h2>
+    <textarea id="text" spellcheck="false" autocapitalize="off" autocorrect="off"></textarea>
+  </section>
+
+  <section class="pane read-pane">
+    <h2>What it reads as</h2>
+    <div id="summary" class="summary"></div>
+    <ul id="diagnostics" class="diagnostics"></ul>
+  </section>
+</main>
+
+<datalist id="movements"></datalist>
+<input type="file" id="file" accept=".wdl,.txt" hidden>
+
+<script type="module" src="builder.js"></script>
+</body>
+</html>

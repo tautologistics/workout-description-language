@@ -323,9 +323,13 @@ Started: [falsification-corpus.md](../examples/falsification-corpus.md) covers 4
 Grammar for the 80% case. Implement `@wdl/core`: parser, AST, validator, canonical formatter, **the timeline compiler** (pulled forward — §4 depends on it), and **movement `fold()` + resolution order** against a stub registry (the algorithm is needed at parse time even before the data is curated). Ship as npm + CLI (`wdl fmt`, `wdl check`, `wdl compile`).
 *Exit:* the whole corpus round-trips text → AST → canonical text → identical AST.
 
-**C — Builder web app (MVP)**
-Paste/drop text → visual structure → GUI edits regenerate canonical text, live both ways. CodeMirror editor with errors and autocomplete. Local-only, no accounts.
-*The first real product and the best spec test* — every awkward GUI interaction is a spec smell.
+**C — Builder web app (MVP)** — *shipped, first cut*
+[apps/builder](../apps/builder) — outline, text and "what it reads as", over one
+document. Deliberately *not* a field per property: that would always lag the
+grammar. The outline gives shape — order, nesting, duplication — and every line
+stays a line you type. Structural edits splice the text rather than regenerating
+from the AST, so comments and spacing survive; canonicalising is a button.
+*Still open:* a real editor component, drag to reorder, accounts and sharing.
 
 **D — Adapters, round one** — *shipped*
 Import: intervals.icu text, `.zwo`, `.erg`/`.mrc`, FIT. Export: FIT, `.zwo`, `.erg`/`.mrc`. Fidelity reporting throughout. Import failures feed straight back into the grammar.
