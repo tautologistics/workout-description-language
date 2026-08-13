@@ -252,3 +252,20 @@ button:hover, .button:hover { border-color: var(--dim); }
 .goals-head { display: flex; align-items: baseline; gap: .5rem; justify-content: space-between; }
 .goals-head select { font: inherit; font-size: .8rem; max-width: 60%; }
 .findings .ok { opacity: .6; }
+
+/* --- the muscle filter ---------------------------------------------------- */
+
+.muscles { margin-bottom: .4rem; font-size: .85em; }
+.muscles summary { cursor: pointer; opacity: .75; }
+.muscles summary span { opacity: .8; }
+.chips { display: flex; flex-wrap: wrap; gap: .2rem; margin: .35rem 0 .2rem; align-items: baseline; }
+.chip-region {
+  width: 100%; font-size: .75em; text-transform: uppercase;
+  letter-spacing: .04em; opacity: .45; margin-top: .2rem;
+}
+.chip {
+  font: inherit; font-size: .9em; padding: .1rem .4rem; cursor: pointer;
+  border: 1px solid var(--rule); border-radius: 999px; background: none;
+}
+.chip[aria-pressed="true"] { border-color: currentColor; font-weight: 600; }
+.link { font: inherit; font-size: .85em; background: none; border: 0; padding: 0; cursor: pointer; opacity: .6; text-decoration: underline; }

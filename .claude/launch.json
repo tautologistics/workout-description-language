@@ -5,11 +5,10 @@
       "name": "wdl",
       "runtimeExecutable": "node",
       "runtimeArgs": [
-        "scripts/serve.mjs",
-        "8081"
+        "scripts/serve.mjs"
       ],
       "port": 8081,
-      "url": "http://localhost:8081/"
+      "autoPort": true
     }
   ]
 }

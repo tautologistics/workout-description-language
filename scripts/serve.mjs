@@ -2,7 +2,7 @@
 /**
  * A static server for the repository root.
  *
- *   node scripts/serve.mjs [port]
+ *   node scripts/serve.mjs [port]      # or PORT=1234 node scripts/serve.mjs
  *
  * The web apps import the core from `build/web/` and fetch registry data from
  * `registry/`, so they need one origin over the whole tree rather than a server
@@ -15,7 +15,9 @@ import { readFile, stat, readdir } from 'node:fs/promises';
 import { join, extname, normalize } from 'node:path';
 
 const root = process.cwd();
-const port = Number(process.argv[2] ?? 8081);
+// An argument wins, then PORT, then a default. The environment variable is how
+// a harness that assigns ports gets to choose one.
+const port = Number(process.argv[2] ?? process.env.PORT ?? 8081);
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8',

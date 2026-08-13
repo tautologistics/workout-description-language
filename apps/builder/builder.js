@@ -378,14 +378,78 @@ addEventListener('drop', async (e) => {
  * and a place for it to live before knowing whether anyone wants one.
  */
 let catalogue = [];
+let vocabulary = [];
 let sets = JSON.parse(localStorage.getItem('wdl.sets') || '{}');
+/**
+ * Muscles the movement must work — all of them, not any of them.
+ *
+ * Picking lats and biceps means "a movement that works both", which is a
+ * pull-up. Or-semantics would mean "lats or biceps", which is most of the upper
+ * body and no narrower than picking one. Selecting a second thing should always
+ * show you less.
+ */
+const chosenMuscles = new Set();
+
+/**
+ * Matched against primary movers only, the same reading `level: primary` has
+ * everywhere else in this project. Counting a muscle a movement merely assists
+ * makes "hits the lats" true of almost anything you can hang from.
+ */
+const worksAll = (m) => {
+  if (!chosenMuscles.size) return true;
+  const primary = m.muscles?.primary ?? [];
+  for (const id of chosenMuscles) if (!primary.includes(id)) return false;
+  return true;
+};
 
 const matches = (m, q) => {
+  if (!worksAll(m)) return false;
+  // No text: the core set. A muscle filter narrows that rather than widening to
+  // the whole registry — picking a filter and getting *more* than you had is a
+  // thing no filter should ever do. Typing is how you reach past the core.
   if (!q) return m.core;
-  const hay = `${m.title} ${(m.pattern ?? []).join(' ')} ${(m.equipment ?? []).join(' ')} `
-    + `${(m.muscles?.primary ?? []).join(' ')} ${(m.aliases ?? []).join(' ')}`.toLowerCase();
+  // Lowercased over the whole thing, not just the tail: `.toLowerCase()` binds
+  // to the literal it follows, so titles kept their capitals and searching for
+  // `weighted` found nothing called `Weighted Chin-up`.
+  const hay = [
+    m.title, ...(m.pattern ?? []), ...(m.equipment ?? []),
+    ...(m.muscles?.primary ?? []), ...(m.aliases ?? []),
+  ].join(' ').toLowerCase();
   return q.toLowerCase().split(/\s+/).filter(Boolean).every((t) => hay.includes(t));
 };
+
+function renderMuscleChips() {
+  const box = el('muscle-chips');
+  box.innerHTML = '';
+  let region = null;
+  for (const m of vocabulary) {
+    if (m.region !== region) {
+      region = m.region;
+      const head = document.createElement('span');
+      head.className = 'chip-region';
+      head.textContent = region;
+      box.append(head);
+    }
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'chip';
+    chip.textContent = m.name;
+    chip.setAttribute('aria-pressed', String(chosenMuscles.has(m.id)));
+    chip.onclick = () => {
+      if (chosenMuscles.has(m.id)) chosenMuscles.delete(m.id);
+      else chosenMuscles.add(m.id);
+      // A chosen set is a saved list of ids, so a muscle filter cannot narrow it
+      // further without meaning two different things at once.
+      el('set-pick').value = '';
+      renderMuscleChips();
+      renderPalette();
+    };
+    box.append(chip);
+  }
+  el('muscle-chosen').textContent = chosenMuscles.size
+    ? `· ${[...chosenMuscles].map((id) => vocabulary.find((v) => v.id === id)?.name ?? id).join(' + ')}`
+    : '';
+}
 
 /** The line a movement becomes. Distance-measured movements are not counted in reps. */
 const lineFor = (m) => {
@@ -432,9 +496,10 @@ function renderPalette() {
     });
     box.append(item);
   }
+  const scope = chosen ? 'in this set' : el('search').value.trim() ? 'of all movements' : 'of the core set';
   el('palette-count').textContent = shown.length > 300
-    ? `${shown.length} movements, showing 300`
-    : `${shown.length} movement${shown.length === 1 ? '' : 's'}`;
+    ? `${shown.length} ${scope}, showing 300`
+    : `${shown.length} ${scope}`;
 }
 
 function renderSets() {
@@ -456,6 +521,11 @@ function renderSets() {
 
 el('search').addEventListener('input', () => { el('set-pick').value = ''; renderPalette(); });
 el('set-pick').addEventListener('change', renderPalette);
+el('muscle-clear').onclick = () => {
+  chosenMuscles.clear();
+  renderMuscleChips();
+  renderPalette();
+};
 
 el('set-save').onclick = () => {
   const q = el('search').value.trim();
@@ -562,6 +632,8 @@ const analysis = Promise.all([load(CANONICAL), load(MUSCLES)])
   .then(([movements, muscles]) => {
     provide({ canonicalMovements: () => movements.movements, muscles: () => muscles.muscles });
     catalogue = movements.movements;
+    vocabulary = muscles.muscles;
+    renderMuscleChips();
     renderPalette();
     renderFindings();
   })

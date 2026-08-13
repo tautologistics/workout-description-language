@@ -39,6 +39,15 @@ line lands beside what you dropped it on rather than inside it. Rows in the
 outline drag too: the drop indicator sits on the edge the thing will land
 against, so what you are aiming at is the gap rather than the row.
 
+**Muscles** filter by what a movement works, and picking more than one is an
+`and`: lats gives 22 of the core set, lats *and* biceps gives 10, and adding
+quads gives one. Selecting a filter should always show you less, so a muscle
+narrows whatever scope you are in rather than widening to the whole registry —
+typing is how you reach past the core set. Matched against primary movers only,
+the same reading `level: primary` has everywhere else, because counting a muscle
+a movement merely assists makes "hits the lats" true of anything you can hang
+from.
+
 **Sets** are whatever is showing, saved under a name. Filter to `kettlebell`,
 save it as "Kettlebell day", and it is there next time.
 
