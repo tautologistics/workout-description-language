@@ -13,7 +13,7 @@ import { describe, it, eq, ok } from './lib.ts';
 import { parse } from '../src/parse.ts';
 import { format } from '../src/format.ts';
 import {
-  spans, move, shift, remove, duplicate, insertAfter, logicalText, replaceLogical, logicalEnd,
+  spans, move, moveTo, shift, remove, duplicate, insertAfter, logicalText, replaceLogical, logicalEnd,
 } from '../src/edit.ts';
 
 const L = (s: string) => s.replace(/\n$/, '').split('\n');
@@ -168,5 +168,58 @@ describe('edit: the round trip over the corpus', () => {
       if (T(back) !== T(lines)) changed.push(f);
     }
     eq(changed, [], 'workouts a move-and-move-back did not restore');
+  });
+});
+
+describe('moveTo: dragging a thing somewhere else', () => {
+  const doc = [
+    'for time:',
+    '  // the couplet',
+    '  - 21 Thrusters',
+    '  - 21 Pull-Ups',
+    '  - 9 Burpees',
+  ];
+
+  it('drops a thing after another, taking its comment with it', () => {
+    const out = moveTo(doc, 3, 5, 'after');
+    eq(out, ['for time:', '  - 21 Pull-Ups', '  - 9 Burpees', '  // the couplet', '  - 21 Thrusters']);
+  });
+
+  it('drops a thing before another', () => {
+    eq(moveTo(doc, 5, 3, 'before'), ['for time:', '  - 9 Burpees', '  // the couplet', '  - 21 Thrusters', '  - 21 Pull-Ups']);
+  });
+
+  it('re-indents to match where it lands', () => {
+    // Dragging a top-level step into a block has to nest it, or the drop
+    // produces something that reads as a sibling of the block it is inside.
+    const src = ['5 rounds:', '  - 10 Push-Ups', '- 400m Run'];
+    eq(moveTo(src, 3, 2, 'after'), ['5 rounds:', '  - 10 Push-Ups', '  - 400m Run']);
+    // And back out again, by dropping it before the block rather than after it.
+    eq(moveTo(['5 rounds:', '  - 10 Push-Ups', '  - 400m Run'], 3, 1, 'before'),
+       ['- 400m Run', '5 rounds:', '  - 10 Push-Ups']);
+  });
+
+  it('drops after a block, meaning after everything in it', () => {
+    // A block owns its contents, so landing "after" one is landing past them.
+    // Dropping *into* a block is dropping after the last thing already in it.
+    const src = ['5 rounds:', '  - 10 Push-Ups', '- 400m Run'];
+    eq(moveTo(src, 3, 1, 'after'), ['5 rounds:', '  - 10 Push-Ups', '- 400m Run']);
+  });
+
+  it('carries a block and everything under it', () => {
+    const src = ['for time:', '  5 rounds:', '    - 10 Push-Ups', '  - 400m Run'];
+    eq(moveTo(src, 2, 4, 'after'), ['for time:', '  - 400m Run', '  5 rounds:', '    - 10 Push-Ups']);
+  });
+
+  it('refuses to drop a thing inside itself', () => {
+    // The naive splice for this deletes the block outright.
+    const src = ['5 rounds:', '  - 10 Push-Ups', '  - 15 Air Squats'];
+    eq(moveTo(src, 1, 2, 'after'), src);
+    eq(moveTo(src, 1, 1, 'after'), src);
+  });
+
+  it('is an identity when the thing is put back', () => {
+    const once = moveTo(doc, 3, 5, 'after');
+    eq(moveTo(once, 5, 2, 'before'), doc);
   });
 });

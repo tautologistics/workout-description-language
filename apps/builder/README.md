@@ -8,8 +8,9 @@ node scripts/serve.mjs 8081
 open http://localhost:8081/apps/builder/
 ```
 
-Open a `.wdl`, drop one on it, or type. Three panes over the same text: the
-outline, the text, and what the parser understood.
+Open a `.wdl`, drop one on it, or type. Four panes over the same text: the
+movements you can draw from, the outline, the text, and what it reads as —
+including whether it satisfies the goals you picked.
 
 ## What is deliberately not here
 
@@ -24,6 +25,47 @@ buttons, because those are genuinely fiddly to do by hand in a text file.
 Everything a line *says* stays a line you type, with the movement registry as
 autocomplete and the parser reporting what it made of it. The GUI covers what
 text is bad at and gets out of the way of what it is good at.
+
+## The palette
+
+The core set — 178 movements — rather than all three thousand. The long tail is
+machine variants and rehab work nobody writes into a workout, and a palette you
+have to fight is not a palette. Search reaches the whole registry, and matches
+on pattern, equipment and muscle as well as name, so `kettlebell` and `squat`
+and `lats` all find things.
+
+Click adds where you were last working. Dragging says where explicitly, and the
+line lands beside what you dropped it on rather than inside it. Rows in the
+outline drag too: the drop indicator sits on the edge the thing will land
+against, so what you are aiming at is the gap rather than the row.
+
+**Sets** are whatever is showing, saved under a name. Filter to `kettlebell`,
+save it as "Kettlebell day", and it is there next time.
+
+That is deliberately not a new file format. A set is a working preference, not
+something a workout depends on — inventing an artifact for it would mean
+inventing a grammar, a parser and a place for it to live before knowing whether
+anyone wants one. It lives in `localStorage` until it earns more.
+
+## Against your goals
+
+The third pane also asks whether the workout does what you wanted, continuously
+rather than when you remember to. Pick a goals file and every edit is checked:
+
+```
+no repeat: Push-Up is followed by Burpee; both work chest
+no repeat: Burpee is followed by Air Squat; both work quads
+cover: core: 1 movements, at least 2 required
+```
+
+The rules are the ones from [`spec/goals-0.1.md`](../../spec/goals-0.1.md),
+checked by the same `check()` the CLI runs. The builder holds no opinion of its
+own about what a good workout is; it only asks the question more often.
+
+Unresolved movements and open-ended workouts are reported alongside, because a
+movement with no muscle data is invisible to every rule and an AMRAP makes every
+amount a floor. Without the muscle data loaded it says so rather than showing an
+empty list that looks like approval.
 
 ## The round trip
 
@@ -46,6 +88,10 @@ corpus:
   not an identity: the spacing creeps a line each time.
 - A wrapped inline `{ … }` block is one logical line however many physical lines
   it spans. Writing an edit back to only the first silently drops the rest.
+- Dropping a thing into its own subtree is not a move. The naive splice for it
+  deletes the block.
+- "After a block" means after everything in it, because a block owns its
+  contents. Dropping *into* one is dropping after the last thing already there.
 
 Checked over all 190 corpus workouts: touching every line changes nothing about
 what any of them means, and moving the first block down and back restores the

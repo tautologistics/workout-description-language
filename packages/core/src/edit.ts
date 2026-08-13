@@ -130,6 +130,48 @@ export function move(lines: string[], line: number, dir: -1 | 1): string[] {
   ];
 }
 
+/**
+ * Move a thing to sit before or after another, contents and all, re-indenting to
+ * match where it lands.
+ *
+ * `move` steps one place among siblings, which is what a button wants. Dragging
+ * wants somewhere else entirely — across nesting levels, past several things at
+ * once — and doing that as repeated single steps would be both wrong and
+ * visible, since a span cannot step past a sibling it is about to be nested
+ * inside.
+ *
+ * Two things it refuses. Dropping something into itself is not a move, and the
+ * naive splice for it deletes the block; and a drop that would change nothing is
+ * left alone rather than rewritten, so a dragged-and-returned block is an
+ * identity rather than a reindent.
+ */
+export function moveTo(
+  lines: string[], line: number, target: number, where: 'before' | 'after' = 'after',
+): string[] {
+  const map = spans(lines);
+  const self = map.get(line);
+  const dest = map.get(target);
+  if (!self || !dest || line === target) return lines;
+  // Its own subtree is not a destination: splicing a block inside itself drops it.
+  if (dest.from >= self.from && dest.to <= self.to) return lines;
+
+  const block = lines.slice(self.from - 1, self.to);
+  const rest = [...lines.slice(0, self.from - 1), ...lines.slice(self.to)];
+
+  // Where the target sits once the block is gone.
+  const shiftBy = (n: number) => (n > self.to ? n - (self.to - self.from + 1) : n);
+  const at = where === 'before' ? shiftBy(dest.from) - 1 : shiftBy(dest.contentEnd);
+
+  // Land at the target's indent, carrying the block's own nesting with it.
+  const by = indentOf(lines[target - 1] ?? '') - indentOf(lines[line - 1] ?? '');
+  const moved = block.map((l) => {
+    if (!l.trim()) return l;
+    return by >= 0 ? ' '.repeat(by) + l : l.slice(Math.min(-by, indentOf(l)));
+  });
+
+  return [...rest.slice(0, at), ...moved, ...rest.slice(at)];
+}
+
 /** Re-indent a thing and its contents together, so the nesting stays legal. */
 export function shift(lines: string[], line: number, by: number): string[] {
   const self = spans(lines).get(line);

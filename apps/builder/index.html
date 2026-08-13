@@ -32,6 +32,20 @@
 </header>
 
 <main>
+  <section class="pane palette-pane">
+    <h2>Movements</h2>
+    <div class="palette-controls">
+      <input id="search" type="search" placeholder="Search movements" autocomplete="off">
+      <select id="set-pick" title="A saved set of movements"></select>
+      <div class="row tight">
+        <button id="set-save" title="Save what is showing as a named set">Save set</button>
+        <button id="set-drop" title="Delete the selected set">Delete</button>
+      </div>
+    </div>
+    <p class="hint" id="palette-count"></p>
+    <div id="palette" class="palette"></div>
+  </section>
+
   <section class="pane outline-pane">
     <h2>Outline</h2>
     <div id="outline" class="outline"></div>
@@ -51,6 +65,11 @@
     <h2>What it reads as</h2>
     <div id="summary" class="summary"></div>
     <ul id="diagnostics" class="diagnostics"></ul>
+
+    <h2 class="goals-head">Against your goals
+      <select id="goal-pick" title="Which goals to check against"></select>
+    </h2>
+    <ul id="findings" class="diagnostics findings"></ul>
   </section>
 </main>
 

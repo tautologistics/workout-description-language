@@ -21,7 +21,7 @@
 
 import { readLines } from '../../build/web/core/lines.js';
 import {
-  spans, move as moveLines, shift as shiftLines, remove as removeLines,
+  spans, move as moveLines, moveTo as moveToLine, shift as shiftLines, remove as removeLines,
   duplicate as duplicateLines, insertAfter, logicalText, replaceLogical, logicalEnd,
 } from '../../build/web/core/edit.js';
 import { parse } from '../../build/web/core/parse.js';
@@ -30,8 +30,12 @@ import { compile } from '../../build/web/core/timeline.js';
 import { validate } from '../../build/web/core/validate.js';
 import { run, roundLabel } from '../../build/web/core/run.js';
 import { provide, has } from '../../build/web/core/env.js';
+import { parseGoals, check } from '../../build/web/core/goals.js';
 
 const REGISTRY = '../../registry/movements.json';
+const CANONICAL = '../../registry/movements.canonical.json';
+const MUSCLES = '../../registry/muscles.json';
+const GOALS = ['rotate-muscles.wdlg', 'ramp-the-pull.wdlg'];
 const el = (id) => document.getElementById(id);
 
 const START = `# New workout
@@ -56,9 +60,29 @@ const text = () => `${lines.join('\n')}\n`;
 
 const indentOf = (i) => lines[i - 1].length - lines[i - 1].trimStart().length;
 
+/** Which of the two drags this is, if either. A file drop is neither. */
+const dragKind = (e) => {
+  const t = e.dataTransfer?.types ?? [];
+  if ([...t].includes('text/wdl-line')) return 'move';
+  if ([...t].includes('text/wdl-movement')) return 'add';
+  return null;
+};
+
+/**
+ * The thing before this one at the same level, so dropping *before* something
+ * can be expressed as inserting after its predecessor — which is the only
+ * insertion point `insertAfter` has.
+ */
+const previousSibling = (line) => {
+  const self = spans(lines).get(line);
+  const prev = self?.siblings[self.index - 1];
+  return prev?.line;
+};
+
 const apply = (next, focus) => { lines = next; render(focus); };
 
 const move = (line, dir) => apply(moveLines(lines, line, dir), line);
+const moveTo = (line, target, where) => apply(moveToLine(lines, line, target, where), target);
 const shift = (line, by) => apply(shiftLines(lines, line, by), line);
 const remove = (line) => apply(removeLines(lines, line), Math.min(line, lines.length));
 const duplicate = (line) => apply(duplicateLines(lines, line), line);
@@ -80,6 +104,7 @@ function render(focusLine) {
   el('text').value = text();
   renderOutline();
   renderReading();
+  renderFindings();
   const link = el('board');
   link.href = `../display/#${encodeURIComponent(text())}`;
 }
@@ -119,6 +144,7 @@ function renderOutline() {
         lines = replaceLogical(lines, n.line, input.value);
         el('text').value = text();
         renderReading();
+        renderFindings();
       });
       input.addEventListener('change', () => render(n.line));
       input.addEventListener('focus', () => { focused = n.line; });
@@ -138,6 +164,40 @@ function renderOutline() {
         b.onclick = () => fn(n.line);
         tools.append(b);
       }
+
+      // Dragging is for where things go; the buttons stay for one step at a
+      // time, which is easier to aim than a drag when that is all you want.
+      node.draggable = true;
+      node.dataset.line = String(n.line);
+      node.addEventListener('dragstart', (e) => {
+        if (e.target.tagName === 'INPUT') return e.preventDefault();   // let text select
+        e.dataTransfer.setData('text/wdl-line', String(n.line));
+        e.dataTransfer.effectAllowed = 'move';
+        node.classList.add('dragging');
+      });
+      node.addEventListener('dragend', () => node.classList.remove('dragging'));
+      node.addEventListener('dragover', (e) => {
+        if (!dragKind(e)) return;
+        e.preventDefault();
+        const half = e.offsetY < node.offsetHeight / 2 ? 'before' : 'after';
+        node.dataset.drop = half;
+      });
+      node.addEventListener('dragleave', () => delete node.dataset.drop);
+      node.addEventListener('drop', (e) => {
+        const where = node.dataset.drop === 'before' ? 'before' : 'after';
+        delete node.dataset.drop;
+        const kind = dragKind(e);
+        if (!kind) return;
+        e.preventDefault();
+        e.stopPropagation();
+        if (kind === 'move') {
+          moveTo(Number(e.dataTransfer.getData('text/wdl-line')), n.line, where);
+        } else {
+          // A palette drop lands beside what it was dropped on, not inside it.
+          const anchor = where === 'before' ? previousSibling(n.line) : n.line;
+          insert(anchor, e.dataTransfer.getData('text/wdl-movement'));
+        }
+      });
 
       node.append(rails, input, tools);
       outline.append(node);
@@ -252,6 +312,7 @@ el('text').addEventListener('input', () => {
   focused = null;
   renderOutline();
   renderReading();
+  renderFindings();
   el('board').href = `../display/#${encodeURIComponent(text())}`;
 });
 
@@ -300,10 +361,189 @@ addEventListener('drop', async (e) => {
   render();
 });
 
-// The core is handed its data; it reads no files itself. Autocomplete and the
-// name checks both come from here, and both degrade rather than fail.
-fetch(new URL(REGISTRY, location.href))
-  .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+
+
+// --- the palette -------------------------------------------------------------
+
+/**
+ * Movements you can click or drag in.
+ *
+ * Drawn from the core set rather than all three thousand: the long tail is
+ * machine variants and rehab work nobody writes into a workout, and a palette
+ * you have to fight is not a palette. Search reaches the whole registry.
+ *
+ * A "set" is whatever is showing, saved under a name. That is deliberately not a
+ * new file format — it is a working preference, not something a workout depends
+ * on, and inventing an artifact for it would mean inventing a grammar, a parser
+ * and a place for it to live before knowing whether anyone wants one.
+ */
+let catalogue = [];
+let sets = JSON.parse(localStorage.getItem('wdl.sets') || '{}');
+
+const matches = (m, q) => {
+  if (!q) return m.core;
+  const hay = `${m.title} ${(m.pattern ?? []).join(' ')} ${(m.equipment ?? []).join(' ')} `
+    + `${(m.muscles?.primary ?? []).join(' ')} ${(m.aliases ?? []).join(' ')}`.toLowerCase();
+  return q.toLowerCase().split(/\s+/).filter(Boolean).every((t) => hay.includes(t));
+};
+
+/** The line a movement becomes. Distance-measured movements are not counted in reps. */
+const lineFor = (m) => {
+  const measures = m.measures ?? [];
+  if (measures.includes('distance')) return `- 400m ${m.title}`;
+  if (measures.includes('calories')) return `- 20cal ${m.title}`;
+  return `- 10 ${m.title}`;
+};
+
+function renderPalette() {
+  const box = el('palette');
+  const q = el('search').value.trim();
+  const chosen = sets[el('set-pick').value];
+  const shown = chosen
+    ? catalogue.filter((m) => chosen.includes(m.id))
+    : catalogue.filter((m) => matches(m, q));
+
+  box.innerHTML = '';
+  for (const m of shown.slice(0, 300)) {
+    const item = document.createElement('button');
+    item.className = 'movement';
+    item.type = 'button';
+    item.draggable = true;
+    item.dataset.id = m.id;
+    item.title = [
+      (m.muscles?.primary ?? []).join(', '),
+      (m.equipment ?? []).join(', '),
+    ].filter(Boolean).join('  ·  ');
+
+    const name = document.createElement('span');
+    name.className = 'name';
+    name.textContent = m.title;
+    const meta = document.createElement('span');
+    meta.className = 'meta';
+    meta.textContent = (m.muscles?.primary ?? []).slice(0, 3).join(' ');
+    item.append(name, meta);
+
+    // Click adds where you were last working, which is what "add this" means
+    // when the caret is somewhere. Dragging says where explicitly.
+    item.onclick = () => insert(focused, lineFor(m));
+    item.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/wdl-movement', lineFor(m));
+      e.dataTransfer.effectAllowed = 'copy';
+    });
+    box.append(item);
+  }
+  el('palette-count').textContent = shown.length > 300
+    ? `${shown.length} movements, showing 300`
+    : `${shown.length} movement${shown.length === 1 ? '' : 's'}`;
+}
+
+function renderSets() {
+  const pick = el('set-pick');
+  const was = pick.value;
+  pick.innerHTML = '';
+  const none = document.createElement('option');
+  none.value = '';
+  none.textContent = 'All movements';
+  pick.append(none);
+  for (const name of Object.keys(sets).sort()) {
+    const o = document.createElement('option');
+    o.value = name;
+    o.textContent = name;
+    pick.append(o);
+  }
+  pick.value = sets[was] ? was : '';
+}
+
+el('search').addEventListener('input', () => { el('set-pick').value = ''; renderPalette(); });
+el('set-pick').addEventListener('change', renderPalette);
+
+el('set-save').onclick = () => {
+  const q = el('search').value.trim();
+  const name = prompt('Name this set', q || 'My set');
+  if (!name) return;
+  sets[name] = catalogue.filter((m) => matches(m, q)).map((m) => m.id);
+  localStorage.setItem('wdl.sets', JSON.stringify(sets));
+  renderSets();
+  el('set-pick').value = name;
+  renderPalette();
+};
+
+el('set-drop').onclick = () => {
+  const name = el('set-pick').value;
+  if (!name || !confirm(`Delete the set "${name}"?`)) return;
+  delete sets[name];
+  localStorage.setItem('wdl.sets', JSON.stringify(sets));
+  renderSets();
+  renderPalette();
+};
+
+// --- goals -------------------------------------------------------------------
+
+/**
+ * The workout measured against what it is for.
+ *
+ * The rules live in a goals file, checked by the same code the CLI runs, so the
+ * builder has no opinion of its own about what a good workout is. It only asks
+ * the question continuously instead of when you remember to.
+ */
+let goals = null;
+
+function renderFindings() {
+  const list = el('findings');
+  list.innerHTML = '';
+  const say = (severity, message) => {
+    const li = document.createElement('li');
+    const body = document.createElement('span');
+    body.className = severity;
+    body.textContent = message;
+    li.append(body);
+    list.append(li);
+  };
+
+  if (!goals) return say('warning', 'no goals loaded');
+  if (!has('canonicalMovements') || !has('muscles')) {
+    return say('warning', 'no muscle data loaded — nothing can be checked');
+  }
+  let report;
+  try {
+    report = check(compile(parse(text()).workout), goals);
+  } catch (e) {
+    return say('error', `cannot check: ${e.message}`);
+  }
+  if (report.unresolved.length) {
+    say('warning', `no muscle data for ${report.unresolved.join(', ')} — invisible to every rule`);
+  }
+  if (report.unbounded) say('warning', 'open-ended: the amounts below are floors');
+  if (!report.findings.length) return say('ok', 'every rule satisfied');
+  for (const f of report.findings) {
+    say('error', `${f.rule}: ${f.message}${f.count > 1 ? `  (×${f.count})` : ''}`);
+  }
+}
+
+el('goal-pick').addEventListener('change', async () => {
+  const name = el('goal-pick').value;
+  if (!name) { goals = null; return renderFindings(); }
+  try {
+    const r = await fetch(new URL(`../../examples/goals/${name}`, location.href));
+    goals = parseGoals(await r.text());
+  } catch (e) {
+    goals = null;
+    console.warn('no goals:', e.message);
+  }
+  renderFindings();
+});
+
+// --- bootstrap ---------------------------------------------------------------
+// Last, because everything above declares what it needs and this hands it over.
+
+// The core is handed its data; it reads no files itself. Each of these makes a
+// different part of the app work, and each is loaded separately so that missing
+// one degrades that part rather than taking the builder down with it.
+const load = (url) => fetch(new URL(url, location.href))
+  .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`${r.status} ${url}`))));
+
+// The curated registry: autocomplete, and the name checks in `validate`.
+const curated = load(REGISTRY)
   .then((data) => {
     provide({ movements: () => data.movements });
     const list = el('movements');
@@ -314,5 +554,34 @@ fetch(new URL(REGISTRY, location.href))
       list.append(option);
     }
   })
-  .catch((e) => console.warn('no movement registry:', e.message))
-  .finally(render);
+  .catch((e) => console.warn('no movement registry:', e.message));
+
+// The merged corpus: the palette, and everything the goal rules read. Larger,
+// and wanted a moment later, so it does not hold up the first render.
+const analysis = Promise.all([load(CANONICAL), load(MUSCLES)])
+  .then(([movements, muscles]) => {
+    provide({ canonicalMovements: () => movements.movements, muscles: () => muscles.muscles });
+    catalogue = movements.movements;
+    renderPalette();
+    renderFindings();
+  })
+  .catch((e) => {
+    console.warn('no analysis data:', e.message);
+    el('palette-count').textContent = 'movement data unavailable';
+  });
+
+for (const name of GOALS) {
+  const o = document.createElement('option');
+  o.value = name;
+  o.textContent = name.replace(/\.wdlg$/, '').replace(/-/g, ' ');
+  el('goal-pick').append(o);
+}
+const none = document.createElement('option');
+none.value = '';
+none.textContent = 'no goals';
+el('goal-pick').prepend(none);
+el('goal-pick').value = GOALS[0];
+
+renderSets();
+curated.finally(render);
+analysis.then(() => el('goal-pick').dispatchEvent(new Event('change')));
