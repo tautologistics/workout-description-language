@@ -1170,3 +1170,34 @@ everything that does not care about the choice is unaffected, and muscle
 analysis reads the thing you would do by default rather than a union of
 everything you might. A rule about lats should not fire because one of three
 options happened to involve them.
+
+
+## Rx by division
+
+A step may carry what each division is prescribed:
+
+```
+- 10 Deadlifts (women 105lb / men 145lb)
+```
+
+Minimally, without labels:
+
+```
+- 10 Deadlifts (105/145)
+- 20cal Row (15/20)
+```
+
+**Unlabelled, the larger number is the men's** — not the first one. Position is
+the usual whiteboard convention (`95/65` is men first) and it is not safe:
+reading position would put the heavier bar on the lighter athlete for anyone who
+writes it the other way round. Magnitude cannot be written backwards.
+
+A label overrides magnitude, so a deliberate `(women 145lb / men 105lb)` is
+taken at its word.
+
+A unit on one side covers both — `(105/145lb)` is two weights in pounds — and
+bare numbers stay bare, since the measure is whatever the step is measured in.
+
+Canonical output is always the labelled form, whichever way it came in. The
+short form is readable once you know the rule; the explicit one needs no rule,
+and canonical output is where an ambiguity should stop.

@@ -264,3 +264,50 @@ describe('pick one of', () => {
     ok(r.errors[0].message.includes('nothing to choose between'), JSON.stringify(r.errors));
   });
 });
+
+describe('Rx by division', () => {
+  const step = (src: string) => (parse(`sequence:\n  ${src}\n`).workout.body[0] as any).children[0];
+  const canon = (src: string) => format(parse(`sequence:\n  ${src}\n`).workout).trim().split('\n')[1].trim();
+
+  it('takes the larger number as the men’s, whichever side it is written on', () => {
+    // Position is the usual convention and is not safe: whiteboards write
+    // `95/65` meaning men first, so reading position would put the heavier bar
+    // on the lighter athlete for anyone who writes it the other way round.
+    for (const src of ['- 10 Deadlifts (105lb/145lb)', '- 10 Deadlifts (145lb/105lb)']) {
+      eq(step(src).rx.women.value, 105, src);
+      eq(step(src).rx.men.value, 145, src);
+    }
+  });
+
+  it('lets a label say something magnitude would not', () => {
+    const s = step('- 10 Deadlifts (women 145lb / men 105lb)');
+    eq(s.rx.women.value, 145, 'the label wins over the heavier-is-men rule');
+    eq(s.rx.men.value, 105);
+  });
+
+  it('shares a unit written on one side only, and allows none at all', () => {
+    eq(step('- 10 Deadlifts (105/145lb)').rx.women.unit, 'lb');
+    eq(step('- 20cal Row (15/20)').rx.women.unit, undefined, 'bare numbers stay bare');
+  });
+
+  it('takes it off the movement name', () => {
+    // Left in, it became a movement called `Deadlifts (105lb/145lb)`, which
+    // resolved to nothing and took the step out of every rule's sight — and
+    // then had an `s` appended by the pluralizer.
+    eq(step('- 10 Deadlifts (105lb/145lb)').movement, 'Deadlifts');
+  });
+
+  it('writes it back labelled, whichever way it came in', () => {
+    // `(105/145)` is readable once you know the rule; the explicit form needs
+    // no rule, and canonical output is where the ambiguity should stop.
+    eq(canon('- 10 Deadlifts (105lb/145lb)'), '- 10 Deadlifts (women 105lb / men 145lb)');
+    eq(canon('- 10 Deadlifts (145lb/105lb)'), '- 10 Deadlifts (women 105lb / men 145lb)');
+  });
+
+  it('leaves alone what is not a division pair', () => {
+    eq(step('- 10 3/4 Sit-Up').rx, undefined);
+    eq(step('- 10 3/4 Sit-Up').movement, '3/4 Sit-Up');
+    eq(step('- 10 Dumbbell Curl (split)').rx, undefined, 'a laterality qualifier is not a pair');
+    eq(step('- 30cal Bike/Row').rx, undefined, 'nor is a choice of movement');
+  });
+});

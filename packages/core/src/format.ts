@@ -63,6 +63,14 @@ function stepText(s: Step, scheme?: Scheme): string {
   if (s.laterality === 'per-side') out += ` each ${s.limb ?? 'side'}`;
   if (s.side) out += ` ${s.side} ${s.limb ?? 'arm'}`;
 
+  // Written back labelled, whichever way it came in. `(105/145)` is readable
+  // once you know the rule; `(women 105lb / men 145lb)` needs no rule at all,
+  // and canonical output is where the ambiguity should stop.
+  if (s.rx) {
+    const one = (l: any) => `${l.value}${l.unit ?? ''}`;
+    out += ` (women ${one(s.rx.women)} / men ${one(s.rx.men)})`;
+  }
+
   for (const t of s.targets) out += ` @ ${formatTarget(t)}`;
 
   // Team words trail the target, since they qualify the whole prescription.

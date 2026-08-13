@@ -73,6 +73,17 @@ export interface Step {
    * would undo the reason it was chosen.
    */
   optionsForm?: 'inline' | 'block';
+  /**
+   * What each division is prescribed, written `(women 105lb / men 145lb)` or,
+   * minimally, `(105/145)`.
+   *
+   * Unlabelled, the *larger* number is the men's — not the first one. Position
+   * is the usual convention and it is not safe: whiteboards write `95/65`
+   * meaning men first, so reading position would put the heavier bar on the
+   * lighter athlete for anyone who writes it the other way round. Magnitude
+   * cannot be written backwards.
+   */
+  rx?: Record<string, Load>;
   targets: Target[];
   /** Measured output for scoring, distinct from what ends the step (spec §4, N6). */
   measures?: 'reps' | 'calories' | 'distance';

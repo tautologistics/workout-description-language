@@ -51,7 +51,7 @@ docs/                  this file, product_vision_and_roadmap.md, prior art, desi
 
 | | |
 |---|---|
-| **Format** | Parser, canonical formatter, validator, timeline compiler. 190-workout corpus round-trips. Alternatives: `A or B`, `A/B`, `A|B`, and a `choice:` block. |
+| **Format** | Parser, canonical formatter, validator, timeline compiler. 190-workout corpus round-trips. Alternatives: `A or B`, `A/B`, `A|B`, and a `choice:` block. Rx by division: `(women 105lb / men 145lb)` or `(105/145)`. |
 | **Interop** | Import: `.zwo`, `.erg`/`.mrc`, FIT. Export: those plus Garmin Connect JSON. Verified against a real watch. |
 | **Registry** | 3120 movements merged from five sources, 178 marked core, 2983 with muscle data. Every record names its sources and keeps their claims separately. |
 | **Analysis** | Muscle attribution with a closed 19-muscle vocabulary; per-muscle volume; ordering with the repeat-wrap. |
@@ -161,6 +161,9 @@ build script became one regex.
   cues that repeat, but the board only knows how to loop the whole cue list, so
   a buy-in / AMRAP / buy-out runs straight through once. Less wrong than before,
   where it looped the buy-in too, but not right.
+- Step-level `rx` and workout-level `variants:` are two mechanisms for one idea.
+  `rx` should probably desugar into a variant so `--variant women` covers both;
+  it does not yet.
 - Templates and workouts share the `.wdl` extension, so `wdl fmt` on a template
   is easy to do by accident.
 - A capped for-time workout reports `duration: 12:00` in the builder, which

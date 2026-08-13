@@ -71,6 +71,7 @@ class Parser {
     // Qualifiers may trail the step without a comma — `40 Wall Ball @ 20lb shared`,
     // `14 DB Curl each arm`, `21 DB Snatch first arm`. Peel them off the end before
     // splitting on `@`, or they end up inside the load or the movement name.
+    main = this.peelRx(main, step);
     main = this.peelTrailingQualifiers(main, step);
 
     const segments = main.split('@').map((s) => s.trim());
@@ -138,6 +139,42 @@ class Parser {
   }
 
   /** Repeatedly strip known qualifier phrases from the end of a step. */
+  /**
+   * `(women 105lb / men 145lb)`, or `(105/145)` where the larger is the men's.
+   *
+   * Left in the text this became part of the movement name — `Deadlifts
+   * (105lb/145lb)` — which resolved to nothing, took the whole step out of
+   * every rule's sight, and then had an `s` appended to it by the pluralizer.
+   */
+  peelRx(text: string, step: Step): string {
+    const m = text.match(/\(([^()]*?)\)\s*$/);
+    if (!m) return text;
+    const sides = m[1].split('/').map((x) => x.trim());
+    if (sides.length !== 2) return text;
+
+    const read = (side: string) => {
+      const g = side.match(/^(?:(women|men|w|m)\s+)?(\d+(?:\.\d+)?)\s*([a-z#]*)$/i);
+      if (!g) return undefined;
+      const who = g[1] ? (/^w/i.test(g[1]) ? 'women' : 'men') : undefined;
+      return { who, value: Number(g[2]), unit: g[3] ? (g[3] === '#' ? 'lb' : g[3].toLowerCase().replace(/s$/, '')) : undefined };
+    };
+    const a = read(sides[0]), b = read(sides[1]);
+    if (!a || !b) return text;
+
+    // A unit on one side covers both: `(105/145lb)` is two weights in pounds.
+    const unit = a.unit ?? b.unit;
+    // Labels win. Unlabelled, the heavier is the men's, whichever side it is on.
+    const [women, men] = a.who && b.who
+      ? (a.who === 'women' ? [a, b] : [b, a])
+      : (a.value <= b.value ? [a, b] : [b, a]);
+
+    step.rx = {
+      women: { kind: 'absolute', value: women.value, unit: (women.unit ?? unit) as never },
+      men: { kind: 'absolute', value: men.value, unit: (men.unit ?? unit) as never },
+    };
+    return text.slice(0, m.index).trim();
+  }
+
   peelTrailingQualifiers(text: string, step: Step): string {
     const rules: [RegExp, (m: RegExpMatchArray) => void][] = [
       [/\s+(each|per)\s+(arm|leg|side|hand)$/i, (m) => { step.laterality = 'per-side'; step.limb = m[2].toLowerCase(); }],
