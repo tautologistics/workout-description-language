@@ -58,7 +58,7 @@ docs/                  this file, product_vision_and_roadmap.md, prior art, desi
 | **Goals** | Five rules — `no repeat`, `cover`, `limit`, `balance`, `progress` — in a separate file. `wdl goals`. |
 | **Generation** | `?` holes in a template, filled to satisfy the goals. `wdl generate`, single workout or a whole block. |
 | **Programs** | An ordered block with slots. `wdl program`. |
-| **Apps** | Builder and board, both running in a browser over the same core. |
+| **Apps** | Builder and board, both running in a browser over the same core. Goals can be written, saved and downloaded from the builder. |
 
 ## What is not built
 

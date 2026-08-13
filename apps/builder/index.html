@@ -74,12 +74,23 @@
     <h2 class="goals-head">Against your goals
       <select id="goal-pick" title="Which goals to check against"></select>
     </h2>
+    <div class="row tight goal-tools">
+      <button id="goal-edit" title="Write or change the rules">Edit rules</button>
+      <button id="goal-open" title="Open a .wdlg file">Open…</button>
+      <button id="goal-save" title="Save these rules under a name">Save as…</button>
+      <button id="goal-download" title="Write them out as a .wdlg file">.wdlg</button>
+      <button id="goal-drop" title="Delete the selected rules" hidden>Delete</button>
+    </div>
+    <textarea id="goal-text" class="goal-text" spellcheck="false"
+              autocapitalize="off" autocorrect="off" hidden></textarea>
+    <ul id="goal-errors" class="diagnostics"></ul>
     <ul id="findings" class="diagnostics findings"></ul>
   </section>
 </main>
 
 <datalist id="movements"></datalist>
 <input type="file" id="file" accept=".wdl,.txt" hidden>
+<input type="file" id="goal-file" accept=".wdlg,.txt" hidden>
 
 <script type="module" src="builder.js"></script>
 </body>

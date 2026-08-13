@@ -561,7 +561,78 @@ el('set-drop').onclick = () => {
  * builder has no opinion of its own about what a good workout is. It only asks
  * the question continuously instead of when you remember to.
  */
+/**
+ * The rules the workout is measured against — yours, not only the examples.
+ *
+ * The examples ship with the repository; anything you write lives in
+ * `localStorage` next to the palette sets, for the same reason: a set of rules
+ * you are still shaping is a working document, and making it a file in the
+ * repository before it settles means committing drafts.
+ *
+ * `Download` writes it out as a `.wdlg` when it does settle, and that file is
+ * the same one `wdl goals --goals` reads. Nothing here is a private format.
+ */
 let goals = null;
+let goalSource = '';
+let savedGoals = JSON.parse(localStorage.getItem('wdl.goals') || '{}');
+
+const EXAMPLE = 'example:';
+const SAVED = 'saved:';
+
+function renderGoalPicker(select) {
+  const pick = el('goal-pick');
+  const was = select ?? pick.value;
+  pick.innerHTML = '';
+  const add = (value, label, into) => {
+    const o = document.createElement('option');
+    o.value = value; o.textContent = label;
+    (into ?? pick).append(o);
+  };
+  add('', 'no goals');
+  const examples = document.createElement('optgroup');
+  examples.label = 'Examples';
+  for (const name of GOALS) add(EXAMPLE + name, name.replace(/\.wdlg$/, '').replace(/-/g, ' '), examples);
+  pick.append(examples);
+  const mine = Object.keys(savedGoals).sort();
+  if (mine.length) {
+    const group = document.createElement('optgroup');
+    group.label = 'Yours';
+    for (const name of mine) add(SAVED + name, name, group);
+    pick.append(group);
+  }
+  add('custom', 'unsaved rules');
+  pick.value = [...pick.options].some((o) => o.value === was) ? was : '';
+  el('goal-drop').hidden = !pick.value.startsWith(SAVED);
+}
+
+/** Parse whatever is in the editor and report both halves: the rules, and the workout. */
+function readGoals() {
+  const errors = el('goal-errors');
+  errors.innerHTML = '';
+  if (!goalSource.trim()) { goals = null; return renderFindings(); }
+  const parsed = parseGoals(goalSource);
+  for (const e of parsed.errors) {
+    const li = document.createElement('li');
+    const where = document.createElement('span');
+    where.className = 'where';
+    where.textContent = e.line ? `${e.line}  ` : '';
+    const body = document.createElement('span');
+    body.className = 'error';
+    body.textContent = e.message;
+    li.append(where, body);
+    errors.append(li);
+  }
+  // Rules that did parse still apply. Refusing to check anything because one
+  // line is wrong hides the answer to a question you already asked correctly.
+  goals = parsed;
+  renderFindings();
+}
+
+function setGoalSource(text) {
+  goalSource = text;
+  el('goal-text').value = text;
+  readGoals();
+}
 
 function renderFindings() {
   const list = el('findings');
@@ -575,7 +646,7 @@ function renderFindings() {
     list.append(li);
   };
 
-  if (!goals) return say('warning', 'no goals loaded');
+  if (!goals || !goals.rules.length) return say('warning', 'no rules to check against');
   if (!has('canonicalMovements') || !has('muscles')) {
     return say('warning', 'no muscle data loaded — nothing can be checked');
   }
@@ -596,17 +667,81 @@ function renderFindings() {
 }
 
 el('goal-pick').addEventListener('change', async () => {
-  const name = el('goal-pick').value;
-  if (!name) { goals = null; return renderFindings(); }
+  const value = el('goal-pick').value;
+  el('goal-drop').hidden = !value.startsWith(SAVED);
+  if (!value || value === 'custom') return setGoalSource(value === 'custom' ? goalSource : '');
+  if (value.startsWith(SAVED)) return setGoalSource(savedGoals[value.slice(SAVED.length)] ?? '');
   try {
-    const r = await fetch(new URL(`../../examples/goals/${name}`, location.href));
-    goals = parseGoals(await r.text());
+    const r = await fetch(new URL(`../../examples/goals/${value.slice(EXAMPLE.length)}`, location.href));
+    setGoalSource(await r.text());
   } catch (e) {
-    goals = null;
     console.warn('no goals:', e.message);
+    setGoalSource('');
   }
-  renderFindings();
 });
+
+el('goal-edit').onclick = () => {
+  const box = el('goal-text');
+  box.hidden = !box.hidden;
+  el('goal-edit').textContent = box.hidden ? 'Edit rules' : 'Hide rules';
+  if (!box.hidden) box.focus();
+};
+
+// Editing detaches from whatever it was loaded from: what is in the box is what
+// is being checked, and leaving the picker on `rotate muscles` while the rules
+// say something else would be a lie about which is which.
+el('goal-text').addEventListener('input', () => {
+  goalSource = el('goal-text').value;
+  const pick = el('goal-pick');
+  if (pick.value !== 'custom') { pick.value = 'custom'; el('goal-drop').hidden = true; }
+  readGoals();
+});
+
+el('goal-open').onclick = () => el('goal-file').click();
+el('goal-file').addEventListener('change', async () => {
+  const file = el('goal-file').files?.[0];
+  if (!file) return;
+  el('goal-text').hidden = false;
+  el('goal-edit').textContent = 'Hide rules';
+  setGoalSource(await file.text());
+  el('goal-pick').value = 'custom';
+  el('goal-drop').hidden = true;
+});
+
+el('goal-save').onclick = () => {
+  if (!goalSource.trim()) return;
+  const name = prompt('Name these rules', el('goal-pick').value.replace(/^saved:/, '') || 'My goals');
+  if (!name) return;
+  savedGoals[name] = goalSource;
+  localStorage.setItem('wdl.goals', JSON.stringify(savedGoals));
+  renderGoalPicker(SAVED + name);
+};
+
+// The file this writes is the one `wdl goals --goals` reads. Rules drafted here
+// are not in a private format; they are the same artifact, earlier.
+el('goal-download').onclick = () => {
+  if (!goalSource.trim()) return;
+  const chosen = el('goal-pick').value;
+  const base = chosen.startsWith(SAVED) ? chosen.slice(SAVED.length)
+    : chosen.startsWith(EXAMPLE) ? chosen.slice(EXAMPLE.length).replace(/\.wdlg$/, '')
+    : (parseGoals(goalSource).title ?? 'goals');
+  const name = base.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'goals';
+  const url = URL.createObjectURL(new Blob([goalSource], { type: 'text/plain' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${name}.wdlg`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+el('goal-drop').onclick = () => {
+  const name = el('goal-pick').value.slice(SAVED.length);
+  if (!name || !confirm(`Delete the rules "${name}"?`)) return;
+  delete savedGoals[name];
+  localStorage.setItem('wdl.goals', JSON.stringify(savedGoals));
+  renderGoalPicker('');
+  setGoalSource('');
+};
 
 // --- bootstrap ---------------------------------------------------------------
 // Last, because everything above declares what it needs and this hands it over.
@@ -647,18 +782,7 @@ const analysis = Promise.all([load(CANONICAL), load(MUSCLES)])
     el('palette-count').textContent = 'movement data unavailable';
   });
 
-for (const name of GOALS) {
-  const o = document.createElement('option');
-  o.value = name;
-  o.textContent = name.replace(/\.wdlg$/, '').replace(/-/g, ' ');
-  el('goal-pick').append(o);
-}
-const none = document.createElement('option');
-none.value = '';
-none.textContent = 'no goals';
-el('goal-pick').prepend(none);
-el('goal-pick').value = GOALS[0];
-
+renderGoalPicker(EXAMPLE + GOALS[0]);
 renderSets();
 curated.finally(render);
 analysis.then(() => el('goal-pick').dispatchEvent(new Event('change')));

@@ -71,6 +71,21 @@ The rules are the ones from [`spec/goals-0.1.md`](../../spec/goals-0.1.md),
 checked by the same `check()` the CLI runs. The builder holds no opinion of its
 own about what a good workout is; it only asks the question more often.
 
+**Write your own.** `Edit rules` opens the rules themselves, and typing in them
+re-checks as you go — which is the fastest way to find out whether a constraint
+says what you meant. `Open…` takes a `.wdlg` file, `Save as…` keeps it under a
+name, and `.wdlg` writes it back out.
+
+Drafts live in `localStorage` alongside the palette sets, for the same reason: a
+set of rules you are still shaping is a working document, and making it a file
+in the repository before it settles means committing drafts. The file the
+download writes is the one `wdl goals --goals` reads, so nothing here is a
+private format — it is the same artifact, earlier.
+
+A rule that will not parse is reported by line, and **the rules that did parse
+are still checked**. Refusing to answer because one line is wrong hides the
+answer to a question you already asked correctly.
+
 Unresolved movements and open-ended workouts are reported alongside, because a
 movement with no muscle data is invisible to every rule and an AMRAP makes every
 amount a floor. Without the muscle data loaded it says so rather than showing an
