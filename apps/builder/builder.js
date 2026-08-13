@@ -236,14 +236,19 @@ function renderReading() {
     return;
   }
 
+  const clock = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
   const dl = document.createElement('dl');
   const rows = [
     ['title', workout.title ?? '—'],
     ['cues', `${laid.cues.length}${laid.loops ? ' per pass' : ''}`],
-    ['duration', laid.totalSeconds !== undefined
-      ? `${Math.floor(laid.totalSeconds / 60)}:${String(Math.round(laid.totalSeconds % 60)).padStart(2, '0')}`
-      : 'athlete-paced'],
-    ...(laid.window ? [['window', `${laid.window / 60} min`]] : []),
+    // A window is a clock you are racing; a duration is how long the work will
+    // take. Reusing one label for both, and then printing the window beside it
+    // in a different format, made an AMRAP look like it still had the for-time
+    // reading stuck to it — the same number twice, under a word that had
+    // quietly changed meaning.
+    ...(laid.window
+      ? [['clock', clock(laid.window)]]
+      : [['duration', laid.totalSeconds !== undefined ? clock(laid.totalSeconds) : 'athlete-paced']]),
     ...(laid.loops ? [['repeats', 'until the clock stops']] : []),
   ];
   for (const [k, v] of rows) {

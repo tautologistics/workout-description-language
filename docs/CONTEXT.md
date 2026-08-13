@@ -148,6 +148,11 @@ build script became one regex.
   tool is fixed at 800px, so only the stacked layout is verified by eye.
 - Templates and workouts share the `.wdl` extension, so `wdl fmt` on a template
   is easy to do by accident.
+- A capped for-time workout reports `duration: 12:00` in the builder, which
+  reads as "this takes twelve minutes" where it means "you have at most twelve".
+  `run` does not expose the cap separately from a computed total, so telling
+  them apart needs a core change. Same class as the AMRAP `duration`/`window`
+  duplication that Chris caught.
 
 ## Running it
 
