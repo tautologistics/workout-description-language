@@ -331,9 +331,14 @@ Paste/drop text → visual structure → GUI edits regenerate canonical text, li
 Import: intervals.icu text, `.zwo`, `.erg`/`.mrc`, FIT. Export: FIT, `.zwo`, `.erg`/`.mrc`. Fidelity reporting throughout. Import failures feed straight back into the grammar.
 *Exit:* a corpus of real third-party workouts imports, canonicalizes, and re-exports with only documented losses.
 
-**E — Display runtime**
-The "run workout" view over the compiled timeline: timers, current/next step, round counter, audio cues. Same code on the Pi in kiosk mode.
-*Exit:* run a real class off the display for an EMOM, an AMRAP, an interval session, and a for-time WOD.
+**E — Display runtime** — *shipped, first cut*
+[apps/display](../apps/display) — the workout as written, with a marker for where you are.
+`run()` in the core lays a timeline out as the ordered things an athlete does,
+carrying a source line on every cue so a cursor can point at the line that was
+written; the app adds only a clock and a position. Renders the source text
+rather than a generated layout, on purpose: a display that reformats the
+workout is asserting the text was not good enough to read.
+*Still open:* audio cues, and the exit criterion — run a real class off it.
 
 **F — Scaling, variants & results** *(spec P4)*
 Variants/scaling syntax; variant picker in builder and display. Result record format (§3.2), logging, history view.

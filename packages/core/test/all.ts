@@ -14,6 +14,7 @@ import './semantics.test.ts';
 import './corpus.test.ts';
 import './corpus2.test.ts';
 import './timeline.test.ts';
+import './run.test.ts';
 import './accepted.test.ts';
 import './errors.test.ts';
 import './validate.test.ts';

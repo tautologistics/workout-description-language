@@ -47,6 +47,12 @@ export interface TimelineStep {
   notes: string[];
   /** Human-readable line for a display. */
   label: string;
+  /**
+   * The source line this came from. A rep scheme expands into several steps
+   * that all point at the one line that was written, which is what a cursor on
+   * a whiteboard needs: the reader is looking at `21-15-9`, not at tier two.
+   */
+  line?: number;
 }
 
 export interface TimelineRest {
@@ -57,6 +63,8 @@ export interface TimelineRest {
   afterLast: boolean;
   pacing: Pacing;
   label: string;
+  /** The source line this came from. */
+  line?: number;
 }
 
 export type GroupType =
@@ -83,6 +91,8 @@ export interface TimelineGroup {
   equipment: string[];
   score?: Score;
   label: string;
+  /** The source line this came from. */
+  line?: number;
   items: TimelineItem[];
 }
 
@@ -213,6 +223,7 @@ function compileStep(s: Step, ctx: Ctx, enclosing: { clock?: boolean; capped?: b
     flags: s.flags,
     notes: s.notes,
     label,
+    line: s.line,
   };
 }
 
@@ -221,6 +232,7 @@ function compileRest(r: Rest): TimelineRest {
   const threshold = r.duration?.kind === 'threshold';
   return {
     kind: 'rest',
+    line: r.line,
     seconds,
     dynamic: r.dynamic,
     afterLast: r.afterLast,
@@ -280,6 +292,7 @@ function compileBlock(b: Block, parent: Ctx, enclosing: { clock?: boolean; cappe
   const group: TimelineGroup = {
     kind: 'group',
     type: 'sequence',
+    line: b.line,
     cap,
     equipment: [...b.equipment],
     score: b.score,
