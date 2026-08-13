@@ -102,6 +102,13 @@ movement unregistered and switches off half of `validate` without a word.
 **A filter must never widen.** The first muscle filter took the palette from 178
 to 279 on the first click, because it silently changed scope.
 
+**A flag about the whole must be set only by something that spans the whole.**
+`run` hoisted `window` and `loops` from the first group that had them, anywhere
+in the tree, so a 20-minute AMRAP between a run and a row reported the entire
+workout as a seven-cue loop on a 20-minute clock. Neither number was true of
+the run or the row. Now only a group on the spine — an only child of an only
+child, up to the root — may speak for the workout.
+
 **A caveat is not a finding.** "The amounts are floors" is true of every AMRAP
 ever written and says how to *read* the results; "quads: 2 movements, at most 1"
 says the workout breaks a rule. Both were list items in near-identical reds, so
@@ -150,6 +157,10 @@ build script became one regex.
   count cannot grow; none used by the corpus.
 - `Quad Stretch` scored into the 178 core movements on source agreement. Visible
   when generating with a bare `?`.
+- The board does not yet loop a *section*. `run` reports a `cycle` covering the
+  cues that repeat, but the board only knows how to loop the whole cue list, so
+  a buy-in / AMRAP / buy-out runs straight through once. Less wrong than before,
+  where it looped the buy-in too, but not right.
 - Templates and workouts share the `.wdl` extension, so `wdl fmt` on a template
   is easy to do by accident.
 - A capped for-time workout reports `duration: 12:00` in the builder, which

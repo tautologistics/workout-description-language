@@ -249,7 +249,17 @@ function renderReading() {
     ...(laid.window
       ? [['clock', clock(laid.window)]]
       : [['duration', laid.totalSeconds !== undefined ? clock(laid.totalSeconds) : 'athlete-paced']]),
-    ...(laid.loops ? [['repeats', 'until the clock stops']] : []),
+    // A cycle that covers the whole workout is the workout repeating; one that
+    // covers part of it is a section that does, and saying "repeats until the
+    // clock stops" of the whole thing puts the buy-in and the buy-out on a
+    // clock they are not on.
+    ...laid.cycles.map((c) => {
+      const to = c.to ?? laid.cues.length;
+      const whole = c.from === 0 && to === laid.cues.length;
+      const span = to - c.from === 1 ? `cue ${to}` : `cues ${c.from + 1}–${to}`;
+      return [whole ? 'repeats' : `${span} repeat`,
+        c.window ? `until ${clock(c.window)} is up` : 'until you stop'];
+    }),
   ];
   for (const [k, v] of rows) {
     const dt = document.createElement('dt'); dt.textContent = k;

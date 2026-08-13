@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, it, eq, ok } from './lib.ts';
 import { parse } from '../src/parse.ts';
 import { compile, type TimelineGroup, type TimelineStep, type TimelineItem } from '../src/timeline.ts';
+import { run } from '../src/run.ts';
 
 const dir = join(dirname(fileURLToPath(import.meta.url)), '../../../examples/corpus');
 const tl = (f: string) => compile(parse(readFileSync(join(dir, f), 'utf8')).workout);
@@ -163,4 +164,45 @@ describe('timeline: whole corpus', () => {
       }
     });
   }
+});
+
+describe('run: what repeats, and what does not', () => {
+  const laid = (src: string) => run(compile(parse(src).workout));
+  const BUY_IN = 'For time:\n  - 1600m Run\n  AMRAP 20min:\n'
+    + '    - 30 Air Squats\n    - 10 Box Jumps\n  - 30cal Row\n';
+
+  it('does not put a buy-in and a buy-out on the AMRAP’s clock', () => {
+    // Hoisting the window from anywhere reported this as a seven-cue loop on a
+    // 20-minute clock: neither the number of cues that repeat, nor a clock the
+    // run and the row are on.
+    const r = laid(BUY_IN);
+    eq(r.cues.length, 4);
+    eq(r.loops, false, 'the workout does not loop; a section of it does');
+    eq(r.window, undefined, 'no clock bounds the whole of it');
+  });
+
+  it('names the section that does come round again', () => {
+    const r = laid(BUY_IN);
+    eq(r.cycles.length, 1);
+    eq([r.cycles[0].from, r.cycles[0].to], [1, 3], 'the middle two cues');
+    eq(r.cycles[0].window, 1200);
+  });
+
+  it('still reads a workout that is entirely an AMRAP as one', () => {
+    const r = laid('AMRAP 20min:\n  - 30 Air Squats\n  - 10 Box Jumps\n');
+    eq(r.loops, true);
+    eq(r.window, 1200);
+    eq([r.cycles[0].from, r.cycles[0].to], [0, 2], 'covering every cue');
+  });
+
+  it('reports no cycle where nothing repeats', () => {
+    eq(laid('for time:\n  - 21 Thrusters\n  - 21 Pull-Ups\n').cycles, []);
+  });
+
+  it('sees a bounded repeat as bounded, not as a cycle', () => {
+    const r = laid('5 rounds:\n  - 10 Push-Ups\n');
+    eq(r.cycles, [], 'five rounds is five rounds, not "until you stop"');
+    eq(r.loops, false);
+    eq(r.cues.length, 5);
+  });
 });

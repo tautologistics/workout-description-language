@@ -383,7 +383,21 @@ export function parse(source: string): { workout: Workout; errors: ParseError[] 
     const dm = text.match(/^@([\w-]+)\s*(.*)$/);
     if (dm) { workout.directives[dm[1]] = dm[2].trim(); continue; }
     if (text.startsWith('#')) { workout.title = text.replace(/^#+\s*/, ''); continue; }
-    if (/^score:/i.test(text)) { workout.score = parseScore(text); continue; }
+    if (/^score:/i.test(text)) {
+      // A second one used to overwrite the first without a word, so a workout
+      // scored two ways kept whichever was written last and then failed
+      // validation over a score its author had not chosen as the primary.
+      if (workout.score) {
+        p.errors.push({
+          line: line.line, text: line.text,
+          message: `already scored by \`${workout.score.primary}\` — a workout has one score; `
+            + 'put the other on the block it belongs to, or use `tiebreak:`',
+        });
+        continue;
+      }
+      workout.score = parseScore(text);
+      continue;
+    }
     // `on cap:` and `tiebreak:` are continuations of the score above them.
     let cont = text.match(/^on\s+cap:\s*(.+)$/i);
     if (cont && workout.score) { workout.score.onCap = cont[1].trim(); continue; }

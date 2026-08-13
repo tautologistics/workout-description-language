@@ -60,10 +60,25 @@ export interface Run {
   loops: boolean;
   /** The overall clock, when one bounds the workout. */
   window?: number;
+  /**
+   * The parts that come round again, in order. A workout that is entirely an
+   * AMRAP has one covering every cue; a buy-in around one has a cycle covering
+   * only the middle, which is the difference `loops` cannot express.
+   */
+  cycles: Cycle[];
   /** Total seconds, when every cue is clock-bounded. */
   totalSeconds?: number;
   /** What could not be laid out in order, carried from compilation. */
   warnings: string[];
+}
+
+/** A stretch of the cue list that repeats until its clock or the athlete stops. */
+export interface Cycle {
+  label: string;
+  window?: number;
+  /** Cue indices, `from` inclusive and `to` exclusive. */
+  from: number;
+  to?: number;
 }
 
 export interface RunOptions {
@@ -85,9 +100,21 @@ export function run(t: Timeline, opts: RunOptions = {}): Run {
   const warnings = [...t.warnings];
   let loops = false;
   let window: number | undefined;
+  const cycles: Cycle[] = [];
   let truncated = false;
 
-  const walk = (item: TimelineItem, rounds: RoundContext[]) => {
+  /**
+   * `window` and `loops` describe the *workout*, so only a group that spans the
+   * whole of it may set them. A group is on the spine when it and every group
+   * above it is an only child: an `AMRAP 20min:` alone is the workout and its
+   * clock is the workout's clock, while the same block sitting between a run
+   * and a row is one part of three.
+   *
+   * Hoisting from anywhere reported a buy-in, a 20-minute AMRAP and a buy-out
+   * as a seven-cue loop on a 20-minute clock — which is neither the number of
+   * cues that repeat nor a clock the run and the row are on.
+   */
+  const walk = (item: TimelineItem, rounds: RoundContext[], spine: boolean) => {
     if (cues.length >= maxCues) { truncated = true; return; }
 
     if (item.kind === 'step') {
@@ -109,7 +136,7 @@ export function run(t: Timeline, opts: RunOptions = {}): Run {
       return;
     }
 
-    if (item.window !== undefined) window ??= item.window;
+    if (spine && item.window !== undefined) window ??= item.window;
 
     const repeats = REPEATS.includes(item.type);
     const bounded = repeats && item.rounds !== undefined && !item.untilFailure;
@@ -118,29 +145,38 @@ export function run(t: Timeline, opts: RunOptions = {}): Run {
     const passes = bounded ? item.rounds!
       : repeats ? (opts.unboundedRounds || 1)
       : 1;
-    if (repeats && !bounded && !opts.unboundedRounds) loops = true;
+    if (spine && repeats && !bounded && !opts.unboundedRounds) loops = true;
+    // Whether it spans everything or not, an unbounded repeat is worth knowing
+    // about: the caller needs to say which part comes round again.
+    if (repeats && !bounded && !opts.unboundedRounds) {
+      cycles.push({ label: item.label, window: item.window, from: cues.length });
+    }
+    const startedAt = cues.length;
 
     for (let r = 1; r <= passes; r++) {
       const inner = repeats
         ? [...rounds, { label: item.label, type: item.type, round: r, of: bounded ? item.rounds : undefined }]
         : rounds;
-      for (const child of item.items) walk(child, inner);
+      const onSpine = spine && item.items.length === 1;
+      for (const child of item.items) walk(child, inner, onSpine);
       // An interrupt is a periodic overlay rather than a position in the order;
       // it is emitted after the round's contents so it appears at all, and the
       // warning from compilation already says an ordered list misrepresents it.
-      for (const child of item.interrupt?.items ?? []) walk(child, inner);
+      for (const child of item.interrupt?.items ?? []) walk(child, inner, false);
       if (cues.length >= maxCues) { truncated = true; return; }
     }
+    const open = cycles[cycles.length - 1];
+    if (open && open.from === startedAt && open.to === undefined) open.to = cues.length;
   };
 
-  walk(t.root, []);
+  walk(t.root, [], true);
   if (truncated) warnings.push(`run truncated at ${maxCues} cues`);
 
   const totalSeconds = cues.every((c) => c.seconds !== undefined) && !loops
     ? cues.reduce((n, c) => n + (c.seconds ?? 0), 0)
     : t.estimatedSeconds;
 
-  return { cues, loops, window, totalSeconds, warnings };
+  return { cues, loops, window, cycles, totalSeconds, warnings };
 }
 
 /**

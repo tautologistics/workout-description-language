@@ -48,3 +48,31 @@ describe('errors', () => {
 
   // The eight cases formerly pending here are now enforced in validate.test.ts.
 });
+
+describe('scoring a workout twice', () => {
+  it('reports a second `score:` rather than keeping the last one', () => {
+    // Silently overwriting sent the author to a validation error about a score
+    // they had not chosen, with no hint their first line had been discarded.
+    const { workout, errors } = parse('for time:\n  - 10 Burpees\nscore: time\nscore: rounds + reps\n');
+    eq(workout.score?.primary, 'time', 'the one written first stands');
+    eq(errors.length, 1);
+    eq(errors[0].line, 4);
+    ok(errors[0].message.includes('already scored by `time`'), errors[0].message);
+    ok(errors[0].message.includes('tiebreak'), 'and says what to do instead');
+  });
+
+  it('leaves the two legitimate ways to score twice alone', () => {
+    // A tiebreak is a second measure of the same workout...
+    const tie = parse('for time:\n  - 10 Burpees\nscore: time\ntiebreak: rounds + reps\n');
+    eq(tie.errors, []);
+    eq(tie.workout.score?.tiebreak, 'rounds + reps');
+
+    // ...and a nested block keeps its own, which is how a buy-in around an
+    // AMRAP is scored by rounds inside and by total time overall.
+    const nested = parse('for time:\n  - 800m Run\n  AMRAP 20min:\n    - 30 Air Squats\n  - 800m Run\nscore: time\n');
+    eq(nested.errors, []);
+    eq(nested.workout.score?.primary, 'time');
+    const inner = (nested.workout.body[0] as any).children.find((c: any) => c.node === 'block');
+    eq(inner.score.primary, 'rounds + reps');
+  });
+});
