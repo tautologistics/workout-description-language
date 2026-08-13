@@ -218,8 +218,10 @@ button:hover, .button:hover { border-color: var(--dim); }
 .palette-controls { display: grid; gap: .35rem; margin-bottom: .4rem; }
 .palette-controls input,
 .palette-controls select { width: 100%; font: inherit; padding: .3rem .4rem; }
-.row.tight { display: flex; gap: .35rem; }
-.row.tight button { flex: 1; }
+.row.tight { display: flex; flex-wrap: wrap; gap: .35rem; }
+/* Two buttons share the width; four in a narrow column would each get a quarter
+   and wrap their labels mid-phrase, so only a pair is stretched. */
+.row.tight:not(.goal-tools) button { flex: 1; }
 
 .hint { margin: 0 0 .4rem; font-size: .8em; opacity: .6; }
 
@@ -272,7 +274,10 @@ button:hover, .button:hover { border-color: var(--dim); }
 
 /* --- writing your own goals ----------------------------------------------- */
 
+/* Sized to their labels, wrapping as a group when the pane is narrow. `Save
+   as…` broken across two lines is not a smaller button, it is a taller one. */
 .goal-tools { margin: .3rem 0; }
+.goal-tools button { flex: 0 0 auto; white-space: nowrap; padding: .25rem .5rem; font-size: .9em; }
 .goal-text {
   width: 100%; min-height: 9rem; resize: vertical; font: inherit;
   font-size: .85em; padding: .4rem; margin-bottom: .3rem;
