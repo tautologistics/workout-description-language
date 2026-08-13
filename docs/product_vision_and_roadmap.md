@@ -1,5 +1,10 @@
 # Workout Definition Language — Product Vision and Roadmap
 
+> For **where the project is right now** — what exists, what was learned the hard
+> way, what is still open — read [CONTEXT.md](CONTEXT.md). This document is the
+> *why* and the *plan*, and changes slowly. That one is the state, and changes
+> every session.
+
 Companion to [workout_description_spec_development_plan.md](workout_description_spec_development_plan.md), which covers how to develop the language itself. This document covers **why** the language exists — the modalities it must span and the products it must power — and works backward to the constraints those impose on the format.
 
 See also [prior_art.md](prior_art.md). Summary: endurance formats (FIT, Zwift, intervals.icu) are mature but cardio-only and machine-first; strength log formats (Fitdown, openweight) are readable but have no control flow; nothing covers metcons, scaling, or Hyrox; and nothing spans all of it.
