@@ -1,8 +1,8 @@
 # Workout Definition Language — Product Vision and Roadmap
 
 > For **where the project is right now** — what exists, what was learned the hard
-> way, what is still open — read [CONTEXT.md](CONTEXT.md). This document is the
-> *why* and the *plan*, and changes slowly. That one is the state, and changes
+> way, what is still open — read [context/](context/README.md). This document is
+> the *why* and the *plan*, and changes slowly. Those are the state, and change
 > every session.
 
 Companion to [workout_description_spec_development_plan.md](workout_description_spec_development_plan.md), which covers how to develop the language itself. This document covers **why** the language exists — the modalities it must span and the products it must power — and works backward to the constraints those impose on the format.
@@ -379,9 +379,27 @@ a training block, with slots so `progress` compares pull day to pull day.
 Whiteboard photo → WDL extraction (spec plan §23) — valuable but a separate project; slot after F. Watch companion; HR integration on the display.
 
 **Deprioritised** *(by the author, deliberately)*
-Tree-sitter grammar, language-neutral conformance suite, third-party
-implementations. These matter for a format seeking adoption; this one is not.
-Revisit only if someone outside actually wants to implement it.
+Language-neutral conformance suite, third-party implementations. These matter for
+a format seeking adoption; this one is not. Revisit only if someone outside
+actually wants to implement it.
+
+> **Corrected 2026-08-14.** This read *"Tree-sitter grammar, language-neutral
+> conformance suite, third-party implementations"* and deprioritised all three on
+> the adoption argument. The reasoning does not carry to the grammar. A formally
+> specified syntax is a **maintainability** requirement, not an adoption feature:
+> it is what keeps the language manageable as it matures and grows more complex,
+> and it is owed to whoever maintains this in five years — the author. Going from
+> "no outside implementers" to "no rigorous spec needed" does not follow.
+>
+> Note also that **layer 1 of the strategy above — a normative EBNF grammar in
+> the spec — was never in this list.** It stands as written and is simply not
+> done. Machine artifacts generated from it are a separate question; the human
+> contract is not.
+>
+> "Not competing for adoption" rules out decisions justified by *popularity*, not
+> decisions justified by rigour. It was read as licensing a loose spec, which is
+> how 83 regexes came to stand in for a grammar. Queue item 0 in
+> [docs/context/ready-to-pick-up.md](context/ready-to-pick-up.md) takes this up.
 
 ---
 
