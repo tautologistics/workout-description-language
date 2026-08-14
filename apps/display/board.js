@@ -33,6 +33,10 @@ const SAMPLES = {
   Cindy: '# Cindy\nAMRAP 20min:\n  - 5 Pull-Up\n  - 10 Push-Up\n  - 15 Air Squat\n',
   '5×5': '# Back squat\n5 sets:\n  - 5 Back Squat @ 225lb\n  rest 3min\n',
   Intervals: '# Threshold\n6 rounds:\n  - 3min Row @ 90% FTP\n  rest 90s\n',
+  // A section that repeats inside one that does not: the run and the row happen
+  // once, the middle comes round until its own clock stops it.
+  'Buy-in': '# Buy-in\nfor time:\n  - 800m Run\n  AMRAP 10min:\n'
+    + '    - 10 Kettlebell Swing @ 53lb\n    - 10 Box Jump\n  - 800m Run\n',
 };
 
 /** Everything that changes as the workout runs. */
@@ -40,14 +44,26 @@ const state = {
   source: '',
   lines: [],
   cues: [],
-  loops: false,
+  cycles: [],
   window: undefined,
-  at: -1,          // -1 is "not started"
-  startedAt: 0,    // ms, for the whole workout
-  cueStartedAt: 0, // ms, for the current cue
+  at: -1,            // -1 is "not started"
+  startedAt: 0,      // ms, for the whole workout
+  cueStartedAt: 0,   // ms, for the current cue
+  cycleStartedAt: 0, // ms, for the section that repeats
   running: false,
-  lap: 0,          // completed passes, for a looping AMRAP
+  lap: 0,            // completed passes of the section the cursor is in
 };
+
+/**
+ * The section the cursor is inside, when one comes round again.
+ *
+ * `run` reports these as cue ranges. A workout that is entirely an AMRAP has one
+ * covering every cue; a buy-in around one has a cycle covering only the middle,
+ * and that difference is the whole of why the board cannot simply loop the cue
+ * list — the run before it and the row after it happen once.
+ */
+const cycleAt = (i) => state.cycles.find((c) => i >= c.from && i < endOf(c));
+const endOf = (c) => c.to ?? state.cues.length;
 
 // --- rendering --------------------------------------------------------------
 
@@ -86,17 +102,22 @@ function draw() {
 
 function paint() {
   const cue = state.cues[state.at];
+  const cycle = cycleAt(state.at);
   const nowLine = cue?.line;
 
   // A line is spent when nothing still to come points at it — not merely when
   // it has been passed once. In `21-15-9` the pull-up is behind you three times
   // and finished only the last, and dimming it after the first round would tell
-  // you the workout is nearly over when a third of it is left. On a looping
-  // workout nothing is ever spent.
+  // you the workout is nearly over when a third of it is left.
+  // Inside a section that repeats, "still to come" starts at the top of that
+  // section rather than at the cursor: the cue you just finished comes round
+  // again. Nothing in the section is ever spent, and everything before it —
+  // the buy-in — still is.
   // Only lines a cue points at are candidates: a block header or a title is
   // never "done", it is context, and dimming it would empty the board.
-  const spent = new Set(state.loops ? [] : state.cues.map((c) => c.line));
-  for (let i = Math.max(0, state.at); i < state.cues.length; i++) spent.delete(state.cues[i].line);
+  const spent = new Set(state.cues.map((c) => c.line));
+  const ahead = Math.max(0, cycle ? Math.min(state.at, cycle.from) : state.at);
+  for (let i = ahead; i < state.cues.length; i++) spent.delete(state.cues[i].line);
 
   for (const row of state.rows ?? []) {
     const line = Number(row.dataset.line);
@@ -115,35 +136,59 @@ function paint() {
   el('now-label').textContent = cue ? cue.label : finished ? 'Done' : 'Ready';
   el('now-sub').textContent = [
     cue ? roundLabel(cue.rounds) : '',
-    state.loops && state.lap ? `pass ${state.lap + 1}` : '',
+    cycle ? cycle.label : '',
+    cycle && state.lap ? `pass ${state.lap + 1}` : '',
     cue?.pacing === 'athlete' ? 'press space when done' : '',
     finished ? `${state.cues.length} cues` : '',
   ].filter(Boolean).join(' · ');
 
+  // The `+` says the count is not the whole story: inside a section that repeats
+  // there are more cues to come than the list has in it.
   el('position').textContent = state.cues.length
-    ? `${Math.min(Math.max(0, state.at + 1), state.cues.length)} / ${state.cues.length}${state.loops ? '+' : ''}`
+    ? `${Math.min(Math.max(0, state.at + 1), state.cues.length)} / ${state.cues.length}${cycle ? '+' : ''}`
     : '';
   el('prev').disabled = state.at <= 0;
   el('next').disabled = !state.cues.length || finished;
+  // A section with no clock ends when the athlete says so, and there has to be
+  // something to say it with. Shown only where it means something.
+  el('leave').hidden = !cycle;
   el('start').disabled = finished;
   el('start').textContent = state.running ? 'Pause' : state.at < 0 ? 'Start' : 'Resume';
 }
 
+/** Seconds spent in the section the cursor is in, frozen while paused. */
+function cycleElapsed() {
+  const now = performance.now();
+  return state.running ? (now - state.cycleStartedAt) / 1000 : state.heldCycle ?? 0;
+}
+
+/** True when a section's own clock has run out. A section with none never has. */
+function expired(cycle) {
+  return cycle.window !== undefined && cycleElapsed() >= cycle.window;
+}
+
 /**
- * The clock ticks on the cue, and on the workout as a whole.
+ * The clock ticks on the cue, on the section, and on the workout as a whole.
+ *
+ * The big number is the nearest deadline: the cue's if it has one, otherwise the
+ * section's, otherwise nothing to count down to and it counts up. Inside a
+ * 20-minute AMRAP the useful number is how much of the twenty is left, not how
+ * long you have been on this set of ten — but during a 3-minute row inside one,
+ * the row's clock is nearer, and the twenty goes to the line below.
  *
  * A timed cue counts *down*, because what matters mid-effort is how much is
- * left. Everything else counts up, because there is nothing to count down to —
- * and a timed cue that overruns keeps counting, in red, rather than sitting at
+ * left, and one that overruns keeps counting, in red, rather than sitting at
  * zero pretending the athlete finished.
  */
 function tick() {
   const cue = state.cues[state.at];
+  const cycle = cycleAt(state.at);
   const now = performance.now();
   const elapsed = state.running ? (now - state.cueStartedAt) / 1000 : state.heldCue ?? 0;
   const total = state.running ? (now - state.startedAt) / 1000 : state.heldTotal ?? 0;
+  const onClock = cycle?.window !== undefined ? cycle.window - cycleElapsed() : undefined;
 
-  let text, sub, waiting = false, overrun = false;
+  let text, sub, waiting = false, overrun = false, aside = '';
   if (!cue) {
     text = fmt(total);
     sub = 'elapsed';
@@ -152,6 +197,10 @@ function tick() {
     overrun = left < 0;
     text = (overrun ? '+' : '') + fmt(Math.abs(left));
     sub = overrun ? 'over' : 'left';
+    if (onClock !== undefined) aside = `${fmt(Math.max(0, onClock))} on the clock`;
+  } else if (onClock !== undefined) {
+    text = fmt(Math.max(0, onClock));
+    sub = 'left on the clock';
   } else {
     waiting = true;
     text = fmt(elapsed);
@@ -159,9 +208,15 @@ function tick() {
   }
 
   el('clock').textContent = text;
-  el('clock-sub').textContent = `${sub} · ${fmt(total)} total`;
+  el('clock-sub').textContent = [sub, aside, `${fmt(total)} total`].filter(Boolean).join(' · ');
   bar.classList.toggle('waiting', waiting && !overrun);
   bar.classList.toggle('overrun', overrun);
+
+  // The clock that bounds a section ends it where you stand: an AMRAP does not
+  // let you finish the round you are in. Checked before the cue's own clock
+  // because it is the outer deadline — the last row of a 20-minute AMRAP does
+  // not get its three minutes because it started at 19:00.
+  if (state.running && cycle && expired(cycle)) { leave(); return; }
 
   // A timed cue advances itself. That is the whole difference between a board
   // and a runtime, and it is one line because `run` already decided which cues
@@ -173,52 +228,113 @@ function tick() {
 
 // --- moving through the workout ---------------------------------------------
 
-function advance(by) {
-  const next = state.at + by;
-  if (next >= state.cues.length) {
-    // A looping workout has no end to reach; an ordinary one stops.
-    if (state.loops) { state.lap++; state.at = 0; }
-    else { state.at = state.cues.length; state.running = false; hold(); }
-  } else {
-    state.at = Math.max(0, next);
+/** What each section has already taken, and how many passes, while away from it. */
+const visited = new Map();
+
+/**
+ * Move the cursor, and start whatever clocks the move starts.
+ *
+ * Arriving in a section starts that section's clock. A 20-minute AMRAP between
+ * a buy-in and a buy-out is on twenty minutes of its own, and they begin when
+ * you reach it — not when the workout did.
+ *
+ * Arriving *back* in one does not restart it. Stepping over the line and back
+ * is how a mis-tap is undone, and a board that answered that with a fresh
+ * twenty minutes would be a way to cheat the clock by pressing Back.
+ */
+function goTo(index) {
+  const from = cycleAt(state.at);
+  const into = cycleAt(index);
+  if (into !== from) {
+    if (from) visited.set(from, { elapsed: cycleElapsed(), lap: state.lap });
+    if (into) {
+      const seen = visited.get(into) ?? { elapsed: 0, lap: 0 };
+      state.lap = seen.lap;
+      state.heldCycle = seen.elapsed;
+      state.cycleStartedAt = performance.now() - seen.elapsed * 1000;
+    }
   }
+  state.at = index;
   state.cueStartedAt = performance.now();
+  if (!state.running) state.heldCue = 0;
   paint();
   tick();
 }
 
-/** Freeze the two clocks where they are, so pausing does not lose the count. */
+function finish() {
+  state.at = state.cues.length;
+  state.running = false;
+  hold();
+  paint();
+  tick();
+}
+
+/**
+ * Step out of a section that repeats — its clock ran out, or the athlete is
+ * done. It leaves from wherever the cursor stands: an AMRAP does not owe you
+ * the rest of the round you were in.
+ */
+function leave() {
+  const cycle = cycleAt(state.at);
+  if (!cycle) return;
+  const to = endOf(cycle);
+  if (to >= state.cues.length) finish(); else goTo(to);
+}
+
+function advance(by) {
+  const cycle = cycleAt(state.at);
+  const next = state.at + by;
+  // A section comes round again at its *own* end, not the workout's. The AMRAP
+  // between a buy-in and a buy-out returns to the top of the AMRAP; the run
+  // before it stays behind you and the row after it waits its turn. Once the
+  // section's clock is up it is over, and falling through ends it.
+  if (cycle && next >= endOf(cycle) && !expired(cycle)) {
+    state.lap++;
+    goTo(cycle.from);
+    return;
+  }
+  if (next >= state.cues.length) finish();
+  else goTo(Math.max(0, next));
+}
+
+/** Freeze the clocks where they are, so pausing does not lose the count. */
 function hold() {
   const now = performance.now();
   state.heldCue = (now - state.cueStartedAt) / 1000;
   state.heldTotal = (now - state.startedAt) / 1000;
+  state.heldCycle = cycleAt(state.at) ? (now - state.cycleStartedAt) / 1000 : 0;
 }
 
 function resume() {
   const now = performance.now();
   state.cueStartedAt = now - (state.heldCue ?? 0) * 1000;
   state.startedAt = now - (state.heldTotal ?? 0) * 1000;
+  state.cycleStartedAt = now - (state.heldCycle ?? 0) * 1000;
 }
 
 function toggle() {
   if (!state.cues.length) return;
-  if (state.at < 0) {
-    state.at = 0;
+  const starting = state.at < 0;
+  if (starting) {
     state.heldCue = 0;
     state.heldTotal = 0;
+    state.heldCycle = 0;
   }
   state.running = !state.running;
   if (state.running) resume(); else hold();
-  paint();
-  tick();
+  // Starting goes through `goTo` so that a workout which opens with a section —
+  // an AMRAP with nothing before it — starts that section's clock too.
+  if (starting) goTo(0); else { paint(); tick(); }
 }
 
 function reset() {
+  visited.clear();
   state.at = -1;
   state.lap = 0;
   state.running = false;
   state.heldCue = 0;
   state.heldTotal = 0;
+  state.heldCycle = 0;
   paint();
   tick();
 }
@@ -234,7 +350,7 @@ function load(source) {
   const laid = run(compiled);
 
   state.cues = laid.cues;
-  state.loops = laid.loops;
+  state.cycles = laid.cycles;
   state.window = laid.window;
 
   // Errors mean the board is showing something the parser did not fully
@@ -269,6 +385,7 @@ function showEmpty() {
 el('start').onclick = toggle;
 el('next').onclick = () => advance(1);
 el('prev').onclick = () => advance(-1);
+el('leave').onclick = leave;
 el('reset').onclick = reset;
 el('edit').onclick = showEmpty;
 
@@ -278,6 +395,7 @@ addEventListener('keydown', (e) => {
     ' ': () => (state.cues[state.at]?.pacing === 'timed' || !state.running ? toggle() : advance(1)),
     ArrowRight: () => advance(1),
     ArrowLeft: () => advance(-1),
+    e: leave,
     r: reset,
   };
   const fn = keys[e.key];

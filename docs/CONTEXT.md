@@ -58,7 +58,7 @@ docs/                  this file, product_vision_and_roadmap.md, prior art, desi
 | **Goals** | Five rules — `no repeat`, `cover`, `limit`, `balance`, `progress` — in a separate file. `wdl goals`. |
 | **Generation** | `?` holes in a template, filled to satisfy the goals. `wdl generate`, single workout or a whole block. |
 | **Programs** | An ordered block with slots. `wdl program`. |
-| **Apps** | Builder and board, both in a browser over the same core. The builder has a movement palette with muscle filtering, drag-and-drop, and live goal checking; goals can be written, saved and downloaded from it. |
+| **Apps** | Builder and board, both in a browser over the same core. The builder has a movement palette with muscle filtering, drag-and-drop, and live goal checking; goals can be written, saved and downloaded from it. The board loops the *section* that repeats, on that section's own clock. |
 
 ## What is not built
 
@@ -73,31 +73,24 @@ docs/                  this file, product_vision_and_roadmap.md, prior art, desi
 Each of these is self-contained enough for its own session. Roughly in the order
 I would take them.
 
-**1. The board cannot loop a section.** `run()` returns `cycles` — the cue
-ranges that repeat, with each one's clock — and the builder uses them. The board
-still only knows how to loop the whole cue list, so a buy-in / AMRAP / buy-out
-runs straight through once. Everything it needs is already on the `Run`; this is
-board state, not core.
-*Touches: `apps/display/board.js`.*
-
-**2. `rx` should desugar into `variants:`.** Step-level `(women 105lb / men
+**1. `rx` should desugar into `variants:`.** Step-level `(women 105lb / men
 145lb)` and workout-level `variants:` are two mechanisms for one idea. `rx`
 should lower to a variant so `--variant women` covers both and exporters need
 know about only one.
 *Touches: `packages/core/src/parse.ts`, wherever variants are resolved.*
 
-**3. Results.** The largest piece, and the one that makes `progress` mean
+**2. Results.** The largest piece, and the one that makes `progress` mean
 something. The board already knows the position and has the clock; a result is
 what it tracks, written down. Identity was settled long ago (§3.2.1: any unique
 string, optional `namespace:` prefix, never derived from content).
 *Touches: a new module, `apps/display/`, and `progress` in goals.ts.*
 
-**4. A capped for-time reports `duration` where it means "at most".** `run()`
+**3. A capped for-time reports `duration` where it means "at most".** `run()`
 does not expose the cap separately from a computed total. Same class as the
 AMRAP `duration`/`window` conflation, one step along.
 *Touches: `packages/core/src/run.ts`, `apps/builder/builder.js`.*
 
-**5. Curate the generation pool.** `mark-core` scored 178 movements in on source
+**4. Curate the generation pool.** `mark-core` scored 178 movements in on source
 agreement, which is a proxy for "commonly catalogued", not "worth putting in a
 workout" — `Quad Stretch` made the cut. Bounded, and it makes generation
 trustworthy.
@@ -155,6 +148,13 @@ whiteboards write `95/65` meaning men first, so anyone writing the lighter first
 would have had the heavier bar assigned to the lighter athlete. Magnitude cannot
 be written backwards.
 
+**A clock you can restart is not a clock.** The board starts a section's clock
+when the cursor arrives in it — right, until Back steps out of the AMRAP and in
+again, which handed out a fresh ten minutes. Stepping over a boundary and back
+is how a mis-tap is undone, so what a section has already taken is kept against
+the section, not against the cursor. The same shape as the rest: *elapsed
+belongs to the thing being timed, not to the way you got there.*
+
 **A caveat is not a finding.** "The amounts are floors" is true of every AMRAP
 ever written and says how to *read* the results; "quads: 2 movements, at most 1"
 says the workout breaks a rule. Both were list items in near-identical reds, so
@@ -203,10 +203,6 @@ build script became one regex.
   count cannot grow; none used by the corpus.
 - `Quad Stretch` scored into the 178 core movements on source agreement. Visible
   when generating with a bare `?`.
-- The board does not yet loop a *section*. `run` reports a `cycle` covering the
-  cues that repeat, but the board only knows how to loop the whole cue list, so
-  a buy-in / AMRAP / buy-out runs straight through once. Less wrong than before,
-  where it looped the buy-in too, but not right.
 - Step-level `rx` and workout-level `variants:` are two mechanisms for one idea.
   `rx` should probably desugar into a variant so `--variant women` covers both;
   it does not yet.

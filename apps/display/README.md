@@ -33,9 +33,22 @@ distinction is `run`'s, not this app's — the core already decides which cues e
 by themselves. A timed cue that overruns keeps counting, in red, rather than
 sitting at zero pretending you finished.
 
-**An AMRAP loops rather than being expanded.** `run` emits one pass and says
-`loops`; the board counts the passes. Expanding it would mean inventing a number
-of rounds.
+**An AMRAP loops rather than being expanded.** `run` emits one pass and reports
+the cue range that comes round again; the board counts the passes. Expanding it
+would mean inventing a number of rounds.
+
+**A section loops, not the whole board.** A buy-in, an AMRAP and a buy-out is
+one workout with one part that repeats: the run happens once, the middle comes
+round until its clock stops it, and the row waits its turn. The board loops the
+range `run` names, so the buy-in dims behind you while nothing inside the AMRAP
+ever does.
+
+**The section's clock ends the section where you stand.** It is the outer
+deadline, so it is checked before the cue's own — the last row of a 20-minute
+AMRAP does not get its three minutes because it started at 19:00. A section with
+no clock ends when the athlete says so, which is what `End section` is for.
+Stepping back into a section does not restart its clock; that is how a mis-tap
+is undone, not a way to buy another twenty minutes.
 
 ## Where the work actually happens
 
@@ -54,4 +67,5 @@ validation hints go quiet and it says so in the console.
 |---|---|
 | `space` | advance an athlete-paced cue, or pause a timed one |
 | `→` `←` | next, back |
+| `e` | end the section you are in, when one repeats |
 | `r` | reset |
