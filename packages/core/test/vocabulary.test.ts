@@ -34,6 +34,31 @@ const KNOWN_WRONG: Record<string, string> = {
     'a target after a comma is filed as a note, not a load',
   'known-wrong :: 10 Thruster, @ 85% 1RM':
     'a target after a comma is filed as a note, not a load',
+  'known-wrong :: 10 Deadlift (105/145) each arm':
+    'an rx split before a space-separated qualifier is swallowed into the movement name',
+  'known-wrong :: 10 DB Snatch (50/35lb) each side':
+    'an rx split before a space-separated qualifier is swallowed into the movement name',
+  'known-wrong :: 10 Deadlift (women 105lb / men 145lb) each arm':
+    'an rx split before a space-separated qualifier is swallowed into the movement name',
+  'known-wrong :: 10 Deadlift (105/145) unbroken':
+    'an rx split before a space-separated flag is swallowed into the movement name',
+  'known-wrong :: 10 Deadlift (women 105lb / men 145lb) unbroken':
+    'an rx split before a space-separated flag is swallowed into the movement name',
+};
+
+/**
+ * Forms whose canonical text is not a fixpoint, and why.
+ *
+ * Listed rather than excused. A form here is a form where `wdl fmt` twice does
+ * not mean what `wdl fmt` once meant, which is a defect and not a taste — the
+ * list exists so the count below stays honest while the cause is open, and so
+ * that a form which *starts* settling fails as stale rather than sitting here
+ * forever. Same contract as the exclusions in `grammar.test.ts`.
+ */
+const KNOWN_UNSETTLED: Record<string, string> = {
+  'known-wrong :: 10 Deadlift (105/145) unbroken':
+    'formats to `10 Deadlifts (105/145), unbroken`, and the comma form reparses as an rx — '
+    + 'so the first pass loses the loads and the second finds them again',
 };
 
 describe('vocabulary', () => {
@@ -52,9 +77,14 @@ describe('vocabulary', () => {
 
   // The canonical form must be settled: formatting a canonical document again
   // changes neither its text nor its tree.
-  it('every form has a settled canonical form', () => {
-    const unsettled = cases.filter(({ src }) => !digest(src).fixpoint);
-    eq(unsettled.map((c) => c.key), [], 'forms whose canonical form is not a fixpoint');
+  it(`every form but ${Object.keys(KNOWN_UNSETTLED).length} has a settled canonical form`, () => {
+    const unsettled = cases.filter(({ src }) => !digest(src).fixpoint).map((c) => c.key);
+    eq(unsettled.filter((key) => !(key in KNOWN_UNSETTLED)), [],
+      'forms whose canonical form is not a fixpoint');
+    // And the other direction: a listed form that has started settling is a
+    // fix nobody wrote down, so the list has to notice.
+    eq(Object.keys(KNOWN_UNSETTLED).filter((key) => !unsettled.includes(key)), [],
+      'listed as unsettled, but settles now — take it off the list');
   });
 
   it('the snapshot has no stale entries', () => {

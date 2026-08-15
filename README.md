@@ -15,14 +15,17 @@ for time:
 ## Status
 
 Spec 0.1 draft with a working reference parser, formatter, and CLI. The shipped
-core — `packages/core/src/` — has exactly one external dependency and runs on
-Node 22+ via native TypeScript type stripping; build and generation toolchains
-elsewhere in the repo are free to have their own.
+core — `packages/core/src/` — installs nothing and runs on Node 22+ via native
+TypeScript type stripping; build and generation toolchains elsewhere in the repo
+are free to have their own dependencies.
 
-That one dependency is `ohm-js`, which executes
+The one library it runs is `ohm-js`, which executes
 [spec/grammar-0.1.ohm](spec/grammar-0.1.ohm) — the normative grammar, which is
 the file the parser runs rather than a description of it. It is MIT, has no
-dependencies of its own, and ships as a single file.
+dependencies of its own, ships as a single file, and that file is **vendored**
+into `packages/core/src/grammar/vendor/` and imported by relative path: the core
+ships into a browser as plain modules, and a browser resolves relative paths and
+nothing else.
 
 ```
 npm test --prefix packages/core        # 477 passing

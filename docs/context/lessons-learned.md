@@ -9,6 +9,15 @@ does not know a road was tried will try it again.
 same pattern repeated with the builder: two bugs found by driving the UI, none
 by the suite. *Verify by looking, not only by asserting.*
 
+*It held again on 2026-08-15, and this time the looking was at a browser
+console.* Proving the vendored grammar ran meant typing a line into it by hand,
+and the first line invented on the spot — `10 Deadlift (105/145) each arm` —
+disagreed with the parser: the rx paren goes into the *movement name*. 1510
+tests and a 249-form vocabulary had not covered an rx with anything after it.
+The habit worth copying is not "check the browser"; it is that a hand-typed
+example is drawn from a different distribution than anything already written
+down, which is why it finds what the suite cannot.
+
 **An absent field is not a claim.** 64 movements had no equipment declared, and
 `usable()` read that as bodyweight — so "generate for a dumbbell and a pull-up
 bar" returned a workout with a sandbag carry in it. Absent means absent.
@@ -116,6 +125,31 @@ line must still disagree.
 action has to spell out one parameter per child. Useful, once known: the error
 tells you the true arity of each production, which settles `~x` contributing
 nothing and `&x` contributing a child without having to reason about it.
+
+**A guardrail is only as wide as the failure it was written for.** `src/` is
+portable "enforced by a test" — and the test looked for `node:` imports, because
+a filesystem import was the failure that existed when it was written. So
+`import * as ohm from 'ohm-js'` sat in `src/grammar/` through a fully green
+suite, walked into `build/web/core/`, and would have taken the browser down the
+moment `parse.ts` imported it. The rule was never "no `node:`"; it was "a browser
+must be able to resolve every specifier", and a browser resolves relative paths
+and nothing else. Both checks now read *every* specifier and fail on anything
+that is not relative. *When a rule is enforced by a test, check that the test
+states the rule and not the one instance of it that was in front of someone.*
+The wider check found a second thing immediately, and it was a false positive
+worth keeping: `env.ts` tells a caller to `import "@wdl/core/node"` in an error
+message. Imports are read at the start of a line now — prose about importing is
+not importing.
+
+**A vendored file is worth more than an installed one when the consumer has no
+resolver.** `ohm-js` was a legitimate dependency of the shipped core and still
+could not reach the browser, because `build-web.mjs` does no module resolution
+and a browser has no `node_modules`. Copying `ohm.min.js` into
+`src/grammar/vendor/` and importing it by path fixed it in the one place, needs
+nothing at the other end, and cost the repo its only `npm install`. *Ask not
+whether a dependency is allowed but whether every consumer can resolve it.*
+Settled while there was exactly one import site: item 0c would have added
+several, and a mechanism is cheapest to settle when it is one file wide.
 
 **A constraint on the shipped library is not a constraint on the repository.**
 "Zero dependencies" was written about `packages/core/src/`, where it is real and

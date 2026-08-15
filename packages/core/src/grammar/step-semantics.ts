@@ -22,7 +22,10 @@
  * `95% of heavy-single` is exactly the duplication the grammar exists to end.
  */
 
-import * as ohm from 'ohm-js';
+// Vendored, and imported by relative path on purpose: nothing under `src/`
+// resolves a bare specifier, because the browser emit has no resolver to do it
+// with. See `vendor/README.md`.
+import * as ohm from './vendor/ohm.js';
 import type { Step, Unit, Load, Laterality } from '../ast.ts';
 import { parseDuration, parseTarget, parseThreshold } from '../units.ts';
 

@@ -41,19 +41,34 @@ when something looks odd before treating it as a discovery.
   `test/grammar.test.ts`, which reads it as a target; pinned as three `pending`
   cases in `test/golden/vocabulary.ts` and listed as a grammar exclusion.
 
-- **The browser cannot resolve `ohm-js`.** `scripts/build-web.mjs` strips types
-  and rewrites `.ts` to `.js`; it does no module resolution, so the bare
-  `import * as ohm from 'ohm-js'` in `src/grammar/step-semantics.ts` survives
-  into `build/web/core/` and a browser refuses it — *"Failed to resolve module
-  specifier"*, confirmed by loading it. **Harmless today**: `src/index.ts` does
-  not export the grammar module and neither app imports it, so both still run
-  clean. It becomes fatal the moment `parse.ts` imports it. Note that
-  `portable.test.ts` does not catch this — it looks for `node:` imports, and
-  the failure mode here is a bare specifier. The fix belongs with the swap
-  (queue item 0a): copy `node_modules/ohm-js/dist/ohm.min.js` into the emit and
-  rewrite the specifier, the same shape as the `.ts` → `.js` rewrite already
-  there. Vendoring it into `src/` outright is the other option and is the escape
-  hatch [settled-decisions.md](settled-decisions.md) already names.
+- ~~**The browser cannot resolve `ohm-js`.**~~ **Closed 2026-08-15**, before item
+  0c rather than with the swap, because there was one import site to change and
+  0c adds more. `ohm-js` is vendored into `packages/core/src/grammar/vendor/` and
+  imported by relative path; the grammar module now loads and parses in both
+  apps, confirmed by loading it. The guardrail that missed it — `portable.test.ts`
+  looked for `node:` imports, and this was a bare specifier — now fails on any
+  non-relative specifier, and so does `build-web.mjs`. See
+  [settled-decisions.md](settled-decisions.md).
+
+- **An rx split with a space-separated qualifier after it is swallowed into the
+  movement name.** `- 10 Deadlift (105/145) each arm` parses to a movement
+  literally named `Deadlift (105/145)`: `peelRx` only fires at the end of a comma
+  segment, so the paren never leaves the name. Both loads are lost, and the name
+  now matches no registry entry — so unlike the `@95lb` family, the step also
+  drops out of muscle and volume analysis, and the builder shows an unregistered
+  movement. `wdl fmt` then pluralizes the name it was handed and writes
+  `10 Deadlift (women 105lb / men 145lb)s each arm`, a `)s` on the whiteboard.
+  With a *flag* rather than a laterality it does not even settle: `10 Deadlift
+  (105/145) unbroken` formats to `10 Deadlifts (105/145), unbroken`, and the
+  comma spelling reparses *as an rx* — one pass of the formatter loses the loads
+  and the next finds them. A comma or writing the qualifier first both read
+  correctly, so this is the space that decides it. Found 2026-08-15 by parsing a
+  line in the browser while checking the vendored engine; pinned as five
+  `known-wrong` cases and two correct-neighbour cases in
+  `test/golden/vocabulary.ts`, listed as grammar exclusions, and the unsettled
+  one is in `KNOWN_UNSETTLED` in `vocabulary.test.ts`. The grammar reads all
+  seven correctly, so the swap (queue item 0a) dissolves it — which is now one
+  of the arguments for the swap.
 
 - An unrecognized step modifier is pushed into `step.notes`, the same array as an
   authored `note: "…"`. Afterwards the two cannot be told apart, and notes are

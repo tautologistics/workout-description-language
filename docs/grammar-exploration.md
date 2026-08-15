@@ -179,6 +179,42 @@ browser refuses it. Nothing imports the grammar module yet, so both apps still
 run clean — verified by loading them — but this has to be solved before the
 swap. It is in `known-debts.md` with the fix.
 
+## Since: the engine reaches the browser
+
+*Added 2026-08-15, the same day. The sections above are left as written.*
+
+**The escape hatch this document argued for was taken, and sooner than
+planned.** `ohm.min.js` (17.5.0, verbatim, with its licence) is now
+`packages/core/src/grammar/vendor/ohm.min.js`, imported through a twelve-line
+adapter that turns the UMD bundle into ES exports, and `ohm-js` is no longer a
+dependency in `package.json` — the repo needs no `npm install` again. The reason
+to do it now rather than with the swap: there was exactly **one** import site,
+and queue item 0c adds a module under `src/grammar/` per area of the language.
+
+The comparison table above is unchanged by this, but the "reaches `src/`" row
+now reads literally: the 95K library is *in* `src/`, and the property that
+matters is not that `src/` has no dependencies but that **`src/` has no
+specifier a browser cannot resolve**. Those were the same sentence until a
+library arrived that a browser was allowed to have and still could not find.
+
+**The guardrail was the real finding.** `portable.test.ts` claimed to enforce
+"`src/` is portable" and checked for `node:` imports, so a bare specifier walked
+past a green suite. It now reads every specifier in every file under `src/` and
+fails on anything not starting with `.`, naming the file and the specifier; the
+same check runs over the emit in `build-web.mjs`. See `lessons-learned.md`.
+
+**And typing a line into it by hand found a sixth kind of disagreement**, which
+is the third defect rather than a difference of arrangement. An rx split with a
+space-separated qualifier after it — `10 Deadlift (105/145) each arm` — goes
+into the *movement name*, taking both loads with it and leaving a name no
+registry resolves, so the step drops out of muscle and volume analysis as well.
+`wdl fmt` then writes `10 Deadlift (women 105lb / men 145lb)s each arm`, and
+with a flag rather than a laterality the canonical form does not even settle.
+The count above therefore reads **748/748 with 12 exclusions**: five more lines,
+one more reason. It is the third of the `@95lb` family and the worst of them,
+it is in `known-debts.md`, and the grammar reads every spelling correctly — so
+the swap is its fix.
+
 ## What is not answered
 
 - **The grammar covers the step line only.** Block headers (~20 forms), block

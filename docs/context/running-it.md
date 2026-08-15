@@ -1,17 +1,18 @@
 # Running it
 
 ```bash
-npm --prefix packages/core install  # once: ohm-js, the core's one dependency
-npm --prefix packages/core test     # 1509 tests, 6 pending
+npm --prefix packages/core test     # 1517 tests, 11 pending
 node scripts/build-canonical.ts     # rebuild registry/ from its sources
 node scripts/build-web.mjs          # emit the core as browser modules
 node scripts/serve.mjs 8081         # then open http://localhost:8081/
 ```
 
-**The install step is new.** This used to say "nothing to install to run them",
-and that was true until `ohm-js` arrived to execute the grammar — see
-[settled-decisions.md](settled-decisions.md) for why it is the one dependency
-the shipped core is allowed. One package, no transitive dependencies.
+**Nothing to install.** *Corrected 2026-08-15: for one day this said to run
+`npm --prefix packages/core install` first, which was true while `ohm-js` was a
+dependency.* It is now vendored into `packages/core/src/grammar/vendor/` and
+imported by relative path, because a dependency the core is allowed is still one
+the browser cannot resolve — see [settled-decisions.md](settled-decisions.md).
+There is no `package-lock.json` and no `node_modules` again.
 
 The CLI: `wdl fmt | check | timeline | export | goals | generate | program`.
 The server must be rooted at the repository — the apps reach `build/` and

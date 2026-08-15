@@ -24,14 +24,66 @@ const modules = (dir: string, prefix = ''): string[] =>
     const full = join(dir, name);
     const rel = prefix ? `${prefix}/${name}` : name;
     if (statSync(full).isDirectory()) return modules(full, rel);
-    return name.endsWith('.ts') ? [rel] : [];
+    // A `.d.ts` is types and nothing else — nothing emits it and nothing loads
+    // it. A vendored `.js` is checked like everything else: it ships too.
+    if (name.endsWith('.d.ts')) return [];
+    return /\.(ts|js)$/.test(name) ? [rel] : [];
   });
 
+/**
+ * Every module specifier in a file: `from '…'`, a bare `import '…'` for effect,
+ * and a dynamic `import('…')`.
+ *
+ * A static import is a statement, so it is read at the start of a line only.
+ * That is not fussiness: `env.ts` tells a caller to `import "@wdl/core/node"`
+ * in an error message, and reading imports anywhere in a file makes prose about
+ * importing indistinguishable from importing.
+ *
+ * The same lines are in `scripts/build-web.mjs`, which asks the same question of
+ * the emit. Kept in both rather than shared, because that file is a standalone
+ * script and importing it would run it.
+ */
+const specifiers = (code: string): string[] =>
+  [...code.matchAll(/^\s*(?:import|export)\s*(?:[\w*{},\s]*\bfrom\s*)?['"]([^'"]+)['"]|(?:^|[^.\w$])import\s*\(\s*['"]([^'"]+)['"]/gm)]
+    .map((m) => m[1] ?? m[2]);
+
 describe('src/ is portable', () => {
-  it('imports nothing from node:', () => {
-    const offenders = modules(src).filter((rel) =>
-      /from ['"]node:/.test(readFileSync(join(src, rel), 'utf8')));
-    eq(offenders, [], 'move the filesystem part to packages/core/node/');
+  it('imports by relative path and no other way', () => {
+    // Not "imports nothing from node:", which is what this asked until
+    // 2026-08-15 and is half the rule. A browser has no resolver: no
+    // node_modules, no import map unless a page writes one. `node:fs` and
+    // `ohm-js` fail there in exactly the same way, and the narrower test watched
+    // `import * as ohm from 'ohm-js'` walk into `build/web/core/` and stay
+    // there. Relative or nothing.
+    const offenders = modules(src).flatMap((rel) =>
+      specifiers(readFileSync(join(src, rel), 'utf8'))
+        .filter((spec) => !spec.startsWith('.'))
+        .map((spec) => `${rel} imports '${spec}'`));
+    eq(offenders, [],
+      'move a filesystem part to packages/core/node/; vendor a library into src/grammar/vendor/');
+  });
+
+  it('sees every way an import can be written', () => {
+    // The rule above is worth exactly what the scan behind it is worth, and the
+    // scan is a regex. `import * as ohm from 'ohm-js'` sat in `src/` through a
+    // green suite because the old one looked for the word `node:`. So the forms
+    // are enumerated here rather than trusted.
+    const sample = `
+      import * as ohm from 'ohm-js';
+      import { readFileSync } from "node:fs";
+      import './vendor/ohm.min.js';
+      import type { Step } from '../ast.ts';
+      export { parse } from '../parse.ts';
+      export * from './ast.ts';
+      export { local };
+      const extras = await import('ohm-js/extras');
+    `;
+    eq(specifiers(sample), [
+      'ohm-js', 'node:fs', './vendor/ohm.min.js', '../ast.ts',
+      '../parse.ts', './ast.ts', 'ohm-js/extras',
+    ], 'every specifier, and `export { local }` is not one');
+    eq(specifiers(sample).filter((s) => !s.startsWith('.')),
+      ['ohm-js', 'node:fs', 'ohm-js/extras'], 'and these three are what fails in a browser');
   });
 
   it('names no path into the repository', () => {

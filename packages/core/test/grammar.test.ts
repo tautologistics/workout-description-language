@@ -54,6 +54,16 @@ const EXCLUSIONS: { line: string; why: string }[] = [
   { line: '10 Thruster, @ 95lb', why: 'the parser files a target after a comma as a note' },
   { line: '10 Thruster, @ 24kg', why: 'the parser files a target after a comma as a note' },
   { line: '10 Thruster, @ 85% 1RM', why: 'the parser files a target after a comma as a note' },
+  // The grammar reads the rx split; `peelRx` only fires at the end of a comma
+  // segment, so a qualifier written after it with a space takes the whole paren
+  // into the movement name and both loads are lost. A parser defect, worse than
+  // the two above because the movement no longer resolves either. Pinned in
+  // vocabulary.ts under `known-wrong`; found by parsing in the browser.
+  { line: '10 Deadlift (105/145) each arm', why: 'the parser takes an rx split into the movement name' },
+  { line: '10 DB Snatch (50/35lb) each side', why: 'the parser takes an rx split into the movement name' },
+  { line: '10 Deadlift (women 105lb / men 145lb) each arm', why: 'the parser takes an rx split into the movement name' },
+  { line: '10 Deadlift (105/145) unbroken', why: 'the parser takes an rx split into the movement name' },
+  { line: '10 Deadlift (women 105lb / men 145lb) unbroken', why: 'the parser takes an rx split into the movement name' },
   // `min < max` is a constraint on the *values*, not on the shape, so a PEG
   // cannot state it. `parseQuantity` checks it and leaves the digits in the
   // movement name when it fails; the grammar reads a descending range.

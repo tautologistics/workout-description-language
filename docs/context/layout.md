@@ -6,6 +6,7 @@ something new belongs.
 ```
 packages/core/src/     the whole language and analysis. Portable — no node: imports.
 packages/core/src/grammar/  what the .ohm grammar *means*: productions -> the Step AST.
+packages/core/src/grammar/vendor/  ohm-js 17.5.0, checked in. Imported by path, not installed.
 packages/core/node.ts  the Node host: reads the data files and hands them to src/.
 packages/core/node/    the parts that genuinely need a filesystem.
 packages/core/bin/     the `wdl` CLI.

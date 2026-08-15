@@ -24,6 +24,10 @@ const TYPES = {
   '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  // The grammar is fetched by the web apps and read by people, and both want it
+  // as text: `src/` opens no files, so a browser hands `spec/grammar-0.1.ohm`
+  // to `makeStepParser` the same way Node does.
+  '.ohm': 'text/plain; charset=utf-8',
   '.wdl': 'text/plain; charset=utf-8',
   '.wdlg': 'text/plain; charset=utf-8',
   '.wdlp': 'text/plain; charset=utf-8',

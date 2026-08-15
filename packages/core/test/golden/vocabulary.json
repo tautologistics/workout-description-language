@@ -5016,6 +5016,91 @@
   },
   "fixpoint": true
  },
+ "rx-by-division :: 10 Deadlift (105/145), unbroken": {
+  "canonical": "for time:\n  - 10 Deadlifts (women 105 / men 145), unbroken",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "unbroken"
+       ],
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "value": 105
+        }
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rx-by-division :: 10 Deadlift each arm (105/145)": {
+  "canonical": "for time:\n  - 10 Deadlifts each arm (women 105 / men 145)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "arm",
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "value": 105
+        }
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "combinations :: 10 DB Snatch each arm @ 45lb": {
   "canonical": "for time:\n  - 10 DB Snatches each arm @ 45lb",
   "errors": [],
@@ -5762,6 +5847,168 @@
        "notes": [
         "@ 85% 1RM"
        ],
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "known-wrong :: 10 Deadlift (105/145) each arm": {
+  "canonical": "for time:\n  - 10 Deadlifts (105/145) each arm",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "arm",
+       "movement": "Deadlift (105/145)",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "known-wrong :: 10 DB Snatch (50/35lb) each side": {
+  "canonical": "for time:\n  - 10 DB Snatch (50/35lb)s each side",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "side",
+       "movement": "DB Snatch (50/35lb)",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "known-wrong :: 10 Deadlift (women 105lb / men 145lb) each arm": {
+  "canonical": "for time:\n  - 10 Deadlift (women 105lb / men 145lb)s each arm",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "arm",
+       "movement": "Deadlift (women 105lb / men 145lb)",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "known-wrong :: 10 Deadlift (105/145) unbroken": {
+  "canonical": "for time:\n  - 10 Deadlifts (105/145), unbroken",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "unbroken"
+       ],
+       "movement": "Deadlift (105/145)",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": false
+ },
+ "known-wrong :: 10 Deadlift (women 105lb / men 145lb) unbroken": {
+  "canonical": "for time:\n  - 10 Deadlift (women 105lb / men 145lb)s, unbroken",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "unbroken"
+       ],
+       "movement": "Deadlift (women 105lb / men 145lb)",
+       "node": "step",
        "quantity": {
         "kind": "reps",
         "value": 10

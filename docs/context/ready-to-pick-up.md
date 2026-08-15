@@ -31,18 +31,23 @@ grows, and then `parseOneStep` is swapped in one change.
 What is left of 0a, for when that day comes:
 - `parseOneStep` and `parseStep` delegate to the grammar; `splitOr`,
   `peelRx`, `peelTrailingQualifiers` and `applyQualifier` go.
-- **The browser cannot resolve `ohm-js`.** `build-web.mjs` does no module
-  resolution, so the emitted `grammar/step-semantics.js` carries a bare
-  specifier a browser rejects. Harmless today — nothing imports it — and fatal
-  the moment `parse.ts` does. See [known-debts.md](known-debts.md).
-- **The grammar source has to reach the core.** `src/` opens no files and knows
-  no paths, so `makeStepParser` is handed the grammar text; a host must supply
-  it (`node.ts` reads `spec/grammar-0.1.ohm`, the web app fetches it), most
-  likely through the same `provide()` seam as the registry.
+- ~~The browser cannot resolve `ohm-js`.~~ **Done 2026-08-15**, ahead of 0c
+  because 0c multiplies the import sites. `ohm-js` is vendored into
+  `src/grammar/vendor/` and imported by relative path; the emitted module loads
+  and parses in both apps. See [settled-decisions.md](settled-decisions.md).
+- **The grammar source has to reach the core.** Still open, and the only piece of
+  plumbing left before the swap. `src/` opens no files and knows no paths, so
+  `makeStepParser` is handed the grammar text; a host must supply it (`node.ts`
+  reads `spec/grammar-0.1.ohm`, the web app fetches it), most likely through the
+  same `provide()` seam as the registry. Both halves are known to work — the
+  suite reads the file, and a browser fetches it from `/spec/grammar-0.1.ohm`
+  (`serve.mjs` now serves `.ohm` as text) — but nothing wires them together.
 - The two flag-ordering differences change the AST, so `vocabulary.json` will
   diff on `10 Deadlift unbroken building` and `10 Deadlift building @tiebreak`.
-  Both are pinned now so that diff is expected rather than alarming.
-*Touches: `packages/core/src/parse.ts`, `src/env.ts`, `scripts/build-web.mjs`.*
+  Both are pinned now so that diff is expected rather than alarming. The five
+  `rx`-plus-qualifier lines will diff too, and there the *swap is the fix* — see
+  the rx debt in [known-debts.md](known-debts.md).
+*Touches: `packages/core/src/parse.ts`, `src/env.ts`, both apps.*
 
 **0c. Extend the grammar to the rest of phase 2. This is the next one.** Block
 headers (~20 forms), block modifiers, rest, score, variants and the preamble —
@@ -53,6 +58,8 @@ It comes before 0a's second half because the two halves share a lexical layer,
 and it is now cheap to keep honest: `test/grammar.test.ts` already runs the
 grammar against the parser line for line, so extending it to headers means
 extending that harness with a header source and watching the number hold.
+Nothing blocks it: the engine reaches the browser as of 2026-08-15, so new
+modules under `src/grammar/` inherit a mechanism that works.
 *Touches: `spec/grammar-0.1.ohm`, `packages/core/src/grammar/`,
 `packages/core/test/grammar.test.ts`, `spec/spec-0.1.md`.*
 

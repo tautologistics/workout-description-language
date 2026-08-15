@@ -14,6 +14,16 @@ would be tidier".
 - **`src/` is portable and is handed its data.** Enforced by a test. It decays
   the moment one module adds one convenient import, and the Node suite would keep
   passing while the browser broke.
+
+  *Sharpened 2026-08-15, because that is exactly what happened.* The rule is now
+  stated as **`src/` imports by relative path and no other way**. The old test
+  looked for `node:`, which is one way to be unportable and not the general one:
+  `import * as ohm from 'ohm-js'` sat in `src/grammar/` through a green suite and
+  reached `build/web/core/` intact, because a browser has no resolver — no
+  `node_modules`, no import map unless a page writes one — and `node:fs` and
+  `ohm-js` fail there in the same way. `portable.test.ts` and
+  `scripts/build-web.mjs` now read every specifier in a file and fail on any that
+  does not start with `.`, naming the file and the specifier.
 - **The dependency rule binds the shipped core, not the repository.** The rule
   is: **`packages/core/src/` has no external dependencies**, because it ships
   into a server, a browser and eventually a mobile app, and a dependency there
@@ -59,6 +69,37 @@ would be tidier".
   core outright. That the decision is reversible in both directions is what
   makes it safe.
 
+- **The escape hatch was taken: `ohm-js` is vendored into
+  `packages/core/src/grammar/vendor/` and imported by relative path.** Settled
+  2026-08-15. `ohm.min.js` is ohm-js **17.5.0** verbatim (95,683 bytes,
+  `sha256 c1422e11…`), with its `LICENSE`, its `index.d.ts` as `ohm.d.ts` for the
+  editor, and a twelve-line `ohm.js` beside them turning the UMD bundle into
+  named ES exports. It is no longer a dependency in `package.json`, and the repo
+  needs no `npm install` again.
+
+  **Why, and it is not tidiness.** A dependency the shipped core is *allowed* is
+  not automatically one the browser emit can *resolve*. `build-web.mjs` does no
+  module resolution — deliberately, and its header says so — so the bare
+  specifier reached `build/web/core/` and a browser answered *"Failed to resolve
+  module specifier"*. Vendoring is the only one of the three fixes that needs
+  nothing at the other end: a relative path resolves in Node, in a browser, and
+  in whatever loads these files next, and it makes *"`src/` has no bare
+  specifiers"* literally true, so the rule above is a rule a test can state
+  rather than a list of ways to break it.
+
+  The two rejected, with what they cost: an **import map** in each app's HTML is
+  two places to maintain and one per future embedder, so the core stops being
+  self-contained — the property `src/` exists to have. **Teaching build-web.mjs
+  to resolve modules** fights that file's stated design (*"that the emit is this
+  trivial is the point"*) and buys a resolver for one specifier.
+
+  The costs, stated: 95K of someone else's minified code is in the source tree,
+  and refreshing it is a manual copy (`vendor/README.md` has the recipe and the
+  hash). `ohm.js` leaves `ohm` on `globalThis`, which is what the UMD does and
+  what a `<script>` tag would do. It was settled while there was **one** import
+  site, on purpose: item 0c adds modules under `src/grammar/`, and each would
+  have been another one.
+
   *Settled on evidence: the step-line grammar reproduces the current parser's
   AST on 538/538 lines — every step line in the corpus, every step form in the
   spec, and the exotic forms neither exercises.*
@@ -72,6 +113,9 @@ would be tidier".
   browser emit can **resolve** — `build-web.mjs` does no module resolution, so
   a bare specifier survives into `build/` unusable. That is a debt, not a
   reopening; the vendoring escape hatch above is one of its two fixes.*
+
+  *Closed 2026-08-15 by taking that escape hatch — see the entry below. The
+  grammar module now loads and parses in a browser, confirmed by loading it.*
 
   *Corrected twice on 2026-08-14, the day it was settled. It first read "an
   in-repo PEG interpreter, not a generator", reasoning from "the repo has no

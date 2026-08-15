@@ -212,6 +212,11 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     '30 Deadlift (105/145)',
     '21 Deadlift (155/225lb)',
     '30 Clean & Jerk (w 105lb / m 145lb)',
+    // The two ways of writing an rx *and* a qualifier that work, kept beside
+    // the way that does not (see `known-wrong`). A comma before the qualifier
+    // reads; so does writing the qualifier first. A space does not.
+    '10 Deadlift (105/145), unbroken',
+    '10 Deadlift each arm (105/145)',
   ] },
   { group: 'combinations', lines: [
     '10 DB Snatch each arm @ 45lb',
@@ -251,6 +256,25 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     '10 Thruster, @ 95lb',
     '10 Thruster, @ 24kg',
     '10 Thruster, @ 85% 1RM',
+    // An rx split with a qualifier after it, space-separated: the whole paren
+    // is swallowed into the *movement name*. `peelRx` only fires at the end of
+    // a segment, so `Deadlift (105/145)` becomes the name, both loads are lost,
+    // and the name resolves to no registry entry — so the step falls out of
+    // muscle and volume analysis too, which is one worse than the `@95lb`
+    // family. `wdl fmt` then pluralizes the name it was given and writes
+    // `10 Deadlift (women 105lb / men 145lb)s each arm`, which is the whiteboard
+    // constraint failing out loud. A comma instead of the space reads correctly
+    // — both spellings are pinned under `rx-by-division` above. Found 2026-08-15
+    // by parsing in the browser; see known-debts.md.
+    '10 Deadlift (105/145) each arm',
+    '10 DB Snatch (50/35lb) each side',
+    '10 Deadlift (women 105lb / men 145lb) each arm',
+    // The same shape with a flag rather than a laterality. This one does not
+    // even settle: `fmt` writes `10 Deadlifts (105/145), unbroken`, which
+    // *reparses* as an rx — so one pass of the formatter changes the tree and
+    // the second changes it back. Listed in KNOWN_UNSETTLED in vocabulary.test.ts.
+    '10 Deadlift (105/145) unbroken',
+    '10 Deadlift (women 105lb / men 145lb) unbroken',
   ] },
   { group: 'whitespace-and-case', lines: [
     '10   Thruster   @   95lb',

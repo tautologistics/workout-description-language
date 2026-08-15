@@ -2,9 +2,11 @@
 
 Reference implementation of the [Workout Definition Language](../../spec/spec-0.1.md).
 
-One dependency — `ohm-js`, which executes the normative grammar in
-[spec/grammar-0.1.ohm](../../spec/grammar-0.1.ohm). It is MIT, has no
-dependencies of its own, and ships as a single file. Runs on Node 22+ using
+Nothing to install. The one library it runs is `ohm-js`, which executes the
+normative grammar in [spec/grammar-0.1.ohm](../../spec/grammar-0.1.ohm); it is
+MIT, has no dependencies of its own, and is vendored into
+[src/grammar/vendor/](src/grammar/vendor/README.md) so that `src/` imports by
+relative path and a browser can follow every specifier. Runs on Node 22+ using
 native TypeScript type stripping.
 
 ```bash
