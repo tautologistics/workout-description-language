@@ -40,6 +40,19 @@ const KNOWN_WRONG: Record<string, string> = {
     'with no `primary:` field the primary becomes the whole brace text, and the tiebreak is emitted twice',
   'score :: nested block form':
     'the nested `score:` block documented in spec §9.5 is dropped entirely — primary is empty',
+  // Listed here as of 2026-08-15 as well as in `grammar.test.ts`'s REST_REJECTS,
+  // because the two lists make two different claims and both are true of these
+  // lines: no rule reads them, *and* what happens instead is wrong. They were
+  // only ever in the rejects list, whose stated rationale was "the lines neither
+  // implementation reads" — a framing that stopped meaning anything the day
+  // there was one implementation. A defect under decision belongs in the same
+  // pending machinery as every other one.
+  'rest :: spelled-out seconds':
+    'a spelled-out duration word is a step quantity but not a rest — the bound is dropped and reads as unbounded',
+  'rest :: spelled-out minutes':
+    'a spelled-out duration word is a step quantity but not a rest — the bound is dropped and reads as unbounded',
+  'rest :: spelled-out hours':
+    'a spelled-out duration word is a step quantity but not a rest — the bound is dropped and reads as unbounded',
 };
 
 /**

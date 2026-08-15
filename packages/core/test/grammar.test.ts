@@ -44,10 +44,23 @@ const grammarSource = readFileSync(join(repo, 'spec/grammar-0.1.ohm'), 'utf8');
 /**
  * Lines the grammar does not read, and why.
  *
- * These are the shared defects: forms the language documents, or forms a person
- * would reasonably write, that no rule accepts. Each is a claim, and the suite
- * checks it both ways — an unlisted unreadable line fails, and a listed line the
- * grammar starts reading fails as stale.
+ * *Rationale restated 2026-08-15.* These were listed as the **shared** defects —
+ * the lines *neither implementation* read — because that was the one shape a
+ * differential test could not see on its own, a line both sides got wrong being
+ * indistinguishable from a line both sides got right. With one implementation
+ * left that framing means nothing: there is nothing to share a defect with. What
+ * the list is now is simpler and still worth having — **the lines no rule reads
+ * at all**, which is the honest half of the coverage counts below: the headline
+ * number is out of a set this list has been taken out of, so the list has to be
+ * visible beside it rather than inferred from a gap in a count.
+ *
+ * Each entry is a claim and the suite checks it both ways — an unlisted
+ * unreadable line fails, and a listed line the grammar starts reading fails as
+ * stale — and every entry must also be a form `vocabulary.ts` pins, so what it
+ * currently *does* is a diff somebody can read. Being unreadable is not by itself
+ * a defect worth a queue item; whether a line here should be read is a question
+ * about the language, and the ones under decision are marked pending in
+ * `vocabulary.test.ts` like every other known-wrong reading.
  */
 const STEP_REJECTS = new Map([
   // A line that is *only* a completion condition. `movement` needs at least one
@@ -65,7 +78,9 @@ const REST_REJECTS = new Map([
   // reaches. Spec §3 says these are accepted "wherever a duration is expected",
   // and a rest is a duration position. The result is an `unreadable rest
   // duration` error *and* a rest with no bound at all — silently unbounded.
-  // Found 2026-08-15 by typing lines into the browser; queue item 0e.
+  // Found 2026-08-15 by typing lines into the browser; queue item 0e. Marked
+  // pending in `vocabulary.test.ts` too, because "no rule reads this" and "this
+  // reading is wrong" are two different claims and this line makes both.
   ['rest 45 seconds', 'a spelled-out duration word is a step quantity but not a rest'],
   ['rest 2 mins', 'a spelled-out duration word is a step quantity but not a rest'],
   ['rest 1 hour', 'a spelled-out duration word is a step quantity but not a rest'],

@@ -106,26 +106,59 @@ found while stating the header: an unrecognized header modifier lands in
 unknown token from a flag the language defines. Both halves belong to this item.*
 *Touches: `packages/core/src/ast.ts`, `format.ts`, both apps.*
 
-**0e. Five defects the grammar work turned up that need a decision, not a
+**0e. Six defects the grammar work turned up that need a decision, not a
 transcription.** Each is written up in [known-debts.md](known-debts.md) with what
 it costs and where the fix goes; each is pinned as a vocabulary form, so a fix
 shows up as a diff. They are listed together because they were found together and
-are individually small, not because they should land together.
+are individually small, not because they should land together. Easiest first.
 
+*Corrected 2026-08-15, twice, and both corrections are the same mistake: the
+item was written before the swap and never re-read after it.* It said **five**
+and listed five, because the sixth — the greedy header `@` — was still expected
+to be fixed *by* the swap and turned out not to be; and it described the
+spelled-out rest duration as tracked in `grammar.test.ts`'s `REST_REJECTS`, a
+list whose stated rationale was *"shared defects — lines neither implementation
+reads"*. There is one implementation now, so that rationale named nothing. The
+rejects list has been restated as what it actually is — the lines no rule reads,
+which is the honest half of the coverage count — and the three spelled-out rest
+forms are marked pending in `vocabulary.test.ts` beside every other defect under
+decision.
+
+- **`wdl fmt` drops `after last`** from every kind of rest but a plain duration.
+  `rest as needed after last` formats to `rest as needed` — "rest only after the
+  last round" becomes "rest between every round", a different workout, and
+  `wdl check` says ok. Formatter-only, no decision needed, smallest. Do it first.
+- **A target and a `for time` on one header, written in that order, lose both.**
+  `3 rounds @ 95lb for time:` inherits `{kind: 'raw', text: '95lb for time'}` and
+  is not scored at all; `3 rounds for time @ 95lb:` reads correctly, so it is
+  order-sensitivity in the header target production. The same family as the three
+  load-losing defects the swap fixed, and it round-trips as byte-identical text,
+  so nothing else in the suite can see it. No decision needed — swallowing
+  `for time` into a target is unambiguously wrong.
+- **A spelled-out duration word is a step quantity and not a rest.**
+  `rest 45 seconds` is an `unreadable rest duration` error *and* a rest with no
+  bound, which everything downstream reads as unbounded; `45 seconds Plank`
+  works. Spec §3 says these spellings are accepted "wherever a duration is
+  expected" and a rest is a duration position. One grammar fix — note the rest
+  line already has `looseDuration` for free internal spacing, so check how the
+  two interact.
+- **A brace score with no `primary:`** makes the whole brace text the primary and
+  emits the tiebreak twice. Small; decide what a brace with no `primary:` means
+  and state it.
+- **The nested `score:` block spec §9.5 and §9.6 document is dropped entirely.**
+  Either the prose goes or the parser learns the form. The sibling-line spelling
+  is what the formatter emits, so correcting the spec is the cheap answer — but
+  that is a decision about the language, so make it deliberately and record the
+  reasoning rather than picking the cheap one because it is cheap.
 - **Leading `sets x reps`.** `5x5 Back Squat @ 225lb` — *spec §1's own example* —
   parses to a movement named `5x5 Back Squat`. Reading it needs a new leading
-  quantity form in the grammar and a decision about what it means (`sets: 5` plus
-  `reps: 5`, presumably, matching the trailing `xN`). The biggest of the five, and
-  the one a real user hits first.
-- **`wdl fmt` drops `after last`** from every kind of rest but a plain duration.
-  A formatter fix and small; do it first.
-- **The nested `score:` block spec §9.5 documents is dropped entirely.** Either the
-  prose goes or the parser learns it. The sibling-line spelling is what the
-  formatter emits, so the cheap answer is to correct the spec.
-- **A brace score with no `primary:`** makes the whole brace text the primary and
-  emits the tiebreak twice.
-- **A spelled-out duration word is a step quantity and not a rest.** One
-  `units.ts` change and a matching grammar rule; both readings inherit it.
+  quantity form in the grammar *and* a decision about what it means (`sets: 5`
+  plus `reps: 5`, presumably, matching the trailing `xN`), *and* a decision about
+  what a leading `5x5` beside a trailing `x3` means. Check how `sets` is consumed
+  downstream — `timeline.ts`, `volume.ts`, `run.ts` — before choosing, because a
+  leading form that sets `sets` changes rep totals. The biggest of the six, the
+  one a real user hits first, and the one most likely to balloon: last, and if
+  the decision is not clear-cut, write up the options and leave it pinned.
 *Touches: `packages/core/src/units.ts`, `format.ts`, `parse.ts`,
 `spec/grammar-0.1.ohm`, `spec/spec-0.1.md`.*
 
