@@ -48,6 +48,18 @@ const stepParser = makeStepParser(grammarSource);
  * `test/golden/vocabulary.ts` added *because* this test found the disagreement.
  */
 const EXCLUSIONS: { line: string; why: string }[] = [
+  // `@` tight against a digit. The grammar states that the first character
+  // after the `@` decides — a letter opens a flag, a digit opens a target — so
+  // it reads all of these as targets. `/@(\w[\w-]*)/g` runs over the whole line
+  // before anything else and `\w` matches digits, so the parser makes them
+  // flags and the load is gone. The grammar is right here and the parser is
+  // wrong; the swap is the fix. Pinned in vocabulary.ts under `known-wrong`.
+  { line: '10 Thruster @95lb', why: 'the parser reads `@` plus a digit as a flag' },
+  { line: '10 Thruster @2x35lb', why: 'the parser reads `@` plus a digit as a flag' },
+  { line: '10 Thruster @24kg', why: 'the parser reads `@` plus a digit as a flag' },
+  { line: '10 Thruster @95', why: 'the parser reads `@` plus a digit as a flag, unit or no unit' },
+  { line: '10 Thruster @85% 1RM', why: 'the parser stops the flag at the `%` and leaves `% 1RM` in the movement name' },
+  { line: '18 Thruster @115lb @tiebreak', why: 'the parser reads the tight load as a second flag' },
   // The grammar reads these as loads; `parseOneStep` splits `@` out of the
   // first comma segment only, so `applyQualifier` files them as notes. A
   // parser defect, pinned in vocabulary.ts under `known-wrong`.

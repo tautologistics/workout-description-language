@@ -178,7 +178,7 @@ export function makeStepParser(grammarSource: string): StepParser {
     leadQuantity_plain(q, _s) { this.args.step.quantity = q.unit(); },
 
     // --- what may trail a movement ---
-    targetGroup_flag(_at, word) { this.args.step.flags.push(word.sourceString); },
+    targetGroup_flag(_at, name) { this.args.step.flags.push(name.sourceString); },
     targetGroup_target(_at, _s, text) { text.addTo(this.args.step); },
 
     targetText(atom, tails) {

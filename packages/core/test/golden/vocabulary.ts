@@ -135,10 +135,22 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     '30min Run @ 145bpm',
     '5 Back Squat @ RPE 8',
     '5 Back Squat @ RIR 2',
+    // A number with no unit. It stays `raw` on purpose: `@95` is 95lb in one
+    // gym and 95kg in another, and a `load` needs a unit to be worth anything to
+    // volume analysis or an exporter. Reading it as `raw` says "a target was
+    // written and it means nothing yet", which is true; picking a unit would be
+    // an invention. The question of whether `Load` should be able to hold an
+    // absent unit is open — see known-debts.md.
+    '10 Thruster @ 95',
   ] },
   { group: 'flags', lines: [
     '18 Thruster @ 115lb @tiebreak',
     '21 Thruster @tiebreak',
+    // Spaced, and letters — so a *target*, not a flag. The tight spelling is
+    // what makes a flag, because a spaced target legitimately begins with a
+    // letter (`@ Z2`, `@ RPE 8`, `@ of heavy-single`). Pinned so the asymmetry
+    // is a stated reading rather than an artefact of which rule ran first.
+    '21 Thruster @ tiebreak',
     'max Pull-Up, unbroken',
     '2 Front Squat, building',
     '10 Deadlift, reversed',
@@ -244,9 +256,26 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     // before the target split ever runs, and `\w` matches digits — so the load
     // is lost, `wdl check` still says ok, and `wdl fmt` rewrites the line to
     // `- 10 Thrusters, 95lb`. See known-debts.md.
+    //
+    // The grammar now states the rule the other way and states it deliberately:
+    // the first character after the `@` decides, a letter opens a flag and a
+    // digit opens a target. So all six of these are grammar exclusions, and the
+    // swap (queue item 0a) is the fix.
     '10 Thruster @95lb',
     '10 Thruster @2x35lb',
     '10 Thruster @24kg',
+    // No unit at all, which is the case that shows the rule does not key on
+    // one. `@95` is a target the grammar holds as `raw`; the parser makes it a
+    // flag called `95`.
+    '10 Thruster @95',
+    // Worse than a lost load: `@(\w[\w-]*)` stops at the `%`, so `85` becomes a
+    // flag and `% 1RM` is left in the text — the movement ends up named
+    // `Thruster % 1RM`, which resolves to nothing and takes the step out of
+    // muscle and volume analysis too.
+    '10 Thruster @85% 1RM',
+    // A flag beside a tight load on one line. The parser reads two flags and no
+    // target; the grammar reads one of each.
+    '18 Thruster @115lb @tiebreak',
     // The same load, lost a second way. `@` is only split out of the *first*
     // comma segment, so a target written after a comma never reaches
     // `targets` — `applyQualifier` falls through and files it as a note. Same

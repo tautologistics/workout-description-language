@@ -2890,6 +2890,42 @@
   },
   "fixpoint": true
  },
+ "target/other :: 10 Thruster @ 95": {
+  "canonical": "for time:\n  - 10 Thrusters @ 95",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "raw",
+         "text": "95"
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "flags :: 18 Thruster @ 115lb @tiebreak": {
   "canonical": "for time:\n  - 18 Thrusters @ 115lb @tiebreak",
   "errors": [],
@@ -2950,6 +2986,42 @@
         "kind": "reps",
         "value": 21
        }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "flags :: 21 Thruster @ tiebreak": {
+  "canonical": "for time:\n  - 21 Thrusters @ tiebreak",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "targets": [
+        {
+         "kind": "raw",
+         "text": "tiebreak"
+        }
+       ]
       }
      ],
      "node": "block",
@@ -5751,6 +5823,106 @@
        "quantity": {
         "kind": "reps",
         "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "known-wrong :: 10 Thruster @95": {
+  "canonical": "for time:\n  - 10 Thrusters, 95",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "95"
+       ],
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "known-wrong :: 10 Thruster @85% 1RM": {
+  "canonical": "for time:\n  - 10 Thruster % 1RMs, 85",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "85"
+       ],
+       "movement": "Thruster % 1RM",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "known-wrong :: 18 Thruster @115lb @tiebreak": {
+  "canonical": "for time:\n  - 18 Thrusters, 115lb @tiebreak",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "115lb",
+        "tiebreak"
+       ],
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 18
        }
       }
      ],

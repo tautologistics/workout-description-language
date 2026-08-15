@@ -449,6 +449,25 @@ Attached with `@` (targets) or after a comma (qualifiers).
 
 Qualifiers: `tempo`, `unbroken`, `synchronized`, laterality, `building`, and free-text notes in quotes.
 
+`@` also introduces a **marker** — `@tiebreak` (§9.6). **The first character after
+the `@` is what decides which of the two it is: a letter opens a marker, a digit
+opens a target.** So `@95lb`, `@ 95lb`, `@95` and `@ 95` are all targets, and
+whether a unit follows has nothing to do with it — nobody writes a marker called
+`95lb`, and `@95` on a whiteboard is a weight.
+
+A marker additionally has to be written tight against the `@`, and that
+asymmetry is deliberate rather than tidy: a *spaced* target legitimately begins
+with a letter — `@ Z2`, `@ RPE 8`, `@ marathon pace`, `@ of heavy-single` — so
+the space cannot be ignored on the letter side the way it is on the digit side.
+`@ tiebreak` is therefore a target, read like those.
+
+A target that is a bare number with no unit — `@ 95` — is held as written and
+means nothing further. It is 95lb in one gym and 95kg in another, and the format
+does not guess.
+
+`spec/grammar-0.1.ohm` states all of this in the `targetGroup` rule, and where
+this prose and that file disagree, that file is right.
+
 ---
 
 ## 8. Expressions

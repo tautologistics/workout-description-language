@@ -20,10 +20,12 @@
 //
 // Verified, on every run: with the semantics in
 // packages/core/src/grammar/step-semantics.ts, this reproduces the hand-written
-// parser's AST on 746/746 step lines — every one in examples/corpus, every one
-// in spec-0.1.md, and every step case in the vocabulary suite. Seven lines are
-// read differently on purpose and are listed, with reasons, in
-// packages/core/test/grammar.test.ts.
+// parser's AST on every step line in examples/corpus, every one in spec-0.1.md,
+// and every step case in the vocabulary suite. The count is derived by
+// packages/core/test/grammar.test.ts rather than asserted here, and so is the
+// list of lines the two read differently on purpose — each with a reason. Where
+// they differ this file is not automatically the loser: the `@`-plus-digit forms
+// are ones where the grammar is right and parse.ts is wrong.
 //
 // The parser does not run on this file yet. It runs beside the hand-written one
 // until the grammar covers the rest of phase 2, because block headers share
@@ -147,10 +149,22 @@ WDLStep {
   // A threshold trailing a movement becomes that step's completion condition.
   thresholdPart = threshold
 
-  // `@tiebreak` (no space) is a flag; `@ 95lb` (space) is a target. The space
-  // is the whole of the distinction, so the grammar states it.
-  targetGroup = "@" ~space word      -- flag
-              | "@" spaces targetText -- target
+  // What follows an `@` is a target unless it is a flag, and **the first
+  // character after the `@` is what decides**: a letter opens a flag, a digit
+  // opens a load. So `@95lb`, `@ 95lb`, `@95` and `@ 95` all read the same way —
+  // as targets — and whether a unit is present has nothing to do with it.
+  // Nobody writes a flag called `95lb`, and `@95` on a whiteboard is a weight.
+  //
+  // The flag form additionally requires the `@` to be tight against the word,
+  // and that is not symmetry for its own sake: a *spaced* target legitimately
+  // begins with a letter — `@ Z2`, `@ RPE 8`, `@ marathon pace`,
+  // `@ of heavy-single` — so the space cannot be ignored on the letter side the
+  // way it is on the digit side. `@ tiebreak` is therefore a target, read like
+  // those, and that is stated here rather than left to fall out of the ordering.
+  targetGroup = "@" flagName              -- flag
+              | "@" spaces targetText     -- target
+
+  flagName = letter (~space ~"," any)*
 
   targetText = targetAtom toTail*
   toTail = spaces caseInsensitive<"to"> spaces targetAtom

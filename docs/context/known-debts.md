@@ -28,9 +28,39 @@ when something looks odd before treating it as a discovery.
   builder and the board; `wdl check` reports `ok`; and `wdl fmt` rewrites the
   line to `- 10 Thrusters, 95lb`, which is a stable fixpoint of the wrong
   reading. No corpus file writes `@` without a space, which is why 1257 tests
-  never saw it. Found by the grammar exploration, pinned as three `pending`
-  cases in `test/golden/vocabulary.ts`. The fix is one rule — a flag is `@` not
-  followed by a space — and the grammar states it that way already.
+  never saw it. Found by the grammar exploration, pinned as `pending` cases in
+  `test/golden/vocabulary.ts`.
+
+  **The grammar now states the correct rule, and the swap is the fix.**
+  *Settled 2026-08-15.* `spec/grammar-0.1.ohm` reads **the first character after
+  the `@`**: a letter opens a flag, a digit opens a target. So `@95lb`, `@ 95lb`,
+  `@95` and `@ 95` all read the same way, and the presence of a unit has nothing
+  to do with it — the earlier phrasing of the fix ("a flag is `@` not followed by
+  a space") was half of it and would have left `@95` a flag called `95`. The flag
+  form does still require the `@` tight against the word, because a *spaced*
+  target legitimately begins with a letter — `@ Z2`, `@ RPE 8`,
+  `@ of heavy-single` — so `@ tiebreak` is a target, stated rather than left to
+  rule ordering. `spec-0.1.md` §7 says all of this now too.
+
+  Grammar and parser therefore **disagree on every `@`-plus-digit form**, which
+  is the intended state: the grammar is right and `parse.ts` is wrong until the
+  swap (queue item 0a). Six lines are listed as exclusions in
+  `test/grammar.test.ts` with reasons and pinned as `known-wrong` in the
+  vocabulary — `@95lb`, `@2x35lb`, `@24kg`, `@95`, `@85% 1RM`, and
+  `18 Thruster @115lb @tiebreak`. Two of them are worse than a lost load:
+  `@85% 1RM` stops the flag at the `%` and leaves `% 1RM` in the movement name,
+  formatting to `10 Thruster % 1RMs, 85`.
+
+- **Open: what a target with no unit means.** `@ 95` parses to
+  `{kind: 'raw', text: '95'}` — held verbatim, meaning nothing. That is
+  deliberate as of 2026-08-15 and pinned as a vocabulary case, but it is a
+  holding answer rather than a settled one. The alternative is a `load` with an
+  absent unit, which `Load` cannot express today (`unit` is a required
+  `'lb' | 'kg'`), and making it optional reaches `formatLoad`, volume, muscle
+  analysis and every exporter. `raw` at least says something true — a target was
+  written and nothing can be computed from it — where a defaulted unit would be
+  an invention: `@95` is 95lb in one gym and 95kg in another. Decide it properly
+  when something needs to consume it.
 
 - **A target written after a comma is filed as a note.** `- 10 Thruster, @ 95lb`
   puts `@ 95lb` in `notes`, not `targets`. The `@` split runs over the *first*

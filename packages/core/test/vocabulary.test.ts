@@ -28,6 +28,12 @@ const KNOWN_WRONG: Record<string, string> = {
     '`@` with no space reads the load as a flag and drops it',
   'known-wrong :: 10 Thruster @24kg':
     '`@` with no space reads the load as a flag and drops it',
+  'known-wrong :: 10 Thruster @95':
+    '`@` with no space reads the load as a flag and drops it, unit or no unit',
+  'known-wrong :: 10 Thruster @85% 1RM':
+    '`@` with no space stops the flag at the `%` and leaves `% 1RM` in the movement name',
+  'known-wrong :: 18 Thruster @115lb @tiebreak':
+    '`@` with no space reads the load as a second flag and drops it',
   'known-wrong :: 10 Thruster, @ 95lb':
     'a target after a comma is filed as a note, not a load',
   'known-wrong :: 10 Thruster, @ 24kg':
