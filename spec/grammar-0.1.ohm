@@ -391,7 +391,7 @@ WDL {
   overrunWord = caseInsensitive<"carry"> | caseInsensitive<"cut"> | caseInsensitive<"fail">
   blockFlagWord = caseInsensitive<"building"> | caseInsensitive<"unbroken">
                 | caseInsensitive<"synchronized"> | caseInsensitive<"shared">
-  label = (alnum | "_" | "-")+
+  label = nameChar+
 
   // ================== the rest line ==================
   //
@@ -486,8 +486,45 @@ WDL {
   braceValue = braceValueChar*
   braceValueChar = ~"," ~"}" any
 
+  // ================== the preamble ==================
+  //
+  // Lines that describe the workout rather than the work. Each carries its own
+  // marker, so like the score line these rules select what they apply to.
+
+  // `@id crossfit:fran`, `@wdl 0.1`, `@tags conditioning, benchmark`. The value is
+  // whatever follows and is never interpreted here — an `@id` is any unique
+  // string, deliberately (roadmap §3.2.1), so there is nothing to state about it.
+  directiveLine = "@" directiveKey directiveValue?
+  directiveKey = nameChar+
+  directiveValue = spaces restOfLine
+
+  titleLine = "#"+ spaces restOfLine?
+
+  variantsLine = caseInsensitive<"variants"> ":" spaces
+
+  // `women:` opening a variant, with its fields either inline in braces or
+  // indented under it. Both spellings exist because one variant with one field is
+  // a line where three with three fields is a table (spec §11). *Which* variant a
+  // field belongs to is a question about lines rather than about one line, so like
+  // `on cap:` it stays with the caller.
+  variantLine = variantName ":" spaces inlineFields?
+  variantName = nameChar+
+
+  // A comma separates fields inside braces and cannot appear in a value there; on
+  // a line of its own a value runs to the end and a comma is just a comma. Two
+  // rules because that really is two rules, not one with an exception.
+  inlineFields = "{" spaces inlineField inlineFieldTail* spaces "}"
+  inlineFieldTail = "," spaces inlineField
+  inlineField = fieldKey ":" spaces inlineFieldValue
+  inlineFieldValue = inlineFieldChar+
+  inlineFieldChar = ~"," ~"}" any
+
+  fieldLine = fieldKey ":" spaces restOfLine
+  fieldKey = nameChar+
+
   // ---------- lexical ----------
 
+  nameChar = alnum | "_" | "-"
   number = digit+ ("." digit+)?
   integer = digit+
   wordChar = alnum | "_"

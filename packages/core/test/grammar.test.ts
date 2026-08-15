@@ -132,6 +132,8 @@ const headerExcluded = new Map(HEADER_EXCLUSIONS.map((e) => [e.line, e.why]));
 const NOT_A_HEADER = /^(score|on\s+cap|tiebreak|variants|choice)\s*:/i;
 const IS_REST = /^rest\b/i;
 const IS_SCORE = /^score\s*:/i;
+const IS_DIRECTIVE = /^@/;
+const IS_TITLE = /^#/;
 
 function headerText(text: string): string | null {
   if (/^-\s/.test(text) || /^rest\b/i.test(text) || /^[@#]/.test(text)) return null;
@@ -153,16 +155,21 @@ function headerText(text: string): string | null {
   return null;
 }
 
-interface Harvest { steps: string[]; headers: string[]; rests: string[]; scores: string[] }
+interface Harvest {
+  steps: string[]; headers: string[]; rests: string[];
+  scores: string[]; directives: string[]; titles: string[];
+}
 
 /** Every line in a tree, sorted into the areas the grammar claims. */
 function harvest(roots: Line[]): Harvest {
-  const out: Harvest = { steps: [], headers: [], rests: [], scores: [] };
+  const out: Harvest = { steps: [], headers: [], rests: [], scores: [], directives: [], titles: [] };
   const walk = (nodes: Line[], inVariants: boolean) => {
     for (const n of nodes) {
       const text = n.text.trim();
       if (/^-\s+/.test(text)) out.steps.push(text.replace(/^-\s+/, '').trim());
       else if (inVariants) { /* a key in a map, not a line of workout syntax */ }
+      else if (IS_DIRECTIVE.test(text)) out.directives.push(text);
+      else if (IS_TITLE.test(text)) out.titles.push(text);
       else if (IS_REST.test(text)) out.rests.push(text);
       else if (IS_SCORE.test(text)) out.scores.push(text);
       else {
@@ -176,7 +183,7 @@ function harvest(roots: Line[]): Harvest {
   return out;
 }
 
-const AREA_KEYS = ['steps', 'headers', 'rests', 'scores'] as const;
+const AREA_KEYS = ['steps', 'headers', 'rests', 'scores', 'directives', 'titles'] as const;
 
 function merge(parts: Harvest[]): Harvest {
   const out = {} as Harvest;
@@ -213,7 +220,10 @@ function specHarvest(): Harvest {
 
 function vocabularyHarvest(): Harvest {
   return merge([
-    { steps: STEP_FORMS.flatMap((g) => g.lines), headers: [], rests: [], scores: [] },
+    {
+      steps: STEP_FORMS.flatMap((g) => g.lines),
+      headers: [], rests: [], scores: [], directives: [], titles: [],
+    },
     ...SOURCES.map((s) => harvest(readLines(s.src))),
   ]);
 }
@@ -276,6 +286,19 @@ function referenceScore(line: string): unknown | null {
   return workout.score ? strip(workout.score) : null;
 }
 
+/** What the current parser makes of a directive line, as one key and one value. */
+function referenceDirective(line: string): unknown | null {
+  const { workout, errors } = parse(`${line}\nfor time:\n  - 100 Burpee`);
+  if (errors.length) return null;
+  const keys = Object.keys(workout.directives);
+  return keys.length === 1 ? { key: keys[0], value: workout.directives[keys[0]] } : null;
+}
+
+function referenceTitle(line: string): unknown | null {
+  const { workout, errors } = parse(`${line}\nfor time:\n  - 100 Burpee`);
+  return errors.length || workout.title === undefined ? null : workout.title;
+}
+
 type Read = (line: string) => { ok: boolean; value?: unknown; message?: string };
 
 /** Turn an `Attempt` into what `compare` wants, stripping what is the caller's. */
@@ -290,6 +313,8 @@ const readStep = reader((l) => wdl.tryStep(l));
 const readHeader = reader((l) => wdl.tryHeader(l), (b) => ({ ...b, children: [] }));
 const readRest = reader((l) => wdl.tryRest(l));
 const readScore = reader((l) => wdl.tryScore(l));
+const readDirective = reader((l) => wdl.tryDirective(l));
+const readTitle = reader((l) => wdl.tryTitle(l));
 
 interface Tally {
   checked: number;
@@ -370,6 +395,27 @@ const AREAS: Area[] = [
     excluded: new Map(),
     atLeast: [10, 4, 8],
   },
+  {
+    what: 'directive lines',
+    lines: (h) => h.directives,
+    reference: referenceDirective,
+    read: readDirective,
+    excluded: new Map(),
+    // The corpus floor is **zero**, and that is a measurement rather than a
+    // concession: not one of the 190 real workouts writes a directive. It is the
+    // same gap `lessons-learned.md` records for 13 of the 24 documented features,
+    // and it is why the vocabulary exists — a sample of real documents does not
+    // cover a language.
+    atLeast: [0, 4, 5],
+  },
+  {
+    what: 'title lines',
+    lines: (h) => h.titles,
+    reference: referenceTitle,
+    read: readTitle,
+    excluded: new Map(),
+    atLeast: [10, 1, 1],
+  },
 ];
 
 const pinnedForms = new Set([
@@ -448,5 +494,21 @@ describe('the grammar is the spec', () => {
   it('reads a score qualifier line', () => {
     eq(wdl.parseQualifier('on cap: reps completed'), { key: 'onCap', text: 'reps completed' });
     eq(wdl.parseQualifier('tiebreak: reps at 5min'), { key: 'tiebreak', text: 'reps at 5min' });
+  });
+
+  /**
+   * Variants are the other multi-line assembly, for the same reason: which
+   * variant a field belongs to is a question about several lines. Both spellings
+   * exist because one variant with one field is a line where three with three
+   * fields is a table (spec §11), and a comma separates fields inside braces
+   * where on a line of its own it is just a comma.
+   */
+  it('reads both spellings of a variant', () => {
+    eq(wdl.parseVariant('women:'), { name: 'women' });
+    eq(wdl.parseVariant('women: {load: 65lb}'),
+      { name: 'women', fields: [{ key: 'load', value: '65lb' }] });
+    eq(wdl.parseVariant('women: {load: 65lb, reps: 15}'),
+      { name: 'women', fields: [{ key: 'load', value: '65lb' }, { key: 'reps', value: '15' }] });
+    eq(wdl.parseField('load: 65lb'), { key: 'load', value: '65lb' });
   });
 });

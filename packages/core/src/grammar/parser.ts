@@ -26,6 +26,9 @@ import { installStep } from './step-semantics.ts';
 import { installBlock } from './block-semantics.ts';
 import { installRest } from './rest-semantics.ts';
 import { installScore, type ScoreQualifier } from './score-semantics.ts';
+import {
+  installPreamble, type Directive, type Variant, type VariantField,
+} from './preamble-semantics.ts';
 
 export type { Origin };
 
@@ -43,12 +46,24 @@ export interface WdlParser {
   parseScore(text: string, o?: Origin): Score;
   /** One `on cap:` or `tiebreak:` line — what it contributes to the score above it. */
   parseQualifier(text: string, o?: Origin): ScoreQualifier;
+  /** One `@key value` directive line. */
+  parseDirective(text: string, o?: Origin): Directive;
+  /** One `# Title` line. */
+  parseTitle(text: string, o?: Origin): string;
+  /** One variant's opening line, with its fields when they are inline in braces. */
+  parseVariant(text: string, o?: Origin): Variant;
+  /** One `key: value` line indented under a variant. */
+  parseField(text: string, o?: Origin): VariantField;
   /** The same, reporting a failure instead of throwing. */
   tryStep(text: string, o?: Origin): Attempt<Step>;
   tryHeader(text: string, o?: Origin): Attempt<Block>;
   tryRest(text: string, o?: Origin): Attempt<Rest>;
   tryScore(text: string, o?: Origin): Attempt<Score>;
   tryQualifier(text: string, o?: Origin): Attempt<ScoreQualifier>;
+  tryDirective(text: string, o?: Origin): Attempt<Directive>;
+  tryTitle(text: string, o?: Origin): Attempt<string>;
+  tryVariant(text: string, o?: Origin): Attempt<Variant>;
+  tryField(text: string, o?: Origin): Attempt<VariantField>;
 }
 
 export function makeParser(grammarSource: string): WdlParser {
@@ -59,6 +74,7 @@ export function makeParser(grammarSource: string): WdlParser {
   installBlock(semantics);
   installRest(semantics);
   installScore(semantics);
+  installPreamble(semantics);
 
   /**
    * One shape for every start rule: match, then walk.
@@ -89,6 +105,11 @@ export function makeParser(grammarSource: string): WdlParser {
   const tryScore = at<Score>('scoreLine', (n) => (n as { toScore(): Score }).toScore());
   const tryQualifier = at<ScoreQualifier>('scoreQualifierLine',
     (n) => (n as { qualifier(): ScoreQualifier }).qualifier());
+  const tryDirective = at<Directive>('directiveLine',
+    (n) => (n as { directive(): Directive }).directive());
+  const tryTitle = at<string>('titleLine', (n) => (n as { title(): string }).title());
+  const tryVariant = at<Variant>('variantLine', (n) => (n as { variant(): Variant }).variant());
+  const tryField = at<VariantField>('fieldLine', (n) => (n as { field(): VariantField }).field());
 
   return {
     tryStep,
@@ -96,10 +117,18 @@ export function makeParser(grammarSource: string): WdlParser {
     tryRest,
     tryScore,
     tryQualifier,
+    tryDirective,
+    tryTitle,
+    tryVariant,
+    tryField,
     parseStep: orThrow('step', tryStep),
     parseHeader: orThrow('block header', tryHeader),
     parseRest: orThrow('rest', tryRest),
     parseScore: orThrow('score', tryScore),
     parseQualifier: orThrow('score qualifier', tryQualifier),
+    parseDirective: orThrow('directive', tryDirective),
+    parseTitle: orThrow('title', tryTitle),
+    parseVariant: orThrow('variant', tryVariant),
+    parseField: orThrow('variant field', tryField),
   };
 }

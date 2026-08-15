@@ -8678,6 +8678,216 @@
   },
   "fixpoint": true
  },
+ "preamble :: version directive": {
+  "canonical": "@wdl 0.1\n\nfor time:\n  - 21 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {
+    "wdl": "0.1"
+   },
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "preamble :: namespaced id": {
+  "canonical": "@id crossfit:fran\n\nfor time:\n  - 21 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {
+    "id": "crossfit:fran"
+   },
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "preamble :: directive with commas": {
+  "canonical": "@tags conditioning, benchmark\n\nfor time:\n  - 21 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {
+    "tags": "conditioning, benchmark"
+   },
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "preamble :: date directive": {
+  "canonical": "@date 2026-08-09\n\nfor time:\n  - 21 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {
+    "date": "2026-08-09"
+   },
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "preamble :: directive with no value": {
+  "canonical": "@draft\n\nfor time:\n  - 21 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {
+    "draft": ""
+   },
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "preamble :: comment own line": {
   "canonical": "// a note about this one\nfor time:\n  - 21 Thrusters @ 95lb",
   "errors": [],

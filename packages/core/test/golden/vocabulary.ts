@@ -427,6 +427,16 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   { group: 'preamble', name: 'title', src: '# Fran\nfor time:\n  - 21 Thruster @ 95lb' },
   { group: 'preamble', name: 'directive', src: '@id fran\nfor time:\n  - 21 Thruster @ 95lb' },
   { group: 'preamble', name: 'directives many', src: '@id fran\n@author chris\nfor time:\n  - 21 Thruster @ 95lb' },
+  // Not one of the 190 corpus workouts writes a directive, so these five are the
+  // only coverage the forms have. `@id` takes an optional `namespace:` prefix and
+  // is never derived from the contents (roadmap §3.2.1); a value is otherwise
+  // uninterpreted, which is what makes `@tags`' commas ordinary text and a
+  // directive with no value at all legitimate.
+  { group: 'preamble', name: 'version directive', src: '@wdl 0.1\nfor time:\n  - 21 Thruster @ 95lb' },
+  { group: 'preamble', name: 'namespaced id', src: '@id crossfit:fran\nfor time:\n  - 21 Thruster @ 95lb' },
+  { group: 'preamble', name: 'directive with commas', src: '@tags conditioning, benchmark\nfor time:\n  - 21 Thruster @ 95lb' },
+  { group: 'preamble', name: 'date directive', src: '@date 2026-08-09\nfor time:\n  - 21 Thruster @ 95lb' },
+  { group: 'preamble', name: 'directive with no value', src: '@draft\nfor time:\n  - 21 Thruster @ 95lb' },
   { group: 'preamble', name: 'comment own line', src: '// a note about this one\nfor time:\n  - 21 Thruster @ 95lb' },
   { group: 'preamble', name: 'comment trailing', src: 'for time:\n  - 21 Thruster @ 95lb  // heavy' },
 
