@@ -354,23 +354,45 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     '10 Deadlift (105/145) unbroken',
     '10 Deadlift (women 105lb / men 145lb) unbroken',
   ] },
-  { group: 'known-wrong', lines: [
-    // Still read wrongly, and pinned so the fix shows up as a diff rather than as
-    // a silent change. Both are the same defect and both are queue item 0e's,
-    // because reading them means *adding a form to the language* — a decision,
-    // not a transcription — which is why the grammar reproduces the old reading
-    // here rather than picking.
-    //
+  { group: 'sets-by-reps', lines: [
     // `sets x reps` written *before* the movement, which is how gyms write it and
     // how spec §1's own design rule 4 writes it: `5x5 Back Squat @ 225lb` is the
-    // example given for "must stay a one-liner". `parseQuantity` matched no
-    // pattern on `5x5`, so the whole thing becomes the movement *name*, the
-    // quantity stays `open`, and `wdl fmt` writes `- 5x5 Back Squats @ 225lb`.
-    // The trailing spelling (`5 Deadlift x3`) works and is pinned under
-    // `modifiers`. Found 2026-08-15 by widening the differential test's step
-    // source to the vocabulary's whole-document forms. See known-debts.md.
+    // example given for "must stay a one-liner". Until 2026-08-15 no
+    // implementation read it — `parseQuantity` matched no pattern on `5x5`, so
+    // the whole thing became the movement *name*, the quantity stayed `open`, and
+    // the name resolved to no registry entry, which took the step out of muscle
+    // and volume analysis too. Found 2026-08-15 by widening the differential
+    // test's step source to the vocabulary's whole-document forms.
+    //
+    // **It means what the trailing `xN` means**, which is the whole reason it can
+    // be read without inventing anything: `3x10 Curl` and `10 Curl x3` are the
+    // same prescription and now produce the same tree, so nothing downstream
+    // learns a new concept — `timeline.ts` already expands `sets` into that many
+    // identical repetitions, so rep totals come out right for free.
     '3x10 Curl',
     '5x5 Back Squat @ 225lb',
+    '1x1 Snatch @ 95% 1RM',
+    // The trailing twin, pinned right here rather than only under `modifiers`,
+    // because "these two are the same tree" is the claim and a reader should be
+    // able to see both readings without hunting for one of them.
+    '10 Curl x3',
+    // Both at once. The trailing one wins, because it is read later and "the
+    // later qualifier wins" is the reading already settled for every other part
+    // of a step stated twice (`5 Squat (both) each leg` is pinned above). Nobody
+    // writes this; it is pinned because leaving it to fall out of rule ordering is
+    // how a fixture ends up deciding a language question.
+    '5x5 Back Squat x3',
+    // The leading form beside the other things a step can carry, since a new
+    // leading quantity has to leave the rest of the line alone.
+    '3x10 Curl each arm',
+    '3x10 Curl, unbroken',
+    // **Not read, and pinned that way.** `10x` is a rep spelling spec §3's unit
+    // table documents (`Reps | 10 | 10 reps, 10x`) and no implementation has ever
+    // read it either — it is the same family and was found beside this one, but
+    // it is a *different* form and not what queue item 0e scoped. Adding it means
+    // deciding whether a bare `Nx` is reps everywhere or only here, so it is
+    // recorded rather than folded in. See known-debts.md.
+    '10x Curl',
   ] },
   { group: 'whitespace-and-case', lines: [
     '10   Thruster   @   95lb',

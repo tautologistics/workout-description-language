@@ -68,6 +68,28 @@ export function installStep(semantics: Semantics): void {
       step.flags.push('max');
     },
     leadQuantity_max(_max, _s) { this.args.step.quantity = { kind: 'max' }; },
+
+    /**
+     * `5x5 Back Squat` — sets, then reps.
+     *
+     * It contributes exactly what the trailing `x5` contributes, which is the
+     * whole argument for reading it: `3x10 Curl` and `10 Curl x3` are the same
+     * prescription, so they produce the same tree and nothing downstream learns a
+     * new concept. `sets` is already expanded by `timeline.ts` into that many
+     * identical repetitions, so the rep total comes out right for free.
+     *
+     * Written with a trailing `x3` as well, the trailing one wins — it is read
+     * later, and "the later qualifier wins" is the reading already settled for
+     * every other part of a step line that is stated twice.
+     */
+    leadQuantity_setsByReps(sets, _s) { sets.addTo(this.args.step); },
+    // Three children, not four: the trailing `~wordChar` is an inline lookahead
+    // and contributes none, where a *rule application* like `headEnd` would have
+    // contributed one even though it matches nothing.
+    setsByReps(n, _x, reps) {
+      this.args.step.sets = num(n);
+      this.args.step.quantity = { kind: 'reps', value: num(reps) };
+    },
     leadQuantity_plain(q, _s) { this.args.step.quantity = q.unit(); },
 
     // --- what may trail a movement ---

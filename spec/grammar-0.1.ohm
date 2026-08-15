@@ -115,9 +115,20 @@ WDL {
   leadQuantity = threshold                                              -- threshold
                | durationQty spaces maxWord ~letter spaces              -- clockMax
                | maxWord ~letter spaces                                 -- max
+               | setsByReps spaces                                      -- setsByReps
                | anyQuantity spaces                                     -- plain
 
   maxWord = caseInsensitive<"max">
+
+  // `5x5 Back Squat`, `3x10 Curl` — **sets** times **reps**, in that order,
+  // which is how a gym writes it and how spec §1's own design rule 4 writes it.
+  // It says exactly what the trailing `x5` says (`10 Curl x3` is `3x10 Curl`),
+  // so it sets `sets` and the rep count and adds no third concept.
+  //
+  // The `~wordChar` is what keeps it from eating a load: `2x35lb` has a letter
+  // after the second number, so it is not this — a target's `2x35lb` is two
+  // thirty-five-pound dumbbells and has nothing to do with sets.
+  setsByReps = integer caseInsensitive<"x"> integer ~wordChar
 
   // A quantity is a whole whitespace-delimited token, or `3/4 Sit-Up` reads
   // its leading `3` as three reps of a movement called `/4 Sit-Up`.

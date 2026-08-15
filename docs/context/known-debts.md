@@ -108,17 +108,61 @@ when something looks odd before treating it as a discovery.
   target wherever it appears. Found 2026-08-15 by stating the block header in the
   grammar; it was the one header exclusion, and that list is empty now.
 
-- **`5x5 Back Squat @ 225lb` parses to a movement named `5x5 Back Squat`.** Leading
-  `sets x reps` — the way gyms write it, and the way **spec §1's own design rule 4
-  writes it**, as the example for "must stay a one-liner" — is read by neither
-  implementation. `parseQuantity` matches no pattern on `5x5`, so the whole thing
-  falls through into the movement name, the quantity stays `open`, the name
-  resolves to nothing, and `wdl fmt` writes it straight back. The *trailing*
-  spelling works (`3 Bench Press @ 80% 1RM x5`), which is what hid this. Found
-  2026-08-15 by widening the differential test's step source to the vocabulary's
-  whole-document forms. Pinned with `3x10 Curl` beside it. **Not stated in the
-  grammar**, deliberately: reading it correctly means adding a form to the
-  language, which is a decision rather than a transcription.
+- ~~**`5x5 Back Squat @ 225lb` parses to a movement named `5x5 Back Squat`.**~~
+  **Closed 2026-08-15** by queue item 0e. Leading `sets x reps` — the way gyms
+  write it, and the way **spec §1's own design rule 4 writes it**, as the example
+  for "must stay a one-liner" — was read by neither implementation.
+  `parseQuantity` matched no pattern on `5x5`, so the whole thing fell through
+  into the movement name, the quantity stayed `open`, the name resolved to
+  nothing — which took the step out of muscle and volume analysis, one worse than
+  a lost load — and `wdl fmt` wrote it straight back. The *trailing* spelling
+  worked (`3 Bench Press @ 80% 1RM x5`), which is what hid it. Found 2026-08-15 by
+  widening the differential test's step source to the vocabulary's whole-document
+  forms.
+
+  **The decision was small because the form says nothing new.** `3x10 Curl` is
+  `10 Curl x3`: sets, then reps, in the order every gym writes them. It sets
+  `sets` and the rep count and adds no third concept, so nothing downstream
+  changes — `sets` reaches exactly two consumers, `format` (which writes ` x3`)
+  and `timeline.ts` (which expands it into that many identical repetitions), so
+  rep totals come out right for free. The two spellings now produce the same tree,
+  and that is pinned rather than described. Written *both* ways
+  (`5x5 Back Squat x3`) the trailing one wins, because it is read later and "the
+  later qualifier wins" is already the settled reading for every other part of a
+  step stated twice; it is pinned because leaving it to fall out of rule ordering
+  is how a fixture ends up deciding a language question.
+
+- **Open, and found while closing the one above: `10x Curl` is not read.** Spec
+  §3's unit table documents `10x` as a rep spelling (`Reps | 10 | 10 reps, 10x`)
+  and no implementation has ever read it — it falls into the movement name exactly
+  as `3x10` used to. It is the same family and was deliberately *not* folded into
+  that fix, because it is a different form: reading it means deciding whether a
+  bare `Nx` is reps everywhere a quantity is expected or only in a leading
+  position, and `Nx` sits one character away from `NxM`. Pinned 2026-08-15 under
+  `sets-by-reps` and marked pending. Small, and it wants the decision written down
+  first.
+
+- **Open: whether the leading `NxM` spelling should be the *canonical* one.**
+  Deliberately not decided while closing the parse defect above, because it is a
+  question about `format` rather than about `parse` and it applies just as much to
+  steps that already parsed. Today `5x5 Back Squat @ 225lb` reads correctly and
+  then formats to `5 Back Squats @ 225lb x5` — lossless, a fixpoint, and *not what
+  anybody writes*. The whiteboard constraint is the argument for changing it:
+  `5x5 Back Squat @ 225lb` is the gym standard and is the exact string spec §1
+  uses to illustrate a readable one-liner, so the canonical form is currently
+  further from a whiteboard than the input it replaces.
+
+  **The recommendation is to switch, conditionally**: emit `NxM` when a step has
+  `sets` *and* a plain rep quantity, and keep the trailing ` xN` otherwise —
+  because the leading spelling only works for reps. `500m Row x3` has no sensible
+  leading form (`3x500m Row` reads as an interval, not as sets of a distance) and
+  `max Pull-Up x3` has none at all. That conditional is the reason this is worth
+  deciding deliberately rather than in passing: a canonical form with an exception
+  in it needs the exception stated in the spec, and *"which spelling is canonical"*
+  is exactly the kind of question that should not be settled by whichever branch
+  someone wrote first. **Blast radius is small and measured**: no corpus file uses
+  either spelling, and the only pinned forms affected are the handful under
+  `sets-by-reps` and `modifiers`.
 
 - ~~**`wdl fmt` drops `after last` from four of the five kinds of rest.**~~
   **Closed 2026-08-15** by queue item 0e. `restText` *used to* return early for

@@ -22,10 +22,13 @@ const snapshot = JSON.parse(readFileSync(join(here, 'golden/vocabulary.json'), '
 
 /** Forms whose pinned reading is known to be wrong. Pinned so a fix is visible. */
 const KNOWN_WRONG: Record<string, string> = {
-  'known-wrong :: 3x10 Curl':
-    '`sets x reps` before the movement becomes the movement name; the quantity stays open',
-  'known-wrong :: 5x5 Back Squat @ 225lb':
-    '`sets x reps` before the movement becomes the movement name — spec §1 rule 4 writes it this way',
+  // Found 2026-08-15 beside the leading `sets x reps` defect and deliberately not
+  // folded into its fix: `10x` is a rep spelling spec §3's unit table documents
+  // and nothing has ever read, but it is a different form from `NxM` and reading
+  // it means deciding whether a bare `Nx` is reps everywhere or only in a leading
+  // position. Recorded rather than guessed at.
+  'sets-by-reps :: 10x Curl':
+    '`10x` is a documented rep spelling (spec §3) that no rule reads — it becomes part of the movement name',
 };
 
 /**

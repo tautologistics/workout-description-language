@@ -6516,19 +6516,21 @@
   },
   "fixpoint": true
  },
- "known-wrong :: 3x10 Curl": {
-  "canonical": "for time:\n  - 3x10 Curl",
+ "sets-by-reps :: 3x10 Curl": {
+  "canonical": "for time:\n  - 10 Curls x3",
   "errors": [],
   "ast": {
    "body": [
     {
      "children": [
       {
-       "movement": "3x10 Curl",
+       "movement": "Curl",
        "node": "step",
        "quantity": {
-        "kind": "open"
-       }
+        "kind": "reps",
+        "value": 10
+       },
+       "sets": 3
       }
      ],
      "node": "block",
@@ -6545,19 +6547,21 @@
   },
   "fixpoint": true
  },
- "known-wrong :: 5x5 Back Squat @ 225lb": {
-  "canonical": "for time:\n  - 5x5 Back Squat @ 225lb",
+ "sets-by-reps :: 5x5 Back Squat @ 225lb": {
+  "canonical": "for time:\n  - 5 Back Squats @ 225lb x5",
   "errors": [],
   "ast": {
    "body": [
     {
      "children": [
       {
-       "movement": "5x5 Back Squat",
+       "movement": "Back Squat",
        "node": "step",
        "quantity": {
-        "kind": "open"
+        "kind": "reps",
+        "value": 5
        },
+       "sets": 5,
        "targets": [
         {
          "kind": "load",
@@ -6568,6 +6572,205 @@
          }
         }
        ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "sets-by-reps :: 1x1 Snatch @ 95% 1RM": {
+  "canonical": "for time:\n  - 1 Snatch @ 95% 1RM x1",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Snatch",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 1
+       },
+       "sets": 1,
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "percent",
+          "of": "1RM",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "sets-by-reps :: 10 Curl x3": {
+  "canonical": "for time:\n  - 10 Curls x3",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Curl",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "sets": 3
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "sets-by-reps :: 5x5 Back Squat x3": {
+  "canonical": "for time:\n  - 5 Back Squats x3",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "sets": 3
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "sets-by-reps :: 3x10 Curl each arm": {
+  "canonical": "for time:\n  - 10 Curls each arm x3",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "arm",
+       "movement": "Curl",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "sets": 3
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "sets-by-reps :: 3x10 Curl, unbroken": {
+  "canonical": "for time:\n  - 10 Curls x3, unbroken",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "unbroken"
+       ],
+       "movement": "Curl",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "sets": 3
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "sets-by-reps :: 10x Curl": {
+  "canonical": "for time:\n  - 10x Curl",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "10x Curl",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
       }
      ],
      "node": "block",
@@ -7936,18 +8139,20 @@
   "fixpoint": true
  },
  "block/section :: accessory": {
-  "canonical": "accessory:\n  - 3x10 Curl",
+  "canonical": "accessory:\n  - 10 Curls x3",
   "errors": [],
   "ast": {
    "body": [
     {
      "children": [
       {
-       "movement": "3x10 Curl",
+       "movement": "Curl",
        "node": "step",
        "quantity": {
-        "kind": "open"
-       }
+        "kind": "reps",
+        "value": 10
+       },
+       "sets": 3
       }
      ],
      "name": "accessory",
