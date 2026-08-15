@@ -210,6 +210,20 @@ export function validate(w: Workout, opts: ValidateOptions = {}): Diagnostic[] {
     add({ severity: 'error', code: 'empty-workout', message: 'the workout has no blocks' });
   }
 
+  // A score with no primary names nothing to rank by, and a `tiebreak` with
+  // nothing to break the tie *in* is the inline twin of an orphan `tiebreak:`
+  // line — which `parse` already reports. The two ways to write one: a brace that
+  // never says `primary:` (`score: {tiebreak: reps at 5min}`), and a bare
+  // `score:` with nothing after it. Both are held rather than refused, because an
+  // absent field is absent and the fields the author did write are worth keeping;
+  // saying so is validation's job, not the grammar's, for the same reason
+  // `min < max` on a rep range is.
+  if (w.score && !w.score.primary) {
+    add({ severity: 'error', code: 'score-without-primary',
+          message: 'a `score:` names what to rank by — this one names nothing; '
+            + 'add a primary, or drop the line' });
+  }
+
   const top = w.score?.primary ?? '';
   if (/rounds/.test(top)) {
     // The open-ended block may be nested — `3 rounds: AMRAP 5min: … rest 5min`

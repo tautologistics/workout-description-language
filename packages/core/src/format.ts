@@ -126,7 +126,11 @@ function restText(r: Rest): string {
  * whole premise is gone: nobody writes braces on a whiteboard.
  */
 function scoreLines(s: Score): string[] {
-  const out = [`score: ${s.onCap || s.tiebreak ? s.primary : s.raw}`];
+  // `.trimEnd()` for the one case that has nothing to put here: a brace score
+  // that named a tiebreak and no `primary:`. The primary is empty, deliberately —
+  // an absent primary is absent — and the line must not go out with a trailing
+  // space, which is neither what the author wrote nor a fixpoint.
+  const out = [`score: ${s.onCap || s.tiebreak ? s.primary : s.raw}`.trimEnd()];
   // `on cap: reps` is the default when a cap exists, so only state it otherwise.
   if (s.onCap && s.onCap !== 'reps') out.push(`on cap: ${s.onCap}`);
   if (s.tiebreak) out.push(`tiebreak: ${s.tiebreak}`);

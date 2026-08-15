@@ -9102,7 +9102,7 @@
   "fixpoint": true
  },
  "score :: brace form without a primary": {
-  "canonical": "for time:\n  - 100 Burpees\n\nscore: {tiebreak: reps at 5min}\ntiebreak: reps at 5min",
+  "canonical": "for time:\n  - 100 Burpees\n\nscore:\ntiebreak: reps at 5min",
   "errors": [],
   "ast": {
    "body": [
@@ -9129,8 +9129,121 @@
    "directives": {},
    "node": "workout",
    "score": {
-    "primary": "{tiebreak: reps at 5min}",
+    "primary": "",
     "raw": "{tiebreak: reps at 5min}",
+    "tiebreak": "reps at 5min"
+   }
+  },
+  "fixpoint": true
+ },
+ "score :: brace form with only an on cap": {
+  "canonical": "for time, cap 12min:\n  - 100 Burpees\n\nscore:\non cap: rounds completed",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "cap": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "onCap": "rounds completed",
+    "primary": "",
+    "raw": "{on cap: rounds completed}"
+   }
+  },
+  "fixpoint": true
+ },
+ "score :: brace form empty": {
+  "canonical": "for time:\n  - 100 Burpees\n\nscore: {}",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "primary": "",
+    "raw": "{}"
+   }
+  },
+  "fixpoint": true
+ },
+ "score :: brace form with every field": {
+  "canonical": "for time, cap 12min:\n  - 100 Burpees\n\nscore: time\non cap: rounds completed\ntiebreak: reps at 5min",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "cap": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "onCap": "rounds completed",
+    "primary": "time",
+    "raw": "{primary: time, on cap: rounds completed, tiebreak: reps at 5min}",
     "tiebreak": "reps at 5min"
    }
   },

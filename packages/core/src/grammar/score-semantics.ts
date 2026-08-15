@@ -54,12 +54,25 @@ export function installScore(semantics: Semantics): void {
       return spec.child(0).toScore();
     },
 
+    /**
+     * `score: {primary: time, tiebreak: reps at 5min}`.
+     *
+     * **A brace with no `primary:` has no primary, and that is now what it
+     * says.** It used to make the *whole brace text* the primary — so
+     * `score: {tiebreak: reps at 5min}` came back with
+     * `primary: "{tiebreak: reps at 5min}"`, which nothing can rank by, and the
+     * canonical form then stated the tiebreak twice: once inside the raw it
+     * re-emitted and once as its own line.
+     *
+     * An absent primary is absent (the standing lesson), so nothing is invented
+     * here and nothing is refused either — the fields the author *did* write are
+     * kept and round-trip. That the score is incomplete is a statement about a
+     * value rather than about a shape, so it is `validate`'s to make, the same
+     * division that keeps `min < max` on a rep range out of the grammar.
+     */
     scoreSpec_brace(brace) {
       const raw = this.sourceString.trim();
-      // With no `primary:` field the whole brace text stands as the primary. That
-      // is the old parser's reading and it is a poor one; it is reproduced here
-      // rather than quietly improved.
-      const score: Score = { primary: raw, raw };
+      const score: Score = { primary: '', raw };
       for (const { key, value } of brace.braceFields()) {
         if (key === 'primary') score.primary = value;
         else if (key === 'on cap') score.onCap = value;

@@ -495,13 +495,26 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   { group: 'score', name: 'brace form', src: 'for time:\n  - 100 Burpee\nscore: {primary: time, tiebreak: reps at 5min}' },
   { group: 'score', name: 'on a block', src: '3 rounds:\n  - 10 Push-Up\n  score: time' },
   { group: 'score', name: 'rounds + reps per round', src: '5 rounds:\n  - 10 Burpee\nscore: rounds + reps per round' },
-  // A brace with no `primary:` field. `primary` becomes the *whole brace text* —
-  // `{tiebreak: reps at 5min}` — which is not a thing anything can rank by, and
-  // the canonical form then states the tiebreak twice: once inside the brace it
-  // re-emits as `raw`, and once as its own `tiebreak:` line. Both halves are
-  // defects and both are reproduced by the grammar, because a `primary` that
-  // defaults to the raw text is what `parseScore` says. See known-debts.md.
+  // A brace with no `primary:` field. `primary` used to become the *whole brace
+  // text* — `{tiebreak: reps at 5min}` — which is not a thing anything can rank
+  // by, and the canonical form then stated the tiebreak twice: once inside the
+  // brace it re-emitted as `raw`, and once as its own `tiebreak:` line.
+  //
+  // **Decided and fixed 2026-08-15: a brace with no `primary:` has no primary.**
+  // An absent field is absent, so nothing is invented; the fields the author did
+  // write are kept and round-trip, so nothing is refused either; and `validate`
+  // reports `score-without-primary`, because "this score names nothing to rank
+  // by" is a statement about a *value* and belongs where `min < max` on a rep
+  // range belongs. The tiebreak is emitted once now, and the canonical `score:`
+  // line carries no trailing space.
   { group: 'score', name: 'brace form without a primary', src: 'for time:\n  - 100 Burpee\nscore: {tiebreak: reps at 5min}' },
+  { group: 'score', name: 'brace form with only an on cap', src: 'for time, cap 12min:\n  - 100 Burpee\nscore: {on cap: rounds completed}' },
+  // Empty braces: nothing named at all. Held verbatim as the raw, since there is
+  // no qualifier to re-emit, and reported by the same rule.
+  { group: 'score', name: 'brace form empty', src: 'for time:\n  - 100 Burpee\nscore: {}' },
+  // All three fields, which is the form the brace exists for and the one that
+  // must not move: a compound score on one line.
+  { group: 'score', name: 'brace form with every field', src: 'for time, cap 12min:\n  - 100 Burpee\nscore: {primary: time, on cap: rounds completed, tiebreak: reps at 5min}' },
   // The nested block form, which spec §9.5 and §9.6 both document. It is dropped
   // *entirely*: `parseScore` is handed `score:` with nothing after it, so
   // `primary` is the empty string, the children are never looked at, `wdl check`

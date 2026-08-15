@@ -548,6 +548,8 @@ score: complete        // done / not done
 
 `for time:` is sugar for a block with `score: time`. `AMRAP:` defaults to `rounds + reps`.
 
+**A score names what to rank by, and a score that names nothing is incomplete rather than invalid.** The two ways to write one are a bare `score:` and a brace form that never says `primary:` — `score: {tiebreak: reps at 5min}`. Both are *read*: whatever fields were written are kept and survive a round trip, and the primary is simply absent, because an absent field is absent and a default here would be an invention. Both are then **reported** by `wdl check` as `score-without-primary`. This is a rule about a value rather than about a shape, so it lives in validation and not in the grammar, the same way `min < max` on a rep range does. *Stated 2026-08-15: before that the brace form with no `primary:` made the whole brace text the primary — something nothing could rank by — and emitted the tiebreak twice.*
+
 ### 9.2 Per-round scores
 
 ```

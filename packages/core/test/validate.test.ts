@@ -30,6 +30,31 @@ describe('validation: errors', () => {
     ok(codes('for time:\n  0-5-9:\n    - Thruster').includes('bad-scheme'));
   });
 
+  /**
+   * A score names what to rank by, and both spellings that can leave it unnamed
+   * are here. The brace form used to make the *whole brace text* the primary,
+   * which is not a thing anything can rank by and which also emitted the tiebreak
+   * twice; a bare `score:` gets it from `scoreLine`'s empty spec.
+   *
+   * Held rather than refused, deliberately — an absent field is absent, the
+   * fields the author *did* write survive and round-trip, and the complaint is
+   * made here rather than in the grammar, because "names nothing to rank by" is a
+   * statement about a value in the same way `min < max` on a rep range is.
+   */
+  it('rejects a score that names nothing to rank by', () => {
+    ok(codes('for time:\n  - 100 Burpee\nscore: {tiebreak: reps at 5min}')
+      .includes('score-without-primary'));
+    ok(codes('for time:\n  - 100 Burpee\nscore:').includes('score-without-primary'));
+    // And the tiebreak the author wrote is kept, not thrown away with the
+    // complaint — the whole point of holding an incomplete score.
+    eq(parse('for time:\n  - 100 Burpee\nscore: {tiebreak: reps at 5min}').workout.score?.tiebreak,
+      'reps at 5min');
+    // A named primary is not complained about, whichever spelling names it.
+    eq(codes('for time:\n  - 100 Burpee\nscore: {primary: time, tiebreak: reps at 5min}')
+      .includes('score-without-primary'), false);
+    eq(codes('for time:\n  - 100 Burpee\nscore: time').includes('score-without-primary'), false);
+  });
+
   it('rejects rounds + reps on fixed work', () => {
     ok(codes('5 rounds:\n  - 10 Burpee\nscore: rounds + reps').includes('rounds-score-on-fixed-work'));
     eq(codes('AMRAP 10min:\n  - 10 Burpee\nscore: rounds + reps').includes('rounds-score-on-fixed-work'), false);

@@ -157,13 +157,23 @@ when something looks odd before treating it as a discovery.
   form. Either the spec's prose is wrong or the parser is, and that is the
   decision — the grammar reproduces the parser here rather than picking.
 
-- **A brace score with no `primary:` field makes the whole brace text the
-  primary.** `score: {tiebreak: reps at 5min}` gives
+- ~~**A brace score with no `primary:` field makes the whole brace text the
+  primary.**~~ **Closed 2026-08-15** by queue item 0e.
+  `score: {tiebreak: reps at 5min}` used to give
   `primary: "{tiebreak: reps at 5min}"`, which nothing can rank by, and the
-  canonical form then states the tiebreak twice — once inside the `raw` it
-  re-emits and once as its own `tiebreak:` line. Pinned 2026-08-15; the grammar
-  reproduces it, because a `primary` defaulting to the raw text is what
-  `parseScore` says.
+  canonical form then stated the tiebreak twice — once inside the `raw` it
+  re-emitted and once as its own `tiebreak:` line.
+
+  **The decision: a brace with no `primary:` has no primary.** Not the raw text,
+  which was nonsense; not a default, because `@95` is not 95lb and a defaulted
+  primary is the same invention one layer up; and not a parse failure, because the
+  author *did* write a tiebreak and it is worth keeping. So the fields written are
+  kept and round-trip, `primary` is empty, and `validate` reports
+  `score-without-primary` — "this names nothing to rank by" being a statement
+  about a value, which puts it exactly where `min < max` on a rep range was put on
+  the day of the swap. A bare `score:` with nothing after it reaches the same rule
+  from the other direction, so the two spellings of an unnamed score are one
+  complaint. Stated in spec §9.1. Four forms pinned where one was.
 
 - ~~**A spelled-out duration word is a step quantity and not a rest.**~~
   **Closed 2026-08-15** by queue item 0e. `45 seconds Plank` was 45 seconds;
