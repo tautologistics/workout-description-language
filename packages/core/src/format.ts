@@ -89,14 +89,34 @@ function stepText(s: Step, scheme?: Scheme): string {
   return out;
 }
 
+/**
+ * A rest, and `after last` is not part of its bound.
+ *
+ * The bound is five different kinds of thing — the athlete's discretion, the
+ * preceding work, work of its own, a sensor reading, a clock — and `after last`
+ * says *which* rest rather than how long it is (spec §5.2, N1), so it can sit
+ * after any of them and is appended once, here, rather than by each branch.
+ *
+ * *It used to be appended by one branch only.* Four of the five returned early,
+ * so `rest as needed after last` formatted to `rest as needed` — "rest only
+ * after the last round" quietly became "rest between every round", which is a
+ * different workout, and `wdl check` said ok. The round trip could not see it
+ * either: the *second* format of the shortened line is stable, so the shape
+ * settled perfectly on a reading that had lost a fact. One more case of the
+ * standing lesson that a fixpoint proves stability and not correctness.
+ */
 function restText(r: Rest): string {
-  if (r.dynamic === 'as-needed') return 'rest as needed';
-  if (r.dynamic === 'equal-to-work') return 'rest = work';
-  if (r.active) return `rest ${formatQuantity(r.active.quantity)} ${r.active.movement}`;
-  if (r.duration?.kind === 'threshold') return `rest ${formatQuantity(r.duration)}`;
-  let out = `rest ${r.duration ? formatDuration(r.duration) : ''}`.trim();
-  if (r.afterLast) out += ' after last';
-  return out;
+  const bound = (): string => {
+    if (r.dynamic === 'as-needed') return 'as needed';
+    if (r.dynamic === 'equal-to-work') return '= work';
+    if (r.active) return `${formatQuantity(r.active.quantity)} ${r.active.movement}`;
+    if (r.duration?.kind === 'threshold') return formatQuantity(r.duration);
+    return r.duration ? formatDuration(r.duration) : '';
+  };
+  // Joined rather than concatenated, so an unbounded `rest after last` does not
+  // come out with two spaces in it and a bound is never reformatted on its way
+  // through — an active recovery's movement name is held verbatim.
+  return ['rest', bound(), r.afterLast ? 'after last' : ''].filter(Boolean).join(' ');
 }
 
 /**

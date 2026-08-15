@@ -120,15 +120,25 @@ when something looks odd before treating it as a discovery.
   grammar**, deliberately: reading it correctly means adding a form to the
   language, which is a decision rather than a transcription.
 
-- **`wdl fmt` drops `after last` from four of the five kinds of rest.** `restText`
-  returns early for `as needed`, `= work`, active recovery and a threshold, so only
-  a plain duration ever has ` after last` appended. `rest as needed after last`
-  formats to `rest as needed` — "rest only after the last round" becomes "rest
-  between every round", which is a different workout, and `wdl check` says ok.
-  Invisible to the vocabulary's fixpoint check, because the *second* format of the
-  shortened line is stable: one more way a round trip proves stability and not
-  correctness. Found 2026-08-15 while writing rest permutations for the grammar;
-  four forms pinned. A formatter fix, and small.
+- ~~**`wdl fmt` drops `after last` from four of the five kinds of rest.**~~
+  **Closed 2026-08-15** by queue item 0e. `restText` *used to* return early for
+  `as needed`, `= work`, active recovery and a threshold, so only a plain duration
+  ever had ` after last` appended. `rest as needed after last` formatted to
+  `rest as needed` — "rest only after the last round" became "rest between every
+  round", which is a different workout, and `wdl check` said ok. Invisible to the
+  vocabulary's fixpoint check, because the *second* format of the shortened line
+  is stable: one more way a round trip proves stability and not correctness. Found
+  2026-08-15 while writing rest permutations for the grammar.
+
+  **The fix is where the fact lives, not a fifth branch.** `after last` says
+  *which* rest rather than how long it is (spec §5.2, N1), so it is appended once,
+  outside the branch on the bound — the branch computes a bound and nothing else.
+  Written as a fifth early return it would have been the same bug waiting for the
+  sixth kind of bound. Eleven forms are pinned now rather than four: every bound
+  crossed with `after last`, including the *alternate spellings* of bounds that
+  already worked (`rest equal to work after last`, `rest 1:30 after last`,
+  `rest 1 min 30 s after last`) and `rest after last` with no bound at all, which
+  is the one that would have shown a double space.
 
 - **The nested `score:` block that spec §9.5 and §9.6 both document is dropped
   entirely.** Written as the spec writes it —

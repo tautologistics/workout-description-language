@@ -518,19 +518,35 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   { group: 'rest', name: 'loose spacing', src: '5 sets:\n  - 5 Back Squat @ 225lb\n  rest 1 min 30 s' },
   { group: 'rest', name: 'bare minutes', src: '5 sets:\n  - 5 Back Squat @ 225lb\n  rest 3' },
   { group: 'rest', name: 'clock', src: '5 sets:\n  - 5 Back Squat @ 225lb\n  rest 1:30' },
-  // `after last` on each of the other four kinds of bound. All four are *parsed*
-  // correctly and then **lost by the formatter**: `restText` returns early for
-  // `as needed`, `= work`, active recovery and a threshold, so only a plain
-  // duration ever gets ` after last` appended. So `wdl fmt` quietly turns "rest
-  // only after the last round" into "rest between every round", which is a
-  // different workout. Invisible to the fixpoint check, because the *second*
-  // format of the shortened line is stable — one more way a round trip proves
-  // stability and not correctness. Found 2026-08-15 by writing these
-  // permutations while stating the rest line in the grammar. See known-debts.md.
+  // `after last` on **every** spelling of every bound, and that breadth is the
+  // point rather than thoroughness for its own sake. All of these always parsed
+  // correctly and four of them were then **lost by the formatter**: `restText`
+  // returned early for `as needed`, `= work`, active recovery and a threshold,
+  // so only a plain duration ever had ` after last` appended. `wdl fmt` quietly
+  // turned "rest only after the last round" into "rest between every round",
+  // which is a different workout, and `wdl check` said ok. Invisible to the
+  // fixpoint check, because the *second* format of the shortened line is stable —
+  // one more way a round trip proves stability and not correctness. Found
+  // 2026-08-15 by writing these permutations while stating the rest line in the
+  // grammar; **fixed 2026-08-15** by appending `after last` once, outside the
+  // branch on the bound, because it is a fact about *which* rest and not about
+  // how long it is. The alternate spellings are here because the defect was one
+  // branch missing a line: a fix that reaches four branches and not the fifth
+  // spelling of one of them is the same bug wearing different clothes.
   { group: 'rest', name: 'as needed after last', src: '5 sets:\n  - 1 Snatch\n  rest as needed after last' },
   { group: 'rest', name: 'equal to work after last', src: '5 sets:\n  - 30s Bike\n  rest = work after last' },
+  { group: 'rest', name: 'equal to work words after last', src: '5 sets:\n  - 30s Bike\n  rest equal to work after last' },
   { group: 'rest', name: 'active recovery after last', src: '5 sets:\n  - 400m Run\n  rest 400m Jog after last' },
   { group: 'rest', name: 'threshold after last', src: '5 sets:\n  - 500m Row\n  rest until HR < 120bpm after last' },
+  { group: 'rest', name: 'threshold zone after last', src: '5 sets:\n  - 500m Row\n  rest until HR < Z2 after last' },
+  { group: 'rest', name: 'seconds after last', src: '5 sets:\n  - 30s Bike\n  rest 90s after last' },
+  { group: 'rest', name: 'clock after last', src: '5 sets:\n  - 30s Bike\n  rest 1:30 after last' },
+  { group: 'rest', name: 'bare minutes after last', src: '5 sets:\n  - 30s Bike\n  rest 3 after last' },
+  { group: 'rest', name: 'loose spacing after last', src: '5 sets:\n  - 30s Bike\n  rest 1 min 30 s after last' },
+  // No bound at all, only `after last`. Legal — `restBody` is optional — and the
+  // one form where the fix could have left a double space behind, which is why
+  // the pieces are joined rather than concatenated.
+  { group: 'rest', name: 'after last with no bound', src: '5 sets:\n  - 30s Bike\n  rest after last' },
   // Spelled-out duration words, which work in a *step's* quantity position and in
   // none of these. `45 seconds Plank` is 45 seconds; `rest 45 seconds` is an
   // `unreadable rest duration` error **and** a rest with no bound at all, which

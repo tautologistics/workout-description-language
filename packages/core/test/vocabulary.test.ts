@@ -28,14 +28,6 @@ const KNOWN_WRONG: Record<string, string> = {
     '`sets x reps` before the movement becomes the movement name — spec §1 rule 4 writes it this way',
   'block/modifier :: target then for time':
     'the header `@` sweep is greedy and swallows the following `for time`, losing both',
-  'rest :: as needed after last':
-    '`after last` is parsed and then dropped by the formatter — every kind of rest but a plain duration',
-  'rest :: equal to work after last':
-    '`after last` is parsed and then dropped by the formatter — every kind of rest but a plain duration',
-  'rest :: active recovery after last':
-    '`after last` is parsed and then dropped by the formatter — every kind of rest but a plain duration',
-  'rest :: threshold after last':
-    '`after last` is parsed and then dropped by the formatter — every kind of rest but a plain duration',
   'score :: brace form without a primary':
     'with no `primary:` field the primary becomes the whole brace text, and the tiebreak is emitted twice',
   'score :: nested block form':

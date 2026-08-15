@@ -9976,7 +9976,7 @@
   "fixpoint": true
  },
  "rest :: as needed after last": {
-  "canonical": "5 sets:\n  - 1 Snatch\n  rest as needed",
+  "canonical": "5 sets:\n  - 1 Snatch\n  rest as needed after last",
   "errors": [],
   "ast": {
    "body": [
@@ -10010,7 +10010,41 @@
   "fixpoint": true
  },
  "rest :: equal to work after last": {
-  "canonical": "5 sets:\n  - 30s Bike\n  rest = work",
+  "canonical": "5 sets:\n  - 30s Bike\n  rest = work after last",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": true,
+       "dynamic": "equal-to-work",
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: equal to work words after last": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest = work after last",
   "errors": [],
   "ast": {
    "body": [
@@ -10044,7 +10078,7 @@
   "fixpoint": true
  },
  "rest :: active recovery after last": {
-  "canonical": "5 sets:\n  - 400m Run\n  rest 400m Jog",
+  "canonical": "5 sets:\n  - 400m Run\n  rest 400m Jog after last",
   "errors": [],
   "ast": {
    "body": [
@@ -10086,7 +10120,7 @@
   "fixpoint": true
  },
  "rest :: threshold after last": {
-  "canonical": "5 sets:\n  - 500m Row\n  rest until HR < 120bpm",
+  "canonical": "5 sets:\n  - 500m Row\n  rest until HR < 120bpm after last",
   "errors": [],
   "ast": {
    "body": [
@@ -10110,6 +10144,227 @@
         "unit": "bpm",
         "value": 120
        },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: threshold zone after last": {
+  "canonical": "5 sets:\n  - 500m Row\n  rest until HR < Z2 after last",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 500
+       }
+      },
+      {
+       "afterLast": true,
+       "duration": {
+        "compare": "lt",
+        "kind": "threshold",
+        "metric": "hr",
+        "zone": 2
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: seconds after last": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest 1min30s after last",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": true,
+       "duration": {
+        "kind": "duration",
+        "seconds": 90
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: clock after last": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest 1min30s after last",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": true,
+       "duration": {
+        "kind": "duration",
+        "seconds": 90
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: bare minutes after last": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest 3min after last",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": true,
+       "duration": {
+        "kind": "duration",
+        "seconds": 180
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: loose spacing after last": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest 1min30s after last",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": true,
+       "duration": {
+        "kind": "duration",
+        "seconds": 90
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: after last with no bound": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest after last",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": true,
        "node": "rest"
       }
      ],
