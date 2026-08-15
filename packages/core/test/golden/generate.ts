@@ -11,6 +11,9 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+// The host, first: `parse` runs `spec/grammar-0.1.ohm` and `src/` opens no
+// files, so a regenerator run on its own has to hand the grammar over.
+import '../../node.ts';
 import { parse } from '../../src/parse.ts';
 import { compile, type TimelineItem } from '../../src/timeline.ts';
 import { volume } from '../../src/volume.ts';

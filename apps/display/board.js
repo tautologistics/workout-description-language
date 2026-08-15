@@ -20,7 +20,21 @@ import { provide } from '../../build/web/core/env.js';
 
 // The core is handed its data; it reads no files itself. On Node that is
 // packages/core/node.ts, here it is a fetch.
+const GRAMMAR = '../../spec/grammar-0.1.ohm';
 const REGISTRY = '../../registry/movements.json';
+
+// The grammar first, and awaited: `parse` is that file, so unlike the registry
+// below — which only takes the validation hints with it — a board without it is
+// not a degraded board, it is no board. Say so on the screen rather than leaving
+// a Start button that does nothing.
+try {
+  const source = await fetch(new URL(GRAMMAR, location.href))
+    .then((r) => (r.ok ? r.text() : Promise.reject(new Error(`${r.status} ${r.statusText}`))));
+  provide({ grammar: () => source });
+} catch (e) {
+  document.body.textContent = `Cannot read ${GRAMMAR} — the parser is that file. ${e.message}`;
+  throw e;
+}
 
 const el = (id) => document.getElementById(id);
 const bar = el('bar');

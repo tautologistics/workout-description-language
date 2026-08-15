@@ -32,11 +32,26 @@ import { run, roundLabel } from '../../build/web/core/run.js';
 import { provide, has } from '../../build/web/core/env.js';
 import { parseGoals, check } from '../../build/web/core/goals.js';
 
+const GRAMMAR = '../../spec/grammar-0.1.ohm';
 const REGISTRY = '../../registry/movements.json';
 const CANONICAL = '../../registry/movements.canonical.json';
 const MUSCLES = '../../registry/muscles.json';
 const GOALS = ['rotate-muscles.wdlg', 'ramp-the-pull.wdlg'];
 const el = (id) => document.getElementById(id);
+
+// The grammar, before anything else and with a top-level `await`, because
+// `parse` *is* the grammar and this module's first render calls it. The registry
+// fetches below are allowed to fail and take a feature with them; this one is
+// not, so it is awaited here rather than raced with the first draw. A failure
+// leaves a page that says so instead of a page whose buttons quietly do nothing.
+try {
+  const source = await fetch(new URL(GRAMMAR, location.href))
+    .then((r) => (r.ok ? r.text() : Promise.reject(new Error(`${r.status} ${r.statusText}`))));
+  provide({ grammar: () => source });
+} catch (e) {
+  document.body.textContent = `Cannot read ${GRAMMAR} — the parser is that file. ${e.message}`;
+  throw e;
+}
 
 const START = `# New workout
 5 rounds for time:
