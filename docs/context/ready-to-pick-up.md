@@ -12,20 +12,49 @@ carrying no semantic actions, and with a semantics file it reproduces the
 hand-written parser's AST on **538/538** lines. Notation and engine are settled
 in [settled-decisions.md](settled-decisions.md).
 
-**0a. Wire the step-line grammar up.** What the exploration deliberately did not
-do. `packages/core/src/` is still untouched and both apps run the old path.
-Needed: the semantics file into `packages/core/src/grammar/`, `ohm-js` as the
-core's one dependency, `parseOneStep` swapped to it behind the 1494 tests, then
-`build-web.mjs` and drive the builder to confirm it behaves identically. The
-semantics proving 538/538 exists but lives outside the repo, so it is a port
-rather than a design.
-*Touches: `packages/core/src/parse.ts`, a new `src/grammar/`, `package.json`.*
+**0a. ~~Wire the step-line grammar up.~~ HALF DONE 2026-08-15.** The grammar now
+*runs* inside `packages/core/`: `ohm-js` is the core's one dependency,
+`src/grammar/step-semantics.ts` maps its productions to the `Step` AST, and
+`test/grammar.test.ts` checks it against the hand-written parser on **746/746**
+step lines — every one in `examples/corpus`, in `spec-0.1.md`, and in
+`test/golden/vocabulary.ts` — with 7 recorded disagreements, each pinned in the
+vocabulary. `parse.ts` is deliberately untouched and both apps run the old path.
 
-**0c. Extend the grammar to the rest of phase 2.** Block headers (~20 forms),
-block modifiers, rest, score, variants and the preamble — roughly half of phase
-2, still prose plus implementation. Each is the same shape of work as the step
-line and much less tangled.
-*Touches: `spec/grammar-0.1.ohm`, `spec/spec-0.1.md`, `packages/core/src/parse.ts`.*
+**The swap was deferred on purpose, and the reason should hold.** Steps and
+block headers share their lexical layer: durations appear in `cap 12min` and
+`every 90s` as well as `12min Bike`, targets appear as an inherited `@` on a
+header, and `21-15-9` is a ladder where `8-12` is a rep range. Landing steps
+alone means rewriting the step semantics once headers force those productions
+apart. So **0c comes first**, with the differential test green as the grammar
+grows, and then `parseOneStep` is swapped in one change.
+
+What is left of 0a, for when that day comes:
+- `parseOneStep` and `parseStep` delegate to the grammar; `splitOr`,
+  `peelRx`, `peelTrailingQualifiers` and `applyQualifier` go.
+- **The browser cannot resolve `ohm-js`.** `build-web.mjs` does no module
+  resolution, so the emitted `grammar/step-semantics.js` carries a bare
+  specifier a browser rejects. Harmless today — nothing imports it — and fatal
+  the moment `parse.ts` does. See [known-debts.md](known-debts.md).
+- **The grammar source has to reach the core.** `src/` opens no files and knows
+  no paths, so `makeStepParser` is handed the grammar text; a host must supply
+  it (`node.ts` reads `spec/grammar-0.1.ohm`, the web app fetches it), most
+  likely through the same `provide()` seam as the registry.
+- The two flag-ordering differences change the AST, so `vocabulary.json` will
+  diff on `10 Deadlift unbroken building` and `10 Deadlift building @tiebreak`.
+  Both are pinned now so that diff is expected rather than alarming.
+*Touches: `packages/core/src/parse.ts`, `src/env.ts`, `scripts/build-web.mjs`.*
+
+**0c. Extend the grammar to the rest of phase 2. This is the next one.** Block
+headers (~20 forms), block modifiers, rest, score, variants and the preamble —
+roughly half of phase 2, still prose plus implementation. Each is the same shape
+of work as the step line and much less tangled.
+
+It comes before 0a's second half because the two halves share a lexical layer,
+and it is now cheap to keep honest: `test/grammar.test.ts` already runs the
+grammar against the parser line for line, so extending it to headers means
+extending that harness with a header source and watching the number hold.
+*Touches: `spec/grammar-0.1.ohm`, `packages/core/src/grammar/`,
+`packages/core/test/grammar.test.ts`, `spec/spec-0.1.md`.*
 
 **0d. Give `unknown` somewhere to live.** The grammar holds unrecognized text as
 a first-class production, but `Step` has no field for it and `format` does not

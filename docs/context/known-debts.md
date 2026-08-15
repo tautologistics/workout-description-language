@@ -32,6 +32,29 @@ when something looks odd before treating it as a discovery.
   cases in `test/golden/vocabulary.ts`. The fix is one rule — a flag is `@` not
   followed by a space — and the grammar states it that way already.
 
+- **A target written after a comma is filed as a note.** `- 10 Thruster, @ 95lb`
+  puts `@ 95lb` in `notes`, not `targets`. The `@` split runs over the *first*
+  comma segment only, so `applyQualifier` never sees a target and falls through
+  to its catch-all. Same consequence as the `@95lb` entry above — the load is
+  invisible to analysis, the builder and the board, `wdl check` says `ok`, and
+  the wrong reading is a perfect fixpoint. Found 2026-08-15 by
+  `test/grammar.test.ts`, which reads it as a target; pinned as three `pending`
+  cases in `test/golden/vocabulary.ts` and listed as a grammar exclusion.
+
+- **The browser cannot resolve `ohm-js`.** `scripts/build-web.mjs` strips types
+  and rewrites `.ts` to `.js`; it does no module resolution, so the bare
+  `import * as ohm from 'ohm-js'` in `src/grammar/step-semantics.ts` survives
+  into `build/web/core/` and a browser refuses it — *"Failed to resolve module
+  specifier"*, confirmed by loading it. **Harmless today**: `src/index.ts` does
+  not export the grammar module and neither app imports it, so both still run
+  clean. It becomes fatal the moment `parse.ts` imports it. Note that
+  `portable.test.ts` does not catch this — it looks for `node:` imports, and
+  the failure mode here is a bare specifier. The fix belongs with the swap
+  (queue item 0a): copy `node_modules/ohm-js/dist/ohm.min.js` into the emit and
+  rewrite the specifier, the same shape as the `.ts` → `.js` rewrite already
+  there. Vendoring it into `src/` outright is the other option and is the escape
+  hatch [settled-decisions.md](settled-decisions.md) already names.
+
 - An unrecognized step modifier is pushed into `step.notes`, the same array as an
   authored `note: "…"`. Afterwards the two cannot be told apart, and notes are
   rendered — so an unknown token silently acquires the meaning "the author wrote

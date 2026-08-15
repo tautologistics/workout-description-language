@@ -2,7 +2,10 @@
 
 Reference implementation of the [Workout Definition Language](../../spec/spec-0.1.md).
 
-Zero dependencies. Runs on Node 22+ using native TypeScript type stripping.
+One dependency — `ohm-js`, which executes the normative grammar in
+[spec/grammar-0.1.ohm](../../spec/grammar-0.1.ohm). It is MIT, has no
+dependencies of its own, and ships as a single file. Runs on Node 22+ using
+native TypeScript type stripping.
 
 ```bash
 node bin/wdl.ts fmt   file.wdl [-w]   # canonical formatting; -w rewrites in place

@@ -239,6 +239,35 @@
   },
   "fixpoint": true
  },
+ "quantity/calories :: 20calories Row": {
+  "canonical": "for time:\n  - 20calories Row",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "20calories Row",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "quantity/distance :: 400m Run": {
   "canonical": "for time:\n  - 400m Run",
   "errors": [],
@@ -955,6 +984,35 @@
         "kind": "range",
         "max": 15,
         "min": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/other :: 10-5 Squat": {
+  "canonical": "for time:\n  - 10-5 Squat",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "10-5 Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
        }
       }
      ],
@@ -3016,6 +3074,74 @@
       {
        "flags": [
         "open"
+       ],
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "flags :: 10 Deadlift unbroken building": {
+  "canonical": "for time:\n  - 10 Deadlifts, building, unbroken",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "building",
+        "unbroken"
+       ],
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "flags :: 10 Deadlift building @tiebreak": {
+  "canonical": "for time:\n  - 10 Deadlifts, building @tiebreak",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "tiebreak",
+        "building"
        ],
        "movement": "Deadlift",
        "node": "step",
@@ -5537,6 +5663,105 @@
        ],
        "movement": "Thruster",
        "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "known-wrong :: 10 Thruster, @ 95lb": {
+  "canonical": "for time:\n  - 10 Thrusters, @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "notes": [
+        "@ 95lb"
+       ],
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "known-wrong :: 10 Thruster, @ 24kg": {
+  "canonical": "for time:\n  - 10 Thrusters, @ 24kg",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "notes": [
+        "@ 24kg"
+       ],
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "known-wrong :: 10 Thruster, @ 85% 1RM": {
+  "canonical": "for time:\n  - 10 Thrusters, @ 85% 1RM",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "notes": [
+        "@ 85% 1RM"
+       ],
        "quantity": {
         "kind": "reps",
         "value": 10

@@ -63,6 +63,16 @@ would be tidier".
   AST on 538/538 lines — every step line in the corpus, every step form in the
   spec, and the exotic forms neither exercises.*
 
+  *Strengthened 2026-08-15. The semantics that produced that number lived
+  outside the repo and are now `packages/core/src/grammar/step-semantics.ts`,
+  with `test/grammar.test.ts` re-deriving the number on every run rather than
+  asserting it: **746/746** over a wider set, plus seven lines listed as
+  deliberate disagreements. One thing the decision did not anticipate: a
+  dependency the shipped core is allowed is not automatically a dependency the
+  browser emit can **resolve** — `build-web.mjs` does no module resolution, so
+  a bare specifier survives into `build/` unusable. That is a debt, not a
+  reopening; the vendoring escape hatch above is one of its two fixes.*
+
   *Corrected twice on 2026-08-14, the day it was settled. It first read "an
   in-repo PEG interpreter, not a generator", reasoning from "the repo has no
   dependencies" — which is not the rule, see the dependency entry above; that

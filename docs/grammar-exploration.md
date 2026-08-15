@@ -130,13 +130,62 @@ names only `under`. The same latent bug sat in the spelled-out unit rules, where
 because the vocabulary suite covers the spellings; it would not have been caught
 by the corpus.
 
+## Since: the semantics came into the repo
+
+*Added 2026-08-15. The exploration's numbers above are left as they were
+measured; this is what changed, not a correction to them.*
+
+The semantics that proved 538/538 were written in a scratchpad and thrown away
+with it, which meant the claim above was true and unreproducible at the same
+time. They have been rewritten as `packages/core/src/grammar/step-semantics.ts`,
+`ohm-js` is a dependency of `packages/core`, and
+`packages/core/test/grammar.test.ts` re-derives the number on every run instead
+of asserting it.
+
+**The number is now 746/746**, and it is a wider set rather than a better
+result: the earlier count was of the lines the scratchpad harness happened to
+feed it, and this one is every step line in `examples/corpus` (431), every one
+in `spec-0.1.md` (157), and every step case in `test/golden/vocabulary.ts`
+(158), deduplicated.
+
+**Seven lines disagree, and they are the interesting part.** None is in the
+corpus or the spec; all seven were found by probing around the edges and are now
+pinned in the vocabulary and listed as exclusions with reasons.
+
+| Line | Disagreement |
+|---|---|
+| `10 Thruster, @ 95lb` (+2) | The parser files a target after a comma as a **note** — the load is lost. A real defect, now in `known-debts.md`. |
+| `10 Deadlift unbroken building` | Same flags, reverse order: `peelTrailingQualifiers` reads right to left. |
+| `10 Deadlift building @tiebreak` | The `@` regex sweeps the whole line first, so an `@` flag is hoisted in front. |
+| `10-5 Squat` | `min < max` is a constraint on the *values*; a PEG cannot state it, so the grammar reads a descending range. |
+| `20calories Row` | The parser wants a space before a spelled-out unit; the grammar is regular about it. |
+
+One more, not in the table because nothing writes it: a line that is *only* a
+threshold — `until HR > 160bpm` with no movement — parses today to a step with
+an empty movement name, and the grammar rejects it, because `movement` requires
+at least one character.
+
+**The swap was still not made, and the reason has hardened.** Steps and block
+headers share the lexical layer — durations in `cap 12min` and `every 90s`,
+targets as an inherited `@`, `21-15-9` as a ladder against `8-12` as a range —
+so landing steps alone would mean reworking the step semantics once headers
+force those productions apart. The grammar runs *beside* the parser until it
+covers all of phase 2, then goes in as one change. Queue item 0c is now first.
+
+**A finding that only appears once the code is in the repo:** the browser cannot
+resolve `ohm-js`. `build-web.mjs` strips types and rewrites specifiers; it does
+no module resolution, so a bare `import` survives into `build/web/core/` and the
+browser refuses it. Nothing imports the grammar module yet, so both apps still
+run clean — verified by loading them — but this has to be solved before the
+swap. It is in `known-debts.md` with the fix.
+
 ## What is not answered
 
 - **The grammar covers the step line only.** Block headers (~20 forms), block
   modifiers, rest, score, variants and the preamble are still prose plus
   `parse.ts`. That is roughly half of phase 2.
-- **Nothing is wired up.** `packages/core/src/` is untouched; the semantics used
-  to prove parity live outside the repo. The builder and board run the old path.
+- **Nothing is wired up.** `parse.ts` is untouched and the builder and board run
+  the old path. *(The semantics are now in the repo — see the section above.)*
 - **`unknown` is proven in the grammar, not in the AST.** The production holds
   unrecognized text as a first-class node, but the `Step` type has no field for
   it and `format` does not render it, so the known debt — unknown modifiers

@@ -28,6 +28,12 @@ const KNOWN_WRONG: Record<string, string> = {
     '`@` with no space reads the load as a flag and drops it',
   'known-wrong :: 10 Thruster @24kg':
     '`@` with no space reads the load as a flag and drops it',
+  'known-wrong :: 10 Thruster, @ 95lb':
+    'a target after a comma is filed as a note, not a load',
+  'known-wrong :: 10 Thruster, @ 24kg':
+    'a target after a comma is filed as a note, not a load',
+  'known-wrong :: 10 Thruster, @ 85% 1RM':
+    'a target after a comma is filed as a note, not a load',
 };
 
 describe('vocabulary', () => {

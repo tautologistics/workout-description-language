@@ -18,10 +18,16 @@
 // again. Here `|` means "try in this order", so the ordering *is* the
 // specification and the grammar is unambiguous by construction.
 //
-// Verified: with the semantics in packages/core/src/grammar/, this reproduces
-// the previous hand-written parser's AST on 538/538 step lines — every step
-// line in examples/corpus, every step form in spec-0.1.md, and the exotic
-// forms neither of them exercises.
+// Verified, on every run: with the semantics in
+// packages/core/src/grammar/step-semantics.ts, this reproduces the hand-written
+// parser's AST on 746/746 step lines — every one in examples/corpus, every one
+// in spec-0.1.md, and every step case in the vocabulary suite. Seven lines are
+// read differently on purpose and are listed, with reasons, in
+// packages/core/test/grammar.test.ts.
+//
+// The parser does not run on this file yet. It runs beside the hand-written one
+// until the grammar covers the rest of phase 2, because block headers share
+// this lexical layer and will force some of these productions apart.
 
 
 WDLStep {

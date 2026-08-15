@@ -88,6 +88,35 @@ coming back through a slightly different spelling. The `@95lb` find is pinned
 with `@2x35lb` and `@24kg` beside it for exactly that reason. If a defect
 arrives without a permutation, the fix is not finished.
 
+**Two implementations of one language disagree in ways neither one is wrong
+about.** Running the grammar beside the hand-written parser over all 746 step
+lines this project has produced seven disagreements, and only one was a bug.
+Three were the *order* of array elements — `peelTrailingQualifiers` strips from
+the end so it reads right to left, and the `@` regex sweeps the whole line first
+so an `@` flag is always hoisted in front, both artefacts of how the regexes are
+arranged rather than decisions anyone made. Two were the parser being stricter
+than the grammar can be: `min < max` on a rep range is a constraint on the
+*values*, and a PEG has no way to say it. One was the parser being arbitrarily
+narrower — `20cal` and `20 calories` are amounts and `20calories` is not,
+because of a `\s*` in one regex. *A differential test's value is not the
+failures it finds; it is that it forces every incidental behaviour to be either
+stated or corrected.* Each of the seven is now a line in
+`test/golden/vocabulary.ts` and a listed exclusion with a reason.
+
+**An exclusion list has to be able to go stale.** Listing the lines a second
+implementation reads differently is only honest if a line that stops differing
+*fails* — otherwise the list quietly turns into a set of permanently ignored
+cases and the headline number drifts away from what it claims. `grammar.test.ts`
+checks both directions: every non-excluded line must agree, and every excluded
+line must still disagree.
+
+**Ohm's arity check is strict, and a rest parameter does not satisfy it.**
+`durationQty_hms(...c)` is rejected with *"has the wrong arity: expected 4, got
+0"* — the check reads `fn.length`, which a rest parameter reports as zero. Every
+action has to spell out one parameter per child. Useful, once known: the error
+tells you the true arity of each production, which settles `~x` contributing
+nothing and `&x` contributing a child without having to reason about it.
+
 **A constraint on the shipped library is not a constraint on the repository.**
 "Zero dependencies" was written about `packages/core/src/`, where it is real and
 load-bearing: that code ships into a server, a browser and a mobile app at once.

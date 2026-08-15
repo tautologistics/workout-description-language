@@ -21,5 +21,8 @@
   "license": "MIT",
   "bin": {
     "wdl": "bin/wdl.ts"
+  },
+  "dependencies": {
+    "ohm-js": "17.5.0"
   }
 }

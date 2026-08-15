@@ -36,6 +36,10 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     '20cal Row',
     '20 cal Row',
     '15 calories Row',
+    // Spelled out and unspaced. `20cal` and `20 calories` are both amounts;
+    // this one is not, and the difference is an accident of `^(\d+)\s*cal$`
+    // rather than a decision. Pinned so the reading is visible either way.
+    '20calories Row',
   ] },
   { group: 'quantity/distance', lines: [
     '400m Run',
@@ -66,6 +70,10 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
   { group: 'quantity/other', lines: [
     '8-12 Dumbbell Curl',
     '10-15 Cable Fly',
+    // Descending, which is not a range anyone means. `parseQuantity` requires
+    // min < max and otherwise leaves the digits in the movement name; the
+    // grammar cannot state that constraint, so this is where the two part.
+    '10-5 Squat',
     '1+ Deadlift',
     'max Pull-Up',
     'max Bench Press',
@@ -135,6 +143,14 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     '2 Front Squat, building',
     '10 Deadlift, reversed',
     '10 Deadlift, open',
+    // Two of them, uncommaed, and one beside an `@` flag. The *order* they land
+    // in `flags` is what these pin: `peelTrailingQualifiers` strips from the
+    // end, so it reads right to left, and the `@` regex runs over the whole
+    // line first so an `@` flag is always hoisted in front. Neither is a
+    // decision, and a grammar reads left to right — so these are the two lines
+    // that will move when the parser is swapped over.
+    '10 Deadlift unbroken building',
+    '10 Deadlift building @tiebreak',
   ] },
   { group: 'laterality', lines: [
     '10 Pistol (split)',
@@ -226,6 +242,15 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     '10 Thruster @95lb',
     '10 Thruster @2x35lb',
     '10 Thruster @24kg',
+    // The same load, lost a second way. `@` is only split out of the *first*
+    // comma segment, so a target written after a comma never reaches
+    // `targets` — `applyQualifier` falls through and files it as a note. Same
+    // consequence as the trio above: invisible to analysis, the builder and the
+    // board, and `wdl check` says ok. Found by the differential grammar test,
+    // which reads it as a target. See known-debts.md.
+    '10 Thruster, @ 95lb',
+    '10 Thruster, @ 24kg',
+    '10 Thruster, @ 85% 1RM',
   ] },
   { group: 'whitespace-and-case', lines: [
     '10   Thruster   @   95lb',
