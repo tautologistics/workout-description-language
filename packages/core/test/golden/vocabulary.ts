@@ -264,6 +264,17 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     '18 Thruster @ 115lb @tiebreak, unbroken',
     '10 Thruster @ 95lb, tempo 31X1, +1 each round',
   ] },
+  { group: 'stray-comma', lines: [
+    // A comma with nothing after it. Written into the grammar as an *optional*
+    // modifier while swapping the parser over, because required it made one
+    // stray keystroke unreadable and took the movement and the amount with it —
+    // a steep price on a format written by hand on a whiteboard. The old regex
+    // chain pushed an empty string into `notes` here, which is the same
+    // forgiveness arrived at by accident and one more nameless entry in the
+    // array queue item 0d exists to clean up.
+    '10 Thruster,',
+    '10 Thruster, , unbroken',
+  ] },
   { group: 'unreadable', lines: [
     // A line that is *only* a completion condition, with nothing to do. The
     // grammar's `movement` needs at least one character, so this is the one step
@@ -415,6 +426,9 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   // `known-wrong :: 10 Thruster, @ 95lb`. The grammar reads it correctly, so it
   // is a listed exclusion in grammar.test.ts and the swap is the fix.
   { group: 'block/modifier', name: 'target after a comma', src: '3 rounds, @ 95lb:\n  - 10 Thruster' },
+  // The header twin of the `stray-comma` step forms above: `3 rounds,:` is three
+  // rounds, not a header nobody can read.
+  { group: 'block/modifier', name: 'stray comma', src: '3 rounds,:\n  - 10 Push-Up' },
   // A target and a `for time` on the same header, both ways round. Written
   // target-first the load *and* the score are lost: `@\s*([^,@]+)` is greedy to
   // the end of the segment, so `95lb for time` goes to `parseTarget` whole and

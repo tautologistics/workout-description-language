@@ -65,7 +65,12 @@ WDL {
   oneStep = leadQuantity? altPrefix? movement spacedPart* commaModifier*
 
   spacedPart = spaces stepPart
-  commaModifier = spaces "," spaces modifier
+  // The modifier is optional, and that is forgiveness rather than laxity: a
+  // comma with nothing after it separates nothing, so `10 Thruster,` is ten
+  // thrusters. Required, one stray comma makes the whole line unreadable and
+  // takes the movement and the amount down with it — which is a steep price for
+  // a keystroke, and the at-rest format is written on a whiteboard by hand.
+  commaModifier = spaces "," spaces modifier?
 
   // ---------- the movement name: an open vocabulary ----------
   //
@@ -284,7 +289,9 @@ WDL {
 
   headerHead = headerKind? headerExtra*
   headerExtra = spaces (forTime | targetGroup)
-  headerModifier = spaces "," spaces blockModifier
+  // Optional for the same reason `commaModifier`'s is: `3 rounds,:` is three
+  // rounds, not a header nobody can read.
+  headerModifier = spaces "," spaces blockModifier?
 
   forTime = caseInsensitive<"for"> spaces caseInsensitive<"time"> ~wordChar
 

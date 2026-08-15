@@ -201,7 +201,11 @@ export function installBlock(semantics: Semantics): void {
     blockHeader(head, mods) {
       const block = blankBlock(origin(this.args.origin));
       head.addToBlock(block);
-      for (const m of mods.children) m.child(3).addToBlock(block);
+      // Nought or one: a comma with nothing after it qualifies nothing.
+      for (const m of mods.children) {
+        const mod = m.child(3);
+        if (mod.numChildren) mod.child(0).addToBlock(block);
+      }
       return block;
     },
   });

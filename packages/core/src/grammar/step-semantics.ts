@@ -174,7 +174,12 @@ export function installStep(semantics: Semantics): void {
       }
       step.movement = movement.sourceString.trim();
       for (const p of parts.children) p.child(1).addTo(step);
-      for (const m of mods.children) m.child(3).addTo(step);
+      // A comma with nothing after it contributes nothing — the modifier is
+      // optional in the grammar, so this is an iteration of nought or one.
+      for (const m of mods.children) {
+        const mod = m.child(3);
+        if (mod.numChildren) mod.child(0).addTo(step);
+      }
       return step;
     },
   });

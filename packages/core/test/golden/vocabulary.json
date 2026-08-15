@@ -5698,6 +5698,69 @@
   },
   "fixpoint": true
  },
+ "stray-comma :: 10 Thruster,": {
+  "canonical": "for time:\n  - 10 Thrusters",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "stray-comma :: 10 Thruster, , unbroken": {
+  "canonical": "for time:\n  - 10 Thrusters, unbroken",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "unbroken"
+       ],
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "unreadable :: until HR > 160bpm": {
   "canonical": "for time:\n  - until HR > 160bpm",
   "errors": [
@@ -8168,7 +8231,7 @@
   "fixpoint": true
  },
  "block/modifier :: target after a comma": {
-  "canonical": "3 rounds, @ 95lb:\n  - 10 Thrusters",
+  "canonical": "3 rounds @ 95lb:\n  - 10 Thrusters",
   "errors": [],
   "ast": {
    "body": [
@@ -8185,8 +8248,46 @@
      ],
      "count": 3,
      "flags": [
-      "rounds",
-      "@ 95lb"
+      "rounds"
+     ],
+     "inherited": [
+      {
+       "kind": "load",
+       "load": {
+        "kind": "absolute",
+        "unit": "lb",
+        "value": 95
+       }
+      }
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: stray comma": {
+  "canonical": "3 rounds:\n  - 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
      ],
      "node": "block",
      "type": "repeat"

@@ -26,8 +26,6 @@ const KNOWN_WRONG: Record<string, string> = {
     '`sets x reps` before the movement becomes the movement name; the quantity stays open',
   'known-wrong :: 5x5 Back Squat @ 225lb':
     '`sets x reps` before the movement becomes the movement name — spec §1 rule 4 writes it this way',
-  'block/modifier :: target after a comma':
-    'a header target after a comma is filed as a flag, so nothing inherits it',
   'block/modifier :: target then for time':
     'the header `@` sweep is greedy and swallows the following `for time`, losing both',
   'rest :: as needed after last':

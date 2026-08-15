@@ -1,20 +1,14 @@
 /** Phase 2 of the two-phase parse: line tree -> AST. */
 
 import type {
-  Workout, Node, Step, Rest, Block, Interrupt, Score, Target,
+  Workout, Node, Step, Rest, Block, Interrupt, Score,
 } from './ast.ts';
 import { readLines, expandInline, splitTopLevel, type Line } from './lines.ts';
-import {
-  parseQuantity, parseDuration, parseTarget, parseThreshold, expandRuns,
-} from './units.ts';
+import { parseQuantity, parseDuration, parseThreshold } from './units.ts';
 import { wdl } from './grammar/parser.ts';
 import { blankStep } from './grammar/step-semantics.ts';
 
 export interface ParseError { line: number; message: string; text: string; }
-
-const SECTIONS = new Set([
-  'warmup', 'warm-up', 'strength', 'skill', 'conditioning', 'accessory', 'cooldown', 'cool-down',
-]);
 
 class Parser {
   errors: ParseError[] = [];
@@ -87,102 +81,37 @@ class Parser {
     };
   }
 
+  /**
+   * One block header, read by the grammar's `blockHeader` rule.
+   *
+   * The `:` is stripped before the match and never reaches the grammar. That is
+   * the same division of labour phase 1 has, and it is what lets `21-15-9` be a
+   * rep scheme here and `8-12` a rep range in a step without any rule having to
+   * tell the two shapes apart: which start rule the caller picks *is* the answer.
+   *
+   * An unrecognized header is held as a named sequence — every child and every
+   * modifier kept — which is the grammar's `headerKind_unknown`. Reporting it is
+   * this side's job: an error is not part of the AST, and a header nobody taught
+   * the language is worth saying out loud even though nothing is lost.
+   */
   parseHeader(headRaw: string, line: Line): Block {
-    const parts = splitTopLevel(headRaw.replace(/:\s*$/, ''), ',');
-    let head = (parts.shift() ?? '').trim();
-    const block = this.blank(line, 'sequence');
-
-    // header-level targets and equipment, inherited by children (spec §5.0)
-    head = head.replace(/@\s*([^,@]+)/g, (_m, target) => {
-      block.inherited.push(parseTarget(target.trim())); return '';
-    }).trim();
-
-    // `for time` may be fused onto a repeat: `3 rounds for time`
-    if (/\bfor\s+time\b/i.test(head)) {
-      block.score = { primary: 'time', raw: 'time', implied: true };
-      head = head.replace(/\bfor\s+time\b/i, '').trim();
+    const head = headRaw.replace(/:\s*$/, '');
+    const got = wdl().tryHeader(head, line);
+    if (!got.ok) {
+      this.errors.push({ line: line.line, message: `unreadable block header "${head}"`, text: line.text });
+      const block = this.blank(line, 'sequence');
+      block.name = head.trim();
+      return block;
     }
-
-    let m: RegExpMatchArray | null;
-    if (!head) {
-      block.type = 'sequence';
-    } else if ((m = head.match(/^(\d+)\s+(rounds?|sets?)$/i))) {
-      block.type = 'repeat'; block.count = +m[1];
-      block.flags.push(/set/i.test(m[2]) ? 'sets' : 'rounds');
-    } else if ((m = head.match(/^(\d+)\s+attempts?$/i))) {
-      block.type = 'attempts'; block.count = +m[1];
-    } else if ((m = head.match(/^team\s+of\s+(\d+)$/i))) {
-      block.type = 'team'; block.count = +m[1];
-    } else if ((m = head.match(/^(\d+(?:(?:\.\.|-)\d+)+)\s+(m|km|mi|ft|yd|s|min|cal)$/i))) {
-      // A scheme may count something other than reps: `1..5..1 min:` is the
-      // interval pyramid, `250-500-750 m:` the rowing one.
-      block.type = 'ladder';
-      block.scheme = m[1].includes('..') ? expandRuns(m[1].split('..').map(Number)) : m[1].split('-').map(Number);
-      block.schemeUnit = m[2].toLowerCase();
-    } else if (/^\d+(\.\.\d+)+$/.test(head)) {
-      // `1..10`, `10..1`, `1..10..1` — a run, expanded. Ten-tier schemes are
-      // common enough that spelling every number out is its own error source.
-      block.type = 'ladder'; block.scheme = expandRuns(head.split('..').map(Number));
-    } else if (/^(\d+)(-\d+)+$/.test(head)) {
-      block.type = 'ladder'; block.scheme = head.split('-').map(Number);
-    } else if ((m = head.match(/^for\s+(\S+)$/i)) && parseDuration(m[1], true)) {
-      // `for 12min:` — a duration-bounded block that is not an AMRAP (Cooper test).
-      block.type = 'amrap'; block.duration = parseDuration(m[1], true) ?? undefined;
-      block.flags.push('for-duration');
-    } else if ((m = head.match(/^AMRAP(?:\s+(\S+))?$/i))) {
-      block.type = 'amrap';
-      block.duration = m[1] ? (parseDuration(m[1], true) ?? undefined) : undefined;
-      block.score ??= { primary: 'rounds + reps', raw: 'rounds + reps', implied: true };
-    } else if ((m = head.match(/^E(\d*)MOM\s+(\S+)$/i))) {
-      block.type = 'clock';
-      block.every = { kind: 'duration', seconds: (m[1] ? +m[1] : 1) * 60 };
-      block.duration = parseDuration(m[2], true) ?? undefined;
-    } else if ((m = head.match(/^every\s+(\S+)\s+until\s+failure$/i))) {
-      block.type = 'clock'; block.every = parseDuration(m[1], true) ?? undefined; block.untilFailure = true;
-    } else if ((m = head.match(/^every\s+(\S+)\s*(?:x|×)\s*(\d+)$/i))) {
-      block.type = 'clock'; block.every = parseDuration(m[1], true) ?? undefined; block.count = +m[2];
-    } else if ((m = head.match(/^every\s+(\S+)$/i))) {
-      block.type = 'clock'; block.every = parseDuration(m[1], true) ?? undefined;
-    } else if ((m = head.match(/^work\s+(\S+)$/i))) {
-      block.type = 'work'; block.duration = parseDuration(m[1], true) ?? undefined;
-    } else if ((m = head.match(/^min(?:ute)?\s+(\d+)$/i))) {
-      block.type = 'cycleEntry'; block.count = +m[1];
-    } else if (/^any\s+order$/i.test(head)) {
-      block.type = 'tally';
-    } else if (/^superset$/i.test(head)) {
-      block.type = 'superset';
-    } else if (/^complex$/i.test(head)) {
-      block.type = 'complex';
-    } else if (/^sequence$/i.test(head)) {
-      block.type = 'sequence';
-    } else if ((m = head.match(/^build\s+to\s+(.+?)\s+in\s+(\S+?)(?:\s+as\s+([\w-]+))?$/i))) {
-      block.type = 'build';
-      block.duration = parseDuration(m[2], true) ?? undefined;
-      block.label = m[3];
-      block.buildTarget = m[1];
-      block.score ??= { primary: 'max load', raw: 'max load', implied: true };
-    } else if (SECTIONS.has(head.toLowerCase())) {
-      block.type = 'section'; block.name = head.toLowerCase();
-    } else {
-      block.type = 'sequence'; block.name = head;
-      this.errors.push({ line: line.line, message: `unrecognized block header "${head}"`, text: line.text });
+    const block = got.value;
+    // A named sequence is what the grammar makes of a head it has no kind for;
+    // `sequence:` itself sets no name, and a section sets `type: 'section'`.
+    if (block.type === 'sequence' && block.name) {
+      this.errors.push({
+        line: line.line, message: `unrecognized block header "${block.name}"`, text: line.text,
+      });
     }
-
-    for (const mod of parts) this.applyBlockModifier(block, mod, line);
     return block;
-  }
-
-  applyBlockModifier(block: Block, mod: string, line: Line) {
-    const t = mod.trim();
-    let m: RegExpMatchArray | null;
-
-    if ((m = t.match(/^cap\s+(\S+)$/i))) { block.cap = parseDuration(m[1], true) ?? undefined; return; }
-    if ((m = t.match(/^(carry|cut|fail)\s+on\s+overrun$/i))) { block.onOverrun = m[1].toLowerCase() as any; return; }
-    if ((m = t.match(/^wearing\s+(.+)$/i))) { block.equipment.push(m[1]); return; }
-    if ((m = t.match(/^as\s+([\w-]+)$/i))) { block.label = m[1]; return; }
-    if (/\bfor\s+time\b/i.test(t)) { block.score = { primary: 'time', raw: 'time', implied: true }; return; }
-    if (/^(building|unbroken|synchronized|shared)$/i.test(t)) { block.flags.push(t.toLowerCase()); return; }
-    block.flags.push(t);
   }
 
   // ---------- dispatch ----------

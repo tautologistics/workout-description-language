@@ -68,13 +68,11 @@ const EXCLUSIONS: { line: string; why: string }[] = [
  * entries fail.
  */
 const HEADER_EXCLUSIONS: { line: string; why: string }[] = [
-  // The header-level twin of the step-level comma-target defect. `parseHeader`
-  // runs its `@` sweep over the *first* comma segment only, so a target written
-  // after a comma never reaches `inherited` — `applyBlockModifier` falls through
-  // to its catch-all and files it as a flag, where nothing inherits it and the
-  // children are loadless. The grammar reads an `@` group as an inherited target
-  // wherever it appears. A parser defect; the swap is the fix.
-  { line: '3 rounds, @ 95lb', why: 'the parser files a header target after a comma as a flag' },
+  // Empty as of the swap. Its one entry was `3 rounds, @ 95lb`, where the old
+  // `@` sweep ran over the first comma segment only and `applyBlockModifier`
+  // filed the target as a flag, so nothing under the block inherited the load.
+  // The grammar reads an `@` group as an inherited target wherever it appears,
+  // and `parseHeader` is the grammar now.
 ];
 
 const excluded = new Map(EXCLUSIONS.map((e) => [e.line, e.why]));
