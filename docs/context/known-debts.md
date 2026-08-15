@@ -140,8 +140,9 @@ when something looks odd before treating it as a discovery.
   `rest 1 min 30 s after last`) and `rest after last` with no bound at all, which
   is the one that would have shown a double space.
 
-- **The nested `score:` block that spec §9.5 and §9.6 both document is dropped
-  entirely.** Written as the spec writes it —
+- ~~**The nested `score:` block that spec §9.5 and §9.6 both document is dropped
+  entirely.**~~ **Closed 2026-08-15** by queue item 0e, *by correcting the spec*.
+  Written as the spec used to write it —
 
   ```wdl
   score:
@@ -149,13 +150,34 @@ when something looks odd before treating it as a discovery.
     on cap: reps
   ```
 
-  — `parseScore` is handed `score:` with nothing after it, `primary` becomes the
-  empty string, the children are never looked at, `wdl check` reports ok, and
-  `wdl fmt` writes a bare `score:`. The sibling-line spelling (`score: time` then
-  `on cap: reps`) is the one that works and is the one the formatter emits. Found
-  2026-08-15 while stating the score line in the grammar; pinned as a vocabulary
-  form. Either the spec's prose is wrong or the parser is, and that is the
-  decision — the grammar reproduces the parser here rather than picking.
+  — `parseScore` was handed `score:` with nothing after it, `primary` became the
+  empty string, the children were never looked at, `wdl check` reported ok, and
+  `wdl fmt` wrote a bare `score:`. Found 2026-08-15 while stating the score line
+  in the grammar.
+
+  **The decision, and it was made on the whiteboard constraint rather than on
+  cost.** A compound score has two spellings — sibling lines, and inline braces
+  when it has to be one line — and those cover the two cases that exist. A nested
+  key-and-value block is a *third* spelling of the same three fields, and it is
+  the same object the brace form is in the notation the format exists to avoid;
+  this project has already ruled once that a canonical output which grew braces
+  around a compound score was a **bug** rather than a formatting choice, and an
+  indented block fails that test identically. It also could never have been more
+  than an input form, since the formatter emits sibling lines and would rewrite it
+  away on the first pass. So §9.5 and §9.6 now show the sibling spelling, with the
+  correction recorded in §9.5.
+
+  *That it was the cheap answer is not why it was chosen, and it is worth saying
+  so: the expensive answer would have been justified if the form bought any
+  expressiveness. It buys none — the same three fields, one more way to write
+  them.*
+
+  **The silence was the real defect, and it is fixed either way.** A line indented
+  under `score:` is now reported by name at both call sites — the workout's score
+  and a block's — and the bare `score:` it leaves behind is reported by `validate`
+  as `score-without-primary` (see the entry above). Declining a form is not a
+  licence to drop what somebody wrote. Four forms pinned where one was, including
+  the block-level twin and the sibling spelling kept beside them.
 
 - ~~**A brace score with no `primary:` field makes the whole brace text the
   primary.**~~ **Closed 2026-08-15** by queue item 0e.

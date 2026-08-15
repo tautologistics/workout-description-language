@@ -185,7 +185,11 @@ class Parser {
         // level it belongs to the workout. One rule, no ambiguity with siblings.
         const kt = k.text.trim();
         const score = readScore(kt);
-        if (score) { block.score = score; continue; }
+        if (score) {
+          block.score = score;
+          nestedScoreFields(k.children, this.errors);
+          continue;
+        }
         // Which score an `on cap:` qualifies is a question about several lines,
         // so the grammar reads the line and the answer is here: the one above it.
         // With no score above it the line is not a qualifier at all and falls
@@ -215,6 +219,35 @@ class Parser {
 function readScore(text: string): Score | null {
   const got = wdl().tryScore(text);
   return got.ok ? got.value : null;
+}
+
+/**
+ * A `score:` line has no children, and a line indented under one is reported.
+ *
+ * **The nested block form is not part of WDL 0.1**, decided 2026-08-15 — spec
+ * §9.5 and §9.6 illustrated it for a while and the prose was corrected, not the
+ * parser. A compound score has two spellings, sibling lines and inline braces,
+ * and they cover the two cases that exist: a few lines, or one line. An indented
+ * key-and-value block under `score:` is a third spelling of the same three
+ * fields, and it is the one you would not write on a whiteboard — the same
+ * objection that made a canonical output with braces around a compound score a
+ * *bug* rather than a formatting choice.
+ *
+ * What is *not* acceptable either way is the old behaviour: the children were
+ * never looked at, so `primary: time` and `on cap: reps` vanished without a word
+ * while `wdl check` said ok. A form the language declines is still a form
+ * somebody wrote, so it is named and the spelling to use is named with it.
+ */
+function nestedScoreFields(children: Line[], errors: ParseError[]): void {
+  for (const c of children) {
+    errors.push({
+      line: c.line,
+      text: c.text,
+      message: `\`${c.text.trim()}\` is indented under \`score:\` — a score's fields are `
+        + 'sibling lines (`score: time`, then `on cap: reps`) or inline braces '
+        + '(`score: {primary: time, on cap: reps}`), never a nested block',
+    });
+  }
 }
 
 /**
@@ -260,6 +293,7 @@ export function parse(source: string): { workout: Workout; errors: ParseError[] 
         continue;
       }
       workout.score = score;
+      nestedScoreFields(line.children, p.errors);
       continue;
     }
     // `on cap:` and `tiebreak:` are continuations of the score above them.

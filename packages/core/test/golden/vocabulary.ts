@@ -515,12 +515,32 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   // All three fields, which is the form the brace exists for and the one that
   // must not move: a compound score on one line.
   { group: 'score', name: 'brace form with every field', src: 'for time, cap 12min:\n  - 100 Burpee\nscore: {primary: time, on cap: rounds completed, tiebreak: reps at 5min}' },
-  // The nested block form, which spec §9.5 and §9.6 both document. It is dropped
-  // *entirely*: `parseScore` is handed `score:` with nothing after it, so
-  // `primary` is the empty string, the children are never looked at, `wdl check`
-  // says ok, and `wdl fmt` writes a bare `score:`. Found 2026-08-15 while stating
-  // the score line in the grammar. See known-debts.md.
+  // The nested block form, which spec §9.5 and §9.6 both illustrated. It was
+  // dropped *entirely*: `parseScore` is handed `score:` with nothing after it, so
+  // `primary` was the empty string, the children were never looked at, `wdl check`
+  // said ok, and `wdl fmt` wrote a bare `score:`. Found 2026-08-15 while stating
+  // the score line in the grammar.
+  //
+  // **Decided 2026-08-15: the prose goes.** A compound score has two spellings —
+  // sibling lines, and inline braces when it must be one line — and they cover
+  // the two cases that exist. A nested key-and-value block is a third spelling of
+  // the same three fields, in the notation the whiteboard constraint exists to
+  // avoid; it is the same object the brace form is, and the project has already
+  // ruled that a canonical output with braces around a compound score was a *bug*
+  // rather than a formatting choice. The formatter emits sibling lines, so this
+  // form could only ever have existed to be rewritten away.
+  //
+  // What was never acceptable is the *silence*, and that is fixed whichever way
+  // the decision went: each indented line is now reported by name, and the bare
+  // `score:` it leaves behind is reported by `validate` as `score-without-primary`.
   { group: 'score', name: 'nested block form', src: 'for time:\n  - 100 Burpee\nscore:\n  primary: time\n  on cap: reps' },
+  { group: 'score', name: 'nested block form with a tiebreak', src: 'for time:\n  - 100 Burpee\nscore:\n  primary: time\n  tiebreak: checkpoints' },
+  // The same shape on a block rather than on the workout, which is a second place
+  // the children were dropped and a second call site for the report.
+  { group: 'score', name: 'nested block form on a block', src: '3 rounds:\n  - 10 Push-Up\n  score:\n    primary: time' },
+  // The spelling that is correct and must not move, kept beside them: this is
+  // what §9.5 says now and what the formatter emits.
+  { group: 'score', name: 'sibling lines, the spelling that works', src: 'for time, cap 12min:\n  - 100 Burpee\nscore: time\non cap: rounds completed\ntiebreak: checkpoints' },
 
   // --- preamble ---
   { group: 'preamble', name: 'title', src: '# Fran\nfor time:\n  - 21 Thruster @ 95lb' },

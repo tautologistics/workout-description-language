@@ -9251,7 +9251,10 @@
  },
  "score :: nested block form": {
   "canonical": "for time:\n  - 100 Burpees\n\nscore:",
-  "errors": [],
+  "errors": [
+   "L4 `primary: time` is indented under `score:` — a score's fields are sibling lines (`score: time`, then `on cap: reps`) or inline braces (`score: {primary: time, on cap: reps}`), never a nested block",
+   "L5 `on cap: reps` is indented under `score:` — a score's fields are sibling lines (`score: time`, then `on cap: reps`) or inline braces (`score: {primary: time, on cap: reps}`), never a nested block"
+  ],
   "ast": {
    "body": [
     {
@@ -9279,6 +9282,118 @@
    "score": {
     "primary": "",
     "raw": ""
+   }
+  },
+  "fixpoint": true
+ },
+ "score :: nested block form with a tiebreak": {
+  "canonical": "for time:\n  - 100 Burpees\n\nscore:",
+  "errors": [
+   "L4 `primary: time` is indented under `score:` — a score's fields are sibling lines (`score: time`, then `on cap: reps`) or inline braces (`score: {primary: time, on cap: reps}`), never a nested block",
+   "L5 `tiebreak: checkpoints` is indented under `score:` — a score's fields are sibling lines (`score: time`, then `on cap: reps`) or inline braces (`score: {primary: time, on cap: reps}`), never a nested block"
+  ],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "primary": "",
+    "raw": ""
+   }
+  },
+  "fixpoint": true
+ },
+ "score :: nested block form on a block": {
+  "canonical": "3 rounds:\n  - 10 Push-Ups\n  score:",
+  "errors": [
+   "L4 `primary: time` is indented under `score:` — a score's fields are sibling lines (`score: time`, then `on cap: reps`) or inline braces (`score: {primary: time, on cap: reps}`), never a nested block"
+  ],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "score": {
+      "primary": "",
+      "raw": ""
+     },
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "score :: sibling lines, the spelling that works": {
+  "canonical": "for time, cap 12min:\n  - 100 Burpees\n\nscore: time\non cap: rounds completed\ntiebreak: checkpoints",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "cap": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "onCap": "rounds completed",
+    "primary": "time",
+    "raw": "time",
+    "tiebreak": "checkpoints"
    }
   },
   "fixpoint": true

@@ -143,6 +143,29 @@ would be tidier".
   is a grammar over one — the same division that keeps `readLines` free of WDL
   knowledge. The eighteen regex literals left in `parse.ts` are all of that kind.
 
+- **A compound score has two spellings, and a nested block is not one of them.**
+  Settled 2026-08-15 by queue item 0e. `score: time` with `on cap:` and
+  `tiebreak:` on the lines beside it, or `score: {primary: time, on cap: reps}`
+  inline when it has to be one line — a few lines, or one line, which are the two
+  cases that exist. Spec §9.5 and §9.6 illustrated a third for a while, a
+  key-and-value block indented under a bare `score:`, and **no implementation ever
+  read it**: the fields were dropped and `wdl check` said ok.
+
+  **The prose was corrected rather than the parser**, and on the whiteboard
+  constraint rather than on cost. An indented block is the same object the brace
+  form is, in the notation the format exists to avoid; the project had already
+  ruled that a canonical output which grew braces around a compound score was a
+  *bug* rather than a formatting choice, and this fails that test identically. It
+  buys no expressiveness — the same three fields — and since the formatter emits
+  sibling lines it could only ever have been an input form rewritten away on the
+  first pass. *Cheapness was not the argument; the expensive answer would have
+  been right if the form said anything the other two cannot.*
+
+  What did **not** survive the decision is the silence: a line indented under
+  `score:` is now named in an error, at both call sites, and the bare `score:` it
+  leaves is reported as `score-without-primary`. Declining a form is not a licence
+  to drop what somebody wrote.
+
 - **A comma with nothing after it separates nothing.** Settled 2026-08-15, while
   swapping the parser over, because it had to be: the old chain split on commas
   and let an empty piece fall through, so `10 Thruster,` and `3 rounds,:` had

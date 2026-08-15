@@ -578,12 +578,13 @@ Death-by formats score `rounds`, meaning the last **fully completed** round.
 ### 9.5 Time caps
 
 ```
-score:
-  primary: time
-  on cap: reps            // if capped, score becomes reps completed
+score: time
+on cap: reps              // if capped, score becomes reps completed
 ```
 
 Default when capped: reps completed. Capped and uncapped results are not directly comparable and tools should not rank them together.
+
+**A compound score has two spellings and only two: sibling lines, as above, or inline braces (`score: {primary: time, on cap: reps}`) when it has to fit on one line.** *Corrected 2026-08-15.* This section and §9.6 previously illustrated a third — a nested block with `primary:`, `on cap:` and `tiebreak:` indented under a bare `score:` — which no implementation has ever read: the fields were silently dropped and `wdl check` reported ok. The prose was the bug. An indented key-and-value block is the same object the brace form is, in the notation the format exists to avoid; it says nothing the two spellings above cannot, and it is not what anyone writes on a whiteboard. Written anyway, each indented line is now reported by name.
 
 ### 9.6 Tiebreaks
 
@@ -592,9 +593,8 @@ Checkpoints are marked **where they happen** with `@tiebreak`; the score declara
 ```
 - 5 Wall Walk @tiebreak
 ...
-score:
-  primary: time
-  tiebreak: checkpoints        // ordered, last reached wins
+score: time
+tiebreak: checkpoints          // ordered, last reached wins
 ```
 
 ---
