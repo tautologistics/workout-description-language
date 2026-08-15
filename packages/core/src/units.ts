@@ -2,6 +2,23 @@
 
 import type { Unit, Load, Target } from './ast.ts';
 
+/**
+ * Expand `1..10..1` into every step between the given waypoints.
+ *
+ * Here rather than in `parse.ts` because two things read a rep scheme now — the
+ * hand-written header parser and the grammar's block semantics — and a ladder
+ * that expands one way in one of them is the kind of divergence the grammar
+ * exists to make impossible.
+ */
+export function expandRuns(points: number[]): number[] {
+  const out: number[] = [points[0]];
+  for (let i = 1; i < points.length; i++) {
+    const from = points[i - 1], to = points[i], dir = to >= from ? 1 : -1;
+    for (let v = from + dir; dir > 0 ? v <= to : v >= to; v += dir) out.push(v);
+  }
+  return out;
+}
+
 const DIST = /^(\d+(?:\.\d+)?)(m|km|mi|ft|yd)$/;
 const CAL = /^(\d+)\s*cal$/;
 const REPS = /^(\d+)$/;

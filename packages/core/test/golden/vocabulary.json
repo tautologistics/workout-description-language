@@ -5940,6 +5940,74 @@
   },
   "fixpoint": true
  },
+ "known-wrong :: 3x10 Curl": {
+  "canonical": "for time:\n  - 3x10 Curl",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "3x10 Curl",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "known-wrong :: 5x5 Back Squat @ 225lb": {
+  "canonical": "for time:\n  - 5x5 Back Squat @ 225lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "5x5 Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 225
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "known-wrong :: 10 Thruster, @ 95lb": {
   "canonical": "for time:\n  - 10 Thrusters, @ 95lb",
   "errors": [],
@@ -7376,6 +7444,68 @@
   },
   "fixpoint": true
  },
+ "block/other :: build to without a label": {
+  "canonical": "build to a heavy single in 15min:\n  - Snatch",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "buildTarget": "a heavy single",
+     "children": [
+      {
+       "movement": "Snatch",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 900
+     },
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "max load",
+      "raw": "max load"
+     },
+     "type": "build"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/other :: unrecognized header": {
+  "canonical": "3 rounds of madness:\n  - 10 Push-Ups",
+  "errors": [
+   "L1 unrecognized block header \"3 rounds of madness\""
+  ],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "name": "3 rounds of madness",
+     "node": "block",
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "block/section :: warmup": {
   "canonical": "warmup:\n  - 400m Run",
   "errors": [],
@@ -7813,6 +7943,115 @@
       "unbroken"
      ],
      "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: target after a comma": {
+  "canonical": "3 rounds, @ 95lb:\n  - 10 Thrusters",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds",
+      "@ 95lb"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: target then for time": {
+  "canonical": "3 rounds @ 95lb for time:\n  - 10 Thrusters",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "inherited": [
+      {
+       "kind": "raw",
+       "text": "95lb for time"
+      }
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: for time then target": {
+  "canonical": "3 rounds for time @ 95lb:\n  - 10 Thrusters",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "inherited": [
+      {
+       "kind": "load",
+       "load": {
+        "kind": "absolute",
+        "unit": "lb",
+        "value": 95
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
      "type": "repeat"
     }
    ],

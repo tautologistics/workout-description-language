@@ -1,0 +1,80 @@
+/**
+ * The grammar, compiled, with every area's semantics on it.
+ *
+ * `spec/grammar-0.1.ohm` is one grammar with several start rules, and this is the
+ * one place that compiles it and attaches meaning: the shared lexical layer from
+ * `lexical-semantics.ts`, the step line from `step-semantics.ts`, the block header
+ * from `block-semantics.ts`. They are separate files and a single semantics object
+ * on purpose — Ohm scopes an operation to a semantics, so an operation two areas
+ * both need (`unit()`) has to live on one object rather than be copied onto two.
+ *
+ * The grammar source is **handed in** rather than read, for the same reason the
+ * movement registry is (see `../env.ts`): nothing under `src/` opens a file or
+ * knows a path. A Node host reads `spec/grammar-0.1.ohm`; a browser fetches it.
+ *
+ * Nothing here is wired into `parse.ts` yet. Today this runs beside the
+ * hand-written parser as a differential test (`test/grammar.test.ts`).
+ */
+
+// Vendored, and imported by relative path on purpose: nothing under `src/`
+// resolves a bare specifier, because the browser emit has no resolver to do it
+// with. See `vendor/README.md`.
+import * as ohm from './vendor/ohm.js';
+import type { Step, Block } from '../ast.ts';
+import { installLexical, origin, type Origin } from './lexical-semantics.ts';
+import { installStep } from './step-semantics.ts';
+import { installBlock } from './block-semantics.ts';
+
+export type { Origin };
+
+/** A match, reported rather than thrown. */
+export type Attempt<T> = { ok: true; value: T } | { ok: false; message: string };
+
+export interface WdlParser {
+  /** One step line — the text after the `- `. Throws if the grammar rejects it. */
+  parseStep(text: string, o?: Origin): Step;
+  /** One block header — the text before the `:`. Throws if the grammar rejects it. */
+  parseHeader(text: string, o?: Origin): Block;
+  /** The same two, reporting a failure instead of throwing. */
+  tryStep(text: string, o?: Origin): Attempt<Step>;
+  tryHeader(text: string, o?: Origin): Attempt<Block>;
+}
+
+export function makeParser(grammarSource: string): WdlParser {
+  const grammar = ohm.grammar(grammarSource);
+  const semantics = grammar.createSemantics();
+  installLexical(semantics);
+  installStep(semantics);
+  installBlock(semantics);
+
+  /**
+   * One shape for every start rule: match, then walk.
+   *
+   * `startRule` is Ohm's own mechanism for "parse this as a header, not as a
+   * step" — which is how the grammar gets away with never stating the `- ` or the
+   * `:`. `21-15-9` is a ladder here and `8-12` is a rep range there, and no rule
+   * has to tell them apart.
+   */
+  const at = <T>(startRule: string, walk: (node: never, o: Origin) => T) =>
+    (text: string, o?: Origin): Attempt<T> => {
+      const m = grammar.match(text, startRule);
+      if (m.failed()) return { ok: false, message: m.shortMessage ?? 'no match' };
+      return { ok: true, value: walk(semantics(m) as never, origin(o)) };
+    };
+  const orThrow = <T>(what: string, attempt: (t: string, o?: Origin) => Attempt<T>) =>
+    (text: string, o?: Origin): T => {
+      const got = attempt(text, o);
+      if (!got.ok) throw new Error(`grammar: ${what}: ${got.message}`);
+      return got.value;
+    };
+
+  const tryStep = at<Step>('step', (n, o) => (n as { toStep(o: Origin): Step }).toStep(o));
+  const tryHeader = at<Block>('blockHeader', (n, o) => (n as { toBlock(o: Origin): Block }).toBlock(o));
+
+  return {
+    tryStep,
+    tryHeader,
+    parseStep: orThrow('step', tryStep),
+    parseHeader: orThrow('block header', tryHeader),
+  };
+}

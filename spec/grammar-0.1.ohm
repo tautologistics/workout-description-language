@@ -1,9 +1,18 @@
-// WDL 0.1 — normative grammar, phase 2: the step line.
+// WDL 0.1 — normative grammar, phase 2.
 //
-// Status: this file states the *step line* and nothing else. Block headers,
-// block modifiers, rest, score and the workout preamble are still stated only
-// by prose in spec-0.1.md and by the implementation in packages/core/src/.
-// They belong here and are not here yet.
+// Status: this file states the **step line** and the **block header**, including
+// the header's comma modifiers. Rest, score, variants and the workout preamble
+// are still stated only by prose in spec-0.1.md and by the implementation in
+// packages/core/src/. They belong here and are not here yet.
+//
+// Phase 1 is not here and never will be: `readLines` turns indentation into a
+// tree and knows nothing about workouts, and this is a grammar over one line's
+// content. Which *kind* of line it is remains the caller's question, keyed on
+// the same one-character markers phase 1 already sees — a leading `- ` opens a
+// step, a trailing `:` opens a block — so neither marker appears in the rules
+// below. That the colon is what tells `21-15-9` (a rep scheme) from `8-12` (a
+// rep range) is therefore stated as *which start rule the caller picks*, and the
+// two shapes never have to be told apart inside one derivation.
 //
 // This grammar is normative: where it and spec-0.1.md disagree, this file is
 // right and the prose is a bug. It carries no semantic actions on purpose —
@@ -18,25 +27,26 @@
 // again. Here `|` means "try in this order", so the ordering *is* the
 // specification and the grammar is unambiguous by construction.
 //
-// Verified, on every run: with the semantics in
-// packages/core/src/grammar/step-semantics.ts, this reproduces the hand-written
-// parser's AST on every step line in examples/corpus, every one in spec-0.1.md,
-// and every step case in the vocabulary suite. The count is derived by
+// Verified, on every run: with the semantics under
+// packages/core/src/grammar/, this reproduces the hand-written parser's AST on
+// every step line and every block header in examples/corpus, in spec-0.1.md, and
+// in the vocabulary suite. The counts are derived by
 // packages/core/test/grammar.test.ts rather than asserted here, and so is the
 // list of lines the two read differently on purpose — each with a reason. Where
 // they differ this file is not automatically the loser: the `@`-plus-digit forms
 // are ones where the grammar is right and parse.ts is wrong.
 //
 // The parser does not run on this file yet. It runs beside the hand-written one
-// until the grammar covers the rest of phase 2, because block headers share
-// this lexical layer and will force some of these productions apart.
+// until the grammar covers the rest of phase 2.
 
 
-WDLStep {
+WDL {
 
   // Every rule is lexical (lowercase) on purpose. Ohm's syntactic rules skip
   // whitespace implicitly, and in WDL a single space *is* the meaning:
   // `@tiebreak` is a flag, `@ 95lb` is a load. Space is never incidental here.
+
+  // ================== the step line ==================
 
   step = oneStep orTail*
   orTail = spaces orSep spaces oneStep
@@ -58,12 +68,29 @@ WDLStep {
   movement = movChar+
   movChar = ~stepPartStart ~"," ~orSep any
 
-  stepPartStart = "@" | laterality | rxSplit | trailingQualifier | threshold
+  // A qualifier is only a qualifier if the part *ends* there. The `x10` in
+  // `3x10 Curl` is followed by more of the movement name, so it belongs to the
+  // name — which is what `peelTrailingQualifiers` means by only ever stripping
+  // from the end, and what a rule reading left to right has to say out loud.
+  // (Whether `3x10 Curl` *should* mean three sets of ten is a separate question,
+  // and neither implementation reads it that way today — see known-debts.md.)
+  stepPartStart = "@" | qualifiedPart
+  qualifiedPart = (laterality | rxSplit | trailingQualifier | threshold) partEnd
+
+  // What may follow a part: another part, a comma, an `@`, or the end of the line.
+  partEnd = &spacedBoundary | &spacedPart | end
+  spacedBoundary = spaces ("," | "@")
 
   altPrefix = altWord ~wordChar spaces
   altWord = caseInsensitive<"alternating"> | caseInsensitive<"alt">
 
-  // ---------- quantity ----------
+  // ---------- quantity: shared with the block header ----------
+  //
+  // This is the layer the two halves of phase 2 have in common, and the reason
+  // headers were stated here before the parser was swapped over to any of it.
+  // A duration appears in `12min Bike`, in `cap 12min`, in `every 90s` and in
+  // `AMRAP 12min`; a target appears after a step's `@` and after a header's.
+  // Stated once, they cannot drift; stated twice, they would.
 
   leadQuantity = threshold                                              -- threshold
                | durationQty spaces maxWord ~letter spaces              -- clockMax
@@ -171,8 +198,7 @@ WDLStep {
 
   targetAtom = targetChar+
   targetChar = ~"@" ~"," ~(space+ caseInsensitive<"to"> ~wordChar)
-               ~(space+ trailingQualifier endOfPart) any
-  endOfPart = &"," | &"@" | end
+               ~(space+ trailingQualifier partEnd) any
 
   laterality = "(" lateralityWord ")"
   lateralityWord = caseInsensitive<"both"> | caseInsensitive<"split">
@@ -234,6 +260,138 @@ WDLStep {
 
   quotedOrRest = "\"" (~"\"" any)* "\""  -- quoted
                | (~"," any)*             -- bare
+
+  // ================== the block header ==================
+  //
+  // The content of a line that ends in `:`, with the colon itself left to the
+  // caller for the reason given at the top of this file. Structurally a header
+  // is one *kind* — what the block is — plus anything that qualifies it: an `@`
+  // target the children inherit, `for time`, and comma-separated modifiers.
+  //
+  // `for time` is not a kind. It is a score, and it may be fused onto a kind
+  // (`3 rounds for time`) or stand alone (`for time:`, a plain sequence scored
+  // by the clock), so it is one production used in both places rather than two
+  // spellings of one idea.
+
+  blockHeader = headerHead headerModifier*
+
+  headerHead = headerKind? headerExtra*
+  headerExtra = spaces (forTime | targetGroup)
+  headerModifier = spaces "," spaces blockModifier
+
+  forTime = caseInsensitive<"for"> spaces caseInsensitive<"time"> ~wordChar
+
+  // A kind is the *whole* of what it claims, up to a comma, an `@`, or
+  // `for time`. Without that, `3 rounds of madness:` would read `3 rounds` and
+  // choke on the rest instead of falling through to the unknown production —
+  // in a PEG an alternative that succeeds is never reconsidered, so "the whole
+  // of it" has to be said here rather than assumed.
+  headEnd = ~moreHead
+  moreHead = spaces ~"," ~"@" ~forTime any
+
+  // Ordered as the implementation orders them, so the two can be read side by
+  // side. `headerName` is last and matches anything: an unrecognized header is
+  // held as a named sequence rather than rejected.
+  headerKind = integer spaces roundWord headEnd                    -- rounds
+             | integer spaces attemptWord headEnd                  -- attempts
+             | caseInsensitive<"team"> spaces caseInsensitive<"of">
+               spaces integer headEnd                              -- teamOf
+             | ladder                                              -- ladder
+             | caseInsensitive<"for"> spaces headerDuration headEnd -- forDuration
+             | caseInsensitive<"amrap"> amrapWindow? headEnd       -- amrap
+             | caseInsensitive<"e"> integer? caseInsensitive<"mom">
+               spaces headerDuration headEnd                       -- emom
+             | every                                               -- every
+             | caseInsensitive<"work"> spaces headerDuration headEnd -- work
+             | minuteWord spaces integer headEnd                   -- cycleEntry
+             | caseInsensitive<"any"> spaces caseInsensitive<"order"> headEnd -- tally
+             | caseInsensitive<"superset"> headEnd                 -- superset
+             | caseInsensitive<"complex"> headEnd                  -- complex
+             | caseInsensitive<"sequence"> headEnd                 -- sequence
+             | build                                               -- build
+             | sectionWord headEnd                                 -- section
+             | headerName                                          -- unknown
+
+  roundWord = caseInsensitive<"rounds"> | caseInsensitive<"round">
+            | caseInsensitive<"sets"> | caseInsensitive<"set">
+  attemptWord = caseInsensitive<"attempts"> | caseInsensitive<"attempt">
+  minuteWord = caseInsensitive<"minute"> | caseInsensitive<"min">
+
+  // A bare number in a header duration position is minutes — `AMRAP 12`,
+  // `every 5`. Nowhere else in the language does a bare number mean time.
+  headerDuration = durationQty        -- exact
+                 | integer ~wordChar  -- minutes
+  amrapWindow = spaces headerDuration
+
+  // `every 90s`, `every 1min until failure`, `every 3min x 5`. The bounded forms
+  // come first or their tails are left dangling.
+  every = everyWord spaces headerDuration spaces caseInsensitive<"until">
+          spaces caseInsensitive<"failure"> headEnd                -- untilFailure
+        | everyWord spaces headerDuration spaces ("x" | "×")
+          spaces integer headEnd                                   -- times
+        | everyWord spaces headerDuration headEnd                  -- bare
+  everyWord = caseInsensitive<"every">
+
+  // `21-15-9`, `1..10`, `1..5..1`, and with a unit `250-500-750 m` or
+  // `1..5..1 min`. A scheme counts reps unless it says otherwise, so the unit
+  // form is tried first — matched second, the unit would be left over.
+  ladder = schemeNumbers spaces schemeUnit ~wordChar headEnd  -- unit
+         | schemeNumbers headEnd                              -- reps
+
+  // `..` states the endpoints of a run and every number between them is
+  // implied; `-` states every tier. Ten-tier ladders are common enough that
+  // spelling each number out is its own source of transcription errors.
+  schemeNumbers = integer runTail+   -- run
+                | integer tierTail+  -- tiers
+  runTail = ".." integer
+  tierTail = "-" integer
+
+  // `min` before `mi` before `m`, and this one is not decoration: written the
+  // other way round, `1..5..1 min` matches `mi` and chokes on the `n`, because a
+  // PEG never reconsiders an alternative that succeeded.
+  schemeUnit = caseInsensitive<"min"> | caseInsensitive<"mi">
+             | caseInsensitive<"km"> | caseInsensitive<"ft">
+             | caseInsensitive<"yd"> | caseInsensitive<"cal">
+             | caseInsensitive<"m"> | caseInsensitive<"s">
+
+  // `build to a heavy single in 15min as heavy-single`. The goal is prose — it
+  // is what the athlete is aiming at, not a quantity — so it runs to the ` in `.
+  build = caseInsensitive<"build"> spaces caseInsensitive<"to"> spaces buildGoal
+          spaces caseInsensitive<"in"> spaces headerDuration buildLabel? headEnd
+  buildGoal = buildGoalChar+
+  buildGoalChar = ~"," ~"@" ~(space+ caseInsensitive<"in"> space) any
+  buildLabel = spaces caseInsensitive<"as"> spaces label
+
+  sectionWord = caseInsensitive<"warm-up"> | caseInsensitive<"warmup">
+              | caseInsensitive<"strength"> | caseInsensitive<"skill">
+              | caseInsensitive<"conditioning"> | caseInsensitive<"accessory">
+              | caseInsensitive<"cool-down"> | caseInsensitive<"cooldown">
+
+  // Anything else. Held as the block's name, the same way `unknown` holds an
+  // unrecognized step modifier: not an error and not a guess. It stops short of
+  // an `@` and of `for time`, because those qualify a header of any kind
+  // including one nobody taught the grammar.
+  headerName = ~forTime headerNameChar+
+  headerNameChar = ~"," ~"@" ~(space+ forTime) any
+
+  // ---------- what may qualify a header, after a comma ----------
+
+  blockModifier = caseInsensitive<"cap"> spaces headerDuration modEnd  -- cap
+                | overrunWord spaces caseInsensitive<"on"> spaces
+                  caseInsensitive<"overrun"> modEnd                   -- overrun
+                | caseInsensitive<"wearing"> spaces restOfPart        -- wearing
+                | caseInsensitive<"as"> spaces label modEnd           -- label
+                | forTime modEnd                                     -- forTime
+                | blockFlagWord modEnd                               -- flag
+                | targetGroup                                        -- target
+                | unknown                                            -- unknown
+
+  modEnd = ~moreMod
+  moreMod = spaces ~"," any
+  overrunWord = caseInsensitive<"carry"> | caseInsensitive<"cut"> | caseInsensitive<"fail">
+  blockFlagWord = caseInsensitive<"building"> | caseInsensitive<"unbroken">
+                | caseInsensitive<"synchronized"> | caseInsensitive<"shared">
+  label = (alnum | "_" | "-")+
 
   // ---------- lexical ----------
 

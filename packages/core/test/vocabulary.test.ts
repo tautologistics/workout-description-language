@@ -34,6 +34,14 @@ const KNOWN_WRONG: Record<string, string> = {
     '`@` with no space stops the flag at the `%` and leaves `% 1RM` in the movement name',
   'known-wrong :: 18 Thruster @115lb @tiebreak':
     '`@` with no space reads the load as a second flag and drops it',
+  'known-wrong :: 3x10 Curl':
+    '`sets x reps` before the movement becomes the movement name; the quantity stays open',
+  'known-wrong :: 5x5 Back Squat @ 225lb':
+    '`sets x reps` before the movement becomes the movement name — spec §1 rule 4 writes it this way',
+  'block/modifier :: target after a comma':
+    'a header target after a comma is filed as a flag, so nothing inherits it',
+  'block/modifier :: target then for time':
+    'the header `@` sweep is greedy and swallows the following `for time`, losing both',
   'known-wrong :: 10 Thruster, @ 95lb':
     'a target after a comma is filed as a note, not a load',
   'known-wrong :: 10 Thruster, @ 24kg':

@@ -276,6 +276,18 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     // A flag beside a tight load on one line. The parser reads two flags and no
     // target; the grammar reads one of each.
     '18 Thruster @115lb @tiebreak',
+    // `sets x reps` written *before* the movement, which is how gyms write it and
+    // how spec §1's own design rule 4 writes it — `5x5 Back Squat @ 225lb` is the
+    // example given for "must stay a one-liner". Neither implementation reads it:
+    // `parseQuantity` matches no pattern on `5x5`, so the whole thing becomes the
+    // movement *name*, the quantity is `open`, and `wdl fmt` writes
+    // `- 5x5 Back Squats @ 225lb`. The trailing spelling (`5 Deadlift x3`) works
+    // and is pinned under `modifiers`; the grammar agrees with the parser here
+    // rather than inventing a form, so this is a shared defect and not an
+    // exclusion. Found 2026-08-15 by widening the differential test's step source
+    // to the vocabulary's whole-document forms. See known-debts.md.
+    '3x10 Curl',
+    '5x5 Back Squat @ 225lb',
     // The same load, lost a second way. `@` is only split out of the *first*
     // comma segment, so a target written after a comma never reaches
     // `targets` — `applyQualifier` falls through and files it as a note. Same
@@ -345,6 +357,11 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   { group: 'block/other', name: 'superset', src: 'superset:\n  - 10 Bench Press @ 135lb\n  - 10 Bent-Over Row @ 95lb' },
   { group: 'block/other', name: 'complex', src: 'complex:\n  - 1 Power Clean\n  - 1 Front Squat\n  - 1 Push Jerk' },
   { group: 'block/other', name: 'build to', src: 'build to a heavy single in 15min as heavy-single:\n  - Snatch' },
+  { group: 'block/other', name: 'build to without a label', src: 'build to a heavy single in 15min:\n  - Snatch' },
+  // Unrecognized, and held rather than rejected: a named sequence keeping every
+  // child, plus a report. Pinned because "fail open" is a property of the format
+  // and not an implementation detail — see queue item 0.
+  { group: 'block/other', name: 'unrecognized header', src: '3 rounds of madness:\n  - 10 Push-Up' },
   { group: 'block/section', name: 'warmup', src: 'warmup:\n  - 400m Run' },
   { group: 'block/section', name: 'strength', src: 'strength:\n  - 5 Back Squat @ 225lb' },
   { group: 'block/section', name: 'conditioning', src: 'conditioning:\n  - AMRAP 12min:\n      - 10 Burpee' },
@@ -361,6 +378,23 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   { group: 'block/modifier', name: 'as label', src: '3 rounds, as main:\n  - 10 Push-Up' },
   { group: 'block/modifier', name: 'inherited target', src: '3 rounds @ 95lb:\n  - 10 Thruster\n  - 10 Push Press' },
   { group: 'block/modifier', name: 'flags', src: '3 rounds, unbroken:\n  - 10 Pull-Up' },
+  // A header target written after a comma. The `@` sweep in `parseHeader` runs
+  // over the *first* comma segment only, so this never reaches `inherited` —
+  // `applyBlockModifier` falls through and files `@ 95lb` as a flag, where
+  // nothing inherits it and the children are loadless. The header-level twin of
+  // `known-wrong :: 10 Thruster, @ 95lb`. The grammar reads it correctly, so it
+  // is a listed exclusion in grammar.test.ts and the swap is the fix.
+  { group: 'block/modifier', name: 'target after a comma', src: '3 rounds, @ 95lb:\n  - 10 Thruster' },
+  // A target and a `for time` on the same header, both ways round. Written
+  // target-first the load *and* the score are lost: `@\s*([^,@]+)` is greedy to
+  // the end of the segment, so `95lb for time` goes to `parseTarget` whole and
+  // comes back a raw target. Written score-first both read correctly. The
+  // grammar has the same greed here — its target text stops at a comma or an
+  // `@` and not at a `for time` — so this is a shared defect rather than an
+  // exclusion, and stating it apart would need a header-local target rule.
+  // See known-debts.md.
+  { group: 'block/modifier', name: 'target then for time', src: '3 rounds @ 95lb for time:\n  - 10 Thruster' },
+  { group: 'block/modifier', name: 'for time then target', src: '3 rounds for time @ 95lb:\n  - 10 Thruster' },
 
   // --- scoring ---
   { group: 'score', name: 'simple', src: 'for time:\n  - 100 Burpee\nscore: time' },

@@ -4,19 +4,11 @@ import type {
   Workout, Node, Step, Rest, Block, Interrupt, Score, Target, Laterality,
 } from './ast.ts';
 import { readLines, expandInline, splitTopLevel, type Line } from './lines.ts';
-import { parseQuantity, parseDuration, parseTarget, parseThreshold } from './units.ts';
+import {
+  parseQuantity, parseDuration, parseTarget, parseThreshold, expandRuns,
+} from './units.ts';
 
 export interface ParseError { line: number; message: string; text: string; }
-
-/** Expand `1..10..1` into every step between the given waypoints. */
-function expandRuns(points: number[]): number[] {
-  const out: number[] = [points[0]];
-  for (let i = 1; i < points.length; i++) {
-    const from = points[i - 1], to = points[i], dir = to >= from ? 1 : -1;
-    for (let v = from + dir; dir > 0 ? v <= to : v >= to; v += dir) out.push(v);
-  }
-  return out;
-}
 
 const SECTIONS = new Set([
   'warmup', 'warm-up', 'strength', 'skill', 'conditioning', 'accessory', 'cooldown', 'cool-down',
