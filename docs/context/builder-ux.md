@@ -177,3 +177,22 @@ and both `apps/builder/` and `apps/display/` once a division can be chosen.*
 **Considered and declined:** indenting the text of cues inside a cycle, to break
 the block out beyond what the rail already does. The rail is enough; the colour
 is the part that is missing.
+
+## The board
+
+**A workout-level diagnostic renders as `line undefined:`.** `board.js:376` writes
+`` `line ${d.line}: ${d.message}` `` for every error `validate` returns, and three
+of them are facts about the *whole workout* rather than about a line — so they
+carry no `line` and the board prints the word `undefined` at the front of a
+message that is otherwise correct. `empty-workout` and `rounds-score-on-fixed-work`
+have always done this; `score-without-primary`, added 2026-08-15 by queue item 0e,
+made it easy to hit, which is how it was found — by putting a score with no
+primary on the board and reading the strip.
+
+Pre-existing rather than introduced, and left alone deliberately: the fix is
+either omitting the prefix when there is no line, or giving `Score` a line so the
+diagnostic can point at one. The first is a line of app code; the second is an AST
+change, and it is the better answer if anything else ever wants to point at where
+a score was written. Not part of 0e, which is about how a line is read.
+*Touches: `apps/display/board.js:375`, and `packages/core/src/ast.ts` if the score
+gains a line.*
