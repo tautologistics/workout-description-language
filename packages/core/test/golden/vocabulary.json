@@ -2929,6 +2929,42 @@
   },
   "fixpoint": true
  },
+ "target/other :: 10 Thruster @ 95lb for time": {
+  "canonical": "for time:\n  - 10 Thrusters @ 95lb for time",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "raw",
+         "text": "95lb for time"
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "flags :: 18 Thruster @ 115lb @tiebreak": {
   "canonical": "for time:\n  - 18 Thrusters @ 115lb @tiebreak",
   "errors": [],
@@ -8299,7 +8335,7 @@
   "fixpoint": true
  },
  "block/modifier :: target then for time": {
-  "canonical": "3 rounds @ 95lb for time:\n  - 10 Thrusters",
+  "canonical": "3 rounds for time @ 95lb:\n  - 10 Thrusters",
   "errors": [],
   "ast": {
    "body": [
@@ -8320,11 +8356,20 @@
      ],
      "inherited": [
       {
-       "kind": "raw",
-       "text": "95lb for time"
+       "kind": "load",
+       "load": {
+        "kind": "absolute",
+        "unit": "lb",
+        "value": 95
+       }
       }
      ],
      "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
      "type": "repeat"
     }
    ],
@@ -8369,6 +8414,262 @@
       "primary": "time",
       "raw": "time"
      },
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: relative target then for time": {
+  "canonical": "3 rounds for time @ 85% 1RM:\n  - 3 Back Squats",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 3
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "inherited": [
+      {
+       "kind": "load",
+       "load": {
+        "kind": "percent",
+        "of": "1RM",
+        "value": 85
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: bare for time then target": {
+  "canonical": "for time @ 95lb:\n  - 30 Thrusters",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 30
+       }
+      }
+     ],
+     "inherited": [
+      {
+       "kind": "load",
+       "load": {
+        "kind": "absolute",
+        "unit": "lb",
+        "value": 95
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: target, for time, then a cap": {
+  "canonical": "3 rounds for time @ 95lb, cap 12min:\n  - 10 Thrusters",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "cap": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "inherited": [
+      {
+       "kind": "load",
+       "load": {
+        "kind": "absolute",
+        "unit": "lb",
+        "value": 95
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: prose target on a header": {
+  "canonical": "3 rounds @ marathon pace:\n  - 1mi Run",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "mi",
+        "value": 1
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "inherited": [
+      {
+       "kind": "pace",
+       "text": "marathon pace"
+      }
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: target after a comma then for time": {
+  "canonical": "3 rounds for time @ 95lb:\n  - 10 Thrusters",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "inherited": [
+      {
+       "kind": "load",
+       "load": {
+        "kind": "absolute",
+        "unit": "lb",
+        "value": 95
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: two targets after a comma": {
+  "canonical": "3 rounds @ 95lb @ 24in:\n  - 10 Box Jumps",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Box Jump",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "inherited": [
+      {
+       "kind": "load",
+       "load": {
+        "kind": "absolute",
+        "unit": "lb",
+        "value": 95
+       }
+      },
+      {
+       "kind": "height",
+       "unit": "in",
+       "value": 24
+      }
+     ],
+     "node": "block",
      "type": "repeat"
     }
    ],

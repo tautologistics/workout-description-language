@@ -146,6 +146,16 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     // an invention. The question of whether `Load` should be able to hold an
     // absent unit is open — see known-debts.md.
     '10 Thruster @ 95',
+    // The other side of the header fix, and the reason the stop is a *parameter*
+    // rather than a line added to the target rule. In a header `for time` is a
+    // score and ends a target; in a step there is no such thing, so the target
+    // runs to the end of its segment and this is one raw target reading
+    // `95lb for time`. Written into the target rule globally it would instead
+    // make this step **unreadable**, because nothing in a step line can consume a
+    // leftover `for time` — a step would lose its movement and its amount over a
+    // phrase that only means something one level up. Held verbatim is the better
+    // of the two, and pinned so the asymmetry is a stated reading.
+    '10 Thruster @ 95lb for time',
   ] },
   { group: 'flags', lines: [
     '18 Thruster @ 115lb @tiebreak',
@@ -434,15 +444,43 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   // rounds, not a header nobody can read.
   { group: 'block/modifier', name: 'stray comma', src: '3 rounds,:\n  - 10 Push-Up' },
   // A target and a `for time` on the same header, both ways round. Written
-  // target-first the load *and* the score are lost: `@\s*([^,@]+)` is greedy to
-  // the end of the segment, so `95lb for time` goes to `parseTarget` whole and
-  // comes back a raw target. Written score-first both read correctly. The
-  // grammar has the same greed here — its target text stops at a comma or an
-  // `@` and not at a `for time` — so this is a shared defect rather than an
-  // exclusion, and stating it apart would need a header-local target rule.
-  // See known-debts.md.
+  // target-first the load *and* the score used to be lost: the target text ran
+  // to the end of the segment, so `95lb for time` came back one raw target and
+  // the block was never scored. Written score-first both always read correctly,
+  // which is what made it order-sensitivity rather than a missing form.
+  // **Fixed 2026-08-15** by giving the target rule a *stop* parameter: a target
+  // is prose and runs to the end of its segment, except in a header, where
+  // `for time` also ends it. Both spellings now read the same, and the canonical
+  // form of both is score-first.
   { group: 'block/modifier', name: 'target then for time', src: '3 rounds @ 95lb for time:\n  - 10 Thruster' },
   { group: 'block/modifier', name: 'for time then target', src: '3 rounds for time @ 95lb:\n  - 10 Thruster' },
+  // The neighbours. A relative target then `for time`, because the stop has to
+  // fire after text that is not a plain load; `for time` with no kind at all in
+  // front of it; and a comma modifier *after* the fused score, so the stop is
+  // not doing the comma's job by accident.
+  { group: 'block/modifier', name: 'relative target then for time', src: '3 rounds @ 85% 1RM for time:\n  - 3 Back Squat' },
+  { group: 'block/modifier', name: 'bare for time then target', src: 'for time @ 95lb:\n  - 30 Thruster' },
+  { group: 'block/modifier', name: 'target, for time, then a cap', src: '3 rounds @ 95lb for time, cap 12min:\n  - 10 Thruster' },
+  // The stop is the *phrase* `for time` and not the word `for`, so a target that
+  // is ordinary prose is untouched. Pinned because a boundary written one word
+  // too short would cut this one to `marathon` and nothing else in the suite
+  // writes a header target with two words in it.
+  { group: 'block/modifier', name: 'prose target on a header', src: '3 rounds @ marathon pace:\n  - 1mi Run' },
+  // The same defect one position over, and the reason the fix is two lines
+  // rather than one. After a comma the target is a `blockModifier`, so the stop
+  // had to be applied there as well — and applied *alone* it made this header
+  // strictly worse than greedy: the `for time` had nothing left to consume it
+  // and the whole line became unreadable, losing the kind and the load too.
+  //
+  // So `headerModifier` gained trailing extras, which states something that was
+  // true all along and unsaid: **whatever may qualify a header before a comma
+  // may qualify it after one.** Left undone, this line was the *unsettled* case —
+  // `wdl fmt` wrote the comma away, and the second pass then read the load and
+  // the score the first pass had lost. That is the shape the rx-split defect had,
+  // and it is the argument against stopping halfway: a half-fixed boundary turns
+  // a wrong-but-stable reading into a reading that changes under the formatter.
+  { group: 'block/modifier', name: 'target after a comma then for time', src: '3 rounds, @ 95lb for time:\n  - 10 Thruster' },
+  { group: 'block/modifier', name: 'two targets after a comma', src: '3 rounds, @ 95lb @ 24in:\n  - 10 Box Jump' },
 
   // --- scoring ---
   { group: 'score', name: 'simple', src: 'for time:\n  - 100 Burpee\nscore: time' },

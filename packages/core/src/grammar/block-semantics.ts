@@ -203,10 +203,16 @@ export function installBlock(semantics: Semantics): void {
     blockHeader(head, mods) {
       const block = blankBlock(origin(this.args.origin));
       head.addToBlock(block);
-      // Nought or one: a comma with nothing after it qualifies nothing.
       for (const m of mods.children) {
+        // Nought or one: a comma with nothing after it qualifies nothing.
         const mod = m.child(3);
         if (mod.numChildren) mod.child(0).addToBlock(block);
+        // And then whatever trails it without a comma of its own. Written order,
+        // because that is what `, @ 95lb for time` says: a target, then a score.
+        // Unlike the head's extras these do not go first — a comma modifier
+        // states a score outright and is meant to overwrite an implied one, and
+        // these arrive on the same footing as the modifier they trail.
+        for (const e of m.child(4).children) e.child(1).addToBlock(block);
       }
       return block;
     },

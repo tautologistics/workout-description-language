@@ -191,7 +191,7 @@ WDL {
 
   // ---------- what may trail a movement ----------
 
-  stepPart = targetGroup | laterality | rxSplit | thresholdPart | trailingQualifier
+  stepPart = targetGroup<never> | laterality | rxSplit | thresholdPart | trailingQualifier
 
   // A threshold trailing a movement becomes that step's completion condition.
   thresholdPart = threshold
@@ -208,17 +208,30 @@ WDL {
   // `@ of heavy-single` — so the space cannot be ignored on the letter side the
   // way it is on the digit side. `@ tiebreak` is therefore a target, read like
   // those, and that is stated here rather than left to fall out of the ordering.
-  targetGroup = "@" flagName              -- flag
-              | "@" spaces targetText     -- target
+  //
+  // **The parameter is where the target's text stops, and it differs by
+  // position.** A target is prose — `marathon pace`, `85% of heavy-single`,
+  // `1:45/500m` — so it runs to the end of its segment and the rule is written
+  // that way. In a *header* one more phrase ends it: `for time` is a score and
+  // may be fused onto any header, so `3 rounds @ 95lb for time` is a load and a
+  // score, not a load called `95lb for time`. That is one rule with one
+  // parameter rather than a header-local copy of five, because it really is one
+  // rule — the same target, read up to a different boundary. `never` is the
+  // boundary everywhere else, and it is a rule that cannot match anything.
+  targetGroup<stop> = "@" flagName                  -- flag
+                    | "@" spaces targetText<stop>   -- target
+
+  never = ~any any
 
   flagName = letter (~space ~"," any)*
 
-  targetText = targetAtom toTail*
-  toTail = spaces caseInsensitive<"to"> spaces targetAtom
+  targetText<stop> = targetAtom<stop> toTail<stop>*
+  toTail<stop> = spaces caseInsensitive<"to"> spaces targetAtom<stop>
 
-  targetAtom = targetChar+
-  targetChar = ~"@" ~"," ~(space+ caseInsensitive<"to"> ~wordChar)
-               ~(space+ trailingQualifier partEnd) any
+  targetAtom<stop> = targetChar<stop>+
+  targetChar<stop> = ~"@" ~"," ~(space+ stop)
+                     ~(space+ caseInsensitive<"to"> ~wordChar)
+                     ~(space+ trailingQualifier partEnd) any
 
   laterality = "(" lateralityWord ")"
   lateralityWord = caseInsensitive<"both"> | caseInsensitive<"split">
@@ -262,7 +275,7 @@ WDL {
            | caseInsensitive<"note:"> spaces quotedOrRest                -- note
            | modFlagWord ~wordChar                                       -- flag
            | noteWord ~wordChar restOfPart                               -- prose
-           | targetGroup                                                 -- target
+           | targetGroup<never>                                          -- target
            | unknown                                                     -- unknown
 
   countWord = caseInsensitive<"calories"> | caseInsensitive<"cal">
@@ -296,10 +309,18 @@ WDL {
   blockHeader = headerHead headerModifier*
 
   headerHead = headerKind? headerExtra*
-  headerExtra = spaces (forTime | targetGroup)
+  headerExtra = spaces (forTime | targetGroup<forTime>)
   // Optional for the same reason `commaModifier`'s is: `3 rounds,:` is three
   // rounds, not a header nobody can read.
-  headerModifier = spaces "," spaces blockModifier?
+  //
+  // The trailing extras say that **whatever may qualify a header before a comma
+  // may qualify it after one**, which is a thing worth stating rather than a
+  // convenience. Without them `3 rounds, @ 95lb for time` had nowhere to put the
+  // `for time` once the target stopped swallowing it, and the whole header
+  // became unreadable — a strictly worse answer than the greedy one it replaced.
+  // With them the two spellings agree, which is the property the stop parameter
+  // exists to buy in the first place.
+  headerModifier = spaces "," spaces blockModifier? headerExtra*
 
   forTime = caseInsensitive<"for"> spaces caseInsensitive<"time"> ~wordChar
 
@@ -405,7 +426,7 @@ WDL {
                 | caseInsensitive<"as"> spaces label modEnd           -- label
                 | forTime modEnd                                     -- forTime
                 | blockFlagWord modEnd                               -- flag
-                | targetGroup                                        -- target
+                | targetGroup<forTime>                                -- target
                 | unknown                                            -- unknown
 
   modEnd = ~moreMod

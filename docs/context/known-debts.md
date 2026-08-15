@@ -181,16 +181,38 @@ when something looks odd before treating it as a discovery.
   is simply "the lines no rule reads", and it is the honest half of the coverage
   count.*
 
-- **A target and a `for time` on one header, written in that order, lose both.**
-  `3 rounds @ 95lb for time:` hands `95lb for time` to `parseTarget` whole, because
-  `@\s*([^,@]+)` is greedy to the end of the segment — so it comes back a raw
-  target and the score never happens. Written the other way round
-  (`3 rounds for time @ 95lb:`) both read correctly. **The grammar has the same
-  greed**, because its target text stops at a comma or an `@` and not at a
-  `for time`, and stating it apart would need a header-local copy of the target
-  rules or a parameterized one — a step target legitimately runs to the end of its
-  segment. So this is a shared defect rather than an exclusion. Both spellings
-  pinned 2026-08-15.
+- ~~**A target and a `for time` on one header, written in that order, lose
+  both.**~~ **Closed 2026-08-15** by queue item 0e. `3 rounds @ 95lb for time:`
+  used to hand `95lb for time` to `parseTarget` whole, because `@\s*([^,@]+)` is
+  greedy to the end of the segment — so it came back a raw target and the score
+  never happened, leaving the children with no real load and the block unscored.
+  Written the other way round (`3 rounds for time @ 95lb:`) both always read
+  correctly, which is what made this order-sensitivity rather than a missing form,
+  and it round-trips as byte-identical text, so nothing but a pinned reading could
+  see it. The grammar inherited the same greed, since its target text stopped at a
+  comma or an `@` and not at a `for time`.
+
+  **The fix is the parameterized rule the entry above said it would need.**
+  `targetGroup<stop>` takes the boundary as a parameter: `never` in a step, where
+  a target is prose and legitimately runs to the end of its segment, and `forTime`
+  in a header, where `for time` is a score that may be fused onto any kind. One
+  rule read to two boundaries, rather than a header-local copy of five rules that
+  could drift.
+
+  **What it cost that was not expected, and it is the interesting half.** The
+  comma spelling (`3 rounds, @ 95lb for time:`) is the same target one position
+  over, so the stop had to apply there too — and applied *alone* it made that line
+  strictly **worse** than greedy: with the target stopping short, the `for time`
+  had nothing left to consume it, so the whole header became unreadable and the
+  kind and the load went down with it. Half-applied, it also turned a
+  wrong-but-stable reading into an *unsettled* one, the shape the rx-split defect
+  had: `wdl fmt` wrote the comma away and the second pass then read what the first
+  had lost. So `headerModifier` gained trailing extras, which states out loud
+  something that was true and unsaid — **whatever may qualify a header before a
+  comma may qualify it after one**. Eight forms pinned where two were, including
+  `3 rounds @ marathon pace:` to prove the boundary is the phrase `for time` and
+  not the word `for`, and `10 Thruster @ 95lb for time` to pin that the step side
+  is deliberately unchanged.
 
 - An unrecognized step modifier is pushed into `step.notes`, the same array as an
   authored `note: "…"`. *Unchanged by the swap 2026-08-15: `modifier_unknown` in
