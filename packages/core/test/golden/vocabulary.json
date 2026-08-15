@@ -9361,6 +9361,76 @@
   },
   "fixpoint": true
  },
+ "variants :: unreadable variant": {
+  "canonical": "for time:\n  - 21 Thrusters\n\nvariants:",
+  "errors": [
+   "L2 unreadable variant \"women: junk\""
+  ],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "variants": {}
+  },
+  "fixpoint": true
+ },
+ "variants :: unreadable field": {
+  "canonical": "for time:\n  - 21 Thrusters\n\nvariants:\n  women:\n    load: 65lb",
+  "errors": [
+   "L4 unreadable variant field \"junk\""
+  ],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "variants": {
+    "women": {
+     "load": "65lb"
+    }
+   }
+  },
+  "fixpoint": true
+ },
  "rest :: duration": {
   "canonical": "5 sets:\n  - 5 Back Squats @ 225lb\n  rest 3min",
   "errors": [],

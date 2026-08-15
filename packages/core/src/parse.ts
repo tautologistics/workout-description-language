@@ -3,7 +3,7 @@
 import type {
   Workout, Node, Step, Rest, Block, Interrupt, Score,
 } from './ast.ts';
-import { readLines, expandInline, splitTopLevel, type Line } from './lines.ts';
+import { readLines, expandInline, type Line } from './lines.ts';
 import { parseDuration } from './units.ts';
 import { wdl } from './grammar/parser.ts';
 import { blankStep } from './grammar/step-semantics.ts';
@@ -184,15 +184,19 @@ class Parser {
         // A `score:` nested inside a block belongs to that block; at the top
         // level it belongs to the workout. One rule, no ambiguity with siblings.
         const kt = k.text.trim();
-        if (/^score:/i.test(kt)) { block.score = parseScore(kt); continue; }
-        let c = kt.match(/^on\s+cap:\s*(.+)$/i);
-        if (c && block.score) { block.score.onCap = c[1].trim(); continue; }
-        c = kt.match(/^tiebreak:\s*(.+)$/i);
-        if (c && block.score) { block.score.tiebreak = c[1].trim(); continue; }
+        const score = readScore(kt);
+        if (score) { block.score = score; continue; }
+        // Which score an `on cap:` qualifies is a question about several lines,
+        // so the grammar reads the line and the answer is here: the one above it.
+        // With no score above it the line is not a qualifier at all and falls
+        // through to the step grammar, which is what it did before.
+        const q = wdl().tryQualifier(kt);
+        if (q.ok && block.score) { block.score[q.value.key] = q.value.text; continue; }
         const n = this.parseNode(k);
         if (n) block.children.push(n);
       }
-      if (tail && /^score:/i.test(tail)) block.score = parseScore(tail);
+      const tailScore = tail ? readScore(tail) : null;
+      if (tailScore) block.score = tailScore;
       return block;
     }
 
@@ -201,28 +205,16 @@ class Parser {
   }
 }
 
-function parseScore(text: string): Score {
-  const raw = text.replace(/^score:\s*/i, '').trim();
-  const score: Score = { primary: raw, raw };
-
-  const inner = raw.replace(/^\{|\}$/g, '').trim();
-  if (inner !== raw) {
-    for (const part of splitTopLevel(inner, ',')) {
-      const [k, ...v] = part.split(':');
-      const key = k.trim().toLowerCase(), val = v.join(':').trim();
-      if (key === 'primary') score.primary = val;
-      else if (key === 'on cap') score.onCap = val;
-      else if (key === 'tiebreak') score.tiebreak = val;
-    }
-    return score;
-  }
-  let m = raw.match(/^(min|max|sum)\s+per\s+round$/i);
-  if (m) { score.aggregate = m[1].toLowerCase() as any; score.perRound = true; score.primary = raw; return score; }
-  m = raw.match(/^(.+?)\s+per\s+round$/i);
-  if (m) { score.perRound = true; score.primary = m[1]; return score; }
-  m = raw.match(/^sum\s+of\s+blocks$/i);
-  if (m) { score.aggregate = 'sum'; score.primary = 'blocks'; return score; }
-  return score;
+/**
+ * A `score:` line, if this is one.
+ *
+ * The grammar's `scoreLine` carries its own keyword, so it selects the lines it
+ * applies to and this returns `null` for everything else — which is why the
+ * callers below ask it rather than testing a regex first and then reading.
+ */
+function readScore(text: string): Score | null {
+  const got = wdl().tryScore(text);
+  return got.ok ? got.value : null;
 }
 
 /**
@@ -247,10 +239,15 @@ export function parse(source: string): { workout: Workout; errors: ParseError[] 
 
     if (!text) { workout.comments.push(...line.comments); continue; }
 
-    const dm = text.match(/^@([\w-]+)\s*(.*)$/);
-    if (dm) { workout.directives[dm[1]] = dm[2].trim(); continue; }
-    if (text.startsWith('#')) { workout.title = text.replace(/^#+\s*/, ''); continue; }
-    if (/^score:/i.test(text)) {
+    // `@id`, `# Fran` — each carries its own marker, so like the score line the
+    // grammar's rules select the lines they apply to and there is nothing to
+    // test for first.
+    const dm = wdl().tryDirective(text);
+    if (dm.ok) { workout.directives[dm.value.key] = dm.value.value; continue; }
+    const title = wdl().tryTitle(text);
+    if (title.ok) { workout.title = title.value; continue; }
+    const score = readScore(text);
+    if (score) {
       // A second one used to overwrite the first without a word, so a workout
       // scored two ways kept whichever was written last and then failed
       // validation over a score its author had not chosen as the primary.
@@ -262,29 +259,41 @@ export function parse(source: string): { workout: Workout; errors: ParseError[] 
         });
         continue;
       }
-      workout.score = parseScore(text);
+      workout.score = score;
       continue;
     }
     // `on cap:` and `tiebreak:` are continuations of the score above them.
-    let cont = text.match(/^on\s+cap:\s*(.+)$/i);
-    if (cont && workout.score) { workout.score.onCap = cont[1].trim(); continue; }
-    if (cont) { p.errors.push(orphan(line, 'on cap')); continue; }
-    cont = text.match(/^tiebreak:\s*(.+)$/i);
-    if (cont && workout.score) { workout.score.tiebreak = cont[1].trim(); continue; }
-    if (cont) { p.errors.push(orphan(line, 'tiebreak')); continue; }
+    const cont = wdl().tryQualifier(text);
+    if (cont.ok) {
+      if (workout.score) { workout.score[cont.value.key] = cont.value.text; continue; }
+      p.errors.push(orphan(line, cont.value.key === 'onCap' ? 'on cap' : 'tiebreak'));
+      continue;
+    }
+    // `variants:` opens a table. *Which* variant a field belongs to is a
+    // question about several lines, so the grammar reads `women:` and
+    // `load: 65lb` and this puts one inside the other — the same division that
+    // leaves `on cap:` attaching to its score up here.
     if (/^variants:$/i.test(text)) {
       workout.variants = {};
       for (const v of line.children) {
-        const vm = v.text.match(/^([\w-]+):\s*(.*)$/);
-        if (!vm) continue;
-        const entries: Record<string, string> = {};
-        const inline = vm[2].replace(/^\{|\}$/g, '').trim();
-        const src = inline ? splitTopLevel(inline, ',') : v.children.map((c) => c.text);
-        for (const e of src) {
-          const em = e.match(/^([\w-]+):\s*(.+)$/);
-          if (em) entries[em[1]] = em[2].trim();
+        const vt = v.text.trim();
+        const variant = wdl().tryVariant(vt);
+        if (!variant.ok) {
+          p.errors.push({ line: v.line, message: `unreadable variant "${vt}"`, text: v.text });
+          continue;
         }
-        workout.variants[vm[1]] = entries;
+        // Inline braces, or a field per indented line. Two spellings because one
+        // variant with one field is a line where three with three is a table.
+        const fields = variant.value.fields
+          ?? v.children.flatMap((c) => {
+            const f = wdl().tryField(c.text.trim());
+            if (f.ok) return [f.value];
+            p.errors.push({ line: c.line, message: `unreadable variant field "${c.text.trim()}"`, text: c.text });
+            return [];
+          });
+        const entries: Record<string, string> = {};
+        for (const f of fields) entries[f.key] = f.value;
+        workout.variants[variant.value.name] = entries;
       }
       continue;
     }

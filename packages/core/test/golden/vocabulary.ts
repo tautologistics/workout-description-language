@@ -487,6 +487,14 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   // --- variants ---
   { group: 'variants', name: 'nested', src: 'variants:\n  women:\n    load: 65lb\n  men:\n    load: 95lb\nfor time:\n  - 21 Thruster' },
   { group: 'variants', name: 'inline brace', src: 'variants:\n  women: {load: 65lb}\n  men: {load: 95lb}\nfor time:\n  - 21 Thruster' },
+  // Malformed, and *reported* as of the swap. A variant line is a name and
+  // either nothing or brace fields; the old regex accepted anything after the
+  // colon, ignored it, and registered the variant with no fields at all — so a
+  // typo produced a variant that existed and did nothing. Now the line is named
+  // in an error and the variant is not invented. Same for a field line that is
+  // not `key: value`.
+  { group: 'variants', name: 'unreadable variant', src: 'variants:\n  women: junk\nfor time:\n  - 21 Thruster' },
+  { group: 'variants', name: 'unreadable field', src: 'variants:\n  women:\n    load: 65lb\n    junk\nfor time:\n  - 21 Thruster' },
 
   // --- rest ---
   { group: 'rest', name: 'duration', src: '5 sets:\n  - 5 Back Squat @ 225lb\n  rest 3min' },
