@@ -5,11 +5,38 @@ in the order I would take them. Load this when starting a session with no task
 named; when one lands, take it off this list and say so in
 [what-exists.md](what-exists.md).
 
-**0. Explore expressing the grammar in a formal, implementation-agnostic
-specification language.** Ordering not settled — raised as a candidate *first*
-task, listed here as 0 rather than renumbering the rest. Exploration, not a
-build: the deliverable is an answer about whether a formalism fits, not a
-rewrite.
+**0. ~~Explore expressing the grammar in a formal specification language.~~
+ANSWERED 2026-08-14 — see [../grammar-exploration.md](../grammar-exploration.md).**
+Yes, it fits. The step line is stated in `spec/grammar-0.1.ohm`, an Ohm grammar
+carrying no semantic actions, and with a semantics file it reproduces the
+hand-written parser's AST on **538/538** lines. Notation and engine are settled
+in [settled-decisions.md](settled-decisions.md).
+
+**0a. Wire the step-line grammar up.** What the exploration deliberately did not
+do. `packages/core/src/` is still untouched and both apps run the old path.
+Needed: the semantics file into `packages/core/src/grammar/`, `ohm-js` as the
+core's one dependency, `parseOneStep` swapped to it behind the 1494 tests, then
+`build-web.mjs` and drive the builder to confirm it behaves identically. The
+semantics proving 538/538 exists but lives outside the repo, so it is a port
+rather than a design.
+*Touches: `packages/core/src/parse.ts`, a new `src/grammar/`, `package.json`.*
+
+**0c. Extend the grammar to the rest of phase 2.** Block headers (~20 forms),
+block modifiers, rest, score, variants and the preamble — roughly half of phase
+2, still prose plus implementation. Each is the same shape of work as the step
+line and much less tangled.
+*Touches: `spec/grammar-0.1.ohm`, `spec/spec-0.1.md`, `packages/core/src/parse.ts`.*
+
+**0d. Give `unknown` somewhere to live.** The grammar holds unrecognized text as
+a first-class production, but `Step` has no field for it and `format` does not
+render it, so the known debt — unknown modifiers indistinguishable from authored
+notes — is not closed end to end. Needs an AST field, formatter support, and the
+board and builder leaving it inert.
+*Touches: `packages/core/src/ast.ts`, `format.ts`, both apps.*
+
+*The original framing, kept because it is what the answer was measured against:
+exploration, not a build — the deliverable is an answer about whether a
+formalism fits, not a rewrite.*
 
 Today the parser is 556 lines carrying 83 regex operations, and it *is* the
 spec — `spec/spec-0.1.md` is prose beside it. The question is whether a grammar

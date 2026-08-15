@@ -14,8 +14,10 @@ for time:
 
 ## Status
 
-Spec 0.1 draft with a working reference parser, formatter, and CLI. Zero dependencies — the
-core runs on Node 22+ via native TypeScript type stripping.
+Spec 0.1 draft with a working reference parser, formatter, and CLI. The shipped
+core — `packages/core/src/` — has no external dependencies and runs on Node 22+
+via native TypeScript type stripping; build and generation toolchains elsewhere
+in the repo are free to have their own.
 
 ```
 npm test --prefix packages/core        # 477 passing

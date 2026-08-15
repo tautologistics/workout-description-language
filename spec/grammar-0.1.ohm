@@ -1,0 +1,224 @@
+// WDL 0.1 — normative grammar, phase 2: the step line.
+//
+// Status: this file states the *step line* and nothing else. Block headers,
+// block modifiers, rest, score and the workout preamble are still stated only
+// by prose in spec-0.1.md and by the implementation in packages/core/src/.
+// They belong here and are not here yet.
+//
+// This grammar is normative: where it and spec-0.1.md disagree, this file is
+// right and the prose is a bug. It carries no semantic actions on purpose —
+// what each production *means* is a separate semantics file, so this stays
+// readable as a contract and portable to any implementation.
+//
+// Notation is Ohm, which is PEG-based, and the choice is load-bearing. WDL's
+// rules are inherently *ordered*: `each arm` must be tried before bare `each`,
+// `min` before a bare `m`, a laterality word before an rx split. EBNF's
+// alternation is unordered, so every one of those would need a prose caveat
+// beside it — which is how a spec ends up being prose beside an implementation
+// again. Here `|` means "try in this order", so the ordering *is* the
+// specification and the grammar is unambiguous by construction.
+//
+// Verified: with the semantics in packages/core/src/grammar/, this reproduces
+// the previous hand-written parser's AST on 538/538 step lines — every step
+// line in examples/corpus, every step form in spec-0.1.md, and the exotic
+// forms neither of them exercises.
+
+
+WDLStep {
+
+  // Every rule is lexical (lowercase) on purpose. Ohm's syntactic rules skip
+  // whitespace implicitly, and in WDL a single space *is* the meaning:
+  // `@tiebreak` is a flag, `@ 95lb` is a load. Space is never incidental here.
+
+  step = oneStep orTail*
+  orTail = spaces orSep spaces oneStep
+
+  orSep = caseInsensitive<"or"> ~wordChar  -- word
+        | "|"                              -- pipe
+        | "/" ~digit                       -- slash
+
+  oneStep = leadQuantity? altPrefix? movement spacedPart* commaModifier*
+
+  spacedPart = spaces stepPart
+  commaModifier = spaces "," spaces modifier
+
+  // ---------- the movement name: an open vocabulary ----------
+  //
+  // Defined negatively — the words that are not something else. This is the
+  // whole trick, and what peelTrailingQualifiers hand-rolls in reverse.
+
+  movement = movChar+
+  movChar = ~stepPartStart ~"," ~orSep any
+
+  stepPartStart = "@" | laterality | rxSplit | trailingQualifier | threshold
+
+  altPrefix = altWord ~wordChar spaces
+  altWord = caseInsensitive<"alternating"> | caseInsensitive<"alt">
+
+  // ---------- quantity ----------
+
+  leadQuantity = threshold                                              -- threshold
+               | durationQty spaces maxWord ~letter spaces              -- clockMax
+               | maxWord ~letter spaces                                 -- max
+               | anyQuantity spaces                                     -- plain
+
+  maxWord = caseInsensitive<"max">
+
+  // A quantity is a whole whitespace-delimited token, or `3/4 Sit-Up` reads
+  // its leading `3` as three reps of a movement called `/4 Sit-Up`.
+  anyQuantity = quantityBody tokenEnd
+  quantityBody = spacedQuantity | unspacedQuantity
+  tokenEnd = &space | end
+
+  // The boundary after a unit is "not a word character", not "not a letter",
+  // or `1min30s` reads as a spaced `1 min` with `30s` left over.
+  spacedQuantity = number spaces calWord ~wordChar   -- cal
+                 | number spaces repWord ~wordChar   -- reps
+                 | number spaces durWord ~wordChar   -- duration
+                 | number spaces distWord ~wordChar  -- distance
+
+  // Distance before duration is what makes `400m` metres and `12min` minutes.
+  unspacedQuantity = integer "-" integer ~wordChar ~"-"        -- range
+                   | integer "+" ~wordChar                     -- floor
+                   | number distUnit ~wordChar                 -- distance
+                   | integer calWord ~wordChar                 -- cal
+                   | durationQty                               -- duration
+                   | integer ~wordChar ~"%"                    -- reps
+
+  durationQty = integer hourUnit minPart? secPart? ~wordChar   -- hms
+              | integer minUnit secPart? ~wordChar             -- ms
+              | integer secUnit ~wordChar                      -- s
+              | integer ":" clockSeconds                       -- clock
+
+  minPart = integer minUnit
+  secPart = integer secUnit
+  hourUnit = caseInsensitive<"h">
+  secUnit = caseInsensitive<"s">
+  minUnit = caseInsensitive<"min">      -- long
+          | caseInsensitive<"m"> ~letter -- short
+  clockSeconds = ("0".."5") digit
+
+  calWord = caseInsensitive<"calories"> | caseInsensitive<"cal">
+  repWord = caseInsensitive<"reps"> | caseInsensitive<"rep">
+
+  durWord = (caseInsensitive<"minutes"> | caseInsensitive<"minute">
+            | caseInsensitive<"mins"> | caseInsensitive<"min">)     -- minutes
+          | (caseInsensitive<"seconds"> | caseInsensitive<"second">
+            | caseInsensitive<"secs"> | caseInsensitive<"sec">)     -- seconds
+          | (caseInsensitive<"hours"> | caseInsensitive<"hour">)    -- hours
+
+  distWord = (caseInsensitive<"meters"> | caseInsensitive<"metres">
+             | caseInsensitive<"meter"> | caseInsensitive<"metre">)  -- metres
+           | (caseInsensitive<"miles"> | caseInsensitive<"mile">)    -- miles
+           | caseInsensitive<"feet">                                 -- feet
+           | distUnit                                                -- unit
+
+  distUnit = caseInsensitive<"km"> | caseInsensitive<"mi">
+           | caseInsensitive<"ft"> | caseInsensitive<"yd">
+           | caseInsensitive<"m">
+
+  // `Bike until HR > 160bpm`. The zone digit is a whole token: without that,
+  // `> 160bpm` reads as zone 1 and leaves `60bpm` on the floor.
+  threshold = untilWord spaces metric spaces compare spaces zoneRef            -- zone
+            | untilWord spaces metric spaces compare spaces number spaces rateUnit?  -- value
+
+  untilWord = caseInsensitive<"until">
+  zoneRef = (caseInsensitive<"zone"> spaces)? caseInsensitive<"z">? digit ~wordChar ~"."
+  rateUnit = caseInsensitive<"bpm"> | caseInsensitive<"watts"> | caseInsensitive<"w">
+  metric = caseInsensitive<"hr">                                   -- hr
+         | caseInsensitive<"heart"> spaces caseInsensitive<"rate"> -- heartRate
+         | caseInsensitive<"power">                                -- power
+
+  // The parentheses are load-bearing: `--` names the alternative immediately
+  // before it, not the group, so without them only the last spelling is named.
+  compare = ("<" | caseInsensitive<"below"> | caseInsensitive<"under">)  -- lt
+          | (">" | caseInsensitive<"above"> | caseInsensitive<"over">)   -- gt
+
+  // ---------- what may trail a movement ----------
+
+  stepPart = targetGroup | laterality | rxSplit | thresholdPart | trailingQualifier
+
+  // A threshold trailing a movement becomes that step's completion condition.
+  thresholdPart = threshold
+
+  // `@tiebreak` (no space) is a flag; `@ 95lb` (space) is a target. The space
+  // is the whole of the distinction, so the grammar states it.
+  targetGroup = "@" ~space word      -- flag
+              | "@" spaces targetText -- target
+
+  targetText = targetAtom toTail*
+  toTail = spaces caseInsensitive<"to"> spaces targetAtom
+
+  targetAtom = targetChar+
+  targetChar = ~"@" ~"," ~(space+ caseInsensitive<"to"> ~wordChar)
+               ~(space+ trailingQualifier endOfPart) any
+  endOfPart = &"," | &"@" | end
+
+  laterality = "(" lateralityWord ")"
+  lateralityWord = caseInsensitive<"both"> | caseInsensitive<"split">
+                 | caseInsensitive<"per-side"> | caseInsensitive<"total">
+
+  // `(women 105lb / men 145lb)`, or `(105/145)` where the larger is the men's.
+  rxSplit = "(" spaces rxSide spaces "/" spaces rxSide spaces ")"
+  rxSide = whoPrefix? number spaces loadUnit?
+  whoPrefix = whoWord spaces
+  whoWord = caseInsensitive<"women"> | caseInsensitive<"men">
+          | caseInsensitive<"w"> | caseInsensitive<"m">
+  loadUnit = caseInsensitive<"lbs"> | caseInsensitive<"lb">
+           | caseInsensitive<"kgs"> | caseInsensitive<"kg">
+           | "#" | caseInsensitive<"pood">
+
+  // Order matters twice: `each arm` before bare `each`, limb before team.
+  trailingQualifier = eachWord ~wordChar spaces limbWord ~wordChar     -- limb
+                    | sideWord ~wordChar spaces sideLimb ~wordChar     -- side
+                    | teamWord ~wordChar                               -- team
+                    | altWord ~wordChar                                -- alternating
+                    | stepFlagWord ~wordChar                           -- flag
+                    | caseInsensitive<"x"> spaces integer ~wordChar    -- sets
+
+  eachWord = caseInsensitive<"each"> | caseInsensitive<"per">
+  limbWord = caseInsensitive<"arm"> | caseInsensitive<"leg">
+           | caseInsensitive<"side"> | caseInsensitive<"hand">
+  sideWord = caseInsensitive<"first"> | caseInsensitive<"second">
+           | caseInsensitive<"left"> | caseInsensitive<"right">
+  sideLimb = caseInsensitive<"arm"> | caseInsensitive<"leg"> | caseInsensitive<"side">
+  teamWord = caseInsensitive<"shared"> | caseInsensitive<"synchronized">
+           | caseInsensitive<"each">
+  stepFlagWord = caseInsensitive<"unbroken"> | caseInsensitive<"building">
+               | caseInsensitive<"reversed">
+
+  // ---------- comma-separated modifiers ----------
+
+  modifier = caseInsensitive<"tempo"> spaces word                        -- tempo
+           | caseInsensitive<"count"> spaces countWord                   -- count
+           | "+" integer spaces caseInsensitive<"each"> spaces caseInsensitive<"round">  -- perRound
+           | trailingQualifier                                           -- qualifier
+           | caseInsensitive<"note:"> spaces quotedOrRest                -- note
+           | modFlagWord ~wordChar                                       -- flag
+           | noteWord ~wordChar restOfPart                               -- prose
+           | targetGroup                                                 -- target
+           | unknown                                                     -- unknown
+
+  countWord = caseInsensitive<"calories"> | caseInsensitive<"cal">
+            | caseInsensitive<"reps"> | caseInsensitive<"distance">
+  modFlagWord = caseInsensitive<"building"> | caseInsensitive<"unbroken">
+              | caseInsensitive<"open"> | caseInsensitive<"reversed">
+  noteWord = caseInsensitive<"ramp"> | caseInsensitive<"wearing">
+
+  // Everything the grammar does not recognize: a production, not a failure and
+  // not a guess. Held verbatim, round-trips, means nothing anywhere.
+  unknown = restOfPart
+
+  restOfPart = partChar+
+  partChar = ~"," any
+
+  quotedOrRest = "\"" (~"\"" any)* "\""  -- quoted
+               | (~"," any)*             -- bare
+
+  // ---------- lexical ----------
+
+  number = digit+ ("." digit+)?
+  integer = digit+
+  wordChar = alnum | "_"
+  word = (~space ~"," any)+
+}

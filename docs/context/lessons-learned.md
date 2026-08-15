@@ -60,3 +60,41 @@ build-time module substitution — emit a `registry.web.js` and swap the specifi
 That is a workaround for a design smell. The core should not know where its data
 lives on any platform. `src/env.ts` and the `provide()` seam replaced it, and the
 build script became one regex.
+
+**A round trip proves stability, not correctness.** `10 Thruster @95lb` — no
+space after the `@` — reads the load as a *flag* named `95lb`, drops it from
+`targets`, formats to `- 10 Thrusters, 95lb`, and reparses to that same text
+forever. Perfect text fixpoint, perfect canonical fixpoint, and the load is
+gone; `wdl check` says `ok`. A round trip asks "does this settle?", which a
+wrong reading answers just as well as a right one. Only a *pinned
+interpretation* — the expected tree, written down and diffed — asks "is this
+right?". `test/golden/vocabulary.json` pins both, and the two questions are kept
+separate there on purpose.
+
+**A suite is only as wide as its vocabulary.** 1257 tests and a 190-workout
+corpus that round-tripped cleanly, and 13 of the 24 documented syntax features
+appeared in **zero** corpus files — alternatives, rx splits, thresholds,
+`note:`, `variants:`, the inline brace form. Every defect the grammar
+exploration turned up lived in that gap, because real workouts are a *sample*
+and a language is a *space*. Sampling real documents will not cover a language;
+only enumerating its forms does.
+
+**Standing rule: a parsing defect becomes permutations, not just a fix.** Any
+parsing issue, any round-trip discrepancy, any misreading found by looking —
+capture it as new line permutations in `test/golden/vocabulary.ts` *before or
+with* the fix, including the neighbours that share its shape. One case proves
+the bug is gone; the permutations around it are what stop the same situation
+coming back through a slightly different spelling. The `@95lb` find is pinned
+with `@2x35lb` and `@24kg` beside it for exactly that reason. If a defect
+arrives without a permutation, the fix is not finished.
+
+**A constraint on the shipped library is not a constraint on the repository.**
+"Zero dependencies" was written about `packages/core/src/`, where it is real and
+load-bearing: that code ships into a server, a browser and a mobile app at once.
+Read as a property of the *repo*, it produced a plan to hand-write a PEG engine
+so that no package.json would appear anywhere — when a build-time generator
+emits a standalone parser with no imports at all, which satisfies the actual
+rule completely. The toolchain that *produces* a file is not the file. Before
+honouring a constraint, check which artifact it binds; the phrasing in
+README.md, running-it.md and settled-decisions.md has been sharpened so the
+question does not come up again. *Corrected 2026-08-14.*

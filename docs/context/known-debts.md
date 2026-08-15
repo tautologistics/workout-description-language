@@ -21,6 +21,17 @@ when something looks odd before treating it as a discovery.
   them apart needs a core change. Same class as the AMRAP `duration`/`window`
   duplication that Chris caught.
 
+- **`@` with no space after it silently destroys the load.** `- 10 Thruster
+  @95lb` reads `95lb` as a *flag*, not a target: `/@(\w[\w-]*)/g` runs over the
+  whole line before the `@` split, and `\w` matches digits. The load never
+  reaches `targets`, so it is invisible to muscle and volume analysis, the
+  builder and the board; `wdl check` reports `ok`; and `wdl fmt` rewrites the
+  line to `- 10 Thrusters, 95lb`, which is a stable fixpoint of the wrong
+  reading. No corpus file writes `@` without a space, which is why 1257 tests
+  never saw it. Found by the grammar exploration, pinned as three `pending`
+  cases in `test/golden/vocabulary.ts`. The fix is one rule — a flag is `@` not
+  followed by a space — and the grammar states it that way already.
+
 - An unrecognized step modifier is pushed into `step.notes`, the same array as an
   authored `note: "…"`. Afterwards the two cannot be told apart, and notes are
   rendered — so an unknown token silently acquires the meaning "the author wrote

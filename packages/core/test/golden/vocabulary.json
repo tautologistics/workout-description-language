@@ -1,0 +1,8497 @@
+{
+ "quantity/reps :: 10 Push-Up": {
+  "canonical": "for time:\n  - 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/reps :: 1 Back Squat": {
+  "canonical": "for time:\n  - 1 Back Squat",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 1
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/reps :: 100 Pull-Up": {
+  "canonical": "for time:\n  - 100 Pull-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Pull-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/reps :: 10 reps Push-Up": {
+  "canonical": "for time:\n  - 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/reps :: 1 rep Snatch": {
+  "canonical": "for time:\n  - 1 Snatch",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Snatch",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 1
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/calories :: 20cal Row": {
+  "canonical": "for time:\n  - 20cal Row",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "calories",
+        "value": 20
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/calories :: 20 cal Row": {
+  "canonical": "for time:\n  - 20cal Row",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "calories",
+        "value": 20
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/calories :: 15 calories Row": {
+  "canonical": "for time:\n  - 15cal Row",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "calories",
+        "value": 15
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/distance :: 400m Run": {
+  "canonical": "for time:\n  - 400m Run",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 400
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/distance :: 400 m Run": {
+  "canonical": "for time:\n  - 400m Run",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 400
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/distance :: 400 meters Run": {
+  "canonical": "for time:\n  - 400m Run",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 400
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/distance :: 400 metres Run": {
+  "canonical": "for time:\n  - 400m Run",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 400
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/distance :: 5km Run": {
+  "canonical": "for time:\n  - 5km Run",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "km",
+        "value": 5
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/distance :: 1mi Run": {
+  "canonical": "for time:\n  - 1mi Run",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "mi",
+        "value": 1
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/distance :: 1 mile Run": {
+  "canonical": "for time:\n  - 1mi Run",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "mi",
+        "value": 1
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/distance :: 1.5mi Run": {
+  "canonical": "for time:\n  - 1.5mi Run",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "mi",
+        "value": 1.5
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/distance :: 100ft Sled Push": {
+  "canonical": "for time:\n  - 100ft Sled Push",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Sled Push",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "ft",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/distance :: 50yd Buddy Carry": {
+  "canonical": "for time:\n  - 50yd Buddy Carry",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Buddy Carry",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "yd",
+        "value": 50
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/distance :: 1000m Row": {
+  "canonical": "for time:\n  - 1000m Row",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 1000
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/duration :: 12min Bike": {
+  "canonical": "for time:\n  - 12min Bike",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 720
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/duration :: 12 min Bike": {
+  "canonical": "for time:\n  - 12min Bike",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 720
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/duration :: 12 minutes Bike": {
+  "canonical": "for time:\n  - 12min Bike",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 720
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/duration :: 90s Plank": {
+  "canonical": "for time:\n  - 1min30s Plank",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Plank",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 90
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/duration :: 90 sec Plank": {
+  "canonical": "for time:\n  - 1min30s Plank",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Plank",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 90
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/duration :: 45 seconds Hollow Hold": {
+  "canonical": "for time:\n  - 45s Hollow Hold",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Hollow Hold",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 45
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/duration :: 1h Ride": {
+  "canonical": "for time:\n  - 1h Ride",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Ride",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 3600
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/duration :: 1min30s Plank": {
+  "canonical": "for time:\n  - 1min30s Plank",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Plank",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 90
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/duration :: 1h30min Ride": {
+  "canonical": "for time:\n  - 1h30min Ride",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Ride",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 5400
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/duration :: 1:30 Plank": {
+  "canonical": "for time:\n  - 1min30s Plank",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Plank",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 90
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/duration :: 2min Row": {
+  "canonical": "for time:\n  - 2min Row",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 120
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/other :: 8-12 Dumbbell Curl": {
+  "canonical": "for time:\n  - 8-12 Dumbbell Curls",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Dumbbell Curl",
+       "node": "step",
+       "quantity": {
+        "kind": "range",
+        "max": 12,
+        "min": 8
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/other :: 10-15 Cable Fly": {
+  "canonical": "for time:\n  - 10-15 Cable Flies",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Cable Fly",
+       "node": "step",
+       "quantity": {
+        "kind": "range",
+        "max": 15,
+        "min": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/other :: 1+ Deadlift": {
+  "canonical": "for time:\n  - 1+ Deadlift",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "floor",
+        "value": 1
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/other :: max Pull-Up": {
+  "canonical": "for time:\n  - max Pull-Up",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Pull-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "max"
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/other :: max Bench Press": {
+  "canonical": "for time:\n  - max Bench Press",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bench Press",
+       "node": "step",
+       "quantity": {
+        "kind": "max"
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/other :: 2min max Push-Up": {
+  "canonical": "for time:\n  - 2min max Push-Up",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "max"
+       ],
+       "measures": "reps",
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 120
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/other :: 1min max Wall Ball @ 20lb": {
+  "canonical": "for time:\n  - 1min max Wall Ball @ 20lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "max"
+       ],
+       "measures": "reps",
+       "movement": "Wall Ball",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 60
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 20
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/other :: Row": {
+  "canonical": "for time:\n  - Row",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/threshold :: Bike until HR > 160bpm": {
+  "canonical": "for time:\n  - Bike until HR > 160bpm",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "compare": "gt",
+        "kind": "threshold",
+        "metric": "hr",
+        "unit": "bpm",
+        "value": 160
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/threshold :: Bike until HR < 130bpm": {
+  "canonical": "for time:\n  - Bike until HR < 130bpm",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "compare": "lt",
+        "kind": "threshold",
+        "metric": "hr",
+        "unit": "bpm",
+        "value": 130
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/threshold :: Row until HR < Z2": {
+  "canonical": "for time:\n  - Row until HR < Z2",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "compare": "lt",
+        "kind": "threshold",
+        "metric": "hr",
+        "zone": 2
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/threshold :: Row until HR below Z2": {
+  "canonical": "for time:\n  - Row until HR < Z2",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "compare": "lt",
+        "kind": "threshold",
+        "metric": "hr",
+        "zone": 2
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/threshold :: Bike until power > 250W": {
+  "canonical": "for time:\n  - Bike until power > 250W",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "compare": "gt",
+        "kind": "threshold",
+        "metric": "power",
+        "unit": "W",
+        "value": 250
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/threshold :: Bike until power > Z3": {
+  "canonical": "for time:\n  - Bike until power > Z3",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "compare": "gt",
+        "kind": "threshold",
+        "metric": "power",
+        "zone": 3
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/threshold :: Run until HR above 150bpm": {
+  "canonical": "for time:\n  - Run until HR > 150bpm",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "compare": "gt",
+        "kind": "threshold",
+        "metric": "hr",
+        "unit": "bpm",
+        "value": 150
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "quantity/threshold :: Row until HR under 120bpm": {
+  "canonical": "for time:\n  - Row until HR < 120bpm",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "compare": "lt",
+        "kind": "threshold",
+        "metric": "hr",
+        "unit": "bpm",
+        "value": 120
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "movement/naming :: Clean & Jerk": {
+  "canonical": "for time:\n  - Clean & Jerk",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Clean & Jerk",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "movement/naming :: 30 Clean & Jerk": {
+  "canonical": "for time:\n  - 30 Clean & Jerks",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Clean & Jerk",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 30
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "movement/naming :: 10 Chest-to-Bar Pull-Up": {
+  "canonical": "for time:\n  - 10 Chest-to-Bar Pull-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Chest-to-Bar Pull-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "movement/naming :: 10 Dumbbell Hang Clean to Overhead @ 50lb": {
+  "canonical": "for time:\n  - 10 Dumbbell Hang Cleans to Overhead @ 50lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Dumbbell Hang Clean to Overhead",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 50
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "movement/naming :: 3/4 Sit-Up": {
+  "canonical": "for time:\n  - 3/4 Sit-Up",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "3/4 Sit-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "movement/naming :: 20 Sumo Deadlift High-Pull @ 95lb": {
+  "canonical": "for time:\n  - 20 Sumo Deadlift High-Pulls @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Sumo Deadlift High-Pull",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 20
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "movement/naming :: 10 Burpee Box Jump-Over @ 24in": {
+  "canonical": "for time:\n  - 10 Burpee Box Jump-Overs @ 24in",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee Box Jump-Over",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "height",
+         "unit": "in",
+         "value": 24
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/load :: 10 Thruster @ 95lb": {
+  "canonical": "for time:\n  - 10 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/load :: 10 Thruster @ 95 lb": {
+  "canonical": "for time:\n  - 10 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/load :: 10 Thruster @ 95lbs": {
+  "canonical": "for time:\n  - 10 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/load :: 10 Thruster @ 95#": {
+  "canonical": "for time:\n  - 10 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/load :: 21 KB Swing @ 24kg": {
+  "canonical": "for time:\n  - 21 KB Swings @ 24kg",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "KB Swing",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "kg",
+          "value": 24
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/load :: 21 KB Swing @ 1.5pood": {
+  "canonical": "for time:\n  - 21 KB Swings @ 1.5pood",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "KB Swing",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "pood",
+          "value": 1.5
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/load :: 21 KB Swing @ 2pood": {
+  "canonical": "for time:\n  - 21 KB Swings @ 2pood",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "KB Swing",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "pood",
+          "value": 2
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/load :: 200m Farmers Carry @ 2x24kg": {
+  "canonical": "for time:\n  - 200m Farmers Carry @ 2x24kg",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Farmers Carry",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 200
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "implements": 2,
+          "kind": "absolute",
+          "unit": "kg",
+          "value": 24
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/load :: 12 Dumbbell Curl @ 2x35lb": {
+  "canonical": "for time:\n  - 12 Dumbbell Curls @ 2x35lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Dumbbell Curl",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 12
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "implements": 2,
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 35
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/relative :: 3 Back Squat @ 85% 1RM": {
+  "canonical": "for time:\n  - 3 Back Squats @ 85% 1RM",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 3
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "percent",
+          "of": "1RM",
+          "value": 85
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/relative :: 1 Deadlift @ 105% TM": {
+  "canonical": "for time:\n  - 1 Deadlift @ 105% TM",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 1
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "percent",
+          "of": "TM",
+          "value": 105
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/relative :: 10min Bike @ 55% FTP": {
+  "canonical": "for time:\n  - 10min Bike @ 55% FTP",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 600
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "percent",
+          "of": "FTP",
+          "value": 55
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/relative :: 3 Back Squat @ 85% of heavy-single": {
+  "canonical": "for time:\n  - 3 Back Squats @ 85% heavy-single",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 3
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "percent",
+          "of": "heavy-single",
+          "value": 85
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/relative :: 5 Front Squat @ of heavy-single": {
+  "canonical": "for time:\n  - 5 Front Squats @ of heavy-single",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Front Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "reference",
+          "name": "heavy-single"
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/relative :: 5 Press @ 75%": {
+  "canonical": "for time:\n  - 5 Presses @ 75%",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Press",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "percent",
+          "value": 75
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/other :: 20 Box Jump @ 24in": {
+  "canonical": "for time:\n  - 20 Box Jumps @ 24in",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Box Jump",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 20
+       },
+       "targets": [
+        {
+         "kind": "height",
+         "unit": "in",
+         "value": 24
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/other :: 20 Box Jump @ 24\"": {
+  "canonical": "for time:\n  - 20 Box Jumps @ 24in",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Box Jump",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 20
+       },
+       "targets": [
+        {
+         "kind": "height",
+         "unit": "in",
+         "value": 24
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/other :: 20 Box Jump @ 60cm": {
+  "canonical": "for time:\n  - 20 Box Jumps @ 60cm",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Box Jump",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 20
+       },
+       "targets": [
+        {
+         "kind": "height",
+         "unit": "cm",
+         "value": 60
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/other :: 100 Wall Ball @ 20lb @ 10ft": {
+  "canonical": "for time:\n  - 100 Wall Balls @ 20lb @ 10ft",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Wall Ball",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 20
+         }
+        },
+        {
+         "kind": "height",
+         "unit": "ft",
+         "value": 10
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/other :: 100 Wall Ball @ 9kg to 10ft": {
+  "canonical": "for time:\n  - 100 Wall Balls @ 9kg @ 10ft",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Wall Ball",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "kg",
+          "value": 9
+         }
+        },
+        {
+         "kind": "height",
+         "unit": "ft",
+         "value": 10
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/other :: 1000m Run @ 5k pace": {
+  "canonical": "for time:\n  - 1000m Run @ 5k pace",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 1000
+       },
+       "targets": [
+        {
+         "kind": "pace",
+         "text": "5k pace"
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/other :: 10km Run @ marathon pace": {
+  "canonical": "for time:\n  - 10km Run @ marathon pace",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "km",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "pace",
+         "text": "marathon pace"
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/other :: 10min Run @ threshold pace": {
+  "canonical": "for time:\n  - 10min Run @ threshold pace",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 600
+       },
+       "targets": [
+        {
+         "kind": "pace",
+         "text": "threshold pace"
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/other :: 2000m Row @ 1:45/500m": {
+  "canonical": "for time:\n  - 2000m Row @ 1:45/500m",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 2000
+       },
+       "targets": [
+        {
+         "kind": "pace",
+         "text": "1:45/500m"
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/other :: 20min Bike @ 250W": {
+  "canonical": "for time:\n  - 20min Bike @ 250W",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 1200
+       },
+       "targets": [
+        {
+         "kind": "power",
+         "text": "250W"
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/other :: 20min Bike @ 90% FTP": {
+  "canonical": "for time:\n  - 20min Bike @ 90% FTP",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 1200
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "percent",
+          "of": "FTP",
+          "value": 90
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/other :: 30min Run @ Z2": {
+  "canonical": "for time:\n  - 30min Run @ Z2",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 1800
+       },
+       "targets": [
+        {
+         "kind": "heartRate",
+         "text": "Z2"
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/other :: 30min Run @ 145bpm": {
+  "canonical": "for time:\n  - 30min Run @ 145bpm",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 1800
+       },
+       "targets": [
+        {
+         "kind": "heartRate",
+         "text": "145bpm"
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/other :: 5 Back Squat @ RPE 8": {
+  "canonical": "for time:\n  - 5 Back Squats @ RPE 8",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "effort",
+         "text": "RPE 8"
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/other :: 5 Back Squat @ RIR 2": {
+  "canonical": "for time:\n  - 5 Back Squats @ RIR 2",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "effort",
+         "text": "RIR 2"
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "flags :: 18 Thruster @ 115lb @tiebreak": {
+  "canonical": "for time:\n  - 18 Thrusters @ 115lb @tiebreak",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "tiebreak"
+       ],
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 18
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 115
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "flags :: 21 Thruster @tiebreak": {
+  "canonical": "for time:\n  - 21 Thrusters @tiebreak",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "tiebreak"
+       ],
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "flags :: max Pull-Up, unbroken": {
+  "canonical": "for time:\n  - max Pull-Up, unbroken",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "unbroken"
+       ],
+       "movement": "Pull-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "max"
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "flags :: 2 Front Squat, building": {
+  "canonical": "for time:\n  - 2 Front Squats, building",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "building"
+       ],
+       "movement": "Front Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 2
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "flags :: 10 Deadlift, reversed": {
+  "canonical": "for time:\n  - 10 Deadlifts, reversed",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "reversed"
+       ],
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "flags :: 10 Deadlift, open": {
+  "canonical": "for time:\n  - 10 Deadlifts, open",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "open"
+       ],
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "laterality :: 10 Pistol (split)": {
+  "canonical": "for time:\n  - 10 Pistols (split)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "split",
+       "movement": "Pistol",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "laterality :: 10 Pistol (both)": {
+  "canonical": "for time:\n  - 10 Pistols (both)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "both",
+       "movement": "Pistol",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "laterality :: 10 Pistol (per-side)": {
+  "canonical": "for time:\n  - 10 Pistols each side",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "movement": "Pistol",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "laterality :: 10 Pistol (total)": {
+  "canonical": "for time:\n  - 10 Pistols (split)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "split",
+       "movement": "Pistol",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "laterality :: 14 DB Curl each arm": {
+  "canonical": "for time:\n  - 14 DB Curls each arm",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "arm",
+       "movement": "DB Curl",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 14
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "laterality :: 12 Dumbbell Row each arm @ 60lb": {
+  "canonical": "for time:\n  - 12 Dumbbell Rows each arm @ 60lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "arm",
+       "movement": "Dumbbell Row",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 12
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 60
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "laterality :: 10 Lunge each leg": {
+  "canonical": "for time:\n  - 10 Lunges each leg",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "leg",
+       "movement": "Lunge",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "laterality :: 20 Sledgehammer Strike each side": {
+  "canonical": "for time:\n  - 20 Sledgehammer Strikes each side",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "side",
+       "movement": "Sledgehammer Strike",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 20
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "laterality :: 10 Farmers Carry each hand": {
+  "canonical": "for time:\n  - 10 Farmers Carries each hand",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "hand",
+       "movement": "Farmers Carry",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "laterality :: 10 Step-Up per leg": {
+  "canonical": "for time:\n  - 10 Step-Ups each leg",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "leg",
+       "movement": "Step-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "laterality :: 21 DB Snatch first arm": {
+  "canonical": "for time:\n  - 21 DB Snatches first arm",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "limb": "arm",
+       "movement": "DB Snatch",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "side": "first"
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "laterality :: 21 DB Snatch second arm": {
+  "canonical": "for time:\n  - 21 DB Snatches second arm",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "limb": "arm",
+       "movement": "DB Snatch",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "side": "second"
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "laterality :: 10 KB Press left arm": {
+  "canonical": "for time:\n  - 10 KB Presses left arm",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "limb": "arm",
+       "movement": "KB Press",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "side": "left"
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "laterality :: 10 KB Press right arm": {
+  "canonical": "for time:\n  - 10 KB Presses right arm",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "limb": "arm",
+       "movement": "KB Press",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "side": "right"
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "alternating :: 10 alternating DB Snatch @ 50lb": {
+  "canonical": "for time:\n  - 10 DB Snatches (split) @ 50lb, alternating",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "split",
+       "movement": "DB Snatch",
+       "node": "step",
+       "notes": [
+        "alternating"
+       ],
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 50
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "alternating :: 10 alt DB Snatch @ 50lb": {
+  "canonical": "for time:\n  - 10 DB Snatches (split) @ 50lb, alternating",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "split",
+       "movement": "DB Snatch",
+       "node": "step",
+       "notes": [
+        "alternating"
+       ],
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 50
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "alternating :: 10 DB Snatch alternating": {
+  "canonical": "for time:\n  - 10 DB Snatches (split), alternating",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "split",
+       "movement": "DB Snatch",
+       "node": "step",
+       "notes": [
+        "alternating"
+       ],
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "alternating :: 10 DB Snatch, alternating": {
+  "canonical": "for time:\n  - 10 DB Snatches (split), alternating",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "split",
+       "movement": "DB Snatch",
+       "node": "step",
+       "notes": [
+        "alternating"
+       ],
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "team :: 100 Wall Ball @ 20lb shared": {
+  "canonical": "for time:\n  - 100 Wall Balls @ 20lb shared",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Wall Ball",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 20
+         }
+        }
+       ],
+       "team": "shared"
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "team :: 20 Burpee synchronized": {
+  "canonical": "for time:\n  - 20 Burpees synchronized",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 20
+       },
+       "team": "synchronized"
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "team :: 11 Clean & Jerk @ 155lb each": {
+  "canonical": "for time:\n  - 11 Clean & Jerks @ 155lb each",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Clean & Jerk",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 11
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 155
+         }
+        }
+       ],
+       "team": "each"
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "team :: 4000m Row shared": {
+  "canonical": "for time:\n  - 4000m Row shared",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 4000
+       },
+       "team": "shared"
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "team :: 55ft Partner Barbell Carry @ 315lb shared": {
+  "canonical": "for time:\n  - 55ft Partner Barbell Carry @ 315lb shared",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Partner Barbell Carry",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "ft",
+        "value": 55
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 315
+         }
+        }
+       ],
+       "team": "shared"
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "modifiers :: 3 Back Squat @ 70% 1RM, tempo 33X1": {
+  "canonical": "for time:\n  - 3 Back Squats @ 70% 1RM, tempo 33X1",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 3
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "percent",
+          "of": "1RM",
+          "value": 70
+         }
+        }
+       ],
+       "tempo": "33X1"
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "modifiers :: 6 Front Squat @ 185lb, tempo 30X1": {
+  "canonical": "for time:\n  - 6 Front Squats @ 185lb, tempo 30X1",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Front Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 6
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 185
+         }
+        }
+       ],
+       "tempo": "30X1"
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "modifiers :: 1min Row, count cal": {
+  "canonical": "for time:\n  - 1min Row, count cal",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "measures": "calories",
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 60
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "modifiers :: 1min Row, count reps": {
+  "canonical": "for time:\n  - 1min Row, count reps",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "measures": "reps",
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 60
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "modifiers :: 1min Row, count distance": {
+  "canonical": "for time:\n  - 1min Row",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "measures": "distance",
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 60
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "modifiers :: 1min Row, count calories": {
+  "canonical": "for time:\n  - 1min Row, count cal",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "measures": "calories",
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 60
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "modifiers :: 1 Burpee, +1 each round": {
+  "canonical": "for time:\n  - 1 Burpee, +1 each round",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "perRound": {
+        "delta": 1,
+        "unit": "reps"
+       },
+       "quantity": {
+        "kind": "reps",
+        "value": 1
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "modifiers :: 3 DB Hang Clean to Overhead @ 50lb, +3 each round": {
+  "canonical": "for time:\n  - 3 DB Hang Cleans to Overhead @ 50lb, +3 each round",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "DB Hang Clean to Overhead",
+       "node": "step",
+       "perRound": {
+        "delta": 3,
+        "unit": "reps"
+       },
+       "quantity": {
+        "kind": "reps",
+        "value": 3
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 50
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "modifiers :: 10 Back Squat @ 225lb, note: \"pause at the bottom\"": {
+  "canonical": "for time:\n  - 10 Back Squats @ 225lb, pause at the bottom",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "notes": [
+        "pause at the bottom"
+       ],
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 225
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "modifiers :: 10 Back Squat @ 225lb, note: pause at the bottom": {
+  "canonical": "for time:\n  - 10 Back Squats @ 225lb, pause at the bottom",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "notes": [
+        "pause at the bottom"
+       ],
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 225
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "modifiers :: 10min Bike, ramp 50% -> 75% FTP": {
+  "canonical": "for time:\n  - 10min Bike, ramp 50% -> 75% FTP",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "notes": [
+        "ramp 50% -> 75% FTP"
+       ],
+       "quantity": {
+        "kind": "duration",
+        "seconds": 600
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "modifiers :: 400m Run, wearing a 20lb vest": {
+  "canonical": "for time:\n  - 400m Run, wearing a 20lb vest",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "notes": [
+        "wearing a 20lb vest"
+       ],
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 400
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "modifiers :: 3 Bench Press @ 80% 1RM x5": {
+  "canonical": "for time:\n  - 3 Bench Presses @ 80% 1RM x5",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bench Press",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 3
+       },
+       "sets": 5,
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "percent",
+          "of": "1RM",
+          "value": 80
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "modifiers :: 3 Bench Press @ 70% 1RM x2": {
+  "canonical": "for time:\n  - 3 Bench Presses @ 70% 1RM x2",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bench Press",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 3
+       },
+       "sets": 2,
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "percent",
+          "of": "1RM",
+          "value": 70
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "modifiers :: 5 Deadlift x3": {
+  "canonical": "for time:\n  - 5 Deadlifts x3",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "sets": 3
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "alternatives :: 1min Bike or Row": {
+  "canonical": "for time:\n  - 1min Bike or Row",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "options": [
+        {
+         "movement": "Bike",
+         "quantity": {
+          "kind": "duration",
+          "seconds": 60
+         }
+        },
+        {
+         "movement": "Row",
+         "quantity": {
+          "kind": "duration",
+          "seconds": 60
+         }
+        }
+       ],
+       "optionsForm": "inline",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 60
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "alternatives :: 10 Pull-Up or 15 Ring Row": {
+  "canonical": "for time:\n  - 10 Pull-Ups or 15 Ring Rows",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Pull-Up",
+       "node": "step",
+       "options": [
+        {
+         "movement": "Pull-Up",
+         "quantity": {
+          "kind": "reps",
+          "value": 10
+         }
+        },
+        {
+         "movement": "Ring Row",
+         "quantity": {
+          "kind": "reps",
+          "value": 15
+         }
+        }
+       ],
+       "optionsForm": "inline",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "alternatives :: 20 Push-Up | 10 Handstand Push-Up": {
+  "canonical": "for time:\n  - 20 Push-Ups or 10 Handstand Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "options": [
+        {
+         "movement": "Push-Up",
+         "quantity": {
+          "kind": "reps",
+          "value": 20
+         }
+        },
+        {
+         "movement": "Handstand Push-Up",
+         "quantity": {
+          "kind": "reps",
+          "value": 10
+         }
+        }
+       ],
+       "optionsForm": "inline",
+       "quantity": {
+        "kind": "reps",
+        "value": 20
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "alternatives :: 20 Push-Up / 10 Handstand Push-Up": {
+  "canonical": "for time:\n  - 20 Push-Ups or 10 Handstand Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "options": [
+        {
+         "movement": "Push-Up",
+         "quantity": {
+          "kind": "reps",
+          "value": 20
+         }
+        },
+        {
+         "movement": "Handstand Push-Up",
+         "quantity": {
+          "kind": "reps",
+          "value": 10
+         }
+        }
+       ],
+       "optionsForm": "inline",
+       "quantity": {
+        "kind": "reps",
+        "value": 20
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "alternatives :: 1min Bike or Row or SkiErg": {
+  "canonical": "for time:\n  - 1min Bike or Row or SkiErg",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "options": [
+        {
+         "movement": "Bike",
+         "quantity": {
+          "kind": "duration",
+          "seconds": 60
+         }
+        },
+        {
+         "movement": "Row",
+         "quantity": {
+          "kind": "duration",
+          "seconds": 60
+         }
+        },
+        {
+         "movement": "SkiErg",
+         "quantity": {
+          "kind": "duration",
+          "seconds": 60
+         }
+        }
+       ],
+       "optionsForm": "inline",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 60
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "alternatives :: 10 Pull-Up or 15 Ring Row or 20 Banded Pull-Down": {
+  "canonical": "for time:\n  - 10 Pull-Ups or 15 Ring Rows or 20 Banded Pull-Downs",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Pull-Up",
+       "node": "step",
+       "options": [
+        {
+         "movement": "Pull-Up",
+         "quantity": {
+          "kind": "reps",
+          "value": 10
+         }
+        },
+        {
+         "movement": "Ring Row",
+         "quantity": {
+          "kind": "reps",
+          "value": 15
+         }
+        },
+        {
+         "movement": "Banded Pull-Down",
+         "quantity": {
+          "kind": "reps",
+          "value": 20
+         }
+        }
+       ],
+       "optionsForm": "inline",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rx-by-division :: 30 Clean & Jerk (women 105lb / men 145lb)": {
+  "canonical": "for time:\n  - 30 Clean & Jerks (women 105lb / men 145lb)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Clean & Jerk",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 30
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 105
+        }
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rx-by-division :: 30 Clean & Jerk (men 145lb / women 105lb)": {
+  "canonical": "for time:\n  - 30 Clean & Jerks (women 105lb / men 145lb)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Clean & Jerk",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 30
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 105
+        }
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rx-by-division :: 30 Deadlift (105/145)": {
+  "canonical": "for time:\n  - 30 Deadlifts (women 105 / men 145)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 30
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "value": 105
+        }
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rx-by-division :: 21 Deadlift (155/225lb)": {
+  "canonical": "for time:\n  - 21 Deadlifts (women 155lb / men 225lb)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 225
+        },
+        "women": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 155
+        }
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rx-by-division :: 30 Clean & Jerk (w 105lb / m 145lb)": {
+  "canonical": "for time:\n  - 30 Clean & Jerks (women 105lb / men 145lb)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Clean & Jerk",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 30
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 105
+        }
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "combinations :: 10 DB Snatch each arm @ 45lb": {
+  "canonical": "for time:\n  - 10 DB Snatches each arm @ 45lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "arm",
+       "movement": "DB Snatch",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 45
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "combinations :: 10-12 Bulgarian Split Squat each leg @ 2x40lb": {
+  "canonical": "for time:\n  - 10-12 Bulgarian Split Squats each leg @ 2x40lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "leg",
+       "movement": "Bulgarian Split Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "range",
+        "max": 12,
+        "min": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "implements": 2,
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 40
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "combinations :: 8-12 Dumbbell Curl each arm @ 2x35lb": {
+  "canonical": "for time:\n  - 8-12 Dumbbell Curls each arm @ 2x35lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "arm",
+       "movement": "Dumbbell Curl",
+       "node": "step",
+       "quantity": {
+        "kind": "range",
+        "max": 12,
+        "min": 8
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "implements": 2,
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 35
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "combinations :: 5 Turkish Get-Up each side @ 1.5pood": {
+  "canonical": "for time:\n  - 5 Turkish Get-Ups each side @ 1.5pood",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "side",
+       "movement": "Turkish Get-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "pood",
+          "value": 1.5
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "combinations :: 100ft Walking Lunge (split), 45lb plate overhead": {
+  "canonical": "for time:\n  - 100ft Walking Lunge (split), 45lb plate overhead",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "split",
+       "movement": "Walking Lunge",
+       "node": "step",
+       "notes": [
+        "45lb plate overhead"
+       ],
+       "quantity": {
+        "kind": "distance",
+        "unit": "ft",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "combinations :: DB Snatch (split) @ 50lb": {
+  "canonical": "for time:\n  - DB Snatch (split) @ 50lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "split",
+       "movement": "DB Snatch",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 50
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "combinations :: DB Snatch first arm @ 50lb": {
+  "canonical": "for time:\n  - DB Snatch first arm @ 50lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "limb": "arm",
+       "movement": "DB Snatch",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       },
+       "side": "first",
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 50
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "combinations :: max KB Snatch (split) @ 1.5pood": {
+  "canonical": "for time:\n  - max KB Snatch (split) @ 1.5pood",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "split",
+       "movement": "KB Snatch",
+       "node": "step",
+       "quantity": {
+        "kind": "max"
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "pood",
+          "value": 1.5
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "combinations :: 40 Wall Ball @ 20lb shared": {
+  "canonical": "for time:\n  - 40 Wall Balls @ 20lb shared",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Wall Ball",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 40
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 20
+         }
+        }
+       ],
+       "team": "shared"
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "combinations :: 18 Thruster @ 115lb @tiebreak, unbroken": {
+  "canonical": "for time:\n  - 18 Thrusters @ 115lb, unbroken @tiebreak",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "tiebreak",
+        "unbroken"
+       ],
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 18
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 115
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "combinations :: 10 Thruster @ 95lb, tempo 31X1, +1 each round": {
+  "canonical": "for time:\n  - 10 Thrusters @ 95lb, tempo 31X1, +1 each round",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "perRound": {
+        "delta": 1,
+        "unit": "reps"
+       },
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ],
+       "tempo": "31X1"
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "fail-open :: 10 Thruster @ 95lb, some phrase nobody taught the parser": {
+  "canonical": "for time:\n  - 10 Thrusters @ 95lb, some phrase nobody taught the parser",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "notes": [
+        "some phrase nobody taught the parser"
+       ],
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "fail-open :: 10 Thruster, with a band": {
+  "canonical": "for time:\n  - 10 Thrusters, with a band",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "notes": [
+        "with a band"
+       ],
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "fail-open :: 400m Run, barefoot": {
+  "canonical": "for time:\n  - 400m Run, barefoot",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "notes": [
+        "barefoot"
+       ],
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 400
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "known-wrong :: 10 Thruster @95lb": {
+  "canonical": "for time:\n  - 10 Thrusters, 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "95lb"
+       ],
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "known-wrong :: 10 Thruster @2x35lb": {
+  "canonical": "for time:\n  - 10 Thrusters, 2x35lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "2x35lb"
+       ],
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "known-wrong :: 10 Thruster @24kg": {
+  "canonical": "for time:\n  - 10 Thrusters, 24kg",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "24kg"
+       ],
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "whitespace-and-case :: 10   Thruster   @   95lb": {
+  "canonical": "for time:\n  - 10 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "whitespace-and-case :: 10 THRUSTER @ 95LB": {
+  "canonical": "for time:\n  - 10 THRUSTERs @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "THRUSTER",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "whitespace-and-case :: 10 thruster @ 95lb": {
+  "canonical": "for time:\n  - 10 thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/repeat :: rounds": {
+  "canonical": "3 rounds:\n  - 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/repeat :: round singular": {
+  "canonical": "1 rounds:\n  - 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 1,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/repeat :: sets": {
+  "canonical": "5 sets:\n  - 5 Back Squats @ 225lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 225
+         }
+        }
+       ]
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/repeat :: rounds for time": {
+  "canonical": "3 rounds for time:\n  - 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/sequence :: for time": {
+  "canonical": "for time:\n  - 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/sequence :: bare sequence": {
+  "canonical": "sequence:\n  - 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/amrap :: amrap": {
+  "canonical": "AMRAP 12min:\n  - 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "rounds + reps",
+      "raw": "rounds + reps"
+     },
+     "type": "amrap"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/amrap :: amrap bare minutes": {
+  "canonical": "AMRAP 12min:\n  - 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "rounds + reps",
+      "raw": "rounds + reps"
+     },
+     "type": "amrap"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/amrap :: amrap unbounded": {
+  "canonical": "AMRAP:\n  - 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "rounds + reps",
+      "raw": "rounds + reps"
+     },
+     "type": "amrap"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/amrap :: for duration": {
+  "canonical": "for 12min:\n  - Run",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "flags": [
+      "for-duration"
+     ],
+     "node": "block",
+     "type": "amrap"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/clock :: emom": {
+  "canonical": "EMOM 10min:\n  - 5 Power Cleans @ 155lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Power Clean",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 155
+         }
+        }
+       ]
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 600
+     },
+     "every": {
+      "kind": "duration",
+      "seconds": 60
+     },
+     "node": "block",
+     "type": "clock"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/clock :: e2mom": {
+  "canonical": "every 2min for 20min:\n  - 5 Power Cleans @ 155lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Power Clean",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 155
+         }
+        }
+       ]
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 1200
+     },
+     "every": {
+      "kind": "duration",
+      "seconds": 120
+     },
+     "node": "block",
+     "type": "clock"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/clock :: every until failure": {
+  "canonical": "every 1min until failure:\n  - 5 Burpees",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       }
+      }
+     ],
+     "every": {
+      "kind": "duration",
+      "seconds": 60
+     },
+     "node": "block",
+     "type": "clock",
+     "untilFailure": true
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/clock :: every x count": {
+  "canonical": "every 3min x 5:\n  - 400m Run",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 400
+       }
+      }
+     ],
+     "count": 5,
+     "every": {
+      "kind": "duration",
+      "seconds": 180
+     },
+     "node": "block",
+     "type": "clock"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/clock :: every bare": {
+  "canonical": "every 1min30s x undefined:\n  - 3 Deadlifts @ 315lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 3
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 315
+         }
+        }
+       ]
+      }
+     ],
+     "every": {
+      "kind": "duration",
+      "seconds": 90
+     },
+     "node": "block",
+     "type": "clock"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/clock :: work window": {
+  "canonical": "work 20s: Push-Up",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 20
+     },
+     "node": "block",
+     "type": "work"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/clock :: minute entry": {
+  "canonical": "min 1: 12cal Row",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "calories",
+        "value": 12
+       }
+      }
+     ],
+     "count": 1,
+     "node": "block",
+     "type": "cycleEntry"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/clock :: minute entry long": {
+  "canonical": "min 1: 12cal Row",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "calories",
+        "value": 12
+       }
+      }
+     ],
+     "count": 1,
+     "node": "block",
+     "type": "cycleEntry"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/ladder :: dash scheme": {
+  "canonical": "21-15-9:\n  - Thrusters @ 95lb\n  - Pull-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      },
+      {
+       "movement": "Pull-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "node": "block",
+     "scheme": [
+      21,
+      15,
+      9
+     ],
+     "type": "ladder"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/ladder :: run scheme": {
+  "canonical": "1..10:\n  - Power Cleans @ 135lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Power Clean",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 135
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "scheme": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "type": "ladder"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/ladder :: pyramid": {
+  "canonical": "1..5..1:\n  - Power Cleans @ 135lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Power Clean",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 135
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "scheme": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      4,
+      3,
+      2,
+      1
+     ],
+     "type": "ladder"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/ladder :: descending run": {
+  "canonical": "10..1:\n  - Burpees",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "node": "block",
+     "scheme": [
+      10,
+      9,
+      8,
+      7,
+      6,
+      5,
+      4,
+      3,
+      2,
+      1
+     ],
+     "type": "ladder"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/ladder :: scheme with unit": {
+  "canonical": "250-500-750 m:\n  - Row",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "node": "block",
+     "scheme": [
+      250,
+      500,
+      750
+     ],
+     "schemeUnit": "m",
+     "type": "ladder"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/ladder :: interval pyramid": {
+  "canonical": "1..5..1 min:\n  - Bike",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "node": "block",
+     "scheme": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      4,
+      3,
+      2,
+      1
+     ],
+     "schemeUnit": "min",
+     "type": "ladder"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/other :: attempts": {
+  "canonical": "3 attempts:\n  - 1 Snatch @ 95% 1RM",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Snatch",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 1
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "percent",
+          "of": "1RM",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "count": 3,
+     "node": "block",
+     "type": "attempts"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/other :: team of": {
+  "canonical": "team of 2:\n  - 100 Wall Balls @ 20lb shared",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Wall Ball",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 20
+         }
+        }
+       ],
+       "team": "shared"
+      }
+     ],
+     "count": 2,
+     "node": "block",
+     "type": "team"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/other :: tally": {
+  "canonical": "any order:\n  - 100 Pull-Ups\n  - 200 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Pull-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      },
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 200
+       }
+      }
+     ],
+     "node": "block",
+     "type": "tally"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/other :: superset": {
+  "canonical": "superset:\n  - 10 Bench Presses @ 135lb\n  - 10 Bent-Over Rows @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bench Press",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 135
+         }
+        }
+       ]
+      },
+      {
+       "movement": "Bent-Over Row",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "type": "superset"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/other :: complex": {
+  "canonical": "complex:\n  - 1 Power Clean\n  - 1 Front Squat\n  - 1 Push Jerk",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Power Clean",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 1
+       }
+      },
+      {
+       "movement": "Front Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 1
+       }
+      },
+      {
+       "movement": "Push Jerk",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 1
+       }
+      }
+     ],
+     "node": "block",
+     "type": "complex"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/other :: build to": {
+  "canonical": "build to a heavy single in 15min as heavy-single:\n  - Snatch",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "buildTarget": "a heavy single",
+     "children": [
+      {
+       "movement": "Snatch",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 900
+     },
+     "label": "heavy-single",
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "max load",
+      "raw": "max load"
+     },
+     "type": "build"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/section :: warmup": {
+  "canonical": "warmup:\n  - 400m Run",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 400
+       }
+      }
+     ],
+     "name": "warmup",
+     "node": "block",
+     "type": "section"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/section :: strength": {
+  "canonical": "strength:\n  - 5 Back Squats @ 225lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 225
+         }
+        }
+       ]
+      }
+     ],
+     "name": "strength",
+     "node": "block",
+     "type": "section"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/section :: conditioning": {
+  "canonical": "conditioning:\n  - AMRAP 12min:",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "AMRAP 12min:",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "name": "conditioning",
+     "node": "block",
+     "type": "section"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/section :: cooldown": {
+  "canonical": "cooldown:\n  - 5min Bike",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 300
+       }
+      }
+     ],
+     "name": "cooldown",
+     "node": "block",
+     "type": "section"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/section :: accessory": {
+  "canonical": "accessory:\n  - 3x10 Curl",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "3x10 Curl",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "name": "accessory",
+     "node": "block",
+     "type": "section"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/section :: skill": {
+  "canonical": "skill:\n  - 10min Handstand Practice",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Handstand Practice",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 600
+       }
+      }
+     ],
+     "name": "skill",
+     "node": "block",
+     "type": "section"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: cap": {
+  "canonical": "for time, cap 12min:\n  - 100 Burpees",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "cap": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: carry on overrun": {
+  "canonical": "for time, cap 12min, carry on overrun:\n  - 100 Burpees",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "cap": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "onOverrun": "carry",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: cut on overrun": {
+  "canonical": "for time, cap 12min, cut on overrun:\n  - 100 Burpees",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "cap": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "onOverrun": "cut",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: fail on overrun": {
+  "canonical": "for time, cap 12min, fail on overrun:\n  - 100 Burpees",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "cap": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "onOverrun": "fail",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: wearing": {
+  "canonical": "for time, wearing a 20lb vest:\n  - 1mi Run",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "mi",
+        "value": 1
+       }
+      }
+     ],
+     "equipment": [
+      "a 20lb vest"
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: as label": {
+  "canonical": "3 rounds:\n  - 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "label": "main",
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: inherited target": {
+  "canonical": "3 rounds @ 95lb:\n  - 10 Thrusters\n  - 10 Push Presses",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      },
+      {
+       "movement": "Push Press",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "inherited": [
+      {
+       "kind": "load",
+       "load": {
+        "kind": "absolute",
+        "unit": "lb",
+        "value": 95
+       }
+      }
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: flags": {
+  "canonical": "3 rounds, unbroken:\n  - 10 Pull-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Pull-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds",
+      "unbroken"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "score :: simple": {
+  "canonical": "for time:\n  - 100 Burpees\n\nscore: time",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "primary": "time",
+    "raw": "time"
+   }
+  },
+  "fixpoint": true
+ },
+ "score :: rounds + reps": {
+  "canonical": "AMRAP 12min:\n  - 10 Burpees\n\nscore: rounds + reps",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "rounds + reps",
+      "raw": "rounds + reps"
+     },
+     "type": "amrap"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "primary": "rounds + reps",
+    "raw": "rounds + reps"
+   }
+  },
+  "fixpoint": true
+ },
+ "score :: per round": {
+  "canonical": "5 rounds:\n  - 500m Row\n\nscore: time per round",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 500
+       }
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "perRound": true,
+    "primary": "time",
+    "raw": "time per round"
+   }
+  },
+  "fixpoint": true
+ },
+ "score :: min per round": {
+  "canonical": "5 rounds:\n  - 500m Row\n\nscore: min per round",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 500
+       }
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "aggregate": "min",
+    "perRound": true,
+    "primary": "min per round",
+    "raw": "min per round"
+   }
+  },
+  "fixpoint": true
+ },
+ "score :: max per round": {
+  "canonical": "5 rounds:\n  - 3 Back Squats\n\nscore: max per round",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 3
+       }
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "aggregate": "max",
+    "perRound": true,
+    "primary": "max per round",
+    "raw": "max per round"
+   }
+  },
+  "fixpoint": true
+ },
+ "score :: sum per round": {
+  "canonical": "5 rounds:\n  - max Pull-Up\n\nscore: sum per round",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Pull-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "max"
+       }
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "aggregate": "sum",
+    "perRound": true,
+    "primary": "sum per round",
+    "raw": "sum per round"
+   }
+  },
+  "fixpoint": true
+ },
+ "score :: sum of blocks": {
+  "canonical": "for time:\n  - 100 Burpees\n\nscore: sum of blocks",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "aggregate": "sum",
+    "primary": "blocks",
+    "raw": "sum of blocks"
+   }
+  },
+  "fixpoint": true
+ },
+ "score :: on cap": {
+  "canonical": "for time, cap 12min:\n  - 100 Burpees\n\nscore: time\non cap: reps completed",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "cap": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "onCap": "reps completed",
+    "primary": "time",
+    "raw": "time"
+   }
+  },
+  "fixpoint": true
+ },
+ "score :: tiebreak": {
+  "canonical": "for time:\n  - 100 Burpees\n\nscore: time\ntiebreak: reps at 5min",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "primary": "time",
+    "raw": "time",
+    "tiebreak": "reps at 5min"
+   }
+  },
+  "fixpoint": true
+ },
+ "score :: brace form": {
+  "canonical": "for time:\n  - 100 Burpees\n\nscore: time\ntiebreak: reps at 5min",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "primary": "time",
+    "raw": "{primary: time, tiebreak: reps at 5min}",
+    "tiebreak": "reps at 5min"
+   }
+  },
+  "fixpoint": true
+ },
+ "score :: on a block": {
+  "canonical": "3 rounds:\n  - 10 Push-Ups\n  score: time",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "score": {
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "preamble :: title": {
+  "canonical": "# Fran\n\nfor time:\n  - 21 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "title": "Fran"
+  },
+  "fixpoint": true
+ },
+ "preamble :: directive": {
+  "canonical": "@id fran\n\nfor time:\n  - 21 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {
+    "id": "fran"
+   },
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "preamble :: directives many": {
+  "canonical": "@id fran\n@author chris\n\nfor time:\n  - 21 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {
+    "author": "chris",
+    "id": "fran"
+   },
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "preamble :: comment own line": {
+  "canonical": "// a note about this one\nfor time:\n  - 21 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "preamble :: comment trailing": {
+  "canonical": "for time:\n  // heavy\n  - 21 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "variants :: nested": {
+  "canonical": "for time:\n  - 21 Thrusters\n\nvariants:\n  women:\n    load: 65lb\n  men:\n    load: 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "variants": {
+    "men": {
+     "load": "95lb"
+    },
+    "women": {
+     "load": "65lb"
+    }
+   }
+  },
+  "fixpoint": true
+ },
+ "variants :: inline brace": {
+  "canonical": "for time:\n  - 21 Thrusters\n\nvariants:\n  women:\n    load: 65lb\n  men:\n    load: 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "variants": {
+    "men": {
+     "load": "95lb"
+    },
+    "women": {
+     "load": "65lb"
+    }
+   }
+  },
+  "fixpoint": true
+ },
+ "rest :: duration": {
+  "canonical": "5 sets:\n  - 5 Back Squats @ 225lb\n  rest 3min",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 225
+         }
+        }
+       ]
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 180
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: seconds": {
+  "canonical": "5 sets:\n  - 5 Back Squats @ 225lb\n  rest 1min30s",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 225
+         }
+        }
+       ]
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 90
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: bare minutes word": {
+  "canonical": "5 sets:\n  - 5 Back Squats @ 225lb\n  rest 3min",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 225
+         }
+        }
+       ]
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 180
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: as needed": {
+  "canonical": "5 sets:\n  - 1 Snatch\n  rest as needed",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Snatch",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 1
+       }
+      },
+      {
+       "afterLast": false,
+       "dynamic": "as-needed",
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: equal to work": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest = work",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": false,
+       "dynamic": "equal-to-work",
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: equal to work words": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest = work",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": false,
+       "dynamic": "equal-to-work",
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: after last": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest 1min after last",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": true,
+       "duration": {
+        "kind": "duration",
+        "seconds": 60
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: active recovery": {
+  "canonical": "5 sets:\n  - 400m Run\n  rest 400m Jog",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 400
+       }
+      },
+      {
+       "active": {
+        "movement": "Jog",
+        "quantity": {
+         "kind": "distance",
+         "unit": "m",
+         "value": 400
+        }
+       },
+       "afterLast": false,
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: threshold": {
+  "canonical": "5 sets:\n  - 500m Row\n  rest until HR < 120bpm",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 500
+       }
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "compare": "lt",
+        "kind": "threshold",
+        "metric": "hr",
+        "unit": "bpm",
+        "value": 120
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "structure :: interrupt overlay": {
+  "canonical": "AMRAP 20min:\n  - 10 Burpees\n  every 1min: 5 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      },
+      {
+       "body": [
+        {
+         "movement": "Push-Up",
+         "node": "step",
+         "quantity": {
+          "kind": "reps",
+          "value": 5
+         }
+        }
+       ],
+       "every": {
+        "kind": "duration",
+        "seconds": 60
+       },
+       "node": "interrupt"
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 1200
+     },
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "rounds + reps",
+      "raw": "rounds + reps"
+     },
+     "type": "amrap"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "structure :: choice block": {
+  "canonical": "for time:\n  choice:\n    - 1000m Row\n    - 800m Run\n    - 2000m Bike",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "options": [
+        {
+         "movement": "Row",
+         "quantity": {
+          "kind": "distance",
+          "unit": "m",
+          "value": 1000
+         }
+        },
+        {
+         "movement": "Run",
+         "quantity": {
+          "kind": "distance",
+          "unit": "m",
+          "value": 800
+         }
+        },
+        {
+         "movement": "Bike",
+         "quantity": {
+          "kind": "distance",
+          "unit": "m",
+          "value": 2000
+         }
+        }
+       ],
+       "optionsForm": "block",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 1000
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "structure :: inline brace body": {
+  "canonical": "8 rounds:\n  work 20s: Pull-Up\n  rest 10s",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "movement": "Pull-Up",
+         "node": "step",
+         "quantity": {
+          "kind": "open"
+         }
+        }
+       ],
+       "duration": {
+        "kind": "duration",
+        "seconds": 20
+       },
+       "node": "block",
+       "type": "work"
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 10
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 8,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "structure :: nested blocks": {
+  "canonical": "3 rounds:\n  - AMRAP 3min:\n  rest 1min",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "AMRAP 3min:",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 60
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "structure :: deep nesting": {
+  "canonical": "conditioning:\n  - 3 rounds:s",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "rounds:",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 3
+       }
+      }
+     ],
+     "name": "conditioning",
+     "node": "block",
+     "type": "section"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "structure :: many top-level blocks": {
+  "canonical": "warmup:\n  - 400m Run\nstrength:\n  - 5 Back Squats @ 225lb\nconditioning:\n  - AMRAP 10min:",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 400
+       }
+      }
+     ],
+     "name": "warmup",
+     "node": "block",
+     "type": "section"
+    },
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 225
+         }
+        }
+       ]
+      }
+     ],
+     "name": "strength",
+     "node": "block",
+     "type": "section"
+    },
+    {
+     "children": [
+      {
+       "movement": "AMRAP 10min:",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "name": "conditioning",
+     "node": "block",
+     "type": "section"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ }
+}
