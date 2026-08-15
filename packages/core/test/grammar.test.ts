@@ -1,110 +1,71 @@
 /**
- * The grammar against the parser, line for line.
+ * Every line this project has, read by the grammar that is now the parser.
  *
- * `spec/grammar-0.1.ohm` plus the semantics under `src/grammar/` must produce the
- * same AST as the hand-written parser for every line this project has, in every
- * area the grammar claims to cover: every step line and every block header in
- * `examples/corpus`, in `spec-0.1.md`, and in `test/golden/vocabulary.ts`.
+ * This file used to be a *differential* test: `spec/grammar-0.1.ohm` plus the
+ * semantics under `src/grammar/` against the hand-written regex chain, line for
+ * line, with the lines they read differently listed as exclusions. Queue item 0a
+ * swapped the chain out, and a test comparing an implementation to itself
+ * measures nothing — so what it asks is now the half that never depended on
+ * there being two implementations:
  *
- * It runs as a *differential* test rather than a replacement because the two
- * halves of phase 2 share a lexical layer. Durations appear in `cap 12min` and
- * `every 90s` as well as in `12min Bike`; targets appear as an inherited `@` on
- * a block header; `21-15-9` is a ladder where `8-12` is a rep range. Swapping
- * steps over first would mean rewriting the step semantics once headers force
- * those productions to be factored differently. So the grammar grows to cover
- * all of phase 2 with this test green, and the parser is swapped in one change.
+ * 1. **Coverage, counted out loud.** Every step line, block header, rest, score,
+ *    directive and title in `examples/corpus`, in `spec-0.1.md` and in
+ *    `test/golden/vocabulary.ts` is fed to the start rule for its kind, and the
+ *    count is the suite's title. A line the grammar cannot read is a failure.
+ * 2. **The lines it cannot read are listed with a reason**, and a line that
+ *    starts reading fails as stale. That contract is what the exclusions had and
+ *    it is worth more here, because these are the shared defects — the one thing
+ *    a differential test could never see, since a line neither side reads sails
+ *    past it and past the round trip alike.
+ * 3. **The rules the exclusions used to describe are asserted directly**, on the
+ *    expected tree, at the bottom of this file. The `@`-plus-digit rule was only
+ *    ever visible here as "the two disagree"; now it is visible as what a step
+ *    with `@95lb` in it contains.
  *
- * Equality is what the corpus round-trip test means by it: source positions and
- * comment placement are stripped, because they are the caller's, not the
- * grammar's.
- *
- * A line the two read differently is listed in EXCLUSIONS with a reason and
- * counted out loud. It is never skipped quietly — the whole value here is that
- * the numbers are honest, which is also why an exclusion that stops differing
- * fails as stale.
+ * What each line *means* is pinned in `test/golden/vocabulary.json`, which is
+ * where a reading changes visibly. This file is about which lines are read at
+ * all, and it draws on all three sources so that a collapse in one of them
+ * cannot hide behind the other two.
  */
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, eq, ok } from './lib.ts';
-import { parse } from '../src/parse.ts';
 import { readLines, type Line } from '../src/lines.ts';
-import { makeParser } from '../src/grammar/parser.ts';
-import { STEP_FORMS, SOURCES, strip, wrap } from './golden/vocabulary.ts';
+import { required } from '../src/env.ts';
+import { wdl } from '../src/grammar/parser.ts';
+import { STEP_FORMS, SOURCES, strip } from './golden/vocabulary.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = join(here, '../../..');
 
 const grammarSource = readFileSync(join(repo, 'spec/grammar-0.1.ohm'), 'utf8');
-const wdl = makeParser(grammarSource);
 
 /**
- * Lines where the two deliberately disagree, and why.
+ * Lines the grammar does not read, and why.
  *
- * Listed rather than skipped: a silent skip turns "747 of 747" into a number
- * that means nothing. Each entry is a claim, and the suite below checks it —
- * an exclusion whose line has stopped differing is stale and fails.
- *
- * Nothing in `examples/corpus` or `spec-0.1.md` is here. Every entry is a form
- * `test/golden/vocabulary.ts` added *because* this test found the disagreement.
- */
-const EXCLUSIONS: { line: string; why: string }[] = [
-  // ---- step lines ----
-  // Empty as of the swap (queue item 0a). Every entry that was here described a
-  // way `parse.ts` read a step line differently from the grammar, and `parse.ts`
-  // now *is* the grammar for step lines, so there is nothing left to differ.
-  // Fourteen of the twenty were the grammar being right — the `@`-plus-digit
-  // family, the comma-target trio, the five rx-plus-qualifier lines — and those
-  // are fixes; four were the old parser's right-to-left application becoming
-  // left-to-right; two were the grammar being wider (`10-5 Squat`,
-  // `20calories Row`). All twenty are pinned as vocabulary forms, so what each
-  // one now reads as is in `test/golden/vocabulary.json` rather than in a list
-  // of reasons here.
-];
-
-/**
- * Block headers where the two deliberately disagree, and why. Same contract as
- * the step exclusions above: a reason each, pinned in the vocabulary, and stale
- * entries fail.
- */
-const HEADER_EXCLUSIONS: { line: string; why: string }[] = [
-  // Empty as of the swap. Its one entry was `3 rounds, @ 95lb`, where the old
-  // `@` sweep ran over the first comma segment only and `applyBlockModifier`
-  // filed the target as a flag, so nothing under the block inherited the load.
-  // The grammar reads an `@` group as an inherited target wherever it appears,
-  // and `parseHeader` is the grammar now.
-];
-
-const excluded = new Map(EXCLUSIONS.map((e) => [e.line, e.why]));
-const headerExcluded = new Map(HEADER_EXCLUSIONS.map((e) => [e.line, e.why]));
-
-/**
- * Lines the hand-written parser cannot read at all, so there is no reading to
- * compare the grammar against.
- *
- * These are the *shared* defects, and nothing else in this suite is looking for
- * them — a line neither implementation reads sails past a differential test and a
- * round-trip test alike. They used to be skipped in silence here; now they are
- * listed, and a line the parser starts reading fails as stale.
+ * These are the shared defects: forms the language documents, or forms a person
+ * would reasonably write, that no rule accepts. Each is a claim, and the suite
+ * checks it both ways — an unlisted unreadable line fails, and a listed line the
+ * grammar starts reading fails as stale.
  */
 const STEP_REJECTS = new Map([
   // A line that is *only* a completion condition. `movement` needs at least one
-  // character, so the grammar rejects it and `parse` reports `unreadable step`
-  // and holds the text as the name. Not a defect and not a disagreement — it is
-  // the one step shape the language has no reading for, listed here because a
-  // reference that returns `null` has to be listed rather than skipped.
+  // character, so this is the one step shape the language has no reading for.
+  // `parse` reports `unreadable step` and holds the text as the movement name;
+  // the old chain made a step with an empty movement and said nothing.
   ['until HR > 160bpm', 'a line that is only a threshold names nothing to do'],
 ]);
 
 const REST_REJECTS = new Map([
   // Every spelled-out duration word works in a *step's* quantity position —
   // `45 seconds Plank`, `2 mins Bike`, `1 hour Ride` — and not one of them works
-  // after `rest`, because `parseDuration` only knows `h`/`min`/`m`/`s` and
-  // `parseQuantity` has its own spelled-out spellings that the rest path never
+  // after `rest`, because `parseDuration` only knows `h`/`min`/`m`/`s` while the
+  // spelled-out spellings live in `parseQuantity`, which the rest path never
   // reaches. Spec §3 says these are accepted "wherever a duration is expected",
-  // and a rest is a duration position. The result is an `unreadable rest duration`
-  // error *and* a rest with no bound at all — silently unbounded. Found
-  // 2026-08-15 by typing lines into the browser; see known-debts.md.
+  // and a rest is a duration position. The result is an `unreadable rest
+  // duration` error *and* a rest with no bound at all — silently unbounded.
+  // Found 2026-08-15 by typing lines into the browser; queue item 0e.
   ['rest 45 seconds', 'a spelled-out duration word is a step quantity but not a rest'],
   ['rest 2 mins', 'a spelled-out duration word is a step quantity but not a rest'],
   ['rest 1 hour', 'a spelled-out duration word is a step quantity but not a rest'],
@@ -225,147 +186,55 @@ function vocabularyHarvest(): Harvest {
   ]);
 }
 
-// ---------- the comparison ----------
+// ---------- reading them ----------
+
+type Read = (line: string) => { ok: boolean; message?: string };
 
 /**
- * What the current parser makes of a bare step line.
+ * Every start rule, asked only whether it reads the line.
  *
- * Reached through `parse` rather than the `Parser` class, which is not
- * exported: the smallest block that can hold a step is the same wrapper
- * `vocabulary.ts` uses, so the two suites are measuring the same thing.
+ * What the reading *is* belongs in `test/golden/vocabulary.json`, where a human
+ * reads the diff. Asserting it a second time here, against a tree written out by
+ * the same semantics, would be a test of nothing.
  */
-function referenceStep(line: string): unknown | null {
-  const { workout, errors } = parse(wrap(line));
-  if (errors.length) return null;
-  const block = workout.body[0];
-  if (!block || block.node !== 'block' || block.children.length !== 1) return null;
-  const child = block.children[0];
-  return child.node === 'step' ? strip(child) : null;
-}
-
-/**
- * What the current parser makes of a block header, given the smallest body that
- * can sit under one.
- *
- * A parse *error* is not disqualifying here, unlike for a step: an unrecognized
- * header legitimately produces both a named sequence and a report, and whether
- * the grammar reproduces the block is exactly what is being asked. Errors are not
- * in the AST, so they are not part of the comparison either way.
- */
-function referenceHeader(head: string): unknown | null {
-  const { workout } = parse(`${head}:\n  - 10 Push-Up`);
-  const block = workout.body[0];
-  if (!block || block.node !== 'block') return null;
-  return strip({ ...block, children: [] });
-}
-
-/**
- * What the current parser makes of a `rest …` line, inside the smallest block
- * that can hold one.
- */
-function referenceRest(line: string): unknown | null {
-  const { workout, errors } = parse(`5 sets:\n  - 5 Back Squat\n  ${line}`);
-  if (errors.length) return null;
-  const block = workout.body[0];
-  if (!block || block.node !== 'block') return null;
-  const rest = block.children[1];
-  return rest && rest.node === 'rest' ? strip(rest) : null;
-}
-
-/**
- * What the current parser makes of a `score:` line at the top level, where it
- * belongs to the workout. On a block it goes through the same `parseScore`, so
- * one of the two positions is enough to measure the line itself.
- */
-function referenceScore(line: string): unknown | null {
-  const { workout, errors } = parse(`for time:\n  - 100 Burpee\n${line}`);
-  if (errors.length) return null;
-  return workout.score ? strip(workout.score) : null;
-}
-
-/** What the current parser makes of a directive line, as one key and one value. */
-function referenceDirective(line: string): unknown | null {
-  const { workout, errors } = parse(`${line}\nfor time:\n  - 100 Burpee`);
-  if (errors.length) return null;
-  const keys = Object.keys(workout.directives);
-  return keys.length === 1 ? { key: keys[0], value: workout.directives[keys[0]] } : null;
-}
-
-function referenceTitle(line: string): unknown | null {
-  const { workout, errors } = parse(`${line}\nfor time:\n  - 100 Burpee`);
-  return errors.length || workout.title === undefined ? null : workout.title;
-}
-
-type Read = (line: string) => { ok: boolean; value?: unknown; message?: string };
-
-/** Turn an `Attempt` into what `compare` wants, stripping what is the caller's. */
-const reader = <T>(attempt: (line: string) => { ok: boolean; value?: T; message?: string },
-  shape: (v: T) => unknown = (v) => v): Read => (line) => {
-    const got = attempt(line);
-    return got.ok ? { ok: true, value: strip(shape(got.value as T)) } : { ok: false, message: got.message };
-  };
-
-const readStep = reader((l) => wdl.tryStep(l));
-// A header's children are the caller's — the grammar states one line.
-const readHeader = reader((l) => wdl.tryHeader(l), (b) => ({ ...b, children: [] }));
-const readRest = reader((l) => wdl.tryRest(l));
-const readScore = reader((l) => wdl.tryScore(l));
-const readDirective = reader((l) => wdl.tryDirective(l));
-const readTitle = reader((l) => wdl.tryTitle(l));
+const g = wdl();
+const readStep: Read = (l) => g.tryStep(l);
+const readHeader: Read = (l) => g.tryHeader(l);
+const readRest: Read = (l) => g.tryRest(l);
+const readScore: Read = (l) => g.tryScore(l);
+const readDirective: Read = (l) => g.tryDirective(l);
+const readTitle: Read = (l) => g.tryTitle(l);
 
 interface Tally {
   checked: number;
-  agreed: number;
+  read: number;
+  /** Lines the grammar cannot read and nobody listed. Every one is a finding. */
   unreadable: string[];
-  disagreed: string[];
-  /** Excluded lines that no longer disagree — the exclusion has gone stale. */
-  stale: string[];
-  /**
-   * Lines the *hand-written parser* cannot read, so there is nothing to compare
-   * against. These used to be skipped in silence, which is the one hole a
-   * differential test can have and still look green: a line neither side reads is
-   * a shared defect, and a shared defect is exactly what nothing else in this
-   * suite is looking for. Listed with a reason now, and stale entries fail.
-   */
-  rejected: string[];
+  /** Listed rejects the grammar reads now — the list has gone stale. */
   staleRejects: string[];
 }
 
 interface Area {
   what: string;
   lines: (h: Harvest) => string[];
-  reference: (line: string) => unknown | null;
   read: Read;
-  excluded: Map<string, string>;
-  /** Lines the hand-written parser cannot read, so there is nothing to compare. */
+  /** Lines no rule accepts, with the reason each one is a defect and not a shape. */
   rejects: Map<string, string>;
   /** How many lines each source must contribute, so a silent collapse fails. */
   atLeast: [number, number, number];
 }
 
-function compare(area: Area, lines: string[]): Tally {
-  const t: Tally = {
-    checked: 0, agreed: 0, unreadable: [], disagreed: [], stale: [],
-    rejected: [], staleRejects: [],
-  };
+function tally(area: Area, lines: string[]): Tally {
+  const t: Tally = { checked: 0, read: 0, unreadable: [], staleRejects: [] };
   for (const line of lines) {
-    const want = area.reference(line);
     const got = area.read(line);
-    const same = got.ok && want !== null && JSON.stringify(got.value) === JSON.stringify(want);
     if (area.rejects.has(line)) {
-      if (want !== null) t.staleRejects.push(`${line} — the parser reads it now: ${area.rejects.get(line)}`);
+      if (got.ok) t.staleRejects.push(`${line} — the grammar reads it now: ${area.rejects.get(line)}`);
       continue;
     }
-    if (area.excluded.has(line)) {
-      if (same) t.stale.push(`${line} — no longer differs: ${area.excluded.get(line)}`);
-      continue;
-    }
-    // Nothing to compare against. Reported rather than skipped: see `rejected`.
-    if (want === null) { t.rejected.push(line); continue; }
     t.checked++;
-    if (!got.ok) { t.unreadable.push(`${line} — ${got.message}`); continue; }
-    if (same) t.agreed++;
-    else t.disagreed.push(`${line}\n        grammar: ${JSON.stringify(got.value)}\n        parser:  ${JSON.stringify(want)}`);
+    if (got.ok) t.read++;
+    else t.unreadable.push(`${line} — ${got.message}`);
   }
   return t;
 }
@@ -380,45 +249,35 @@ const AREAS: Area[] = [
   {
     what: 'step lines',
     lines: (h) => h.steps,
-    reference: referenceStep,
     read: readStep,
-    excluded,
     rejects: STEP_REJECTS,
     atLeast: [300, 40, 130],
   },
   {
     what: 'block headers',
     lines: (h) => h.headers,
-    reference: referenceHeader,
     read: readHeader,
-    excluded: headerExcluded,
     rejects: new Map(),
     atLeast: [90, 20, 40],
   },
   {
     what: 'rest lines',
     lines: (h) => h.rests,
-    reference: referenceRest,
     read: readRest,
-    excluded: new Map(),
     rejects: REST_REJECTS,
     atLeast: [10, 4, 9],
   },
   {
     what: 'score lines',
     lines: (h) => h.scores,
-    reference: referenceScore,
     read: readScore,
-    excluded: new Map(),
     rejects: new Map(),
     atLeast: [10, 4, 8],
   },
   {
     what: 'directive lines',
     lines: (h) => h.directives,
-    reference: referenceDirective,
     read: readDirective,
-    excluded: new Map(),
     rejects: new Map(),
     // The corpus floor is **zero**, and that is a measurement rather than a
     // concession: not one of the 190 real workouts writes a directive. It is the
@@ -430,16 +289,14 @@ const AREAS: Area[] = [
   {
     what: 'title lines',
     lines: (h) => h.titles,
-    reference: referenceTitle,
     read: readTitle,
-    excluded: new Map(),
     rejects: new Map(),
     atLeast: [10, 1, 1],
   },
 ];
 
 const pinnedForms = new Set([
-  ...STEP_FORMS.flatMap((g) => g.lines),
+  ...STEP_FORMS.flatMap((gr) => gr.lines),
   ...SOURCES.flatMap((s) => {
     const h = harvest(readLines(s.src));
     return [...h.headers, ...h.rests, ...h.scores];
@@ -447,38 +304,35 @@ const pinnedForms = new Set([
 ]);
 
 for (const area of AREAS) {
-  const tallies = harvests.map(([what, h]) => ({ what, tally: compare(area, area.lines(h)) }));
+  const tallies = harvests.map(([what, h]) => ({ what, tally: tally(area, area.lines(h)) }));
   const checked = tallies.reduce((n, s) => n + s.tally.checked, 0);
-  const agreed = tallies.reduce((n, s) => n + s.tally.agreed, 0);
+  const read = tallies.reduce((n, s) => n + s.tally.read, 0);
 
   // The count is in the suite title because the count is the result. A summary
-  // line reading `grammar vs parser 4/4` would say nothing about what was
+  // line reading `the grammar reads 4/4` would say nothing about what was
   // measured, and this test exists to make one number true.
-  describe(`grammar vs parser: ${agreed}/${checked} ${area.what}`, () => {
+  describe(`the grammar reads ${read}/${checked} ${area.what}`, () => {
     for (const { what, tally: t } of tallies) {
-      it(`${what}: ${t.agreed}/${t.checked} agree`, () => {
+      it(`${what}: ${t.read}/${t.checked} read`, () => {
         eq(t.unreadable, [], `${t.unreadable.length} lines the grammar cannot read`);
-        eq(t.disagreed, [], `${t.disagreed.length} lines read differently`);
-        eq(t.stale, [], `${t.stale.length} exclusions no longer needed`);
-        eq(t.rejected, [], `${t.rejected.length} lines the parser cannot read, unlisted`);
-        eq(t.staleRejects, [], `${t.staleRejects.length} listed rejects the parser reads now`);
+        eq(t.staleRejects, [], `${t.staleRejects.length} listed rejects it reads now`);
       });
     }
 
     it('draws on all three sources, not whichever one still loads', () => {
-      tallies.forEach(({ what, tally }, i) => {
-        ok(tally.checked >= area.atLeast[i], `${what} contributed ${tally.checked} lines`);
+      tallies.forEach(({ what, tally: t }, i) => {
+        ok(t.checked >= area.atLeast[i], `${what} contributed ${t.checked} lines`);
       });
     });
 
-    it(`states each of the ${area.excluded.size} lines it reads differently`, () => {
-      // The exclusions are part of the result: the headline number above is out
-      // of a set this list has been taken out of, and that has to be visible
-      // here rather than inferred from a gap in a count.
-      for (const [line, why] of area.excluded) {
+    it(`states each of the ${area.rejects.size} lines it does not read`, () => {
+      // The rejects are part of the result: the headline number above is out of a
+      // set this list has been taken out of, and that has to be visible here
+      // rather than inferred from a gap in a count.
+      for (const [line, why] of area.rejects) {
         ok(why.length > 10, `${line} has a reason`);
         // And every one is a form the vocabulary pins, per the standing rule in
-        // lessons-learned.md: a parsing difference becomes permutations.
+        // lessons-learned.md: a parsing defect becomes permutations.
         ok(pinnedForms.has(line), `${line} is pinned in vocabulary.ts`);
       }
     });
@@ -491,20 +345,28 @@ describe('the grammar is the spec', () => {
     ok(!grammarSource.includes('=>'), 'carries no semantic actions');
   });
 
+  it('is the file the host handed the core, not a second copy of it', () => {
+    // The plumbing queue item 0a added, asserted rather than assumed: `node.ts`
+    // reads `spec/grammar-0.1.ohm` and provides it, and `wdl()` compiles what it
+    // was given. If those ever came apart the suite would be testing a grammar
+    // nothing runs.
+    eq(required('grammar'), grammarSource);
+  });
+
   it('holds unrecognized step input rather than failing on it', () => {
-    const step = wdl.parseStep('10 Thruster @ 95lb, some phrase nobody taught the parser');
+    const step = g.parseStep('10 Thruster @ 95lb, some phrase nobody taught the parser');
     eq(step.movement, 'Thruster');
     eq(step.notes, ['some phrase nobody taught the parser']);
   });
 
   it('holds an unrecognized block header rather than failing on it', () => {
-    const block = wdl.parseHeader('some shape nobody taught the parser');
+    const block = g.parseHeader('some shape nobody taught the parser');
     eq(block.type, 'sequence');
     eq(block.name, 'some shape nobody taught the parser');
   });
 
   it('reports what it cannot read, by position', () => {
-    eq(wdl.tryStep('').ok, false);
+    eq(g.tryStep('').ok, false);
   });
 
   /**
@@ -514,8 +376,8 @@ describe('the grammar is the spec', () => {
    * directly rather than through the harness above.
    */
   it('reads a score qualifier line', () => {
-    eq(wdl.parseQualifier('on cap: reps completed'), { key: 'onCap', text: 'reps completed' });
-    eq(wdl.parseQualifier('tiebreak: reps at 5min'), { key: 'tiebreak', text: 'reps at 5min' });
+    eq(g.parseQualifier('on cap: reps completed'), { key: 'onCap', text: 'reps completed' });
+    eq(g.parseQualifier('tiebreak: reps at 5min'), { key: 'tiebreak', text: 'reps at 5min' });
   });
 
   /**
@@ -526,11 +388,112 @@ describe('the grammar is the spec', () => {
    * where on a line of its own it is just a comma.
    */
   it('reads both spellings of a variant', () => {
-    eq(wdl.parseVariant('women:'), { name: 'women' });
-    eq(wdl.parseVariant('women: {load: 65lb}'),
+    eq(g.parseVariant('women:'), { name: 'women' });
+    eq(g.parseVariant('women: {load: 65lb}'),
       { name: 'women', fields: [{ key: 'load', value: '65lb' }] });
-    eq(wdl.parseVariant('women: {load: 65lb, reps: 15}'),
+    eq(g.parseVariant('women: {load: 65lb, reps: 15}'),
       { name: 'women', fields: [{ key: 'load', value: '65lb' }, { key: 'reps', value: '15' }] });
-    eq(wdl.parseField('load: 65lb'), { key: 'load', value: '65lb' });
+    eq(g.parseField('load: 65lb'), { key: 'load', value: '65lb' });
+  });
+});
+
+/**
+ * The rules the exclusion list used to stand for.
+ *
+ * Each of these was, until the swap, visible here only as "the two implementations
+ * disagree" plus a sentence of prose. A disagreement is not a specification, and
+ * with one implementation left there is nothing to disagree with — so what each
+ * rule *says* is asserted on the tree instead. Every line below is also a pinned
+ * vocabulary form; these are here because a rule stated once in a test that names
+ * it is worth more than the same fact buried in a 9,000-line snapshot.
+ */
+describe('the rules the exclusions used to describe', () => {
+  const step = (line: string) => strip(g.parseStep(line));
+
+  it('reads the first character after an `@`, and nothing else', () => {
+    // A letter opens a flag, a digit opens a target, and whether a unit is
+    // present has nothing to do with it. The old chain swept `/@(\w[\w-]*)/g`
+    // over the whole line first, and `\w` matches digits, so every tight load
+    // became a flag and the weight was gone.
+    // Key order is `strip`'s, which sorts — the same shape the vocabulary pins.
+    const load = { kind: 'load', load: { kind: 'absolute', unit: 'lb', value: 95 } };
+    eq(step('10 Thruster @95lb').targets, [load], 'tight');
+    eq(step('10 Thruster @ 95lb').targets, [load], 'spaced — the same reading');
+    eq(step('10 Thruster @95lb').flags, undefined, 'and no flag — `strip` drops an empty array');
+    // No unit, still a target: `@95` on a whiteboard is a weight, and `raw` says
+    // "a target was written and nothing can be computed from it" rather than
+    // inventing pounds. See known-debts.md.
+    eq(step('10 Thruster @95').targets, [{ kind: 'raw', text: '95' }]);
+    // The flag form needs the `@` tight against a *letter*, because a spaced
+    // target legitimately begins with one — `@ Z2`, `@ RPE 8`, `@ of
+    // heavy-single`. So `@tiebreak` is a flag and `@ tiebreak` is a target, and
+    // that asymmetry is stated rather than left to rule ordering.
+    eq(step('21 Thruster @tiebreak').flags, ['tiebreak']);
+    eq(step('21 Thruster @ tiebreak').targets, [{ kind: 'raw', text: 'tiebreak' }]);
+  });
+
+  it('reads an `@` group wherever it appears, comma or no comma', () => {
+    // The old `@` split ran over the first comma segment only, so a target after
+    // a comma fell through to the catch-all and became a *note* — invisible to
+    // analysis, to the builder and to the board, with `wdl check` reporting ok.
+    eq(step('10 Thruster, @ 95lb').targets.length, 1);
+    // `strip` drops an empty array, so an absent `notes` is an empty one.
+    eq(step('10 Thruster, @ 95lb').notes, undefined);
+    // And on a header, where the same defect cost the children their load.
+    eq(strip(g.parseHeader('3 rounds, @ 95lb')).inherited.length, 1);
+    eq(strip(g.parseHeader('3 rounds, @ 95lb')).flags, ['rounds']);
+  });
+
+  it('reads an rx split wherever it appears, not only at the end', () => {
+    // `peelRx` only fired at the end of a comma segment, so a space-separated
+    // qualifier after the paren took the whole thing into the movement *name* —
+    // both loads lost and the name matching no registry entry, so the step fell
+    // out of muscle and volume analysis too.
+    const s = step('10 Deadlift (105/145) each arm');
+    eq(s.movement, 'Deadlift');
+    eq(s.limb, 'arm');
+    eq(s.rx, {
+      men: { kind: 'absolute', value: 145 },
+      women: { kind: 'absolute', value: 105 },
+    });
+  });
+
+  it('applies a step\'s parts left to right', () => {
+    // `peelTrailingQualifiers` stripped from the end, so it read right to left,
+    // and the `@` sweep hoisted every flag to the front. Neither was a decision.
+    eq(step('10 Deadlift unbroken building').flags, ['unbroken', 'building']);
+    eq(step('10 Deadlift building @tiebreak').flags, ['building', 'tiebreak']);
+    // The same order, where it decides a value rather than an array: the paren
+    // is read first and `each leg` last, so `per-side` wins.
+    eq(step('5 Squat (both) each leg').laterality, 'per-side');
+  });
+
+  it('does not require min < max on a range, because that is not a shape', () => {
+    // The one place the notation genuinely cannot reach. A PEG states shapes, and
+    // `min < max` is a constraint on *values* — `parseQuantity` checked it and
+    // left the digits in the movement name when it failed. So `10-5 Squat` is a
+    // descending range now, and if it should be refused that is a validation rule
+    // with a message, not a parse that quietly renames the movement.
+    eq(step('10-5 Squat').quantity, { kind: 'range', max: 5, min: 10 });
+    eq(step('10-5 Squat').movement, 'Squat');
+  });
+
+  it('is regular about a spelled-out unit, spaced or not', () => {
+    // `20cal` and `20 calories` were amounts and `20calories` was not, which is an
+    // accident of a `\\s*` in one regex rather than a decision.
+    const cal = { kind: 'calories', value: 20 };
+    for (const line of ['20cal Row', '20 cal Row', '20calories Row', '20 calories Row']) {
+      eq(step(line).quantity, cal, line);
+      eq(step(line).movement, 'Row', line);
+    }
+  });
+
+  it('lets a comma end nothing', () => {
+    // Written into the grammar during the swap: required, a modifier after a
+    // comma made `10 Thruster,` unreadable and took the movement and the amount
+    // with it. A stray keystroke is a steep price on a format written by hand.
+    eq(step('10 Thruster,').movement, 'Thruster');
+    eq(step('10 Thruster,').quantity, { kind: 'reps', value: 10 });
+    eq(strip(g.parseHeader('3 rounds,')), strip(g.parseHeader('3 rounds')));
   });
 });

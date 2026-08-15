@@ -5902,7 +5902,7 @@
   },
   "fixpoint": true
  },
- "known-wrong :: 10 Thruster @95lb": {
+ "was-wrong :: 10 Thruster @95lb": {
   "canonical": "for time:\n  - 10 Thrusters @ 95lb",
   "errors": [],
   "ast": {
@@ -5942,7 +5942,7 @@
   },
   "fixpoint": true
  },
- "known-wrong :: 10 Thruster @2x35lb": {
+ "was-wrong :: 10 Thruster @2x35lb": {
   "canonical": "for time:\n  - 10 Thrusters @ 2x35lb",
   "errors": [],
   "ast": {
@@ -5983,7 +5983,7 @@
   },
   "fixpoint": true
  },
- "known-wrong :: 10 Thruster @24kg": {
+ "was-wrong :: 10 Thruster @24kg": {
   "canonical": "for time:\n  - 10 Thrusters @ 24kg",
   "errors": [],
   "ast": {
@@ -6023,7 +6023,7 @@
   },
   "fixpoint": true
  },
- "known-wrong :: 10 Thruster @95": {
+ "was-wrong :: 10 Thruster @95": {
   "canonical": "for time:\n  - 10 Thrusters @ 95",
   "errors": [],
   "ast": {
@@ -6059,7 +6059,7 @@
   },
   "fixpoint": true
  },
- "known-wrong :: 10 Thruster @85% 1RM": {
+ "was-wrong :: 10 Thruster @85% 1RM": {
   "canonical": "for time:\n  - 10 Thrusters @ 85% 1RM",
   "errors": [],
   "ast": {
@@ -6099,7 +6099,7 @@
   },
   "fixpoint": true
  },
- "known-wrong :: 18 Thruster @115lb @tiebreak": {
+ "was-wrong :: 18 Thruster @115lb @tiebreak": {
   "canonical": "for time:\n  - 18 Thrusters @ 115lb @tiebreak",
   "errors": [],
   "ast": {
@@ -6126,6 +6126,344 @@
          }
         }
        ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "was-wrong :: 10 Thruster, @ 95lb": {
+  "canonical": "for time:\n  - 10 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "was-wrong :: 10 Thruster, @ 24kg": {
+  "canonical": "for time:\n  - 10 Thrusters @ 24kg",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "kg",
+          "value": 24
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "was-wrong :: 10 Thruster, @ 85% 1RM": {
+  "canonical": "for time:\n  - 10 Thrusters @ 85% 1RM",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "percent",
+          "of": "1RM",
+          "value": 85
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "was-wrong :: 10 Deadlift (105/145) each arm": {
+  "canonical": "for time:\n  - 10 Deadlifts each arm (women 105 / men 145)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "arm",
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "value": 105
+        }
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "was-wrong :: 10 DB Snatch (50/35lb) each side": {
+  "canonical": "for time:\n  - 10 DB Snatches each side (women 35lb / men 50lb)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "side",
+       "movement": "DB Snatch",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 50
+        },
+        "women": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 35
+        }
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "was-wrong :: 10 Deadlift (women 105lb / men 145lb) each arm": {
+  "canonical": "for time:\n  - 10 Deadlifts each arm (women 105lb / men 145lb)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "arm",
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 105
+        }
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "was-wrong :: 10 Deadlift (105/145) unbroken": {
+  "canonical": "for time:\n  - 10 Deadlifts (women 105 / men 145), unbroken",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "unbroken"
+       ],
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "value": 105
+        }
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "was-wrong :: 10 Deadlift (women 105lb / men 145lb) unbroken": {
+  "canonical": "for time:\n  - 10 Deadlifts (women 105lb / men 145lb), unbroken",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "unbroken"
+       ],
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 105
+        }
+       }
       }
      ],
      "node": "block",
@@ -6194,344 +6532,6 @@
          }
         }
        ]
-      }
-     ],
-     "node": "block",
-     "score": {
-      "implied": true,
-      "primary": "time",
-      "raw": "time"
-     },
-     "type": "sequence"
-    }
-   ],
-   "directives": {},
-   "node": "workout"
-  },
-  "fixpoint": true
- },
- "known-wrong :: 10 Thruster, @ 95lb": {
-  "canonical": "for time:\n  - 10 Thrusters @ 95lb",
-  "errors": [],
-  "ast": {
-   "body": [
-    {
-     "children": [
-      {
-       "movement": "Thruster",
-       "node": "step",
-       "quantity": {
-        "kind": "reps",
-        "value": 10
-       },
-       "targets": [
-        {
-         "kind": "load",
-         "load": {
-          "kind": "absolute",
-          "unit": "lb",
-          "value": 95
-         }
-        }
-       ]
-      }
-     ],
-     "node": "block",
-     "score": {
-      "implied": true,
-      "primary": "time",
-      "raw": "time"
-     },
-     "type": "sequence"
-    }
-   ],
-   "directives": {},
-   "node": "workout"
-  },
-  "fixpoint": true
- },
- "known-wrong :: 10 Thruster, @ 24kg": {
-  "canonical": "for time:\n  - 10 Thrusters @ 24kg",
-  "errors": [],
-  "ast": {
-   "body": [
-    {
-     "children": [
-      {
-       "movement": "Thruster",
-       "node": "step",
-       "quantity": {
-        "kind": "reps",
-        "value": 10
-       },
-       "targets": [
-        {
-         "kind": "load",
-         "load": {
-          "kind": "absolute",
-          "unit": "kg",
-          "value": 24
-         }
-        }
-       ]
-      }
-     ],
-     "node": "block",
-     "score": {
-      "implied": true,
-      "primary": "time",
-      "raw": "time"
-     },
-     "type": "sequence"
-    }
-   ],
-   "directives": {},
-   "node": "workout"
-  },
-  "fixpoint": true
- },
- "known-wrong :: 10 Thruster, @ 85% 1RM": {
-  "canonical": "for time:\n  - 10 Thrusters @ 85% 1RM",
-  "errors": [],
-  "ast": {
-   "body": [
-    {
-     "children": [
-      {
-       "movement": "Thruster",
-       "node": "step",
-       "quantity": {
-        "kind": "reps",
-        "value": 10
-       },
-       "targets": [
-        {
-         "kind": "load",
-         "load": {
-          "kind": "percent",
-          "of": "1RM",
-          "value": 85
-         }
-        }
-       ]
-      }
-     ],
-     "node": "block",
-     "score": {
-      "implied": true,
-      "primary": "time",
-      "raw": "time"
-     },
-     "type": "sequence"
-    }
-   ],
-   "directives": {},
-   "node": "workout"
-  },
-  "fixpoint": true
- },
- "known-wrong :: 10 Deadlift (105/145) each arm": {
-  "canonical": "for time:\n  - 10 Deadlifts each arm (women 105 / men 145)",
-  "errors": [],
-  "ast": {
-   "body": [
-    {
-     "children": [
-      {
-       "laterality": "per-side",
-       "limb": "arm",
-       "movement": "Deadlift",
-       "node": "step",
-       "quantity": {
-        "kind": "reps",
-        "value": 10
-       },
-       "rx": {
-        "men": {
-         "kind": "absolute",
-         "value": 145
-        },
-        "women": {
-         "kind": "absolute",
-         "value": 105
-        }
-       }
-      }
-     ],
-     "node": "block",
-     "score": {
-      "implied": true,
-      "primary": "time",
-      "raw": "time"
-     },
-     "type": "sequence"
-    }
-   ],
-   "directives": {},
-   "node": "workout"
-  },
-  "fixpoint": true
- },
- "known-wrong :: 10 DB Snatch (50/35lb) each side": {
-  "canonical": "for time:\n  - 10 DB Snatches each side (women 35lb / men 50lb)",
-  "errors": [],
-  "ast": {
-   "body": [
-    {
-     "children": [
-      {
-       "laterality": "per-side",
-       "limb": "side",
-       "movement": "DB Snatch",
-       "node": "step",
-       "quantity": {
-        "kind": "reps",
-        "value": 10
-       },
-       "rx": {
-        "men": {
-         "kind": "absolute",
-         "unit": "lb",
-         "value": 50
-        },
-        "women": {
-         "kind": "absolute",
-         "unit": "lb",
-         "value": 35
-        }
-       }
-      }
-     ],
-     "node": "block",
-     "score": {
-      "implied": true,
-      "primary": "time",
-      "raw": "time"
-     },
-     "type": "sequence"
-    }
-   ],
-   "directives": {},
-   "node": "workout"
-  },
-  "fixpoint": true
- },
- "known-wrong :: 10 Deadlift (women 105lb / men 145lb) each arm": {
-  "canonical": "for time:\n  - 10 Deadlifts each arm (women 105lb / men 145lb)",
-  "errors": [],
-  "ast": {
-   "body": [
-    {
-     "children": [
-      {
-       "laterality": "per-side",
-       "limb": "arm",
-       "movement": "Deadlift",
-       "node": "step",
-       "quantity": {
-        "kind": "reps",
-        "value": 10
-       },
-       "rx": {
-        "men": {
-         "kind": "absolute",
-         "unit": "lb",
-         "value": 145
-        },
-        "women": {
-         "kind": "absolute",
-         "unit": "lb",
-         "value": 105
-        }
-       }
-      }
-     ],
-     "node": "block",
-     "score": {
-      "implied": true,
-      "primary": "time",
-      "raw": "time"
-     },
-     "type": "sequence"
-    }
-   ],
-   "directives": {},
-   "node": "workout"
-  },
-  "fixpoint": true
- },
- "known-wrong :: 10 Deadlift (105/145) unbroken": {
-  "canonical": "for time:\n  - 10 Deadlifts (women 105 / men 145), unbroken",
-  "errors": [],
-  "ast": {
-   "body": [
-    {
-     "children": [
-      {
-       "flags": [
-        "unbroken"
-       ],
-       "movement": "Deadlift",
-       "node": "step",
-       "quantity": {
-        "kind": "reps",
-        "value": 10
-       },
-       "rx": {
-        "men": {
-         "kind": "absolute",
-         "value": 145
-        },
-        "women": {
-         "kind": "absolute",
-         "value": 105
-        }
-       }
-      }
-     ],
-     "node": "block",
-     "score": {
-      "implied": true,
-      "primary": "time",
-      "raw": "time"
-     },
-     "type": "sequence"
-    }
-   ],
-   "directives": {},
-   "node": "workout"
-  },
-  "fixpoint": true
- },
- "known-wrong :: 10 Deadlift (women 105lb / men 145lb) unbroken": {
-  "canonical": "for time:\n  - 10 Deadlifts (women 105lb / men 145lb), unbroken",
-  "errors": [],
-  "ast": {
-   "body": [
-    {
-     "children": [
-      {
-       "flags": [
-        "unbroken"
-       ],
-       "movement": "Deadlift",
-       "node": "step",
-       "quantity": {
-        "kind": "reps",
-        "value": 10
-       },
-       "rx": {
-        "men": {
-         "kind": "absolute",
-         "unit": "lb",
-         "value": 145
-        },
-        "women": {
-         "kind": "absolute",
-         "unit": "lb",
-         "value": 105
-        }
-       }
       }
      ],
      "node": "block",

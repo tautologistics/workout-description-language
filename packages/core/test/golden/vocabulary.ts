@@ -291,72 +291,76 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     '10 Thruster, with a band',
     '400m Run, barefoot',
   ] },
-  { group: 'known-wrong', lines: [
-    // Read wrongly today, and pinned here so the fix shows up as a diff rather
-    // than as a silent change. `@` with no space after it is matched as a flag
-    // before the target split ever runs, and `\w` matches digits — so the load
-    // is lost, `wdl check` still says ok, and `wdl fmt` rewrites the line to
-    // `- 10 Thrusters, 95lb`. See known-debts.md.
+  { group: 'was-wrong', lines: [
+    // **Read wrongly until 2026-08-15, and read correctly since**, when queue
+    // item 0a made `spec/grammar-0.1.ohm` the parser. The group is kept together
+    // and kept named for what it was, because the point of pinning a defect is
+    // that its fix arrives as a diff you can read — and this is that diff's other
+    // side. What each line used to do is stated here rather than deleted: a
+    // reader who does not know a road was walked will walk it again.
     //
-    // The grammar now states the rule the other way and states it deliberately:
-    // the first character after the `@` decides, a letter opens a flag and a
-    // digit opens a target. So all six of these are grammar exclusions, and the
-    // swap (queue item 0a) is the fix.
+    // `@` with no space after it was matched as a *flag* before the target split
+    // ever ran, and `\w` matches digits — so the load was lost, `wdl check` still
+    // said ok, and `wdl fmt` rewrote the line to `- 10 Thrusters, 95lb`, a stable
+    // fixpoint of the wrong reading. The grammar states the rule the other way
+    // and states it deliberately: the first character after the `@` decides, a
+    // letter opens a flag and a digit opens a target.
     '10 Thruster @95lb',
     '10 Thruster @2x35lb',
     '10 Thruster @24kg',
-    // No unit at all, which is the case that shows the rule does not key on
-    // one. `@95` is a target the grammar holds as `raw`; the parser makes it a
-    // flag called `95`.
+    // No unit at all, which is the case that shows the rule does not key on one.
+    // A target the grammar holds as `raw`; the old chain made a flag called `95`.
     '10 Thruster @95',
-    // Worse than a lost load: `@(\w[\w-]*)` stops at the `%`, so `85` becomes a
-    // flag and `% 1RM` is left in the text — the movement ends up named
-    // `Thruster % 1RM`, which resolves to nothing and takes the step out of
-    // muscle and volume analysis too.
+    // Worse than a lost load: `@(\w[\w-]*)` stopped at the `%`, so `85` became a
+    // flag and `% 1RM` was left in the text — the movement ended up named
+    // `Thruster % 1RM`, which resolves to nothing and took the step out of muscle
+    // and volume analysis too.
     '10 Thruster @85% 1RM',
-    // A flag beside a tight load on one line. The parser reads two flags and no
-    // target; the grammar reads one of each.
+    // A flag beside a tight load on one line: two flags and no target before,
+    // one of each now.
     '18 Thruster @115lb @tiebreak',
-    // `sets x reps` written *before* the movement, which is how gyms write it and
-    // how spec §1's own design rule 4 writes it — `5x5 Back Squat @ 225lb` is the
-    // example given for "must stay a one-liner". Neither implementation reads it:
-    // `parseQuantity` matches no pattern on `5x5`, so the whole thing becomes the
-    // movement *name*, the quantity is `open`, and `wdl fmt` writes
-    // `- 5x5 Back Squats @ 225lb`. The trailing spelling (`5 Deadlift x3`) works
-    // and is pinned under `modifiers`; the grammar agrees with the parser here
-    // rather than inventing a form, so this is a shared defect and not an
-    // exclusion. Found 2026-08-15 by widening the differential test's step source
-    // to the vocabulary's whole-document forms. See known-debts.md.
-    '3x10 Curl',
-    '5x5 Back Squat @ 225lb',
-    // The same load, lost a second way. `@` is only split out of the *first*
-    // comma segment, so a target written after a comma never reaches
-    // `targets` — `applyQualifier` falls through and files it as a note. Same
-    // consequence as the trio above: invisible to analysis, the builder and the
-    // board, and `wdl check` says ok. Found by the differential grammar test,
-    // which reads it as a target. See known-debts.md.
+    // The same load, lost a second way. `@` was only split out of the *first*
+    // comma segment, so a target written after a comma never reached `targets` —
+    // `applyQualifier` fell through and filed it as a note.
     '10 Thruster, @ 95lb',
     '10 Thruster, @ 24kg',
     '10 Thruster, @ 85% 1RM',
-    // An rx split with a qualifier after it, space-separated: the whole paren
-    // is swallowed into the *movement name*. `peelRx` only fires at the end of
-    // a segment, so `Deadlift (105/145)` becomes the name, both loads are lost,
-    // and the name resolves to no registry entry — so the step falls out of
-    // muscle and volume analysis too, which is one worse than the `@95lb`
-    // family. `wdl fmt` then pluralizes the name it was given and writes
+    // An rx split with a qualifier after it, space-separated: the whole paren was
+    // swallowed into the *movement name*. `peelRx` only fired at the end of a
+    // segment, so `Deadlift (105/145)` became the name, both loads were lost, and
+    // the name resolved to no registry entry — so the step fell out of muscle and
+    // volume analysis too, which is one worse than the `@95lb` family. `wdl fmt`
+    // then pluralized the name it was given and wrote
     // `10 Deadlift (women 105lb / men 145lb)s each arm`, which is the whiteboard
-    // constraint failing out loud. A comma instead of the space reads correctly
-    // — both spellings are pinned under `rx-by-division` above. Found 2026-08-15
-    // by parsing in the browser; see known-debts.md.
+    // constraint failing out loud. A comma instead of the space always read
+    // correctly — both spellings are pinned under `rx-by-division` above.
     '10 Deadlift (105/145) each arm',
     '10 DB Snatch (50/35lb) each side',
     '10 Deadlift (women 105lb / men 145lb) each arm',
-    // The same shape with a flag rather than a laterality. This one does not
-    // even settle: `fmt` writes `10 Deadlifts (105/145), unbroken`, which
-    // *reparses* as an rx — so one pass of the formatter changes the tree and
-    // the second changes it back. Listed in KNOWN_UNSETTLED in vocabulary.test.ts.
+    // The same shape with a flag rather than a laterality. This one did not even
+    // settle: `fmt` wrote `10 Deadlifts (105/145), unbroken`, which *reparsed* as
+    // an rx — one pass of the formatter lost the loads and the next found them.
+    // It was the only entry in `KNOWN_UNSETTLED`, and that list is empty now.
     '10 Deadlift (105/145) unbroken',
     '10 Deadlift (women 105lb / men 145lb) unbroken',
+  ] },
+  { group: 'known-wrong', lines: [
+    // Still read wrongly, and pinned so the fix shows up as a diff rather than as
+    // a silent change. Both are the same defect and both are queue item 0e's,
+    // because reading them means *adding a form to the language* — a decision,
+    // not a transcription — which is why the grammar reproduces the old reading
+    // here rather than picking.
+    //
+    // `sets x reps` written *before* the movement, which is how gyms write it and
+    // how spec §1's own design rule 4 writes it: `5x5 Back Squat @ 225lb` is the
+    // example given for "must stay a one-liner". `parseQuantity` matched no
+    // pattern on `5x5`, so the whole thing becomes the movement *name*, the
+    // quantity stays `open`, and `wdl fmt` writes `- 5x5 Back Squats @ 225lb`.
+    // The trailing spelling (`5 Deadlift x3`) works and is pinned under
+    // `modifiers`. Found 2026-08-15 by widening the differential test's step
+    // source to the vocabulary's whole-document forms. See known-debts.md.
+    '3x10 Curl',
+    '5x5 Back Squat @ 225lb',
   ] },
   { group: 'whitespace-and-case', lines: [
     '10   Thruster   @   95lb',
