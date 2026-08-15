@@ -70,21 +70,18 @@ const STEP_REJECTS = new Map([
   ['until HR > 160bpm', 'a line that is only a threshold names nothing to do'],
 ]);
 
-const REST_REJECTS = new Map([
-  // Every spelled-out duration word works in a *step's* quantity position —
-  // `45 seconds Plank`, `2 mins Bike`, `1 hour Ride` — and not one of them works
-  // after `rest`, because `parseDuration` only knows `h`/`min`/`m`/`s` while the
-  // spelled-out spellings live in `parseQuantity`, which the rest path never
-  // reaches. Spec §3 says these are accepted "wherever a duration is expected",
-  // and a rest is a duration position. The result is an `unreadable rest
-  // duration` error *and* a rest with no bound at all — silently unbounded.
-  // Found 2026-08-15 by typing lines into the browser; queue item 0e. Marked
-  // pending in `vocabulary.test.ts` too, because "no rule reads this" and "this
-  // reading is wrong" are two different claims and this line makes both.
-  ['rest 45 seconds', 'a spelled-out duration word is a step quantity but not a rest'],
-  ['rest 2 mins', 'a spelled-out duration word is a step quantity but not a rest'],
-  ['rest 1 hour', 'a spelled-out duration word is a step quantity but not a rest'],
-]);
+/**
+ * Empty as of 2026-08-15, and it is worth saying what left it.
+ *
+ * Its three entries were `rest 45 seconds`, `rest 2 mins` and `rest 1 hour` —
+ * every spelled-out duration word worked in a *step's* quantity position and not
+ * one of them worked after `rest`, because `parseDuration` knew only
+ * `h`/`min`/`m`/`s` while the spelled-out spellings lived in `parseQuantity`,
+ * which the rest path never reaches. Spec §3 accepts them "wherever a duration is
+ * expected" and a rest is a duration position, so the prose was right and the
+ * parser was wrong. Fixed by folding the spellings inside `parseDuration` itself.
+ */
+const REST_REJECTS = new Map<string, string>([]);
 
 // ---------- where the lines come from ----------
 

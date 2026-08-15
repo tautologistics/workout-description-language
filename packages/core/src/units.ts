@@ -31,7 +31,21 @@ const FLOOR = /^(\d+)\+$/;
  */
 export function parseDuration(s: string, bareMIsMinutes = false): Unit | null {
   // `3 m`, `1 min 30 s` — internal spacing is noise in a duration.
-  const t = s.trim().toLowerCase().replace(/\s+/g, '');
+  // The spelled-out spellings are folded onto the compact ones here, and *here*
+  // is the point: spec §3 accepts `min`, `mins` and `minute(s)` — and the same
+  // for seconds and hours — "wherever a duration is expected", so the rule
+  // belongs to the duration rather than to one caller. It used to live in
+  // `parseQuantity`, anchored to the end of a single token, which is why
+  // `45 seconds Plank` was 45 seconds and `rest 45 seconds` was an unreadable
+  // rest with no bound at all: a rest is a duration position and never went
+  // through the caller that knew. Global rather than anchored, so a compound
+  // (`1 hour 30 minutes`) folds every part and not just the last.
+  const t = s.trim().toLowerCase().replace(/\s+/g, '')
+    // Longest spelling first in each: an ordered choice ordered by anything but
+    // prefix leaves `mins` reading as `min` with an `s` of seconds behind it.
+    .replace(/hours|hour/g, 'h')
+    .replace(/minutes|minute|mins|min/g, 'min')
+    .replace(/seconds|second|secs|sec/g, 's');
 
   // 1min30s, 12min, 90s, 1h, 1h30min
   const compound = /^(?:(\d+)h)?(?:(\d+)(?:min|m(?![a-z])))?(?:(\d+)s)?$/;
@@ -108,8 +122,9 @@ export function parseQuantity(text: string): { quantity: Unit; rest: string } {
   if ((sp = t.match(/^(\d+)\s+reps?\b/i)))
     return { quantity: { kind: 'reps', value: +sp[1] }, rest: t.slice(sp[0].length).trim() };
   if ((sp = t.match(/^(\d+)\s*(?:min|mins|minutes?|sec|secs|seconds?|hours?)\b/i))) {
-    const d = parseDuration(sp[0].replace(/\s+/g, '').replace(/(minutes?|mins)$/i, 'min')
-      .replace(/(seconds?|secs?)$/i, 's').replace(/hours?$/i, 'h'), true);
+    // The spelling is folded by `parseDuration` now, not here — a duration means
+    // the same thing in every position, and this was the only position that knew.
+    const d = parseDuration(sp[0], true);
     if (d) return { quantity: d, rest: t.slice(sp[0].length).trim() };
   }
   if ((sp = t.match(/^(\d+(?:\.\d+)?)\s+(m|km|mi|ft|yd|meters?|metres?|miles?|feet)\b/i))) {

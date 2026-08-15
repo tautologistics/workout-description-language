@@ -585,18 +585,36 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   // one form where the fix could have left a double space behind, which is why
   // the pieces are joined rather than concatenated.
   { group: 'rest', name: 'after last with no bound', src: '5 sets:\n  - 30s Bike\n  rest after last' },
-  // Spelled-out duration words, which work in a *step's* quantity position and in
-  // none of these. `45 seconds Plank` is 45 seconds; `rest 45 seconds` is an
+  // Spelled-out duration words, which worked in a *step's* quantity position and
+  // in none of these. `45 seconds Plank` was 45 seconds; `rest 45 seconds` was an
   // `unreadable rest duration` error **and** a rest with no bound at all, which
-  // reads as unbounded. Spec §3 says these spellings are accepted "wherever a
-  // duration is expected", and a rest is a duration position. Neither
-  // implementation reads them, so these are listed as parser *rejects* in
-  // grammar.test.ts rather than as disagreements — the one shape a differential
-  // test cannot see on its own. Found 2026-08-15 by typing lines into the
-  // browser. See known-debts.md.
+  // reads as unbounded — so the line meant the opposite of what it said. Spec §3
+  // says these spellings are accepted "wherever a duration is expected", and a
+  // rest is a duration position, so the prose was right and the parser was wrong.
+  // Found 2026-08-15 by typing lines into the browser; **fixed 2026-08-15** by
+  // folding the spellings inside `parseDuration`, where a duration means the same
+  // thing in every position, rather than in the one caller that happened to know.
+  //
+  // Every spelling of every unit is here, singular and plural and abbreviated,
+  // because the defect was exactly a list that reached one caller: a fix that
+  // covers `seconds` and not `secs` is the same bug with a shorter list.
   { group: 'rest', name: 'spelled-out seconds', src: '5 sets:\n  - 30s Bike\n  rest 45 seconds' },
+  { group: 'rest', name: 'spelled-out second singular', src: '5 sets:\n  - 30s Bike\n  rest 1 second' },
+  { group: 'rest', name: 'spelled-out secs', src: '5 sets:\n  - 30s Bike\n  rest 30 secs' },
+  { group: 'rest', name: 'spelled-out sec', src: '5 sets:\n  - 30s Bike\n  rest 45 sec' },
   { group: 'rest', name: 'spelled-out minutes', src: '5 sets:\n  - 30s Bike\n  rest 2 mins' },
+  { group: 'rest', name: 'spelled-out minutes long', src: '5 sets:\n  - 30s Bike\n  rest 3 minutes' },
+  { group: 'rest', name: 'spelled-out minute singular', src: '5 sets:\n  - 30s Bike\n  rest 1 minute' },
   { group: 'rest', name: 'spelled-out hours', src: '5 sets:\n  - 30s Bike\n  rest 1 hour' },
+  { group: 'rest', name: 'spelled-out hours plural', src: '5 sets:\n  - 30s Bike\n  rest 2 hours' },
+  // Compound, which is what makes the fold global rather than anchored to the end
+  // of one token: anchored, this would read the hours and drop the minutes.
+  { group: 'rest', name: 'spelled-out compound', src: '5 sets:\n  - 30s Bike\n  rest 1 hour 30 minutes' },
+  { group: 'rest', name: 'spelled-out seconds after last', src: '5 sets:\n  - 30s Bike\n  rest 45 seconds after last' },
+  // And the neighbour that must **not** move: a spelled-out duration with a
+  // movement after it is still active recovery, not a bound with a name left
+  // over. `looseDuration` is tried first and `~moreRest` is what hands this back.
+  { group: 'rest', name: 'spelled-out active recovery', src: '5 sets:\n  - 400m Run\n  rest 45 seconds Plank' },
 
   // --- overlays and nesting ---
   { group: 'structure', name: 'interrupt overlay', src: 'AMRAP 20min:\n  - 10 Burpee\n  every 1min: 5 Push-Up' },

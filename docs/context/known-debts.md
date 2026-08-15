@@ -165,21 +165,33 @@ when something looks odd before treating it as a discovery.
   reproduces it, because a `primary` defaulting to the raw text is what
   `parseScore` says.
 
-- **A spelled-out duration word is a step quantity and not a rest.**
-  `45 seconds Plank` is 45 seconds; `rest 45 seconds` is an `unreadable rest
-  duration` error **and** a rest with no bound at all, which everything downstream
-  reads as unbounded. Same for `2 mins`, `1 hour`, `45 sec`, `3 minutes`. Spec §3's
-  unit table says these spellings are accepted "wherever a duration is expected",
-  and a rest is a duration position. The cause is that `parseDuration` knows only
-  `h`/`min`/`m`/`s` while the spelled-out spellings live in `parseQuantity`, which
-  the rest path never reaches — so the fix is in `units.ts` and both readings would
-  inherit it. Found 2026-08-15 by typing lines into the browser. Three forms
-  pinned and listed as *rejects* in `test/grammar.test.ts` — they were the first
-  entries in that list, which exists because a line **neither** implementation
-  read was the one thing a differential test could not see on its own. *That list
-  outlived the differential test it was written for: with one implementation it
-  is simply "the lines no rule reads", and it is the honest half of the coverage
-  count.*
+- ~~**A spelled-out duration word is a step quantity and not a rest.**~~
+  **Closed 2026-08-15** by queue item 0e. `45 seconds Plank` was 45 seconds;
+  `rest 45 seconds` was an `unreadable rest duration` error **and** a rest with no
+  bound at all, which everything downstream reads as unbounded — so the line meant
+  the *opposite* of what it said, which is worse than not reading it. Same for
+  `2 mins`, `1 hour`, `45 sec`, `3 minutes`. Spec §3's unit table says these
+  spellings are accepted "wherever a duration is expected", and a rest is a
+  duration position, so the prose was right and the parser was wrong; no decision
+  was needed, only the transcription. Found 2026-08-15 by typing lines into the
+  browser.
+
+  **The fix is where a duration is read, not where a rest is.** `parseDuration`
+  folds the spelled-out spellings onto the compact ones itself now; they used to
+  live in `parseQuantity`, anchored to the end of a single token, and the rest
+  path never went through that caller. Global rather than anchored, so
+  `rest 1 hour 30 minutes` folds both halves instead of only the last. The grammar
+  gained `minuteWords`/`secondWords`/`hourWords` — one named list per unit, shared
+  by `durWord` and by the rest line's `looseDuration`, since stated twice they
+  would drift. Fourteen forms pinned where three were: every spelling of every
+  unit, a compound, one with `after last`, and `rest 45 seconds Plank`, which must
+  stay *active recovery* and not a bound with a name left over.
+
+  *The three were the first entries in `grammar.test.ts`'s rejects list, which
+  existed because a line **neither** implementation read was the one thing a
+  differential test could not see. That list is empty again, and its rationale has
+  been restated: with one implementation it is simply "the lines no rule reads",
+  which is the honest half of the coverage count.*
 
 - ~~**A target and a `for time` on one header, written in that order, lose
   both.**~~ **Closed 2026-08-15** by queue item 0e. `3 rounds @ 95lb for time:`

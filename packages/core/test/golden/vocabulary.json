@@ -10683,10 +10683,8 @@
   "fixpoint": true
  },
  "rest :: spelled-out seconds": {
-  "canonical": "5 sets:\n  - 30s Bike\n  rest",
-  "errors": [
-   "L3 unreadable rest duration \"45 seconds\""
-  ],
+  "canonical": "5 sets:\n  - 30s Bike\n  rest 45s",
+  "errors": [],
   "ast": {
    "body": [
     {
@@ -10701,6 +10699,121 @@
       },
       {
        "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 45
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: spelled-out second singular": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest 1s",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 1
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: spelled-out secs": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest 30s",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 30
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: spelled-out sec": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest 45s",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 45
+       },
        "node": "rest"
       }
      ],
@@ -10718,10 +10831,8 @@
   "fixpoint": true
  },
  "rest :: spelled-out minutes": {
-  "canonical": "5 sets:\n  - 30s Bike\n  rest",
-  "errors": [
-   "L3 unreadable rest duration \"2 mins\""
-  ],
+  "canonical": "5 sets:\n  - 30s Bike\n  rest 2min",
+  "errors": [],
   "ast": {
    "body": [
     {
@@ -10736,6 +10847,84 @@
       },
       {
        "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 120
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: spelled-out minutes long": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest 3min",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 180
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: spelled-out minute singular": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest 1min",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 60
+       },
        "node": "rest"
       }
      ],
@@ -10753,10 +10942,8 @@
   "fixpoint": true
  },
  "rest :: spelled-out hours": {
-  "canonical": "5 sets:\n  - 30s Bike\n  rest",
-  "errors": [
-   "L3 unreadable rest duration \"1 hour\""
-  ],
+  "canonical": "5 sets:\n  - 30s Bike\n  rest 1h",
+  "errors": [],
   "ast": {
    "body": [
     {
@@ -10770,6 +10957,162 @@
        }
       },
       {
+       "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 3600
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: spelled-out hours plural": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest 2h",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 7200
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: spelled-out compound": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest 1h30min",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 5400
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: spelled-out seconds after last": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest 45s after last",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": true,
+       "duration": {
+        "kind": "duration",
+        "seconds": 45
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: spelled-out active recovery": {
+  "canonical": "5 sets:\n  - 400m Run\n  rest 45s Plank",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 400
+       }
+      },
+      {
+       "active": {
+        "movement": "Plank",
+        "quantity": {
+         "kind": "duration",
+         "seconds": 45
+        }
+       },
        "afterLast": false,
        "node": "rest"
       }

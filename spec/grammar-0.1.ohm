@@ -156,11 +156,19 @@ WDL {
   calWord = caseInsensitive<"calories"> | caseInsensitive<"cal">
   repWord = caseInsensitive<"reps"> | caseInsensitive<"rep">
 
-  durWord = (caseInsensitive<"minutes"> | caseInsensitive<"minute">
-            | caseInsensitive<"mins"> | caseInsensitive<"min">)     -- minutes
-          | (caseInsensitive<"seconds"> | caseInsensitive<"second">
-            | caseInsensitive<"secs"> | caseInsensitive<"sec">)     -- seconds
-          | (caseInsensitive<"hours"> | caseInsensitive<"hour">)    -- hours
+  // Named one list per unit rather than left inline, because the rest line needs
+  // the same three lists: spec §3 accepts these spellings "wherever a duration is
+  // expected", and a rest is a duration position. Stated twice they would drift,
+  // which is the argument the shared quantity layer above is already making.
+  durWord = minuteWords  -- minutes
+          | secondWords  -- seconds
+          | hourWords    -- hours
+
+  minuteWords = caseInsensitive<"minutes"> | caseInsensitive<"minute">
+              | caseInsensitive<"mins"> | caseInsensitive<"min">
+  secondWords = caseInsensitive<"seconds"> | caseInsensitive<"second">
+              | caseInsensitive<"secs"> | caseInsensitive<"sec">
+  hourWords = caseInsensitive<"hours"> | caseInsensitive<"hour">
 
   distWord = (caseInsensitive<"meters"> | caseInsensitive<"metres">
              | caseInsensitive<"meter"> | caseInsensitive<"metre">)  -- metres
@@ -478,9 +486,23 @@ WDL {
                 | looseSeconds                            -- s
                 | integer ":" clockSeconds spaces         -- clock
                 | integer ~wordChar spaces                -- minutes
-  looseHours = integer spaces hourUnit spaces
-  looseMinutes = integer spaces minUnit spaces
-  looseSeconds = integer spaces secUnit spaces
+  looseHours = integer spaces looseHourUnit spaces
+  looseMinutes = integer spaces looseMinUnit spaces
+  looseSeconds = integer spaces looseSecUnit spaces
+
+  // A rest takes the spelled-out spellings as well as the compact ones, because
+  // spec §3 accepts them "wherever a duration is expected" and a rest is a
+  // duration position. It did not, and that was the defect: `45 seconds Plank`
+  // was 45 seconds while `rest 45 seconds` was an `unreadable rest duration`
+  // *and* a rest with no bound at all — which everything downstream reads as
+  // unbounded, so the line meant the opposite of what it said.
+  //
+  // The word list first and the symbol second, which is the ordering rule this
+  // grammar has now been bitten by three times: `secondWords` before `secUnit`,
+  // or `seconds` matches the `s` and chokes on `econds`.
+  looseHourUnit = hourWords | hourUnit
+  looseMinUnit = minuteWords | minUnit
+  looseSecUnit = secondWords | secUnit
 
   // `rest 400m Jog` — the interval is work, not a clock.
   activeRecovery = anyQuantity spaces restMovement
