@@ -4422,7 +4422,7 @@
   "fixpoint": true
  },
  "modifiers :: 10 Back Squat @ 225lb, note: \"pause at the bottom\"": {
-  "canonical": "for time:\n  - 10 Back Squats @ 225lb, pause at the bottom",
+  "canonical": "for time:\n  - 10 Back Squats @ 225lb, note: \"pause at the bottom\"",
   "errors": [],
   "ast": {
    "body": [
@@ -4465,7 +4465,7 @@
   "fixpoint": true
  },
  "modifiers :: 10 Back Squat @ 225lb, note: pause at the bottom": {
-  "canonical": "for time:\n  - 10 Back Squats @ 225lb, pause at the bottom",
+  "canonical": "for time:\n  - 10 Back Squats @ 225lb, note: \"pause at the bottom\"",
   "errors": [],
   "ast": {
    "body": [
@@ -5459,14 +5459,14 @@
        "laterality": "split",
        "movement": "Walking Lunge",
        "node": "step",
-       "notes": [
-        "45lb plate overhead"
-       ],
        "quantity": {
         "kind": "distance",
         "unit": "ft",
         "value": 100
-       }
+       },
+       "unknown": [
+        "45lb plate overhead"
+       ]
       }
      ],
      "node": "block",
@@ -5838,9 +5838,6 @@
       {
        "movement": "Thruster",
        "node": "step",
-       "notes": [
-        "some phrase nobody taught the parser"
-       ],
        "quantity": {
         "kind": "reps",
         "value": 10
@@ -5854,6 +5851,9 @@
           "value": 95
          }
         }
+       ],
+       "unknown": [
+        "some phrase nobody taught the parser"
        ]
       }
      ],
@@ -5881,13 +5881,13 @@
       {
        "movement": "Thruster",
        "node": "step",
-       "notes": [
-        "with a band"
-       ],
        "quantity": {
         "kind": "reps",
         "value": 10
-       }
+       },
+       "unknown": [
+        "with a band"
+       ]
       }
      ],
      "node": "block",
@@ -5914,14 +5914,343 @@
       {
        "movement": "Run",
        "node": "step",
-       "notes": [
-        "barefoot"
-       ],
        "quantity": {
         "kind": "distance",
         "unit": "m",
         "value": 400
+       },
+       "unknown": [
+        "barefoot"
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "fail-open :: 10 Thruster, note: \"keep the elbows up\", with a band": {
+  "canonical": "for time:\n  - 10 Thrusters, note: \"keep the elbows up\", with a band",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "notes": [
+        "keep the elbows up"
+       ],
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "unknown": [
+        "with a band"
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "fail-open :: 10 Thruster, with a band, note: \"keep the elbows up\"": {
+  "canonical": "for time:\n  - 10 Thrusters, note: \"keep the elbows up\", with a band",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "notes": [
+        "keep the elbows up"
+       ],
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "unknown": [
+        "with a band"
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "fail-open :: 10 Thruster @ 95lb, unbroken, tempo 30X1, wibble": {
+  "canonical": "for time:\n  - 10 Thrusters @ 95lb, tempo 30X1, unbroken, wibble",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "flags": [
+        "unbroken"
+       ],
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ],
+       "tempo": "30X1",
+       "unknown": [
+        "wibble"
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "fail-open :: 20cal Row, count cal, on the fan bike": {
+  "canonical": "for time:\n  - 20cal Row, count cal, on the fan bike",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "measures": "calories",
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "calories",
+        "value": 20
+       },
+       "unknown": [
+        "on the fan bike"
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "fail-open :: 10 Thruster, with a band, then rest a bit": {
+  "canonical": "for time:\n  - 10 Thrusters, with a band, then rest a bit",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "unknown": [
+        "with a band",
+        "then rest a bit"
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "fail-open :: 10 Thruster, unbrokn": {
+  "canonical": "for time:\n  - 10 Thrusters, unbrokn",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "unknown": [
+        "unbrokn"
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "fail-open :: 10 Thruster, tempo": {
+  "canonical": "for time:\n  - 10 Thrusters, tempo",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "unknown": [
+        "tempo"
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "fail-open :: 10min Bike, ramp 50% -> 75% FTP": {
+  "canonical": "for time:\n  - 10min Bike, ramp 50% -> 75% FTP",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "notes": [
+        "ramp 50% -> 75% FTP"
+       ],
+       "quantity": {
+        "kind": "duration",
+        "seconds": 600
        }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "fail-open :: 5 Back Squat @ 225lb, wearing a 20lb vest": {
+  "canonical": "for time:\n  - 5 Back Squats @ 225lb, wearing a 20lb vest",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "notes": [
+        "wearing a 20lb vest"
+       ],
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 225
+         }
+        }
+       ]
       }
      ],
      "node": "block",
@@ -8876,6 +9205,171 @@
      ],
      "node": "block",
      "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: unknown modifier": {
+  "canonical": "3 rounds, wibble:\n  - 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "type": "repeat",
+     "unknown": [
+      "wibble"
+     ]
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: unknown modifier beside a flag": {
+  "canonical": "3 rounds, unbroken, wibble:\n  - 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds",
+      "unbroken"
+     ],
+     "node": "block",
+     "type": "repeat",
+     "unknown": [
+      "wibble"
+     ]
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: a typo of a flag": {
+  "canonical": "3 rounds, unbrokn:\n  - 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "type": "repeat",
+     "unknown": [
+      "unbrokn"
+     ]
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: unknown modifier beside a cap": {
+  "canonical": "for time, cap 12min, in the garage:\n  - 100 Burpees",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "cap": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence",
+     "unknown": [
+      "in the garage"
+     ]
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/modifier :: unrecognized kind and an unknown modifier": {
+  "canonical": "3 rounds of madness, wibble:\n  - 10 Push-Ups",
+  "errors": [
+   "L1 unrecognized block header \"3 rounds of madness\""
+  ],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "name": "3 rounds of madness",
+     "node": "block",
+     "type": "sequence",
+     "unknown": [
+      "wibble"
+     ]
     }
    ],
    "directives": {},

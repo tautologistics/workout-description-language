@@ -295,11 +295,48 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     'until HR > 160bpm',
   ] },
   { group: 'fail-open', lines: [
-    // Unrecognized input. Held today as a note, which is a meaning it should
-    // not acquire — see known-debts.md and queue item 0.
+    // Unrecognized input, and **the shape the whole grammar exploration was for**:
+    // held in the tree *as unrecognized*, round-tripped intact, and carrying no
+    // meaning anywhere. Until 2026-08-15 it was held in `notes`, the same array as
+    // an authored `note: "…"` — so afterwards nothing could tell them apart, and
+    // notes are rendered. An unknown token silently acquired the meaning "the
+    // author wrote a note", which is exactly the guess the framing forbids.
+    //
+    // **Closed 2026-08-15 by queue item 0d**: `Step.unknown` and `Block.unknown`.
+    // The diff to read on these three is `notes` becoming `unknown` with the text
+    // unchanged — nothing about what the step *does* moved, which is the claim.
     '10 Thruster @ 95lb, some phrase nobody taught the parser',
     '10 Thruster, with a band',
     '400m Run, barefoot',
+    // The two on one line, which is the case the field exists for: they must stay
+    // distinguishable, and the canonical form has to write each back in a spelling
+    // that comes back as what it was. That is why an authored note now wears its
+    // `note:` marker — a bare phrase after a comma means *unrecognized* now, so a
+    // note emitted bare would come back an unknown and one `wdl fmt` would demote
+    // something written for the athlete into something nothing renders.
+    '10 Thruster, note: "keep the elbows up", with a band',
+    '10 Thruster, with a band, note: "keep the elbows up"',
+    // Beside modifiers the language does read, so it is visible that an unknown
+    // costs nothing around it: the tempo, the count, the flag and the load all
+    // still land, and the unknown is written back last.
+    '10 Thruster @ 95lb, unbroken, tempo 30X1, wibble',
+    '20cal Row, count cal, on the fan bike',
+    // Two of them on one line. Their relative order is kept — it is the one thing
+    // about unknown text that could carry meaning — even though their position
+    // among the modifiers is not.
+    '10 Thruster, with a band, then rest a bit',
+    // **A plausible typo of a real keyword**, which is the case that makes silence
+    // the wrong answer: `unbrokn` is one keystroke from a constraint that decides
+    // whether a set counts. Held inert, so nothing acts on it, *and* reported by
+    // `validate` as a `note` — not an error, because the rest of the line executes
+    // exactly as written, and not a guess at what was meant.
+    '10 Thruster, unbrokn',
+    '10 Thruster, tempo',
+    // Prose the grammar *does* read as a note, kept beside them so the line
+    // between the two is visible: `ramp` and `wearing` open a note by their first
+    // word, and they must not move into `unknown`.
+    '10min Bike, ramp 50% -> 75% FTP',
+    '5 Back Squat @ 225lb, wearing a 20lb vest',
   ] },
   { group: 'was-wrong', lines: [
     // **Read wrongly until 2026-08-15, and read correctly since**, when queue
@@ -503,6 +540,26 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   // a wrong-but-stable reading into a reading that changes under the formatter.
   { group: 'block/modifier', name: 'target after a comma then for time', src: '3 rounds, @ 95lb for time:\n  - 10 Thruster' },
   { group: 'block/modifier', name: 'two targets after a comma', src: '3 rounds, @ 95lb @ 24in:\n  - 10 Box Jump' },
+  // The block-level half of fail-open, found 2026-08-15 while stating the header
+  // and closed the same day by queue item 0d. An unrecognized header modifier
+  // used to land in `flags`, the same array as `unbroken` and `rounds` — so
+  // nothing afterwards could tell a token nobody taught the language from a flag
+  // the language defines, and `headerText` wrote it back among them. It has its
+  // own field now, and these pin the boundary: an unknown *beside a real flag*,
+  // so the two are visibly separate; a typo of a flag, which is the case that
+  // must be reported rather than swallowed; and an unknown beside a cap, so a
+  // modifier the grammar reads is untouched by one it does not.
+  { group: 'block/modifier', name: 'unknown modifier', src: '3 rounds, wibble:\n  - 10 Push-Up' },
+  { group: 'block/modifier', name: 'unknown modifier beside a flag', src: '3 rounds, unbroken, wibble:\n  - 10 Push-Up' },
+  { group: 'block/modifier', name: 'a typo of a flag', src: '3 rounds, unbrokn:\n  - 10 Push-Up' },
+  { group: 'block/modifier', name: 'unknown modifier beside a cap', src: 'for time, cap 12min, in the garage:\n  - 100 Burpee' },
+  // And the neighbour that is **not** this: an unrecognized *kind* is a different
+  // thing and stays a reported error, because the kind decides how the block
+  // executes — `3 rounds of madness:` loses the three rounds — where a modifier
+  // nobody taught the language costs nothing that runs. Pinned above as
+  // `block/other :: unrecognized header`; this is the same head with a modifier
+  // after it, so both readings are visible on one line.
+  { group: 'block/modifier', name: 'unrecognized kind and an unknown modifier', src: '3 rounds of madness, wibble:\n  - 10 Push-Up' },
 
   // --- scoring ---
   { group: 'score', name: 'simple', src: 'for time:\n  - 100 Burpee\nscore: time' },

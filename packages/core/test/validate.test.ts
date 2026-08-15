@@ -4,7 +4,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, eq, ok } from './lib.ts';
 import { parse } from '../src/parse.ts';
-import { validate } from '../src/validate.ts';
+import { validate, errorsOnly } from '../src/validate.ts';
 import { Registry } from '../src/fold.ts';
 
 const dir = join(dirname(fileURLToPath(import.meta.url)), '../../../examples/corpus');
@@ -134,11 +134,77 @@ describe('validation: warnings', () => {
   });
 });
 
+/**
+ * The fourth severity, and the decision behind it (queue item 0d, 2026-08-15).
+ *
+ * Unknown text is *held* and *inert* — and held-and-inert must not also mean
+ * silent. `10 Thruster, unbrokn` is one keystroke from a constraint that decides
+ * whether a set counts, and a person writing on a whiteboard is worse off being
+ * told nothing than being told. But the framing this language is built to is
+ * explicit that unknown is "not an error and not a guess", so it is not reported
+ * as one: `note` claims nothing about whether the line is right.
+ */
+describe('validation: notes', () => {
+  it('says what it did not read, at a severity that claims nothing', () => {
+    const d = check('for time:\n  - 10 Thruster, unbrokn')[0];
+    eq(d.severity, 'note');
+    eq(d.code, 'unrecognized-text');
+    ok(d.message.includes('unbrokn'), d.message);
+    eq(d.line, 2);
+  });
+
+  it('says the same about a header modifier', () => {
+    const d = check('3 rounds, unbrokn:\n  - 10 Push-Up')[0];
+    eq(d.severity, 'note');
+    eq(d.code, 'unrecognized-text');
+    eq(d.line, 1);
+  });
+
+  it('says nothing about an authored note, or about prose it reads', () => {
+    eq(codes('for time:\n  - 10 Thruster, note: "keep the elbows up"'), []);
+    eq(codes('for time:\n  - 10min Bike, ramp 50% -> 75% FTP'), []);
+    eq(codes('for time:\n  - 10 Thruster, unbroken'), [], 'the keyword spelled right');
+  });
+
+  /**
+   * A note is not a defect, and nothing that gates on errors may start gating on
+   * this. The board filters to errors and `wdl check` fails on errors; both would
+   * be wrong to refuse a workout over a phrase somebody wrote in the margin.
+   */
+  it('is not an error, and does not make a workout invalid', () => {
+    const d = check('for time:\n  - 10 Thruster, unbrokn');
+    eq(errorsOnly(d), []);
+    eq(d.filter((x) => x.severity === 'warning' || x.severity === 'question'), []);
+  });
+});
+
+/**
+ * Text in the corpus that the language does not read, listed rather than
+ * tolerated.
+ *
+ * A `note` diagnostic is not a defect — these four lines are deliberate prose
+ * about equipment and strategy that WDL models nothing of, and the point of
+ * holding unknown text is that writing it is *allowed*. So the corpus check
+ * below asks for no error, warning or question, and the notes are pinned here
+ * instead: a fifth line that stops being read, or one of these four starting to
+ * be, shows up as a diff rather than as silence.
+ */
+const CORPUS_UNREAD: Record<string, string[]> = {
+  '120-blake.wdl': ['45lb plate overhead'],
+  '121-white.wdl': ['45lb plate overhead'],
+  '183-accumulate.wdl': ['accumulate across as many sets as needed'],
+  '82-hidalgo.wdl': ['45lb plate overhead'],
+};
+
 describe('validation: corpus', () => {
   for (const f of readdirSync(dir).filter((x) => x.endsWith('.wdl')).sort()) {
     it(f, () => {
       const d = validate(parse(readFileSync(join(dir, f), 'utf8')).workout);
-      eq(d.map((x) => `${x.severity}:${x.code}@${x.line}`), [], 'corpus must validate clean');
+      eq(d.filter((x) => x.severity !== 'note').map((x) => `${x.severity}:${x.code}@${x.line}`),
+        [], 'corpus must validate clean');
+      const unread = d.filter((x) => x.code === 'unrecognized-text')
+        .map((x) => x.message.replace(/^`(.*?)` is not.*$/, '$1'));
+      eq(unread, CORPUS_UNREAD[f] ?? [], 'text the language does not read');
     });
   }
 });

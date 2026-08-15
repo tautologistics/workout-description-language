@@ -286,3 +286,62 @@ name it and name the spelling to use. **When a decision is "we do not support
 this", the work is not finished until the unsupported input is reported** — that
 half is owed whichever way the decision goes, so it is not a reason to delay the
 decision either. Recorded 2026-08-15.
+
+**A grammar can hold something the AST throws away, and the grammar's own
+comment will tell you it does not.** `spec/grammar-0.1.ohm` has said *"Everything
+the grammar does not recognize: a production, not a failure and not a guess. Held
+verbatim, round-trips, means nothing anywhere"* since the day it was written, and
+every word of that was true of the **notation** and false of the **program**: the
+semantics pushed the match into `step.notes`, the formatter rendered it, and two
+exporters read notes to decide whether a step was a warmup. *When a formalism
+"already handles" something, the claim is about what it can express — check
+separately what the semantics do with the match, what the formatter writes, and
+what downstream reads.* All three were the actual work of queue item 0d; the
+grammar file needed no change at all. Recorded 2026-08-15.
+
+**Conflating two things is only cheap until one of them is read.** An unknown
+token and an authored `note:` were the same array for the life of the project,
+and the argument for it was good: both are free text, neither means anything to
+execution. But `notes` was *not* inert — `flatten.ts` and `garmin-connect.ts`
+search it for `warmup`/`cooldown` to set a step's intensity role, and for
+`ramp …` to recover a power ramp's bounds. So `- 10min Bike, warmup pace`, a
+phrase no rule reads, exported to a watch as a **warmup segment**. Nobody added
+that meaning to unknown text; it arrived because the container it was put in
+acquired a reader later. *Two things in one field is a bet that nothing will ever
+read the field for what only one of them is, and that bet is settled by whoever
+edits next year.* Recorded 2026-08-15.
+
+**Splitting a field splits its round trip, and the formatter is where that
+lands.** Moving unknown text out of `notes` broke something neither the field nor
+the parser touched: with a bare phrase after a comma now meaning *unrecognized*,
+a note emitted bare came back as an unknown, so one `wdl fmt` demoted something
+written for the athlete into something nothing renders. The fix was forced rather
+than chosen — unknown text is verbatim by definition, so the bare spelling is the
+only one it can have, and the marker has to go on the note. **Ask what the
+canonical spelling of each half is before splitting a field**, and note that
+which half keeps the bare form is decided by which half *cannot* wear a marker.
+The three spellings the grammar reads as notes on their own (`alternating`,
+`ramp …`, `wearing …`) kept the bare form, and that list is a rule mirrored in a
+caller — checked by writing a note in each spelling out and reading it back,
+rather than by comparing the two lists, so it fails whichever side moves.
+Recorded 2026-08-15.
+
+**"Inert" is a claim about a specific list, so write the list down and check it.**
+The wording for item 0d was *"carries no meaning for execution on the board or
+anywhere else"*, which is unfalsifiable until it names the readers: `timeline.ts`,
+`run.ts` and `stepCue`, `volume.ts`, `muscles.ts`, `validate.ts`, the exporters,
+both apps. Enumerated, it collapsed to **one** decision — `timeline.ts` line 248,
+which copies `notes` onto the cue — because every downstream consumer reads the
+*timeline*, not the AST. A cue is the choke point, and not adding a field to it is
+the whole of "inert". *Find the choke point before auditing the consumers; the
+audit is what tells you where it is.* Recorded 2026-08-15.
+
+**A generated file with no test drifts, and the drift is invisible because the
+file is one line.** `registry/workouts.canonical.json` was stamped 2026-08-13 and
+had sat through the parser swap and two rounds of fixes; rebuilding it for item 0d
+changed six workouts that had nothing to do with the change. They differed by JSON
+**key order** only, so nothing had actually been misread — but that was luck, and
+the way to find out was a script that diffs the two parses field by field, because
+`git diff` on a single-line 3MB JSON says "1 insertion, 1 deletion" and tells you
+nothing. `interpretations.json` and `vocabulary.json` cannot drift like this,
+because a test regenerates and compares them on every run. Recorded 2026-08-15.

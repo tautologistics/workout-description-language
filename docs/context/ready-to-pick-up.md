@@ -96,15 +96,47 @@ words working in a step and not in a rest.
 `packages/core/src/units.ts`, `packages/core/test/grammar.test.ts`,
 `test/golden/vocabulary.ts`, `spec/spec-0.1.md`.*
 
-**0d. Give `unknown` somewhere to live.** The grammar holds unrecognized text as
-a first-class production, but `Step` has no field for it and `format` does not
-render it, so the known debt — unknown modifiers indistinguishable from authored
-notes — is not closed end to end. Needs an AST field, formatter support, and the
-board and builder leaving it inert. *It has a block-level twin as of 2026-08-15,
-found while stating the header: an unrecognized header modifier lands in
-`block.flags`, beside `unbroken` and `rounds`, so nothing afterwards can tell an
-unknown token from a flag the language defines. Both halves belong to this item.*
-*Touches: `packages/core/src/ast.ts`, `format.ts`, both apps.*
+**0d. ~~Give `unknown` somewhere to live.~~ DONE 2026-08-15.** Both halves.
+`Step.unknown` and `Block.unknown` hold what the language does not read, apart
+from `notes` and apart from `flags`; `format` writes it back; `timeline.ts` does
+not carry it, so no cue, no exporter and no analysis can act on it; and
+`validate` reports it. **This closes the last piece of item 0's original
+framing** — *"unrecognized tokens held in the tree as unrecognized, surviving
+round-trip, carrying no meaning for execution on the board or anywhere else"* —
+and it is worth saying that **the grammar needed no change at all**. The
+`unknown` production has matched this text since the day it was written; the
+defect was entirely in what the semantics then did with it.
+
+**The decision, and it is the half that was not obvious: held-and-inert must not
+also be silent.** `10 Thruster, unbrokn` is one keystroke from a constraint that
+decides whether a set counts, and nobody saying anything is worse for a person
+writing on a whiteboard than being told. So it is reported — as a **`note`**, a
+fourth diagnostic severity that claims nothing: not `error`, because the rest of
+the line executes exactly as written and four corpus workouts carry deliberate
+prose the language models nothing of; not `warning`, for the same reason; not
+`question`, because there are no readings to choose between. See
+[settled-decisions.md](settled-decisions.md).
+
+**What it cost that was not in the plan: the `note:` marker became
+load-bearing.** Once a bare phrase after a comma means *unrecognized*, a note
+emitted bare comes back an unknown — so one `wdl fmt` would have demoted
+something written for the athlete into something nothing renders. That is forced
+rather than chosen: unknown text is verbatim by definition, so the bare spelling
+is the only one it can have, and the note is what must wear a marker. Canonical
+output now writes `note: "…"`, except for the three spellings the grammar reads
+back as notes on their own (`alternating`, `ramp …`, `wearing …`), which keep the
+bare form the whiteboard wants.
+
+**The diff is small and it is the point.** Four corpus workouts move — three
+`45lb plate overhead` and one `accumulate across as many sets as needed`, all
+`notes` becoming `unknown` with the text unchanged — and
+`interpretations.json`, which digests structure, totals and pacing, regenerated
+to **no change at all**: nothing about what any workout *does* moved. 14 new
+vocabulary forms, and 1628 tests became 1653 with the same single pending case.
+*Touched: `packages/core/src/ast.ts`, `format.ts`, `validate.ts`,
+`grammar/step-semantics.ts`, `grammar/block-semantics.ts`, `spec/spec-0.1.md`,
+`apps/builder/builder.css`, `test/golden/vocabulary.ts`, `test/grammar.test.ts`,
+`test/semantics.test.ts`, `test/validate.test.ts`.*
 
 **0e. ~~Six defects the grammar work turned up that need a decision, not a
 transcription.~~ DONE 2026-08-15. All six closed; two smaller things found on the
@@ -193,6 +225,14 @@ The constraint to test any candidate against first is therefore stronger than
 error *recovery*: the formalism must let unrecognized input be **represented**,
 not merely survived. A formalism that rejects what it cannot match is out; so is
 one that can only skip.
+
+*Closed 2026-08-15 by item 0d, and the paragraph above is kept because it is what
+the answer was measured against. The formalism cleared the bar on the day it was
+written — `unknown` is a named production in `spec/grammar-0.1.ohm` — and every
+one of the three things this paragraph asks for was missing on the **semantic**
+side rather than the notational one: a field to hold it in, a formatter that
+writes it back, and everything downstream declining to read it. That split is
+worth keeping in mind for anything else the grammar "already handles".*
 
 **Do not expect a formalism to do more than the grammar.** §6 of the vision doc
 already argues this and it is worth re-reading before scoping: generating parsers

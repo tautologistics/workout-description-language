@@ -9,6 +9,8 @@
  *   question  the input is genuinely ambiguous — the parser must ask rather
  *             than pick, because a silent wrong reading writes bad data into a
  *             result record that outlives the file
+ *   note      nothing is wrong and nothing is being asked — this says what the
+ *             language did not read, so held-and-inert is not also silent
  */
 
 import type { Workout, Node, Step, Block, Target } from './ast.ts';
@@ -16,7 +18,7 @@ import { defaultRegistry } from './registry.ts';
 import type { Registry } from './fold.ts';
 
 export interface Diagnostic {
-  severity: 'error' | 'warning' | 'question';
+  severity: 'error' | 'warning' | 'question' | 'note';
   code: string;
   message: string;
   line?: number;
@@ -38,6 +40,26 @@ export function validate(w: Workout, opts: ValidateOptions = {}): Diagnostic[] {
   const labels = new Set<string>();
 
   const add = (d: Diagnostic) => out.push(d);
+
+  /**
+   * Text the grammar held as unknown, said out loud — the other half of failing
+   * open, and decided deliberately on 2026-08-15 (queue item 0d).
+   *
+   * The framing this language is built to is that unknown is *"not an error and
+   * not a guess"*, which settles what the tree does with it and says nothing
+   * about whether anyone is told. Held silently, `10 Thruster, unbrokn` is a typo
+   * that nothing anywhere mentions, and a person writing on a whiteboard is worse
+   * off than if they had been told. So it is reported at a severity that claims
+   * nothing: not `error`, because the workout executes exactly as the rest of the
+   * line says; not `warning`, because four corpus workouts carry deliberate prose
+   * the language does not model (`45lb plate overhead`) and they are not wrong;
+   * not `question`, because there are no readings to choose between. It reports
+   * what happened and stops there.
+   */
+  const unread = (text: string, line: number) =>
+    add({ severity: 'note', code: 'unrecognized-text', line,
+          message: `\`${text}\` is not something the language reads — it is kept as `
+            + 'written, and nothing acts on it' });
 
   // ---- structural checks -------------------------------------------------
 
@@ -80,6 +102,8 @@ export function validate(w: Workout, opts: ValidateOptions = {}): Diagnostic[] {
                 message: `rep scheme ${n.scheme?.join('-')} has no effect — every movement already states its own count` });
         }
       }
+      for (const u of n.unknown ?? []) unread(u, n.line);
+
       if (n.children.length === 0 && n.type !== 'tally') {
         add({ severity: 'warning', code: 'empty-block', line: n.line, message: `${n.type} block is empty` });
       }
@@ -140,6 +164,7 @@ export function validate(w: Workout, opts: ValidateOptions = {}): Diagnostic[] {
     }
 
     checkTargets(s.targets, s.line);
+    for (const u of s.unknown ?? []) unread(u, s.line);
 
     if (!s.movement) return;
     const r = reg.resolve(s.movement);

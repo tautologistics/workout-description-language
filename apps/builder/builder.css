@@ -174,6 +174,10 @@ main {
 .diagnostics .error { color: var(--error); }
 .diagnostics .warning { color: var(--warn); }
 .diagnostics .question { color: var(--ask); }
+/* A `note` says what the language did not read. Nothing is wrong and nothing is
+   being asked, so it takes the dim colour the margin uses rather than one of the
+   three that mean something is up — visible, and claiming nothing. */
+.diagnostics .note { color: var(--dim); }
 .diagnostics .candidates { color: var(--dim); padding-left: 1rem; }
 
 /* --- controls -------------------------------------------------------------- */

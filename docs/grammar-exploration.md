@@ -355,9 +355,16 @@ built.*
 - ~~**Nothing is wired up.** `parse.ts` is untouched and the builder and board
   run the old path.~~ **Done 2026-08-15** — item 0a, see the section above.
   `parse.ts` is the grammar, in Node and in both apps.
-- **`unknown` is proven in the grammar, not in the AST.** The production holds
+- ~~**`unknown` is proven in the grammar, not in the AST.** The production holds
   unrecognized text as a first-class node, but the `Step` type has no field for
   it and `format` does not render it, so the known debt — unknown modifiers
-  becoming indistinguishable from authored notes — is not yet closed end to end.
+  becoming indistinguishable from authored notes — is not yet closed end to
+  end.~~ **Done 2026-08-15** — item 0d. `Step.unknown` and `Block.unknown` hold
+  it, `format` writes it back, `timeline.ts` does not carry it so nothing
+  downstream can act on it, and `validate` reports it as a `note`. **The grammar
+  needed no change**, which is the finding worth keeping from this line item: the
+  production was right on the day it was written, and all three missing pieces
+  were semantic. A formalism "already handling" something is a claim about what
+  it can express, not about what the program does with the match.
 - **Phase 1 is untouched**, so queue item 0b (a container adopting unindented
   following lines) is unaffected by any of this.

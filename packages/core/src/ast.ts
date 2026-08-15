@@ -101,6 +101,23 @@ export interface Step {
   team?: 'shared' | 'each' | 'synchronized';
   flags: string[];                                     // unbroken, building, tiebreak…
   notes: string[];
+  /**
+   * Text the language does not read, held verbatim and meaning nothing.
+   *
+   * **Unknown is a first-class state — not an error and not a guess.** A
+   * modifier the grammar has no rule for is kept here, survives a round trip,
+   * and is deliberately absent from everything that derives meaning: it never
+   * reaches the timeline, so no cue, no export and no analysis can act on it.
+   * It is *reported*, informationally, by `validate` — held-and-inert is not the
+   * same as silent, and `10 Thruster, unbrokn` should say something.
+   *
+   * Kept apart from `notes` because that array is *rendered*: an authored
+   * `note: "…"` is written for the athlete, and a token the parser could not
+   * read is not. Until 2026-08-15 both landed in `notes`, so an unknown token
+   * silently acquired the meaning "the author wrote a note" — and a bare
+   * `warmup` in it turned into a warmup segment in a Garmin export.
+   */
+  unknown?: string[];
   comments: string[];
   line: number;
 }
@@ -153,6 +170,19 @@ export interface Block {
   inherited: Target[];
   equipment: string[];
   flags: string[];
+  /**
+   * The header's twin of `Step.unknown`, and it exists for the same reason:
+   * an unrecognized header modifier used to land in `flags`, beside `unbroken`
+   * and `rounds`, so nothing afterwards could tell a token nobody taught the
+   * language from a flag the language defines.
+   *
+   * This is the *modifier* position only. A header whose **kind** is
+   * unrecognized (`3 rounds of madness:`) is a different thing and stays a
+   * reported error: the kind decides how the block executes, so failing to read
+   * it loses the three rounds. A modifier the grammar cannot read costs nothing
+   * that runs.
+   */
+  unknown?: string[];
   score?: Score;
   children: Node[];
   comments: string[];

@@ -166,6 +166,52 @@ would be tidier".
   leaves is reported as `score-without-primary`. Declining a form is not a licence
   to drop what somebody wrote.
 
+- **Unknown text is held, inert, and *said out loud* — as a `note`, a fourth
+  diagnostic severity.** Settled 2026-08-15 by queue item 0d. A modifier no rule
+  reads is kept verbatim in `Step.unknown` / `Block.unknown`, round-trips, and
+  reaches nothing that derives meaning — not the timeline, so not a cue, not an
+  export and not the analysis. And it is **reported**: `wdl check` says *note:
+  `unbrokn` is not something the language reads*, and the builder shows it in the
+  margin's dim colour.
+
+  **The question the framing left open was whether anyone is told.** *"Not an
+  error and not a guess"* settles what the tree does and says nothing about
+  silence — and silent was the wrong answer: `10 Thruster, unbrokn` is one
+  keystroke from a constraint that decides whether a set counts, and a person
+  writing on a whiteboard is worse off being told nothing. The precedent is the
+  nested `score:` decision three entries above: **declining to give a form
+  meaning is not a licence to drop what somebody wrote**, and the same holds for
+  declining to give it *any* meaning.
+
+  **Why a fourth severity rather than one of the three.** Not `error` — the rest
+  of the line executes exactly as written, and the board and `wdl check` both
+  gate on errors, so a phrase in the margin would refuse a workout. Not
+  `warning` — "probably wrong" is a claim, and four corpus workouts carry
+  deliberate prose the language models nothing of (`45lb plate overhead`), which
+  is *allowed*: holding unknown text exists so that writing it is not a mistake.
+  Not `question` — there are no readings to choose between. `note` claims
+  nothing; it reports what happened and stops.
+
+  **Where the line falls, because it is not "everything unrecognized".** An
+  unrecognized header *kind* (`3 rounds of madness:`) stays a reported **error**,
+  which it already was: the kind decides how the block executes, and failing to
+  read it silently loses the three rounds. A *modifier* nobody taught the
+  language costs nothing that runs. The test is what the miss changes about
+  execution, not how unfamiliar the text is.
+
+  **A consequence that was forced rather than chosen: canonical output writes
+  `note: "…"`.** Once a bare phrase after a comma means *unrecognized*, the two
+  cannot both round-trip bare — and unknown text is verbatim by definition, so
+  the bare spelling is the only one it can have. The note is therefore what wears
+  the marker. The exception is the three spellings the grammar reads back as
+  notes on their own — `alternating`, `ramp …`, `wearing …` — which keep the bare
+  form, because they read the same either way and `10 DB Snatches (split),
+  alternating` is what a whiteboard says. **The position of an unknown is
+  normalised, not preserved**: it is written after the modifiers that were
+  understood. Text survival is the requirement; where it sat on the line is a
+  fact about the input, and the formatter already normalises where every other
+  modifier goes.
+
 - **A comma with nothing after it separates nothing.** Settled 2026-08-15, while
   swapping the parser over, because it had to be: the old chain split on commas
   and let an empty piece fall through, so `10 Thruster,` and `3 rounds,:` had

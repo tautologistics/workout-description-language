@@ -365,16 +365,43 @@ describe('the grammar is the spec', () => {
     eq(required('grammar'), grammarSource);
   });
 
+  /**
+   * Unknown is a first-class state, and *held apart from everything that means
+   * something* — which is the half the grammar could not state on its own. The
+   * `unknown` production has always matched this text; until 2026-08-15 the
+   * semantics then pushed it into `notes`, beside an authored `note: "…"`, so
+   * the tree could no longer tell them apart and the note was rendered.
+   */
   it('holds unrecognized step input rather than failing on it', () => {
     const step = g.parseStep('10 Thruster @ 95lb, some phrase nobody taught the parser');
     eq(step.movement, 'Thruster');
-    eq(step.notes, ['some phrase nobody taught the parser']);
+    eq(step.unknown, ['some phrase nobody taught the parser']);
+    eq(step.notes, []);
+  });
+
+  it('keeps an unknown apart from an authored note on the same line', () => {
+    const step = g.parseStep('10 Thruster, note: "keep the elbows up", with a band');
+    eq(step.notes, ['keep the elbows up']);
+    eq(step.unknown, ['with a band']);
   });
 
   it('holds an unrecognized block header rather than failing on it', () => {
     const block = g.parseHeader('some shape nobody taught the parser');
     eq(block.type, 'sequence');
     eq(block.name, 'some shape nobody taught the parser');
+  });
+
+  /**
+   * The header's *modifier* position, which is the block-level twin: the kind is
+   * read, the flag beside it is read, and the word nobody taught the language is
+   * held apart from both rather than filed as a third flag.
+   */
+  it('holds an unrecognized header modifier apart from the flags', () => {
+    const block = g.parseHeader('3 rounds, unbroken, wibble');
+    eq(block.type, 'repeat');
+    eq(block.count, 3);
+    eq(block.flags, ['rounds', 'unbroken']);
+    eq(block.unknown, ['wibble']);
   });
 
   it('reports what it cannot read, by position', () => {

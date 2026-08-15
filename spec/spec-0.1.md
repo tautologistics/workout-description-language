@@ -645,6 +645,26 @@ Everything else is a note. Resist building a constraint language:
 - 100 Wall Ball, note: "no dropping from the top"
 ```
 
+**Canonical output writes a note with its `note:` marker.** Input accepts a bare phrase (`, ramp 50% -> 75% FTP`), and three spellings keep it on output because the parser reads them back as notes by their first word: `alternating`, `ramp …`, `wearing …`. Everything else is emitted as `note: "…"`, because a bare phrase the parser does not recognize means something else — see below.
+
+### 11.1 Text the language does not read
+
+**Unknown is a first-class state: not an error, and not a guess.** A modifier after a comma that matches no rule is *held in the tree as unrecognized*. It is kept verbatim, it survives a round trip, and it carries no meaning — implicit or explicit — for execution, analysis or export.
+
+```
+- 10 Thruster, note: "keep the elbows up", with a band
+```
+
+`keep the elbows up` is a note, written for the athlete and shown to them. `with a band` is unknown: kept on the line, shown to nobody as a cue, read by nothing. The two are separate fields in the tree (`notes` and `unknown`), which is why the note is written back with its marker — a bare phrase would come back as an unknown.
+
+Three consequences, all deliberate:
+
+- **Held, not dropped.** `wdl fmt` writes it back. What moves is its *position*: it is emitted after the modifiers the language does read, because canonical output normalises where every modifier sits. Text survives; column does not.
+- **Inert.** It never reaches a cue, so nothing on the board says it, and no exporter can act on it. `- 10min Bike, warmup pace` is a bike interval with a phrase on the line, not a warmup segment.
+- **Reported, at a severity that claims nothing.** `wdl check` says *note: `unbrokn` is not something the language reads*. Not an error — the rest of the line executes exactly as written — and not a question, because there is nothing to choose between. Held-and-inert must not also be silent: `unbrokn` is one keystroke from a constraint that decides whether a set counts.
+
+The same rule applies to a block header's modifiers (`3 rounds, wibble:` is three rounds). It does **not** apply to a header's *kind*: `3 rounds of madness:` is an error, because the kind decides how the block executes and failing to read it loses the three rounds, where a modifier nobody taught the language costs nothing that runs.
+
 ---
 
 ## 12. Ambiguity

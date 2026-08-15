@@ -302,19 +302,59 @@ when something looks odd before treating it as a discovery.
   not the word `for`, and `10 Thruster @ 95lb for time` to pin that the step side
   is deliberately unchanged.
 
-- An unrecognized step modifier is pushed into `step.notes`, the same array as an
-  authored `note: "…"`. *Unchanged by the swap 2026-08-15: `modifier_unknown` in
-  the grammar reproduces it deliberately, because until there is somewhere else
-  for unknown to live, changing where it lands is item 0d's job and not the
-  swap's. One nameless entry did go — a stray trailing comma used to push an
-  empty string in, and a comma with nothing after it now contributes nothing.* Afterwards the two cannot be told apart, and notes are
-  rendered — so an unknown token silently acquires the meaning "the author wrote
-  a note". Unknown should be held as unknown: preserved, round-tripped, inert.
-  Bound up with queue item 0. *It has a block-level twin, recorded 2026-08-15
-  while stating the header: an unrecognized header modifier is pushed into
-  `block.flags`, the same array as `unbroken` and `rounds`, so afterwards nothing
-  can tell an unknown token from a flag the language defines. Queue item 0d should
-  cover both.*
+- ~~**An unrecognized step modifier is pushed into `step.notes`, the same array
+  as an authored `note: "…"`.**~~ **Closed 2026-08-15** by queue item 0d, along
+  with its block-level twin. What it used to do: `- 10 Thruster, with a band` put
+  `with a band` in `notes`, so afterwards the two could not be told apart — and
+  notes are *rendered*, so an unknown token silently acquired the meaning "the
+  author wrote a note". The header twin put an unrecognized modifier in
+  `block.flags`, beside `unbroken` and `rounds`. *The swap on the same day left
+  both deliberately alone, because until there was somewhere else for unknown to
+  live, changing where it landed was 0d's job and not the swap's; one nameless
+  entry did go, a stray trailing comma that used to push an empty string in.*
+
+  **It was worse than untidy, and this is the part the original entry did not
+  say.** `notes` is read for *meaning* by two exporters: `flatten.ts` and
+  `garmin-connect.ts` classify a step as warmup or cooldown by searching its
+  notes, and read a power ramp's bounds out of one. So `- 10min Bike, warmup
+  pace` — a phrase the grammar does not read — exported as a **warmup segment**,
+  which is unknown text carrying meaning for execution on a device. Nothing
+  reaches those exporters from `unknown`.
+
+  **Now:** `Step.unknown` and `Block.unknown`, held verbatim, written back by
+  `format` after the modifiers that were understood, absent from `timeline.ts` so
+  no cue and no exporter can see them, and reported by `validate` as a `note`.
+  Four corpus workouts moved and their *interpretation* digest — structure,
+  totals, pacing — did not change at all. 14 forms pinned where three were.
+- **Open, and found while closing the one above: an `@`-flag with a name the
+  language does not define degrades to `unknown` on the first `wdl fmt`.**
+  `10 Thruster @foo` parses to a *flag* called `foo` — `targetGroup_flag` accepts
+  any word — and the formatter has no `@name` spelling to write a flag back in,
+  so it emits `, foo`, which reparses as unrecognized text. Not a regression:
+  before 2026-08-15 the same line degraded from a flag to a **note**, which was
+  worse, since a note is rendered and read by two exporters. The named flags are
+  all safe in both positions (`unbroken`, `building`, `reversed`, `shared`,
+  `synchronized`, and `@tiebreak`, which `format` writes back in the `@` form).
+
+  It is the same family as item 0d and deliberately not folded into it, because
+  it needs a **decision**: either flags are an open vocabulary, in which case
+  `format` needs an `@name` spelling for one it cannot write as a bare word, or
+  they are closed, in which case an undefined name is unknown at parse time and
+  should never become a flag at all. The second is the smaller change and the
+  more honest reading — "a flag the language defines" is what `flags` means
+  everywhere else — but it takes a form that parses today and stops it, so it is
+  written down rather than guessed at. Nothing in the corpus writes one.
+
+- **`registry/workouts.canonical.json` is not rebuilt by anything that runs.**
+  Found 2026-08-15 while regenerating it for item 0d: it was stamped
+  `2026-08-13`, so it had sat through the parser swap and two rounds of defect
+  fixes. Six workouts differed by **JSON key order only** (`buildTarget` before
+  `duration`, `perRound` before `aggregate`) — no reading had changed — but that
+  is luck rather than a guarantee, and a stale generated file is a wrong answer
+  waiting for someone to read it. `scripts/build-canonical.ts` regenerates it and
+  the suite does not check it, unlike `interpretations.json` and
+  `vocabulary.json`, which have a test that fails when they drift.
+
 - The builder's Indent allows a first-in-document top-level line to be indented,
   orphaning it and invalidating the file. `shift` guards only against negative
   indent, never against having no parent to attach to.

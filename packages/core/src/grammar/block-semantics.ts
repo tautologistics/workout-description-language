@@ -193,10 +193,14 @@ export function installBlock(semantics: Semantics): void {
     blockModifier_forTime(f, _end) { f.addToBlock(this.args.block); },
     blockModifier_flag(word, _end) { this.args.block.flags.push(word.sourceString.toLowerCase()); },
     blockModifier_target(g) { g.addToBlock(this.args.block); },
-    // Unrecognized, held verbatim. It lands in `flags`, which is the block-level
-    // twin of the step-level debt where an unknown modifier becomes a note —
-    // both are queue item 0d.
-    blockModifier_unknown(_rest) { this.args.block.flags.push(this.sourceString.trim()); },
+    // Unrecognized, held verbatim in a field of its own. It used to land in
+    // `flags`, beside `unbroken` and `rounds`, so nothing afterwards could tell
+    // an unknown token from a flag the language defines. Closed 2026-08-15 by
+    // queue item 0d, together with its step-level twin.
+    blockModifier_unknown(_rest) {
+      const block = this.args.block;
+      (block.unknown ??= []).push(this.sourceString.trim());
+    },
   });
 
   semantics.addOperation<Block>('toBlock(origin)', {

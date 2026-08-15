@@ -33,6 +33,38 @@ function countFor(s: Step, scheme?: Scheme): number | undefined {
 /** A rep scheme, and what its numbers count. */
 interface Scheme { tiers: number[]; unit?: string }
 
+/**
+ * The spellings the grammar reads back as a note *without* the `note:` marker:
+ * `alternating`, and the prose forms opened by `ramp` or `wearing`. Mirrors
+ * `altWord` and `noteWord` in `spec/grammar-0.1.ohm`, which is a list in a
+ * caller shadowing a rule — the shape that drifts. So it is checked by what it
+ * has to be true *for* rather than by comparison: `semantics.test.ts` writes a
+ * note in each spelling out and reads it back, and a spelling that stops
+ * surviving fails there whichever side moved.
+ */
+const READS_BARE_AS_A_NOTE = /^(?:alternating$|(?:ramp|wearing)(?![0-9A-Za-z_]).)/i;
+
+/**
+ * A note, in a spelling that comes back as a note.
+ *
+ * **The marker is not decoration, and it became load-bearing on 2026-08-15.**
+ * Since unknown text is held apart from notes, a bare phrase after a comma means
+ * *unrecognized* — so a note emitted bare would parse back as an unknown, and
+ * one `wdl fmt` would demote something written for the athlete into something
+ * nothing renders. Unknown text has no marker it could wear instead: it is
+ * verbatim by definition, and verbatim is the bare spelling. So the note wears
+ * one, except where the grammar already reads the phrase as a note on its own —
+ * `alternating` and `ramp …` / `wearing …` read the same either way, and
+ * `10 DB Snatches (split), alternating` is what a whiteboard says.
+ */
+function noteQual(n: string): string {
+  if (READS_BARE_AS_A_NOTE.test(n)) return n;
+  // Quoted, so a note may contain a comma. A note containing a double quote has
+  // no quoted spelling — the grammar has no escape — so it takes the bare tail
+  // form, which holds everything up to a comma.
+  return n.includes('"') ? `note: ${n}` : `note: "${n}"`;
+}
+
 function stepText(s: Step, scheme?: Scheme): string {
   let out = '- ';
   // A threshold reads as a condition on the movement, so it trails it —
@@ -83,7 +115,14 @@ function stepText(s: Step, scheme?: Scheme): string {
   if (s.measures === 'reps' && !s.flags.includes('max')) quals.push('count reps');
   if (s.perRound) quals.push(`+${s.perRound.delta} each round`);
   for (const f of s.flags) if (f !== 'tiebreak' && f !== 'max') quals.push(f);
-  for (const n of s.notes) quals.push(n);
+  for (const n of s.notes) quals.push(noteQual(n));
+  // What the language understood, then what it did not. **Text survives; the
+  // position does not** — an unknown written between two modifiers comes back
+  // after both, because the formatter already normalises where every other
+  // modifier sits and holding this one where it was typed would mean recording
+  // a fact about the input rather than about the workout. Relative order among
+  // several unknowns is kept, which is the part that could carry meaning.
+  for (const u of s.unknown ?? []) quals.push(u);
   if (quals.length) out += ', ' + quals.join(', ');
   if (s.flags.includes('tiebreak')) out += ' @tiebreak';
   return out;
@@ -194,6 +233,8 @@ function headerText(b: Block): string {
   if (b.onOverrun) mods.push(`${b.onOverrun} on overrun`);
   for (const e of b.equipment) mods.push(`wearing ${e}`);
   for (const f of b.flags) if (!['sets', 'rounds', 'for-duration'].includes(f)) mods.push(f);
+  // Held verbatim and written last, for the reason given on the step above.
+  for (const u of b.unknown ?? []) mods.push(u);
 
   return [head, ...mods].join(', ') + ':';
 }

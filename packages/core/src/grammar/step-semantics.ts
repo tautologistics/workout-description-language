@@ -158,11 +158,15 @@ export function installStep(semantics: Semantics): void {
     modifier_flag(word) { this.args.step.flags.push(word.sourceString.toLowerCase()); },
     modifier_prose(_word, _rest) { this.args.step.notes.push(this.sourceString.trim()); },
     modifier_target(g) { g.addTo(this.args.step); },
-    // Unrecognized input, held verbatim. That it lands in `notes` beside an
-    // authored `note:` is the known debt queue item 0d exists to close; until
-    // there is somewhere else for it to live, reproducing the old parser here
-    // is the point.
-    modifier_unknown(_rest) { this.args.step.notes.push(this.sourceString.trim()); },
+    // Unrecognized input, held verbatim in a field of its own — a production,
+    // not a failure and not a guess. It used to land in `notes`, the same array
+    // as an authored `note: "…"`, which meant an unknown token silently acquired
+    // the meaning "the author wrote a note" and was rendered as one. `unknown`
+    // is carried by nothing downstream: closed 2026-08-15 by queue item 0d.
+    modifier_unknown(_rest) {
+      const step = this.args.step;
+      (step.unknown ??= []).push(this.sourceString.trim());
+    },
   });
 
   semantics.addOperation<Step>('toStep(origin)', {

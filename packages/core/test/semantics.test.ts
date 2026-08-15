@@ -311,3 +311,78 @@ describe('Rx by division', () => {
     eq(step('- 30cal Bike/Row').rx, undefined, 'nor is a choice of movement');
   });
 });
+
+/**
+ * Unknown, and the line between it and a note.
+ *
+ * Both are free text a step carries and neither means anything to execution, so
+ * it would be easy to file them together — which is precisely what the parser
+ * did until 2026-08-15, and the cost was not tidiness. A note is *written for
+ * the athlete* and is rendered; an unknown is a token the parser could not read
+ * and is shown to nobody as a cue. Conflated, every unknown quietly became a
+ * note, and `- 10min Bike, warmup pace` exported as a warmup segment.
+ */
+describe('unknown text', () => {
+  const step = (src: string) => (parse(`sequence:\n  ${src}\n`).workout.body[0] as any).children[0];
+  const canon = (src: string) => format(parse(`sequence:\n  ${src}\n`).workout).trim().split('\n')[1].trim();
+  const block = (src: string) => parse(`${src}\n  - 10 Push-Up\n`).workout.body[0] as any;
+
+  it('holds what it cannot read, apart from what it can', () => {
+    const one = step('- 10 Thruster, note: "keep the elbows up", with a band');
+    eq(one.notes, ['keep the elbows up'], 'the authored note');
+    eq(one.unknown, ['with a band'], 'and the text nobody taught the parser');
+  });
+
+  it('keeps an unknown out of the flags a header defines', () => {
+    const one = block('3 rounds, unbroken, wibble:');
+    eq(one.flags, ['rounds', 'unbroken']);
+    eq(one.unknown, ['wibble']);
+  });
+
+  it('carries none of it into the timeline', () => {
+    // The whole of "inert": a cue is what the athlete is shown and what every
+    // exporter reads, so text the parser did not understand must not reach one.
+    const w = parse('sequence:\n  - 10 Thruster, note: "elbows up", warmup pace\n').workout;
+    const cue = (compile(w).root as any).items[0].items[0];
+    eq(cue.notes, ['elbows up']);
+    eq(cue.unknown, undefined, 'a timeline step has no unknown to read');
+    eq(cue.label, '10 Thrusters', 'and the label says only what was understood');
+  });
+
+  it('writes it back where it can be read again', () => {
+    // Text survival is the requirement; the position is normalised, like every
+    // other modifier's. An unknown re-parses as an unknown because a bare phrase
+    // after a comma is exactly what the `unknown` production matches.
+    eq(canon('- 10 Thruster, with a band'), '- 10 Thrusters, with a band');
+    eq(step('- 10 Thrusters, with a band').unknown, ['with a band']);
+    // And the header, which had the same defect one level up.
+    eq(format(parse('3 rounds, wibble:\n  - 10 Push-Up\n').workout).trim().split('\n')[0],
+      '3 rounds, wibble:');
+    eq(block('3 rounds, wibble:').unknown, ['wibble']);
+  });
+
+  /**
+   * **Every note comes back a note, whichever spelling it wears.**
+   *
+   * This is the property that made the `note:` marker load-bearing: once a bare
+   * phrase means *unrecognized*, a note emitted bare would come back an unknown
+   * and one `wdl fmt` would demote something written for the athlete into
+   * something nothing renders. The list is deliberately mixed — spellings the
+   * grammar reads bare (`alternating`, `ramp …`, `wearing …`), spellings that
+   * would be read as something else entirely (`unbroken` is a flag, `x3` is a
+   * set count), one that only quoting survives (a comma), and the two an
+   * importer writes (`warmup`, `cooldown`), because that is where the round trip
+   * used to work only by accident.
+   */
+  it('writes a note in a spelling that comes back a note', () => {
+    for (const n of ['alternating', 'ramp 50% -> 75% FTP', 'wearing a 20lb vest',
+                     'keep the elbows up', 'warmup', 'cooldown', 'unbroken', 'x3',
+                     'hold at the top, then lower']) {
+      const w = parse('sequence:\n  - 10 Thruster\n').workout;
+      ((w.body[0] as any).children[0] as Step).notes.push(n);
+      const back = step(format(w).trim().split('\n')[1].trim());
+      eq(back.notes, [n], `\`${n}\` must survive as a note`);
+      eq(back.unknown, undefined, `\`${n}\` must not become an unknown`);
+    }
+  });
+});
