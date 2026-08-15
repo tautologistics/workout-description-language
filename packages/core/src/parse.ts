@@ -4,7 +4,7 @@ import type {
   Workout, Node, Step, Rest, Block, Interrupt, Score,
 } from './ast.ts';
 import { readLines, expandInline, splitTopLevel, type Line } from './lines.ts';
-import { parseQuantity, parseDuration, parseThreshold } from './units.ts';
+import { parseDuration } from './units.ts';
 import { wdl } from './grammar/parser.ts';
 import { blankStep } from './grammar/step-semantics.ts';
 
@@ -48,25 +48,32 @@ class Parser {
 
   // ---------- rest ----------
 
+  /**
+   * One `rest …` line, read by the grammar's `restLine` rule.
+   *
+   * Unlike a step or a header this line carries its own keyword, so the rule
+   * selects the lines it applies to rather than being pointed at them — the
+   * dispatch above still keys on `rest` because phase 1 hands over lines and
+   * something has to choose, but the reading is one rule.
+   *
+   * A rest is bounded five ways — a clock, the athlete, the work before it, a
+   * sensor reading, or work of its own — and the failure below is the sixth
+   * case: a bound written in a spelling the language does not accept there. The
+   * spelled-out duration words (`rest 45 seconds`) are the known one, and they
+   * are a debt rather than a swap casualty: neither implementation read them
+   * before this change either.
+   */
   parseRest(text: string, line: Line): Rest {
+    const got = wdl().tryRest(text, line);
+    if (got.ok) return got.value;
+
     const rest: Rest = { node: 'rest', afterLast: false, comments: line.comments, line: line.line };
     let t = text.replace(/^rest\s*/i, '').trim();
-
+    // `after last` is a fact about *which* rest, not about its bound, so it is
+    // read even when the bound is not — otherwise an unreadable duration would
+    // quietly cost the "only after the last round" as well.
     if (/after\s+last$/i.test(t)) { rest.afterLast = true; t = t.replace(/after\s+last$/i, '').trim(); }
-    const threshold = parseThreshold(t);
-    if (threshold) { rest.duration = threshold; return rest; }
-    if (/^as\s+needed$/i.test(t)) { rest.dynamic = 'as-needed'; return rest; }
-    if (/^=\s*work$/i.test(t) || /^equal\s+to\s+work$/i.test(t)) { rest.dynamic = 'equal-to-work'; return rest; }
-
     if (t) {
-      const d = parseDuration(t, true);
-      if (d) { rest.duration = d; return rest; }
-      // Active recovery — `rest 400m Jog`. The rest interval is work, not a clock.
-      const { quantity, rest: movement } = parseQuantity(t);
-      if (quantity.kind !== 'open' && movement) {
-        rest.active = { quantity, movement };
-        return rest;
-      }
       this.errors.push({ line: line.line, message: `unreadable rest duration "${t}"`, text: line.text });
     }
     return rest;
