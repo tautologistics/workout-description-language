@@ -106,61 +106,64 @@ found while stating the header: an unrecognized header modifier lands in
 unknown token from a flag the language defines. Both halves belong to this item.*
 *Touches: `packages/core/src/ast.ts`, `format.ts`, both apps.*
 
-**0e. Six defects the grammar work turned up that need a decision, not a
-transcription.** Each is written up in [known-debts.md](known-debts.md) with what
-it costs and where the fix goes; each is pinned as a vocabulary form, so a fix
-shows up as a diff. They are listed together because they were found together and
-are individually small, not because they should land together. Easiest first.
+**0e. ~~Six defects the grammar work turned up that need a decision, not a
+transcription.~~ DONE 2026-08-15. All six closed; two smaller things found on the
+way are open and written up.** Each is now marked closed in
+[known-debts.md](known-debts.md) with what it used to do kept beside what it does
+now. The suite went **1592 passing / 9 pending to 1628 / 1**, and the one pending
+is a form nobody had pinned before this session.
 
-*Corrected 2026-08-15, twice, and both corrections are the same mistake: the
-item was written before the swap and never re-read after it.* It said **five**
-and listed five, because the sixth — the greedy header `@` — was still expected
-to be fixed *by* the swap and turned out not to be; and it described the
-spelled-out rest duration as tracked in `grammar.test.ts`'s `REST_REJECTS`, a
-list whose stated rationale was *"shared defects — lines neither implementation
-reads"*. There is one implementation now, so that rationale named nothing. The
-rejects list has been restated as what it actually is — the lines no rule reads,
-which is the honest half of the coverage count — and the three spelled-out rest
-forms are marked pending in `vocabulary.test.ts` beside every other defect under
-decision.
+*The item was corrected before it was worked, and the correction is the reusable
+part: it was written before the swap and never re-read after it.* It said
+**five**, because the sixth — the greedy header `@` — was expected to be fixed *by*
+the swap and was not; and it filed the spelled-out rest duration under
+`grammar.test.ts`'s `REST_REJECTS`, whose stated rationale was *"shared defects —
+lines neither implementation reads"*, a framing that named nothing once there was
+one implementation. Both were fixed as part of the work rather than left to
+mislead. **A queue item written against a world that has since changed is stale in
+ways its author cannot see; re-read it against the code before working it.**
 
-- **`wdl fmt` drops `after last`** from every kind of rest but a plain duration.
-  `rest as needed after last` formats to `rest as needed` — "rest only after the
-  last round" becomes "rest between every round", a different workout, and
-  `wdl check` says ok. Formatter-only, no decision needed, smallest. Do it first.
-- **A target and a `for time` on one header, written in that order, lose both.**
-  `3 rounds @ 95lb for time:` inherits `{kind: 'raw', text: '95lb for time'}` and
-  is not scored at all; `3 rounds for time @ 95lb:` reads correctly, so it is
-  order-sensitivity in the header target production. The same family as the three
-  load-losing defects the swap fixed, and it round-trips as byte-identical text,
-  so nothing else in the suite can see it. No decision needed — swallowing
-  `for time` into a target is unambiguously wrong.
-- **A spelled-out duration word is a step quantity and not a rest.**
-  `rest 45 seconds` is an `unreadable rest duration` error *and* a rest with no
-  bound, which everything downstream reads as unbounded; `45 seconds Plank`
-  works. Spec §3 says these spellings are accepted "wherever a duration is
-  expected" and a rest is a duration position. One grammar fix — note the rest
-  line already has `looseDuration` for free internal spacing, so check how the
-  two interact.
-- **A brace score with no `primary:`** makes the whole brace text the primary and
-  emits the tiebreak twice. Small; decide what a brace with no `primary:` means
-  and state it.
-- **The nested `score:` block spec §9.5 and §9.6 document is dropped entirely.**
-  Either the prose goes or the parser learns the form. The sibling-line spelling
-  is what the formatter emits, so correcting the spec is the cheap answer — but
-  that is a decision about the language, so make it deliberately and record the
-  reasoning rather than picking the cheap one because it is cheap.
-- **Leading `sets x reps`.** `5x5 Back Squat @ 225lb` — *spec §1's own example* —
-  parses to a movement named `5x5 Back Squat`. Reading it needs a new leading
-  quantity form in the grammar *and* a decision about what it means (`sets: 5`
-  plus `reps: 5`, presumably, matching the trailing `xN`), *and* a decision about
-  what a leading `5x5` beside a trailing `x3` means. Check how `sets` is consumed
-  downstream — `timeline.ts`, `volume.ts`, `run.ts` — before choosing, because a
-  leading form that sets `sets` changes rep totals. The biggest of the six, the
-  one a real user hits first, and the one most likely to balloon: last, and if
-  the decision is not clear-cut, write up the options and leave it pinned.
-*Touches: `packages/core/src/units.ts`, `format.ts`, `parse.ts`,
-`spec/grammar-0.1.ohm`, `spec/spec-0.1.md`.*
+- **`wdl fmt` drops `after last`.** Closed. Appended once, outside the branch on
+  the bound, because it says *which* rest and not how long — written as a fifth
+  early return it would have been the same bug waiting for a sixth kind of bound.
+- **A target and a `for time` on one header lose both.** Closed by
+  `targetGroup<stop>`: where a target's text stops is now a parameter, `never` in
+  a step and `forTime` in a header. The comma spelling needed the same stop and,
+  applied alone, made that header *unreadable* and *unsettled* — so
+  `headerModifier` gained trailing extras, stating that whatever may qualify a
+  header before a comma may qualify it after one.
+- **A spelled-out duration word is a step quantity and not a rest.** Closed in
+  `parseDuration`, which folds the spellings itself now; they used to sit in
+  `parseQuantity`, anchored to one token, and the rest path never went through
+  that caller.
+- **A brace score with no `primary:`.** Closed, and **decided**: it has no
+  primary. The written fields survive, and `validate` reports
+  `score-without-primary` — a statement about a value, where `min < max` on a rep
+  range already lives.
+- **The nested `score:` block.** Closed by **correcting the spec**, decided on the
+  whiteboard constraint rather than on cost. See
+  [settled-decisions.md](settled-decisions.md); the silence it left — two field
+  lines dropped without a word — is closed either way.
+- **Leading `sets x reps`.** Closed. `3x10 Curl` is `10 Curl x3` and produces the
+  same tree, so nothing downstream learned a concept; `sets` reaches only `format`
+  and `timeline.ts`, which already expands it, so rep totals came out right for
+  free. Written both ways, the trailing one wins, by the settled "later qualifier
+  wins" reading.
+
+**Two things left open on purpose, both written up in
+[known-debts.md](known-debts.md).** Neither is a leftover — each is a question the
+work surfaced and neither was in scope to answer:
+- **`10x Curl` is not read**, though spec §3's unit table documents `10x` as a rep
+  spelling. Same family, different form: reading it means deciding whether a bare
+  `Nx` is reps everywhere or only leading. Pinned and pending.
+- **Whether the leading `NxM` spelling should be *canonical*.** A question about
+  `format`, not `parse`, and it applies to steps that already parsed. There is a
+  recommendation with its exception stated; blast radius is measured and small.
+*Touched: `packages/core/src/units.ts`, `format.ts`, `parse.ts`, `validate.ts`,
+`grammar/step-semantics.ts`, `grammar/block-semantics.ts`,
+`grammar/score-semantics.ts`, `spec/grammar-0.1.ohm`, `spec/spec-0.1.md`,
+`test/golden/vocabulary.ts`, `test/grammar.test.ts`, `test/vocabulary.test.ts`,
+`test/validate.test.ts`.*
 
 *The original framing, kept because it is what the answer was measured against:
 exploration, not a build — the deliverable is an answer about whether a

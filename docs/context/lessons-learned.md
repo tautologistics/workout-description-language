@@ -238,3 +238,51 @@ to itself and is green by construction. Both halves matter — **pin the
 disagreements before the swap, and convert the harness after it**, into coverage
 counts and direct assertions on the tree, rather than leaving a test whose name
 still says it differentiates. Recorded 2026-08-15.
+
+**A half-applied boundary is worse than the wrong boundary it replaces.** Stopping
+a header's `@` target at `for time` fixed `3 rounds @ 95lb for time:` and broke its
+comma twin — because the same target rule is reached from two places, and with the
+stop applied in only one of them the leftover `for time` had nothing to consume it.
+The visible symptom was not a failure but an *unsettled* canonical form: `wdl fmt`
+wrote the comma away, and the second pass then read a load and a score the first
+pass had lost. That is the exact shape the rx-split defect had, and it is the
+argument against scoping a boundary fix to the case that was pinned. **When you
+narrow where something stops, find every place it is reached from before deciding
+you are done** — a wrong-but-stable reading turning into a reading that changes
+under the formatter is a regression even when the new reading is the right one.
+Recorded 2026-08-15.
+
+**A rule that differs by position wants a parameter, not a second copy and not one
+global answer.** A step's `@` target is prose and runs to the end of its segment; a
+header's stops at `for time`. Written globally, a step with a leftover `for time`
+would have lost its movement and its amount over a phrase that only means
+something one level up — strictly worse than holding it verbatim. Copied, five
+rules would have had two versions to keep in step. Ohm takes rule parameters and
+they compose with `--` case labels and with existing semantic actions unchanged,
+which makes `targetGroup<never>` versus `targetGroup<forTime>` the honest
+statement: one rule, read to two boundaries. *Check the arity when you do it — a
+parameter adds no child, but the inline `~wordChar` you write beside it adds none
+either, where a rule application like `headEnd` would have added one.* Recorded
+2026-08-15.
+
+**Ask which caller knows, when a rule works in one position and not another.**
+Every spelled-out duration word (`45 seconds`, `2 mins`, `1 hour`) worked in a
+step's quantity and in no rest, and it was tempting to read that as the rest line
+being under-specified. It was not: `parseDuration` never knew the spellings at all,
+and `parseQuantity` folded them on the way in — so the rule reached exactly one
+caller and every other position was silently poorer. The fix was to move the fold
+*down* into the thing it is a property of. **A capability that exists in one
+position and not its siblings is usually a rule living in a caller rather than in
+the concept**, and the tell is that the two positions have no reason to differ.
+Recorded 2026-08-15.
+
+**Declining a form is not a licence to drop what somebody wrote.** The nested
+`score:` block that spec §9.5 documented was settled *against* — it is a third
+spelling of a compound score in the notation the whiteboard constraint exists to
+avoid. But the decision changed nothing about the actual defect, which was that the
+two indented field lines vanished without a word while `wdl check` reported ok. A
+form the language declines is still a form somebody typed, and the answer is to
+name it and name the spelling to use. **When a decision is "we do not support
+this", the work is not finished until the unsupported input is reported** — that
+half is owed whichever way the decision goes, so it is not a reason to delay the
+decision either. Recorded 2026-08-15.
