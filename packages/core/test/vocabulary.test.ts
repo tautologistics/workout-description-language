@@ -42,6 +42,18 @@ const KNOWN_WRONG: Record<string, string> = {
     'a header target after a comma is filed as a flag, so nothing inherits it',
   'block/modifier :: target then for time':
     'the header `@` sweep is greedy and swallows the following `for time`, losing both',
+  'rest :: as needed after last':
+    '`after last` is parsed and then dropped by the formatter — every kind of rest but a plain duration',
+  'rest :: equal to work after last':
+    '`after last` is parsed and then dropped by the formatter — every kind of rest but a plain duration',
+  'rest :: active recovery after last':
+    '`after last` is parsed and then dropped by the formatter — every kind of rest but a plain duration',
+  'rest :: threshold after last':
+    '`after last` is parsed and then dropped by the formatter — every kind of rest but a plain duration',
+  'score :: brace form without a primary':
+    'with no `primary:` field the primary becomes the whole brace text, and the tiebreak is emitted twice',
+  'score :: nested block form':
+    'the nested `score:` block documented in spec §9.5 is dropped entirely — primary is empty',
   'known-wrong :: 10 Thruster, @ 95lb':
     'a target after a comma is filed as a note, not a load',
   'known-wrong :: 10 Thruster, @ 24kg':

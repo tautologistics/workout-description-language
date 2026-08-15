@@ -96,6 +96,15 @@ export function installLexical(semantics: Semantics): void {
     // so it is that call rather than a multiplication written out again here.
     headerDuration_minutes(_i) { return parseDuration(this.sourceString, true)!; },
 
+    // The rest line's spelling, where internal spacing is free — `rest 1 min 30 s`.
+    // `parseDuration` strips whitespace before matching, so all five forms reach it
+    // as the same string the tight spellings do, and cannot mean anything else.
+    looseDuration_hms(_h, _m, _s) { return parseDuration(this.sourceString, true)!; },
+    looseDuration_ms(_m, _s) { return parseDuration(this.sourceString, true)!; },
+    looseDuration_s(_s) { return parseDuration(this.sourceString, true)!; },
+    looseDuration_clock(_m, _colon, _s, _sp) { return parseDuration(this.sourceString, true)!; },
+    looseDuration_minutes(_i, _sp) { return parseDuration(this.sourceString, true)!; },
+
     // `until HR < Z2` and `until power > 250W`. The grammar has proved the
     // shape; `parseThreshold` is where what it means already lives.
     threshold_zone(_u, _s1, _metric, _s2, _cmp, _s3, _zone) {

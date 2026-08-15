@@ -20,10 +20,12 @@
 // resolves a bare specifier, because the browser emit has no resolver to do it
 // with. See `vendor/README.md`.
 import * as ohm from './vendor/ohm.js';
-import type { Step, Block } from '../ast.ts';
+import type { Step, Block, Rest, Score } from '../ast.ts';
 import { installLexical, origin, type Origin } from './lexical-semantics.ts';
 import { installStep } from './step-semantics.ts';
 import { installBlock } from './block-semantics.ts';
+import { installRest } from './rest-semantics.ts';
+import { installScore, type ScoreQualifier } from './score-semantics.ts';
 
 export type { Origin };
 
@@ -35,9 +37,18 @@ export interface WdlParser {
   parseStep(text: string, o?: Origin): Step;
   /** One block header — the text before the `:`. Throws if the grammar rejects it. */
   parseHeader(text: string, o?: Origin): Block;
-  /** The same two, reporting a failure instead of throwing. */
+  /** One `rest …` line, keyword included. */
+  parseRest(text: string, o?: Origin): Rest;
+  /** One `score: …` line, keyword included. */
+  parseScore(text: string, o?: Origin): Score;
+  /** One `on cap:` or `tiebreak:` line — what it contributes to the score above it. */
+  parseQualifier(text: string, o?: Origin): ScoreQualifier;
+  /** The same, reporting a failure instead of throwing. */
   tryStep(text: string, o?: Origin): Attempt<Step>;
   tryHeader(text: string, o?: Origin): Attempt<Block>;
+  tryRest(text: string, o?: Origin): Attempt<Rest>;
+  tryScore(text: string, o?: Origin): Attempt<Score>;
+  tryQualifier(text: string, o?: Origin): Attempt<ScoreQualifier>;
 }
 
 export function makeParser(grammarSource: string): WdlParser {
@@ -46,6 +57,8 @@ export function makeParser(grammarSource: string): WdlParser {
   installLexical(semantics);
   installStep(semantics);
   installBlock(semantics);
+  installRest(semantics);
+  installScore(semantics);
 
   /**
    * One shape for every start rule: match, then walk.
@@ -70,11 +83,23 @@ export function makeParser(grammarSource: string): WdlParser {
 
   const tryStep = at<Step>('step', (n, o) => (n as { toStep(o: Origin): Step }).toStep(o));
   const tryHeader = at<Block>('blockHeader', (n, o) => (n as { toBlock(o: Origin): Block }).toBlock(o));
+  const tryRest = at<Rest>('restLine', (n, o) => (n as { toRest(o: Origin): Rest }).toRest(o));
+  // A score has no origin of its own: it is a field on a workout or a block, not
+  // a node with a line of its own in the AST.
+  const tryScore = at<Score>('scoreLine', (n) => (n as { toScore(): Score }).toScore());
+  const tryQualifier = at<ScoreQualifier>('scoreQualifierLine',
+    (n) => (n as { qualifier(): ScoreQualifier }).qualifier());
 
   return {
     tryStep,
     tryHeader,
+    tryRest,
+    tryScore,
+    tryQualifier,
     parseStep: orThrow('step', tryStep),
     parseHeader: orThrow('block header', tryHeader),
+    parseRest: orThrow('rest', tryRest),
+    parseScore: orThrow('score', tryScore),
+    parseQualifier: orThrow('score qualifier', tryQualifier),
   };
 }

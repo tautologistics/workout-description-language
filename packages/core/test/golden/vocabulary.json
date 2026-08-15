@@ -8449,6 +8449,109 @@
   },
   "fixpoint": true
  },
+ "score :: rounds + reps per round": {
+  "canonical": "5 rounds:\n  - 10 Burpees\n\nscore: rounds + reps per round",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "perRound": true,
+    "primary": "rounds + reps",
+    "raw": "rounds + reps per round"
+   }
+  },
+  "fixpoint": true
+ },
+ "score :: brace form without a primary": {
+  "canonical": "for time:\n  - 100 Burpees\n\nscore: {tiebreak: reps at 5min}\ntiebreak: reps at 5min",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "primary": "{tiebreak: reps at 5min}",
+    "raw": "{tiebreak: reps at 5min}",
+    "tiebreak": "reps at 5min"
+   }
+  },
+  "fixpoint": true
+ },
+ "score :: nested block form": {
+  "canonical": "for time:\n  - 100 Burpees\n\nscore:",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "primary": "",
+    "raw": ""
+   }
+  },
+  "fixpoint": true
+ },
  "preamble :: title": {
   "canonical": "# Fran\n\nfor time:\n  - 21 Thrusters @ 95lb",
   "errors": [],
@@ -9071,6 +9174,338 @@
       },
       {
        "afterLast": false,
+       "duration": {
+        "compare": "lt",
+        "kind": "threshold",
+        "metric": "hr",
+        "unit": "bpm",
+        "value": 120
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: threshold zone": {
+  "canonical": "5 sets:\n  - 500m Row\n  rest until HR < Z2",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 500
+       }
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "compare": "lt",
+        "kind": "threshold",
+        "metric": "hr",
+        "zone": 2
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: loose spacing": {
+  "canonical": "5 sets:\n  - 5 Back Squats @ 225lb\n  rest 1min30s",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 225
+         }
+        }
+       ]
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 90
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: bare minutes": {
+  "canonical": "5 sets:\n  - 5 Back Squats @ 225lb\n  rest 3min",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 225
+         }
+        }
+       ]
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 180
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: clock": {
+  "canonical": "5 sets:\n  - 5 Back Squats @ 225lb\n  rest 1min30s",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 225
+         }
+        }
+       ]
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 90
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: as needed after last": {
+  "canonical": "5 sets:\n  - 1 Snatch\n  rest as needed",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Snatch",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 1
+       }
+      },
+      {
+       "afterLast": true,
+       "dynamic": "as-needed",
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: equal to work after last": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest = work",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": true,
+       "dynamic": "equal-to-work",
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: active recovery after last": {
+  "canonical": "5 sets:\n  - 400m Run\n  rest 400m Jog",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 400
+       }
+      },
+      {
+       "active": {
+        "movement": "Jog",
+        "quantity": {
+         "kind": "distance",
+         "unit": "m",
+         "value": 400
+        }
+       },
+       "afterLast": true,
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: threshold after last": {
+  "canonical": "5 sets:\n  - 500m Row\n  rest until HR < 120bpm",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 500
+       }
+      },
+      {
+       "afterLast": true,
        "duration": {
         "compare": "lt",
         "kind": "threshold",

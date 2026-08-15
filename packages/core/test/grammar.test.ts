@@ -130,6 +130,8 @@ const headerExcluded = new Map(HEADER_EXCLUSIONS.map((e) => [e.line, e.why]));
  * which is why the walk below carries whether it is inside `variants:`.
  */
 const NOT_A_HEADER = /^(score|on\s+cap|tiebreak|variants|choice)\s*:/i;
+const IS_REST = /^rest\b/i;
+const IS_SCORE = /^score\s*:/i;
 
 function headerText(text: string): string | null {
   if (/^-\s/.test(text) || /^rest\b/i.test(text) || /^[@#]/.test(text)) return null;
@@ -151,16 +153,19 @@ function headerText(text: string): string | null {
   return null;
 }
 
-interface Harvest { steps: string[]; headers: string[] }
+interface Harvest { steps: string[]; headers: string[]; rests: string[]; scores: string[] }
 
-/** Every step line and every block header in a line tree, at any depth. */
+/** Every line in a tree, sorted into the areas the grammar claims. */
 function harvest(roots: Line[]): Harvest {
-  const out: Harvest = { steps: [], headers: [] };
+  const out: Harvest = { steps: [], headers: [], rests: [], scores: [] };
   const walk = (nodes: Line[], inVariants: boolean) => {
     for (const n of nodes) {
       const text = n.text.trim();
       if (/^-\s+/.test(text)) out.steps.push(text.replace(/^-\s+/, '').trim());
-      else if (!inVariants) {
+      else if (inVariants) { /* a key in a map, not a line of workout syntax */ }
+      else if (IS_REST.test(text)) out.rests.push(text);
+      else if (IS_SCORE.test(text)) out.scores.push(text);
+      else {
         const head = headerText(text);
         if (head !== null) out.headers.push(head);
       }
@@ -171,11 +176,12 @@ function harvest(roots: Line[]): Harvest {
   return out;
 }
 
+const AREA_KEYS = ['steps', 'headers', 'rests', 'scores'] as const;
+
 function merge(parts: Harvest[]): Harvest {
-  return {
-    steps: [...new Set(parts.flatMap((p) => p.steps))],
-    headers: [...new Set(parts.flatMap((p) => p.headers))],
-  };
+  const out = {} as Harvest;
+  for (const k of AREA_KEYS) out[k] = [...new Set(parts.flatMap((p) => p[k]))];
+  return out;
 }
 
 function corpusHarvest(): Harvest {
@@ -207,7 +213,7 @@ function specHarvest(): Harvest {
 
 function vocabularyHarvest(): Harvest {
   return merge([
-    { steps: STEP_FORMS.flatMap((g) => g.lines), headers: [] },
+    { steps: STEP_FORMS.flatMap((g) => g.lines), headers: [], rests: [], scores: [] },
     ...SOURCES.map((s) => harvest(readLines(s.src))),
   ]);
 }
@@ -246,16 +252,44 @@ function referenceHeader(head: string): unknown | null {
   return strip({ ...block, children: [] });
 }
 
+/**
+ * What the current parser makes of a `rest …` line, inside the smallest block
+ * that can hold one.
+ */
+function referenceRest(line: string): unknown | null {
+  const { workout, errors } = parse(`5 sets:\n  - 5 Back Squat\n  ${line}`);
+  if (errors.length) return null;
+  const block = workout.body[0];
+  if (!block || block.node !== 'block') return null;
+  const rest = block.children[1];
+  return rest && rest.node === 'rest' ? strip(rest) : null;
+}
+
+/**
+ * What the current parser makes of a `score:` line at the top level, where it
+ * belongs to the workout. On a block it goes through the same `parseScore`, so
+ * one of the two positions is enough to measure the line itself.
+ */
+function referenceScore(line: string): unknown | null {
+  const { workout, errors } = parse(`for time:\n  - 100 Burpee\n${line}`);
+  if (errors.length) return null;
+  return workout.score ? strip(workout.score) : null;
+}
+
 type Read = (line: string) => { ok: boolean; value?: unknown; message?: string };
 
-const readStep: Read = (line) => {
-  const got = wdl.tryStep(line);
-  return got.ok ? { ok: true, value: strip(got.value) } : { ok: false, message: got.message };
-};
-const readHeader: Read = (line) => {
-  const got = wdl.tryHeader(line);
-  return got.ok ? { ok: true, value: strip({ ...got.value, children: [] }) } : { ok: false, message: got.message };
-};
+/** Turn an `Attempt` into what `compare` wants, stripping what is the caller's. */
+const reader = <T>(attempt: (line: string) => { ok: boolean; value?: T; message?: string },
+  shape: (v: T) => unknown = (v) => v): Read => (line) => {
+    const got = attempt(line);
+    return got.ok ? { ok: true, value: strip(shape(got.value as T)) } : { ok: false, message: got.message };
+  };
+
+const readStep = reader((l) => wdl.tryStep(l));
+// A header's children are the caller's — the grammar states one line.
+const readHeader = reader((l) => wdl.tryHeader(l), (b) => ({ ...b, children: [] }));
+const readRest = reader((l) => wdl.tryRest(l));
+const readScore = reader((l) => wdl.tryScore(l));
 
 interface Tally {
   checked: number;
@@ -320,11 +354,30 @@ const AREAS: Area[] = [
     excluded: headerExcluded,
     atLeast: [90, 20, 40],
   },
+  {
+    what: 'rest lines',
+    lines: (h) => h.rests,
+    reference: referenceRest,
+    read: readRest,
+    excluded: new Map(),
+    atLeast: [10, 4, 9],
+  },
+  {
+    what: 'score lines',
+    lines: (h) => h.scores,
+    reference: referenceScore,
+    read: readScore,
+    excluded: new Map(),
+    atLeast: [10, 4, 8],
+  },
 ];
 
 const pinnedForms = new Set([
   ...STEP_FORMS.flatMap((g) => g.lines),
-  ...SOURCES.flatMap((s) => harvest(readLines(s.src)).headers),
+  ...SOURCES.flatMap((s) => {
+    const h = harvest(readLines(s.src));
+    return [...h.headers, ...h.rests, ...h.scores];
+  }),
 ]);
 
 for (const area of AREAS) {
@@ -384,5 +437,16 @@ describe('the grammar is the spec', () => {
 
   it('reports what it cannot read, by position', () => {
     eq(wdl.tryStep('').ok, false);
+  });
+
+  /**
+   * `on cap:` and `tiebreak:` are the one thing here with no differential
+   * counterpart: which score they attach to is a question about *lines*, not
+   * about one line, and it lives in the caller. So the line itself is checked
+   * directly rather than through the harness above.
+   */
+  it('reads a score qualifier line', () => {
+    eq(wdl.parseQualifier('on cap: reps completed'), { key: 'onCap', text: 'reps completed' });
+    eq(wdl.parseQualifier('tiebreak: reps at 5min'), { key: 'tiebreak', text: 'reps at 5min' });
   });
 });

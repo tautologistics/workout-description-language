@@ -393,6 +393,99 @@ WDL {
                 | caseInsensitive<"synchronized"> | caseInsensitive<"shared">
   label = (alnum | "_" | "-")+
 
+  // ================== the rest line ==================
+  //
+  // A rest is bounded by a clock, by the athlete, by the work that preceded it,
+  // by a sensor reading, or by work of its own. `after last` is a separate fact
+  // about *which* rest and can sit after any of them (spec §5.2, N1).
+
+  restLine = restWord ~wordChar restBody? trailingAfterLast?
+  restWord = caseInsensitive<"rest">
+  restBody = spaces restSpec
+  trailingAfterLast = spaces afterLast
+  afterLast = caseInsensitive<"after"> spaces caseInsensitive<"last"> ~wordChar
+
+  restSpec = threshold                 -- threshold
+           | asNeeded                  -- asNeeded
+           | equalToWork               -- equalToWork
+           | looseDuration ~moreRest   -- duration
+           | activeRecovery            -- active
+
+  asNeeded = caseInsensitive<"as"> spaces caseInsensitive<"needed">
+  equalToWork = "=" spaces workWord                                       -- sign
+              | caseInsensitive<"equal"> spaces caseInsensitive<"to">
+                spaces workWord                                           -- words
+  workWord = caseInsensitive<"work"> ~wordChar
+
+  // A duration *is* the whole of a rest line — nothing follows it — so
+  // `rest 2 Push-Up` is two push-ups of active recovery and not two minutes with
+  // a movement left over. Only `after last` may trail it.
+  moreRest = ~afterLast any
+
+  // Here, and only here, a duration's internal spacing is free: `rest 1 min 30 s`
+  // is `rest 1min30s`, because there is no movement name after it for the spaces
+  // to be confused with. In a step line that licence would make `1min30s` read as
+  // `1 min` with `30s` left over.
+  // No `~wordChar` guard after a unit here, and that is not an oversight: after
+  // `min` in `1min30s` comes a digit, so such a guard would refuse the compound
+  // form. What bounds a loose duration is `~moreRest` above — it is the whole of
+  // the rest line — which is a stronger statement than any per-unit guard.
+  looseDuration = looseHours looseMinutes? looseSeconds?  -- hms
+                | looseMinutes looseSeconds?              -- ms
+                | looseSeconds                            -- s
+                | integer ":" clockSeconds spaces         -- clock
+                | integer ~wordChar spaces                -- minutes
+  looseHours = integer spaces hourUnit spaces
+  looseMinutes = integer spaces minUnit spaces
+  looseSeconds = integer spaces secUnit spaces
+
+  // `rest 400m Jog` — the interval is work, not a clock.
+  activeRecovery = anyQuantity spaces restMovement
+  restMovement = restMovChar+
+  restMovChar = ~(space+ afterLast) any
+
+  // ================== the score line ==================
+  //
+  // Unlike a step or a header, a score line carries its own keyword, so this rule
+  // selects the lines it applies to rather than being pointed at them. `on cap:`
+  // and `tiebreak:` are lines of their own that qualify the score above them.
+
+  scoreLine = scoreWord ":" spaces scoreSpec?
+  scoreWord = caseInsensitive<"score">
+
+  scoreQualifierLine = onCapLine | tiebreakLine
+  onCapLine = caseInsensitive<"on"> spaces caseInsensitive<"cap"> ":" spaces restOfLine
+  tiebreakLine = caseInsensitive<"tiebreak"> ":" spaces restOfLine
+  restOfLine = any+
+
+  scoreSpec = braceScore                             -- brace
+            | aggregateWord spaces perRound          -- aggregatePerRound
+            | scoreText spaces perRound              -- perRound
+            | caseInsensitive<"sum"> spaces caseInsensitive<"of">
+              spaces caseInsensitive<"blocks">       -- sumOfBlocks
+            | scoreText                              -- plain
+
+  aggregateWord = caseInsensitive<"min"> | caseInsensitive<"max"> | caseInsensitive<"sum">
+  perRound = caseInsensitive<"per"> spaces caseInsensitive<"round"> ~wordChar
+
+  // What is scored is prose — `rounds + reps`, `load`, `checkpoints` — so it is
+  // whatever is there, stopping only where a `per round` suffix begins.
+  scoreText = scoreChar+
+  scoreChar = ~(space+ perRound) any
+
+  // `score: {primary: time, tiebreak: reps at 5min}`. The brace form exists so a
+  // compound score fits on one line; a *named* field is the only thing that
+  // qualifies, and an entry naming anything else is held and means nothing.
+  braceScore = "{" braceEntry braceEntryTail* "}"
+  braceEntryTail = "," braceEntry
+  braceEntry = spaces braceField ":" spaces braceValue  -- field
+             | spaces braceValue                        -- other
+  braceField = caseInsensitive<"primary">                            -- primary
+             | caseInsensitive<"on"> spaces caseInsensitive<"cap">   -- onCap
+             | caseInsensitive<"tiebreak">                           -- tiebreak
+  braceValue = braceValueChar*
+  braceValueChar = ~"," ~"}" any
+
   // ---------- lexical ----------
 
   number = digit+ ("." digit+)?

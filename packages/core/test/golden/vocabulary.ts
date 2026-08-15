@@ -408,6 +408,20 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   { group: 'score', name: 'tiebreak', src: 'for time:\n  - 100 Burpee\nscore: time\ntiebreak: reps at 5min' },
   { group: 'score', name: 'brace form', src: 'for time:\n  - 100 Burpee\nscore: {primary: time, tiebreak: reps at 5min}' },
   { group: 'score', name: 'on a block', src: '3 rounds:\n  - 10 Push-Up\n  score: time' },
+  { group: 'score', name: 'rounds + reps per round', src: '5 rounds:\n  - 10 Burpee\nscore: rounds + reps per round' },
+  // A brace with no `primary:` field. `primary` becomes the *whole brace text* —
+  // `{tiebreak: reps at 5min}` — which is not a thing anything can rank by, and
+  // the canonical form then states the tiebreak twice: once inside the brace it
+  // re-emits as `raw`, and once as its own `tiebreak:` line. Both halves are
+  // defects and both are reproduced by the grammar, because a `primary` that
+  // defaults to the raw text is what `parseScore` says. See known-debts.md.
+  { group: 'score', name: 'brace form without a primary', src: 'for time:\n  - 100 Burpee\nscore: {tiebreak: reps at 5min}' },
+  // The nested block form, which spec §9.5 and §9.6 both document. It is dropped
+  // *entirely*: `parseScore` is handed `score:` with nothing after it, so
+  // `primary` is the empty string, the children are never looked at, `wdl check`
+  // says ok, and `wdl fmt` writes a bare `score:`. Found 2026-08-15 while stating
+  // the score line in the grammar. See known-debts.md.
+  { group: 'score', name: 'nested block form', src: 'for time:\n  - 100 Burpee\nscore:\n  primary: time\n  on cap: reps' },
 
   // --- preamble ---
   { group: 'preamble', name: 'title', src: '# Fran\nfor time:\n  - 21 Thruster @ 95lb' },
@@ -430,6 +444,27 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   { group: 'rest', name: 'after last', src: '5 sets:\n  - 30s Bike\n  rest 1min after last' },
   { group: 'rest', name: 'active recovery', src: '5 sets:\n  - 400m Run\n  rest 400m Jog' },
   { group: 'rest', name: 'threshold', src: '5 sets:\n  - 500m Row\n  rest until HR < 120bpm' },
+  { group: 'rest', name: 'threshold zone', src: '5 sets:\n  - 500m Row\n  rest until HR < Z2' },
+  // A rest line is the one place a duration's internal spacing is free, because
+  // no movement name follows it for the spaces to be confused with —
+  // `parseDuration` strips whitespace before matching. Pinned so that licence is
+  // a stated property rather than a side effect of one `replace`.
+  { group: 'rest', name: 'loose spacing', src: '5 sets:\n  - 5 Back Squat @ 225lb\n  rest 1 min 30 s' },
+  { group: 'rest', name: 'bare minutes', src: '5 sets:\n  - 5 Back Squat @ 225lb\n  rest 3' },
+  { group: 'rest', name: 'clock', src: '5 sets:\n  - 5 Back Squat @ 225lb\n  rest 1:30' },
+  // `after last` on each of the other four kinds of bound. All four are *parsed*
+  // correctly and then **lost by the formatter**: `restText` returns early for
+  // `as needed`, `= work`, active recovery and a threshold, so only a plain
+  // duration ever gets ` after last` appended. So `wdl fmt` quietly turns "rest
+  // only after the last round" into "rest between every round", which is a
+  // different workout. Invisible to the fixpoint check, because the *second*
+  // format of the shortened line is stable — one more way a round trip proves
+  // stability and not correctness. Found 2026-08-15 by writing these
+  // permutations while stating the rest line in the grammar. See known-debts.md.
+  { group: 'rest', name: 'as needed after last', src: '5 sets:\n  - 1 Snatch\n  rest as needed after last' },
+  { group: 'rest', name: 'equal to work after last', src: '5 sets:\n  - 30s Bike\n  rest = work after last' },
+  { group: 'rest', name: 'active recovery after last', src: '5 sets:\n  - 400m Run\n  rest 400m Jog after last' },
+  { group: 'rest', name: 'threshold after last', src: '5 sets:\n  - 500m Row\n  rest until HR < 120bpm after last' },
 
   // --- overlays and nesting ---
   { group: 'structure', name: 'interrupt overlay', src: 'AMRAP 20min:\n  - 10 Burpee\n  every 1min: 5 Push-Up' },
