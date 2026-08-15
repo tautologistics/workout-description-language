@@ -539,6 +539,10 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   // and it is the argument against stopping halfway: a half-fixed boundary turns
   // a wrong-but-stable reading into a reading that changes under the formatter.
   { group: 'block/modifier', name: 'target after a comma then for time', src: '3 rounds, @ 95lb for time:\n  - 10 Thruster' },
+  // The fourth of the four spellings spec §5.0 now lists, and all four are one
+  // reading — pinned together because the spec claims that outright and a
+  // normative claim wants a test under it rather than a sentence.
+  { group: 'block/modifier', name: 'for time then target after a comma', src: '3 rounds for time, @ 95lb:\n  - 10 Thruster' },
   { group: 'block/modifier', name: 'two targets after a comma', src: '3 rounds, @ 95lb @ 24in:\n  - 10 Box Jump' },
   // The block-level half of fail-open, found 2026-08-15 while stating the header
   // and closed the same day by queue item 0d. An unrecognized header modifier

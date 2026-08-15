@@ -176,6 +176,15 @@ So `alternating` / `alt` are accepted on input, map to `(split)`, and are preser
 
 Modifiers compose on a single header, because that is how workouts are actually written — `3 rounds for time:` for Helen, `5 rounds, building:` for the Bear Complex, `for time, cap 15min:` for any Open workout. Order is free on input; canonical output orders them structure → scoring → cap → qualifiers.
 
+**"Order is free" includes a target beside a `for time`, and until 2026-08-15 it did not.** `3 rounds for time @ 95lb:` read correctly while `3 rounds @ 95lb for time:` lost *both* — the target ran greedily to the end of the segment, so the block inherited a meaningless `95lb for time` and was never scored, while `wdl check` reported ok and the text round-tripped unchanged. The prose above was already right; the parser was what disagreed with it. A header's target now ends at `for time` (a step's does not, because `for time` means nothing inside a step), and `for time` may follow a comma-separated modifier as well — **whatever may qualify a header before a comma may qualify it after one**, so all four spellings below are one reading:
+
+```wdl
+3 rounds @ 95lb for time:
+3 rounds for time @ 95lb:
+3 rounds, @ 95lb for time:
+3 rounds for time, @ 95lb:
+```
+
 A header has exactly one colon, the one that opens the block. Modifiers are comma-separated words or phrases before it, never `key: value` pairs.
 
 **Targets and equipment may sit on the header and are inherited by the steps inside.** A step's own target always wins; the block's applies otherwise.
@@ -218,6 +227,8 @@ The default. A block with no header runs its steps in order.
   - 5 Back Squat @ 225lb
   rest 3min after last
 ```
+
+`after last` says *which* rest, not how long it is, so it follows **any** bound — a duration, `as needed`, `= work`, active recovery, or a sensor threshold — and canonical output writes it back on all of them. *Until 2026-08-15 only a plain duration kept it: `rest as needed after last` canonicalised to `rest as needed`, silently turning "rest only after the last round" into "rest between every round".*
 
 **Except when the round is an interval.** A `work Xs:` block makes the rest paired with it *structural* rather than recovery, so it fires on every round including the last — which is why a Tabata block is exactly 4:00 and not 3:50:
 
