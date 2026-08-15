@@ -135,8 +135,10 @@ export function installBlock(semantics: Semantics): void {
       this.args.block.name = word.sourceString.toLowerCase();
     },
     // Unrecognized, and held rather than rejected: a named sequence, which keeps
-    // every child and every modifier. The old parser also *reports* it, and that
-    // report is not in the AST — see the note in test/grammar.test.ts.
+    // every child and every modifier. It is also *reported*, and that is
+    // `parse.ts`'s job rather than this file's — an error is not part of the AST,
+    // and a semantics that could raise one would be a semantics with an opinion
+    // about how the caller wants to be told.
     headerKind_unknown(name) {
       this.args.block.type = 'sequence';
       this.args.block.name = name.sourceString.trim();

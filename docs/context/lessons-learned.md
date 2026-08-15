@@ -199,3 +199,42 @@ rule completely. The toolchain that *produces* a file is not the file. Before
 honouring a constraint, check which artifact it binds; the phrasing in
 README.md, running-it.md and settled-decisions.md has been sharpened so the
 question does not come up again. *Corrected 2026-08-14.*
+
+**A regex chain is accidentally forgiving; a grammar has to say so out loud.**
+Swapping `parse.ts` over to the grammar, one thing got *worse* before it got
+better: `10 Thruster,` and `3 rounds,:` stopped parsing at all. The old code
+split on commas and handed each piece to a cascade, so an empty piece fell
+through to a catch-all and cost nothing; the grammar required a modifier after
+each comma, so one stray keystroke made the whole line unreadable and took the
+movement, the amount and the block's kind down with it. Nobody had ever written
+that tolerance down — it was a property of `String.split`. The fix is a `?` in
+two rules and a sentence beside each, and the general shape is the thing worth
+keeping: **when replacing a lenient implementation with a stated one, the
+leniency you are about to lose is invisible, because it was never a decision.**
+Look for it where the old code iterated over pieces rather than matching a shape.
+Recorded 2026-08-15.
+
+**Measure the thing someone waits for, not the hot loop.** Ohm is **55× slower**
+than the regex chain at the thing it replaced: parsing all 190 corpus files went
+from 3.1ms to 172ms. That number is real and it is also almost entirely
+irrelevant, because nothing in this project parses in a loop — `wdl check` on one
+file went from 0.16s to 0.22s, most of the difference being a one-off 107ms
+grammar compile, and the whole test suite from 5.9s to 9.9s. Both numbers are
+worth having and only one of them is a cost: had the ratio been the only thing
+measured, the swap would have looked unaffordable. The fix if that ever changes
+is known and cheap — compile the grammar once and keep it, which `wdl()` already
+does within a process, or precompile it across processes. Recorded 2026-08-15.
+
+**A differential test's exclusion list is a to-do list, and then it is nothing.**
+Twenty step lines and one header were listed in `grammar.test.ts` as "the two
+read these differently, and here is why", each pinned as a vocabulary form. On
+the day of the swap every one of the twenty-one cleared, in the way its reason
+predicted, and the vocabulary diff was exactly those lines and no others — no
+corpus file moved, and `interpretations.json` regenerated to nothing. That is
+what the list was for, and it is the strongest argument for writing a
+disagreement down instead of shrugging at it. But the same day it stopped being
+worth anything: with one implementation, a differential test compares something
+to itself and is green by construction. Both halves matter — **pin the
+disagreements before the swap, and convert the harness after it**, into coverage
+counts and direct assertions on the tree, rather than leaving a test whose name
+still says it differentiates. Recorded 2026-08-15.

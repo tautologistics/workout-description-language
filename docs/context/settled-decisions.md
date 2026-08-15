@@ -126,6 +126,32 @@ would be tidier".
   the pure spec would have to be generated from it by stripping them, and it
   checks 128K of generated JS into the source path. Ohm needs neither.*
 
+- **The grammar is the parser, and it reaches the core the way data does.**
+  Settled 2026-08-15 by queue item 0a. There is one reading of a WDL line in the
+  project: `parse.ts` matches `spec/grammar-0.1.ohm` and walks it. The grammar
+  *text* is a `CoreData` key beside the movement registry — `node.ts` reads the
+  file, a browser fetches it, `required('grammar')` throws by name if nobody
+  hands it over — because the rule that `src/` opens no files does not bend for
+  the file it needs most. `wdl()` compiles it once and keeps the result, keyed on
+  the source text so a host that swaps the grammar gets a parser for the one it
+  swapped in.
+
+  **What stays hand-written is the assembly, and that is a boundary rather than
+  a gap.** Which score an `on cap:` line qualifies, which variant a field belongs
+  to, which block a child belongs to, and the `parseNode` dispatch that decides
+  which *kind* of line this is. Those are questions about several lines, and this
+  is a grammar over one — the same division that keeps `readLines` free of WDL
+  knowledge. The eighteen regex literals left in `parse.ts` are all of that kind.
+
+- **A comma with nothing after it separates nothing.** Settled 2026-08-15, while
+  swapping the parser over, because it had to be: the old chain split on commas
+  and let an empty piece fall through, so `10 Thruster,` and `3 rounds,:` had
+  always worked by accident. Required in the grammar, a modifier after a comma
+  made one stray keystroke cost the whole line's reading — its movement, its
+  amount, its kind. `commaModifier` and `headerModifier` take an optional
+  modifier. This is forgiveness at the *input* edge, in the same family as queue
+  item 0b, and `wdl fmt` canonicalises the comma away.
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).

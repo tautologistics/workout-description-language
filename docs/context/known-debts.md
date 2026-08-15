@@ -21,35 +21,34 @@ when something looks odd before treating it as a discovery.
   them apart needs a core change. Same class as the AMRAP `duration`/`window`
   duplication that Chris caught.
 
-- **`@` with no space after it silently destroys the load.** `- 10 Thruster
-  @95lb` reads `95lb` as a *flag*, not a target: `/@(\w[\w-]*)/g` runs over the
-  whole line before the `@` split, and `\w` matches digits. The load never
-  reaches `targets`, so it is invisible to muscle and volume analysis, the
-  builder and the board; `wdl check` reports `ok`; and `wdl fmt` rewrites the
-  line to `- 10 Thrusters, 95lb`, which is a stable fixpoint of the wrong
-  reading. No corpus file writes `@` without a space, which is why 1257 tests
-  never saw it. Found by the grammar exploration, pinned as `pending` cases in
-  `test/golden/vocabulary.ts`.
+- ~~**`@` with no space after it silently destroys the load.**~~ **Closed
+  2026-08-15** by queue item 0a, the swap. `- 10 Thruster @95lb` used to read
+  `95lb` as a *flag*: `/@(\w[\w-]*)/g` ran over the whole line before the `@`
+  split and `\w` matches digits, so the load never reached `targets` — invisible
+  to muscle and volume analysis, to the builder and to the board — while
+  `wdl check` reported `ok` and `wdl fmt` rewrote the line to
+  `- 10 Thrusters, 95lb`, a stable fixpoint of the wrong reading. No corpus file
+  writes `@` without a space, which is why 1257 tests never saw it; the grammar
+  exploration found it.
 
-  **The grammar now states the correct rule, and the swap is the fix.**
-  *Settled 2026-08-15.* `spec/grammar-0.1.ohm` reads **the first character after
-  the `@`**: a letter opens a flag, a digit opens a target. So `@95lb`, `@ 95lb`,
-  `@95` and `@ 95` all read the same way, and the presence of a unit has nothing
-  to do with it — the earlier phrasing of the fix ("a flag is `@` not followed by
-  a space") was half of it and would have left `@95` a flag called `95`. The flag
-  form does still require the `@` tight against the word, because a *spaced*
-  target legitimately begins with a letter — `@ Z2`, `@ RPE 8`,
-  `@ of heavy-single` — so `@ tiebreak` is a target, stated rather than left to
-  rule ordering. `spec-0.1.md` §7 says all of this now too.
+  **The rule, stated in `spec/grammar-0.1.ohm` and now the only reading there
+  is:** the first character after the `@` decides. A letter opens a flag, a digit
+  opens a target. So `@95lb`, `@ 95lb`, `@95` and `@ 95` all read the same way,
+  and the presence of a unit has nothing to do with it — the earlier phrasing of
+  the fix ("a flag is `@` not followed by a space") was half of it and would have
+  left `@95` a flag called `95`. The flag form does still require the `@` tight
+  against the word, because a *spaced* target legitimately begins with a letter —
+  `@ Z2`, `@ RPE 8`, `@ of heavy-single` — so `@ tiebreak` is a target, stated
+  rather than left to rule ordering. `spec-0.1.md` §7 says all of this too.
 
-  Grammar and parser therefore **disagree on every `@`-plus-digit form**, which
-  is the intended state: the grammar is right and `parse.ts` is wrong until the
-  swap (queue item 0a). Six lines are listed as exclusions in
-  `test/grammar.test.ts` with reasons and pinned as `known-wrong` in the
-  vocabulary — `@95lb`, `@2x35lb`, `@24kg`, `@95`, `@85% 1RM`, and
-  `18 Thruster @115lb @tiebreak`. Two of them are worse than a lost load:
-  `@85% 1RM` stops the flag at the `%` and leaves `% 1RM` in the movement name,
-  formatting to `10 Thruster % 1RMs, 85`.
+  Six forms were pinned as `known-wrong` and are now `was-wrong` in
+  `test/golden/vocabulary.ts` — `@95lb`, `@2x35lb`, `@24kg`, `@95`, `@85% 1RM`
+  and `18 Thruster @115lb @tiebreak` — with what each used to do kept beside what
+  it does now. Two of them were worse than a lost load: `@85% 1RM` stopped the
+  flag at the `%` and left `% 1RM` in the movement name, formatting to
+  `10 Thruster % 1RMs, 85`. The rule itself is asserted directly in
+  `test/grammar.test.ts`, because with one implementation left there is no
+  disagreement to read it off.
 
 - **Open: what a target with no unit means.** `@ 95` parses to
   `{kind: 'raw', text: '95'}` — held verbatim, meaning nothing. That is
@@ -62,14 +61,15 @@ when something looks odd before treating it as a discovery.
   an invention: `@95` is 95lb in one gym and 95kg in another. Decide it properly
   when something needs to consume it.
 
-- **A target written after a comma is filed as a note.** `- 10 Thruster, @ 95lb`
-  puts `@ 95lb` in `notes`, not `targets`. The `@` split runs over the *first*
-  comma segment only, so `applyQualifier` never sees a target and falls through
-  to its catch-all. Same consequence as the `@95lb` entry above — the load is
-  invisible to analysis, the builder and the board, `wdl check` says `ok`, and
-  the wrong reading is a perfect fixpoint. Found 2026-08-15 by
-  `test/grammar.test.ts`, which reads it as a target; pinned as three `pending`
-  cases in `test/golden/vocabulary.ts` and listed as a grammar exclusion.
+- ~~**A target written after a comma is filed as a note.**~~ **Closed 2026-08-15**
+  by the swap. `- 10 Thruster, @ 95lb` used to put `@ 95lb` in `notes`, not
+  `targets`: the `@` split ran over the *first* comma segment only, so
+  `applyQualifier` never saw a target and fell through to its catch-all. Same
+  consequence as the `@95lb` entry above — the load invisible to analysis, the
+  builder and the board, `wdl check` saying `ok`, and the wrong reading a perfect
+  fixpoint. Found 2026-08-15 by `test/grammar.test.ts`, which read it as a target
+  the same day. The grammar reads an `@` group wherever it appears; three forms
+  are pinned under `was-wrong`.
 
 - ~~**The browser cannot resolve `ohm-js`.**~~ **Closed 2026-08-15**, before item
   0c rather than with the swap, because there was one import site to change and
@@ -80,35 +80,33 @@ when something looks odd before treating it as a discovery.
   non-relative specifier, and so does `build-web.mjs`. See
   [settled-decisions.md](settled-decisions.md).
 
-- **An rx split with a space-separated qualifier after it is swallowed into the
-  movement name.** `- 10 Deadlift (105/145) each arm` parses to a movement
-  literally named `Deadlift (105/145)`: `peelRx` only fires at the end of a comma
-  segment, so the paren never leaves the name. Both loads are lost, and the name
-  now matches no registry entry — so unlike the `@95lb` family, the step also
-  drops out of muscle and volume analysis, and the builder shows an unregistered
-  movement. `wdl fmt` then pluralizes the name it was handed and writes
-  `10 Deadlift (women 105lb / men 145lb)s each arm`, a `)s` on the whiteboard.
-  With a *flag* rather than a laterality it does not even settle: `10 Deadlift
-  (105/145) unbroken` formats to `10 Deadlifts (105/145), unbroken`, and the
-  comma spelling reparses *as an rx* — one pass of the formatter loses the loads
-  and the next finds them. A comma or writing the qualifier first both read
-  correctly, so this is the space that decides it. Found 2026-08-15 by parsing a
-  line in the browser while checking the vendored engine; pinned as five
-  `known-wrong` cases and two correct-neighbour cases in
-  `test/golden/vocabulary.ts`, listed as grammar exclusions, and the unsettled
-  one is in `KNOWN_UNSETTLED` in `vocabulary.test.ts`. The grammar reads all
-  seven correctly, so the swap (queue item 0a) dissolves it — which is now one
-  of the arguments for the swap.
+- ~~**An rx split with a space-separated qualifier after it is swallowed into the
+  movement name.**~~ **Closed 2026-08-15** by the swap, and it was the worst of
+  the three. `- 10 Deadlift (105/145) each arm` used to parse to a movement
+  literally named `Deadlift (105/145)`, because `peelRx` only fired at the end of
+  a comma segment so the paren never left the name. Both loads were lost, and the
+  name matched no registry entry — so unlike the `@95lb` family the step also
+  dropped out of muscle and volume analysis, and the builder showed an
+  unregistered movement. `wdl fmt` then pluralized the name it was handed and
+  wrote `10 Deadlift (women 105lb / men 145lb)s each arm`, a `)s` on the
+  whiteboard. With a *flag* rather than a laterality it did not even settle:
+  `10 Deadlift (105/145) unbroken` formatted to
+  `10 Deadlifts (105/145), unbroken`, and the comma spelling reparsed *as an rx*
+  — one pass of the formatter lost the loads and the next found them, which is
+  why it was the only entry in `KNOWN_UNSETTLED`. Found 2026-08-15 by parsing a
+  line in the browser while checking the vendored engine. Five forms pinned under
+  `was-wrong`, two correct neighbours under `rx-by-division`, and
+  `KNOWN_UNSETTLED` is empty.
 
-- **A header target written after a comma is filed as a flag.** `3 rounds, @ 95lb:`
-  puts `@ 95lb` in `flags`, not `inherited`, so nothing under the block inherits
-  the load. The `@` sweep in `parseHeader` runs over the *first* comma segment
-  only, exactly as the step-level one does, and `applyBlockModifier` falls through
-  to its catch-all. The header twin of the `10 Thruster, @ 95lb` entry above, with
-  the same consequences and the same fix: the grammar reads an `@` group as an
-  inherited target wherever it appears, so the swap dissolves it. Found 2026-08-15
-  by stating the block header in the grammar; pinned as a vocabulary form and
-  listed as the one header exclusion in `test/grammar.test.ts`.
+- ~~**A header target written after a comma is filed as a flag.**~~ **Closed
+  2026-08-15** by the swap. `3 rounds, @ 95lb:` used to put `@ 95lb` in `flags`,
+  not `inherited`, so nothing under the block inherited the load. The `@` sweep in
+  `parseHeader` ran over the *first* comma segment only, exactly as the
+  step-level one did, and `applyBlockModifier` fell through to its catch-all. The
+  header twin of the `10 Thruster, @ 95lb` entry above, with the same
+  consequences and the same fix: the grammar reads an `@` group as an inherited
+  target wherever it appears. Found 2026-08-15 by stating the block header in the
+  grammar; it was the one header exclusion, and that list is empty now.
 
 - **`5x5 Back Squat @ 225lb` parses to a movement named `5x5 Back Squat`.** Leading
   `sets x reps` — the way gyms write it, and the way **spec §1's own design rule 4
@@ -166,9 +164,12 @@ when something looks odd before treating it as a discovery.
   `h`/`min`/`m`/`s` while the spelled-out spellings live in `parseQuantity`, which
   the rest path never reaches — so the fix is in `units.ts` and both readings would
   inherit it. Found 2026-08-15 by typing lines into the browser. Three forms
-  pinned and listed as *rejects* in `test/grammar.test.ts` — the first entries in
-  that list, which exists because a line **neither** implementation reads is the
-  one thing a differential test cannot see on its own.
+  pinned and listed as *rejects* in `test/grammar.test.ts` — they were the first
+  entries in that list, which exists because a line **neither** implementation
+  read was the one thing a differential test could not see on its own. *That list
+  outlived the differential test it was written for: with one implementation it
+  is simply "the lines no rule reads", and it is the honest half of the coverage
+  count.*
 
 - **A target and a `for time` on one header, written in that order, lose both.**
   `3 rounds @ 95lb for time:` hands `95lb for time` to `parseTarget` whole, because
@@ -182,7 +183,11 @@ when something looks odd before treating it as a discovery.
   pinned 2026-08-15.
 
 - An unrecognized step modifier is pushed into `step.notes`, the same array as an
-  authored `note: "…"`. Afterwards the two cannot be told apart, and notes are
+  authored `note: "…"`. *Unchanged by the swap 2026-08-15: `modifier_unknown` in
+  the grammar reproduces it deliberately, because until there is somewhere else
+  for unknown to live, changing where it lands is item 0d's job and not the
+  swap's. One nameless entry did go — a stray trailing comma used to push an
+  empty string in, and a comma with nothing after it now contributes nothing.* Afterwards the two cannot be told apart, and notes are
   rendered — so an unknown token silently acquires the meaning "the author wrote
   a note". Unknown should be held as unknown: preserved, round-tripped, inert.
   Bound up with queue item 0. *It has a block-level twin, recorded 2026-08-15

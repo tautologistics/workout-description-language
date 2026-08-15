@@ -34,17 +34,25 @@
 // again. Here `|` means "try in this order", so the ordering *is* the
 // specification and the grammar is unambiguous by construction.
 //
-// Verified, on every run: with the semantics under
-// packages/core/src/grammar/, this reproduces the hand-written parser's AST for
-// every line of every kind in examples/corpus, in spec-0.1.md, and in the
-// vocabulary suite. The counts are derived by packages/core/test/grammar.test.ts
-// rather than asserted here, and so is the list of lines the two read differently
-// on purpose — each with a reason. Where they differ this file is not
-// automatically the loser: the `@`-plus-digit forms are ones where the grammar is
-// right and parse.ts is wrong.
+// **The parser runs on this file.** As of 2026-08-15, `packages/core/src/parse.ts`
+// matches these rules and walks them with the semantics under
+// `packages/core/src/grammar/`; there is no second reading of a WDL line
+// anywhere, and no generation step between this file and the thing that runs it.
+// A host hands the text over the way it hands over the movement registry —
+// `packages/core/node.ts` reads it, a browser fetches it — because nothing under
+// `src/` opens a file.
 //
-// The parser does not run on this file yet. It runs beside the hand-written one
-// until the grammar covers the rest of phase 2.
+// Verified, on every run: `packages/core/test/grammar.test.ts` feeds every line
+// of every kind in examples/corpus, in spec-0.1.md and in the vocabulary suite to
+// the start rule for its kind, and derives the counts rather than asserting them.
+// The lines no rule reads are listed there with a reason each, and a line that
+// starts reading fails as stale. What each line *means* is pinned in
+// packages/core/test/golden/vocabulary.json.
+//
+// It ran *beside* a hand-written regex chain for a day before that, which is
+// where the numbers in docs/grammar-exploration.md come from and how the
+// `@`-plus-digit family was found: the two implementations disagreed, and the
+// grammar was right.
 
 
 WDL {

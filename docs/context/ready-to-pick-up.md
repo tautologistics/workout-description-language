@@ -12,47 +12,53 @@ carrying no semantic actions, and with a semantics file it reproduces the
 hand-written parser's AST on **538/538** lines. Notation and engine are settled
 in [settled-decisions.md](settled-decisions.md).
 
-**0a. Wire the grammar up. This is the next one.** *Was half done 2026-08-15;
-0c has since landed, so the reason it was deferred is spent.* The grammar runs
-inside `packages/core/` over **every kind of line phase 2 reads**, checked against
-the hand-written parser on every line the project has (see 0c below for the
-numbers). `parse.ts` is deliberately untouched and both apps run the old path.
+**0a. ~~Wire the grammar up.~~ DONE 2026-08-15.** `packages/core/src/parse.ts`
+matches `spec/grammar-0.1.ohm` and walks it with the semantics under
+`src/grammar/`. `parseOneStep`, `splitOr`, `peelRx`, `peelTrailingQualifiers`,
+`applyQualifier`, `applyBlockModifier`, the twenty-branch header chain, the
+`SECTIONS` set, `parseScore`'s brace walk and the preamble regexes are all gone:
+**548 lines and ~101 regex literals become 306 and 18**, and every one of the 18
+is *dispatch* — which kind of line this is, which phase 1 hands over and the
+grammar deliberately does not answer.
 
-**The deferral is over.** It was deferred because steps and block headers share
-their lexical layer, so landing steps alone would have meant reworking the step
-semantics once headers forced those productions apart. Headers have now forced
-them, the step numbers held through it, and the layer is shared in one place. The
-swap is the next thing.
+**The plumbing is the `provide()` seam.** `grammar` is a `CoreData` key like the
+movement registry; `node.ts` reads the file, both apps fetch it and await it
+before the first render, and `required('grammar')` throws by name if nobody hands
+it over. `wdl()` in `grammar/parser.ts` compiles it once and keeps the result,
+keyed on the source text so a replaced provider is honoured.
 
-What is left of 0a:
-- `parseOneStep` and `parseStep` delegate to the grammar; `splitOr`,
-  `peelRx`, `peelTrailingQualifiers` and `applyQualifier` go. `parseHeader`,
-  `applyBlockModifier`, `parseRest` and `parseScore` follow, and with them the
-  `SECTIONS` set and `expandRuns`' second caller.
-- **The swap fixes two known defects by itself** — the `@`-plus-digit family and a
-  header target after a comma — because the grammar already reads both correctly.
-  That is now an argument *for* doing it rather than a consequence of it.
-- ~~The browser cannot resolve `ohm-js`.~~ **Done 2026-08-15**, ahead of 0c
-  because 0c multiplies the import sites. `ohm-js` is vendored into
-  `src/grammar/vendor/` and imported by relative path; the emitted module loads
-  and parses in both apps. See [settled-decisions.md](settled-decisions.md).
-- **The grammar source has to reach the core.** Still open, and the only piece of
-  plumbing left before the swap. `src/` opens no files and knows no paths, so
-  `makeParser` is handed the grammar text; a host must supply it (`node.ts`
-  reads `spec/grammar-0.1.ohm`, the web app fetches it), most likely through the
-  same `provide()` seam as the registry. Both halves are known to work — the
-  suite reads the file, and a browser fetches it from `/spec/grammar-0.1.ohm`
-  (`serve.mjs` now serves `.ohm` as text) — but nothing wires them together.
-- **The 20 listed disagreements are the diff to expect in `vocabulary.json`**, and
-  every one is pinned, so the diff should be read rather than feared. Nine are the
-  swap *fixing* something — the `@`-plus-digit family, the comma-target pair, the
-  five `rx`-plus-qualifier lines, the header target after a comma. Four are the
-  parser's right-to-left application becoming left-to-right (`10 Deadlift unbroken
-  building`, `10 Deadlift building @tiebreak`, `5 Squat (both) each leg`, `max Row
-  until HR < Z1`). Two are the grammar being *wider* (`10-5 Squat`,
-  `20calories Row`); if that is not wanted, it is a validation rule, not a grammar
-  one.
-*Touches: `packages/core/src/parse.ts`, `src/env.ts`, both apps.*
+**Nine defects closed, and they are the payoff.** The `@`-plus-digit family (six
+forms), the comma-target trio, the five rx-plus-qualifier lines and the header
+target after a comma all read correctly now, so three families of silently-lost
+loads come back. 14 pending vocabulary cases became correct and both exclusion
+lists are empty; the suite is 1592 passing, 9 pending. The pending nine are queue
+item 0e's five decisions and 0d.
+
+**What moved, and it is what was pinned.** The old parser applied a step's parts
+right to left; a grammar reads left to right, so flag order reverses on
+`10 Deadlift unbroken building` and `10 Deadlift building @tiebreak`, and the
+later qualifier wins on `5 Squat (both) each leg` and `max Row until HR < Z1`.
+The grammar is *wider* on two: `20calories Row` is 20 calories, and `10-5 Squat`
+is a descending range because `min < max` is a constraint on values and a PEG
+states shapes. Nothing else moved — `interpretations.json` regenerated to no
+change at all, and so did `registry/workouts.canonical.json`.
+
+**Two behaviour changes the swap introduced, both pinned.** A step that is only a
+threshold (`until HR > 160bpm`) has no movement, so it is reported and held
+verbatim where the old chain made a step with an empty movement and said nothing;
+and a malformed variant line is reported rather than registered as a variant with
+no fields. A third was a regression and was fixed in the grammar rather than
+worked around: a comma with nothing after it now separates nothing, because
+requiring a modifier made one stray keystroke cost a whole line's reading.
+
+**It is slower, and the number is in [running-it.md](running-it.md).** Parsing
+the 190-file corpus goes from 3.1ms to 172ms — 55× — while `wdl check` on one
+file goes from 0.16s to 0.22s, because a CLI invocation is mostly Node starting
+up and a one-off 107ms grammar compile. Nobody is waiting on the 55×; if that
+changes, a precompiled grammar is the known fix.
+*Touched: `packages/core/src/parse.ts`, `src/env.ts`, `src/grammar/parser.ts`,
+`node.ts`, both apps, `spec/grammar-0.1.ohm`, `test/grammar.test.ts`,
+`test/golden/vocabulary.ts`.*
 
 **0c. ~~Extend the grammar to the rest of phase 2.~~ DONE 2026-08-15.**
 `spec/grammar-0.1.ohm` now states **every kind of line phase 2 reads** — the step

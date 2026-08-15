@@ -11,9 +11,8 @@
  * `block-semantics.ts` is its counterpart for headers; `parser.ts` puts all three
  * on one semantics object and hands out the entry points.
  *
- * It is not wired into `parse.ts`. Today it runs beside the hand-written parser
- * as a differential test (`test/grammar.test.ts`), and it swaps in once the
- * grammar covers all of phase 2.
+ * `parse.ts` runs this. `parseStep` matches the grammar's `step` rule and calls
+ * `toStep` below; there is no other reading of a step line in the project.
  *
  * Where the meaning is already written down — thresholds, targets, durations —
  * this delegates to `../units.ts` rather than re-deriving it. Two derivations of

@@ -279,6 +279,69 @@ step productions apart. They have, the step numbers held, and the swap is next �
 with the added argument that it *fixes* nine of the twenty listed disagreements by
 itself.
 
+## Since: the grammar is the parser
+
+*Added 2026-08-15, the same day. The sections above are left as written; this is
+queue item 0a, which the section above named as the next thing.*
+
+**`parse.ts` runs on `spec/grammar-0.1.ohm`, and the regex chain is deleted.**
+`parseStep`, `parseHeader`, `parseRest`, `parseScore` and the preamble each match
+a start rule and walk it. `parseOneStep`, `splitOr`, `peelRx`,
+`peelTrailingQualifiers`, `applyQualifier`, `applyBlockModifier`, the
+twenty-branch header cascade and the `SECTIONS` set are gone. The file is **306
+lines and 18 regex literals**, from 548 and ~101, and every one of the 18 is
+dispatch — which *kind* of line this is, which phase 1 hands over and the grammar
+deliberately does not answer.
+
+**The plumbing is the seam the registry already had.** `src/` opens no files, so
+`grammar` is a `CoreData` key: `node.ts` reads the file, both apps fetch it and
+await it before their first render, and `required('grammar')` throws by name if
+nobody provides it. `wdl()` compiles once and keeps the result, keyed on the
+source text.
+
+**Nine of the twenty-one listed disagreements were the swap fixing something, and
+they cleared exactly as their reasons predicted.** Three families of silently-lost
+loads come back: the `@`-plus-digit forms reach `targets` instead of becoming
+flags, a target after a comma stops being a note at both step and header level,
+and an rx split with a space-separated qualifier stops taking the paren into the
+movement name — which is the worst of the three, because that name resolved to
+nothing and took the step out of muscle and volume analysis as well. 14 pending
+vocabulary cases became correct; `KNOWN_UNSETTLED` is empty; both exclusion lists
+are empty.
+
+**Four were the old right-to-left application becoming left-to-right**, two were
+the grammar being wider (`20calories Row`, `10-5 Squat`), and *nothing else
+moved*: the vocabulary diff was those twenty-one lines and no others, the corpus
+interpretation snapshot regenerated to no change at all, and so did
+`registry/workouts.canonical.json`.
+
+**One thing got worse before it got better, and it was invisible until it broke.**
+The old chain split on commas and let an empty piece fall through a catch-all, so
+`10 Thruster,` and `3 rounds,:` had always worked — by accident, and nobody had
+written that tolerance down because it was a property of `String.split`. Required
+in the grammar, a modifier after a comma made one stray keystroke cost the whole
+line: its movement, its amount, its kind. Two `?`s and two sentences fix it, and
+the general shape is in `lessons-learned.md`.
+
+**Two behaviour changes are stated rather than absorbed.** A step that is only a
+threshold (`until HR > 160bpm`) has no movement, so the grammar rejects it and
+`parse` reports it and holds the text — where the old chain made a step with an
+empty movement and said nothing. And a malformed variant line is reported rather
+than registered as a variant that exists and does nothing. Both pinned.
+
+**It is 55× slower at parsing and 40% slower at the thing anyone waits for.**
+190 corpus files: 3.1ms to 172ms. `wdl check` on one file: 0.16s to 0.22s, most
+of that a one-off 107ms grammar compile. The suite: 5.9s to 9.9s. Nothing here
+parses in a loop, so the ratio is a number rather than a cost; the fix if it
+becomes one is a precompiled grammar, and it is cheap.
+
+**The differential test is gone, and that is the right ending for it.** With one
+implementation it compares something to itself. `grammar.test.ts` now counts
+coverage out loud — 811 step lines, 197 headers, 41 rests, 40 scores, 11
+directives, 204 titles — lists the four lines no rule reads with a reason each,
+and asserts on the tree the rules that were previously visible only as "the two
+disagree". A disagreement is not a specification.
+
 ## What is not answered
 
 *Written when the grammar covered the step line only. Kept as written, with what
@@ -289,9 +352,9 @@ built.*
   modifiers, rest, score, variants and the preamble are still prose plus
   `parse.ts`. That is roughly half of phase 2.~~ **Done 2026-08-15** — see the
   section above.
-- **Nothing is wired up.** `parse.ts` is untouched and the builder and board run
-  the old path. *(The semantics are now in the repo — see the section above.)*
-  Still true, and now the next thing: item 0a.
+- ~~**Nothing is wired up.** `parse.ts` is untouched and the builder and board
+  run the old path.~~ **Done 2026-08-15** — item 0a, see the section above.
+  `parse.ts` is the grammar, in Node and in both apps.
 - **`unknown` is proven in the grammar, not in the AST.** The production holds
   unrecognized text as a first-class node, but the `Step` type has no field for
   it and `format` does not render it, so the known debt — unknown modifiers

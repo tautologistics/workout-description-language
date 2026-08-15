@@ -4,7 +4,9 @@ Where everything lives. Read before touching a file, or when deciding where
 something new belongs.
 
 ```
-packages/core/src/     the whole language and analysis. Portable — no node: imports.
+packages/core/src/     the whole language and analysis. Portable — relative imports only.
+packages/core/src/parse.ts  phase 2. Matches spec/grammar-0.1.ohm and walks it; what is
+                       left here is dispatch and the assembly across lines.
 packages/core/src/grammar/  what the .ohm grammar *means*: one module per area of the
                        language, plus parser.ts, which compiles the grammar and puts
                        all of them on one semantics object.
@@ -17,7 +19,8 @@ apps/display/          the board: a workout as written, with a marker for where 
 registry/              movements, muscles, workouts. Rebuilt by scripts/build-canonical.ts.
 examples/              corpus (190 workouts), goals, programs, templates.
 spec/                  spec-0.1.md (the format), goals-0.1.md (the rules),
-                       grammar-0.1.ohm (normative, every phase-2 line kind, no actions).
+                       grammar-0.1.ohm (normative, every phase-2 line kind, no actions —
+                       and the file the parser runs, handed to src/ by a host).
 docs/context/          this directory: the project's memory. Start at README.md.
 docs/                  product_vision_and_roadmap.md, prior art, design notes.
 ```

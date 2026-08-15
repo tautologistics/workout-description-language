@@ -396,10 +396,19 @@ actually wants to implement it.
 > done. Machine artifacts generated from it are a separate question; the human
 > contract is not.
 >
+> *Done 2026-08-15, in PEG rather than EBNF and with the "machine artifacts"
+> question answered by there being none: `spec/grammar-0.1.ohm` is the normative
+> grammar and it is also the file the parser runs, with no generation step
+> between them. EBNF was rejected on evidence — WDL's rules are inherently
+> ordered, and EBNF's alternation is not, so every such rule would need a prose
+> caveat beside it, which is prose beside an implementation again. See
+> [docs/grammar-exploration.md](grammar-exploration.md).*
+>
 > "Not competing for adoption" rules out decisions justified by *popularity*, not
 > decisions justified by rigour. It was read as licensing a loose spec, which is
 > how 83 regexes came to stand in for a grammar. Queue item 0 in
-> [docs/context/ready-to-pick-up.md](context/ready-to-pick-up.md) takes this up.
+> [docs/context/ready-to-pick-up.md](context/ready-to-pick-up.md) took this up,
+> and item 0a finished it: the regexes are gone.
 
 ---
 
