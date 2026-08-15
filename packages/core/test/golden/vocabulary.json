@@ -3237,6 +3237,70 @@
   },
   "fixpoint": true
  },
+ "right-to-left :: 5 Squat (both) each leg": {
+  "canonical": "for time:\n  - 5 Squats (both)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "both",
+       "limb": "leg",
+       "movement": "Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "right-to-left :: max Row until HR < Z1": {
+  "canonical": "for time:\n  - max Row until HR < Z1",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "max Row",
+       "node": "step",
+       "quantity": {
+        "compare": "lt",
+        "kind": "threshold",
+        "metric": "hr",
+        "zone": 1
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "laterality :: 10 Pistol (split)": {
   "canonical": "for time:\n  - 10 Pistols (split)",
   "errors": [],
@@ -9723,6 +9787,111 @@
         "unit": "bpm",
         "value": 120
        },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: spelled-out seconds": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest",
+  "errors": [
+   "L3 unreadable rest duration \"45 seconds\""
+  ],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": false,
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: spelled-out minutes": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest",
+  "errors": [
+   "L3 unreadable rest duration \"2 mins\""
+  ],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": false,
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rest :: spelled-out hours": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest",
+  "errors": [
+   "L3 unreadable rest duration \"1 hour\""
+  ],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": false,
        "node": "rest"
       }
      ],

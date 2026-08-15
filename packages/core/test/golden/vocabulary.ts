@@ -164,6 +164,23 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     '10 Deadlift unbroken building',
     '10 Deadlift building @tiebreak',
   ] },
+  { group: 'right-to-left', lines: [
+    // The same artefact as the two flag lines above, in the two other places it
+    // shows: the hand-written parser applies a step's parts *right to left*, and
+    // a grammar reads left to right. Neither line is coherent input — both state
+    // a laterality or a completion condition twice — but the reversal is real and
+    // these are where it is visible, so they are pinned rather than left to turn
+    // up as a surprise diff on the day of the swap.
+    //
+    // `peelTrailingQualifiers` strips `each leg` first, then the paren replace
+    // overwrites `laterality` with `both`; the grammar reads the paren first and
+    // `each leg` last, so `per-side` wins.
+    '5 Squat (both) each leg',
+    // The threshold match runs before `parseQuantity`, so `max` never leaves the
+    // head and the movement is literally named `max Row`; the grammar takes `max`
+    // as the leading quantity and the threshold replaces it.
+    'max Row until HR < Z1',
+  ] },
   { group: 'laterality', lines: [
     '10 Pistol (split)',
     '10 Pistol (both)',
@@ -475,6 +492,18 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   { group: 'rest', name: 'equal to work after last', src: '5 sets:\n  - 30s Bike\n  rest = work after last' },
   { group: 'rest', name: 'active recovery after last', src: '5 sets:\n  - 400m Run\n  rest 400m Jog after last' },
   { group: 'rest', name: 'threshold after last', src: '5 sets:\n  - 500m Row\n  rest until HR < 120bpm after last' },
+  // Spelled-out duration words, which work in a *step's* quantity position and in
+  // none of these. `45 seconds Plank` is 45 seconds; `rest 45 seconds` is an
+  // `unreadable rest duration` error **and** a rest with no bound at all, which
+  // reads as unbounded. Spec §3 says these spellings are accepted "wherever a
+  // duration is expected", and a rest is a duration position. Neither
+  // implementation reads them, so these are listed as parser *rejects* in
+  // grammar.test.ts rather than as disagreements — the one shape a differential
+  // test cannot see on its own. Found 2026-08-15 by typing lines into the
+  // browser. See known-debts.md.
+  { group: 'rest', name: 'spelled-out seconds', src: '5 sets:\n  - 30s Bike\n  rest 45 seconds' },
+  { group: 'rest', name: 'spelled-out minutes', src: '5 sets:\n  - 30s Bike\n  rest 2 mins' },
+  { group: 'rest', name: 'spelled-out hours', src: '5 sets:\n  - 30s Bike\n  rest 1 hour' },
 
   // --- overlays and nesting ---
   { group: 'structure', name: 'interrupt overlay', src: 'AMRAP 20min:\n  - 10 Burpee\n  every 1min: 5 Push-Up' },

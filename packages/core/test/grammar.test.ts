@@ -93,6 +93,11 @@ const EXCLUSIONS: { line: string; why: string }[] = [
   // parser is swapped over, so they are pinned rather than left to surprise.
   { line: '10 Deadlift unbroken building', why: 'the parser peels trailing qualifiers right to left' },
   { line: '10 Deadlift building @tiebreak', why: 'the parser hoists every `@` flag to the front' },
+  // The same right-to-left artefact in its two other visible places. Neither line
+  // is coherent input, and both are pinned so the reversal is not a surprise on
+  // the day of the swap.
+  { line: '5 Squat (both) each leg', why: 'the parser strips the trailing qualifier first, so the paren overwrites it' },
+  { line: 'max Row until HR < Z1', why: 'the parser matches the threshold before the leading quantity, so `max` stays in the movement name' },
 ];
 
 /**
@@ -112,6 +117,29 @@ const HEADER_EXCLUSIONS: { line: string; why: string }[] = [
 
 const excluded = new Map(EXCLUSIONS.map((e) => [e.line, e.why]));
 const headerExcluded = new Map(HEADER_EXCLUSIONS.map((e) => [e.line, e.why]));
+
+/**
+ * Lines the hand-written parser cannot read at all, so there is no reading to
+ * compare the grammar against.
+ *
+ * These are the *shared* defects, and nothing else in this suite is looking for
+ * them — a line neither implementation reads sails past a differential test and a
+ * round-trip test alike. They used to be skipped in silence here; now they are
+ * listed, and a line the parser starts reading fails as stale.
+ */
+const REST_REJECTS = new Map([
+  // Every spelled-out duration word works in a *step's* quantity position —
+  // `45 seconds Plank`, `2 mins Bike`, `1 hour Ride` — and not one of them works
+  // after `rest`, because `parseDuration` only knows `h`/`min`/`m`/`s` and
+  // `parseQuantity` has its own spelled-out spellings that the rest path never
+  // reaches. Spec §3 says these are accepted "wherever a duration is expected",
+  // and a rest is a duration position. The result is an `unreadable rest duration`
+  // error *and* a rest with no bound at all — silently unbounded. Found
+  // 2026-08-15 by typing lines into the browser; see known-debts.md.
+  ['rest 45 seconds', 'a spelled-out duration word is a step quantity but not a rest'],
+  ['rest 2 mins', 'a spelled-out duration word is a step quantity but not a rest'],
+  ['rest 1 hour', 'a spelled-out duration word is a step quantity but not a rest'],
+]);
 
 // ---------- where the lines come from ----------
 
@@ -323,6 +351,15 @@ interface Tally {
   disagreed: string[];
   /** Excluded lines that no longer disagree — the exclusion has gone stale. */
   stale: string[];
+  /**
+   * Lines the *hand-written parser* cannot read, so there is nothing to compare
+   * against. These used to be skipped in silence, which is the one hole a
+   * differential test can have and still look green: a line neither side reads is
+   * a shared defect, and a shared defect is exactly what nothing else in this
+   * suite is looking for. Listed with a reason now, and stale entries fail.
+   */
+  rejected: string[];
+  staleRejects: string[];
 }
 
 interface Area {
@@ -331,23 +368,31 @@ interface Area {
   reference: (line: string) => unknown | null;
   read: Read;
   excluded: Map<string, string>;
+  /** Lines the hand-written parser cannot read, so there is nothing to compare. */
+  rejects: Map<string, string>;
   /** How many lines each source must contribute, so a silent collapse fails. */
   atLeast: [number, number, number];
 }
 
 function compare(area: Area, lines: string[]): Tally {
-  const t: Tally = { checked: 0, agreed: 0, unreadable: [], disagreed: [], stale: [] };
+  const t: Tally = {
+    checked: 0, agreed: 0, unreadable: [], disagreed: [], stale: [],
+    rejected: [], staleRejects: [],
+  };
   for (const line of lines) {
     const want = area.reference(line);
     const got = area.read(line);
     const same = got.ok && want !== null && JSON.stringify(got.value) === JSON.stringify(want);
+    if (area.rejects.has(line)) {
+      if (want !== null) t.staleRejects.push(`${line} — the parser reads it now: ${area.rejects.get(line)}`);
+      continue;
+    }
     if (area.excluded.has(line)) {
       if (same) t.stale.push(`${line} — no longer differs: ${area.excluded.get(line)}`);
       continue;
     }
-    // Not a line of this kind by the current parser's reckoning — this test has
-    // nothing to say about it.
-    if (want === null) continue;
+    // Nothing to compare against. Reported rather than skipped: see `rejected`.
+    if (want === null) { t.rejected.push(line); continue; }
     t.checked++;
     if (!got.ok) { t.unreadable.push(`${line} — ${got.message}`); continue; }
     if (same) t.agreed++;
@@ -369,6 +414,7 @@ const AREAS: Area[] = [
     reference: referenceStep,
     read: readStep,
     excluded,
+    rejects: new Map(),
     atLeast: [300, 40, 130],
   },
   {
@@ -377,6 +423,7 @@ const AREAS: Area[] = [
     reference: referenceHeader,
     read: readHeader,
     excluded: headerExcluded,
+    rejects: new Map(),
     atLeast: [90, 20, 40],
   },
   {
@@ -385,6 +432,7 @@ const AREAS: Area[] = [
     reference: referenceRest,
     read: readRest,
     excluded: new Map(),
+    rejects: REST_REJECTS,
     atLeast: [10, 4, 9],
   },
   {
@@ -393,6 +441,7 @@ const AREAS: Area[] = [
     reference: referenceScore,
     read: readScore,
     excluded: new Map(),
+    rejects: new Map(),
     atLeast: [10, 4, 8],
   },
   {
@@ -401,6 +450,7 @@ const AREAS: Area[] = [
     reference: referenceDirective,
     read: readDirective,
     excluded: new Map(),
+    rejects: new Map(),
     // The corpus floor is **zero**, and that is a measurement rather than a
     // concession: not one of the 190 real workouts writes a directive. It is the
     // same gap `lessons-learned.md` records for 13 of the 24 documented features,
@@ -414,6 +464,7 @@ const AREAS: Area[] = [
     reference: referenceTitle,
     read: readTitle,
     excluded: new Map(),
+    rejects: new Map(),
     atLeast: [10, 1, 1],
   },
 ];
@@ -440,6 +491,8 @@ for (const area of AREAS) {
         eq(t.unreadable, [], `${t.unreadable.length} lines the grammar cannot read`);
         eq(t.disagreed, [], `${t.disagreed.length} lines read differently`);
         eq(t.stale, [], `${t.stale.length} exclusions no longer needed`);
+        eq(t.rejected, [], `${t.rejected.length} lines the parser cannot read, unlisted`);
+        eq(t.staleRejects, [], `${t.staleRejects.length} listed rejects the parser reads now`);
       });
     }
 

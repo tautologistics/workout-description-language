@@ -1,18 +1,25 @@
 // WDL 0.1 — normative grammar, phase 2.
 //
-// Status: this file states the **step line** and the **block header**, including
-// the header's comma modifiers. Rest, score, variants and the workout preamble
-// are still stated only by prose in spec-0.1.md and by the implementation in
-// packages/core/src/. They belong here and are not here yet.
+// Status: this file states every kind of line phase 2 reads — the step line, the
+// block header with its comma modifiers, rest, score, and the preamble
+// (directives, title, variants). What is left to prose in spec-0.1.md is the
+// *assembly*: which score an `on cap:` line qualifies, which variant a field
+// belongs to, which block a child belongs to. Those are questions about several
+// lines and this is a grammar over one.
 //
 // Phase 1 is not here and never will be: `readLines` turns indentation into a
-// tree and knows nothing about workouts, and this is a grammar over one line's
-// content. Which *kind* of line it is remains the caller's question, keyed on
-// the same one-character markers phase 1 already sees — a leading `- ` opens a
+// tree and knows nothing about workouts. Which *kind* of line this is remains the
+// caller's question, and for the two kinds marked by punctuation rather than by a
+// keyword it is keyed on the markers phase 1 already sees — a leading `- ` opens a
 // step, a trailing `:` opens a block — so neither marker appears in the rules
 // below. That the colon is what tells `21-15-9` (a rep scheme) from `8-12` (a
 // rep range) is therefore stated as *which start rule the caller picks*, and the
-// two shapes never have to be told apart inside one derivation.
+// two shapes never have to be told apart inside one derivation. The line kinds
+// that carry a keyword — `rest`, `score:`, `@`, `#` — do state it, so their rules
+// select the lines they apply to.
+//
+// Start rules, one per kind: `step`, `blockHeader`, `restLine`, `scoreLine`,
+// `scoreQualifierLine`, `directiveLine`, `titleLine`, `variantLine`, `fieldLine`.
 //
 // This grammar is normative: where it and spec-0.1.md disagree, this file is
 // right and the prose is a bug. It carries no semantic actions on purpose —
@@ -28,13 +35,13 @@
 // specification and the grammar is unambiguous by construction.
 //
 // Verified, on every run: with the semantics under
-// packages/core/src/grammar/, this reproduces the hand-written parser's AST on
-// every step line and every block header in examples/corpus, in spec-0.1.md, and
-// in the vocabulary suite. The counts are derived by
-// packages/core/test/grammar.test.ts rather than asserted here, and so is the
-// list of lines the two read differently on purpose — each with a reason. Where
-// they differ this file is not automatically the loser: the `@`-plus-digit forms
-// are ones where the grammar is right and parse.ts is wrong.
+// packages/core/src/grammar/, this reproduces the hand-written parser's AST for
+// every line of every kind in examples/corpus, in spec-0.1.md, and in the
+// vocabulary suite. The counts are derived by packages/core/test/grammar.test.ts
+// rather than asserted here, and so is the list of lines the two read differently
+// on purpose — each with a reason. Where they differ this file is not
+// automatically the loser: the `@`-plus-digit forms are ones where the grammar is
+// right and parse.ts is wrong.
 //
 // The parser does not run on this file yet. It runs beside the hand-written one
 // until the grammar covers the rest of phase 2.
