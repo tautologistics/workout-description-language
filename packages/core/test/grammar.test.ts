@@ -50,54 +50,16 @@ const wdl = makeParser(grammarSource);
  */
 const EXCLUSIONS: { line: string; why: string }[] = [
   // ---- step lines ----
-  // `@` tight against a digit. The grammar states that the first character
-  // after the `@` decides — a letter opens a flag, a digit opens a target — so
-  // it reads all of these as targets. `/@(\w[\w-]*)/g` runs over the whole line
-  // before anything else and `\w` matches digits, so the parser makes them
-  // flags and the load is gone. The grammar is right here and the parser is
-  // wrong; the swap is the fix. Pinned in vocabulary.ts under `known-wrong`.
-  { line: '10 Thruster @95lb', why: 'the parser reads `@` plus a digit as a flag' },
-  { line: '10 Thruster @2x35lb', why: 'the parser reads `@` plus a digit as a flag' },
-  { line: '10 Thruster @24kg', why: 'the parser reads `@` plus a digit as a flag' },
-  { line: '10 Thruster @95', why: 'the parser reads `@` plus a digit as a flag, unit or no unit' },
-  { line: '10 Thruster @85% 1RM', why: 'the parser stops the flag at the `%` and leaves `% 1RM` in the movement name' },
-  { line: '18 Thruster @115lb @tiebreak', why: 'the parser reads the tight load as a second flag' },
-  // The grammar reads these as loads; `parseOneStep` splits `@` out of the
-  // first comma segment only, so `applyQualifier` files them as notes. A
-  // parser defect, pinned in vocabulary.ts under `known-wrong`.
-  { line: '10 Thruster, @ 95lb', why: 'the parser files a target after a comma as a note' },
-  { line: '10 Thruster, @ 24kg', why: 'the parser files a target after a comma as a note' },
-  { line: '10 Thruster, @ 85% 1RM', why: 'the parser files a target after a comma as a note' },
-  // The grammar reads the rx split; `peelRx` only fires at the end of a comma
-  // segment, so a qualifier written after it with a space takes the whole paren
-  // into the movement name and both loads are lost. A parser defect, worse than
-  // the two above because the movement no longer resolves either. Pinned in
-  // vocabulary.ts under `known-wrong`; found by parsing in the browser.
-  { line: '10 Deadlift (105/145) each arm', why: 'the parser takes an rx split into the movement name' },
-  { line: '10 DB Snatch (50/35lb) each side', why: 'the parser takes an rx split into the movement name' },
-  { line: '10 Deadlift (women 105lb / men 145lb) each arm', why: 'the parser takes an rx split into the movement name' },
-  { line: '10 Deadlift (105/145) unbroken', why: 'the parser takes an rx split into the movement name' },
-  { line: '10 Deadlift (women 105lb / men 145lb) unbroken', why: 'the parser takes an rx split into the movement name' },
-  // `min < max` is a constraint on the *values*, not on the shape, so a PEG
-  // cannot state it. `parseQuantity` checks it and leaves the digits in the
-  // movement name when it fails; the grammar reads a descending range.
-  { line: '10-5 Squat', why: 'a PEG cannot require min < max; parseQuantity does' },
-  // `20cal` and `20 calories` are amounts and `20calories` is not, which is an
-  // accident of `^(\d+)\s*cal$` rather than a decision. The grammar is regular
-  // here and reads all three.
-  { line: '20calories Row', why: 'the parser wants a space before a spelled-out unit' },
-  // Same flags, different order. `peelTrailingQualifiers` strips from the end
-  // so it reads right to left, and the `@` regex runs over the whole line
-  // before anything else so an `@` flag is hoisted to the front. A grammar
-  // reads left to right. These two lines are the ones whose AST moves when the
-  // parser is swapped over, so they are pinned rather than left to surprise.
-  { line: '10 Deadlift unbroken building', why: 'the parser peels trailing qualifiers right to left' },
-  { line: '10 Deadlift building @tiebreak', why: 'the parser hoists every `@` flag to the front' },
-  // The same right-to-left artefact in its two other visible places. Neither line
-  // is coherent input, and both are pinned so the reversal is not a surprise on
-  // the day of the swap.
-  { line: '5 Squat (both) each leg', why: 'the parser strips the trailing qualifier first, so the paren overwrites it' },
-  { line: 'max Row until HR < Z1', why: 'the parser matches the threshold before the leading quantity, so `max` stays in the movement name' },
+  // Empty as of the swap (queue item 0a). Every entry that was here described a
+  // way `parse.ts` read a step line differently from the grammar, and `parse.ts`
+  // now *is* the grammar for step lines, so there is nothing left to differ.
+  // Fourteen of the twenty were the grammar being right — the `@`-plus-digit
+  // family, the comma-target trio, the five rx-plus-qualifier lines — and those
+  // are fixes; four were the old parser's right-to-left application becoming
+  // left-to-right; two were the grammar being wider (`10-5 Squat`,
+  // `20calories Row`). All twenty are pinned as vocabulary forms, so what each
+  // one now reads as is in `test/golden/vocabulary.json` rather than in a list
+  // of reasons here.
 ];
 
 /**
@@ -127,6 +89,15 @@ const headerExcluded = new Map(HEADER_EXCLUSIONS.map((e) => [e.line, e.why]));
  * round-trip test alike. They used to be skipped in silence here; now they are
  * listed, and a line the parser starts reading fails as stale.
  */
+const STEP_REJECTS = new Map([
+  // A line that is *only* a completion condition. `movement` needs at least one
+  // character, so the grammar rejects it and `parse` reports `unreadable step`
+  // and holds the text as the name. Not a defect and not a disagreement — it is
+  // the one step shape the language has no reading for, listed here because a
+  // reference that returns `null` has to be listed rather than skipped.
+  ['until HR > 160bpm', 'a line that is only a threshold names nothing to do'],
+]);
+
 const REST_REJECTS = new Map([
   // Every spelled-out duration word works in a *step's* quantity position —
   // `45 seconds Plank`, `2 mins Bike`, `1 hour Ride` — and not one of them works
@@ -414,7 +385,7 @@ const AREAS: Area[] = [
     reference: referenceStep,
     read: readStep,
     excluded,
-    rejects: new Map(),
+    rejects: STEP_REJECTS,
     atLeast: [300, 40, 130],
   },
   {

@@ -18,10 +18,16 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { provide } from './src/env.ts';
 
-const registry = join(dirname(fileURLToPath(import.meta.url)), '../../registry');
+const repo = join(dirname(fileURLToPath(import.meta.url)), '../..');
+const registry = join(repo, 'registry');
 const read = (name: string) => JSON.parse(readFileSync(join(registry, name), 'utf8'));
 
 provide({
+  // The grammar is the parser (see `src/grammar/parser.ts`), so this one is not
+  // a feature switch: without it nothing parses at all. It is still a thunk and
+  // still handed over rather than read from inside `src/`, because the rule that
+  // `src/` opens no files does not bend for the file it happens to need most.
+  grammar: () => readFileSync(join(repo, 'spec/grammar-0.1.ohm'), 'utf8'),
   movements: () => read('movements.json').movements,
   canonicalMovements: () => read('movements.canonical.json').movements,
   muscles: () => read('muscles.json').muscles,

@@ -32,6 +32,15 @@ export interface MuscleRecord {
 
 /** Everything the core can be given. Each is optional; each throws where used if absent. */
 export interface CoreData {
+  /**
+   * The normative grammar, as text. **`parse` does not work without it**, which
+   * makes this the one entry here that is not optional in practice: the other
+   * four switch a *feature* off, and this one is the parser. A host that forgets
+   * it gets the error below on the first line it tries to read, which is the
+   * intended outcome — see "Silence is worse than a crash" in
+   * docs/context/lessons-learned.md.
+   */
+  grammar: string;
   /** The hand-kept registry. What `validate` consults. */
   movements: MovementEntry[];
   /** The merged corpus — every source. What muscle analysis and generation consult. */
@@ -48,6 +57,7 @@ const providers: Providers = {};
 const cache = new Map<keyof CoreData, unknown>();
 
 const WHERE: Record<keyof CoreData, string> = {
+  grammar: 'spec/grammar-0.1.ohm',
   movements: 'registry/movements.json',
   canonicalMovements: 'registry/movements.canonical.json',
   muscles: 'registry/muscles.json',

@@ -12,14 +12,15 @@
  * movement registry is (see `../env.ts`): nothing under `src/` opens a file or
  * knows a path. A Node host reads `spec/grammar-0.1.ohm`; a browser fetches it.
  *
- * Nothing here is wired into `parse.ts` yet. Today this runs beside the
- * hand-written parser as a differential test (`test/grammar.test.ts`).
+ * `makeParser` takes the text; `wdl()` below is the one `parse.ts` uses, which
+ * asks `env.ts` for it and keeps the compiled result.
  */
 
 // Vendored, and imported by relative path on purpose: nothing under `src/`
 // resolves a bare specifier, because the browser emit has no resolver to do it
 // with. See `vendor/README.md`.
 import * as ohm from './vendor/ohm.js';
+import { required } from '../env.ts';
 import type { Step, Block, Rest, Score } from '../ast.ts';
 import { installLexical, origin, type Origin } from './lexical-semantics.ts';
 import { installStep } from './step-semantics.ts';
@@ -131,4 +132,23 @@ export function makeParser(grammarSource: string): WdlParser {
     parseVariant: orThrow('variant', tryVariant),
     parseField: orThrow('variant field', tryField),
   };
+}
+
+/**
+ * The parser `parse.ts` runs, built from the grammar the host provided.
+ *
+ * Compiling a grammar is the expensive part — Ohm builds a matcher out of the
+ * source text — and `parse` is called once per document, so the result is kept.
+ * Keyed on the source itself rather than on "have I done this once", so a host
+ * that hands over a different grammar (a test, an editor holding an unsaved
+ * spec) gets a parser for the grammar it handed over and not the previous one.
+ * `required('grammar')` returns the same string identity until a provider is
+ * replaced, so the check below is a pointer comparison in the ordinary case.
+ */
+let compiled: { source: string; parser: WdlParser } | undefined;
+
+export function wdl(): WdlParser {
+  const source = required('grammar');
+  if (!compiled || compiled.source !== source) compiled = { source, parser: makeParser(source) };
+  return compiled.parser;
 }

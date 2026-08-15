@@ -240,17 +240,18 @@
   "fixpoint": true
  },
  "quantity/calories :: 20calories Row": {
-  "canonical": "for time:\n  - 20calories Row",
+  "canonical": "for time:\n  - 20cal Row",
   "errors": [],
   "ast": {
    "body": [
     {
      "children": [
       {
-       "movement": "20calories Row",
+       "movement": "Row",
        "node": "step",
        "quantity": {
-        "kind": "open"
+        "kind": "calories",
+        "value": 20
        }
       }
      ],
@@ -1002,17 +1003,19 @@
   "fixpoint": true
  },
  "quantity/other :: 10-5 Squat": {
-  "canonical": "for time:\n  - 10-5 Squat",
+  "canonical": "for time:\n  - 10-5 Squats",
   "errors": [],
   "ast": {
    "body": [
     {
      "children": [
       {
-       "movement": "10-5 Squat",
+       "movement": "Squat",
        "node": "step",
        "quantity": {
-        "kind": "open"
+        "kind": "range",
+        "max": 5,
+        "min": 10
        }
       }
      ],
@@ -3170,7 +3173,7 @@
   "fixpoint": true
  },
  "flags :: 10 Deadlift unbroken building": {
-  "canonical": "for time:\n  - 10 Deadlifts, building, unbroken",
+  "canonical": "for time:\n  - 10 Deadlifts, unbroken, building",
   "errors": [],
   "ast": {
    "body": [
@@ -3178,8 +3181,8 @@
      "children": [
       {
        "flags": [
-        "building",
-        "unbroken"
+        "unbroken",
+        "building"
        ],
        "movement": "Deadlift",
        "node": "step",
@@ -3212,8 +3215,8 @@
      "children": [
       {
        "flags": [
-        "tiebreak",
-        "building"
+        "building",
+        "tiebreak"
        ],
        "movement": "Deadlift",
        "node": "step",
@@ -3238,14 +3241,14 @@
   "fixpoint": true
  },
  "right-to-left :: 5 Squat (both) each leg": {
-  "canonical": "for time:\n  - 5 Squats (both)",
+  "canonical": "for time:\n  - 5 Squats each leg",
   "errors": [],
   "ast": {
    "body": [
     {
      "children": [
       {
-       "laterality": "both",
+       "laterality": "per-side",
        "limb": "leg",
        "movement": "Squat",
        "node": "step",
@@ -3270,14 +3273,14 @@
   "fixpoint": true
  },
  "right-to-left :: max Row until HR < Z1": {
-  "canonical": "for time:\n  - max Row until HR < Z1",
+  "canonical": "for time:\n  - Row until HR < Z1",
   "errors": [],
   "ast": {
    "body": [
     {
      "children": [
       {
-       "movement": "max Row",
+       "movement": "Row",
        "node": "step",
        "quantity": {
         "compare": "lt",
@@ -5695,6 +5698,37 @@
   },
   "fixpoint": true
  },
+ "unreadable :: until HR > 160bpm": {
+  "canonical": "for time:\n  - until HR > 160bpm",
+  "errors": [
+   "L2 unreadable step \"until HR > 160bpm\""
+  ],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "until HR > 160bpm",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "fail-open :: 10 Thruster @ 95lb, some phrase nobody taught the parser": {
   "canonical": "for time:\n  - 10 Thrusters @ 95lb, some phrase nobody taught the parser",
   "errors": [],
@@ -5806,22 +5840,29 @@
   "fixpoint": true
  },
  "known-wrong :: 10 Thruster @95lb": {
-  "canonical": "for time:\n  - 10 Thrusters, 95lb",
+  "canonical": "for time:\n  - 10 Thrusters @ 95lb",
   "errors": [],
   "ast": {
    "body": [
     {
      "children": [
       {
-       "flags": [
-        "95lb"
-       ],
        "movement": "Thruster",
        "node": "step",
        "quantity": {
         "kind": "reps",
         "value": 10
-       }
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
       }
      ],
      "node": "block",
@@ -5839,22 +5880,30 @@
   "fixpoint": true
  },
  "known-wrong :: 10 Thruster @2x35lb": {
-  "canonical": "for time:\n  - 10 Thrusters, 2x35lb",
+  "canonical": "for time:\n  - 10 Thrusters @ 2x35lb",
   "errors": [],
   "ast": {
    "body": [
     {
      "children": [
       {
-       "flags": [
-        "2x35lb"
-       ],
        "movement": "Thruster",
        "node": "step",
        "quantity": {
         "kind": "reps",
         "value": 10
-       }
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "implements": 2,
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 35
+         }
+        }
+       ]
       }
      ],
      "node": "block",
@@ -5872,22 +5921,29 @@
   "fixpoint": true
  },
  "known-wrong :: 10 Thruster @24kg": {
-  "canonical": "for time:\n  - 10 Thrusters, 24kg",
+  "canonical": "for time:\n  - 10 Thrusters @ 24kg",
   "errors": [],
   "ast": {
    "body": [
     {
      "children": [
       {
-       "flags": [
-        "24kg"
-       ],
        "movement": "Thruster",
        "node": "step",
        "quantity": {
         "kind": "reps",
         "value": 10
-       }
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "kg",
+          "value": 24
+         }
+        }
+       ]
       }
      ],
      "node": "block",
@@ -5905,22 +5961,25 @@
   "fixpoint": true
  },
  "known-wrong :: 10 Thruster @95": {
-  "canonical": "for time:\n  - 10 Thrusters, 95",
+  "canonical": "for time:\n  - 10 Thrusters @ 95",
   "errors": [],
   "ast": {
    "body": [
     {
      "children": [
       {
-       "flags": [
-        "95"
-       ],
        "movement": "Thruster",
        "node": "step",
        "quantity": {
         "kind": "reps",
         "value": 10
-       }
+       },
+       "targets": [
+        {
+         "kind": "raw",
+         "text": "95"
+        }
+       ]
       }
      ],
      "node": "block",
@@ -5938,22 +5997,29 @@
   "fixpoint": true
  },
  "known-wrong :: 10 Thruster @85% 1RM": {
-  "canonical": "for time:\n  - 10 Thruster % 1RMs, 85",
+  "canonical": "for time:\n  - 10 Thrusters @ 85% 1RM",
   "errors": [],
   "ast": {
    "body": [
     {
      "children": [
       {
-       "flags": [
-        "85"
-       ],
-       "movement": "Thruster % 1RM",
+       "movement": "Thruster",
        "node": "step",
        "quantity": {
         "kind": "reps",
         "value": 10
-       }
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "percent",
+          "of": "1RM",
+          "value": 85
+         }
+        }
+       ]
       }
      ],
      "node": "block",
@@ -5971,7 +6037,7 @@
   "fixpoint": true
  },
  "known-wrong :: 18 Thruster @115lb @tiebreak": {
-  "canonical": "for time:\n  - 18 Thrusters, 115lb @tiebreak",
+  "canonical": "for time:\n  - 18 Thrusters @ 115lb @tiebreak",
   "errors": [],
   "ast": {
    "body": [
@@ -5979,7 +6045,6 @@
      "children": [
       {
        "flags": [
-        "115lb",
         "tiebreak"
        ],
        "movement": "Thruster",
@@ -5987,7 +6052,17 @@
        "quantity": {
         "kind": "reps",
         "value": 18
-       }
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 115
+         }
+        }
+       ]
       }
      ],
      "node": "block",
@@ -6073,7 +6148,7 @@
   "fixpoint": true
  },
  "known-wrong :: 10 Thruster, @ 95lb": {
-  "canonical": "for time:\n  - 10 Thrusters, @ 95lb",
+  "canonical": "for time:\n  - 10 Thrusters @ 95lb",
   "errors": [],
   "ast": {
    "body": [
@@ -6082,13 +6157,20 @@
       {
        "movement": "Thruster",
        "node": "step",
-       "notes": [
-        "@ 95lb"
-       ],
        "quantity": {
         "kind": "reps",
         "value": 10
-       }
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
       }
      ],
      "node": "block",
@@ -6106,7 +6188,7 @@
   "fixpoint": true
  },
  "known-wrong :: 10 Thruster, @ 24kg": {
-  "canonical": "for time:\n  - 10 Thrusters, @ 24kg",
+  "canonical": "for time:\n  - 10 Thrusters @ 24kg",
   "errors": [],
   "ast": {
    "body": [
@@ -6115,13 +6197,20 @@
       {
        "movement": "Thruster",
        "node": "step",
-       "notes": [
-        "@ 24kg"
-       ],
        "quantity": {
         "kind": "reps",
         "value": 10
-       }
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "kg",
+          "value": 24
+         }
+        }
+       ]
       }
      ],
      "node": "block",
@@ -6139,7 +6228,7 @@
   "fixpoint": true
  },
  "known-wrong :: 10 Thruster, @ 85% 1RM": {
-  "canonical": "for time:\n  - 10 Thrusters, @ 85% 1RM",
+  "canonical": "for time:\n  - 10 Thrusters @ 85% 1RM",
   "errors": [],
   "ast": {
    "body": [
@@ -6148,13 +6237,20 @@
       {
        "movement": "Thruster",
        "node": "step",
-       "notes": [
-        "@ 85% 1RM"
-       ],
        "quantity": {
         "kind": "reps",
         "value": 10
-       }
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "percent",
+          "of": "1RM",
+          "value": 85
+         }
+        }
+       ]
       }
      ],
      "node": "block",
@@ -6172,7 +6268,7 @@
   "fixpoint": true
  },
  "known-wrong :: 10 Deadlift (105/145) each arm": {
-  "canonical": "for time:\n  - 10 Deadlifts (105/145) each arm",
+  "canonical": "for time:\n  - 10 Deadlifts each arm (women 105 / men 145)",
   "errors": [],
   "ast": {
    "body": [
@@ -6181,11 +6277,21 @@
       {
        "laterality": "per-side",
        "limb": "arm",
-       "movement": "Deadlift (105/145)",
+       "movement": "Deadlift",
        "node": "step",
        "quantity": {
         "kind": "reps",
         "value": 10
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "value": 105
+        }
        }
       }
      ],
@@ -6204,7 +6310,7 @@
   "fixpoint": true
  },
  "known-wrong :: 10 DB Snatch (50/35lb) each side": {
-  "canonical": "for time:\n  - 10 DB Snatch (50/35lb)s each side",
+  "canonical": "for time:\n  - 10 DB Snatches each side (women 35lb / men 50lb)",
   "errors": [],
   "ast": {
    "body": [
@@ -6213,11 +6319,23 @@
       {
        "laterality": "per-side",
        "limb": "side",
-       "movement": "DB Snatch (50/35lb)",
+       "movement": "DB Snatch",
        "node": "step",
        "quantity": {
         "kind": "reps",
         "value": 10
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 50
+        },
+        "women": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 35
+        }
        }
       }
      ],
@@ -6236,7 +6354,7 @@
   "fixpoint": true
  },
  "known-wrong :: 10 Deadlift (women 105lb / men 145lb) each arm": {
-  "canonical": "for time:\n  - 10 Deadlift (women 105lb / men 145lb)s each arm",
+  "canonical": "for time:\n  - 10 Deadlifts each arm (women 105lb / men 145lb)",
   "errors": [],
   "ast": {
    "body": [
@@ -6245,11 +6363,23 @@
       {
        "laterality": "per-side",
        "limb": "arm",
-       "movement": "Deadlift (women 105lb / men 145lb)",
+       "movement": "Deadlift",
        "node": "step",
        "quantity": {
         "kind": "reps",
         "value": 10
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 105
+        }
        }
       }
      ],
@@ -6268,7 +6398,7 @@
   "fixpoint": true
  },
  "known-wrong :: 10 Deadlift (105/145) unbroken": {
-  "canonical": "for time:\n  - 10 Deadlifts (105/145), unbroken",
+  "canonical": "for time:\n  - 10 Deadlifts (women 105 / men 145), unbroken",
   "errors": [],
   "ast": {
    "body": [
@@ -6278,11 +6408,21 @@
        "flags": [
         "unbroken"
        ],
-       "movement": "Deadlift (105/145)",
+       "movement": "Deadlift",
        "node": "step",
        "quantity": {
         "kind": "reps",
         "value": 10
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "value": 105
+        }
        }
       }
      ],
@@ -6298,10 +6438,10 @@
    "directives": {},
    "node": "workout"
   },
-  "fixpoint": false
+  "fixpoint": true
  },
  "known-wrong :: 10 Deadlift (women 105lb / men 145lb) unbroken": {
-  "canonical": "for time:\n  - 10 Deadlift (women 105lb / men 145lb)s, unbroken",
+  "canonical": "for time:\n  - 10 Deadlifts (women 105lb / men 145lb), unbroken",
   "errors": [],
   "ast": {
    "body": [
@@ -6311,11 +6451,23 @@
        "flags": [
         "unbroken"
        ],
-       "movement": "Deadlift (women 105lb / men 145lb)",
+       "movement": "Deadlift",
        "node": "step",
        "quantity": {
         "kind": "reps",
         "value": 10
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 105
+        }
        }
       }
      ],

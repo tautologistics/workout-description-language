@@ -22,18 +22,6 @@ const snapshot = JSON.parse(readFileSync(join(here, 'golden/vocabulary.json'), '
 
 /** Forms whose pinned reading is known to be wrong. Pinned so a fix is visible. */
 const KNOWN_WRONG: Record<string, string> = {
-  'known-wrong :: 10 Thruster @95lb':
-    '`@` with no space reads the load as a flag and drops it',
-  'known-wrong :: 10 Thruster @2x35lb':
-    '`@` with no space reads the load as a flag and drops it',
-  'known-wrong :: 10 Thruster @24kg':
-    '`@` with no space reads the load as a flag and drops it',
-  'known-wrong :: 10 Thruster @95':
-    '`@` with no space reads the load as a flag and drops it, unit or no unit',
-  'known-wrong :: 10 Thruster @85% 1RM':
-    '`@` with no space stops the flag at the `%` and leaves `% 1RM` in the movement name',
-  'known-wrong :: 18 Thruster @115lb @tiebreak':
-    '`@` with no space reads the load as a second flag and drops it',
   'known-wrong :: 3x10 Curl':
     '`sets x reps` before the movement becomes the movement name; the quantity stays open',
   'known-wrong :: 5x5 Back Squat @ 225lb':
@@ -54,22 +42,6 @@ const KNOWN_WRONG: Record<string, string> = {
     'with no `primary:` field the primary becomes the whole brace text, and the tiebreak is emitted twice',
   'score :: nested block form':
     'the nested `score:` block documented in spec §9.5 is dropped entirely — primary is empty',
-  'known-wrong :: 10 Thruster, @ 95lb':
-    'a target after a comma is filed as a note, not a load',
-  'known-wrong :: 10 Thruster, @ 24kg':
-    'a target after a comma is filed as a note, not a load',
-  'known-wrong :: 10 Thruster, @ 85% 1RM':
-    'a target after a comma is filed as a note, not a load',
-  'known-wrong :: 10 Deadlift (105/145) each arm':
-    'an rx split before a space-separated qualifier is swallowed into the movement name',
-  'known-wrong :: 10 DB Snatch (50/35lb) each side':
-    'an rx split before a space-separated qualifier is swallowed into the movement name',
-  'known-wrong :: 10 Deadlift (women 105lb / men 145lb) each arm':
-    'an rx split before a space-separated qualifier is swallowed into the movement name',
-  'known-wrong :: 10 Deadlift (105/145) unbroken':
-    'an rx split before a space-separated flag is swallowed into the movement name',
-  'known-wrong :: 10 Deadlift (women 105lb / men 145lb) unbroken':
-    'an rx split before a space-separated flag is swallowed into the movement name',
 };
 
 /**
@@ -79,13 +51,14 @@ const KNOWN_WRONG: Record<string, string> = {
  * not mean what `wdl fmt` once meant, which is a defect and not a taste — the
  * list exists so the count below stays honest while the cause is open, and so
  * that a form which *starts* settling fails as stale rather than sitting here
- * forever. Same contract as the exclusions in `grammar.test.ts`.
+ * forever.
+ *
+ * Empty as of the swap (queue item 0a). Its one entry was
+ * `10 Deadlift (105/145) unbroken`, where the first `wdl fmt` lost the loads
+ * into the movement name and the second found them again; the grammar reads the
+ * rx split wherever it appears, so the line settles on the first pass now.
  */
-const KNOWN_UNSETTLED: Record<string, string> = {
-  'known-wrong :: 10 Deadlift (105/145) unbroken':
-    'formats to `10 Deadlifts (105/145), unbroken`, and the comma form reparses as an rx — '
-    + 'so the first pass loses the loads and the second finds them again',
-};
+const KNOWN_UNSETTLED: Record<string, string> = {};
 
 describe('vocabulary', () => {
   const cases = allCases();

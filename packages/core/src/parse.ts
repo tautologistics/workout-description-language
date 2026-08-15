@@ -1,12 +1,14 @@
 /** Phase 2 of the two-phase parse: line tree -> AST. */
 
 import type {
-  Workout, Node, Step, Rest, Block, Interrupt, Score, Target, Laterality,
+  Workout, Node, Step, Rest, Block, Interrupt, Score, Target,
 } from './ast.ts';
 import { readLines, expandInline, splitTopLevel, type Line } from './lines.ts';
 import {
   parseQuantity, parseDuration, parseTarget, parseThreshold, expandRuns,
 } from './units.ts';
+import { wdl } from './grammar/parser.ts';
+import { blankStep } from './grammar/step-semantics.ts';
 
 export interface ParseError { line: number; message: string; text: string; }
 
@@ -20,199 +22,34 @@ class Parser {
   // ---------- steps ----------
 
   /**
-   * `A or B or C` — one step, several ways to do it.
+   * One step line, read by `spec/grammar-0.1.ohm`.
    *
-   * Split before anything else is read, so each alternative goes through the
-   * whole step grammar and may carry its own quantity, load and qualifiers. An
-   * alternative that names no amount takes the first one's, which is what
-   * `1min Bike or Row` means and what nobody writes twice.
+   * Everything this used to do by hand — splitting on `or`, peeling qualifiers
+   * off the end, sweeping `@` out of the line before anything else — is stated
+   * in the grammar's `step` rule instead, and what each production contributes
+   * is in `grammar/step-semantics.ts`. What is left here is the one thing a
+   * grammar over *one line* cannot answer: where the line came from, and what to
+   * do when it is not a step at all.
    *
-   * The first is the prescription: it stays in `movement` and `quantity`, so
-   * every consumer that does not care about the choice is untouched, and muscle
-   * analysis reads the thing you would do by default rather than a union of
-   * everything you might.
+   * `A or B or C` is one step with several ways to do it, and the first is the
+   * prescription — it stays in `movement` and `quantity`, so every consumer that
+   * does not care about the choice is untouched. That is the grammar's `orTail`
+   * now rather than a `splitOr` here.
    */
   parseStep(text: string, line: Line): Step {
-    const pieces = splitOr(text);
-    if (pieces.length < 2) return this.parseOneStep(text, line);
+    const got = wdl().tryStep(text, line);
+    if (got.ok) return got.value;
 
-    const parsed = pieces.map((p) => this.parseOneStep(p, line));
-    const first = parsed[0];
-    // An alternative that is only a name parses to an open quantity; that is the
-    // shared-measure form, not an open-ended step.
-    first.options = parsed.map((s) => ({
-      movement: s.movement,
-      quantity: s.quantity.kind === 'open' ? first.quantity : s.quantity,
-    }));
-    first.optionsForm = 'inline';
-    return first;
-  }
-
-  parseOneStep(text: string, line: Line): Step {
-    const step: Step = {
-      node: 'step', movement: '', quantity: { kind: 'open' },
-      targets: [], flags: [], notes: [], comments: line.comments, line: line.line,
-    };
-
-    const parts = splitTopLevel(text, ',');
-    let main = parts.shift() ?? '';
-
-    // `@tiebreak` (no space) is a flag; `@ 95lb` (space) is a target.
-    main = main.replace(/@(\w[\w-]*)/g, (_m, word) => { step.flags.push(word); return ''; }).trim();
-
-    // Qualifiers may trail the step without a comma — `40 Wall Ball @ 20lb shared`,
-    // `14 DB Curl each arm`, `21 DB Snatch first arm`. Peel them off the end before
-    // splitting on `@`, or they end up inside the load or the movement name.
-    main = this.peelRx(main, step);
-    main = this.peelTrailingQualifiers(main, step);
-
-    const segments = main.split('@').map((s) => s.trim());
-    let head = segments.shift() ?? '';
-    for (const seg of segments) {
-      if (!seg) continue;
-      // `9kg to 10ft` is a load plus a target height.
-      for (const piece of seg.split(/\s+to\s+/)) {
-        if (piece.trim()) step.targets.push(parseTarget(piece));
-      }
-    }
-
-    // A qualifier may sit before the target as well as after it —
-    // `Dumbbell Curl each arm @ 2x35lb`. Peel the movement segment too.
-    head = this.peelTrailingQualifiers(head, step);
-
-    // laterality in parentheses
-    head = head.replace(/\((both|split|per-side|total)\)/i, (_m, mode) => {
-      const m = mode.toLowerCase();
-      step.laterality = (m === 'total' ? 'split' : m) as Laterality;
-      return '';
-    }).trim();
-
-    // `Bike until HR > 160bpm` — the threshold trails the movement, the way
-    // every other step qualifier does.
-    const trailing = head.match(/^(.*?)\s+(until\s+.+)$/i);
-    if (trailing) {
-      const th = parseThreshold(trailing[2]);
-      if (th) {
-        step.quantity = th;
-        step.movement = this.peelTrailingQualifiers(trailing[1], step).trim();
-        for (const q of parts) this.applyQualifier(step, q, line);
-        return step;
-      }
-    }
-
-    let { quantity, rest } = parseQuantity(head);
-
-    // `2min max Push-Up` — the clock ends the step, the reps are what it
-    // measures. Completion and measurement are different facts (spec §4, N6).
-    const maxAfter = rest.match(/^max\s+(.+)$/i);
-    if (maxAfter && quantity.kind === 'duration') {
-      step.measures = 'reps';
-      step.flags.push('max');
-      rest = maxAfter[1];
-    }
-    // `max Bench Press` with no enclosing clock is a max effort to failure,
-    // not a remainder — the two are resolved during compilation.
-    step.quantity = quantity;
-
-    // `10 alternating DB Snatch` — the word sits before the movement name, which
-    // is how it is written on a whiteboard. It is a counting mode, not part of
-    // the name (registry §6): it maps to `split` and survives as a note.
-    let movement = rest.trim();
-    const inlineAlt = movement.match(/^(alternating|alt)\s+(.+)$/i);
-    if (inlineAlt) {
-      step.laterality = 'split';
-      step.notes.push('alternating');
-      movement = inlineAlt[2];
-    }
-    step.movement = movement;
-
-    for (const q of parts) this.applyQualifier(step, q, line);
+    // Not a step. Held rather than dropped — the text survives as the movement
+    // name, which is what every consumer already does with a name it cannot
+    // resolve — and reported, because the alternative is a step that silently
+    // means nothing. The one line known to land here is a bare threshold
+    // (`until HR > 160bpm` with nothing to do), which the old parser read as a
+    // step with an empty movement; see the vocabulary form pinned beside it.
+    this.errors.push({ line: line.line, message: `unreadable step "${text}"`, text: line.text });
+    const step = blankStep(line);
+    step.movement = text.trim();
     return step;
-  }
-
-  /** Repeatedly strip known qualifier phrases from the end of a step. */
-  /**
-   * `(women 105lb / men 145lb)`, or `(105/145)` where the larger is the men's.
-   *
-   * Left in the text this became part of the movement name — `Deadlifts
-   * (105lb/145lb)` — which resolved to nothing, took the whole step out of
-   * every rule's sight, and then had an `s` appended to it by the pluralizer.
-   */
-  peelRx(text: string, step: Step): string {
-    const m = text.match(/\(([^()]*?)\)\s*$/);
-    if (!m) return text;
-    const sides = m[1].split('/').map((x) => x.trim());
-    if (sides.length !== 2) return text;
-
-    const read = (side: string) => {
-      const g = side.match(/^(?:(women|men|w|m)\s+)?(\d+(?:\.\d+)?)\s*([a-z#]*)$/i);
-      if (!g) return undefined;
-      const who = g[1] ? (/^w/i.test(g[1]) ? 'women' : 'men') : undefined;
-      return { who, value: Number(g[2]), unit: g[3] ? (g[3] === '#' ? 'lb' : g[3].toLowerCase().replace(/s$/, '')) : undefined };
-    };
-    const a = read(sides[0]), b = read(sides[1]);
-    if (!a || !b) return text;
-
-    // A unit on one side covers both: `(105/145lb)` is two weights in pounds.
-    const unit = a.unit ?? b.unit;
-    // Labels win. Unlabelled, the heavier is the men's, whichever side it is on.
-    const [women, men] = a.who && b.who
-      ? (a.who === 'women' ? [a, b] : [b, a])
-      : (a.value <= b.value ? [a, b] : [b, a]);
-
-    step.rx = {
-      women: { kind: 'absolute', value: women.value, unit: (women.unit ?? unit) as never },
-      men: { kind: 'absolute', value: men.value, unit: (men.unit ?? unit) as never },
-    };
-    return text.slice(0, m.index).trim();
-  }
-
-  peelTrailingQualifiers(text: string, step: Step): string {
-    const rules: [RegExp, (m: RegExpMatchArray) => void][] = [
-      [/\s+(each|per)\s+(arm|leg|side|hand)$/i, (m) => { step.laterality = 'per-side'; step.limb = m[2].toLowerCase(); }],
-      [/\s+(first|second|left|right)\s+(arm|leg|side)$/i, (m) => { step.side = m[1].toLowerCase() as any; step.limb = m[2].toLowerCase(); }],
-      [/\s+(shared|synchronized|each)$/i, (m) => { step.team = m[1].toLowerCase() as any; }],
-      [/\s+(alternating|alt)$/i, () => { step.laterality = 'split'; step.notes.push('alternating'); }],
-      [/\s+(unbroken|building|reversed)$/i, (m) => { step.flags.push(m[1].toLowerCase()); }],
-      [/\s+x\s*(\d+)$/i, (m) => { step.sets = +m[1]; }],
-    ];
-    let t = text.trim(), changed = true;
-    while (changed) {
-      changed = false;
-      for (const [re, apply] of rules) {
-        const m = t.match(re);
-        if (m) { apply(m); t = t.slice(0, m.index).trim(); changed = true; break; }
-      }
-    }
-    return t;
-  }
-
-  applyQualifier(step: Step, q: string, line: Line) {
-    const t = q.trim();
-    let m: RegExpMatchArray | null;
-
-    if ((m = t.match(/^tempo\s+(\S+)$/i))) { step.tempo = m[1]; return; }
-    if ((m = t.match(/^count\s+(cal|calories|reps|distance)$/i))) {
-      step.measures = m[1].toLowerCase().startsWith('cal') ? 'calories' : (m[1].toLowerCase() as any);
-      return;
-    }
-    if ((m = t.match(/^\+(\d+)\s+each\s+round$/i))) {
-      step.perRound = { delta: +m[1], unit: 'reps' }; return;
-    }
-    if ((m = t.match(/^(first|second|left|right)\s+(arm|leg|side)$/i))) {
-      step.side = m[1].toLowerCase() as any; step.limb = m[2].toLowerCase(); return;
-    }
-    if ((m = t.match(/^(each|per)\s+(arm|leg|side|hand)$/i))) {
-      step.laterality = 'per-side'; step.limb = m[2].toLowerCase(); return;
-    }
-    if (/^alternating$|^alt$/i.test(t)) { step.laterality = 'split'; step.notes.push('alternating'); return; }
-    if (/^(shared|each|synchronized)$/i.test(t)) { step.team = t.toLowerCase() as any; return; }
-    if ((m = t.match(/^note:\s*"?(.*?)"?$/i))) { step.notes.push(m[1]); return; }
-    if (/^(building|unbroken|open|reversed)$/i.test(t)) { step.flags.push(t.toLowerCase()); return; }
-    if ((m = t.match(/^x\s*(\d+)$/i))) { step.sets = +m[1]; return; }
-    if (/^ramp\s/i.test(t) || /^wearing\s/i.test(t)) { step.notes.push(t); return; }
-
-    step.notes.push(t);
   }
 
   // ---------- rest ----------
@@ -367,7 +204,7 @@ class Parser {
     // back to the shape it was written to avoid.
     if (/^choice:$/i.test(text)) {
       const opts = line.children
-        .map((c) => this.parseOneStep(c.text.replace(/^-\s*/, ''), c))
+        .map((c) => this.parseStep(c.text.replace(/^-\s*/, ''), c))
         .filter((o) => o.movement);
       if (!opts.length) {
         this.errors.push({ line: line.line, message: '`choice:` with nothing to choose between', text: line.text });
@@ -463,30 +300,6 @@ const orphan = (line: { line: number; text: string }, key: string): ParseError =
   text: line.text,
   message: `\`${key}:\` has no \`score:\` above it to qualify — add one, or drop this line`,
 });
-
-/**
- * Split on the word `or`, outside braces and parentheses. A single-character
- * separator will not do here, and a bare `text.split(/ or /)` would cut a
- * movement whose name contains the word.
- */
-function splitOr(text: string): string[] {
-  // `|` never appears in a movement name. `/` does — `3/4 Sit-Up` — so it only
-  // separates when it is not sitting between two digits.
-  const marked = text.replace(/\|/g, ' or ').replace(/(?<!\d)\s*\/\s*(?!\d)/g, ' or ');
-  const out: string[] = [];
-  let depth = 0, quote = false, cur = '';
-  for (const w of marked.split(/(\s+)/)) {
-    for (const c of w) {
-      if (c === '"') quote = !quote;
-      else if (!quote && (c === '{' || c === '(')) depth++;
-      else if (!quote && (c === '}' || c === ')')) depth--;
-    }
-    if (!quote && depth === 0 && /^or$/i.test(w)) { out.push(cur.trim()); cur = ''; continue; }
-    cur += w;
-  }
-  if (cur.trim()) out.push(cur.trim());
-  return out.filter(Boolean);
-}
 
 export function parse(source: string): { workout: Workout; errors: ParseError[] } {
   const p = new Parser();

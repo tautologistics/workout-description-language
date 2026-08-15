@@ -20,6 +20,10 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+// The host, first: `parse` runs the grammar in `spec/grammar-0.1.ohm` and `src/`
+// opens no files, so without this the regenerator throws on its first line.
+// `test/all.ts` imports it too; importing it twice is importing it once.
+import '../../node.ts';
 import { parse } from '../../src/parse.ts';
 import { format } from '../../src/format.ts';
 
@@ -259,6 +263,15 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     '40 Wall Ball @ 20lb shared',
     '18 Thruster @ 115lb @tiebreak, unbroken',
     '10 Thruster @ 95lb, tempo 31X1, +1 each round',
+  ] },
+  { group: 'unreadable', lines: [
+    // A line that is *only* a completion condition, with nothing to do. The
+    // grammar's `movement` needs at least one character, so this is the one step
+    // shape it rejects outright, and `parse` holds the text as the movement name
+    // and reports it. The old regex chain read it as a step with an **empty**
+    // movement — no error, nothing to do, and a cue on the board with no name.
+    // Pinned so that the swap's one behaviour change here is a stated reading.
+    'until HR > 160bpm',
   ] },
   { group: 'fail-open', lines: [
     // Unrecognized input. Held today as a note, which is a meaning it should
