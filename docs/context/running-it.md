@@ -1,7 +1,7 @@
 # Running it
 
 ```bash
-npm --prefix packages/core test     # 1517 tests, 11 pending
+npm --prefix packages/core test     # 1578 tests, 24 pending
 node scripts/build-canonical.ts     # rebuild registry/ from its sources
 node scripts/build-web.mjs          # emit the core as browser modules
 node scripts/serve.mjs 8081         # then open http://localhost:8081/

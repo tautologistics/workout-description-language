@@ -8,7 +8,7 @@ it. It is split by *question asked* rather than by topic, so answering "what is
 already built?" does not mean loading the debts, the lessons and the run
 commands as well.
 
-*Last updated: 2026-08-15 (73 commits, 1517 tests passing, 11 pending).*
+*Last updated: 2026-08-15 (79 commits, 1578 tests passing, 24 pending).*
 
 ---
 

@@ -100,11 +100,96 @@ when something looks odd before treating it as a discovery.
   seven correctly, so the swap (queue item 0a) dissolves it — which is now one
   of the arguments for the swap.
 
+- **A header target written after a comma is filed as a flag.** `3 rounds, @ 95lb:`
+  puts `@ 95lb` in `flags`, not `inherited`, so nothing under the block inherits
+  the load. The `@` sweep in `parseHeader` runs over the *first* comma segment
+  only, exactly as the step-level one does, and `applyBlockModifier` falls through
+  to its catch-all. The header twin of the `10 Thruster, @ 95lb` entry above, with
+  the same consequences and the same fix: the grammar reads an `@` group as an
+  inherited target wherever it appears, so the swap dissolves it. Found 2026-08-15
+  by stating the block header in the grammar; pinned as a vocabulary form and
+  listed as the one header exclusion in `test/grammar.test.ts`.
+
+- **`5x5 Back Squat @ 225lb` parses to a movement named `5x5 Back Squat`.** Leading
+  `sets x reps` — the way gyms write it, and the way **spec §1's own design rule 4
+  writes it**, as the example for "must stay a one-liner" — is read by neither
+  implementation. `parseQuantity` matches no pattern on `5x5`, so the whole thing
+  falls through into the movement name, the quantity stays `open`, the name
+  resolves to nothing, and `wdl fmt` writes it straight back. The *trailing*
+  spelling works (`3 Bench Press @ 80% 1RM x5`), which is what hid this. Found
+  2026-08-15 by widening the differential test's step source to the vocabulary's
+  whole-document forms. Pinned with `3x10 Curl` beside it. **Not stated in the
+  grammar**, deliberately: reading it correctly means adding a form to the
+  language, which is a decision rather than a transcription.
+
+- **`wdl fmt` drops `after last` from four of the five kinds of rest.** `restText`
+  returns early for `as needed`, `= work`, active recovery and a threshold, so only
+  a plain duration ever has ` after last` appended. `rest as needed after last`
+  formats to `rest as needed` — "rest only after the last round" becomes "rest
+  between every round", which is a different workout, and `wdl check` says ok.
+  Invisible to the vocabulary's fixpoint check, because the *second* format of the
+  shortened line is stable: one more way a round trip proves stability and not
+  correctness. Found 2026-08-15 while writing rest permutations for the grammar;
+  four forms pinned. A formatter fix, and small.
+
+- **The nested `score:` block that spec §9.5 and §9.6 both document is dropped
+  entirely.** Written as the spec writes it —
+
+  ```wdl
+  score:
+    primary: time
+    on cap: reps
+  ```
+
+  — `parseScore` is handed `score:` with nothing after it, `primary` becomes the
+  empty string, the children are never looked at, `wdl check` reports ok, and
+  `wdl fmt` writes a bare `score:`. The sibling-line spelling (`score: time` then
+  `on cap: reps`) is the one that works and is the one the formatter emits. Found
+  2026-08-15 while stating the score line in the grammar; pinned as a vocabulary
+  form. Either the spec's prose is wrong or the parser is, and that is the
+  decision — the grammar reproduces the parser here rather than picking.
+
+- **A brace score with no `primary:` field makes the whole brace text the
+  primary.** `score: {tiebreak: reps at 5min}` gives
+  `primary: "{tiebreak: reps at 5min}"`, which nothing can rank by, and the
+  canonical form then states the tiebreak twice — once inside the `raw` it
+  re-emits and once as its own `tiebreak:` line. Pinned 2026-08-15; the grammar
+  reproduces it, because a `primary` defaulting to the raw text is what
+  `parseScore` says.
+
+- **A spelled-out duration word is a step quantity and not a rest.**
+  `45 seconds Plank` is 45 seconds; `rest 45 seconds` is an `unreadable rest
+  duration` error **and** a rest with no bound at all, which everything downstream
+  reads as unbounded. Same for `2 mins`, `1 hour`, `45 sec`, `3 minutes`. Spec §3's
+  unit table says these spellings are accepted "wherever a duration is expected",
+  and a rest is a duration position. The cause is that `parseDuration` knows only
+  `h`/`min`/`m`/`s` while the spelled-out spellings live in `parseQuantity`, which
+  the rest path never reaches — so the fix is in `units.ts` and both readings would
+  inherit it. Found 2026-08-15 by typing lines into the browser. Three forms
+  pinned and listed as *rejects* in `test/grammar.test.ts` — the first entries in
+  that list, which exists because a line **neither** implementation reads is the
+  one thing a differential test cannot see on its own.
+
+- **A target and a `for time` on one header, written in that order, lose both.**
+  `3 rounds @ 95lb for time:` hands `95lb for time` to `parseTarget` whole, because
+  `@\s*([^,@]+)` is greedy to the end of the segment — so it comes back a raw
+  target and the score never happens. Written the other way round
+  (`3 rounds for time @ 95lb:`) both read correctly. **The grammar has the same
+  greed**, because its target text stops at a comma or an `@` and not at a
+  `for time`, and stating it apart would need a header-local copy of the target
+  rules or a parameterized one — a step target legitimately runs to the end of its
+  segment. So this is a shared defect rather than an exclusion. Both spellings
+  pinned 2026-08-15.
+
 - An unrecognized step modifier is pushed into `step.notes`, the same array as an
   authored `note: "…"`. Afterwards the two cannot be told apart, and notes are
   rendered — so an unknown token silently acquires the meaning "the author wrote
   a note". Unknown should be held as unknown: preserved, round-tripped, inert.
-  Bound up with queue item 0.
+  Bound up with queue item 0. *It has a block-level twin, recorded 2026-08-15
+  while stating the header: an unrecognized header modifier is pushed into
+  `block.flags`, the same array as `unbroken` and `rounds`, so afterwards nothing
+  can tell an unknown token from a flag the language defines. Queue item 0d should
+  cover both.*
 - The builder's Indent allows a first-in-document top-level line to be indented,
   orphaning it and invalidating the file. `shift` guards only against negative
   indent, never against having no parent to attach to.

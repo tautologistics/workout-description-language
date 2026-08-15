@@ -112,6 +112,44 @@ failures it finds; it is that it forces every incidental behaviour to be either
 stated or corrected.* Each of the seven is now a line in
 `test/golden/vocabulary.ts` and a listed exclusion with a reason.
 
+**A differential test cannot see a defect both sides share, and the silence is
+where it hides.** `grammar.test.ts` returned `null` from its reference reader for
+"the parser makes nothing of this line", and `null` meant *skip*. So a line
+**neither** implementation reads was invisible to it — and invisible to the
+round-trip test too, since a line that fails to parse the same way twice is a
+perfect fixpoint. The first one found this way: `rest 45 seconds` is an
+`unreadable rest duration` error and a rest with no bound, while `45 seconds
+Plank` is 45 seconds. Those lines are now listed with a reason and a stale entry
+fails, the same contract as the exclusions. *When a test compares two things, ask
+what it does with the cases where it cannot compare them — that is where the
+answer "both are wrong" gets filed.* Recorded 2026-08-15.
+
+**A rule application is a child even when its body matches nothing.** `headEnd =
+~moreHead` consumes no input and yet `headerKind_rounds = integer spaces roundWord
+headEnd` has arity **4**, not 3 — Ohm counts the application, not what it matched.
+Twenty-four actions were off by exactly one, which is how the shape of the mistake
+gave it away. The companion to the rest-parameter note above, and the useful
+consequence is the same: the error message states the true arity, so the fix is
+mechanical once the pattern is recognized.
+
+**An ordered choice must be ordered by *prefix*, and a second unit list forgot
+it.** `schemeUnit` listed `mi` before `min`, so `1..5..1 min` matched `mi`, choked
+on the `n`, and the whole ladder fell through to the unrecognized-header
+production. This is the exact trap already recorded for the spelled-out units, in
+a new list written the same day by the same hand — which is the point worth
+keeping: knowing the rule does not stop it, because the ordering constraint lives
+between two lines that each look right on their own. Any alternation of literals in
+this grammar wants reading longest-first before it is believed. Recorded 2026-08-15.
+
+**Widening where a test draws its input finds more than deepening what it checks.**
+The step-line comparison had been green on 748 lines for a day. Pointing it at the
+vocabulary's *whole-document* forms as well as its bare step lines — no new
+assertions, just more lines — immediately produced `5x5 Back Squat @ 225lb`, which
+parses to a movement named `5x5 Back Squat` and is **spec §1's own example** for
+"must stay a one-liner". The lines were already written down; nothing had ever fed
+them to that comparison. *Before strengthening a check, ask what it is not being
+shown.*
+
 **An exclusion list has to be able to go stale.** Listing the lines a second
 implementation reads differently is only honest if a line that stops differing
 *fails* — otherwise the list quietly turns into a set of permanently ignored

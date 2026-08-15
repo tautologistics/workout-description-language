@@ -12,63 +12,116 @@ carrying no semantic actions, and with a semantics file it reproduces the
 hand-written parser's AST on **538/538** lines. Notation and engine are settled
 in [settled-decisions.md](settled-decisions.md).
 
-**0a. ~~Wire the step-line grammar up.~~ HALF DONE 2026-08-15.** The grammar now
-*runs* inside `packages/core/`: `ohm-js` is the core's one dependency,
-`src/grammar/step-semantics.ts` maps its productions to the `Step` AST, and
-`test/grammar.test.ts` checks it against the hand-written parser on **746/746**
-step lines — every one in `examples/corpus`, in `spec-0.1.md`, and in
-`test/golden/vocabulary.ts` — with 7 recorded disagreements, each pinned in the
-vocabulary. `parse.ts` is deliberately untouched and both apps run the old path.
+**0a. Wire the grammar up. This is the next one.** *Was half done 2026-08-15;
+0c has since landed, so the reason it was deferred is spent.* The grammar runs
+inside `packages/core/` over **every kind of line phase 2 reads**, checked against
+the hand-written parser on every line the project has (see 0c below for the
+numbers). `parse.ts` is deliberately untouched and both apps run the old path.
 
-**The swap was deferred on purpose, and the reason should hold.** Steps and
-block headers share their lexical layer: durations appear in `cap 12min` and
-`every 90s` as well as `12min Bike`, targets appear as an inherited `@` on a
-header, and `21-15-9` is a ladder where `8-12` is a rep range. Landing steps
-alone means rewriting the step semantics once headers force those productions
-apart. So **0c comes first**, with the differential test green as the grammar
-grows, and then `parseOneStep` is swapped in one change.
+**The deferral is over.** It was deferred because steps and block headers share
+their lexical layer, so landing steps alone would have meant reworking the step
+semantics once headers forced those productions apart. Headers have now forced
+them, the step numbers held through it, and the layer is shared in one place. The
+swap is the next thing.
 
-What is left of 0a, for when that day comes:
+What is left of 0a:
 - `parseOneStep` and `parseStep` delegate to the grammar; `splitOr`,
-  `peelRx`, `peelTrailingQualifiers` and `applyQualifier` go.
+  `peelRx`, `peelTrailingQualifiers` and `applyQualifier` go. `parseHeader`,
+  `applyBlockModifier`, `parseRest` and `parseScore` follow, and with them the
+  `SECTIONS` set and `expandRuns`' second caller.
+- **The swap fixes two known defects by itself** — the `@`-plus-digit family and a
+  header target after a comma — because the grammar already reads both correctly.
+  That is now an argument *for* doing it rather than a consequence of it.
 - ~~The browser cannot resolve `ohm-js`.~~ **Done 2026-08-15**, ahead of 0c
   because 0c multiplies the import sites. `ohm-js` is vendored into
   `src/grammar/vendor/` and imported by relative path; the emitted module loads
   and parses in both apps. See [settled-decisions.md](settled-decisions.md).
 - **The grammar source has to reach the core.** Still open, and the only piece of
   plumbing left before the swap. `src/` opens no files and knows no paths, so
-  `makeStepParser` is handed the grammar text; a host must supply it (`node.ts`
+  `makeParser` is handed the grammar text; a host must supply it (`node.ts`
   reads `spec/grammar-0.1.ohm`, the web app fetches it), most likely through the
   same `provide()` seam as the registry. Both halves are known to work — the
   suite reads the file, and a browser fetches it from `/spec/grammar-0.1.ohm`
   (`serve.mjs` now serves `.ohm` as text) — but nothing wires them together.
-- The two flag-ordering differences change the AST, so `vocabulary.json` will
-  diff on `10 Deadlift unbroken building` and `10 Deadlift building @tiebreak`.
-  Both are pinned now so that diff is expected rather than alarming. The five
-  `rx`-plus-qualifier lines will diff too, and there the *swap is the fix* — see
-  the rx debt in [known-debts.md](known-debts.md).
+- **The 20 listed disagreements are the diff to expect in `vocabulary.json`**, and
+  every one is pinned, so the diff should be read rather than feared. Nine are the
+  swap *fixing* something — the `@`-plus-digit family, the comma-target pair, the
+  five `rx`-plus-qualifier lines, the header target after a comma. Four are the
+  parser's right-to-left application becoming left-to-right (`10 Deadlift unbroken
+  building`, `10 Deadlift building @tiebreak`, `5 Squat (both) each leg`, `max Row
+  until HR < Z1`). Two are the grammar being *wider* (`10-5 Squat`,
+  `20calories Row`); if that is not wanted, it is a validation rule, not a grammar
+  one.
 *Touches: `packages/core/src/parse.ts`, `src/env.ts`, both apps.*
 
-**0c. Extend the grammar to the rest of phase 2. This is the next one.** Block
-headers (~20 forms), block modifiers, rest, score, variants and the preamble —
-roughly half of phase 2, still prose plus implementation. Each is the same shape
-of work as the step line and much less tangled.
+**0c. ~~Extend the grammar to the rest of phase 2.~~ DONE 2026-08-15.**
+`spec/grammar-0.1.ohm` now states **every kind of line phase 2 reads** — the step
+line, the block header with its ~20 kinds and its comma modifiers, rest, score,
+`on cap:`/`tiebreak:`, directives, the title and both spellings of a variant — as
+nine start rules over one shared lexical layer, with no semantic actions. The
+semantics are one module per area under `packages/core/src/grammar/`, put on a
+single semantics object by `parser.ts`, and `test/grammar.test.ts` compares six
+separately-counted areas against the hand-written parser: **789/789 step lines,
+195/195 block headers, 41/41 rest lines, 40/40 score lines, 11/11 directives,
+204/204 titles**, with 20 listed disagreements and 3 listed shared rejects.
 
-It comes before 0a's second half because the two halves share a lexical layer,
-and it is now cheap to keep honest: `test/grammar.test.ts` already runs the
-grammar against the parser line for line, so extending it to headers means
-extending that harness with a header source and watching the number hold.
-Nothing blocks it: the engine reaches the browser as of 2026-08-15, so new
-modules under `src/grammar/` inherit a mechanism that works.
-*Touches: `spec/grammar-0.1.ohm`, `packages/core/src/grammar/`,
-`packages/core/test/grammar.test.ts`, `spec/spec-0.1.md`.*
+**The lexical layer is shared, which was the whole reason for the ordering.**
+`cap 12min`, `every 90s`, `AMRAP 12min` and `12min Bike` are one production; an
+inherited `@` on a header is the step's `targetGroup`. The step numbers stayed
+green through it, and headers forced two rules into the open that the step line had
+been getting by accident — `min` before `mi` before `m`, and *a qualifier is only a
+qualifier if the part ends there* (`3x10 Curl`).
+
+**What is deliberately still prose: the assembly.** Which score an `on cap:` line
+qualifies, which variant a field line belongs to, which block a child belongs to.
+Those are questions about *several* lines, and phase 2 is a grammar over one — the
+same division that keeps `readLines` free of WDL knowledge. It is stated at the top
+of the grammar file so it reads as a boundary rather than as a gap.
+
+**Seven defects found and recorded, none fixed here** — see
+[known-debts.md](known-debts.md). Two are the grammar being right and `parse.ts`
+wrong (the `@`-plus-digit family, a header target after a comma), so the swap is
+their fix. Five are shared or downstream and need a decision rather than a
+transcription: leading `sets x reps` (`5x5 Back Squat`, spec §1's own example),
+`wdl fmt` dropping `after last`, the nested `score:` block spec §9.5 documents
+being dropped entirely, a brace score with no `primary:`, and spelled-out duration
+words working in a step and not in a rest.
+*Touched: `spec/grammar-0.1.ohm`, `packages/core/src/grammar/` (six modules),
+`packages/core/src/units.ts`, `packages/core/test/grammar.test.ts`,
+`test/golden/vocabulary.ts`, `spec/spec-0.1.md`.*
 
 **0d. Give `unknown` somewhere to live.** The grammar holds unrecognized text as
 a first-class production, but `Step` has no field for it and `format` does not
 render it, so the known debt — unknown modifiers indistinguishable from authored
 notes — is not closed end to end. Needs an AST field, formatter support, and the
-board and builder leaving it inert.
+board and builder leaving it inert. *It has a block-level twin as of 2026-08-15,
+found while stating the header: an unrecognized header modifier lands in
+`block.flags`, beside `unbroken` and `rounds`, so nothing afterwards can tell an
+unknown token from a flag the language defines. Both halves belong to this item.*
 *Touches: `packages/core/src/ast.ts`, `format.ts`, both apps.*
+
+**0e. Five defects the grammar work turned up that need a decision, not a
+transcription.** Each is written up in [known-debts.md](known-debts.md) with what
+it costs and where the fix goes; each is pinned as a vocabulary form, so a fix
+shows up as a diff. They are listed together because they were found together and
+are individually small, not because they should land together.
+
+- **Leading `sets x reps`.** `5x5 Back Squat @ 225lb` — *spec §1's own example* —
+  parses to a movement named `5x5 Back Squat`. Reading it needs a new leading
+  quantity form in the grammar and a decision about what it means (`sets: 5` plus
+  `reps: 5`, presumably, matching the trailing `xN`). The biggest of the five, and
+  the one a real user hits first.
+- **`wdl fmt` drops `after last`** from every kind of rest but a plain duration.
+  A formatter fix and small; do it first.
+- **The nested `score:` block spec §9.5 documents is dropped entirely.** Either the
+  prose goes or the parser learns it. The sibling-line spelling is what the
+  formatter emits, so the cheap answer is to correct the spec.
+- **A brace score with no `primary:`** makes the whole brace text the primary and
+  emits the tiebreak twice.
+- **A spelled-out duration word is a step quantity and not a rest.** One
+  `units.ts` change and a matching grammar rule; both readings inherit it.
+*Touches: `packages/core/src/units.ts`, `format.ts`, `parse.ts`,
+`spec/grammar-0.1.ohm`, `spec/spec-0.1.md`.*
 
 *The original framing, kept because it is what the answer was measured against:
 exploration, not a build — the deliverable is an answer about whether a

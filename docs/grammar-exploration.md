@@ -215,13 +215,83 @@ one more reason. It is the third of the `@95lb` family and the worst of them,
 it is in `known-debts.md`, and the grammar reads every spelling correctly — so
 the swap is its fix.
 
+## Since: the grammar covers all of phase 2
+
+*Added 2026-08-15, the same day. The sections above are left as written; the
+"What is not answered" list below is now largely answered, and is kept because
+what it named as missing is what got built.*
+
+**Queue item 0c is done.** `spec/grammar-0.1.ohm` states every kind of line phase
+2 reads — the step line, the block header with its ~20 kinds and comma modifiers,
+rest, score, `on cap:`/`tiebreak:`, directives, the title and both spellings of a
+variant — as nine start rules over **one shared lexical layer**. The semantics are
+one module per area under `packages/core/src/grammar/`, put on a single semantics
+object by `parser.ts`, because Ohm scopes an operation to a semantics: sharing
+`unit()` means sharing the object, not copying the actions.
+
+| Area | Agreement | Excluded |
+|---|---|---|
+| step lines | 789/789 | 20 |
+| block headers | 195/195 | 1 |
+| rest lines | 41/41 | 3 rejects |
+| score lines | 40/40 | — |
+| directive lines | 11/11 | — |
+| title lines | 204/204 | — |
+
+**The shared layer was the whole argument for this ordering, and it held.**
+`cap 12min`, `every 90s`, `AMRAP 12min` and `12min Bike` are one production now;
+an inherited `@` on a header is the step's `targetGroup`. The step-line numbers
+stayed green through every refactor, and headers forced two rules into the open
+that the step line had been getting by accident: `min` before `mi` before `m`, and
+**a qualifier is only a qualifier if the part ends there** — the `x10` in
+`3x10 Curl` is followed by more of the movement name, which is what
+`peelTrailingQualifiers` means by only ever stripping from the end.
+
+**Neither the `- ` nor the `:` is in the grammar**, and that turned out to be the
+clean way to say something the prose had been struggling with. `21-15-9` is a rep
+scheme and `8-12` is a rep range and they are the same shape; what separates them
+is *which start rule the caller picks*, which is the same division of labour phase
+1 already has. The line kinds marked by a keyword rather than by punctuation —
+`rest`, `score:`, `@`, `#` — do state it, so their rules select their own lines.
+
+**What is deliberately still prose is the assembly**: which score an `on cap:`
+line qualifies, which variant a field belongs to, which block a child belongs to.
+Those are questions about *several* lines, and this is a grammar over one.
+
+**Seven defects, and the two best came from outside the grammar.** Widening the
+differential test's step source to the vocabulary's whole-document forms — no new
+assertions, just more lines — produced `5x5 Back Squat @ 225lb`, which parses to a
+movement literally named `5x5 Back Squat`, and which is **spec §1's own example**
+for "must stay a one-liner". Typing lines into a browser again produced
+`rest 45 seconds`: an `unreadable rest duration` error and a rest with no bound,
+where `45 seconds Plank` is 45 seconds. All seven are in `known-debts.md` and
+queued as 0e; none was fixed here, because five of them change what a document
+means rather than how it is written down.
+
+**The differential test had one hole, and it is closed.** A line the *parser*
+could not read returned `null`, and `null` meant skip — so a line **neither**
+implementation reads was invisible, to this test and to the round trip alike. Those
+lines are listed with reasons now, and a line the parser starts reading fails as
+stale, the same contract the exclusions have.
+
+**Item 0a's deferral is spent.** It was deferred because headers would force the
+step productions apart. They have, the step numbers held, and the swap is next —
+with the added argument that it *fixes* nine of the twenty listed disagreements by
+itself.
+
 ## What is not answered
 
-- **The grammar covers the step line only.** Block headers (~20 forms), block
+*Written when the grammar covered the step line only. Kept as written, with what
+has since happened marked, because what this list named as missing is what got
+built.*
+
+- ~~**The grammar covers the step line only.** Block headers (~20 forms), block
   modifiers, rest, score, variants and the preamble are still prose plus
-  `parse.ts`. That is roughly half of phase 2.
+  `parse.ts`. That is roughly half of phase 2.~~ **Done 2026-08-15** — see the
+  section above.
 - **Nothing is wired up.** `parse.ts` is untouched and the builder and board run
   the old path. *(The semantics are now in the repo — see the section above.)*
+  Still true, and now the next thing: item 0a.
 - **`unknown` is proven in the grammar, not in the AST.** The production holds
   unrecognized text as a first-class node, but the `Step` type has no field for
   it and `format` does not render it, so the known debt — unknown modifiers
