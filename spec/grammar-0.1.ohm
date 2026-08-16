@@ -366,6 +366,8 @@ WDL {
              | every                                               -- every
              | caseInsensitive<"work"> spaces headerDuration headEnd -- work
              | minuteWord spaces integer headEnd                   -- cycleEntry
+             | caseInsensitive<"partner"> spaces
+               caseInsensitive<"rotation"> headEnd                 -- partnerRotation
              | caseInsensitive<"any"> spaces caseInsensitive<"order"> headEnd -- tally
              | caseInsensitive<"superset"> headEnd                 -- superset
              | caseInsensitive<"complex"> headEnd                  -- complex

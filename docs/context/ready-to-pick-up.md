@@ -270,10 +270,60 @@ Reimplementability by others is a side effect, not the case for it. Settled
 *Touches: `packages/core/src/parse.ts`, `spec/spec-0.1.md`, and whatever the
 parser would be generated from.*
 
-**0b. A container should adopt following lines that were never indented.**
-Listed beside item 0 because it is the same family — forgiveness at the input
-edge — and because the rule has to be *stated* in whatever item 0 produces.
-Ordering not settled; lettered rather than renumbering.
+**0b. ~~A container should adopt following lines that were never indented.~~
+DONE 2026-08-15.** `readLines` adopts, `wdl fmt` writes the indentation back, and
+the rule is stated in spec §2 as three sentences rather than one. Both open
+questions were answered rather than deferred, and both answers are in
+[settled-decisions.md](settled-decisions.md).
+
+**Phase 1 still knows one character.** The trailing `:` is the whole of what
+`readLines` learned — syntax rather than semantics, true of every kind of block
+without naming any of them — so the property the two-phase split exists to buy
+(roadmap §5.1) is intact. The four rules: an *empty* block adopts whatever comes
+next, block or not, because empty it cannot stand as anyone's sibling; once it
+has content a plain line cannot close it, since a step is not a container; a
+**block header** closes it only if that header is flat too, and then closes the
+whole adopted chain; and a `score:` line is never adopted. The fourth is phase
+2's, because only phase 2 knows what a score is.
+
+**Two of those four were settled twice, on the same day, and that is the part
+worth carrying forward.** The first version had every block header terminate and
+absorbed every kind of line, both decided against invented examples. The first
+real workout typed into the builder broke both — a `For time:` buy-in with a
+nested `AMRAP 20min:` and a trailing `score:`, written *half*-indented — and it
+came out as three top-level things with the score overwriting the for-time's
+kind. **Neither the suite nor the corpus could see it**: no example file is
+written half-indented, so the shape existed nowhere the tests could reach. See
+[lessons-learned.md](lessons-learned.md).
+
+**The state it replaces was worse than "does not nest": it was unsettled.** A flat
+`AMRAP 12min:` with three steps under it parsed to an **empty AMRAP followed by
+three loose steps** — twelve minutes of nothing, athlete-paced steps outside any
+clock — with `wdl check` reporting only `amrap block is empty` and `wdl fmt` then
+indenting the steps under it, so the *second* read was a different workout from
+the first. Verified on the board: the same text now runs a 12:00 countdown at
+`1 / 3+` where it used to run three untimed cues.
+
+**One defect found on the way, and it had been pinned as correct.** `- AMRAP
+3min:` — a nested block with a leading dash — was read as a *step* named `AMRAP
+3min:` with its contents dropped in silence, because `parseNode` tested for the
+dash before anything looked at the colon. Four `structure` vocabulary forms were
+written that way and so recorded the loss as the canonical form; `deep nesting`
+had been sitting in the snapshot as `conditioning:\n  - 3 rounds:s`. It is fixed
+here rather than filed, because adoption turned its stable loss into a
+compounding one — see [known-debts.md](known-debts.md).
+
+**The corpus did not move at all.** No example file has a container followed by a
+line that is not indented deeper, so `interpretations.json` and
+`registry/workouts.canonical.json` both regenerated to **no change**. Thirteen
+new `adoption` forms pinned — including the half-indented file and the cost that
+comes with reading it — six existing ones corrected, 1654 tests became 1672.
+*Touched: `packages/core/src/lines.ts`, `parse.ts`, `format.ts`, `ast.ts`,
+`validate.ts`, `spec/spec-0.1.md`, `test/lines.test.ts`,
+`test/golden/vocabulary.ts`.*
+
+*The original framing, kept because the two open questions below are what the
+answers were measured against:*
 
 The rule: when a block container opens (`AMRAP 12min:`, `for time:`) and the line
 after it is not indented, everything following is taken as contained by it
@@ -331,6 +381,14 @@ was typed does not change that.
 *Touches: `packages/core/src/lines.ts`, `packages/core/src/format.ts`,
 `spec/spec-0.1.md`.*
 
+*Both answered 2026-08-15, and both answered **twice** — the first pair was
+decided against invented examples and corrected the same day against a real one.
+Absorption is accepted for work but **not for a `score:` line**, which is not
+work and does real damage when absorbed onto a `for time:`. And a block header
+terminates the run **only if it is flat too**, which is what reads a
+half-indented file — the shape the first answer had no example of. Reasoning, and
+what each version cost, in [settled-decisions.md](settled-decisions.md).*
+
 **1. `rx` should desugar into `variants:`.** Step-level `(women 105lb / men
 145lb)` and workout-level `variants:` are two mechanisms for one idea. `rx`
 should lower to a variant so `--variant women` covers both and exporters need
@@ -357,6 +415,47 @@ agreement, which is a proxy for "commonly catalogued", not "worth putting in a
 workout" — `Quad Stretch` made the cut. Bounded, and it makes generation
 trustworthy.
 *Touches: `registry/movements.json`, `scripts/mark-core.mjs`.*
+
+**5. A range is only a rep range.** `8-12 Toes-to-Bar` is a first-class quantity;
+`100-150ft Farmers Carry` is *not read at all* — the whole thing lands in the
+movement name with the quantity left `open`, so the step matches no registry
+entry, drops out of muscle and volume analysis, and `wdl fmt` pluralizes what it
+was handed into `100-150 ft Farmers Carries`. `wdl check` says ok throughout.
+That is the exact failure shape leading `5x5` had before item 0e, and it is
+found the same way: by writing a real workout.
+
+The question is not really "is this a bug" — spec §3's unit table genuinely
+defines a range for reps only, so the parser matches the spec. It is **whether a
+range should generalise**. A carry written `100-150ft` says what `8-12` says —
+*somewhere in this band, you choose* — and so does `rest 60-90s`. If it
+generalises, `Quantity` needs a range that carries a unit and every consumer of
+`kind: 'range'` needs to stop assuming reps; if it does not, the parser must
+**say** it cannot read the quantity instead of silently swallowing it into the
+name. Either answer closes the silence, which is the part that is not optional.
+Raised 2026-08-15 while encoding a partner carry circuit.
+*Touches: `spec/grammar-0.1.ohm`, `packages/core/src/units.ts`, `ast.ts`,
+`format.ts`, `volume.ts`, `timeline.ts`, `spec/spec-0.1.md`.*
+
+**6. A load can be a word, and the language has no scale for it.** `@ heavy`
+parses to a raw target: held, round-tripped, displayed, and inert — no volume, no
+per-muscle load, nothing `progress` can ramp. Same holding answer as `@ 95`, and
+better justified, since `heavy` is not a number at all. But `heavy` / `moderate`
+/ `light` / `unloaded` are a small closed vocabulary coaches use constantly, and
+a carry prescribed by feel is the *normal* way to write a carry rather than an
+omission.
+
+The decision is whether qualitative load is a **category the language knows** —
+in which case it is a `Load` kind alongside absolute and relative, and a
+sensible-but-unresolvable one that analysis can at least count as loaded — or
+stays raw, in which case a carry can never contribute to volume and that should
+be said in the spec rather than discovered. Note the interaction with item 5:
+both showed up in the same workout, and a carry hit by both contributes *nothing*
+to any analysis while validating clean. Raised 2026-08-15.
+*Touches: `packages/core/src/ast.ts`, `units.ts`, `volume.ts`, `muscles.ts`,
+`format.ts`, `spec/spec-0.1.md`.*
+
+*Ordering of 5 and 6 against 1–4 is not settled — they are appended rather than
+placed, and both were raised by writing one workout rather than by a plan.*
 
 **Nobody has run a session off the board.** Everything is verified by tests and
 by driving the UI. Every defect Chris has caught by *looking* — `21 Thruster`,

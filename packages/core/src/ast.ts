@@ -144,7 +144,7 @@ export interface Interrupt {
 
 export type BlockType =
   | 'sequence' | 'repeat' | 'ladder' | 'amrap' | 'clock'
-  | 'superset' | 'complex' | 'tally' | 'team' | 'attempts'
+  | 'superset' | 'complex' | 'tally' | 'team' | 'partnerRotation' | 'attempts'
   | 'build' | 'section' | 'cycleEntry' | 'work';
 
 export interface Block {
@@ -184,6 +184,13 @@ export interface Block {
    */
   unknown?: string[];
   score?: Score;
+  /**
+   * This header was never indented into the block that holds it — it is here by
+   * the adoption rule (spec §2), not because anyone wrote it here. Carried so
+   * `validate` can say so: a guess that changes structure should not also be
+   * silent. `format` writes the indentation, which settles it on the next pass.
+   */
+  adopted?: boolean;
   children: Node[];
   comments: string[];
   line: number;

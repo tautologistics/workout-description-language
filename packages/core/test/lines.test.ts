@@ -44,6 +44,39 @@ describe('lines', () => {
     ok(r[0].children[0].text.includes('b: 2 }'), r[0].children[0].text);
   });
 
+  it('adopts lines that were never indented', () => {
+    const r = readLines('a:\nb\nc');
+    eq(r.map((x) => x.text), ['a:']);
+    eq(r[0].children.map((x) => x.text), ['b', 'c']);
+  });
+
+  it('lets a container line end a populated one', () => {
+    const r = readLines('a:\nb\nc:\nd');
+    eq(r.map((x) => x.text), ['a:', 'c:']);
+    eq(r[0].children.map((x) => x.text), ['b']);
+    eq(r[1].children.map((x) => x.text), ['d']);
+  });
+
+  it('makes a container under an empty container its child, not its sibling', () => {
+    const r = readLines('a:\nb:\nc');
+    eq(r.map((x) => x.text), ['a:']);
+    eq(r[0].children.map((x) => x.text), ['b:']);
+    eq(r[0].children[0].children.map((x) => x.text), ['c']);
+  });
+
+  it('closes the whole adopted chain, so a container lands where its indent says', () => {
+    const r = readLines('a:\nb:\nc\nd:\ne');
+    eq(r.map((x) => x.text), ['a:', 'd:']);
+    eq(r[0].children[0].children.map((x) => x.text), ['c']);
+    eq(r[1].children.map((x) => x.text), ['e']);
+  });
+
+  it('does not adopt into a container that was indented into', () => {
+    const r = readLines('a:\n  b\nc');
+    eq(r.map((x) => x.text), ['a:', 'c']);
+    eq(r[0].children.map((x) => x.text), ['b']);
+  });
+
   it('splits only at the top level', () => {
     eq(splitTopLevel('a, b { c, d }, e', ','), ['a', 'b { c, d }', 'e']);
     eq(splitTopLevel('a, "b, c", d', ','), ['a', '"b, c"', 'd']);

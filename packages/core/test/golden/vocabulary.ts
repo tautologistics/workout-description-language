@@ -736,9 +736,85 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   { group: 'structure', name: 'interrupt overlay', src: 'AMRAP 20min:\n  - 10 Burpee\n  every 1min: 5 Push-Up' },
   { group: 'structure', name: 'choice block', src: 'for time:\n  choice:\n    - 1000m Row\n    - 800m Run\n    - 2000m Bike' },
   { group: 'structure', name: 'inline brace body', src: '8 rounds: { work 20s: Pull-Up, rest 10s }' },
+  // A nested block written with a leading `- `. These four were pinned as
+  // *correct* while dropping everything under the dashed line: `- AMRAP 3min:`
+  // matched the step branch of the dispatch before anything looked at the colon,
+  // so it became a movement literally named `AMRAP 3min:` and its children — a
+  // whole block's worth of work — went nowhere, with `wdl check` reporting ok.
+  // `deep nesting` was the visible one: it formatted to `conditioning:\n  - 3
+  // rounds:s`, the pluralizer putting an `s` on a name ending in a colon, in the
+  // same family as the `)s` the rx-split defect used to write. **Fixed
+  // 2026-08-15** by stating which of spec §2's two rules wins: the colon.
   { group: 'structure', name: 'nested blocks', src: '3 rounds:\n  - AMRAP 3min:\n      - 10 Burpee\n  rest 1min' },
   { group: 'structure', name: 'deep nesting', src: 'conditioning:\n  - 3 rounds:\n      - AMRAP 2min:\n          - 5 Pull-Up' },
   { group: 'structure', name: 'many top-level blocks', src: 'warmup:\n  - 400m Run\nstrength:\n  - 5 Back Squat @ 225lb\nconditioning:\n  - AMRAP 10min:\n      - 10 Burpee' },
+  // The dashless spelling beside it, which is what the corpus, the spec and
+  // `format` all write, so the two are pinned as producing the same tree.
+  { group: 'structure', name: 'nested blocks, no dash', src: '3 rounds:\n  AMRAP 3min:\n    - 10 Burpee\n  rest 1min' },
+
+  // --- partner rotation (spec §5.11.1) ---
+  // Two athletes, two pieces of work at once, then they swap. Its own kind
+  // rather than a `team of 2` qualifier, because §5.11 declines a team
+  // `alternating` on the grounds that it does not generalise to a team of N —
+  // an argument a block that is two athletes by definition never has to answer.
+  { group: 'partner', name: 'partner rotation', src: 'partner rotation:\n  - 150ft Sled Rope Pull\n  - 1 Dead Hang' },
+  { group: 'partner', name: 'partner rotation inside rounds', src: '3 rounds:\n  - 8-12 Toes-to-Bar\n  partner rotation:\n    - 150ft Sled Rope Pull\n    - 1 Dead Hang' },
+  // Loads, notes and laterality behave as they do anywhere else — the block
+  // changes who does the work and when, not how a step is written.
+  { group: 'partner', name: 'partner rotation with a load and a note', src: 'partner rotation:\n  - 100ft Farmers Carry @ 2x24kg\n  - 1 Dead Hang, note: "hang while your partner walks"' },
+  // Three is a reported error, not a longer rotation: with two athletes the
+  // third has nobody to work alongside, so the block's claim would be false.
+  { group: 'partner', name: 'partner rotation with three', src: 'partner rotation:\n  - 150ft Sled Rope Pull\n  - 1 Dead Hang\n  - 10 Burpee' },
+  // The neighbour that must not move: `team of 2` still means what it meant,
+  // and its qualifiers are untouched by any of this.
+  { group: 'partner', name: 'team of 2 beside it', src: 'team of 2:\n  - 100 Wall Ball @ 20lb shared\n  - 40 Burpee each' },
+
+  // --- lines that were never indented (spec §2) ---
+  // Forgiveness at the input edge: a container adopts what was written flat under
+  // it, and `wdl fmt` writes the indentation back. Before 2026-08-15 every one of
+  // these read as an **empty block followed by loose steps** — `wdl check` said
+  // only "amrap block is empty", and one `wdl fmt` then indented the steps under
+  // it and produced a different workout. Wrong *and* unsettled.
+  { group: 'adoption', name: 'flat block', src: 'AMRAP 12min:\n5 Pull-Up\n10 Push-Up\n15 Air Squat' },
+  { group: 'adoption', name: 'flat block, blank line between', src: 'AMRAP 12min:\n\n5 Pull-Up' },
+  // A rest is not a container either, so it is adopted like any other line.
+  { group: 'adoption', name: 'flat block with a rest', src: '5 sets:\n30s Bike\nrest 1min' },
+  // The terminator: a container line closes a populated one *if it is flat too*.
+  // A step never can, which is what makes the block above hold three steps.
+  { group: 'adoption', name: 'a container ends a flat block', src: 'AMRAP 12min:\n5 Pull-Up\nfor time:\n21-15-9 Thruster' },
+  // And the half-indented file, which is the shape a real workout turned out to
+  // have: the AMRAP indents its own body but was never indented under the
+  // `for time:`, so it is *in* the flat run rather than beside it. **The first
+  // version of this rule had every container line terminate**, and read this as
+  // three top-level things — a for-time holding one run, a loose AMRAP, and a
+  // loose row. Found 2026-08-15 by typing it into the builder; no test saw it.
+  { group: 'adoption', name: 'a half-indented block is inside the run', src: 'For time:\n- 800m Run\nAMRAP 20min:\n  - 10 Push Press\n  - 30 Air Squat\n- 30cal Row' },
+  // The cost of that rule, pinned rather than left to be discovered: in a
+  // half-indented file nothing returns to the outer level, so `cooldown:` lands
+  // inside `conditioning:`. Indent `conditioning:`'s body to say otherwise.
+  { group: 'adoption', name: 'a half-indented file does not come back out', src: 'conditioning:\nAMRAP 12min:\n  - 5 Pull-Up\ncooldown:\n  - 5min Walk' },
+  // The cascade: an empty container cannot be anyone's sibling, so a container
+  // arriving directly under one is its child rather than its terminator.
+  { group: 'adoption', name: 'an empty container adopts a container', src: 'conditioning:\nAMRAP 12min:\n5 Pull-Up' },
+  // Both rules at once, and the case the terminator is decided by: `cooldown:`
+  // closes the AMRAP *and* the section that adopted it, landing where its own
+  // indentation says. A section holding two blocks is the shape that costs —
+  // it needs indentation, because this rule sends the second one to the root.
+  { group: 'adoption', name: 'flat sections in order', src: 'warmup:\n500m Row\nconditioning:\nAMRAP 12min:\n5 Pull-Up\ncooldown:\n5min Walk' },
+  // A score is not work, so adoption does not move it: an unindented `score:` is
+  // at the top level, because that is where an unindented line is. It was
+  // absorbed onto the block for half a day, which measured harmless here and was
+  // *destructive* on a `for time:` — that header is stored as a sequence with an
+  // implied `time` score, so a `score:` landing on it overwrote the header's own
+  // kind and the block came back out as `sequence:`. Indent a score to put it on
+  // a block.
+  { group: 'adoption', name: 'a flat score is the workouts', src: 'AMRAP 12min:\n5 Pull-Up\nscore: rounds' },
+  { group: 'adoption', name: 'a flat score and tiebreak together', src: 'For time:\n- 800m Run\nscore: rounds\ntiebreak: time' },
+  // And what must **not** move: a file that *did* indent. A dedented line there
+  // is a deliberate one and still leaves the block, which is the only reason
+  // `score: time` under Fran stays the workout's and not the round's.
+  { group: 'adoption', name: 'a deliberate dedent still leaves', src: 'AMRAP 12min:\n  - 5 Pull-Up\n- 10 Push-Up' },
+  { group: 'adoption', name: 'a deliberate dedent still leaves, score', src: 'for time:\n  21-15-9:\n    - Thruster @ 95lb\n    - Pull-Up\n\nscore: time' },
 ];
 
 /** Compare ASTs ignoring source position and comment placement. */

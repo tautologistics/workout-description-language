@@ -84,7 +84,8 @@ export interface TimelineRest {
 }
 
 export type GroupType =
-  | 'sequence' | 'repeat' | 'amrap' | 'clock' | 'tally' | 'attempts' | 'team' | 'build';
+  | 'sequence' | 'repeat' | 'amrap' | 'clock' | 'tally' | 'attempts' | 'team'
+  | 'partnerRotation' | 'build';
 
 export interface TimelineGroup {
   kind: 'group';
@@ -404,6 +405,25 @@ function compileBlock(b: Block, parent: Ctx, enclosing: { clock?: boolean; cappe
       group.type = 'team';
       group.teamSize = b.count;
       group.label = `team of ${b.count}`;
+      break;
+    // Both steps are live at once, one partner on each, and then they swap. A
+    // timeline is one athlete's order, so the two are *sequential* here and that
+    // is correct for either partner — what a timeline cannot say is that the
+    // second is bounded by the first rather than by its own count, so it says so
+    // out loud rather than compiling a duration nobody prescribed (spec §5.11.1).
+    case 'partnerRotation':
+      group.type = 'partnerRotation';
+      group.teamSize = 2;
+      group.label = 'partner rotation';
+      // No prescribed order, for the reason a tally block has none but arrived
+      // at from the other side: the order is prescribed *per athlete* and the
+      // two athletes take opposite ones, so "which comes first" has no single
+      // answer and adjacency questions cannot be asked of it.
+      group.freeOrder = true;
+      parent.warnings.push(
+        'partner rotation: each step is bounded by the partner working alongside it, '
+        + 'so its length is not known until execution',
+      );
       break;
     case 'attempts':
       group.type = 'attempts';

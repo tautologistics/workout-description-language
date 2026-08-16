@@ -142,6 +142,18 @@ when something looks odd before treating it as a discovery.
   `sets-by-reps` and marked pending. Small, and it wants the decision written down
   first.
 
+- **Open: a qualitative load (`@ heavy`) is held verbatim and means nothing.**
+  `- 150ft Farmers Carry @ heavy` parses to `{kind: 'raw', text: 'heavy'}` — it
+  round-trips, it shows on the board and in the builder, and no analysis can act
+  on it: no volume, no per-muscle load, nothing for `progress` to ramp. That is
+  the same holding answer `@ 95` has (see above) and it is *more* defensible here,
+  because `heavy` genuinely is not a number. But `heavy`, `moderate`, `light` and
+  `unloaded` are a small closed vocabulary that coaches use constantly, and a
+  carry prescribed by feel is not an error — it is the normal way to write a
+  carry. Related but distinct from the unitless-number question: that one is
+  about a missing unit, this one is about a load stated on a different scale
+  altogether. Found 2026-08-15 while encoding a carry circuit. Queued as item 6.
+
 - **Open: whether the leading `NxM` spelling should be the *canonical* one.**
   Deliberately not decided while closing the parse defect above, because it is a
   question about `format` rather than about `parse` and it applies just as much to
@@ -344,6 +356,66 @@ when something looks odd before treating it as a discovery.
   more honest reading — "a flag the language defines" is what `flags` means
   everywhere else — but it takes a form that parses today and stops it, so it is
   written down rather than guessed at. Nothing in the corpus writes one.
+
+- ~~**A nested block written `- AMRAP 3min:` becomes a movement named `AMRAP
+  3min:` and its contents are dropped.**~~ **Closed 2026-08-15** by queue item
+  0b. `parseNode` tested `/^-\s+/` before anything looked at the trailing colon,
+  so the whole block was read as a step, its children — a block's worth of work —
+  went nowhere, and `wdl check` reported no error. Spec §2 states both rules and
+  never said which wins; it now says the colon does. Found 2026-08-15 because the
+  adoption rule turned the stable loss into an *unsettled* one: the step it
+  produced formats back as `- AMRAP 3min:` with nothing under it, which phase 1
+  then reads as an empty container, so each `wdl fmt` pass ate one more sibling.
+
+  **It was pinned as correct, which is the part worth remembering.** Four
+  `structure` vocabulary forms — `nested blocks`, `deep nesting`, `many top-level
+  blocks`, `block/section :: conditioning` — were written to pin nesting and were
+  all written with the dash, so the snapshot recorded the *loss* as the canonical
+  form and the fixpoint check passed on it. `deep nesting` had been sitting there
+  as `conditioning:\n  - 3 rounds:s`, the pluralizer putting an `s` on a name
+  ending in a colon, in the same family as the `)s` the rx-split defect wrote.
+  Nothing in the corpus, the spec or any template writes the dashed form, so
+  those four fixtures were the only witnesses and they had been taught to agree.
+
+- **Open, and the one place the adoption rule is weaker than its argument.** The
+  rule that an empty block adopts the next line rests on "an empty block is not
+  something anyone writes", and `validate` half-disagrees: `empty-block` is raised
+  for every kind *except* `tally`. So an empty `any order:` with a block header
+  after it will adopt that header rather than sit beside it. Left alone
+  deliberately — phase 1 cannot know a block's kind without the keyword list the
+  two-phase split exists to avoid, and the real question is whether the `tally`
+  exemption in `validate` is justified at all, which is a question about a warning
+  and not about parsing. Nothing in the corpus writes a childless `any order:`.
+
+- **A team qualifier never reaches the board.** `shared`, `each` and
+  `synchronized` survive parse and canonical output, and `timeline.ts` drops all
+  three: `- 40 Burpee each` cues as `40 Burpees`. Spec §5.11 requires canonical
+  output to state the qualifier *always*, for the stated reason that **"40
+  burpees" in a team context is exactly the kind of thing a reader guesses wrong
+  about** — and the board is where a reader actually reads it. Same shape as the
+  `rx` entry above: `stepCue` builds from a subset of the step. Found 2026-08-15
+  while encoding a partner circuit; no corpus workout uses a team block.
+
+- **A distance range is not a form, and it fails the way `5x5` used to.**
+  `- 100-150ft Farmers Carry` puts `100-150ft Farmers Carry` in the *movement
+  name* with the quantity left `open`, so the step matches no registry entry and
+  drops out of muscle and volume analysis — and `wdl fmt` then pluralizes what it
+  was handed, writing `100-150 ft Farmers Carries`. Spec §3's unit table defines a
+  range for **reps only** (`8-12`), and that is a real decision (a carry written
+  `100-150ft` is a coach saying "somewhere in this range", which is the same thing
+  `8-12` says), but nothing reports the gap. `wdl check` says ok. Found 2026-08-15
+  while encoding a carry circuit. Either ranges generalise to distance and
+  duration, or the parser should say it cannot read the quantity.
+
+- **The builder's outline disagrees with the workout about an unindented
+  `score:`, until you canonicalise.** The outline is built from `readLines`
+  directly and deliberately — it is a view of the file's *shape* — so a flat
+  `score:` still draws inside the block it was written under, while spec §2's
+  rule 4 has already put it on the workout. "What it reads as" is right, the
+  outline is a line-tree, and `wdl fmt` makes them agree. Not worth fixing by
+  teaching phase 1 what a score is, which is the only way to fix it *there*;
+  worth fixing in the builder if the outline ever starts drawing from the AST.
+  Found 2026-08-15 while verifying queue item 0b in the builder.
 
 - **`registry/workouts.canonical.json` is not rebuilt by anything that runs.**
   Found 2026-08-15 while regenerating it for item 0d: it was stamped

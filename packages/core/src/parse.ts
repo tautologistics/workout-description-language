@@ -126,8 +126,17 @@ class Parser {
   parseNode(line: Line): Node | null {
     const { head, inline, tail } = expandInline(line);
     const kids = inline ? [...inline, ...line.children] : line.children;
-    const text = head.trim();
-    if (!text) return null;
+    const raw = head.trim();
+    if (!raw) return null;
+
+    // Spec §2 states two rules that `- AMRAP 3min:` satisfies at once — a line
+    // beginning `- ` is a step, a line ending in `:` opens a block — and never
+    // said which wins. **The colon does**, stated 2026-08-15: a step never ends
+    // in one, so the colon is the more specific signal, and phase 1 has already
+    // given this line children on the strength of it. Read as a step it became a
+    // movement named `AMRAP 3min:` and everything under it was dropped in
+    // silence. The dash is decoration on a nested block, as it is on a step.
+    const text = raw.endsWith(':') ? raw.replace(/^-\s+/, '') : raw;
 
     if (/^-\s+/.test(text)) return this.parseStep(text.replace(/^-\s+/, ''), line);
     if (/^rest\b/i.test(text)) return this.parseRest(text, line);
@@ -180,6 +189,7 @@ class Parser {
 
     if (text.endsWith(':')) {
       const block = this.parseHeader(text, line);
+      if (line.adopted) block.adopted = true;
       for (const k of kids) {
         // A `score:` nested inside a block belongs to that block; at the top
         // level it belongs to the workout. One rule, no ambiguity with siblings.
@@ -262,10 +272,46 @@ const orphan = (line: { line: number; text: string }, key: string): ParseError =
   message: `\`${key}:\` has no \`score:\` above it to qualify — add one, or drop this line`,
 });
 
+/**
+ * Take a `score:` / `on cap:` / `tiebreak:` line that was never indented back out
+ * to the top level, in source order.
+ *
+ * Adoption (spec §2) moves *work* into the block it was written flat under, which
+ * is what the rule is for. A score is not work — it is a statement about the
+ * thing as a whole, and in a flat file the only whole that can be reached is the
+ * workout. **Absorbing one does damage rather than merely misplacing it**:
+ * `for time:` is stored as a sequence carrying an *implied* `time` score, so a
+ * `score: rounds` landing on it overwrites the header's own kind and the block
+ * comes back out as `sequence:`. Indent a score to put it on a block.
+ *
+ * *Corrected 2026-08-15, the day the adoption rule landed. It first accepted
+ * absorption for every kind of line, which measured harmless on a one-block
+ * AMRAP; a real workout with a `for time:` buy-in and a trailing `score:` showed
+ * what it costs. Found by typing it into the builder, not by the suite.*
+ */
+function liftScores(roots: Line[]): Line[] {
+  const lifted: Line[] = [];
+  const walk = (nodes: Line[]) => {
+    for (const n of nodes) {
+      const kept = n.children.filter((c) => {
+        const t = c.text.trim();
+        if (!c.adopted || !(readScore(t) || wdl().tryQualifier(t).ok)) return true;
+        lifted.push(c);
+        return false;
+      });
+      n.children = kept;
+      walk(kept);
+    }
+  };
+  walk(roots);
+  return lifted;
+}
+
 export function parse(source: string): { workout: Workout; errors: ParseError[] } {
   const p = new Parser();
   const workout: Workout = { node: 'workout', directives: {}, body: [], comments: [] };
-  const roots = readLines(source);
+  const tree = readLines(source);
+  const roots = [...tree, ...liftScores(tree)];
 
   for (const line of roots) {
     const text = line.text.trim();

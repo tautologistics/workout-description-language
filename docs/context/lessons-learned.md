@@ -345,3 +345,57 @@ the way to find out was a script that diffs the two parses field by field, becau
 `git diff` on a single-line 3MB JSON says "1 insertion, 1 deletion" and tells you
 nothing. `interpretations.json` and `vocabulary.json` cannot drift like this,
 because a test regenerates and compares them on every run. Recorded 2026-08-15.
+
+**A fixture can pin a loss, and a group of fixtures written the same way will
+agree with each other about it.** Four `structure` vocabulary forms were written
+to pin nesting and every one wrote the nested header as `- AMRAP 3min:` — a form
+that appears in no corpus file, no template and no spec example. That spelling
+dropped everything under the dashed line, so the snapshot recorded a block's
+contents vanishing *as the canonical form*, and the fixpoint check passed on it
+because the loss was stable. One of them had been sitting there as
+`conditioning:\n  - 3 rounds:s` for as long as the file has existed.
+
+The trap is that a vocabulary file is written in one sitting by one person, so
+the forms are not independent witnesses — a habit in how the fixtures are typed
+becomes a habit in what is pinned. What found it was a *different* change
+(adoption) making the loss compound instead of stable. **When a group of pinned
+forms share a spelling, check the spelling against the corpus before trusting
+their agreement.** Recorded 2026-08-15.
+
+**Fixing a defect can turn a wrong-but-stable reading into an unsettled one, and
+that is a reason to widen the change rather than to narrow it.** Two of the three
+things fixed here were not the queue item: the dashed nested block, and a
+primary-less score formatting to a bare `score:` that the new rule then read as a
+block header. Neither was newly *wrong* — both were wrong before — but adoption
+turned each from "loses the same thing every time" into "loses one more thing per
+`wdl fmt`". A stable wrong reading can be filed; a compounding one cannot, so the
+blast radius of a rule at the input edge is every place something *emits* input.
+*Check what the formatter writes, not only what the parser reads.* Recorded
+2026-08-15.
+
+**A decision made against invented examples will be wrong about the shape nobody
+invented.** The adoption rule (queue item 0b) was settled twice on the day it
+landed. Version one had every block header terminate a flat run, and absorbed
+every kind of line into the block above it; both were argued carefully, pinned in
+the vocabulary, verified in both apps, and **both were wrong on the first real
+workout typed into the builder**. That file was *half*-indented — a `For time:`
+buy-in whose contents sat at column 0, containing an `AMRAP 20min:` that indented
+its own steps, and a trailing `score:` — and it came out as three top-level things
+with the score overwriting the for-time's kind.
+
+The examples that decided version one were all *fully* flat or *fully* indented,
+because those are the shapes that come to mind when you are reasoning about a
+rule. Nobody writes half-indented on purpose; they write it by starting to indent
+and stopping, which is exactly what the forgiveness rule exists for. **The corpus
+could not see it either** — all 190 files are properly indented, so the whole
+class was invisible to 1669 tests and to a regenerated interpretation digest that
+came back with zero changes. *Zero corpus movement means the change is safe for
+what exists, and says nothing about the input the feature was built to accept.*
+
+The fix in both cases turned out to be a signal already present in the file. A
+block that indents its own body was written the ordinary way, so it belongs
+*inside* the flat run rather than beside it. And a `score:` is not work, so
+adoption — which exists to move work into the block it was written under — has no
+business moving it. *When a rule about malformed input has to guess, look for
+what the author already did consistently elsewhere in the file before inventing a
+tiebreak.* Recorded 2026-08-15.

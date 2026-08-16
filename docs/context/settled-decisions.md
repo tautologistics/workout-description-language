@@ -221,6 +221,112 @@ would be tidier".
   modifier. This is forgiveness at the *input* edge, in the same family as queue
   item 0b, and `wdl fmt` canonicalises the comma away.
 
+- **`partner rotation:` is a block kind, and a team `alternating` still is not.**
+  Settled 2026-08-15. Two athletes, two pieces of work at the same time, then
+  they swap — spec §5.11.1. It looks like it reopens §5.11's refusal of a team
+  `alternating` and it does not, because **§5.11's stated reason is that
+  alternation does not generalise**: *"alternation only means anything for a team
+  of exactly two, and says nothing a larger team can use."* That is an argument
+  against putting it on `team of N`, not against the thing itself, and a block
+  that is two athletes by definition never has to answer "what about four". It
+  carries no count for the same reason. `team of N` is untouched, and its three
+  qualifiers are not used inside a rotation — both athletes do everything by
+  definition, `shared` would say the opposite, and `synchronized` means every rep
+  performed together, which is what a rotation is not.
+
+  **The harder objection is roadmap §2.5 — "when athletes swap is execution
+  strategy" — and the answer is that here it is not.** That line was written
+  about a team splitting 100 wall balls, where how they carve it up genuinely is
+  their business. In a rotation one athlete's work *bounds* the other's:
+  `1 Dead Hang` has no length of its own, it lasts exactly as long as the partner
+  takes to pull the sled down and back. Take the alternation away and what is
+  left is not a simpler prescription, it is a meaningless one. **The test is
+  whether removing it leaves the steps still meaning something** — for the wall
+  balls it does, here it does not.
+
+  **Exactly two, as an error rather than a warning.** Three is not a longer
+  rotation: with two athletes the third piece of work has nobody to be
+  simultaneous with, so the block's whole claim would be false. **Two
+  consequences are stated rather than left to fall out**: the timeline *warns*
+  instead of computing a duration, because it cannot express "bounded by the work
+  beside it" and inventing a length would be worse than saying so; and the block
+  is `freeOrder`, because the two athletes take opposite orders so "which comes
+  first" has no single answer — the same conclusion a tally block reaches from
+  the other direction.
+
+- **A line that is both a step and a block header is a block header.** Settled
+  2026-08-15 by queue item 0b. Spec §2 has always said two things — a line
+  beginning `- ` is a step, a line ending in `:` opens a block — and `- AMRAP
+  3min:` satisfies both. The colon wins, because **a step never ends in one**, so
+  it is the more specific signal, and because phase 1 has already given the line
+  children on the strength of it: phase 2 disagreeing was the bug, not the input.
+  Read as a step it became a movement named `AMRAP 3min:` and everything indented
+  under it was dropped in silence. The dash is decoration on a nested block, as
+  it is on a step, and `format` writes it back without one.
+
+- **A file that was never indented is read, and the four rules that read it.**
+  Settled 2026-08-15 by queue item 0b; stated in spec §2, rules 1–3 in
+  `readLines` and rule 4 in `parse`. **An empty block adopts whatever comes next,
+  block or not**, because a block holds no work of its own and empty it is not a
+  thing that can stand as anyone's sibling; this cascades through nesting.
+  **Once it has content, a plain line cannot close it** — a step is not a
+  container. **A block header closes it only if that header is flat too**, and
+  when it closes it closes every enclosing block populated by adoption, landing
+  where its own indentation puts it. **A `score:` line is not adopted at all.**
+
+  **Rules 3 and 4 were both settled twice on the same day, and the corrections
+  are the reusable part.** The first version had *every* block header terminate,
+  and accepted absorption for *every* kind of line. Both were decided against
+  invented examples and both were wrong on the first real workout typed into the
+  builder — a `For time:` buy-in with a nested `AMRAP 20min:` and a trailing
+  `score:`, written half-indented: the AMRAP indents its own body but was never
+  indented under the for-time. That file came out as three top-level things
+  rather than one, and the trailing score landed on the block. **Neither the
+  suite nor the 190-workout corpus could see it, because no example file is
+  written that way.**
+
+  **Rule 3's signal is that a block which indents its own body was written the
+  ordinary way**, and something written the ordinary way inside a flat run is in
+  the run rather than beside it. That is what separates the half-indented file
+  from flat `warmup:`/`conditioning:`/`cooldown:` sections, where nothing is
+  indented at all and the sections are siblings. Its cost is stated rather than
+  hidden: **in a half-indented file nothing returns to the outer level**, so a
+  `cooldown:` with an indented body after a flat `conditioning:` lands inside it.
+  Without indentation one of the two shapes is inexpressible either way, and that
+  is correct — this is forgiveness, not a second syntax for nesting.
+
+  **Rule 4 is not a special case for convenience; absorbing a score does
+  damage.** `for time:` is stored as a sequence carrying an *implied* `time`
+  score, so a `score: rounds` landing on it overwrites the header's own kind and
+  the block comes back out of the formatter as `sequence:`. A score is a
+  statement about the whole rather than work in the block, and in a flat file the
+  only whole that can be reached is the workout.
+
+  **A header that lands somewhere its indentation did not put it is reported**,
+  as a `note` — the severity 0d created for held-and-inert, applied to a
+  *structural* guess for the same reason. Only the header, not every adopted
+  line: a note per line in a deliberately flat file is noise.
+
+  **What does not move is a file that *did* indent** — a dedented line there is a
+  deliberate one, which is the only reason `score: time` under Fran is still the
+  workout's.
+
+  **Phase 1 keys on the trailing `:` and nothing else.** That is syntax rather
+  than semantics — true of every kind of block without naming any of them — which
+  is what keeps `readLines` free of WDL knowledge and phase 2 an ordinary line
+  grammar (roadmap §5.1). A list of block keywords in phase 1 would have bought
+  the same behaviour and cost the property the two-phase split exists for.
+
+- **A score with no primary is written in braces.** Settled 2026-08-15, and it is
+  the one exception to *"canonical output never writes a compound score in
+  braces"* — forced by the rule above rather than chosen. The sibling spelling
+  needs a head line to hang the siblings off, and a score that named only a
+  tiebreak has none: the head comes out as a bare `score:`, which *opens a
+  block*, so the `tiebreak:` under it is read as the nested form the language
+  declines and one `wdl fmt` loses it. A score with no primary is therefore a
+  score that has to fit on one line, which is precisely what the brace spelling
+  is for. `score: {tiebreak: reps at 5min}` is now its own fixpoint.
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).

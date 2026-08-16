@@ -108,6 +108,35 @@ export function validate(w: Workout, opts: ValidateOptions = {}): Diagnostic[] {
         add({ severity: 'warning', code: 'empty-block', line: n.line, message: `${n.type} block is empty` });
       }
 
+      /**
+       * A partner rotation is two people doing two things at once and then
+       * swapping, so it holds exactly two (spec §5.11.1). Three is not a longer
+       * rotation — it is a shape the block cannot state, because with two
+       * athletes the third thing has nobody to be simultaneous with. An error
+       * rather than a warning: the block's whole claim is that these run
+       * alongside each other, and with three that claim is false.
+       */
+      if (n.type === 'partnerRotation' && n.children.length !== 2 && n.children.length !== 0) {
+        add({ severity: 'error', code: 'partner-rotation-arity', line: n.line,
+              message: `partner rotation holds exactly two — this has ${n.children.length}. `
+                + 'Two athletes work at once and then swap, so a third has nobody to work alongside; '
+                + 'split it into two rotations, or use `any order:` if the pairing does not matter' });
+      }
+
+      /**
+       * A block header that was never indented into the block holding it (spec
+       * §2). Reported for the same reason unknown text is: the adoption rule
+       * makes a *structural* guess, and held-and-inert must not also be silent —
+       * one that changes what contains what least of all. `note` rather than
+       * `warning`, because nothing is wrong: writing a file flat is allowed, and
+       * `wdl fmt` writes the indentation that settles it.
+       */
+      if (n.adopted) {
+        add({ severity: 'note', code: 'adopted-block', line: n.line,
+              message: 'read as inside the block above it — it was never indented into one; '
+                + 'indent it to say so, or run `wdl fmt`' });
+      }
+
       // `score: rounds + reps` only means something where rounds are open-ended.
       const s = n.score?.primary ?? '';
       const forTime = inForTime || s === 'time';

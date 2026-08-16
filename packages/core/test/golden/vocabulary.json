@@ -8417,18 +8417,34 @@
   "fixpoint": true
  },
  "block/section :: conditioning": {
-  "canonical": "conditioning:\n  - AMRAP 12min:",
+  "canonical": "conditioning:\n  AMRAP 12min:\n    - 10 Burpees",
   "errors": [],
   "ast": {
    "body": [
     {
      "children": [
       {
-       "movement": "AMRAP 12min:",
-       "node": "step",
-       "quantity": {
-        "kind": "open"
-       }
+       "children": [
+        {
+         "movement": "Burpee",
+         "node": "step",
+         "quantity": {
+          "kind": "reps",
+          "value": 10
+         }
+        }
+       ],
+       "duration": {
+        "kind": "duration",
+        "seconds": 720
+       },
+       "node": "block",
+       "score": {
+        "implied": true,
+        "primary": "rounds + reps",
+        "raw": "rounds + reps"
+       },
+       "type": "amrap"
       }
      ],
      "name": "conditioning",
@@ -9845,7 +9861,7 @@
   "fixpoint": true
  },
  "score :: brace form without a primary": {
-  "canonical": "for time:\n  - 100 Burpees\n\nscore:\ntiebreak: reps at 5min",
+  "canonical": "for time:\n  - 100 Burpees\n\nscore: {tiebreak: reps at 5min}",
   "errors": [],
   "ast": {
    "body": [
@@ -9880,7 +9896,7 @@
   "fixpoint": true
  },
  "score :: brace form with only an on cap": {
-  "canonical": "for time, cap 12min:\n  - 100 Burpees\n\nscore:\non cap: rounds completed",
+  "canonical": "for time, cap 12min:\n  - 100 Burpees\n\nscore: {on cap: rounds completed}",
   "errors": [],
   "ast": {
    "body": [
@@ -12257,18 +12273,34 @@
   "fixpoint": true
  },
  "structure :: nested blocks": {
-  "canonical": "3 rounds:\n  - AMRAP 3min:\n  rest 1min",
+  "canonical": "3 rounds:\n  AMRAP 3min:\n    - 10 Burpees\n  rest 1min",
   "errors": [],
   "ast": {
    "body": [
     {
      "children": [
       {
-       "movement": "AMRAP 3min:",
-       "node": "step",
-       "quantity": {
-        "kind": "open"
-       }
+       "children": [
+        {
+         "movement": "Burpee",
+         "node": "step",
+         "quantity": {
+          "kind": "reps",
+          "value": 10
+         }
+        }
+       ],
+       "duration": {
+        "kind": "duration",
+        "seconds": 180
+       },
+       "node": "block",
+       "score": {
+        "implied": true,
+        "primary": "rounds + reps",
+        "raw": "rounds + reps"
+       },
+       "type": "amrap"
       },
       {
        "afterLast": false,
@@ -12293,19 +12325,44 @@
   "fixpoint": true
  },
  "structure :: deep nesting": {
-  "canonical": "conditioning:\n  - 3 rounds:s",
+  "canonical": "conditioning:\n  3 rounds:\n    AMRAP 2min:\n      - 5 Pull-Ups",
   "errors": [],
   "ast": {
    "body": [
     {
      "children": [
       {
-       "movement": "rounds:",
-       "node": "step",
-       "quantity": {
-        "kind": "reps",
-        "value": 3
-       }
+       "children": [
+        {
+         "children": [
+          {
+           "movement": "Pull-Up",
+           "node": "step",
+           "quantity": {
+            "kind": "reps",
+            "value": 5
+           }
+          }
+         ],
+         "duration": {
+          "kind": "duration",
+          "seconds": 120
+         },
+         "node": "block",
+         "score": {
+          "implied": true,
+          "primary": "rounds + reps",
+          "raw": "rounds + reps"
+         },
+         "type": "amrap"
+        }
+       ],
+       "count": 3,
+       "flags": [
+        "rounds"
+       ],
+       "node": "block",
+       "type": "repeat"
       }
      ],
      "name": "conditioning",
@@ -12319,7 +12376,7 @@
   "fixpoint": true
  },
  "structure :: many top-level blocks": {
-  "canonical": "warmup:\n  - 400m Run\nstrength:\n  - 5 Back Squats @ 225lb\nconditioning:\n  - AMRAP 10min:",
+  "canonical": "warmup:\n  - 400m Run\nstrength:\n  - 5 Back Squats @ 225lb\nconditioning:\n  AMRAP 10min:\n    - 10 Burpees",
   "errors": [],
   "ast": {
    "body": [
@@ -12367,11 +12424,27 @@
     {
      "children": [
       {
-       "movement": "AMRAP 10min:",
-       "node": "step",
-       "quantity": {
-        "kind": "open"
-       }
+       "children": [
+        {
+         "movement": "Burpee",
+         "node": "step",
+         "quantity": {
+          "kind": "reps",
+          "value": 10
+         }
+        }
+       ],
+       "duration": {
+        "kind": "duration",
+        "seconds": 600
+       },
+       "node": "block",
+       "score": {
+        "implied": true,
+        "primary": "rounds + reps",
+        "raw": "rounds + reps"
+       },
+       "type": "amrap"
       }
      ],
      "name": "conditioning",
@@ -12381,6 +12454,875 @@
    ],
    "directives": {},
    "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "structure :: nested blocks, no dash": {
+  "canonical": "3 rounds:\n  AMRAP 3min:\n    - 10 Burpees\n  rest 1min",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "movement": "Burpee",
+         "node": "step",
+         "quantity": {
+          "kind": "reps",
+          "value": 10
+         }
+        }
+       ],
+       "duration": {
+        "kind": "duration",
+        "seconds": 180
+       },
+       "node": "block",
+       "score": {
+        "implied": true,
+        "primary": "rounds + reps",
+        "raw": "rounds + reps"
+       },
+       "type": "amrap"
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 60
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "partner :: partner rotation": {
+  "canonical": "partner rotation:\n  - 150ft Sled Rope Pull\n  - 1 Dead Hang",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Sled Rope Pull",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "ft",
+        "value": 150
+       }
+      },
+      {
+       "movement": "Dead Hang",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 1
+       }
+      }
+     ],
+     "node": "block",
+     "type": "partnerRotation"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "partner :: partner rotation inside rounds": {
+  "canonical": "3 rounds:\n  - 8-12 Toes-to-Bar\n  partner rotation:\n    - 150ft Sled Rope Pull\n    - 1 Dead Hang",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Toes-to-Bar",
+       "node": "step",
+       "quantity": {
+        "kind": "range",
+        "max": 12,
+        "min": 8
+       }
+      },
+      {
+       "children": [
+        {
+         "movement": "Sled Rope Pull",
+         "node": "step",
+         "quantity": {
+          "kind": "distance",
+          "unit": "ft",
+          "value": 150
+         }
+        },
+        {
+         "movement": "Dead Hang",
+         "node": "step",
+         "quantity": {
+          "kind": "reps",
+          "value": 1
+         }
+        }
+       ],
+       "node": "block",
+       "type": "partnerRotation"
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "partner :: partner rotation with a load and a note": {
+  "canonical": "partner rotation:\n  - 100ft Farmers Carry @ 2x24kg\n  - 1 Dead Hang, note: \"hang while your partner walks\"",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Farmers Carry",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "ft",
+        "value": 100
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "implements": 2,
+          "kind": "absolute",
+          "unit": "kg",
+          "value": 24
+         }
+        }
+       ]
+      },
+      {
+       "movement": "Dead Hang",
+       "node": "step",
+       "notes": [
+        "hang while your partner walks"
+       ],
+       "quantity": {
+        "kind": "reps",
+        "value": 1
+       }
+      }
+     ],
+     "node": "block",
+     "type": "partnerRotation"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "partner :: partner rotation with three": {
+  "canonical": "partner rotation:\n  - 150ft Sled Rope Pull\n  - 1 Dead Hang\n  - 10 Burpees",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Sled Rope Pull",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "ft",
+        "value": 150
+       }
+      },
+      {
+       "movement": "Dead Hang",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 1
+       }
+      },
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "type": "partnerRotation"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "partner :: team of 2 beside it": {
+  "canonical": "team of 2:\n  - 100 Wall Balls @ 20lb shared\n  - 40 Burpees each",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Wall Ball",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 20
+         }
+        }
+       ],
+       "team": "shared"
+      },
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 40
+       },
+       "team": "each"
+      }
+     ],
+     "count": 2,
+     "node": "block",
+     "type": "team"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "adoption :: flat block": {
+  "canonical": "AMRAP 12min:\n  - 5 Pull-Ups\n  - 10 Push-Ups\n  - 15 Air Squats",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Pull-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       }
+      },
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      },
+      {
+       "movement": "Air Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 15
+       }
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "rounds + reps",
+      "raw": "rounds + reps"
+     },
+     "type": "amrap"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "adoption :: flat block, blank line between": {
+  "canonical": "AMRAP 12min:\n  - 5 Pull-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Pull-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       }
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "rounds + reps",
+      "raw": "rounds + reps"
+     },
+     "type": "amrap"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "adoption :: flat block with a rest": {
+  "canonical": "5 sets:\n  - 30s Bike\n  rest 1min",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Bike",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 30
+       }
+      },
+      {
+       "afterLast": false,
+       "duration": {
+        "kind": "duration",
+        "seconds": 60
+       },
+       "node": "rest"
+      }
+     ],
+     "count": 5,
+     "flags": [
+      "sets"
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "adoption :: a container ends a flat block": {
+  "canonical": "AMRAP 12min:\n  - 5 Pull-Ups\nfor time:\n  - 21-15-9 Thruster",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Pull-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       }
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "rounds + reps",
+      "raw": "rounds + reps"
+     },
+     "type": "amrap"
+    },
+    {
+     "children": [
+      {
+       "movement": "21-15-9 Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "adoption :: a half-indented block is inside the run": {
+  "canonical": "for time:\n  - 800m Run\n  AMRAP 20min:\n    - 10 Push Presses\n    - 30 Air Squats\n  - 30cal Row",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 800
+       }
+      },
+      {
+       "adopted": true,
+       "children": [
+        {
+         "movement": "Push Press",
+         "node": "step",
+         "quantity": {
+          "kind": "reps",
+          "value": 10
+         }
+        },
+        {
+         "movement": "Air Squat",
+         "node": "step",
+         "quantity": {
+          "kind": "reps",
+          "value": 30
+         }
+        }
+       ],
+       "duration": {
+        "kind": "duration",
+        "seconds": 1200
+       },
+       "node": "block",
+       "score": {
+        "implied": true,
+        "primary": "rounds + reps",
+        "raw": "rounds + reps"
+       },
+       "type": "amrap"
+      },
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "calories",
+        "value": 30
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "adoption :: a half-indented file does not come back out": {
+  "canonical": "conditioning:\n  AMRAP 12min:\n    - 5 Pull-Ups\n  cooldown:\n    - 5min Walk",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "adopted": true,
+       "children": [
+        {
+         "movement": "Pull-Up",
+         "node": "step",
+         "quantity": {
+          "kind": "reps",
+          "value": 5
+         }
+        }
+       ],
+       "duration": {
+        "kind": "duration",
+        "seconds": 720
+       },
+       "node": "block",
+       "score": {
+        "implied": true,
+        "primary": "rounds + reps",
+        "raw": "rounds + reps"
+       },
+       "type": "amrap"
+      },
+      {
+       "adopted": true,
+       "children": [
+        {
+         "movement": "Walk",
+         "node": "step",
+         "quantity": {
+          "kind": "duration",
+          "seconds": 300
+         }
+        }
+       ],
+       "name": "cooldown",
+       "node": "block",
+       "type": "section"
+      }
+     ],
+     "name": "conditioning",
+     "node": "block",
+     "type": "section"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "adoption :: an empty container adopts a container": {
+  "canonical": "conditioning:\n  AMRAP 12min:\n    - 5 Pull-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "adopted": true,
+       "children": [
+        {
+         "movement": "Pull-Up",
+         "node": "step",
+         "quantity": {
+          "kind": "reps",
+          "value": 5
+         }
+        }
+       ],
+       "duration": {
+        "kind": "duration",
+        "seconds": 720
+       },
+       "node": "block",
+       "score": {
+        "implied": true,
+        "primary": "rounds + reps",
+        "raw": "rounds + reps"
+       },
+       "type": "amrap"
+      }
+     ],
+     "name": "conditioning",
+     "node": "block",
+     "type": "section"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "adoption :: flat sections in order": {
+  "canonical": "warmup:\n  - 500m Row\nconditioning:\n  AMRAP 12min:\n    - 5 Pull-Ups\ncooldown:\n  - 5min Walk",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 500
+       }
+      }
+     ],
+     "name": "warmup",
+     "node": "block",
+     "type": "section"
+    },
+    {
+     "children": [
+      {
+       "adopted": true,
+       "children": [
+        {
+         "movement": "Pull-Up",
+         "node": "step",
+         "quantity": {
+          "kind": "reps",
+          "value": 5
+         }
+        }
+       ],
+       "duration": {
+        "kind": "duration",
+        "seconds": 720
+       },
+       "node": "block",
+       "score": {
+        "implied": true,
+        "primary": "rounds + reps",
+        "raw": "rounds + reps"
+       },
+       "type": "amrap"
+      }
+     ],
+     "name": "conditioning",
+     "node": "block",
+     "type": "section"
+    },
+    {
+     "children": [
+      {
+       "movement": "Walk",
+       "node": "step",
+       "quantity": {
+        "kind": "duration",
+        "seconds": 300
+       }
+      }
+     ],
+     "name": "cooldown",
+     "node": "block",
+     "type": "section"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "adoption :: a flat score is the workouts": {
+  "canonical": "AMRAP 12min:\n  - 5 Pull-Ups\n\nscore: rounds",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Pull-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       }
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "rounds + reps",
+      "raw": "rounds + reps"
+     },
+     "type": "amrap"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "primary": "rounds",
+    "raw": "rounds"
+   }
+  },
+  "fixpoint": true
+ },
+ "adoption :: a flat score and tiebreak together": {
+  "canonical": "for time:\n  - 800m Run\n\nscore: rounds\ntiebreak: time",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 800
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "primary": "rounds",
+    "raw": "rounds",
+    "tiebreak": "time"
+   }
+  },
+  "fixpoint": true
+ },
+ "adoption :: a deliberate dedent still leaves": {
+  "canonical": "AMRAP 12min:\n  - 5 Pull-Ups\n- 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Pull-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       }
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "rounds + reps",
+      "raw": "rounds + reps"
+     },
+     "type": "amrap"
+    },
+    {
+     "movement": "Push-Up",
+     "node": "step",
+     "quantity": {
+      "kind": "reps",
+      "value": 10
+     }
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "adoption :: a deliberate dedent still leaves, score": {
+  "canonical": "for time:\n  21-15-9:\n    - Thrusters @ 95lb\n    - Pull-Ups\n\nscore: time",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "movement": "Thruster",
+         "node": "step",
+         "quantity": {
+          "kind": "open"
+         },
+         "targets": [
+          {
+           "kind": "load",
+           "load": {
+            "kind": "absolute",
+            "unit": "lb",
+            "value": 95
+           }
+          }
+         ]
+        },
+        {
+         "movement": "Pull-Up",
+         "node": "step",
+         "quantity": {
+          "kind": "open"
+         }
+        }
+       ],
+       "node": "block",
+       "scheme": [
+        21,
+        15,
+        9
+       ],
+       "type": "ladder"
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "score": {
+    "primary": "time",
+    "raw": "time"
+   }
   },
   "fixpoint": true
  }

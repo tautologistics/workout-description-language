@@ -165,11 +165,34 @@ function restText(r: Rest): string {
  * whole premise is gone: nobody writes braces on a whiteboard.
  */
 function scoreLines(s: Score): string[] {
-  // `.trimEnd()` for the one case that has nothing to put here: a brace score
-  // that named a tiebreak and no `primary:`. The primary is empty, deliberately —
-  // an absent primary is absent — and the line must not go out with a trailing
-  // space, which is neither what the author wrote nor a fixpoint.
-  const out = [`score: ${s.onCap || s.tiebreak ? s.primary : s.raw}`.trimEnd()];
+  const head = s.onCap || s.tiebreak ? s.primary : s.raw;
+  /**
+   * **A score with no primary is written in braces**, decided 2026-08-15 with the
+   * adoption rule, and it is the one exception to the paragraph above.
+   *
+   * The sibling spelling needs a head line to hang the siblings off, and a score
+   * that named only a tiebreak has none — the head comes out as a bare `score:`,
+   * which *opens a block* (spec §2). Once a container adopts the lines written
+   * flat under it, the `tiebreak:` below a bare `score:` is read as the nested
+   * form the language declines, and one `wdl fmt` loses it. That is the
+   * unsettled shape, not merely a wrong one.
+   *
+   * So this is a score that *has* to fit on one line, which is exactly what the
+   * brace spelling is for — not a third spelling and not the compound-score
+   * regression the paragraph above is about.
+   */
+  if (!head) {
+    const fields = [
+      s.onCap ? `on cap: ${s.onCap}` : '',
+      s.tiebreak ? `tiebreak: ${s.tiebreak}` : '',
+    ].filter(Boolean);
+    if (fields.length) return [`score: {${fields.join(', ')}}`];
+  }
+  // `.trimEnd()` for what is left: a score naming nothing at all (`score: {}`),
+  // where the primary is empty deliberately — an absent primary is absent — and
+  // the line must not go out with a trailing space, which is neither what the
+  // author wrote nor a fixpoint.
+  const out = [`score: ${head}`.trimEnd()];
   // `on cap: reps` is the default when a cap exists, so only state it otherwise.
   if (s.onCap && s.onCap !== 'reps') out.push(`on cap: ${s.onCap}`);
   if (s.tiebreak) out.push(`tiebreak: ${s.tiebreak}`);
@@ -195,6 +218,7 @@ function headerText(b: Block): string {
     case 'repeat': head = `${b.count} ${b.flags.includes('sets') ? 'sets' : 'rounds'}`; break;
     case 'attempts': head = `${b.count} attempts`; break;
     case 'team': head = `team of ${b.count}`; break;
+    case 'partnerRotation': head = 'partner rotation'; break;
     case 'ladder': head = formatScheme(b.scheme!) + (b.schemeUnit ? ` ${b.schemeUnit}` : ''); break;
     case 'amrap':
       head = b.flags.includes('for-duration') ? `for ${dur(b.duration)}` : `AMRAP ${dur(b.duration)}`.trim();

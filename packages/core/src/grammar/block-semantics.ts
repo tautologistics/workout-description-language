@@ -126,6 +126,9 @@ export function installBlock(semantics: Semantics): void {
       this.args.block.type = 'cycleEntry';
       this.args.block.count = num(n);
     },
+    // Two athletes by definition, so it carries no count — that is the whole
+    // reason it is its own kind rather than a `team of 2` qualifier (spec §5.11.1).
+    headerKind_partnerRotation(_p, _s, _r, _end) { this.args.block.type = 'partnerRotation'; },
     headerKind_tally(_any, _s, _order, _end) { this.args.block.type = 'tally'; },
     headerKind_superset(_word, _end) { this.args.block.type = 'superset'; },
     headerKind_complex(_word, _end) { this.args.block.type = 'complex'; },

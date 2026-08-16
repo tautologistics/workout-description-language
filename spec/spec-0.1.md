@@ -45,6 +45,33 @@ score: time
 
 Nesting is by indentation (two spaces canonical). A line ending in `:` opens a block. A line beginning with `- ` is a step. `//` begins a comment, which survives round-tripping.
 
+**A line that is both wins on the colon.** `- AMRAP 3min:` opens a block, and the `- ` is decoration, exactly as it is on a step. *Stated 2026-08-15; the two rules above had collided since 0.1 was written and neither said which applied.* A step never ends in a colon, so the colon is the more specific signal — and reading the line as a step made a movement named `AMRAP 3min:` and dropped everything indented under it without a word.
+
+### Lines that were never indented
+
+Indentation is how nesting is written, and a file that never uses it is still read. This is forgiveness at the **input** edge only: `wdl fmt` writes the indentation back, and the whiteboard constraint governs what a file looks like at rest.
+
+```
+AMRAP 12min:      warmup:            For time:
+5 Pull-Up         500m Row           - 800m Run
+10 Push-Up        conditioning:      AMRAP 20min:
+15 Air Squat      AMRAP 12min:         - 10 Push Press
+                  5 Pull-Up            - 30 Air Squat
+                  cooldown:          - 30cal Row
+                  5min Walk          score: rounds
+```
+
+Four rules, and each is separately justified:
+
+1. **An empty block adopts whatever comes next, block or not.** A block holds no work of its own, so empty it is not a thing that can stand as anyone's sibling — `conditioning:` written directly above `AMRAP 12min:` means the AMRAP is in it. This cascades: each still-empty block adopts in turn.
+2. **Once a block has content, a plain line cannot close it.** A step is not a container, so a line written flat under a block belongs to that block. A flat file has no way to say "outside the block"; indent to say otherwise.
+3. **A block header closes it only if that header is flat too.** A block that indents its own body is a block written the ordinary way, and one written the ordinary way inside a flat run is *in* the run rather than beside it — which is what tells the third example above (the AMRAP's steps indented, so the AMRAP is inside the `For time:`) from the second (all of it flat, so the sections are siblings). When a header does close, it closes every enclosing block populated by adoption, so it lands where its own indentation puts it. The cost is stated rather than hidden: **in a half-indented file nothing returns to the outer level**, so a `cooldown:` with an indented body after a flat `conditioning:` lands inside it. Indent the outer block's body to say otherwise.
+4. **A `score:` line is not adopted.** Adoption moves *work* into the block it was written under; a score is a statement about the thing as a whole, and in a flat file the only whole that can be reached is the workout. So `score:`, `on cap:` and `tiebreak:` written flat belong to the workout. Indent one to put it on a block.
+
+**A block header that lands somewhere its own indentation did not put it is reported**, as a `note` (§12) — the adoption rule makes a structural guess, and a guess should not also be silent. `wdl fmt` writes the indentation, which settles it.
+
+**Only the trailing `:` is doing the work in rules 1–3.** That is syntax rather than semantics — true of every kind of block without naming any of them — which is what keeps the indentation pass free of WDL knowledge and phase 2 an ordinary line grammar. It is also the one place the "an empty block is not something anyone writes" argument is weaker than it looks: a `tally` block is the one kind the validator lets stand childless, so an empty `any order:` will adopt the line after it.
+
 ---
 
 ## 3. Units
@@ -418,6 +445,29 @@ Three qualifiers, and they scale to any team size:
 **There is no team `alternating`.** Alternation only means anything for a team of exactly two, and says nothing a larger team can use — three athletes rotating through a station are not alternating, they are sharing. Whether a pair strictly takes turns is execution strategy, which the format deliberately does not represent (roadmap §2.5). `alternating` remains a *laterality* term only, describing limbs (§4).
 
 How the work is divided is never represented. `team of 2` and `team of 4` differ only in the divisor.
+
+### 5.11.1 Partner rotation
+
+Two athletes, two pieces of work, at the same time — then they swap, so both do both.
+
+```
+partner rotation:
+  - 150ft Sled Rope Pull
+  - 1 Dead Hang
+```
+
+One pulls the sled down and back while the other hangs; then they switch. **It holds exactly two**, and that is not a limit to be relaxed later: with two athletes a third piece of work has nobody to be simultaneous with, so `validate` reports `partner-rotation-arity` as an error rather than a warning — the block's whole claim is that these run alongside each other, and with three that claim is false.
+
+**Why this is a kind of its own rather than a `team of 2` qualifier.** §5.11 declines a team `alternating` because *"alternation only means anything for a team of exactly two, and says nothing a larger team can use"* — which is an argument against generalising it, not against the thing itself. A block that is two athletes by definition never has to answer "what about four", so the objection does not reach it. It carries no count for the same reason.
+
+**And why the alternation is prescription rather than execution strategy.** Roadmap §2.5 keeps "when athletes swap" out of the format, and that is right for a team splitting 100 wall balls, where how they carve it up is their business. This is not that. **`1 Dead Hang` has no length of its own — it lasts exactly as long as the partner takes to pull down and back.** One athlete's work *bounds* the other's, so removing the alternation does not leave a simpler prescription, it leaves a meaningless one.
+
+Two consequences follow from that and are stated rather than left to be discovered:
+
+- **The timeline warns rather than computing a duration.** A timeline is one athlete's order, and the two steps are sequential in it — correct for either partner, since they take opposite ones. What it cannot express is that the second is bounded by the work beside it rather than by its own count, so it says so instead of inventing a length.
+- **There is no prescribed order inside it.** One partner does the first step first and the other does the second first, so "which comes before which" has no single answer. It is `freeOrder` for the same reason a tally block is, reached from the opposite direction, and adjacency rules (§goals `no repeat`) do not apply within it.
+
+Team qualifiers (`shared`, `each`, `synchronized`) are not used here. Both athletes complete every step by definition, which is what the block says; `shared` would mean the opposite, and `synchronized` means every rep performed together, which is what a rotation is not.
 
 ### 5.12 Attempts
 
