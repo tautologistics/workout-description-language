@@ -142,6 +142,26 @@ when something looks odd before treating it as a discovery.
   `sets-by-reps` and marked pending. Small, and it wants the decision written down
   first.
 
+- **`for time, 3 rounds:` drops the three rounds in silence.** It parses to a
+  plain `sequence` — no count, no error, and a stable fixpoint — so the workout
+  runs once instead of three times and nothing anywhere says so. Spec §5.0
+  promises the opposite in as many words: *"Order is free on input"*. Same family
+  as the header defect closed 2026-08-15, which fixed a **target** written beside
+  a `for time`; this is **structure** written after one. It generalises past
+  rounds: `for time, 21-15-9:` loses the whole ladder, `for time, AMRAP 12min:`
+  the window, `for time, team of 2:` the team. `cap 12min, 3 rounds:` and
+  `building, 3 rounds:` are *reported*, so the silence is specific to a first
+  segment that parses as a block on its own — and `for time` is the one that does.
+  Found 2026-08-16 while checking the spellings of "three rounds for time".
+  Queued as item 0f.
+
+- **`3 RFT:` is not read.** Held as a named sequence and **reported**, so nothing
+  is lost quietly — but the rounds and the score both go, leaving a block that
+  runs once and is unscored. `AMRAP` and `EMOM` are in the grammar as
+  abbreviations everyone writes; `RFT` is the one that was left out, and it is
+  what the person this workout was sent to actually wrote on the whiteboard.
+  Found 2026-08-16. Queued as item 0f.
+
 - **Open: a qualitative load (`@ heavy`) is held verbatim and means nothing.**
   `- 150ft Farmers Carry @ heavy` parses to `{kind: 'raw', text: 'heavy'}` — it
   round-trips, it shows on the board and in the builder, and no analysis can act

@@ -389,6 +389,54 @@ terminates the run **only if it is flat too**, which is what reads a
 half-indented file — the shape the first answer had no example of. Reasoning, and
 what each version cost, in [settled-decisions.md](settled-decisions.md).*
 
+**0f. `3 RFT:` is a header spelling nobody has stated, and `for time, 3 rounds:`
+is one the spec already promises and silently loses.** Two halves of the same
+question — *how many ways may a reader write "three rounds for time"* — and the
+second is the one to do first, because it is silent where the first is loud.
+Raised 2026-08-16, both by the same workout going out to a real person.
+
+**`3 RFT:` is not read.** It becomes a named sequence called `3 RFT` and is
+*reported* — `unrecognized block header "3 RFT"` — so the fail-open design is
+working and nothing is lost quietly. But the rounds and the score both go: the
+block is a plain sequence, so it runs once and is unscored. **This is how the
+person it was sent to actually wrote it on a whiteboard**, which is the argument
+for reading it: `AMRAP` and `EMOM` are already in the grammar as abbreviations
+everyone writes, and `RFT` is the third one. Decide whether a bare `RFT:` (no
+count) means anything, and whether the same treatment is owed to `AMRAP`'s
+neighbours (`EMOM` is there; `E2MOM` is; `RFT` and `TABATA` are not).
+
+**`for time, 3 rounds:` drops the three rounds without a word.** It parses to a
+*sequence* — no count, no error, and a stable fixpoint, so nothing anywhere says
+the rounds went missing. Spec §5.0 says **"Order is free on input"** and lists
+structure → scoring as the canonical order, so this spelling is promised and does
+not work. It is the same family as the defect closed on 2026-08-15 (*"The spec
+already said order is free on a header; now it is true"*), which fixed a **target**
+beside a `for time`; this is **structure** after one.
+
+The shape is precise and worth stating, because it says where the fix goes: a
+block's *kind* must come first, and anything stating a kind after a comma is
+dropped. Measured:
+
+| Written | Read as | |
+|---|---|---|
+| `3 rounds for time:` | repeat, count 3, scored time | correct |
+| `for time, 3 rounds:` | sequence, **no count** | silent |
+| `for time, 21-15-9:` | sequence, **no scheme** | silent — a whole ladder |
+| `for time, AMRAP 12min:` | sequence, **no window** | silent |
+| `for time, team of 2:` | sequence, **not a team** | silent |
+| `cap 12min, 3 rounds:` | sequence | *reported* |
+| `building, 3 rounds:` | sequence | *reported* |
+
+The last two are reported only because their first segment is not a kind at all.
+**`for time` is the one head that swallows what follows it in silence**, because
+it parses successfully on its own — a sequence scored by time is a real block, so
+nothing looks wrong. Fix the general rule (a kind may appear in any comma
+position) rather than special-casing `for time`, or the next head that parses
+alone inherits the same hole.
+*Touches: `spec/grammar-0.1.ohm` (`headerKind`, `headerModifier`),
+`packages/core/src/grammar/block-semantics.ts`, `spec/spec-0.1.md` §5.0,
+`test/golden/vocabulary.ts`.*
+
 **1. `rx` should desugar into `variants:`.** Step-level `(women 105lb / men
 145lb)` and workout-level `variants:` are two mechanisms for one idea. `rx`
 should lower to a variant so `--variant women` covers both and exporters need
@@ -454,8 +502,56 @@ to any analysis while validating clean. Raised 2026-08-15.
 *Touches: `packages/core/src/ast.ts`, `units.ts`, `volume.ts`, `muscles.ts`,
 `format.ts`, `spec/spec-0.1.md`.*
 
-*Ordering of 5 and 6 against 1–4 is not settled — they are appended rather than
-placed, and both were raised by writing one workout rather than by a plan.*
+**7. A body map in the builder and on the board.** Front and back of a body, with
+the muscle groups the workout hits drawn on it. Not high priority — this is a
+*view*, and every number it would draw already exists. Raised 2026-08-16.
+
+**The data layer is done, which is why this is a rendering job and not a
+project.** `registry/muscles.json` is a closed 19-muscle vocabulary
+(`Chest, Shoulders, Biceps, Triceps, Forearms, Lats, Mid-back, Traps, Neck, Abs,
+Obliques, Erectors, Hip flexors, Glutes, Quads, Hamstrings, Calves, Adductors,
+Abductors`) grouped into three regions, every muscle carrying the synonyms five
+upstream sources spell it by; `muscles.ts` attributes a workout's steps to it and
+`volume.ts` gives per-muscle volume. **The missing piece is one artefact: an SVG
+body with a path per muscle, id-matched to that vocabulary.** Because the
+vocabulary is *closed* and a build script fails on anything outside it, the SVG
+cannot silently drift out of step with the registry — which is what makes this
+worth doing as a drawing rather than as a feature.
+
+Four things to show, and they are not the same picture:
+
+- **Aggregate, in the builder** — everything the whole workout hits, so the shape
+  of a session is visible at a glance while writing it.
+- **Per-movement highlight** — selecting or hovering a movement in the palette or
+  the outline lights up what *it* hits. The interesting version is the one asked
+  for: light it **against** the aggregate rather than on its own, so the question
+  answered is "what does this add to what I already have" rather than "what does
+  this movement do".
+- **A heat map** — intensity by how much a group is worked, not merely whether it
+  is. Decide what the scale is: `volume.ts` gives reps × load, which is the honest
+  answer for loaded work and says nothing useful about a carry or a hang (see
+  items 5 and 6 — a step with a range quantity and a qualitative load contributes
+  *nothing*, so it would read as cold, which is worse than uncoloured). Frequency
+  is cruder and always available. It probably needs both, and it needs to
+  distinguish "not worked" from "cannot be measured".
+- **On the board, while a session runs** — the whole workout's map as a constant,
+  with the current movement emphasised on top of it. The board already knows the
+  position, so this is the same two layers as the builder's, driven by the cue
+  index instead of by a selection.
+
+The one design question worth settling before drawing anything: **a movement hits
+its muscles at different weights** (primary vs secondary — `muscles.ts` already
+distinguishes them, and the goals file's `level: any` keys off it). Whether the
+map shows that as opacity, as two colours, or not at all decides how much the
+picture can say before it starts lying.
+*Touches: a new asset (the SVG), `apps/builder/`, `apps/display/`, and reads from
+`muscles.ts` / `volume.ts` — no core change expected.*
+
+*Ordering of 5, 6 and 7 against 1–4 is not settled — they are appended rather
+than placed, and all three were raised by writing and sending one workout rather
+than by a plan. **0f is lettered rather than numbered on purpose**: it is grammar
+work, it belongs with the 0-series, and its `for time, 3 rounds:` half should be
+taken before items 1–4 because it is silent.*
 
 **Nobody has run a session off the board.** Everything is verified by tests and
 by driving the UI. Every defect Chris has caught by *looking* — `21 Thruster`,
