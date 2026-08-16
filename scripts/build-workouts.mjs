@@ -9,6 +9,7 @@
  */
 import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { today } from './lib/stamp.mjs';
 import '../packages/core/node.ts';
 import { parse } from '../packages/core/src/parse.ts';
 import { validate } from '../packages/core/src/validate.ts';
@@ -59,7 +60,7 @@ for (const dir of DIRS) {
 writeFileSync('registry/workouts.canonical.json', JSON.stringify({
   $comment: 'Every workout in the corpus, kept as source text, parsed tree and derived summary. Rebuild with scripts/build-canonical.ts.',
   licenceWarning: 'Benchmark workouts are third-party in origin — CrossFit, Hyrox and powerlifting programming published by their owners. The prescriptions are facts; the names are not ours. See SOURCES.md.',
-  generated: new Date().toISOString().slice(0, 10), count: workouts.length, workouts,
+  generated: today(), count: workouts.length, workouts,
 }, null, 0) + '\n');
 
 const bad = workouts.filter((w) => w.diagnostics.parseErrors.length || w.summary?.error);

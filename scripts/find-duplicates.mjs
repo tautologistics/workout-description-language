@@ -27,6 +27,7 @@
  * and duly proposed merging internal and external rotations.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
+import { today } from './lib/stamp.mjs';
 
 const STOP = new Set(['and', 'or', 'the', 'a', 'of', 'to', 'with', 'for', 'on', 'in']);
 const toks = (s) => String(s).normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
@@ -122,7 +123,7 @@ for (const c of candidates) counts[c.confidence] = (counts[c.confidence] ?? 0) +
 
 writeFileSync('registry/duplicate-candidates.json', JSON.stringify({
   $comment: 'Likely-duplicate movements across sources, for review. Nothing here has been merged. `high` means the two names use identical word sets and the sources agree on primary muscles; `conflicting` means identical word sets but disagreeing muscles, which usually means the sources disagree rather than the exercises differing; `possible` means partial name overlap and needs a human.',
-  generated: new Date().toISOString().slice(0, 10),
+  generated: today(),
   counts, candidates,
 }, null, 1) + '\n');
 

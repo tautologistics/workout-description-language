@@ -12,6 +12,7 @@
  */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { norm, deriveMuscles, unknownMuscles } from './lib/muscles.mjs';
+import { today } from './lib/stamp.mjs';
 
 const STOP = new Set(['and', 'or', 'the', 'a', 'of', 'to', 'with']);
 const fold = (s) => String(s).normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
@@ -138,7 +139,7 @@ const out = [...records.values()].sort((a, b) => a.id.localeCompare(b.id)).map((
 writeFileSync('registry/movements.canonical.json', JSON.stringify({
   $comment: 'Canonical merged movement corpus. Every record names the sources that contributed to it, so provenance survives the merge and the licence question stays answerable. Rebuild with scripts/build-canonical.ts.',
   licenceWarning: 'Mixed provenance. wger and everkinetic are CC-BY-SA 4.0, Garmin’s catalogue carries no stated licence, free-exercise-db is public domain. See SOURCES.md before redistributing.',
-  generated: new Date().toISOString().slice(0, 10), count: out.length, movements: out,
+  generated: today(), count: out.length, movements: out,
 }, null, 0) + '\n');
 
 const by = {};

@@ -336,6 +336,21 @@ which copies `notes` onto the cue — because every downstream consumer reads th
 the whole of "inert". *Find the choke point before auditing the consumers; the
 audit is what tells you where it is.* Recorded 2026-08-15.
 
+**A stamp is read in local time, so it must be written in local time.** All four
+generator scripts wrote `new Date().toISOString().slice(0, 10)`, which is the
+**UTC** date, and this machine is behind UTC — so a run in the evening stamped
+tomorrow. Observed on 2026-08-15 producing `"generated":"2026-08-16"`. The
+expression looks like "the date" and is only wrong for part of each day, in a
+direction that puts the stamp *ahead* of the commit that produced it, which is
+exactly the comparison the stamp exists to serve: the note below uses it to
+judge whether a registry file has drifted. `toISOString` is the only ISO
+formatter on `Date` that is not locale-dependent, which is why four separate
+hands reached for it; the local-calendar build is in `scripts/lib/stamp.mjs`
+now, one copy rather than four. *An expression that is wrong only between
+midnight UTC and midnight local will not be caught by running it and looking —
+check it at a fixed instant on the wrong side of the boundary.* Recorded
+2026-08-16.
+
 **A generated file with no test drifts, and the drift is invisible because the
 file is one line.** `registry/workouts.canonical.json` was stamped 2026-08-13 and
 had sat through the parser swap and two rounds of fixes; rebuilding it for item 0d

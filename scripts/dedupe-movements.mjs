@@ -30,6 +30,7 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { deriveMuscles } from './lib/muscles.mjs';
+import { today } from './lib/stamp.mjs';
 
 const apply = process.argv.includes('--apply');
 const STOP = new Set(['and', 'or', 'the', 'a', 'of', 'to', 'with', 'for', 'on', 'in']);
@@ -217,7 +218,7 @@ if (!apply) { console.log('\nReport only. Re-run with --apply to rewrite the can
 
 writeFileSync('registry/dedupe-audit.json', JSON.stringify({
   $comment: 'Every merge this pass made, and every variant-of link. Each cluster lists the records absorbed, so a merge can be inspected or unpicked.',
-  generated: new Date().toISOString().slice(0, 10),
+  generated: today(),
   clusters: merges, variants: variants.slice(0, 5000),
 }, null, 1) + '\n');
 

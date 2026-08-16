@@ -427,6 +427,11 @@ when something looks odd before treating it as a discovery.
   the suite does not check it, unlike `interpretations.json` and
   `vocabulary.json`, which have a test that fails when they drift.
 
+  Rebuilt 2026-08-16 while fixing the stamp's timezone, and all three generated
+  registry files came back byte-identical apart from the stamp — so nothing had
+  drifted this time either. The debt is unchanged: nothing runs the rebuild and
+  nothing checks the result, so "it was fine twice" is still luck.
+
 - The builder's Indent allows a first-in-document top-level line to be indented,
   orphaning it and invalidating the file. `shift` guards only against negative
   indent, never against having no parent to attach to.
