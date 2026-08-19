@@ -7367,6 +7367,256 @@
   },
   "fixpoint": true
  },
+ "block/repeat :: rft": {
+  "canonical": "3 rounds for time:\n  - 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/repeat :: rft lowercase": {
+  "canonical": "3 rounds for time:\n  - 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/repeat :: rft tight": {
+  "canonical": "3 rounds for time:\n  - 10 Push-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/repeat :: rft with a target and a cap": {
+  "canonical": "3 rounds for time @ 95lb, cap 12min:\n  - 10 Thrusters",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "cap": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "inherited": [
+      {
+       "kind": "load",
+       "load": {
+        "kind": "absolute",
+        "unit": "lb",
+        "value": 95
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/repeat :: rft after a comma": {
+  "canonical": "3 rounds for time:\n  - 10 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/repeat :: rft with no count": {
+  "canonical": "RFT:\n  - 10 Push-Ups",
+  "errors": [
+   "L1 unrecognized block header \"RFT\""
+  ],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "name": "RFT",
+     "node": "block",
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/repeat :: rft is a whole word": {
+  "canonical": "3 RFTX:\n  - 10 Push-Ups",
+  "errors": [
+   "L1 unrecognized block header \"3 RFTX\""
+  ],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "name": "3 RFTX",
+     "node": "block",
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "block/sequence :: for time": {
   "canonical": "for time:\n  - 10 Push-Ups",
   "errors": [],
@@ -7595,7 +7845,7 @@
   "fixpoint": true
  },
  "block/clock :: e2mom": {
-  "canonical": "every 2min for 20min:\n  - 5 Power Cleans @ 155lb",
+  "canonical": "E2MOM 20min:\n  - 5 Power Cleans @ 155lb",
   "errors": [],
   "ast": {
    "body": [
@@ -7699,7 +7949,7 @@
   "fixpoint": true
  },
  "block/clock :: every bare": {
-  "canonical": "every 1min30s x undefined:\n  - 3 Deadlifts @ 315lb",
+  "canonical": "every 1min30s:\n  - 3 Deadlifts @ 315lb",
   "errors": [],
   "ast": {
    "body": [
@@ -7727,6 +7977,92 @@
      "every": {
       "kind": "duration",
       "seconds": 90
+     },
+     "node": "block",
+     "type": "clock"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/clock :: every for a duration": {
+  "canonical": "every 1min30s for 12min:\n  - 3 Power Cleans @ 185lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Power Clean",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 3
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 185
+         }
+        }
+       ]
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "every": {
+      "kind": "duration",
+      "seconds": 90
+     },
+     "node": "block",
+     "type": "clock"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/clock :: every for whole minutes": {
+  "canonical": "E2MOM 20min:\n  - 5 Power Cleans @ 155lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Power Clean",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 155
+         }
+        }
+       ]
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 1200
+     },
+     "every": {
+      "kind": "duration",
+      "seconds": 120
      },
      "node": "block",
      "type": "clock"
@@ -9430,6 +9766,535 @@
      "unknown": [
       "wibble"
      ]
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/order :: for time then rounds": {
+  "canonical": "3 rounds for time:\n  - 10 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/order :: for time then a ladder": {
+  "canonical": "21-15-9 for time:\n  - Thrusters @ 95lb\n  - Pull-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      },
+      {
+       "movement": "Pull-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "node": "block",
+     "scheme": [
+      21,
+      15,
+      9
+     ],
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "ladder"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/order :: for time then an amrap": {
+  "canonical": "AMRAP 12min for time:\n  - 10 Burpees",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "amrap"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/order :: for time then a team": {
+  "canonical": "team of 2 for time:\n  - 100 Wall Balls @ 20lb shared",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Wall Ball",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 20
+         }
+        }
+       ],
+       "team": "shared"
+      }
+     ],
+     "count": 2,
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "team"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/order :: for time then a clock": {
+  "canonical": "every 3min x 5 for time:\n  - 400m Run",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 400
+       }
+      }
+     ],
+     "count": 5,
+     "every": {
+      "kind": "duration",
+      "seconds": 180
+     },
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "clock"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/order :: kind after a modifier": {
+  "canonical": "3 rounds for time, cap 12min:\n  - 10 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "cap": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/order :: unreadable head then rounds": {
+  "canonical": "cap 12min, 3 rounds:\n  - 10 Thrusters @ 95lb",
+  "errors": [
+   "L1 unrecognized block header \"cap 12min\""
+  ],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "name": "cap 12min",
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/order :: flag-shaped head then rounds": {
+  "canonical": "building, 3 rounds:\n  - 5 Back Squats",
+  "errors": [
+   "L1 unrecognized block header \"building\""
+  ],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "name": "building",
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/order :: two kinds": {
+  "canonical": "AMRAP 12min, 3 rounds:\n  - 10 Burpees",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "rounds + reps",
+      "raw": "rounds + reps"
+     },
+     "type": "amrap",
+     "unknown": [
+      "3 rounds"
+     ]
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/order :: ladder for time": {
+  "canonical": "21-15-9 for time:\n  - Thrusters @ 95lb\n  - Pull-Ups",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      },
+      {
+       "movement": "Pull-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       }
+      }
+     ],
+     "node": "block",
+     "scheme": [
+      21,
+      15,
+      9
+     ],
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "ladder"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/order :: amrap for time": {
+  "canonical": "AMRAP 12min for time:\n  - 10 Burpees",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Burpee",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "duration": {
+      "kind": "duration",
+      "seconds": 720
+     },
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "amrap"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/order :: team for time": {
+  "canonical": "team of 2 for time:\n  - 100 Wall Balls @ 20lb shared",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Wall Ball",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 20
+         }
+        }
+       ],
+       "team": "shared"
+      }
+     ],
+     "count": 2,
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "team"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/order :: clock for time": {
+  "canonical": "every 3min x 5 for time:\n  - 400m Run",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Run",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "m",
+        "value": 400
+       }
+      }
+     ],
+     "count": 5,
+     "every": {
+      "kind": "duration",
+      "seconds": 180
+     },
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "clock"
     }
    ],
    "directives": {},

@@ -414,3 +414,54 @@ adoption — which exists to move work into the block it was written under — h
 business moving it. *When a rule about malformed input has to guess, look for
 what the author already did consistently elsewhere in the file before inventing a
 tiebreak.* Recorded 2026-08-15.
+
+**Widening a reading can create silence where there was none, and the new silence
+is invisible because the change is a fix.** Queue item 0f made a block's kind
+readable in any comma position, which is unambiguously more input read than
+before. Two things went quiet as a direct consequence, and neither was in the
+item:
+
+- `AMRAP 12min, 3 rounds:` had been *reported* — the `3 rounds` was held as
+  unknown and noted. Letting the later kind win turned it into a `repeat` still
+  carrying the AMRAP's window, which no formatter writes, so the twelve minutes
+  vanished with nothing said. A header now takes the **first** kind and holds any
+  second, because a second kind is a contradiction rather than a reordering.
+- `cap 12min, 3 rounds:` had been reported by a condition that read
+  `type === 'sequence' && block.name`, which was exact while an unreadable head
+  was the *only* way a block kept a name. Once a comma could supply the kind, the
+  same header was a `repeat` with a name — and the report stopped firing while
+  `headerText`, which writes a name only for a sequence or a section, stopped
+  writing it. One change, two silences, in a diagnostic and a formatter that
+  never appeared in the diff.
+
+Both share a shape: a condition that was *equivalent* to the thing it meant, under
+an assumption the change removed. `type === 'sequence'` meant "no kind was read";
+widening what counts as reading a kind broke the equivalence and left the literal
+test behind. **After widening a rule, re-read every condition that was true only
+because the rule used to be narrow** — the diagnostics and the formatter first,
+since neither is exercised by asking whether the new form parses. What caught
+both here was formatting each new form and re-parsing the result, which is a
+cheap thing to run over any list of new cases. Recorded 2026-08-16.
+
+**A formatter with a branch no rule reads is a destructive bug, not a cosmetic
+one, and fail-open is what hides it.** `headerText`'s clock branch wrote
+`every 1min30s x undefined:` for an unbounded `every` and `every 2min for 20min:`
+for an E2MOM. Neither is a header the grammar reads — and because an unreadable
+header is *held* as a named sequence rather than rejected, each output reparsed to
+a sequence with the clock gone and then formatted back to itself. Perfect text
+fixpoint, perfect canonical fixpoint, twenty minutes of interval work gone, and
+only `wdl check` saying a word.
+
+This is the `@95lb` shape from further up this file, arriving from the other
+direction: there a *parser* misreading survived a round trip, here a *formatter*
+misspelling does. Fail-open is what makes both of them quiet — a format that
+rejected what it could not read would have turned each into a crash on the next
+parse. **The property to hold is not "the round trip settles" but "every branch of
+the formatter writes something the grammar reads."** Nothing in the suite asked
+that: `vocabulary.json` pinned both broken spellings as canonical, with
+`fixpoint: true` beside them, for as long as they had existed.
+
+What found them was formatting each newly-pinned form and *re-parsing the result*,
+comparing the block field by field rather than comparing text to text. That is a
+few lines of throwaway script over any list of new cases, and it is the check that
+text-fixpoint testing cannot do on its own. Recorded 2026-08-16.

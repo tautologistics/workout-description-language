@@ -142,25 +142,89 @@ when something looks odd before treating it as a discovery.
   `sets-by-reps` and marked pending. Small, and it wants the decision written down
   first.
 
-- **`for time, 3 rounds:` drops the three rounds in silence.** It parses to a
-  plain `sequence` — no count, no error, and a stable fixpoint — so the workout
-  runs once instead of three times and nothing anywhere says so. Spec §5.0
-  promises the opposite in as many words: *"Order is free on input"*. Same family
-  as the header defect closed 2026-08-15, which fixed a **target** written beside
-  a `for time`; this is **structure** written after one. It generalises past
-  rounds: `for time, 21-15-9:` loses the whole ladder, `for time, AMRAP 12min:`
-  the window, `for time, team of 2:` the team. `cap 12min, 3 rounds:` and
-  `building, 3 rounds:` are *reported*, so the silence is specific to a first
-  segment that parses as a block on its own — and `for time` is the one that does.
-  Found 2026-08-16 while checking the spellings of "three rounds for time".
-  Queued as item 0f.
+- ~~**`for time, 3 rounds:` drops the three rounds in silence.**~~ **Closed
+  2026-08-16** by queue item 0f's second half. It used to parse to a plain
+  `sequence` — no count and a stable fixpoint — so the workout ran once instead of
+  three times, and it generalised past rounds: `for time, 21-15-9:` lost the whole
+  ladder, `for time, AMRAP 12min:` the window, `for time, team of 2:` the team.
+  Spec §5.0 promised the opposite in as many words: *"Order is free on input"*.
 
-- **`3 RFT:` is not read.** Held as a named sequence and **reported**, so nothing
-  is lost quietly — but the rounds and the score both go, leaving a block that
-  runs once and is unscored. `AMRAP` and `EMOM` are in the grammar as
-  abbreviations everyone writes; `RFT` is the one that was left out, and it is
-  what the person this workout was sent to actually wrote on the whiteboard.
-  Found 2026-08-16. Queued as item 0f.
+  **The fix is the general rule, not `for time`.** A block's kind may be stated in
+  any comma position: `blockKind` was split out of `headerKind` (leaving the
+  match-anything `headerName` behind, so `unknown` stays reachable after a comma)
+  and is now reached from `blockModifier` as well. `for time` was only the head
+  that made the loss *quiet* — it parses alone, so nothing looked wrong — and
+  special-casing it would have left the hole open for the next head that does.
+
+  **Two things it forced that were not in the queue item.** A header states **at
+  most one** kind: applying a later one over an earlier left the AMRAP's window on
+  a `repeat`, whose formatter writes no window, so `AMRAP 12min, 3 rounds:` would
+  have gone from *reported* to *silently mangled* — the first kind stands and the
+  second is held verbatim. And a head that is not a kind at all (`cap 12min`,
+  `building`) now leaves a `name` on a block that has a kind, which the old report
+  condition (`type === 'sequence' && name`) no longer caught and `headerText` no
+  longer wrote: both were widened, so those headers stay reported and round-trip
+  in front of the kind. *Corrected while working it: the item said "silent", and
+  since queue item 0d landed the day before it was in fact reported as a `note` —
+  a severity that claims nothing, against the `error` its unreadable-head
+  neighbours got. The distinction the table drew was real; the word was wrong.*
+
+  The corpus did not move at all — no example file states a kind after a comma —
+  so `interpretations.json` and `registry/workouts.canonical.json` both
+  regenerated to no change. Ten `block/order` forms pinned, 1677 tests became
+  1689. *Touched: `spec/grammar-0.1.ohm`, `grammar/block-semantics.ts`,
+  `parse.ts`, `format.ts`, `spec/spec-0.1.md` §5.0 and §11.1,
+  `test/golden/vocabulary.ts`, `test/grammar.test.ts`.*
+
+- ~~**`wdl fmt` writes two clock headers no rule reads.**~~ **Closed 2026-08-16.**
+  `every 90s:` formatted to `every 1min30s x undefined:` — an unbounded `every`
+  has no `count` and `headerText`'s last branch wrote one anyway — and `E2MOM
+  20min:` formatted to `every 2min for 20min:`, a spelling the grammar had no rule
+  for at all. **Both were worse than a formatting defect and worse than the entry
+  above first said.** An unreadable header is *held* as a named sequence rather
+  than rejected, so each output reparsed to a sequence with the clock gone, then
+  formatted back to itself: a perfect text fixpoint of a total loss, with only
+  `wdl check` saying a word. That is the `@95lb` shape from lessons-learned.md
+  exactly — a round trip proving stability while the reading is wrong — arriving
+  this time from the *formatter's* side.
+
+  Fixed on both sides. `headerText` grew the missing branch (no count, no window →
+  `every 1min30s:`) and now writes the gym's spelling for a bounded interval, so
+  `E2MOM 20min` survives instead of being normalised into something unreadable —
+  `EMOM` is the one-minute case of it rather than a separate form. And the grammar
+  learned `every <dur> for <dur>`, which is how the interval is said out loud and
+  is what the fallback branch writes when a window is not whole minutes; that
+  shape is unreachable from parsing today, but a formatter with a branch no rule
+  reads is the defect, not the reachability. Spec §5.5. Found 2026-08-16 while
+  working item 0f, pre-existing, and fixed in a commit of its own.
+
+- ~~**A fused `for time` is dropped by `wdl fmt` on every kind except `repeat` and
+  `sequence`.**~~ **Closed 2026-08-16.** `21-15-9 for time:` formatted to
+  `21-15-9:` and came back **unscored**; the same for `AMRAP 12min for time:`,
+  `team of 2 for time:` and `every 3min x 5 for time:`. `headerText`'s
+  `fusedForTime` tested the block's *type* as well as its score, so an author's
+  chosen score was dropped on the first format everywhere but two kinds.
+
+  The type test was never the right guard: a score implied by `for time` is one
+  the author **wrote**, and a score implied by the *shape* (an AMRAP's
+  `rounds + reps`, a build's `max load`) is one the kind supplies and reparsing
+  rederives. Only the second is safe to leave unwritten, and no kind supplies
+  `time` — so testing the primary is the whole of it. Found 2026-08-16 because the
+  new `for time, 21-15-9:` spelling inherits the same formatter: the two spellings
+  agreeing is what made this visible as the kind's problem rather than the
+  comma's.
+
+- ~~**`3 RFT:` is not read.**~~ **Closed 2026-08-16** by queue item 0f's first
+  half. It used to be held as a named sequence and **reported**, so nothing was
+  lost quietly — but the rounds and the score went with it, leaving a block that
+  ran once and was unscored. `3 RFT:` is now `3 rounds for time:` exactly (Chris
+  confirmed the reading), one grammar production fusing the round word and the
+  score because the `for time` is inside the abbreviation. Canonical output writes
+  the long form; the short one is read, not preserved. A **bare** `RFT:` is
+  declined on purpose and stays reported — it names rounds without saying how
+  many, and there is no unbounded repeat to read it as. Spec §5.2. *`TABATA`
+  remains unread and is not the same question: it names a structure to define
+  rather than a header to abbreviate.*
 
 - **Open: a qualitative load (`@ heavy`) is held verbatim and means nothing.**
   `- 150ft Farmers Carry @ heavy` parses to `{kind: 'raw', text: 'heavy'}` — it

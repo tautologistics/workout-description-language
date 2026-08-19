@@ -212,6 +212,17 @@ Modifiers compose on a single header, because that is how workouts are actually 
 3 rounds for time, @ 95lb:
 ```
 
+**"Order is free" includes the block's *kind*, and until 2026-08-16 it did not.** The kind — what the block **is**: `3 rounds`, `21-15-9`, `AMRAP 12min`, `team of 2` — had to come first, and one written after a comma was read as text the language does not know. `for time` is what made that expensive rather than merely wrong: it parses on its own, since a sequence scored by the clock is a real block, so `for time, 3 rounds:` ran **once** instead of three times with nothing said beyond a note that `3 rounds` was being kept as written. `for time, 21-15-9:` lost a whole ladder the same way, `for time, AMRAP 12min:` its window, `for time, team of 2:` the team. A kind may now be stated in any comma position, so each pair below is one reading:
+
+```wdl
+3 rounds for time:        for time, 3 rounds:
+21-15-9 for time:         for time, 21-15-9:
+AMRAP 12min for time:     for time, AMRAP 12min:
+team of 2 for time:       for time, team of 2:
+```
+
+**A header states at most one kind.** A second is not a reordering but a contradiction — `AMRAP 12min, 3 rounds:` cannot be both — so the first one stands and the second is held verbatim and reported, the same answer the language gives anything else it will not act on (§11.1).
+
 A header has exactly one colon, the one that opens the block. Modifiers are comma-separated words or phrases before it, never `key: value` pairs.
 
 **Targets and equipment may sit on the header and are inherited by the steps inside.** A step's own target always wins; the block's applies otherwise.
@@ -246,6 +257,17 @@ The default. A block with no header runs its steps in order.
 ```
 
 `rounds` and `sets` are synonyms; canonical output preserves whichever the author used, since coaches mean slightly different things by them.
+
+**`3 RFT:` is `3 rounds for time:` said short**, and produces that block exactly — same count, same `rounds`, same score. It is one form rather than an abbreviation of `rounds`, because the `for time` is *inside* it and there is nowhere else on the line for the score to come from. `AMRAP` and `EMOM` are already here on the same grounds: what a gym writes on a whiteboard is a spelling the language reads.
+
+```wdl
+3 RFT:            // one block with
+3 rounds for time:  // the next
+```
+
+Canonical output writes the long form. The abbreviation is *read*, not *preserved* — unlike `rounds` vs `sets`, which are two different words for the structure, `RFT` is the same words shortened, so keeping it would be a spelling to carry with nothing to say. *Reversible if it turns out the short form is what belongs at rest.*
+
+**A bare `RFT:` is not read, on purpose.** `RFT` names rounds without saying how many, and the language has no unbounded repeat — reading it as one round or quietly demoting it to `for time:` would both invent something the author did not write. So it stays an unrecognized header and is **reported**, which is loud rather than silent, and the author is one number away from a block that reads. This is the difference from `AMRAP:` with no window, which *is* accepted: an unbounded AMRAP is a real instruction — go until something else stops you — where an unbounded RFT is a missing count.
 
 **Trailing rest fires between rounds, not after the last one.** `5 sets: [5 Back Squat] rest 3min` is four rests, not five — you finish the fifth set and move on, which is the common case by a wide margin. To rest after the final round, say so:
 
@@ -323,12 +345,20 @@ every 3min x 5:
   - 400m Run
   - max Pull-Up
 
+every 90s for 12min:
+  - 3 Power Clean @ 185lb
+
+every 90s:
+  - 3 Deadlift @ 315lb
+
 8 rounds:
   work 20s: Burpee
   rest 10s
 ```
 
 Contents start on the stated cadence regardless of when work finished.
+
+**An interval may be bounded three ways, or not at all**: by a count of cycles (`x 6`), by a window (`for 12min`), by failure (`until failure`), or by nothing — a bare `every 90s:` runs its cadence until the work runs out. **A window and a whole number of minutes is what `EMOM` spells**, so `E2MOM 20min:` and `every 2min for 20min:` are one block and the `E…MOM` form is canonical; `EMOM` is the one-minute spelling of it. *Both the bare form and the window form were unwritable by `wdl fmt` until 2026-08-16 — it emitted `every 1min30s x undefined:` and `every 2min for 20min:` where no rule read the second and nothing read the first. Since an unreadable header is held as a named sequence (§11.1), each was a stable round trip that had lost the clock.*
 
 **Cycles** — different work on different intervals:
 
@@ -724,7 +754,9 @@ Three consequences, all deliberate:
 - **Inert.** It never reaches a cue, so nothing on the board says it, and no exporter can act on it. `- 10min Bike, warmup pace` is a bike interval with a phrase on the line, not a warmup segment.
 - **Reported, at a severity that claims nothing.** `wdl check` says *note: `unbrokn` is not something the language reads*. Not an error — the rest of the line executes exactly as written — and not a question, because there is nothing to choose between. Held-and-inert must not also be silent: `unbrokn` is one keystroke from a constraint that decides whether a set counts.
 
-The same rule applies to a block header's modifiers (`3 rounds, wibble:` is three rounds). It does **not** apply to a header's *kind*: `3 rounds of madness:` is an error, because the kind decides how the block executes and failing to read it loses the three rounds, where a modifier nobody taught the language costs nothing that runs.
+The same rule applies to a block header's modifiers (`3 rounds, wibble:` is three rounds). It does **not** apply to a header's *kind*: `3 rounds of madness:` is an error, because the kind decides how the block executes and failing to read it loses the three rounds, where a modifier nobody taught the language costs nothing that runs. That holds wherever the kind was written — `cap 12min, 3 rounds:` is three rounds *and* an error, because `cap 12min` is not a reading the language has for a header's opening segment (§5.0). Canonical output writes such a head back in front, since a name on a block that already has a kind is not the block's identity and nothing else would write it.
+
+A **second** kind is the one case that is held rather than reported as an error: `AMRAP 12min, 3 rounds:` is the AMRAP, with `3 rounds` kept verbatim and noted. Nothing is lost — the block executes as its first kind says — so the severity that claims nothing is the right one.
 
 ---
 
@@ -1231,7 +1263,7 @@ All 40 encode. Eleven problems surfaced (N1–N11), none structural — every on
 
 **Still open**, and best judged against real usage rather than more design:
 - `rounds` vs `sets` preserved as authored — right call, or false precision?
-- `EMOM 20min:` with a two-minute cycle and `every 2min x 10:` say the same thing (§13.28). Should one be canonical?
+- `EMOM 20min:` with a two-minute cycle and `every 2min x 10:` say the same thing (§13.28). Should one be canonical? *Half answered 2026-08-16: the two spellings of a **window** are settled — `every 2min for 20min:` canonicalises to `E2MOM 20min:` (§5.5). A **count** is a different field and still writes as `every 2min x 10:`, so whether ten cycles of two minutes and a twenty-minute window are the same block is the part still open.*
 - Does `+3 each round` need a subtractive form, or is a literal list always clearer for descending schemes?
 
 

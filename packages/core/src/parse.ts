@@ -111,9 +111,13 @@ class Parser {
       return block;
     }
     const block = got.value;
-    // A named sequence is what the grammar makes of a head it has no kind for;
-    // `sequence:` itself sets no name, and a section sets `type: 'section'`.
-    if (block.type === 'sequence' && block.name) {
+    // A `name` is what the grammar makes of a head it has no kind for; `sequence:`
+    // itself sets no name, and a section sets one but sets `type: 'section'` with
+    // it. The test is the name rather than the type because a header may state its
+    // kind after a comma (`cap 12min, 3 rounds:`) — the block is then a real
+    // repeat *and* carries a head nobody could read, and reporting only untyped
+    // blocks would have let the second half of that header go quiet.
+    if (block.name && block.type !== 'section') {
       this.errors.push({
         line: line.line, message: `unrecognized block header "${block.name}"`, text: line.text,
       });

@@ -351,30 +351,49 @@ WDL {
   headEnd = ~moreHead
   moreHead = spaces ~"," ~"@" ~forTime any
 
+  // `headerName` is last and matches anything: an unrecognized header is held as
+  // a named sequence rather than rejected. It is separated from the kinds proper
+  // because `blockModifier` needs the kinds *without* it — a fallback that
+  // matches everything, offered after a comma, would swallow every unrecognized
+  // modifier as a block name and leave `unknown` unreachable.
+  headerKind = blockKind   -- known
+             | headerName  -- unknown
+
   // Ordered as the implementation orders them, so the two can be read side by
-  // side. `headerName` is last and matches anything: an unrecognized header is
-  // held as a named sequence rather than rejected.
-  headerKind = integer spaces roundWord headEnd                    -- rounds
-             | integer spaces attemptWord headEnd                  -- attempts
-             | caseInsensitive<"team"> spaces caseInsensitive<"of">
-               spaces integer headEnd                              -- teamOf
-             | ladder                                              -- ladder
-             | caseInsensitive<"for"> spaces headerDuration headEnd -- forDuration
-             | caseInsensitive<"amrap"> amrapWindow? headEnd       -- amrap
-             | caseInsensitive<"e"> integer? caseInsensitive<"mom">
-               spaces headerDuration headEnd                       -- emom
-             | every                                               -- every
-             | caseInsensitive<"work"> spaces headerDuration headEnd -- work
-             | minuteWord spaces integer headEnd                   -- cycleEntry
-             | caseInsensitive<"partner"> spaces
-               caseInsensitive<"rotation"> headEnd                 -- partnerRotation
-             | caseInsensitive<"any"> spaces caseInsensitive<"order"> headEnd -- tally
-             | caseInsensitive<"superset"> headEnd                 -- superset
-             | caseInsensitive<"complex"> headEnd                  -- complex
-             | caseInsensitive<"sequence"> headEnd                 -- sequence
-             | build                                               -- build
-             | sectionWord headEnd                                 -- section
-             | headerName                                          -- unknown
+  // side.
+  //
+  // A kind may be stated in **any** comma position, not only first — spec §5.0's
+  // "order is free on input" is about the whole header and not about its opening
+  // segment, so `for time, 3 rounds` and `3 rounds for time` are one block. This
+  // rule is therefore reached from two places, and that is the whole of the fix
+  // for the family of defects where a head that parsed alone (`for time`) took
+  // the kind after it as unrecognized text.
+  blockKind = integer spaces roundWord headEnd                    -- rounds
+            // `3 RFT` is `3 rounds for time` said short, so it is one production
+            // fusing the round word and the score rather than a spelling of
+            // `roundWord` — the `for time` is inside the abbreviation and there
+            // is nowhere else on the line for it to come from. A *bare* `RFT:`
+            // is deliberately not here: see spec §5.2.
+            | integer spaces caseInsensitive<"rft"> headEnd       -- roundsForTime
+            | integer spaces attemptWord headEnd                  -- attempts
+            | caseInsensitive<"team"> spaces caseInsensitive<"of">
+              spaces integer headEnd                              -- teamOf
+            | ladder                                              -- ladder
+            | caseInsensitive<"for"> spaces headerDuration headEnd -- forDuration
+            | caseInsensitive<"amrap"> amrapWindow? headEnd       -- amrap
+            | caseInsensitive<"e"> integer? caseInsensitive<"mom">
+              spaces headerDuration headEnd                       -- emom
+            | every                                               -- every
+            | caseInsensitive<"work"> spaces headerDuration headEnd -- work
+            | minuteWord spaces integer headEnd                   -- cycleEntry
+            | caseInsensitive<"partner"> spaces
+              caseInsensitive<"rotation"> headEnd                 -- partnerRotation
+            | caseInsensitive<"any"> spaces caseInsensitive<"order"> headEnd -- tally
+            | caseInsensitive<"superset"> headEnd                 -- superset
+            | caseInsensitive<"complex"> headEnd                  -- complex
+            | caseInsensitive<"sequence"> headEnd                 -- sequence
+            | build                                               -- build
+            | sectionWord headEnd                                 -- section
 
   roundWord = caseInsensitive<"rounds"> | caseInsensitive<"round">
             | caseInsensitive<"sets"> | caseInsensitive<"set">
@@ -387,10 +406,20 @@ WDL {
                  | integer ~wordChar  -- minutes
   amrapWindow = spaces headerDuration
 
-  // `every 90s`, `every 1min until failure`, `every 3min x 5`. The bounded forms
-  // come first or their tails are left dangling.
+  // `every 90s`, `every 1min until failure`, `every 3min x 5`,
+  // `every 90s for 12min`. The bounded forms come first or their tails are left
+  // dangling.
+  //
+  // The `for` spelling is how the interval is said out loud — *every ninety
+  // seconds for twelve minutes* — and it is also what `headerText` writes for a
+  // clock bounded by a duration whose window is not whole minutes. Stating it
+  // here is what makes that output legal: a formatter emitting a spelling no rule
+  // reads is not a formatting defect but a destructive one, because an
+  // unreadable header is held as a named sequence and the round trip settles.
   every = everyWord spaces headerDuration spaces caseInsensitive<"until">
           spaces caseInsensitive<"failure"> headEnd                -- untilFailure
+        | everyWord spaces headerDuration spaces caseInsensitive<"for">
+          spaces headerDuration headEnd                            -- forDuration
         | everyWord spaces headerDuration spaces ("x" | "×")
           spaces integer headEnd                                   -- times
         | everyWord spaces headerDuration headEnd                  -- bare
@@ -448,6 +477,12 @@ WDL {
                 | forTime modEnd                                     -- forTime
                 | blockFlagWord modEnd                               -- flag
                 | targetGroup<forTime>                                -- target
+                // What the block *is*, stated after a comma rather than first.
+                // Tried second-to-last, so every modifier that has a spelling of
+                // its own keeps it, and only then is a segment offered to the
+                // kinds. `unknown` stays last and stays reachable, which is why
+                // this is `blockKind` and not `headerKind`.
+                | blockKind                                          -- kind
                 | unknown                                            -- unknown
 
   modEnd = ~moreMod

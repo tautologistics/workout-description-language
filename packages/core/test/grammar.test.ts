@@ -404,6 +404,72 @@ describe('the grammar is the spec', () => {
     eq(block.unknown, ['wibble']);
   });
 
+  /**
+   * A block's *kind* may be stated in any comma position, which is what spec
+   * §5.0's "order is free on input" says about the whole header rather than about
+   * its opening segment. Until 2026-08-16 a kind after a comma was read as text
+   * nobody taught the language, and `for time` made that silent instead of loud:
+   * it parses on its own, so `for time, 3 rounds` was a perfectly good sequence
+   * that ran once.
+   *
+   * Asserted as an equality between the two spellings rather than field by field,
+   * because "these are one block" is the actual claim.
+   */
+  it('reads a kind stated after a comma, in any position', () => {
+    const both = (a: string, b: string) => eq(strip(g.parseHeader(a)), strip(g.parseHeader(b)), `${a} / ${b}`);
+    both('for time, 3 rounds', '3 rounds for time');
+    both('for time, 21-15-9', '21-15-9 for time');
+    both('for time, AMRAP 12min', 'AMRAP 12min for time');
+    both('for time, team of 2', 'team of 2 for time');
+    both('for time, cap 12min, 3 rounds', '3 rounds for time, cap 12min');
+  });
+
+  /**
+   * The boundary the rule above needs, and the reason it is `blockKind` in
+   * `blockModifier` rather than `headerKind`: a header states **at most one**
+   * kind. A second is a contradiction and not a reordering — `AMRAP 12min,
+   * 3 rounds` cannot be both — so the first stands and the second is held
+   * verbatim. Letting the later one win would leave the AMRAP's window on a
+   * `repeat`, whose formatter writes no window, which is a silent loss of exactly
+   * the shape this rule exists to close.
+   */
+  it('takes the first kind a header states and holds any second one', () => {
+    const block = g.parseHeader('AMRAP 12min, 3 rounds');
+    eq(block.type, 'amrap');
+    eq(block.duration, { kind: 'duration', seconds: 720 });
+    eq(block.unknown, ['3 rounds']);
+  });
+
+  /**
+   * And the head that is not a kind at all. `cap 12min` is a modifier written
+   * first, which the grammar has no reading for in that position — so the block is
+   * still *named* and still reported, exactly as before, while the rounds after it
+   * are now read. Both halves matter: widening the kind rule must not quietly turn
+   * an unreadable head into a readable header.
+   */
+  it('keeps an unreadable head named when the kind arrives after a comma', () => {
+    const block = g.parseHeader('cap 12min, 3 rounds');
+    eq(block.type, 'repeat');
+    eq(block.count, 3);
+    eq(block.name, 'cap 12min');
+  });
+
+  /**
+   * `3 RFT` is `3 rounds for time` said short. Asserted as an equality for the
+   * same reason the comma spellings are: the claim is that they are one block,
+   * not that RFT happens to set three fields correctly. A bare `RFT` is left
+   * unread on purpose — it names rounds without saying how many, and there is no
+   * unbounded repeat to read it as (spec §5.2) — so it stays a reported header.
+   */
+  it('reads `3 RFT` as three rounds for time, and declines a bare `RFT`', () => {
+    eq(strip(g.parseHeader('3 RFT')), strip(g.parseHeader('3 rounds for time')));
+    eq(strip(g.parseHeader('3rft')), strip(g.parseHeader('3 rounds for time')), 'tight and lowercase');
+    // The word has to end where the kind ends, or anything starting `RFT` reads
+    // as rounds; and with no count there is no kind at all.
+    eq(g.parseHeader('3 RFTX').name, '3 RFTX');
+    eq(g.parseHeader('RFT').name, 'RFT');
+  });
+
   it('reports what it cannot read, by position', () => {
     eq(g.tryStep('').ok, false);
   });

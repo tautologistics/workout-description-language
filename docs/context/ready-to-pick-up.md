@@ -389,11 +389,90 @@ terminates the run **only if it is flat too**, which is what reads a
 half-indented file — the shape the first answer had no example of. Reasoning, and
 what each version cost, in [settled-decisions.md](settled-decisions.md).*
 
-**0f. `3 RFT:` is a header spelling nobody has stated, and `for time, 3 rounds:`
-is one the spec already promises and silently loses.** Two halves of the same
-question — *how many ways may a reader write "three rounds for time"* — and the
-second is the one to do first, because it is silent where the first is loud.
-Raised 2026-08-16, both by the same workout going out to a real person.
+**0f. ~~`3 RFT:` is a header spelling nobody has stated, and `for time, 3 rounds:`
+is one the spec already promises and silently loses.~~ DONE 2026-08-16, both
+halves.** Two halves of the same question — *how many ways may a reader write
+"three rounds for time"* — and the second was taken first, because it was quiet
+where the first was loud. Raised 2026-08-16, both by the same workout going out to
+a real person.
+
+**`3 RFT:` is `3 rounds for time:`, confirmed by Chris and read as exactly that
+block** — same type, same count, same `rounds` flag, same score, so nothing
+downstream learned an abbreviation. It is one grammar production rather than a
+spelling of `roundWord`, because the `for time` is *inside* the abbreviation and
+there is nowhere else on the line for the score to come from. `AMRAP` and `EMOM`
+were already in on the same grounds. Canonical output writes the **long** form:
+unlike `rounds` vs `sets`, which are two different words for one structure, `RFT`
+is the same words shortened, so there is nothing for the short spelling to say
+that the long one does not. Reversible if the short form turns out to be what
+belongs at rest.
+
+**Two decisions the item asked for, and the second is not answered.**
+- **A bare `RFT:` is declined, on purpose.** It names rounds without saying how
+  many, and there is no unbounded repeat to read it as; one round or a quiet
+  demotion to `for time:` would both invent something nobody wrote. So it stays an
+  unrecognized header and is **reported** — loud, and one number away from a block
+  that reads. The contrast is `AMRAP:` with no window, which *is* accepted,
+  because an unbounded AMRAP is a real instruction where an unbounded RFT is a
+  missing count. Spec §5.2.
+- **`TABATA` is still open and was not taken.** It is not the same shape as `RFT`
+  at all: `RFT` abbreviates a header this language already has, where Tabata names
+  a whole structure (eight rounds of `work 20s` / `rest 10s`) that would have to
+  desugar into a block, and §5.2 already turns on the interval rest firing on the
+  last round for exactly that case. That is a form to define, not an abbreviation
+  to read, and it wants its own item.
+*Touched: `spec/grammar-0.1.ohm` (`blockKind`),
+`packages/core/src/grammar/block-semantics.ts`, `spec/spec-0.1.md` §5.2,
+`test/golden/vocabulary.ts`, `test/grammar.test.ts`.*
+
+**The second half, done the same day.**
+A block's kind may now be stated in any comma position, so `for time, 3 rounds:`
+is three rounds, `for time, 21-15-9:` is the ladder, and each of the four pairs
+spec §5.0 now lists is one reading with an identical tree. The fix is the general
+rule and not `for time`: `blockKind` was split out of `headerKind` — leaving the
+match-anything `headerName` behind, which is what keeps `unknown` reachable after
+a comma — and `blockModifier` reaches it too. `for time` was only the head that
+made the loss quiet, and special-casing it would have left the hole for the next
+head that parses alone.
+
+**Two things the work forced that this item did not foresee, both of them the
+same shape as the defect being fixed** — a widening that reads more input can
+*create* silence somewhere it did not exist:
+- **A header states at most one kind.** Applying a later kind over an earlier one
+  left `AMRAP 12min, 3 rounds:` a `repeat` still carrying the AMRAP's window,
+  which no formatter writes — so a header that was *reported* would have become
+  silently mangled. The first kind stands; a second is held verbatim and noted.
+- **An unreadable head with a readable kind after it.** `cap 12min, 3 rounds:`
+  now has a kind, so the old report condition (`type === 'sequence' && name`)
+  stopped firing and `headerText` stopped writing the name — the header would have
+  gone quiet *and* lost text. Both were widened: the report keys on `name`, and
+  canonical output writes an unread head back in front of the kind.
+
+*And a correction worth carrying, because it is the third time a queue item has
+been read against a world that moved.* This item said `for time, 3 rounds:` was
+**silent**. Since item 0d landed the day before, it was in fact reported — as a
+`note`, the severity that claims nothing — where its `cap 12min` neighbour got an
+`error`. The table's distinction was real and the fix stands; the word was wrong,
+and the difference matters because "silent" and "reported at the weakest
+severity" call for different urgency. **Re-run the measurements in a queue item
+before working it, even one written the same week.**
+
+*Two pre-existing formatter defects surfaced on the way, were kept out of this
+change so that what moved stayed legible, and were then **closed 2026-08-16** in a
+commit of their own — see [known-debts.md](known-debts.md). `wdl fmt` wrote two
+clock headers no rule reads (`every 1min30s x undefined:` for a bare `every`, and
+`every 2min for 20min:` for an E2MOM), each of which reparsed to a named sequence
+with the clock gone and then formatted back to itself — a stable round trip of a
+total loss. And a fused `for time` was dropped on every kind but `repeat` and
+`sequence`, so `21-15-9 for time:` came back unscored. Both were found by
+formatting each new form and re-parsing the result, which is the cheap check
+worth running over any list of new cases.*
+*Touched: `spec/grammar-0.1.ohm`, `packages/core/src/grammar/block-semantics.ts`,
+`parse.ts`, `format.ts`, `spec/spec-0.1.md` §5.0 and §11.1,
+`test/golden/vocabulary.ts`, `test/grammar.test.ts`.*
+
+*The original framing of the `3 RFT:` half, kept because it is what the answer was
+measured against:*
 
 **`3 RFT:` is not read.** It becomes a named sequence called `3 RFT` and is
 *reported* — `unrecognized block header "3 RFT"` — so the fail-open design is
@@ -404,6 +483,10 @@ for reading it: `AMRAP` and `EMOM` are already in the grammar as abbreviations
 everyone writes, and `RFT` is the third one. Decide whether a bare `RFT:` (no
 count) means anything, and whether the same treatment is owed to `AMRAP`'s
 neighbours (`EMOM` is there; `E2MOM` is; `RFT` and `TABATA` are not).
+
+*The framing the closed half was measured against, kept as written apart from the
+`Now` column, which is the only thing added. The `silent` readings were the
+measurement that was wrong — see the correction above.*
 
 **`for time, 3 rounds:` drops the three rounds without a word.** It parses to a
 *sequence* — no count, no error, and a stable fixpoint, so nothing anywhere says
@@ -417,15 +500,15 @@ The shape is precise and worth stating, because it says where the fix goes: a
 block's *kind* must come first, and anything stating a kind after a comma is
 dropped. Measured:
 
-| Written | Read as | |
-|---|---|---|
-| `3 rounds for time:` | repeat, count 3, scored time | correct |
-| `for time, 3 rounds:` | sequence, **no count** | silent |
-| `for time, 21-15-9:` | sequence, **no scheme** | silent — a whole ladder |
-| `for time, AMRAP 12min:` | sequence, **no window** | silent |
-| `for time, team of 2:` | sequence, **not a team** | silent |
-| `cap 12min, 3 rounds:` | sequence | *reported* |
-| `building, 3 rounds:` | sequence | *reported* |
+| Written | Read as | | Now |
+|---|---|---|---|
+| `3 rounds for time:` | repeat, count 3, scored time | correct | unchanged |
+| `for time, 3 rounds:` | sequence, **no count** | silent | repeat, count 3, scored time |
+| `for time, 21-15-9:` | sequence, **no scheme** | silent — a whole ladder | ladder 21-15-9 |
+| `for time, AMRAP 12min:` | sequence, **no window** | silent | amrap, 12min |
+| `for time, team of 2:` | sequence, **not a team** | silent | team of 2 |
+| `cap 12min, 3 rounds:` | sequence | *reported* | repeat, count 3, still reported |
+| `building, 3 rounds:` | sequence | *reported* | repeat, count 3, still reported |
 
 The last two are reported only because their first segment is not a kind at all.
 **`for time` is the one head that swallows what follows it in silence**, because
@@ -549,9 +632,11 @@ picture can say before it starts lying.
 
 *Ordering of 5, 6 and 7 against 1–4 is not settled — they are appended rather
 than placed, and all three were raised by writing and sending one workout rather
-than by a plan. **0f is lettered rather than numbered on purpose**: it is grammar
-work, it belongs with the 0-series, and its `for time, 3 rounds:` half should be
-taken before items 1–4 because it is silent.*
+than by a plan. **0f was lettered rather than numbered on purpose** — grammar work,
+belonging with the 0-series — and both its halves are closed, so **item 1 is the
+next one off the queue.** The one thing 0f left behind is `TABATA`, which is not
+an abbreviation to read but a structure to define; it is written up under 0f
+rather than given a number, because nobody has asked for it yet.*
 
 **Nobody has run a session off the board.** Everything is verified by tests and
 by driving the UI. Every defect Chris has caught by *looking* — `21 Thruster`,

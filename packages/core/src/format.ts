@@ -223,12 +223,28 @@ function headerText(b: Block): string {
     case 'amrap':
       head = b.flags.includes('for-duration') ? `for ${dur(b.duration)}` : `AMRAP ${dur(b.duration)}`.trim();
       break;
+    // Every branch here must write something the grammar reads back. Two of them
+    // did not until 2026-08-16, and because an unreadable header is *held* as a
+    // named sequence rather than rejected, both were perfect text fixpoints of a
+    // total loss: `every 90s:` became `every 1min30s x undefined:` and `E2MOM
+    // 20min:` became `every 2min for 20min:`, each reparsing to a sequence with
+    // the clock gone and only `wdl check` saying a word.
     case 'clock': {
       const every = dur(b.every);
+      const mins = b.every && b.every.seconds % 60 === 0 ? b.every.seconds / 60 : undefined;
       if (b.untilFailure) head = `every ${every} until failure`;
-      else if (b.duration && b.every?.seconds === 60) head = `EMOM ${dur(b.duration)}`;
+      // A bounded `every` is written the way a gym writes it, and `EMOM` is the
+      // one-minute spelling of `E1MOM` rather than a different form. Whole
+      // minutes is the only shape parsing can produce here — `blockKind_emom` is
+      // what sets a duration on a clock — so the `every … for …` fallback exists
+      // for a hand-built tree, and the grammar reads that spelling too.
+      else if (b.duration && mins !== undefined) head = `E${mins === 1 ? '' : mins}MOM ${dur(b.duration)}`;
       else if (b.duration) head = `every ${every} for ${dur(b.duration)}`;
-      else head = `every ${every} x ${b.count}`;
+      // Bounded by a count, or not bounded at all — `every 90s:` runs until the
+      // work runs out, and saying `x undefined` was a missing branch rather than
+      // a spelling.
+      else if (b.count !== undefined) head = `every ${every} x ${b.count}`;
+      else head = `every ${every}`;
       break;
     }
     case 'work': head = `work ${dur(b.duration)}`.trim(); break;
@@ -244,10 +260,17 @@ function headerText(b: Block): string {
     default: head = b.name ?? 'sequence';
   }
 
-  // `for time` fuses onto a repeat header, matching how workouts are written.
-  const fusedForTime =
-    b.score?.implied && b.score.primary === 'time' &&
-    (b.type === 'repeat' || b.type === 'sequence');
+  // `for time` fuses onto the header, matching how workouts are written.
+  //
+  // It fuses onto **any** kind, and until 2026-08-16 it fused onto two. A score
+  // implied by `for time` is one the author wrote; a score implied by the *shape*
+  // (an AMRAP's `rounds + reps`, a build's `max load`) is one the kind supplies,
+  // and only the second is safe to leave unwritten because reparsing rederives
+  // it. Restricted to `repeat` and `sequence`, this dropped the author's word on
+  // everything else: `21-15-9 for time:` formatted to `21-15-9:` and came back
+  // unscored, `team of 2 for time:` likewise. The implied scores a kind supplies
+  // are never `time`, so testing the primary is the whole of the guard.
+  const fusedForTime = b.score?.implied && b.score.primary === 'time';
   if (fusedForTime) head = head === 'sequence' ? 'for time' : `${head} for time`;
 
   for (const t of b.inherited) head += ` @ ${formatTarget(t)}`;
@@ -260,7 +283,13 @@ function headerText(b: Block): string {
   // Held verbatim and written last, for the reason given on the step above.
   for (const u of b.unknown ?? []) mods.push(u);
 
-  return [head, ...mods].join(', ') + ':';
+  // A block with a kind may still carry a `name`: the head was unreadable and the
+  // kind arrived after a comma. The name is not the block's identity there — the
+  // switch above already wrote what the block *is* — so it goes back where it was
+  // written, in front, or `wdl fmt` would drop it and the loss would be silent.
+  const unread = b.name && b.type !== 'section' && b.type !== 'sequence' ? [b.name] : [];
+
+  return [...unread, head, ...mods].join(', ') + ':';
 }
 
 function emit(n: Node, depth: number, out: string[], scheme?: Scheme) {

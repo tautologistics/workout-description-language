@@ -445,6 +445,24 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   { group: 'block/repeat', name: 'round singular', src: '1 round:\n  - 10 Push-Up' },
   { group: 'block/repeat', name: 'sets', src: '5 sets:\n  - 5 Back Squat @ 225lb' },
   { group: 'block/repeat', name: 'rounds for time', src: '3 rounds for time:\n  - 10 Push-Up' },
+  // `3 RFT` is the same block said short — the third abbreviation a gym writes,
+  // beside `AMRAP` and `EMOM`, and how the workout that raised queue item 0f was
+  // actually written on a whiteboard. It used to be a named sequence: reported,
+  // so nothing went quietly, but it ran **once** and was unscored. Canonical
+  // output writes the long form, so these pin the normalisation as much as the
+  // reading. The bare form is deliberately *not* read — `RFT` with no count names
+  // rounds without saying how many, and there is no unbounded repeat to read it
+  // as (spec §5.2) — so it stays here as a reported header, one number away from
+  // a block that works.
+  { group: 'block/repeat', name: 'rft', src: '3 RFT:\n  - 10 Push-Up' },
+  { group: 'block/repeat', name: 'rft lowercase', src: '3 rft:\n  - 10 Push-Up' },
+  { group: 'block/repeat', name: 'rft tight', src: '3RFT:\n  - 10 Push-Up' },
+  { group: 'block/repeat', name: 'rft with a target and a cap', src: '3 RFT @ 95lb, cap 12min:\n  - 10 Thruster' },
+  { group: 'block/repeat', name: 'rft after a comma', src: 'for time, 3 RFT:\n  - 10 Thruster @ 95lb' },
+  { group: 'block/repeat', name: 'rft with no count', src: 'RFT:\n  - 10 Push-Up' },
+  // The boundary of the word itself: `RFT` has to end where the kind ends, or a
+  // header that merely starts with it would be read as three rounds.
+  { group: 'block/repeat', name: 'rft is a whole word', src: '3 RFTX:\n  - 10 Push-Up' },
   { group: 'block/sequence', name: 'for time', src: 'for time:\n  - 10 Push-Up' },
   { group: 'block/sequence', name: 'bare sequence', src: 'sequence:\n  - 10 Push-Up' },
   { group: 'block/amrap', name: 'amrap', src: 'AMRAP 12min:\n  - 10 Push-Up' },
@@ -456,6 +474,17 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   { group: 'block/clock', name: 'every until failure', src: 'every 1min until failure:\n  - 5 Burpee' },
   { group: 'block/clock', name: 'every x count', src: 'every 3min x 5:\n  - 400m Run' },
   { group: 'block/clock', name: 'every bare', src: 'every 90s:\n  - 3 Deadlift @ 315lb' },
+  // `every 90s for 12min` — how an interval is said out loud, and until
+  // 2026-08-16 a spelling the grammar had no rule for while `headerText` wrote it
+  // anyway. Pinned with the two forms that used to be written unreadably: an
+  // unbounded `every`, which formatted to `every 1min30s x undefined:`, and an
+  // E2MOM, which formatted to `every 2min for 20min:`. Both reparsed to a named
+  // *sequence* with the clock gone — and because an unreadable header is held
+  // rather than rejected, both were perfect text fixpoints of a total loss. The
+  // canonical form of a bounded interval is now the gym's: `E2MOM 20min`, with
+  // `EMOM` the one-minute spelling of it.
+  { group: 'block/clock', name: 'every for a duration', src: 'every 90s for 12min:\n  - 3 Power Clean @ 185lb' },
+  { group: 'block/clock', name: 'every for whole minutes', src: 'every 2min for 20min:\n  - 5 Power Clean @ 155lb' },
   { group: 'block/clock', name: 'work window', src: 'work 20s:\n  - Push-Up' },
   { group: 'block/clock', name: 'minute entry', src: 'min 1: 12cal Row' },
   { group: 'block/clock', name: 'minute entry long', src: 'minute 1: 12cal Row' },
@@ -564,6 +593,62 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   // `block/other :: unrecognized header`; this is the same head with a modifier
   // after it, so both readings are visible on one line.
   { group: 'block/modifier', name: 'unrecognized kind and an unknown modifier', src: '3 rounds of madness, wibble:\n  - 10 Push-Up' },
+
+  // --- the kind, stated after a comma ---
+  //
+  // Spec §5.0's "order is free on input" is about the *whole* header and not
+  // about its opening segment, and until 2026-08-16 it was true only of what
+  // *qualifies* a block. What a block **is** had to come first, and everything
+  // stating a kind after a comma was read as text nobody taught the language.
+  //
+  // `for time` is what made that expensive rather than merely wrong. It parses on
+  // its own — a sequence scored by the clock is a real block — so nothing looked
+  // amiss: `for time, 3 rounds:` ran **once** instead of three times, and the only
+  // word said about it was a note that `3 rounds` was being kept as written. The
+  // heads that do *not* parse alone (`cap 12min`, `building`) raised an error, so
+  // the silence belonged precisely to the head that succeeded.
+  //
+  // These five are one reading with the five above them, and that is the claim
+  // worth a test rather than a sentence.
+  { group: 'block/order', name: 'for time then rounds', src: 'for time, 3 rounds:\n  - 10 Thruster @ 95lb' },
+  { group: 'block/order', name: 'for time then a ladder', src: 'for time, 21-15-9:\n  - Thruster @ 95lb\n  - Pull-Up' },
+  { group: 'block/order', name: 'for time then an amrap', src: 'for time, AMRAP 12min:\n  - 10 Burpee' },
+  { group: 'block/order', name: 'for time then a team', src: 'for time, team of 2:\n  - 100 Wall Ball @ 20lb shared' },
+  { group: 'block/order', name: 'for time then a clock', src: 'for time, every 3min x 5:\n  - 400m Run' },
+  // The kind in the *third* segment, so nothing about the fix depends on it
+  // arriving directly after the head.
+  { group: 'block/order', name: 'kind after a modifier', src: 'for time, cap 12min, 3 rounds:\n  - 10 Thruster @ 95lb' },
+  // A head that is not a kind at all, with the kind after it. Both of these were
+  // *reported* before the fix and still are — the head is unreadable either way —
+  // but the rounds are read now, and the unreadable head is written back where it
+  // was written rather than dropped. Canonical output keeps it in front, which is
+  // the only place it round-trips from: a `name` on a block that has a kind is not
+  // the block's identity, so nothing else would write it.
+  { group: 'block/order', name: 'unreadable head then rounds', src: 'cap 12min, 3 rounds:\n  - 10 Thruster @ 95lb' },
+  { group: 'block/order', name: 'flag-shaped head then rounds', src: 'building, 3 rounds:\n  - 5 Back Squat' },
+  // And the boundary: **a header states at most one kind.** A second is not a
+  // reordering but a contradiction, so the first stands and the second is held
+  // verbatim — the answer the language already gives anything it will not act on.
+  // Applying the later one instead would leave the AMRAP's window on a block whose
+  // type no longer writes it, which is the silent loss this whole item closes.
+  { group: 'block/order', name: 'two kinds', src: 'AMRAP 12min, 3 rounds:\n  - 10 Burpee' },
+
+  // --- a fused `for time` on a kind that is not a repeat ---
+  //
+  // `for time` fuses onto any kind, and until 2026-08-16 it fused onto two. A
+  // score implied by `for time` is one the *author* wrote; a score implied by the
+  // shape (an AMRAP's `rounds + reps`) is one the kind supplies, and only the
+  // second is safe to leave unwritten because reparsing rederives it. So
+  // `21-15-9 for time:` formatted to `21-15-9:` and came back unscored — a text
+  // fixpoint that lost the author's word on the first `wdl fmt`.
+  //
+  // Found by the item above rather than by the corpus: the new `for time, 21-15-9:`
+  // spelling inherits the same formatter, and the two spellings agreeing is what
+  // made this visible as the *kind's* problem rather than the comma's.
+  { group: 'block/order', name: 'ladder for time', src: '21-15-9 for time:\n  - Thruster @ 95lb\n  - Pull-Up' },
+  { group: 'block/order', name: 'amrap for time', src: 'AMRAP 12min for time:\n  - 10 Burpee' },
+  { group: 'block/order', name: 'team for time', src: 'team of 2 for time:\n  - 100 Wall Ball @ 20lb shared' },
+  { group: 'block/order', name: 'clock for time', src: 'every 3min x 5 for time:\n  - 400m Run' },
 
   // --- scoring ---
   { group: 'score', name: 'simple', src: 'for time:\n  - 100 Burpee\nscore: time' },
