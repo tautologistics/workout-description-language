@@ -17,9 +17,13 @@
  */
 
 import type {
-  Workout, Node, Step, Rest, Block, Interrupt, Unit, Target, Score, StepOption,
+  Workout, Node, Step, Rest, Block, Interrupt, Unit, Target, Score, StepOption, Load,
 } from './ast.ts';
 import { pluralize } from './fold.ts';
+// The same renderers `fmt` uses. A cue and a canonical line say a target the
+// same way, and until 2026-08-18 they said it in two places that happened to
+// agree — `targetLabel` here was a verbatim copy of `formatTarget`.
+import { formatTarget, formatRx } from './units.ts';
 
 /**
  * A movement reads plural when more than one of it is prescribed — `21
@@ -46,6 +50,13 @@ export interface TimelineStep {
   movement: string;
   quantity: Unit;
   targets: Target[];
+  /**
+   * The unresolved rx split, when no division has been chosen. Carried
+   * structurally as well as in the label so a consumer can offer the choice
+   * rather than parse the text back out of the cue. Absent once `resolve()`
+   * has picked a division — the load is then an ordinary target.
+   */
+  rx?: Record<string, Load>;
   pacing: Pacing;
   /** Known duration in seconds, when the step is clock-bounded. */
   seconds?: number;
@@ -148,18 +159,6 @@ export function fmtClock(seconds: number): string {
   return m ? `${m}:${String(s).padStart(2, '0')}` : `${s}s`;
 }
 
-function targetLabel(t: Target): string {
-  if (t.kind === 'load') {
-    const l = t.load;
-    if (l.kind === 'absolute') return l.implements ? `${l.implements}x${l.value}${l.unit}` : `${l.value}${l.unit}`;
-    if (l.kind === 'percent') return l.of ? `${l.value}% ${l.of}` : `${l.value}%`;
-    if (l.kind === 'multiple') return `${l.value}x ${l.of}`;
-    return `of ${l.name}`;
-  }
-  if (t.kind === 'height') return `${t.value}${t.unit}`;
-  return (t as any).text;
-}
-
 /** Merge inherited targets under a step's own, which always win. */
 function mergeTargets(own: Target[], inherited: Target[]): Target[] {
   const has = (k: string) => own.some((t) => t.kind === k);
@@ -228,7 +227,14 @@ function compileStep(s: Step, ctx: Ctx, enclosing: { clock?: boolean; capped?: b
   }
   if (s.laterality === 'per-side') label += ` each ${s.limb ?? 'side'}`;
   if (s.side) label += ` ${s.side} ${s.limb ?? 'arm'}`;
-  for (const t of targets) label += ` @ ${targetLabel(t)}`;
+  // An rx split that nobody has resolved reads as what was written — both
+  // magnitudes, labelled, in the position `fmt` puts them. `resolve()` in
+  // `variants.ts` replaces it with one division's load and leaves nothing here
+  // to render; **with no division chosen the step still has to say a weight**,
+  // and that is the state both apps are permanently in. Until 2026-08-18 this
+  // line did not exist and an rx step reached the board with no load at all.
+  if (s.rx) label += ` (${formatRx(s.rx)})`;
+  for (const t of targets) label += ` @ ${formatTarget(t)}`;
   if (s.perRound && ctx.round === undefined) label += `, +${s.perRound.delta} each round`;
 
   return {
@@ -236,6 +242,7 @@ function compileStep(s: Step, ctx: Ctx, enclosing: { clock?: boolean; capped?: b
     movement: s.movement,
     quantity,
     targets,
+    rx: s.rx,
     pacing,
     seconds,
     measures: s.measures ?? (quantity.kind === 'calories' ? 'calories' : undefined),

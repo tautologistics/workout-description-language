@@ -15,6 +15,7 @@ export { Registry, fold, foldTokens, depluralize, type MovementEntry, type Resol
 export { defaultRegistry, canonicalRegistry } from './registry.ts';
 export { run, roundLabel, type Run, type Cue, type RoundContext, type RunOptions } from './run.ts';
 export { validate, errorsOnly, type Diagnostic, type ValidateOptions } from './validate.ts';
+export { divisions, resolve, type Resolved, type ResolveOptions } from './variants.ts';
 export { importZwo, zwoDurationSeconds } from './adapters/zwo.ts';
 export { volume, repsOf, atOrAbove, stepVolume, type Volume, type MovementVolume, type StepFilter } from './volume.ts';
 export {

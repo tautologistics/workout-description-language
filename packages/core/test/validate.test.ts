@@ -72,6 +72,16 @@ describe('validation: questions', () => {
     eq(d.candidates, ['men / women', 'Rx / scaled', 'two separate loads']);
   });
 
+  it('asks about a slash load on a header, not only on a step', () => {
+    // A header's target is inherited by every child, so the question is about
+    // all of them. Until 2026-08-18 only a step's own targets were checked, and
+    // `3 rounds @ 95/65:` — the block-level spelling of an rx split — went
+    // through silently while the step-level one asked.
+    const d = find('3 rounds @ 95/65:\n  - 10 Thruster', 'ambiguous-load-split')!;
+    eq(d.severity, 'question');
+    eq(d.line, 1);
+  });
+
   it('asks which erg is meant when an alias is shared', () => {
     const reg = new Registry([
       { id: 'row', title: 'Row', aliases: ['erg'] },
@@ -108,6 +118,9 @@ describe('validation: warnings', () => {
   it('warns when a percentage has no reference max', () => {
     ok(codes('5 sets:\n  - 3 Back Squat @ 85%').includes('percent-no-reference'));
     eq(codes('5 sets:\n  - 3 Back Squat @ 85% 1RM').includes('percent-no-reference'), false);
+    // On a header too: an inherited target reaches every child, so a reference
+    // missing there is missing for all of them.
+    ok(codes('3 rounds @ 75%:\n  - 5 Back Squat').includes('percent-no-reference'));
   });
 
   it('warns when a reference is neither a profile value nor a block label', () => {

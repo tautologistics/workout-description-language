@@ -260,6 +260,14 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     // reads; so does writing the qualifier first. A space does not.
     '10 Deadlift (105/145), unbroken',
     '10 Deadlift each arm (105/145)',
+    // A split beside an ordinary target. Two loads on one step, stated two
+    // different ways: `fmt` writes the split before the `@` and the cue reads
+    // them in that same order, so this pins the position as well as the values.
+    '30 Clean & Jerk (women 105lb / men 145lb) @ RPE 8',
+    // Kilos, and a unit on one side only — the magnitude rule decides which
+    // side is which, and the unit does not travel with it.
+    '30 Snatch (women 35kg / men 50kg)',
+    '21 Deadlift (60/100kg)',
   ] },
   { group: 'combinations', lines: [
     '10 DB Snatch each arm @ 45lb',
@@ -738,6 +746,30 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   // not `key: value`.
   { group: 'variants', name: 'unreadable variant', src: 'variants:\n  women: junk\nfor time:\n  - 21 Thruster' },
   { group: 'variants', name: 'unreadable field', src: 'variants:\n  women:\n    load: 65lb\n    junk\nfor time:\n  - 21 Thruster' },
+
+  // --- divisions: the two spellings of one idea (spec §10) ---
+  //
+  // Pinned together on purpose. A step-level rx split and a `variants:` entry
+  // are the *same statement* about who lifts what, and as of 2026-08-18 they
+  // resolve through one function — so their canonical forms and their trees
+  // belong side by side, where a change to either shows up against the other.
+  //
+  // The at-rest text of both is unchanged by that work: resolving is something
+  // a reader asks for, never something `fmt` does. A file that states two
+  // divisions still states two divisions after a round trip.
+  { group: 'divisions', name: 'rx split alone', src: 'for time:\n  - 30 Clean & Jerk (women 105lb / men 145lb)' },
+  { group: 'divisions', name: 'rx split unlabelled', src: 'for time:\n  - 30 Clean & Jerk (105/145)' },
+  { group: 'divisions', name: 'movement-keyed table', src: 'for time:\n  - 21 Thruster @ 95lb\nvariants:\n  scaled:\n    thruster: 65lb' },
+  { group: 'divisions', name: 'table swaps a movement', src: 'for time:\n  - 21 Pull-Up\nvariants:\n  scaled:\n    pull-up: Ring Row' },
+  { group: 'divisions', name: 'table with a load and a height', src: 'for time:\n  - 100 Wall Ball @ 9kg to 10ft\nvariants:\n  women:\n    wall-ball: 6kg to 9ft' },
+  // Both mechanisms in one file, which is the case the resolver has to order.
+  { group: 'divisions', name: 'split and table together', src: 'for time:\n  - 30 Clean & Jerk (women 105lb / men 145lb)\nvariants:\n  women:\n    clean-and-jerk: 95lb' },
+  // A split on a *header*, where the grammar has no rule for one. It is not an
+  // rx split — it is a target whose text happens to contain a slash — and it is
+  // pinned so the difference from the step form above is visible rather than
+  // inferred. `check` asks which reading is meant; see validate.test.ts.
+  { group: 'divisions', name: 'slash load on a header', src: '3 rounds @ 95/65:\n  - 10 Thruster' },
+  { group: 'divisions', name: 'paren split on a header', src: '3 rounds (women 105lb / men 145lb):\n  - 10 Thruster' },
 
   // --- rest ---
   { group: 'rest', name: 'duration', src: '5 sets:\n  - 5 Back Squat @ 225lb\n  rest 3min' },

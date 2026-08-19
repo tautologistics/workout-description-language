@@ -1,7 +1,7 @@
 # Running it
 
 ```bash
-npm --prefix packages/core test     # 1677 tests, 1 pending, ~10s
+npm --prefix packages/core test     # 1742 tests, 1 pending, ~10s
 node scripts/build-canonical.ts     # rebuild registry/ from its sources
 node scripts/build-web.mjs          # emit the core as browser modules
 node scripts/serve.mjs 8081         # then open http://localhost:8081/
@@ -15,6 +15,8 @@ the browser cannot resolve — see [settled-decisions.md](settled-decisions.md).
 There is no `package-lock.json` and no `node_modules` again.
 
 The CLI: `wdl fmt | check | timeline | export | goals | generate | program`.
+`--variant <name>` on the first four reads the file as one division — an rx split
+or a `variants:` entry, whichever way it was written (spec §10.1).
 The server must be rooted at the repository — the apps reach `build/` and
 `registry/` from there.
 

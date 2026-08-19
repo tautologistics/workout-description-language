@@ -26,6 +26,30 @@ describe('goals: reading the rules', () => {
     eq(titled.rules.map((r) => ({ ...r, line: 0 })), bare.rules.map((r) => ({ ...r, line: 0 })));
   });
 
+  it('reports a measure it cannot read rather than substituting one', () => {
+    // Until 2026-08-19 `DIMENSIONS[written] ?? fallback` made every unread
+    // spelling become the default: this file parsed clean and produced a *rep*
+    // check, so a rule asking to ramp weight quietly asked for repetitions.
+    const g = parseGoals('progress:\n  muscles: quads\n  at least: +5%\n  measure: load\n');
+    eq(g.rules, []);
+    eq(g.errors.length, 1);
+    ok(g.errors[0].message.includes('`load`'), 'names what it could not read');
+    ok(g.errors[0].message.includes('reps'), 'lists what it can');
+  });
+
+  it('reports an unread measure on balance too, with its own default', () => {
+    eq(parseGoals('balance:\n  between: quads, hamstrings\n  measure: tonnage\n').rules, []);
+  });
+
+  it('still takes the default when no measure is written', () => {
+    const prog = parseGoals('progress:\n  muscles: quads\n  at least: +5%\n');
+    eq((prog.rules[0] as any).measure, 'reps');
+    eq(prog.errors, []);
+    const bal = parseGoals('balance:\n  between: quads, hamstrings\n');
+    eq((bal.rules[0] as any).measure, 'exposures');
+    eq(bal.errors, []);
+  });
+
   it('expands a region to its muscles but keeps it one group', () => {
     const g = parseGoals('cover:\n  regions: lower\n  at least: 2 movements\n');
     const rule = g.rules[0] as any;

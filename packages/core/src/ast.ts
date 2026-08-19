@@ -28,7 +28,13 @@ export type Unit =
   | { kind: 'open' };
 
 export type Load =
-  | { kind: 'absolute'; value: number; unit: 'lb' | 'kg'; implements?: number }
+  /**
+   * The unit is optional because an unlabelled rx split states two magnitudes
+   * and no unit at all — `(105/65)` is a real prescription on a whiteboard, and
+   * inventing `lb` for it would be guessing at the gym's plates. Every other
+   * way of writing a load carries one.
+   */
+  | { kind: 'absolute'; value: number; unit?: 'lb' | 'kg'; implements?: number }
   | { kind: 'percent'; value: number; of?: string }    // 75%, 85% TM, 95% FTP
   | { kind: 'multiple'; value: number; of: string }    // 1.5x BW
   | { kind: 'reference'; name: string };               // 85% of heavy-single

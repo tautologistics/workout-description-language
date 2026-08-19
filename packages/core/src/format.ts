@@ -2,7 +2,7 @@
 
 import { pluralize } from './fold.ts';
 import type { Workout, Node, Step, Rest, Block, Interrupt, Score } from './ast.ts';
-import { formatQuantity, formatDuration, formatTarget } from './units.ts';
+import { formatQuantity, formatDuration, formatTarget, formatRx } from './units.ts';
 import type { Unit } from './ast.ts';
 
 /** Durations may legitimately be absent (`AMRAP:` inside a cap), so never assume. */
@@ -98,10 +98,7 @@ function stepText(s: Step, scheme?: Scheme): string {
   // Written back labelled, whichever way it came in. `(105/145)` is readable
   // once you know the rule; `(women 105lb / men 145lb)` needs no rule at all,
   // and canonical output is where the ambiguity should stop.
-  if (s.rx) {
-    const one = (l: any) => `${l.value}${l.unit ?? ''}`;
-    out += ` (women ${one(s.rx.women)} / men ${one(s.rx.men)})`;
-  }
+  if (s.rx) out += ` (${formatRx(s.rx)})`;
 
   for (const t of s.targets) out += ` @ ${formatTarget(t)}`;
 

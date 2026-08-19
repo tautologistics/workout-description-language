@@ -8,11 +8,19 @@ when something looks odd before treating it as a discovery.
   count cannot grow; none used by the corpus.
 - `Quad Stretch` scored into the 178 core movements on source agreement. Visible
   when generating with a bare `?`.
-- Step-level `rx` and workout-level `variants:` are two mechanisms for one idea.
-  `rx` should probably desugar into a variant so `--variant women` covers both;
-  it does not yet. Worse than untidy: `stepCue` labels from `targets` only, so a
-  step whose load is an `rx` split shows no weight in the builder *or* on the
-  board.
+- The board cannot have a division *chosen* on it. `divisions()` and `resolve()`
+  exist and `--variant` works on the CLI, but `board.js` calls neither, so it is
+  permanently in the no-division state — which now reads correctly (both
+  magnitudes, labelled) rather than reading as nothing. The follow-up is in
+  [ready-to-pick-up.md](ready-to-pick-up.md). *The builder is deliberately not
+  part of it: a split says both sides are the prescription, and hiding one while
+  authoring is a way to write a split and never look at it.*
+- A `variants:` value that is a **rep or distance override** is reported and not
+  applied. Spec §10 says a variant may override reps or distance; `resolve()`
+  reads a load, a load-plus-height, or a movement to swap, and says so by name
+  for anything else. Deliberate as of 2026-08-18 — a quantity override needs the
+  quantity grammar in a value position, which is a grammar change, not a
+  resolver one.
 - Templates and workouts share the `.wdl` extension, so `wdl fmt` on a template
   is easy to do by accident.
 - A capped for-time workout reports `duration: 12:00` in the builder, which
@@ -20,6 +28,32 @@ when something looks odd before treating it as a discovery.
   `run` does not expose the cap separately from a computed total, so telling
   them apart needs a core change. Same class as the AMRAP `duration`/`window`
   duplication that Chris caught.
+
+- ~~**An unrecognized `measure:` in a goal file was silently swapped for the
+  default.**~~ **Closed 2026-08-19.** `DIMENSIONS[written] ?? fallback` meant
+  every unread spelling became the default, so `measure: load` parsed with no
+  error and produced a **rep** check — a rule asking to ramp weight quietly asked
+  to ramp repetitions, and `measure: repss` did the same. Now an unread measure
+  is reported by name, lists what the language does measure, and the rule is
+  dropped rather than run against something else: a rule answering a question
+  nobody asked is worse than a missing one. A *missing* `measure:` still takes
+  the default, since that is the author declining to choose. Found 2026-08-19
+  while checking whether the goal report changes under a division — it does not,
+  and [settled-decisions.md](settled-decisions.md) says why that is right.
+
+- ~~**Step-level `rx` and workout-level `variants:` are two mechanisms for one
+  idea, and an `rx` split shows no weight in either app.**~~ **Closed
+  2026-08-18** by queue item 1. `divisions()` and `resolve()` in
+  `packages/core/src/variants.ts` are the one place both are read, `--variant`
+  reaches `fmt`, `check`, `timeline` and `export` through a single hook, and the
+  cue renders an unresolved split so a step always says a weight. Two things the
+  debt as written did not predict. **The lowering went into the resolver, not
+  into the table** — a `variants:` entry is keyed by *movement*, so rewriting a
+  split into one would collapse two Thruster steps at different splits into
+  whichever was written last; see [settled-decisions.md](settled-decisions.md).
+  And **the display fix was not a free consequence of resolving**: the apps never
+  choose a division, so "the load arrives through `targets`" never happens there
+  and the cue needed its own branch after all.
 
 - ~~**`@` with no space after it silently destroys the load.**~~ **Closed
   2026-08-15** by queue item 0a, the swap. `- 10 Thruster @95lb` used to read

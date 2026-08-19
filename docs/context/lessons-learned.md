@@ -88,6 +88,28 @@ exploration turned up lived in that gap, because real workouts are a *sample*
 and a language is a *space*. Sampling real documents will not cover a language;
 only enumerating its forms does.
 
+**A fix predicted from a debt entry is a hypothesis, not a plan.** Queue item 1
+and `builder-ux.md` both said the display bug would close *as a consequence* of
+lowering `rx` to a variant: "the load would arrive through `targets` and label
+itself with no change to `stepCue`". It would not have. That sentence is true
+only when a division has been **chosen**, and neither app ever chooses one — a
+fact the same entry states two paragraphs earlier. Building the resolver and
+stopping there would have left the board exactly as blank as before, with the
+item marked done. The cue needed its own branch, and the branch is four lines.
+*2026-08-18.* The correction that generalizes: when a debt says fixing A closes
+B, re-derive B's mechanism before believing it, because the entry was written by
+someone reasoning forward and the two halves can each be right separately.
+
+**The one file exercising a feature is worth more than the reasoning about it.**
+`variants:` appears in exactly one of 190 corpus files, and resolving that file
+for the first time found two things no amount of reading had: a variant key
+folds to `wallball` where the step it targets is written `100 Wall Balls` and
+folds to `wallballs`, so a plain `fold` equality silently left the women's wall
+ball at the men's 9kg — and `Ring Row`, spec §10's own movement-swap example,
+is absent from the curated registry, so consulting only that registry made the
+spec's example unreadable. Neither is visible from the types or the prose.
+*2026-08-18.*
+
 **Standing rule: a parsing defect becomes permutations, not just a fix.** Any
 parsing issue, any round-trip discrepancy, any misreading found by looking —
 capture it as new line permutations in `test/golden/vocabulary.ts` *before or

@@ -142,6 +142,34 @@ function resolveTargets(names: string[]): { ok: string[]; unknown: string[] } {
   return { ok: [...new Set(ok)], unknown };
 }
 
+/**
+ * Reading a `measure:` line, and **refusing to substitute one**.
+ *
+ * `DIMENSIONS[written] ?? fallback` was the shape until 2026-08-19, and it made
+ * every unrecognized spelling silently become the default: `measure: load`
+ * parsed with no error and produced a *rep* check, so a rule asking to ramp
+ * weight quietly asked to ramp repetitions instead. A typo did the same —
+ * `measure: repss` was a rep check — and so did a dimension the language simply
+ * does not have.
+ *
+ * A missing line still takes the default, because that is the author declining
+ * to choose. A line that is *present and unread* is reported by name, and the
+ * rule is dropped rather than run against something else: a goal report is
+ * checked against a training block, and a rule that answers a question nobody
+ * asked is worse than a rule that is missing.
+ */
+function readMeasure(
+  written: string | undefined, fallback: Dimension, head: string, line: number,
+  fail: (line: number, message: string) => void,
+): Dimension | undefined {
+  if (written === undefined) return fallback;
+  const known = DIMENSIONS[written];
+  if (known) return known;
+  fail(line, `${head}: \`${written}\` is not something this measures — `
+    + `use ${[...new Set(Object.values(DIMENSIONS))].join(', ')}`);
+  return undefined;
+}
+
 const DIMENSIONS: Record<string, Dimension> = {
   movement: 'movements', movements: 'movements',
   exposure: 'exposures', exposures: 'exposures', rep: 'reps', reps: 'reps',
@@ -243,7 +271,8 @@ export function parseGoals(source: string): Goals {
         if (groups.length < 2) { fail(node.line, 'balance: needs at least two groups to compare'); break; }
         const within = parseAmount(k.get('within')?.value ?? '25%', 'exposures');
         if (!within?.relative) { fail(node.line, 'balance: `within:` must be a percentage'); break; }
-        const measure = DIMENSIONS[k.get('measure')?.value ?? 'exposures'] ?? 'exposures';
+        const measure = readMeasure(k.get('measure')?.value, 'exposures', 'balance', node.line, fail);
+        if (!measure) break;
         goals.rules.push({ kind: 'balance', between: groups, tolerance: within.value, measure, level, scope, line: node.line });
         break;
       }
@@ -253,7 +282,8 @@ export function parseGoals(source: string): Goals {
         if (!targets) break;
         const text = k.get('at least')?.value;
         if (!text) { fail(node.line, 'progress: needs an `at least:` line'); break; }
-        const measure = DIMENSIONS[k.get('measure')?.value ?? 'reps'] ?? 'reps';
+        const measure = readMeasure(k.get('measure')?.value, 'reps', 'progress', node.line, fail);
+        if (!measure) break;
         const bound = parseAmount(text, measure);
         if (!bound) { fail(node.line, `progress: cannot read "${text}" as an amount`); break; }
         goals.rules.push({ kind: 'progress', targets, bound, measure, level, line: node.line });

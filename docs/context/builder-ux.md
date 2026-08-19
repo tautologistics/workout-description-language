@@ -150,29 +150,33 @@ Two things to decide rather than guess at:
 
 *Touches: `apps/builder/builder.js:241-263`, `packages/core/src/ast.ts:164-181`.*
 
-**A movement with an `rx` weight split shows no weight at all.** Not a rendering
-gap in the pane — the load is dropped when the cue is built. `Step.rx` is a
-division-keyed map of loads; `stepCue` composes its label from
-`mergeTargets(s.targets, ctx.inherited)` and never reads `s.rx`. A step whose
-only load is an `rx` split therefore produces a cue with no load in it.
+**~~A movement with an `rx` weight split shows no weight at all.~~ Fixed
+2026-08-18** by queue item 1. A step with an unresolved split now reads as its
+at-rest text in both apps — `30 Clean & Jerks (women 105lb / men 145lb)` — which
+is the answer Chris gave to the question this entry raised: with no division
+chosen, show what the file says. Verified by driving both: the builder's *what
+it reads as* pane and the board's running headline.
 
-**This is not confined to the builder.** The board reads the same cues out of
-`run(compile(...))`, and neither app has any variant selection — `variant`
-appears nowhere in either app's source. So rx loads are invisible across the
-whole UI. That is the version worth caring about: with nobody having run a
-session off the board yet, this is showing up to a session with no weights on
-screen.
+**Correction, and it is the part worth keeping.** This entry predicted the fix
+would be free — *"if `rx` lowered to a variant, the load would arrive through
+`targets` and label itself with no change to `stepCue`"*. That is only true once
+a division has been **chosen**, and neither app ever chooses one, which this same
+entry says two paragraphs up. `stepCue` needed its own branch after all. The
+resolver was still the right thing to build first, but it was not what closed
+this.
 
-Held against queue item 1 (`rx` should desugar into `variants:`) rather than
-fixed where it shows: if `rx` lowered to a variant, the load would arrive through
-`targets` and label itself with no change to `stepCue`. Patching the label
-directly is work that item 1 would throw away. But item 1 does not settle the
-question this raises — **what a step reads as when no division is chosen**, which
-is the state both apps are permanently in today. Showing both magnitudes
-(`@ 105/145 lb`) is the obvious candidate and matches how it is written on a
-whiteboard.
-*Touches: `packages/core/src/timeline.ts:230`, `packages/core/src/ast.ts:86`,
-and both `apps/builder/` and `apps/display/` once a division can be chosen.*
+**What is left of it belongs to the board, not to this pane.** `divisions()`
+lists what a workout offers and `resolve()` applies one, but neither app calls
+them — `--variant` is a CLI flag only. The follow-up is
+[ready-to-pick-up.md](ready-to-pick-up.md) item 1a, and it is **board-only**:
+the builder is where a prescription is written, and a split is a statement that
+both sides *are* the prescription, so a control that hides one of them here is a
+way to write a split and never look at the other side. This pane showing both is
+the finished behaviour, not a placeholder for a picker.
+*Corrected 2026-08-19 — first written asking whether the builder wanted one too,
+with "the goal report would change under a division" as the reason. Measured, it
+does not: `volume` and `muscleLoad` are identical across unresolved, `women` and
+`men`, because nothing in the analysis layer reads an absolute load.*
 
 **Considered and declined:** indenting the text of cues inside a cycle, to break
 the block out beyond what the rail already does. The rail is enough; the colour

@@ -327,6 +327,71 @@ would be tidier".
   score that has to fit on one line, which is precisely what the brace spelling
   is for. `score: {tiebreak: reps at 5min}` is now its own fixpoint.
 
+- **An rx split lowers into the variant *resolver*, not into the `variants:`
+  table.** Settled 2026-08-18, closing queue item 1 — and it is a deliberate
+  departure from how that item was written ("`rx` should desugar into
+  `variants:`"). The literal reading is a rewrite: `(women 105lb / men 145lb)`
+  becomes two movement-keyed entries. That loses information, because **a
+  `variants:` entry is keyed by movement and a split belongs to a step**. A
+  workout with two Thruster steps at different splits collapses to whichever was
+  written last, silently — the exact class of defect the split itself was written
+  to avoid. So the split stays on the step, the table stays as it was authored,
+  and `divisions()`/`resolve()` read both. What the item actually asked for —
+  one namespace, `--variant` covering both, exporters knowing one mechanism — is
+  bought without the loss.
+
+- **With no division chosen, a step reads as its at-rest text: both magnitudes,
+  labelled.** Settled 2026-08-18 with Chris, and the question was worth asking
+  because *no division is ever chosen in either app* — nothing there offers the
+  choice, so this is not a default, it is the only state. Four candidates: show
+  nothing (what it did, and it is showing up to a session with no weights on
+  screen), show both, show both labelled, or pick a base. **Picking a base is
+  the one to refuse**: prescribing one athlete's weight to everyone *looks*
+  right, which makes it worse than showing nothing. Showing both is what a
+  whiteboard does. Rendering it through the formatter's own `formatRx` rather
+  than a second spelling settled the order question for free — `(105/65)` is
+  read by magnitude and normalized to the labelled form, so echoing it
+  positionally would hand back the ambiguity the labels exist to remove.
+
+- **A `variants:` value is read as a target first and a movement second.**
+  Settled 2026-08-18. Both readings end in prose — `parseTarget` returns `raw`
+  for anything it does not recognize, and a movement name *is* that — so
+  whichever is asked second has to prove itself. A target proves itself from the
+  text (`102kg` is a load, `9ft` a height); a movement cannot, so it is checked
+  against the registry, and a value that is neither is **reported and not
+  applied**. The registry consulted is the curated one *and* the canonical merge,
+  because `Ring Row` — spec §10's own example of a movement swap — is only in the
+  merge, and consulting the curated registry alone made the spec's example
+  unreadable.
+
+- **A workout is a class; an execution is an instantiation, and load lives on
+  the instantiation.** Settled 2026-08-19 with Chris, prompted by noticing that
+  *nothing* in the analysis layer reads an absolute load — `muscles.ts` never
+  touches `targets`, `goals.ts`'s "targets" are muscle groups, and `volume.ts`
+  reads a load in one place, `atOrAbove`, which filters on a percentage and is
+  therefore blind to `@ 225lb` by construction. Measured: `volume` and
+  `muscleLoad` are byte-identical across an unresolved rx split, `women` and
+  `men`.
+
+  That is **correct at this layer**, not a hole in it. The written workout is the
+  class — what the session *is*, the thing on the whiteboard, the same for
+  everyone who does it. What weight a particular person puts on the bar on a
+  particular day is the instantiation, and it belongs to whatever leads or
+  records a session, not to the definition. Reps, distance, calories and seconds
+  are properties of the class and so they are what the class is analysed by.
+
+  **The exception is a load the author wrote into the workout** — an rx split or
+  a `variants:` entry. That is part of the class, because it was stated in the
+  file, which is exactly why divisions resolve at the workout layer (§10.1) while
+  a person's working weight does not.
+
+  What follows: **"ramp the squat load week over week" is a statement about a
+  series of executions, not about a series of workout files**, so the missing
+  `load` dimension in `goals.ts` is not something to add to `Dimension` — it is
+  something that becomes possible when results exist. Queue item 2 owns it.
+  Meanwhile `measure: load` is *reported* rather than silently swapped for
+  `reps`; see [known-debts.md](known-debts.md) for what that fixed.
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).

@@ -7,6 +7,7 @@ import { parse } from '../src/parse.ts';
 import { format } from '../src/format.ts';
 import { compile, outline, fmtClock } from '../src/timeline.ts';
 import { validate } from '../src/validate.ts';
+import { divisions, resolve } from '../src/variants.ts';
 import { exportZwo } from '../src/adapters/zwo.ts';
 import { exportErg } from '../src/adapters/erg.ts';
 import { exportFit } from '../src/adapters/fit.ts';
@@ -18,7 +19,7 @@ import { loadProgram, checkProgram } from '../node/program.ts';
 const [cmd, ...args] = process.argv.slice(2);
 const write = args.includes('-w') || args.includes('--write');
 const files = args.filter((a, i) => !a.startsWith('-')
-  && !['--to', '-o', '--ftp', '--goals', '--seed', '--equipment', '--program'].includes(args[i - 1] ?? ''));
+  && !['--to', '-o', '--ftp', '--goals', '--seed', '--equipment', '--program', '--variant'].includes(args[i - 1] ?? ''));
 
 const EXPORTERS = ['zwo', 'erg', 'mrc', 'fit', 'connect'] as const;
 const toIdx = args.indexOf('--to');
@@ -33,6 +34,8 @@ const seedIdx = args.indexOf('--seed');
 const seed = seedIdx >= 0 ? Number(args[seedIdx + 1]) : undefined;
 const programIdx = args.indexOf('--program');
 const programPath = programIdx >= 0 ? args[programIdx + 1] : undefined;
+const variantIdx = args.indexOf('--variant');
+const variant = variantIdx >= 0 ? args[variantIdx + 1] : undefined;
 const equipIdx = args.indexOf('--equipment');
 const equipment = equipIdx >= 0 ? args[equipIdx + 1].split(',').map((x) => x.trim()) : undefined;
 
@@ -40,7 +43,8 @@ if (!cmd || !['fmt', 'check', 'timeline', 'export', 'goals', 'generate', 'progra
     || (cmd === 'export' && !EXPORTERS.includes(to as any))
     || (cmd === 'goals' && !goalsPath)
     || (cmd === 'generate' && !goalsPath && !programPath)) {
-  console.error('usage: wdl <fmt|check|timeline> [-w] <file.wdl>...');
+  console.error('usage: wdl <fmt|check|timeline> [-w] [--variant <name>] <file.wdl>...');
+  console.error('       --variant reads the file as one division: an rx split or a `variants:` entry');
   console.error('       wdl export --to <zwo|erg|mrc|fit|connect> [-o out] [--ftp N] [--no-power-targets] <file.wdl>');
   console.error('       wdl goals --goals <file.wdlg> <file.wdl>...   check workouts against a set of goals');
   console.error('       wdl generate --goals <file.wdlg> [--seed N] [--equipment a,b] <template.wdl>');
@@ -183,10 +187,25 @@ if (cmd === 'goals') {
 let failed = 0;
 for (const file of files) {
   const src = readFileSync(file, 'utf8');
-  const { workout, errors } = parse(src);
+  const parsed = parse(src);
+  const { errors } = parsed;
   for (const e of errors) {
     console.error(`${file}:${e.line}: ${e.message}`);
     failed++;
+  }
+  // One hook for every verb, which is the point of the flag: `fmt`, `export`,
+  // `timeline` and `check` all read the workout the chosen division reads, and
+  // none of them knows whether the load came from an rx split or a `variants:`
+  // entry. Applied before anything looks at the tree.
+  let workout = parsed.workout;
+  if (variant) {
+    const r = resolve(workout, variant);
+    for (const d of r.diagnostics) {
+      console.error(`${file}${d.line ? `:${d.line}` : ''}: ${d.severity}: ${d.message}`);
+      if (d.severity === 'error') failed++;
+    }
+    if (r.diagnostics.some((d) => d.severity === 'error')) continue;
+    workout = r.workout;
   }
   if (cmd === 'fmt') {
     const out = format(workout);

@@ -5276,6 +5276,138 @@
   },
   "fixpoint": true
  },
+ "rx-by-division :: 30 Clean & Jerk (women 105lb / men 145lb) @ RPE 8": {
+  "canonical": "for time:\n  - 30 Clean & Jerks (women 105lb / men 145lb) @ RPE 8",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Clean & Jerk",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 30
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 105
+        }
+       },
+       "targets": [
+        {
+         "kind": "effort",
+         "text": "RPE 8"
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rx-by-division :: 30 Snatch (women 35kg / men 50kg)": {
+  "canonical": "for time:\n  - 30 Snatches (women 35kg / men 50kg)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Snatch",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 30
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "unit": "kg",
+         "value": 50
+        },
+        "women": {
+         "kind": "absolute",
+         "unit": "kg",
+         "value": 35
+        }
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "rx-by-division :: 21 Deadlift (60/100kg)": {
+  "canonical": "for time:\n  - 21 Deadlifts (women 60kg / men 100kg)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "unit": "kg",
+         "value": 100
+        },
+        "women": {
+         "kind": "absolute",
+         "unit": "kg",
+         "value": 60
+        }
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "combinations :: 10 DB Snatch each arm @ 45lb": {
   "canonical": "for time:\n  - 10 DB Snatches each arm @ 45lb",
   "errors": [],
@@ -11581,6 +11713,328 @@
      "load": "65lb"
     }
    }
+  },
+  "fixpoint": true
+ },
+ "divisions :: rx split alone": {
+  "canonical": "for time:\n  - 30 Clean & Jerks (women 105lb / men 145lb)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Clean & Jerk",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 30
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 105
+        }
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "divisions :: rx split unlabelled": {
+  "canonical": "for time:\n  - 30 Clean & Jerks (women 105 / men 145)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Clean & Jerk",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 30
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "value": 105
+        }
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "divisions :: movement-keyed table": {
+  "canonical": "for time:\n  - 21 Thrusters @ 95lb\n\nvariants:\n  scaled:\n    thruster: 65lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "variants": {
+    "scaled": {
+     "thruster": "65lb"
+    }
+   }
+  },
+  "fixpoint": true
+ },
+ "divisions :: table swaps a movement": {
+  "canonical": "for time:\n  - 21 Pull-Ups\n\nvariants:\n  scaled:\n    pull-up: Ring Row",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Pull-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 21
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "variants": {
+    "scaled": {
+     "pull-up": "Ring Row"
+    }
+   }
+  },
+  "fixpoint": true
+ },
+ "divisions :: table with a load and a height": {
+  "canonical": "for time:\n  - 100 Wall Balls @ 9kg @ 10ft\n\nvariants:\n  women:\n    wall-ball: 6kg to 9ft",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Wall Ball",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "kg",
+          "value": 9
+         }
+        },
+        {
+         "kind": "height",
+         "unit": "ft",
+         "value": 10
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "variants": {
+    "women": {
+     "wall-ball": "6kg to 9ft"
+    }
+   }
+  },
+  "fixpoint": true
+ },
+ "divisions :: split and table together": {
+  "canonical": "for time:\n  - 30 Clean & Jerks (women 105lb / men 145lb)\n\nvariants:\n  women:\n    clean-and-jerk: 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Clean & Jerk",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 30
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 105
+        }
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout",
+   "variants": {
+    "women": {
+     "clean-and-jerk": "95lb"
+    }
+   }
+  },
+  "fixpoint": true
+ },
+ "divisions :: slash load on a header": {
+  "canonical": "3 rounds @ 95/65:\n  - 10 Thrusters",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "inherited": [
+      {
+       "kind": "raw",
+       "text": "95/65"
+      }
+     ],
+     "node": "block",
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "divisions :: paren split on a header": {
+  "canonical": "3 rounds (women 105lb / men 145lb):\n  - 10 Thrusters",
+  "errors": [
+   "L1 unrecognized block header \"3 rounds (women 105lb / men 145lb)\""
+  ],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "name": "3 rounds (women 105lb / men 145lb)",
+     "node": "block",
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
   },
   "fixpoint": true
  },

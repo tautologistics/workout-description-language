@@ -719,6 +719,20 @@ variants:
 
 Variants compose along independent axes (division × sex), so Hyrox's Open/Pro × men/women grid is four variants, not a special case.
 
+### 10.1 A step's rx split is a variant
+
+The step-level split in the appendix — `- 10 Deadlifts (women 105lb / men 145lb)` — and a `variants:` entry are **two spellings of one statement**, and they name divisions in one namespace. Whichever way a division was written, asking for it resolves both: `wdl fmt --variant women` reads the file as the women's workout, and so do `check`, `timeline` and `export`.
+
+Where a workout carries both and they speak about the same step, the **`variants:` entry wins** — the table names the movement, which is the more specific statement than a split standing on the line.
+
+Because the axes are independent, a split answers only the axis it names. A step split by sex says nothing about `scaled`, so resolving `scaled` leaves the split standing.
+
+**With no division chosen, a step reads as what the file says: both magnitudes, labelled.** `30 Clean & Jerks (women 105lb / men 145lb)` is the cue on a board just as it is the line in the file. Resolving is something a reader asks for and never something `fmt` does — formatting a workout with two divisions leaves it with two.
+
+A `variants:` value may state a load, a load and a height (`6kg to 9ft`), or a movement to swap in. A value that reads as none of those is reported and the step is left alone.
+
+*Added 2026-08-18. Before it, the two mechanisms shared nothing: the split was read by the formatter and by nothing else, so a step whose only load was a split reached the builder and the board with **no load at all**.*
+
 ---
 
 ## 11. Constraints and notes
@@ -1339,3 +1353,12 @@ bare numbers stay bare, since the measure is whatever the step is measured in.
 Canonical output is always the labelled form, whichever way it came in. The
 short form is readable once you know the rule; the explicit one needs no rule,
 and canonical output is where an ambiguity should stop.
+
+A split is only read in the parentheses that follow a movement. `3 rounds @ 95/65:` is
+not a split: it is a header target whose text contains a slash, inherited by
+every child as written, and `check` asks which of the three readings is meant
+(§12) rather than picking one. `3 rounds (women 105lb / men 145lb):` is not a
+header the grammar knows, and is reported as one.
+
+What a division *means* once chosen — and that these are the same divisions a
+`variants:` table names — is §10.1.

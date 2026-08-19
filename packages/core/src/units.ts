@@ -207,11 +207,33 @@ export function parseTarget(text: string): Target {
 
 export function formatLoad(l: Load): string {
   switch (l.kind) {
-    case 'absolute': return l.implements ? `${l.implements}x${l.value}${l.unit}` : `${l.value}${l.unit}`;
+    // `?? ''` rather than a default unit: an unlabelled rx split has no unit to
+    // write, and `105lb` where `105` was written is a heavier claim than the
+    // author made. See the `Load` comment in `ast.ts`.
+    case 'absolute': {
+      const u = l.unit ?? '';
+      return l.implements ? `${l.implements}x${l.value}${u}` : `${l.value}${u}`;
+    }
     case 'percent': return l.of ? `${l.value}% ${l.of}` : `${l.value}%`;
     case 'multiple': return `${l.value}x ${l.of}`;
     case 'reference': return `of ${l.name}`;
   }
+}
+
+/**
+ * An rx split, written back labelled whichever way it came in.
+ *
+ * One function because it is written in two places that must not drift: `fmt`
+ * puts it on the step line, and the timeline puts it in the cue a board shows.
+ * The cue *is* the at-rest text here — with no division chosen, which is the
+ * only state either app has, a step reads as what the whiteboard says.
+ *
+ * Labelled rather than positional on purpose. `(105/65)` is read by magnitude,
+ * so echoing it positionally would hand back the ambiguity the labels exist to
+ * remove — and spec §10 already makes canonical output the place it stops.
+ */
+export function formatRx(rx: Record<string, Load>): string {
+  return Object.entries(rx).map(([who, l]) => `${who} ${formatLoad(l)}`).join(' / ');
 }
 
 export function formatTarget(t: Target): string {

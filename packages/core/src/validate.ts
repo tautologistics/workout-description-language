@@ -145,6 +145,13 @@ export function validate(w: Workout, opts: ValidateOptions = {}): Diagnostic[] {
               message: '`rounds + reps` needs an open-ended block — a fixed-round or for-time workout scores time' });
       }
 
+      // A header's target is inherited by every child, so a question about it is
+      // a question about all of them — and until 2026-08-18 nothing asked. Only
+      // a step's own targets were checked, so `3 rounds @ 95/65:` was silent
+      // where `- 10 Thruster @ 95/65` asks which reading is meant, and
+      // `3 rounds @ 75%:` escaped the missing-reference warning the same way.
+      checkTargets(n.inherited, n.line);
+
       walkBlocks(n.children, forTime, inCap || n.cap !== undefined);
     }
   };
