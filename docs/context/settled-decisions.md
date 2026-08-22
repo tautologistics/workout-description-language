@@ -392,6 +392,33 @@ would be tidier".
   Meanwhile `measure: load` is *reported* rather than silently swapped for
   `reps`; see [known-debts.md](known-debts.md) for what that fixed.
 
+- **Choosing a division changes the headline and never the board text, and the
+  board's own picker is where that choice lives.** Settled 2026-08-20, closing
+  queue item 1a. The obvious worry is that this contradicts *"the board renders
+  source text, line for line"*: pick `women` and the bar says `@ 105lb` over a
+  line that says `(women 105lb / men 145lb)`. It does not, and the reason is the
+  class/instantiation split one layer down. **In both spellings the text already
+  shows every division at once** — the split on the step, the whole `variants:`
+  table further down the file — so the board is showing the class and the bar is
+  showing the face of it you are doing. The headline is picking one of the two
+  numbers the line is already offering, not disagreeing with it. Nothing has to
+  rewrite a line to make a division visible, which is why no exception to the
+  rendering rule was needed. The chosen division leads the sub-line under the
+  headline so the reason for the difference sits beside the number.
+
+  **The choice rides in the hash, beside the workout.** Not because session state
+  survives a reload here — it does not, and the queue item's claim that it did
+  was measured false — but because a division is not progress through a session.
+  It is *which reading of the file is on the screen*, and the hash is already
+  exactly that. The share link carries the reading with it, which is a coherent
+  thing to send: "today's HYROX, women's". See
+  [lessons-learned.md](lessons-learned.md) for the premise that nearly sent this
+  the other way.
+
+  **Switching does not restart anything.** Cursor, clocks and lap count are all
+  held: a reader who says `women` three rounds in is answering a question about
+  the weights, not asking to begin again.
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).

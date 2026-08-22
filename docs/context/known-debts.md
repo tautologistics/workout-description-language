@@ -8,13 +8,28 @@ when something looks odd before treating it as a discovery.
   count cannot grow; none used by the corpus.
 - `Quad Stretch` scored into the 178 core movements on source agreement. Visible
   when generating with a bare `?`.
-- The board cannot have a division *chosen* on it. `divisions()` and `resolve()`
-  exist and `--variant` works on the CLI, but `board.js` calls neither, so it is
-  permanently in the no-division state — which now reads correctly (both
-  magnitudes, labelled) rather than reading as nothing. The follow-up is in
-  [ready-to-pick-up.md](ready-to-pick-up.md). *The builder is deliberately not
-  part of it: a split says both sides are the prescription, and hiding one while
-  authoring is a way to write a split and never look at it.*
+- ~~The board cannot have a division *chosen* on it.~~ **Fixed 2026-08-20** by
+  queue item 1a. A workout that offers a division shows a picker in the footer,
+  built from `divisions()`; choosing one re-cues from `resolve()` **from where
+  the reader stands**, keeping the cursor, the clocks and the lap count. The
+  choice rides in the hash beside the workout, so it survives a reload and
+  travels with the share link. *The builder is still deliberately not part of it:
+  a split says both sides are the prescription, and hiding one while authoring is
+  a way to write a split and never look at it.*
+- The board fetches the whole 1.7MB canonical merge to answer one question.
+  `resolve()` proves a `variants:` value that is a **movement to swap in** against
+  the registry, and `Ring Row` — spec §10's own example — is only in the merge, so
+  without it the board reported a real movement as *not a movement in the
+  registry*: a false statement, not merely a missed swap. Raised and half-fixed
+  2026-08-20 by queue item 1a. The fetch is lazy and narrowly triggered — only
+  once the resolver has actually said it could not read a value, so a table of
+  loads like the HYROX file never pays, and it happens at most once per board —
+  but a board that does hit it downloads 1.7MB for a **name lookup**. What the
+  resolver wants from that file is titles and aliases; a slim name index built
+  beside it in `build-canonical.ts` would answer the same question for a fraction
+  of the bytes, and would let the board simply fetch it up front.
+  *Touches: `scripts/build-canonical.ts`, `apps/display/board.js`,
+  `packages/core/src/registry.ts`.*
 - A `variants:` value that is a **rep or distance override** is reported and not
   applied. Spec §10 says a variant may override reps or distance; `resolve()`
   reads a load, a load-plus-height, or a movement to swap, and says so by name

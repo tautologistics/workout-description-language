@@ -565,37 +565,66 @@ passing, 1 pending.
 `spec/spec-0.1.md` §10.1, `test/variants.test.ts` (new),
 `test/golden/vocabulary.ts`, `test/validate.test.ts`.*
 
-**1a. Let a division be chosen on the board.** The half of item 1 that is
-deliberately not in it. `divisions(w)` and `resolve(w, name)` are built and
-`--variant` works on the CLI, but the board never calls either, so it sits
-permanently in the no-division state — which now *reads* correctly (both
-magnitudes, labelled) and is still not the same as being able to pick. A workout
-with an rx split should let a reader say "women" once and have every cue follow.
+**1a. ~~Let a division be chosen on the board.~~ DONE 2026-08-20.** A workout
+that offers a division shows a picker in the board's footer, built from
+`divisions()` in its stable order with *as written* first; a workout that offers
+none shows no control at all. Choosing re-cues from `resolve()` **from where the
+reader stands** — cursor, workout clock, section clock and lap count all survive,
+because a reader who says "women" three rounds in is answering a question about
+the weights, not asking to start over. The builder is untouched, and that is the
+2026-08-19 decision, not an omission.
 
-**The board, and not the builder.** *Corrected 2026-08-19, after this item was
-first written asking "both, or one?" — that was the wrong question.* The builder
-is where the prescription is **written**, and a split is a statement that both
-sides are the prescription; a control that hides one of them while authoring is
-worse than useless, because you could write a split and never look at the other
-side. The builder should always show both, which is what it does now.
+**The question the item left open is answered, and the premise it was answered
+from was false.** *"Whether the choice survives a reload"*, argued by analogy:
+*"the board already keeps position across one"*. **Measured 2026-08-20: it does
+not.** `load` ends in `reset`, so a reload restarts the session at cue zero with
+the clock at 0:00. What survives is the *workout*, because the hash is what
+survives and the hash is the workout. So the analogy holds against a different
+thing: a division is not progress through a session, it is which reading of the
+file is on the screen — which is exactly what the hash already carries. It goes
+in the hash, as `#<workout>&division=women`. `encodeURIComponent` escapes `&`, so
+the separator is one no workout text can forge and every link written before
+today reads unchanged. The share link now carries the reading too, which is a
+coherent thing to send: "today's HYROX, women's".
 
-The reason first offered for a builder picker — that the goal report would change
-under a division — is **false, and measured**: `volume`, `muscleLoad` and the
-goal report are byte-identical across unresolved, `women` and `men`. Nothing in
-the analysis layer reads an absolute load. `muscles.ts` never touches `targets`;
-`goals.ts`'s "targets" are muscle groups; `volume.ts` reads a load in exactly one
-place, `atOrAbove`, which filters on a *percentage* — and a split is always an
-absolute, so it can never trigger it. A division changes the weight on the bar,
-and nothing that analyses a workout reads the weight on the bar.
+**Nothing rewrites a line, and that is not a compromise with "the board renders
+source text".** It is the same split one layer down. In *both* spellings the text
+already shows every division at once — `(women 105lb / men 145lb)` on the step,
+the whole `variants:` table further down the file — so the board shows the class
+and the bar shows the face of it you are doing. The headline saying `@ 105lb`
+over a line reading `(women 105lb / men 145lb)` is the runtime picking one of the
+two the line is already offering, not contradicting it. The chosen division leads
+the sub-line under the headline so the reason for the difference sits next to the
+number rather than in the footer.
 
-That leaves one thing to decide: **whether the choice survives a reload.** The
-board already keeps position across one, and a division is the same kind of fact
-about this run of this workout.
+**Three things found by driving it, all fixed here, none of them the item.**
+- **`unknown-division` carries no line**, so a division named by a link and not
+  by the file would have printed `line undefined: no division \`mens\``. That is
+  the `line undefined:` debt in [builder-ux.md](builder-ux.md), and adding a
+  fourth way to hit it is a reason to close it rather than to file beside it.
+  A bad division falls back to *as written*, says why, and is dropped from the
+  URL — the board must not go on claiming to read something it is not.
+- **The board had only the curated registry**, so `pull-up: Ring Row` — spec
+  §10's own example of a movement swap — came back reported as *not a movement in
+  the registry*. Not a missed swap but a **false statement on the screen**, and
+  it only became reachable because something finally resolved in a browser. The
+  canonical merge is now fetched lazily, on exactly one signal: the resolver said
+  it could not read a value. A table of loads like the HYROX file never pays.
+  **It is 1.7MB for a name lookup**, which is the crude half of the fix and is
+  written up in [known-debts.md](known-debts.md).
+- **The footer was already wider than a phone** — `Reset` clipped at 375px,
+  `Edit` past the edge — and the picker made it worse by a hundred pixels, which
+  turned an ugly edge into a control that did not exist on a phone. One line,
+  `flex-wrap: wrap`, and the board's own stylesheet stops lying about working
+  propped against a water bottle.
 
-`divisions()` returns a stable order, so a picker built from it does not shuffle
-between renders. Choosing is a *reader's* action and must never touch the file —
-`fmt` does not resolve, and that is stated in spec §10.1.
-*Touches: `apps/display/board.js`, `packages/core/src/variants.ts`.*
+**No core change, so nothing regenerated and nothing moved.** Three app files;
+1742 passing, 1 pending, unchanged. Verified by driving the board — both
+spellings, mid-session switching with the clocks held, a reload, a link naming a
+division that does not exist, a value the resolver cannot read, a workout with no
+divisions, and 375px.
+*Touched: `apps/display/board.js`, `apps/display/index.html`,
+`apps/display/board.css`.*
 
 **2. Results.** The largest piece, and the one that makes `progress` mean
 something. The board already knows the position and has the clock; a result is

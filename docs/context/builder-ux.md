@@ -165,10 +165,11 @@ entry says two paragraphs up. `stepCue` needed its own branch after all. The
 resolver was still the right thing to build first, but it was not what closed
 this.
 
-**What is left of it belongs to the board, not to this pane.** `divisions()`
-lists what a workout offers and `resolve()` applies one, but neither app calls
-them — `--variant` is a CLI flag only. The follow-up is
-[ready-to-pick-up.md](ready-to-pick-up.md) item 1a, and it is **board-only**:
+**What was left of it belonged to the board, not to this pane, and landed there
+2026-08-20** as queue item 1a. `divisions()` lists what a workout offers and
+`resolve()` applies one; the **board** now calls both, from a picker in its
+footer, and this pane still calls neither and still shows both sides. That is
+**board-only** by decision and not by omission:
 the builder is where a prescription is written, and a split is a statement that
 both sides *are* the prescription, so a control that hides one of them here is a
 way to write a split and never look at the other side. This pane showing both is
@@ -184,19 +185,31 @@ is the part that is missing.
 
 ## The board
 
-**A workout-level diagnostic renders as `line undefined:`.** `board.js:376` writes
-`` `line ${d.line}: ${d.message}` `` for every error `validate` returns, and three
-of them are facts about the *whole workout* rather than about a line — so they
-carry no `line` and the board prints the word `undefined` at the front of a
-message that is otherwise correct. `empty-workout` and `rounds-score-on-fixed-work`
-have always done this; `score-without-primary`, added 2026-08-15 by queue item 0e,
-made it easy to hit, which is how it was found — by putting a score with no
-primary on the board and reading the strip.
+**~~A workout-level diagnostic renders as `line undefined:`.~~ Fixed 2026-08-20**
+by queue item 1a, and it was fixed there because that item **added a fourth** such
+diagnostic: `unknown-division` is a fact about the whole workout, so a division
+named by a link and not by the file would have printed `line undefined: no
+division \`mens\`` — a new way to hit an old defect, which is a reason to close it
+rather than to file beside it.
 
-Pre-existing rather than introduced, and left alone deliberately: the fix is
-either omitting the prefix when there is no line, or giving `Score` a line so the
-diagnostic can point at one. The first is a line of app code; the second is an AST
-change, and it is the better answer if anything else ever wants to point at where
-a score was written. Not part of 0e, which is about how a line is read.
-*Touches: `apps/display/board.js:375`, and `packages/core/src/ast.ts` if the score
-gains a line.*
+The first of the two options this entry listed is what was taken: a `where()`
+helper omits the prefix when the diagnostic carries no line. The second — giving
+`Score` a line so the diagnostic can point at one — is **still the better answer**
+if anything else ever wants to say where a score was written, and it is an AST
+change rather than app code, so it stays available rather than foreclosed.
+*Was: `apps/display/board.js:375`. The AST half, if it is ever wanted, is
+`packages/core/src/ast.ts`.*
+
+**~~The footer is wider than a phone.~~ Fixed 2026-08-20**, found while checking
+the division picker at 375px and **pre-existing**: `Reset` was already clipped at
+the right edge and `Edit` was past it, with `End section` shown. The picker made
+it worse by a hundred pixels, which is what turned an ugly edge into a control
+that did not exist on a phone at all. One line — `flex-wrap: wrap` on the footer —
+so the row breaks when it stops fitting and is untouched when it does. No
+breakpoint, because what fits depends on which buttons are showing: `End section`
+appears only inside a section that repeats.
+Recorded because the board's own stylesheet says it has to work "on a phone
+propped against a water bottle", and nothing had checked.
+
+**A division picker is the board's, and the builder's absence from this is
+deliberate.** See the entry above under *the text pane*, and queue item 1a.

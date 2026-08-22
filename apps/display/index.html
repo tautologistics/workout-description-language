@@ -51,6 +51,12 @@
   <button id="leave" hidden>End section <kbd>e</kbd></button>
   <button id="reset">Reset</button>
   <span class="spacer"></span>
+  <!-- Only shown by a workout that offers a division. Choosing one is a
+       *reader's* action: it changes which weights the bar above calls out, and
+       never the text on the board, which goes on saying what the file says. -->
+  <label id="division-pick" class="division" hidden>Division
+    <select id="division"></select>
+  </label>
   <span id="position" class="position"></span>
   <button id="edit">Edit</button>
 </footer>

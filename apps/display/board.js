@@ -10,18 +10,26 @@
  * render the cue list, and it would be wrong: the point of the format is that
  * what you wrote is what you read, and a display that regenerates the workout
  * into its own layout is quietly asserting the text was not good enough.
+ *
+ * Since 2026-08-20 it holds a third such thing: which **division** is being
+ * read. That is not something the core lacks — `resolve()` is core — but the
+ * *choosing* is a reader's act, like the clock and the cursor, and like them it
+ * never touches the file. The rows go on saying what everyone does; the bar says
+ * what you do.
  */
 
 import { parse } from '../../build/web/core/parse.js';
 import { compile } from '../../build/web/core/timeline.js';
 import { run, roundLabel } from '../../build/web/core/run.js';
 import { validate } from '../../build/web/core/validate.js';
-import { provide } from '../../build/web/core/env.js';
+import { divisions, resolve } from '../../build/web/core/variants.js';
+import { provide, has } from '../../build/web/core/env.js';
 
 // The core is handed its data; it reads no files itself. On Node that is
 // packages/core/node.ts, here it is a fetch.
 const GRAMMAR = '../../spec/grammar-0.1.ohm';
 const REGISTRY = '../../registry/movements.json';
+const CANONICAL = '../../registry/movements.canonical.json';
 
 // The grammar first, and awaited: `parse` is that file, so unlike the registry
 // below — which only takes the validation hints with it — a board without it is
@@ -41,6 +49,8 @@ const bar = el('bar');
 const board = el('board');
 const controls = el('controls');
 const problems = el('problems');
+const picker = el('division');
+const pickerRow = el('division-pick');
 
 const SAMPLES = {
   Fran: '# Fran\nfor time:\n  21-15-9:\n    - Thruster @ 95lb\n    - Pull-Up\n',
@@ -56,6 +66,12 @@ const SAMPLES = {
 /** Everything that changes as the workout runs. */
 const state = {
   source: '',
+  workout: undefined, // the file as parsed. Kept so that choosing a division can
+                      // re-cue without reparsing, and so the picker knows what
+                      // this workout offers.
+  division: '',       // '' is "as written" — every division at once, which is
+                      // what the file says and what a whiteboard shows.
+  errors: [],
   lines: [],
   cues: [],
   cycles: [],
@@ -148,7 +164,13 @@ function paint() {
   // happened.
   const finished = state.cues.length > 0 && state.at >= state.cues.length;
   el('now-label').textContent = cue ? cue.label : finished ? 'Done' : 'Ready';
+  // The division leads, and it is the one item here that never changes while
+  // the workout runs. It earns the place because the label above it may name a
+  // weight that differs from the line on the board below — the board says what
+  // everyone does, the bar says what *you* do — and the reason for the
+  // difference has to sit next to the number, not in the footer.
   el('now-sub').textContent = [
+    state.division,
     cue ? roundLabel(cue.rounds) : '',
     cycle ? cycle.label : '',
     cycle && state.lap ? `pass ${state.lap + 1}` : '',
@@ -355,13 +377,147 @@ function reset() {
 
 // --- loading ----------------------------------------------------------------
 
-function load(source) {
-  state.source = source;
-  state.lines = source.replace(/\n$/, '').split('\n');
+/**
+ * Where a diagnostic points, when it points anywhere.
+ *
+ * Three of `validate`'s findings are facts about the whole workout rather than
+ * about a line, and `unknown-division` is a fourth — so they carry no `line`,
+ * and the board used to print the word `undefined` in front of a message that
+ * was otherwise correct. A known debt before this item; the picker would have
+ * made it easy to hit, so it goes here.
+ */
+const where = (d) => (d.line === undefined ? d.message : `line ${d.line}: ${d.message}`);
 
-  const { workout, errors } = parse(source);
-  const compiled = compile(workout);
-  const laid = run(compiled);
+/**
+ * The URL is the share link, the hash is the workout — and now the division too.
+ *
+ * `encodeURIComponent` escapes `&`, so an `&` in the hash can only be one this
+ * function put there. That makes it a separator no workout text can forge, and
+ * it leaves every link written before today reading exactly as it did.
+ *
+ * **Why the division survives a reload at all.** The queue item asked the
+ * question and answered it from a premise that turns out to be false — *"the
+ * board already keeps position across one"*. Measured 2026-08-20: it does not.
+ * `load` ends in `reset`, so a reload restarts the session. What survives is the
+ * workout and nothing else, because the hash is what survives. So the analogy to
+ * draw is not to the position but to the workout: a division is not progress
+ * through a session, it is *which reading of the file is on the screen* — and
+ * that is exactly what the hash already carries. Sharing the link shares the
+ * reading, which is a coherent thing to send someone: "today's HYROX, women's".
+ */
+const readHash = () => {
+  const raw = location.hash.slice(1);
+  const at = /&division=([^&]*)$/.exec(raw);
+  return {
+    source: decodeURIComponent(at ? raw.slice(0, at.index) : raw),
+    division: at ? decodeURIComponent(at[1]) : '',
+  };
+};
+
+const writeHash = () => {
+  location.hash = encodeURIComponent(state.source)
+    + (state.division ? `&division=${encodeURIComponent(state.division)}` : '');
+};
+
+/**
+ * Offer what this workout offers, in the order `divisions()` gives them — which
+ * is stable, so the options do not shuffle between one render and the next.
+ *
+ * Hidden when there is nothing to choose. Most workouts prescribe one thing to
+ * everyone, and a control whose only answer is "as written" is a question that
+ * should not have been asked.
+ */
+function offerDivisions() {
+  const names = divisions(state.workout);
+  pickerRow.hidden = !names.length;
+  picker.innerHTML = '';
+  for (const name of ['', ...names]) {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name || 'as written';
+    picker.append(option);
+  }
+}
+
+/**
+ * The canonical merge, fetched at most once and only when something needs it.
+ *
+ * A `variants:` value may name a **movement to swap in**, and `resolve()` proves
+ * one against the registry because a movement name cannot prove itself from its
+ * own text. It consults both registries for a reason recorded when it was
+ * written: `Ring Row` — spec §10's own example of a swap — is in the canonical
+ * merge and not in the curated one, so the curated registry alone makes the
+ * spec's own example unreadable. The board had only the curated one, so a real
+ * movement came back reported as *not a movement in the registry*, which is not
+ * merely a missed swap but a false statement on the screen.
+ *
+ * It is 1.7MB, which is why it is not simply fetched beside the other one. It
+ * is asked for on exactly one signal: the resolver has said it could not read a
+ * value. A value that read fine as a load or a height was never going to consult
+ * a registry, so a bigger one cannot change the answer — the HYROX file, whose
+ * `variants:` table is five loads, never pays. Re-cue when it lands, so the swap
+ * appears rather than waiting for the next thing to move.
+ *
+ * **The size is the crude part of this fix and it is worth saying so.** What the
+ * resolver needs from 1.7MB is names, and a slim name index would do the same
+ * job for a fraction of it — see `known-debts.md`.
+ */
+let canonical;
+function wantCanonical() {
+  if (canonical || has('canonicalMovements')) return;
+  canonical = fetch(new URL(CANONICAL, location.href))
+    .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`${r.status}`))))
+    .then((data) => { provide({ canonicalMovements: () => data.movements }); recue(); paint(); })
+    .catch((e) => console.warn('no canonical registry, a variant naming a movement may not resolve:', e.message));
+}
+
+/**
+ * Build the cue list from the workout the chosen division reads.
+ *
+ * **Choosing never touches the file, and it never touches the board either.**
+ * The rows go on saying what was written — both magnitudes for an rx split, the
+ * whole `variants:` table for the other spelling — and what follows the division
+ * is the running headline. That is not a compromise with "the board renders
+ * source text, line for line"; it is the same split one layer down. The written
+ * workout is the class and the board shows the class; a division is the face of
+ * it you are doing, and the bar is where the runtime's facts about *this* run
+ * already live. Nothing has to rewrite a line to make a division visible,
+ * because in both spellings the line already shows every division at once.
+ *
+ * Called again whenever the division changes, and deliberately without touching
+ * the cursor or the clocks: a reader who says "women" three rounds in is
+ * answering a question about the weights, not asking to start over.
+ */
+function recue() {
+  let workout = state.workout;
+  const chosen = [];
+  if (state.division) {
+    const r = resolve(workout, state.division);
+    chosen.push(...r.diagnostics);
+    // The one thing a bigger registry can change: a value the resolver could not
+    // read may be a movement it was simply never handed.
+    if (chosen.some((d) => d.code === 'variant-value-unread')) wantCanonical();
+    // A division this workout does not offer is an error, and the board must not
+    // then go on claiming to read it. Unreachable from the picker, which is
+    // built from `divisions()` — and perfectly reachable from a link, which is
+    // why it is handled here rather than trusted to the control.
+    if (r.diagnostics.some((d) => d.severity === 'error')) state.division = '';
+    else workout = r.workout;
+  }
+  picker.value = state.division;
+
+  const laid = run(compile(workout));
+
+  // Resolving changes what a step prescribes, never how the workout is shaped,
+  // so the cue ranges come back identical — but the objects are new and
+  // `visited` is keyed by identity. Carry it across by range, or a section left
+  // before the switch and returned to after it loses its clock and its passes.
+  const carried = [...visited].flatMap(([was, seen]) => {
+    const now = laid.cycles.find((c) => c.from === was.from && c.to === was.to);
+    return now ? [[now, seen]] : [];
+  });
+  visited.clear();
+  for (const [cycle, seen] of carried) visited.set(cycle, seen);
 
   state.cues = laid.cues;
   state.cycles = laid.cycles;
@@ -371,19 +527,51 @@ function load(source) {
   // understand. Say so, and show it anyway — a workout you can read beats a
   // blank screen, and mid-session is the worst time to be told to go and fix
   // your file.
+  //
+  // `validate` runs on the workout the division reads, which is what
+  // `wdl check --variant` does: one flag, one meaning. A resolve diagnostic
+  // joins them whatever its severity, and that is the exception worth stating —
+  // a `note` here says a step did *not* take the division that was asked for,
+  // and a weight quietly left at another division's is the failure this control
+  // exists to prevent.
   const diagnostics = [
-    ...errors.map((e) => `line ${e.line}: ${e.message}`),
-    ...validate(workout).filter((d) => d.severity === 'error').map((d) => `line ${d.line}: ${d.message}`),
+    ...state.errors.map(where),
+    ...validate(workout).filter((d) => d.severity === 'error').map(where),
+    ...chosen.map(where),
     ...laid.warnings,
   ];
   problems.hidden = !diagnostics.length;
   problems.textContent = diagnostics.join('\n');
+}
+
+function load(source, division = '') {
+  state.source = source;
+  state.division = division;
+  state.lines = source.replace(/\n$/, '').split('\n');
+
+  const parsed = parse(source);
+  state.workout = parsed.workout;
+  state.errors = parsed.errors;
+
+  offerDivisions();
+  visited.clear();
+  recue();
 
   bar.hidden = false;
   controls.hidden = false;
   draw();
   reset();
-  location.hash = encodeURIComponent(source);
+  writeHash();
+}
+
+/** Read the same workout as a different division, from where you stand. */
+function chooseDivision(name) {
+  if (name === state.division) return;
+  state.division = name;
+  recue();
+  writeHash();
+  paint();
+  tick();
 }
 
 function showEmpty() {
@@ -402,9 +590,13 @@ el('prev').onclick = () => advance(-1);
 el('leave').onclick = leave;
 el('reset').onclick = reset;
 el('edit').onclick = showEmpty;
+picker.onchange = () => chooseDivision(picker.value);
 
 addEventListener('keydown', (e) => {
-  if (e.target.tagName === 'TEXTAREA') return;
+  // A focused control owns these keys itself. The picker uses the arrows to
+  // change division and space to open, and a board that also advanced the cue
+  // would move two things with one press.
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
   const keys = {
     ' ': () => (state.cues[state.at]?.pacing === 'timed' || !state.running ? toggle() : advance(1)),
     ArrowRight: () => advance(1),
@@ -445,8 +637,14 @@ for (const [name, src] of Object.entries(SAMPLES)) {
 // only works if arriving at a different hash loads a different workout —
 // including by pasting one over the address bar of a board already running.
 addEventListener('hashchange', () => {
-  const source = decodeURIComponent(location.hash.slice(1));
-  if (source.trim() && source !== state.source) load(source);
+  const { source, division } = readHash();
+  if (!source.trim()) return;
+  if (source !== state.source) load(source, division);
+  // A different division of the same workout is not a different workout: switch
+  // where the reader stands rather than starting the session again. This is also
+  // the path `writeHash` re-enters by, and `chooseDivision` returns on the spot
+  // when nothing moved.
+  else chooseDivision(division);
 });
 
 setInterval(tick, 100);
@@ -458,6 +656,6 @@ fetch(new URL(REGISTRY, location.href))
   .then((data) => provide({ movements: () => data.movements }))
   .catch((e) => console.warn('no movement registry, validation hints are off:', e.message))
   .finally(() => {
-    const hash = decodeURIComponent(location.hash.slice(1));
-    if (hash.trim()) load(hash);
+    const { source, division } = readHash();
+    if (source.trim()) load(source, division);
   });

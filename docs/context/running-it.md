@@ -16,7 +16,9 @@ There is no `package-lock.json` and no `node_modules` again.
 
 The CLI: `wdl fmt | check | timeline | export | goals | generate | program`.
 `--variant <name>` on the first four reads the file as one division — an rx split
-or a `variants:` entry, whichever way it was written (spec §10.1).
+or a `variants:` entry, whichever way it was written (spec §10.1). The board asks
+the same question through a picker in its footer, and a division chosen there
+rides in the URL: `#<workout>&division=women`.
 The server must be rooted at the repository — the apps reach `build/` and
 `registry/` from there.
 

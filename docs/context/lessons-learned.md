@@ -487,3 +487,26 @@ What found them was formatting each newly-pinned form and *re-parsing the result
 comparing the block field by field rather than comparing text to text. That is a
 few lines of throwaway script over any list of new cases, and it is the check that
 text-fixpoint testing cannot do on its own. Recorded 2026-08-16.
+
+**A queue item's *reasoning* goes stale the same way its facts do, and the
+reasoning is the half nobody re-checks.** Item 0e was found to have been written
+against a world that had moved, and the correction recorded then was to re-read
+an item against the code before working it. Item 1a went stale in a way that
+advice does not catch: its facts were all current — `divisions()` and `resolve()`
+existed, `board.js` called neither — and the one thing that was wrong was a
+**premise inside an argument**. It left the persistence question open and pointed
+at an answer: *"the board already keeps position across a reload, and a division
+is the same kind of fact"*. The board does not. `load` ends in `reset`; a reload
+restarts the session at cue zero. Thirty seconds in a browser said so, and
+nothing in the item's own list of files to touch would have led anyone to look.
+
+The answer came out the same in the end — the division does persist — but by a
+different route, and the route is what would have been inherited. The false
+premise pointed at *session state*, which on this board is deliberately not kept;
+what actually justifies persisting a division is that it is part of *which
+reading of the file is on screen*, which is what the hash already carries. Had
+the premise been believed, the choice would have gone wherever position was
+imagined to live and the share link would never have been considered.
+
+*A claim of the form "X already does Y, so Z should too" is a measurement written
+in the past tense. Run it.* Recorded 2026-08-20.
