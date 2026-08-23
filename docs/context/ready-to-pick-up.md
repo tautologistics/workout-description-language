@@ -644,10 +644,51 @@ divisions resolve at the workout layer (spec §10.1). Reasoning in
 [settled-decisions.md](settled-decisions.md), settled 2026-08-19.
 *Touches: a new module, `apps/display/`, and `progress` in goals.ts.*
 
-**3. A capped for-time reports `duration` where it means "at most".** `run()`
-does not expose the cap separately from a computed total. Same class as the
-AMRAP `duration`/`window` conflation, one step along.
-*Touches: `packages/core/src/run.ts`, `apps/builder/builder.js`.*
+**3. ~~A capped for-time reports `duration` where it means "at most".~~
+DONE 2026-08-23.** `Timeline.cap` and `Run.cap` carry the bound; `estimatedSeconds`
+and `totalSeconds` carry the length; neither stands in for the other. The builder
+and `wdl timeline` print two rows — `duration: athlete-paced` and `cap: 12:00 at
+most` — because they answer two questions.
+
+**The item as written was half the answer, and driving the corpus found the other
+half.** "A cap is not a duration" is true of nine of the ten capped files and
+*false* of `77-tiff.wdl`, which is a run and then a bare `AMRAP:`. That AMRAP
+takes whatever is left of the cap (spec §5.6), so the block ends **at**
+twenty-five minutes rather than merely by then, and twenty-five is its length.
+So the rule is not about caps at all: it is about whether the work inside ends
+when the *work* is done or when the *clock* is. `fillsTheClock()` in `timeline.ts`
+is that one question, and it is the reason a blanket fix would have broken a file
+the suite was already pinning correctly.
+
+**A second defect, found by driving the builder and not by the suite.** `run()`
+sums the cues itself when every one is timed, and that sum never knew about the
+cap — so `for time, cap 5min:` over eight minutes of rowing and biking printed
+`duration 8:00` beside `cap 5:00 at most`, two rows contradicting each other on
+one screen. `estimate()` had clamped the same case correctly for as long as it
+has existed; run's sum was a worse copy of it. Only visible once the cap had a
+row of its own, which is the shape of every bug this pane has found.
+
+**Where the number moved, and where it did not.** Nine corpus files lose an
+`estimatedSeconds` and gain a `cap`; `77-tiff.wdl` keeps both; nothing else in
+190 files moves. `wdl export --to connect` hands the cap over as
+`estimatedDurationInSecs` where there is no length — Connect has one field and
+nowhere to say "at most", so the choice is now explicit instead of inherited from
+a timeline that blurred the two. The golden digest records `cap` beside `seconds`
+so the distinction is pinned for every file, not only the ten. 1742 → 1749
+passing, 1 pending.
+*Touched: `packages/core/src/timeline.ts`, `run.ts`, `adapters/garmin-connect.ts`,
+`bin/wdl.ts`, `apps/builder/builder.js`, `scripts/build-workouts.mjs`,
+`spec/spec-0.1.md` §5.6, `test/timeline.test.ts`, `test/run.test.ts`,
+`test/golden/generate.ts` + `interpretations.json`,
+`registry/workouts.canonical.json`.*
+
+**The board still shows no cap, and that is now the gap this leaves.** A capped
+workout counts *up* on the board with nothing to race, because a cap creates no
+cycle and the countdown comes from `cycle.window`. `Run.cap` is what a countdown
+would need and it exists now, but what happens at expiry is a real question —
+§5.6 says the workout ends — and it is a different piece of work from telling the
+two numbers apart. Filed rather than folded in. *(While looking: `state.window`
+in `board.js` is assigned and never read.)*
 
 **4. Curate the generation pool.** `mark-core` scored 178 movements in on source
 agreement, which is a proxy for "commonly catalogued", not "worth putting in a

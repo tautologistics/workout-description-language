@@ -38,11 +38,12 @@ when something looks odd before treating it as a discovery.
   resolver one.
 - Templates and workouts share the `.wdl` extension, so `wdl fmt` on a template
   is easy to do by accident.
-- A capped for-time workout reports `duration: 12:00` in the builder, which
-  reads as "this takes twelve minutes" where it means "you have at most twelve".
-  `run` does not expose the cap separately from a computed total, so telling
-  them apart needs a core change. Same class as the AMRAP `duration`/`window`
-  duplication that Chris caught.
+- ~~A capped for-time workout reports `duration: 12:00` in the builder.~~
+  **Closed 2026-08-23** by queue item 3. `Timeline.cap` and `Run.cap` hold the
+  bound, `estimatedSeconds` and `totalSeconds` hold the length, and neither
+  stands in for the other; the builder and `wdl timeline` say `duration:
+  athlete-paced` and `cap: 12:00 at most` on two rows. See
+  [what-exists.md](what-exists.md).
 
 - ~~**An unrecognized `measure:` in a goal file was silently swapped for the
   default.**~~ **Closed 2026-08-19.** `DIMENSIONS[written] ?? fallback` meant

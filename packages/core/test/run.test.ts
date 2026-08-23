@@ -117,6 +117,43 @@ describe('run: what a display shows', () => {
     eq(r('sequence:\n  - 2min Row\n  - 1min Bike').totalSeconds, 180);
   });
 
+  it('says a cap is a cap and not a total', () => {
+    // `for time, cap 12min:` is athlete-paced work you are *given* twelve
+    // minutes for. Reported as `totalSeconds` it read as "this takes twelve
+    // minutes", which is the AMRAP window conflation one step along.
+    const capped = r('for time, cap 12min:\n  - 21 Pull-Ups\n  - 21 Thrusters @ 95lb');
+    eq(capped.cap, 12 * 60);
+    eq(capped.totalSeconds, undefined, 'no total, because there is none to know');
+    eq(capped.window, undefined, 'and a cap is not a clock you are racing');
+  });
+
+  it('reports both where the cap is also the length', () => {
+    // A bare AMRAP takes whatever is left of the cap (spec §5.6), so this one
+    // ends at twenty-five minutes rather than merely by then.
+    const tiff = r('for time, cap 25min:\n  - 1.5mi Run\n  AMRAP:\n    - 11 Chest-to-Bar Pull-Ups');
+    eq(tiff.cap, 25 * 60);
+    eq(tiff.totalSeconds, 25 * 60);
+  });
+
+  it('does not let a cap outlive the clock it stops', () => {
+    // Every cue is timed, so the cues can be summed — but eight minutes of work
+    // under a five-minute cap is five minutes of workout. Reported unclamped it
+    // put `duration 8:00` next to `cap 5:00`, two rows contradicting each other.
+    const cut = r('for time, cap 5min:\n  - 4min Row\n  - 4min Bike');
+    eq(cut.totalSeconds, 5 * 60);
+    eq(cut.cap, 5 * 60);
+    // A cap the work never reaches leaves the total alone.
+    eq(r('for time, cap 20min:\n  - 4min Row\n  - 4min Bike').totalSeconds, 8 * 60);
+  });
+
+  it('does not let a cap on one section speak for the workout', () => {
+    // The same rule as the window: a capped section between two others caps
+    // that section, and the workout is not on its clock.
+    const part = r('sequence:\n  - 10min Row\nfor time, cap 5min:\n  - 50 Burpees');
+    eq(part.cap, undefined);
+    eq(part.totalSeconds, undefined);
+  });
+
   it('lays out every corpus workout, and every cue in them knows its line', () => {
     // The point is the walk, not the numbers: nothing in 190 real workouts
     // should produce a structure that cannot be laid out, or a cue a cursor

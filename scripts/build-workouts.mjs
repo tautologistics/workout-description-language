@@ -31,6 +31,9 @@ for (const dir of DIRS) {
       const v = volume(timeline);
       summary = {
         estimatedSeconds: timeline.estimatedSeconds ?? null,
+        // A cap is what the workout may take, not what it takes; a capped
+        // for-time workout has the second and not the first.
+        capSeconds: timeline.cap ?? null,
         unbounded: v.unbounded,
         totalReps: v.totals.reps,
         totalDistanceM: v.totals.distanceM,

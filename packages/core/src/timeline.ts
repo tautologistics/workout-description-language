@@ -130,6 +130,16 @@ export interface Timeline {
   root: TimelineGroup;
   /** Total seconds, when every part is clock-bounded. Undefined if athlete-paced. */
   estimatedSeconds?: number;
+  /**
+   * The most the workout may take, when a cap bounds the whole of it.
+   *
+   * Kept apart from `estimatedSeconds` on purpose: a cap says *at most*, and a
+   * for-time workout under one is still athlete-paced — an athlete who finishes
+   * Open 25.2 in eight minutes took eight, not the twelve they were allowed.
+   * Both are set only where the cap is also the length, which is the block that
+   * runs until the clock stops (spec §5.6).
+   */
+  cap?: number;
   /** Regions an ordered timeline cannot represent, for exporters to report. */
   warnings: string[];
   score?: Score;
@@ -471,6 +481,34 @@ function compileBlock(b: Block, parent: Ctx, enclosing: { clock?: boolean; cappe
   return group;
 }
 
+/**
+ * Work that runs until a clock stops rather than until the work is done: an
+ * AMRAP or a build with no window of its own. Under a cap it takes whatever
+ * time is left (spec §5.6), which is why such a block's cap is a duration where
+ * every other cap is only a bound. A group carrying its own cap fills that one
+ * and not the one above it.
+ */
+function fillsTheClock(item: TimelineItem): boolean {
+  if (item.kind !== 'group') return false;
+  if ((item.type === 'amrap' || item.type === 'build') && item.window === undefined) return true;
+  return item.cap === undefined && item.items.some(fillsTheClock);
+}
+
+/**
+ * The cap that bounds the *workout*, when one does.
+ *
+ * The same rule `run` applies to a window, and for the same reason: a statement
+ * about the whole may only be made by something that spans the whole, so a cap
+ * counts only where it and every group above it is an only child. A capped
+ * section between two others caps that section and says nothing about how long
+ * the workout may take.
+ */
+function spineCap(item: TimelineItem): number | undefined {
+  if (item.kind !== 'group') return undefined;
+  if (item.cap !== undefined) return item.cap;
+  return item.items.length === 1 ? spineCap(item.items[0]) : undefined;
+}
+
 /** Sum the wall-clock duration of a timeline, when every part is clock-bounded. */
 function estimate(item: TimelineItem): number | undefined {
   if (item.kind === 'step') return item.seconds;
@@ -483,11 +521,25 @@ function estimate(item: TimelineItem): number | undefined {
   }
 
   let total = 0;
+  let unknown = false;
+  let filled = false;
   for (const c of item.items) {
+    if (fillsTheClock(c)) { filled = true; continue; }
     const s = estimate(c);
-    if (s === undefined) return item.cap;   // a cap still bounds it
-    total += s;
+    if (s === undefined) unknown = true;
+    else total += s;
   }
+  // A cap is a bound, not a length. `for time, cap 12min:` over athlete-paced
+  // work says *at most* twelve minutes, and returning the cap here reported it
+  // as how long the workout takes — the same conflation as an AMRAP's window,
+  // one step along. The cap is carried by `Timeline.cap` instead, so a caller
+  // can say "at most" rather than having to guess which of the two it holds.
+  //
+  // The exception is work that runs until the clock stops: the cap supplies a
+  // bare AMRAP's window (§5.6), so the block ends *at* the cap and that is a
+  // real duration.
+  if (filled) return item.cap;
+  if (unknown) return undefined;
 
   const repeats = (item.type === 'repeat' || item.type === 'attempts') ? item.rounds : undefined;
   if (repeats) {
@@ -515,7 +567,7 @@ export function compile(w: Workout): Timeline {
     label: w.title ?? '', items: [], score: w.score,
   };
   root.items = compileNodes(w.body, ctx, {});
-  return { root, estimatedSeconds: estimate(root), warnings, score: w.score };
+  return { root, estimatedSeconds: estimate(root), cap: spineCap(root), warnings, score: w.score };
 }
 
 /** Flatten to a readable outline — what a display would render, and a debugging aid. */

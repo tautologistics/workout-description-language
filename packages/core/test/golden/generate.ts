@@ -46,6 +46,10 @@ export function digest(src: string) {
     errors: errors.map((e) => e.message),
     shape: shape(t.root),
     seconds: t.estimatedSeconds ?? null,
+    // Recorded beside the length rather than instead of it: a cap is what the
+    // workout may take, and the two are the same number only where the work
+    // runs until the clock stops (spec §5.6).
+    cap: t.cap ?? null,
     pacing,
     unbounded: v.unbounded,
     totals: { reps: v.totals.reps, distanceM: r(v.totals.distanceM),

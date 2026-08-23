@@ -3,6 +3,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -27,6 +28,7 @@
   "errors": [],
   "shape": "sequence[team[amrap@1200s[step,step,step]]]",
   "seconds": 1200,
+  "cap": null,
   "pacing": {
    "capped": 3
   },
@@ -44,6 +46,7 @@
   "errors": [],
   "shape": "sequence[step]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -68,6 +71,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 6
   },
@@ -98,6 +102,7 @@
   "errors": [],
   "shape": "sequence[amrap@1200s[step,step,step]]",
   "seconds": 1200,
+  "cap": null,
   "pacing": {
    "capped": 3
   },
@@ -115,6 +120,7 @@
   "errors": [],
   "shape": "sequence[sequence[step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -139,6 +145,7 @@
   "errors": [],
   "shape": "sequence[repeatx3[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -175,6 +182,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 10
   },
@@ -205,6 +213,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,step,step,step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 4
   },
@@ -247,6 +256,7 @@
   "errors": [],
   "shape": "sequence[clockx30@1800s[step,step,step]]",
   "seconds": 1800,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -283,6 +293,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,repeatx3[step,step],step]]",
   "seconds": 6000,
+  "cap": null,
   "pacing": {
    "timed": 4
   },
@@ -307,6 +318,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,repeatx4[repeatx3[step,step],rest],step]]",
   "seconds": 4260,
+  "cap": null,
   "pacing": {
    "timed": 4
   },
@@ -331,6 +343,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -361,6 +374,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -385,6 +399,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,rest,step,rest,step,rest,step,rest,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3,
    "timed": 2
@@ -428,6 +443,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 4,
    "timed": 1
@@ -471,6 +487,7 @@
   "errors": [],
   "shape": "sequence[repeatx1[step,step,step,step]]",
   "seconds": 240,
+  "cap": null,
   "pacing": {
    "timed": 4
   },
@@ -513,6 +530,7 @@
   "errors": [],
   "shape": "sequence[repeatx4[step,step,step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -549,6 +567,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,step,step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -585,6 +604,7 @@
   "errors": [],
   "shape": "sequence[clockx12@720s[sequence[step],sequence[step]]]",
   "seconds": 720,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -615,6 +635,7 @@
   "errors": [],
   "shape": "sequence[amrap@1200s[step,step,step]]",
   "seconds": 1200,
+  "cap": null,
   "pacing": {
    "capped": 3
   },
@@ -632,6 +653,7 @@
   "errors": [],
   "shape": "sequence[tally[step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 4
   },
@@ -673,7 +695,8 @@
  "111-open-22-2.wdl": {
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
-  "seconds": 600,
+  "seconds": null,
+  "cap": 600,
   "pacing": {
    "capped": 38
   },
@@ -704,6 +727,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 20
   },
@@ -734,6 +758,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 20
   },
@@ -764,6 +789,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,sequence[sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest]],step]]",
   "seconds": 3780,
+  "cap": null,
   "pacing": {
    "timed": 11
   },
@@ -788,6 +814,7 @@
   "errors": [],
   "shape": "sequence[sequence[step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -812,6 +839,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 6
   },
@@ -842,6 +870,7 @@
   "errors": [],
   "shape": "sequence[repeatx7[step,step,step,step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 7
   },
@@ -902,6 +931,7 @@
   "errors": [],
   "shape": "sequence[repeatx7[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -938,6 +968,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 5
   },
@@ -980,6 +1011,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -1016,6 +1048,7 @@
   "errors": [],
   "shape": "sequence[repeatx4[step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 4
   },
@@ -1058,6 +1091,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 4
   },
@@ -1100,6 +1134,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -1136,6 +1171,7 @@
   "errors": [],
   "shape": "sequence[amrap@1800s[step,step,step]]",
   "seconds": 1800,
+  "cap": null,
   "pacing": {
    "capped": 3
   },
@@ -1153,6 +1189,7 @@
   "errors": [],
   "shape": "sequence[repeatx3[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -1189,6 +1226,7 @@
   "errors": [],
   "shape": "sequence[repeatx3[step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -1219,6 +1257,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step],sequencex1[step],sequencex1[step],sequencex1[step]],step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 5
   },
@@ -1249,6 +1288,7 @@
   "errors": [],
   "shape": "sequence[amrap@1200s[step,step,step,step]]",
   "seconds": 1200,
+  "cap": null,
   "pacing": {
    "capped": 4
   },
@@ -1266,6 +1306,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -1302,6 +1343,7 @@
   "errors": [],
   "shape": "sequence[repeatx6[step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 4
   },
@@ -1344,6 +1386,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step,step,step,step,step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 10
   },
@@ -1422,6 +1465,7 @@
   "errors": [],
   "shape": "sequence[amrap@1200s[step,step,step]]",
   "seconds": 1200,
+  "cap": null,
   "pacing": {
    "capped": 3
   },
@@ -1439,6 +1483,7 @@
   "errors": [],
   "shape": "sequence[repeatx3[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -1475,6 +1520,7 @@
   "errors": [],
   "shape": "sequence[repeatx3[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -1511,6 +1557,7 @@
   "errors": [],
   "shape": "sequence[repeatx7[step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 4
   },
@@ -1553,6 +1600,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step,step,step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 8
   },
@@ -1601,6 +1649,7 @@
   "errors": [],
   "shape": "sequence[amrap@600s[step,step]]",
   "seconds": 600,
+  "cap": null,
   "pacing": {
    "capped": 2
   },
@@ -1618,6 +1667,7 @@
   "errors": [],
   "shape": "sequence[amrap@420s[step]]",
   "seconds": 420,
+  "cap": null,
   "pacing": {
    "timed": 1
   },
@@ -1635,6 +1685,7 @@
   "errors": [],
   "shape": "sequence[amrap@1020s[step,step,step,step,step,step,step,step]]",
   "seconds": 1020,
+  "cap": null,
   "pacing": {
    "capped": 7,
    "timed": 1
@@ -1653,6 +1704,7 @@
   "errors": [],
   "shape": "sequence[amrap@840s[step,step,step,step,step]]",
   "seconds": 840,
+  "cap": null,
   "pacing": {
    "capped": 5
   },
@@ -1670,6 +1722,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step],sequencex1[step],sequencex1[step],sequencex1[step]],step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 5
   },
@@ -1700,6 +1753,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,tally[step,step,step],step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 5
   },
@@ -1742,6 +1796,7 @@
   "errors": [],
   "shape": "sequence[amrap@1200s[step,step,step,step]]",
   "seconds": 1200,
+  "cap": null,
   "pacing": {
    "capped": 4
   },
@@ -1758,7 +1813,8 @@
  "141-open-17-1.wdl": {
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step],sequencex1[step],sequencex1[step],sequencex1[step],sequencex1[step]],step]]",
-  "seconds": 1200,
+  "seconds": null,
+  "cap": 1200,
   "pacing": {
    "capped": 6
   },
@@ -1789,6 +1845,7 @@
   "errors": [],
   "shape": "sequence[amrap@1200s[step,step,step]]",
   "seconds": 1200,
+  "cap": null,
   "pacing": {
    "capped": 3
   },
@@ -1806,6 +1863,7 @@
   "errors": [],
   "shape": "sequence[amrap@900s[step,step]]",
   "seconds": 900,
+  "cap": null,
   "pacing": {
    "capped": 2
   },
@@ -1822,7 +1880,8 @@
  "144-open-20-1.wdl": {
   "errors": [],
   "shape": "sequence[repeatx10[step,step]]",
-  "seconds": 900,
+  "seconds": null,
+  "cap": 900,
   "pacing": {
    "capped": 2
   },
@@ -1852,7 +1911,8 @@
  "145-open-21-1.wdl": {
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step],sequencex1[step],sequencex1[step],sequencex1[step],sequencex1[step]],step]]",
-  "seconds": 900,
+  "seconds": null,
+  "cap": 900,
   "pacing": {
    "capped": 6
   },
@@ -1883,6 +1943,7 @@
   "errors": [],
   "shape": "sequence[amrap@840s[step,step,step,step,step]]",
   "seconds": 840,
+  "cap": null,
   "pacing": {
    "capped": 5
   },
@@ -1900,6 +1961,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[sequence[step,step,step],rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -1936,6 +1998,7 @@
   "errors": [],
   "shape": "sequence[clockx8[step]]",
   "seconds": 720,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -1960,6 +2023,7 @@
   "errors": [],
   "shape": "sequence[sequence[attemptsx3[step],attemptsx3[step],attemptsx3[step]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -1996,6 +2060,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step,step,step],sequencex1[step,step,step],sequencex1[step,step,step],sequencex1[step,step,step],sequencex1[step,step,step],sequencex1[step,step,step],sequencex1[step,step,step],sequencex1[step,step,step],sequencex1[step,step,step],sequencex1[step,step,step]]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 30
   },
@@ -2032,6 +2097,7 @@
   "errors": [],
   "shape": "sequence[sequence[repeatx4[step,rest]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -2056,6 +2122,7 @@
   "errors": [],
   "shape": "sequence[sequence[repeatx5[step,rest],step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -2080,6 +2147,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -2104,6 +2172,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -2128,6 +2197,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 5
   },
@@ -2158,6 +2228,7 @@
   "errors": [],
   "shape": "sequence[sequence[repeatx10[step,rest],repeatx5[step,rest]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -2188,6 +2259,7 @@
   "errors": [],
   "shape": "sequence[clockx20[sequence[step,step,step]]]",
   "seconds": 1200,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -2224,6 +2296,7 @@
   "errors": [],
   "shape": "sequence[amrap@600s[step]]",
   "seconds": 600,
+  "cap": null,
   "pacing": {
    "timed": 1
   },
@@ -2241,6 +2314,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,repeatx10[step,step],step]]",
   "seconds": 3000,
+  "cap": null,
   "pacing": {
    "timed": 4
   },
@@ -2265,6 +2339,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -2289,6 +2364,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[repeatx7[step,step,step,step,step]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 5
   },
@@ -2331,6 +2407,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -2355,6 +2432,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 5
   },
@@ -2379,6 +2457,7 @@
   "errors": [],
   "shape": "sequence[amrap@1800s[step]]",
   "seconds": 1800,
+  "cap": null,
   "pacing": {
    "timed": 1
   },
@@ -2396,6 +2475,7 @@
   "errors": [],
   "shape": "sequence[repeatx10[step,rest]]",
   "seconds": 2730,
+  "cap": null,
   "pacing": {
    "timed": 1
   },
@@ -2420,6 +2500,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,repeatx4[step,rest],step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -2444,6 +2525,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -2480,6 +2562,7 @@
   "errors": [],
   "shape": "sequence[repeatx4[step,rest]]",
   "seconds": 2940,
+  "cap": null,
   "pacing": {
    "timed": 1
   },
@@ -2504,6 +2587,7 @@
   "errors": [],
   "shape": "sequence[sequence[clockx10[step]]]",
   "seconds": 600,
+  "cap": null,
   "pacing": {
    "timed": 1
   },
@@ -2528,6 +2612,7 @@
   "errors": [],
   "shape": "sequence[clockx12@720s[sequence[step],sequence[step],sequence[rest]]]",
   "seconds": 720,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -2558,6 +2643,7 @@
   "errors": [],
   "shape": "sequence[clockx?[step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -2575,6 +2661,7 @@
   "errors": [],
   "shape": "sequence[sequence[step]+every60s[step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -2605,6 +2692,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -2622,6 +2710,7 @@
   "errors": [],
   "shape": "sequence[sequence[repeatx3[sequence[step,step],rest]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -2652,6 +2741,7 @@
   "errors": [],
   "shape": "sequence[sequence[repeatx4[step,rest],repeatx3[step,rest]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -2682,6 +2772,7 @@
   "errors": [],
   "shape": "sequence[repeatx3[step,step,step,rest]]",
   "seconds": 525,
+  "cap": null,
   "pacing": {
    "timed": 3
   },
@@ -2718,6 +2809,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step,step,step,step,step,step,step,step,step,step,step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 16
   },
@@ -2790,6 +2882,7 @@
   "errors": [],
   "shape": "sequence[sequence[repeatx4[step,step],step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 4
   },
@@ -2826,6 +2919,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -2856,6 +2950,7 @@
   "errors": [],
   "shape": "sequence[repeatx8[step,step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -2886,6 +2981,7 @@
   "errors": [],
   "shape": "sequence[sequence[step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -2910,6 +3006,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2,
    "timed": 1
@@ -2941,6 +3038,7 @@
   "errors": [],
   "shape": "sequence[repeatx3[step,step,step,step,step,rest]]",
   "seconds": 1020,
+  "cap": null,
   "pacing": {
    "timed": 5
   },
@@ -2989,6 +3087,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,step,step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -3025,6 +3124,7 @@
   "errors": [],
   "shape": "sequence[sequence[repeatx3[step,step,step,step]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 4
   },
@@ -3067,6 +3167,7 @@
   "errors": [],
   "shape": "sequence[sequence[repeatx2[sequence[step,step,step,step]]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 4
   },
@@ -3109,6 +3210,7 @@
   "errors": [],
   "shape": "sequence[sequence[step]]",
   "seconds": 300,
+  "cap": null,
   "pacing": {
    "timed": 1
   },
@@ -3133,6 +3235,7 @@
   "errors": [],
   "shape": "sequence[repeatx3[step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -3150,6 +3253,7 @@
   "errors": [],
   "shape": "sequence[amrap@720s[step]]",
   "seconds": 720,
+  "cap": null,
   "pacing": {
    "capped": 1
   },
@@ -3167,6 +3271,7 @@
   "errors": [],
   "shape": "sequence[repeatx3[amrap@300s[step,step],rest]]",
   "seconds": 1500,
+  "cap": null,
   "pacing": {
    "capped": 2
   },
@@ -3184,6 +3289,7 @@
   "errors": [],
   "shape": "sequence[team[sequence[step,step,step]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -3213,7 +3319,8 @@
  "188-buy-in-cash-out.wdl": {
   "errors": [],
   "shape": "sequence[sequence[step,repeatx5[step,step],step]]",
-  "seconds": 1500,
+  "seconds": null,
+  "cap": 1500,
   "pacing": {
    "capped": 4
   },
@@ -3250,6 +3357,7 @@
   "errors": [],
   "shape": "sequence[clockx?[step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -3267,6 +3375,7 @@
   "errors": [],
   "shape": "sequence[sequence[repeatx8[sequence[step],rest],rest,repeatx8[sequence[step],rest],rest,repeatx8[sequence[step],rest],rest,repeatx8[sequence[step],rest],rest,repeatx8[sequence[step],rest]]]",
   "seconds": 1440,
+  "cap": null,
   "pacing": {
    "timed": 5
   },
@@ -3315,6 +3424,7 @@
   "errors": [],
   "shape": "sequence[repeatx8[sequence[step],rest]]",
   "seconds": 240,
+  "cap": null,
   "pacing": {
    "timed": 1
   },
@@ -3339,6 +3449,7 @@
   "errors": [],
   "shape": "sequence[clockx?[step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -3355,7 +3466,8 @@
  "21-open-24-1.wdl": {
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step]]]]",
-  "seconds": 900,
+  "seconds": null,
+  "cap": 900,
   "pacing": {
    "capped": 12
   },
@@ -3386,6 +3498,7 @@
   "errors": [],
   "shape": "sequence[amrap@1200s[step,step,step]]",
   "seconds": 1200,
+  "cap": null,
   "pacing": {
    "capped": 3
   },
@@ -3402,7 +3515,8 @@
  "23-open-24-3.wdl": {
   "errors": [],
   "shape": "sequence[sequence[repeatx5[step,step],rest,repeatx5[step,step]]]",
-  "seconds": 900,
+  "seconds": null,
+  "cap": 900,
   "pacing": {
    "capped": 4
   },
@@ -3439,6 +3553,7 @@
   "errors": [],
   "shape": "sequence[amrap@900s[step,step,step]]",
   "seconds": 900,
+  "cap": null,
   "pacing": {
    "capped": 3
   },
@@ -3455,7 +3570,8 @@
  "25-open-25-2.wdl": {
   "errors": [],
   "shape": "sequence[sequence[step,step,step,step,step,step,step,step,step]]",
-  "seconds": 720,
+  "seconds": null,
+  "cap": 720,
   "pacing": {
    "capped": 9
   },
@@ -3503,7 +3619,8 @@
  "26-open-25-3.wdl": {
   "errors": [],
   "shape": "sequence[sequence[step,step,step,step,step,step,step,step,step,step]]",
-  "seconds": 1200,
+  "seconds": null,
+  "cap": 1200,
   "pacing": {
    "capped": 10
   },
@@ -3552,6 +3669,7 @@
   "errors": [],
   "shape": "sequence[clockx5[step,step]]",
   "seconds": 900,
+  "cap": null,
   "pacing": {
    "athlete": 1,
    "timed": 1
@@ -3577,6 +3695,7 @@
   "errors": [],
   "shape": "sequence[clockx20@1200s[sequence[step],sequence[step]]]",
   "seconds": 1200,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -3607,6 +3726,7 @@
   "errors": [],
   "shape": "sequence[clockx6[step]]",
   "seconds": 540,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -3631,6 +3751,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -3655,6 +3776,7 @@
   "errors": [],
   "shape": "sequence[build@720s[step]]",
   "seconds": 720,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -3672,6 +3794,7 @@
   "errors": [],
   "shape": "sequence[build@720s[step],repeatx3[step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -3696,6 +3819,7 @@
   "errors": [],
   "shape": "sequence[sequence[attemptsx3[step],attemptsx3[step],attemptsx3[step]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -3732,6 +3856,7 @@
   "errors": [],
   "shape": "sequence[repeatx4[step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -3756,6 +3881,7 @@
   "errors": [],
   "shape": "sequence[repeatx8[step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -3780,6 +3906,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest],sequencex1[step,rest]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 7
   },
@@ -3804,6 +3931,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,repeatx4[step,step],step]]",
   "seconds": 4080,
+  "cap": null,
   "pacing": {
    "timed": 4
   },
@@ -3828,6 +3956,7 @@
   "errors": [],
   "shape": "sequence[clockx10[step]]",
   "seconds": 1050,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -3852,6 +3981,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step,step,step,step,step,step,step,step,step,step,step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 16
   },
@@ -3924,6 +4054,7 @@
   "errors": [],
   "shape": "sequence[team[sequence[step,step]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -3954,6 +4085,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 4
   },
@@ -3996,6 +4128,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 6
   },
@@ -4026,6 +4159,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 6
   },
@@ -4056,6 +4190,7 @@
   "errors": [],
   "shape": "sequence[sequence[step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -4080,6 +4215,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -4116,6 +4252,7 @@
   "errors": [],
   "shape": "sequence[sequence[step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -4140,6 +4277,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -4170,6 +4308,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 6
   },
@@ -4200,6 +4339,7 @@
   "errors": [],
   "shape": "sequence[repeatx3[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -4236,6 +4376,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -4272,6 +4413,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -4308,6 +4450,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -4325,6 +4468,7 @@
   "errors": [],
   "shape": "sequence[amrap@1200s[step,step]]",
   "seconds": 1200,
+  "cap": null,
   "pacing": {
    "capped": 1,
    "timed": 1
@@ -4343,6 +4487,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequencex1[step],sequencex1[step],sequencex1[step]],rest]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -4367,6 +4512,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -4403,6 +4549,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step]],step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 41
   },
@@ -4451,6 +4598,7 @@
   "errors": [],
   "shape": "sequence[repeatx3[step,step,step,step,step,rest]]",
   "seconds": 1020,
+  "cap": null,
   "pacing": {
    "timed": 5
   },
@@ -4499,6 +4647,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -4535,6 +4684,7 @@
   "errors": [],
   "shape": "sequence[amrap@300s[step,step]]",
   "seconds": 300,
+  "cap": null,
   "pacing": {
    "capped": 2
   },
@@ -4552,6 +4702,7 @@
   "errors": [],
   "shape": "sequence[sequence[step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -4576,6 +4727,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step,step,step],sequencex1[step,step,step],sequencex1[step,step,step]]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 9
   },
@@ -4612,6 +4764,7 @@
   "errors": [],
   "shape": "sequence[repeatx3[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -4648,6 +4801,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step,step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 7
   },
@@ -4684,6 +4838,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 6
   },
@@ -4714,6 +4869,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -4744,6 +4900,7 @@
   "errors": [],
   "shape": "sequence[amrap@1200s[step,step,step]]",
   "seconds": 1200,
+  "cap": null,
   "pacing": {
    "capped": 3
   },
@@ -4761,6 +4918,7 @@
   "errors": [],
   "shape": "sequence[amrap@1200s[step,step,step]]",
   "seconds": 1200,
+  "cap": null,
   "pacing": {
    "capped": 3
   },
@@ -4778,6 +4936,7 @@
   "errors": [],
   "shape": "sequence[amrap@1200s[step,step,step]]",
   "seconds": 1200,
+  "cap": null,
   "pacing": {
    "capped": 3
   },
@@ -4795,6 +4954,7 @@
   "errors": [],
   "shape": "sequence[amrap@1200s[step,step,step]]",
   "seconds": 1200,
+  "cap": null,
   "pacing": {
    "capped": 2,
    "timed": 1
@@ -4813,6 +4973,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step]]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 24
   },
@@ -4855,6 +5016,7 @@
   "errors": [],
   "shape": "sequence[repeatx10[step,step,step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -4891,6 +5053,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,step,step,step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 4
   },
@@ -4933,6 +5096,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,step,step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -4969,6 +5133,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -5005,6 +5170,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step,step,step,step,step,step,step,step,step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 14
   },
@@ -5071,6 +5237,7 @@
   "errors": [],
   "shape": "sequence[sequence[tally[step,step]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -5101,6 +5268,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,amrap[step,step,step]]]",
   "seconds": 1500,
+  "cap": 1500,
   "pacing": {
    "capped": 4
   },
@@ -5125,6 +5293,7 @@
   "errors": [],
   "shape": "sequence[team[amrap@1560s[step,step,step,step]]]",
   "seconds": 1560,
+  "cap": null,
   "pacing": {
    "capped": 4
   },
@@ -5142,6 +5311,7 @@
   "errors": [],
   "shape": "sequence[team[repeatx9[step,step,step]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -5178,6 +5348,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step],sequencex1[step,step]]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 20
   },
@@ -5208,6 +5379,7 @@
   "errors": [],
   "shape": "sequence[repeatx3[step,step,step,step,step,rest]]",
   "seconds": 1020,
+  "cap": null,
   "pacing": {
    "timed": 5
   },
@@ -5256,6 +5428,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,rest,step,step,step,step,step,rest,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 7
   },
@@ -5298,6 +5471,7 @@
   "errors": [],
   "shape": "sequence[repeatx2[step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 4
   },
@@ -5340,6 +5514,7 @@
   "errors": [],
   "shape": "sequence[sequence[sequence[sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step],sequencex1[step,step,step,step]],step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 29
   },
@@ -5388,6 +5563,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[sequence[step],rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "timed": 1
   },
@@ -5405,6 +5581,7 @@
   "errors": [],
   "shape": "sequence[repeatx5[step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "timed": 3,
    "athlete": 1
@@ -5448,6 +5625,7 @@
   "errors": [],
   "shape": "sequence[sequence[repeatx3[step,rest],repeatx3[step,rest],repeatx1[step]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -5484,6 +5662,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -5508,6 +5687,7 @@
   "errors": [],
   "shape": "sequence[sequence[repeatx5[step,rest],repeatx5[step,rest]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -5538,6 +5718,7 @@
   "errors": [],
   "shape": "sequence[sequence[repeatx3[step,step,step,rest]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -5568,6 +5749,7 @@
   "errors": [],
   "shape": "sequence[sequence[repeatx4[step,rest],repeatx3[step,rest]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -5598,6 +5780,7 @@
   "errors": [],
   "shape": "sequence[sequence[repeatx5[step,rest,step,rest,step,rest]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 3
   },
@@ -5622,6 +5805,7 @@
   "errors": [],
   "shape": "sequence[sequence[build@1200s[step],repeatx3[step,rest]]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 2
   },
@@ -5646,6 +5830,7 @@
   "errors": [],
   "shape": "sequence[clockx?[step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -5663,6 +5848,7 @@
   "errors": [],
   "shape": "sequence[amrap@720s[step]]",
   "seconds": 720,
+  "cap": null,
   "pacing": {
    "timed": 1
   },
@@ -5680,6 +5866,7 @@
   "errors": [],
   "shape": "sequence[sequence[step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -5704,6 +5891,7 @@
   "errors": [],
   "shape": "sequence[repeatx10[step,rest]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 1
   },
@@ -5728,6 +5916,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,repeatx8[step,rest],step]]",
   "seconds": 3060,
+  "cap": null,
   "pacing": {
    "timed": 3
   },
@@ -5752,6 +5941,7 @@
   "errors": [],
   "shape": "sequence[sequence[step,step,step,step,step,step,step,step,step]]",
   "seconds": null,
+  "cap": null,
   "pacing": {
    "athlete": 9
   },

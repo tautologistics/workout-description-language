@@ -10,6 +10,8 @@ import { run } from '../src/run.ts';
 const dir = join(dirname(fileURLToPath(import.meta.url)), '../../../examples/corpus');
 const tl = (f: string) => compile(parse(readFileSync(join(dir, f), 'utf8')).workout);
 const g = (i: TimelineItem) => i as TimelineGroup;
+/** Compile a workout written inline, for shapes the corpus does not carry. */
+const tl2 = (src: string) => compile(parse(src).workout);
 const s = (i: TimelineItem) => i as TimelineStep;
 
 /** First group of a given type, at any depth. */
@@ -117,9 +119,37 @@ describe('timeline: duration', () => {
     eq(tl('24-open-25-1.wdl').estimatedSeconds, 15 * 60);
   });
 
-  it('bounds an athlete-paced workout by its cap', () => {
-    eq(tl('25-open-25-2.wdl').estimatedSeconds, 12 * 60);
-    eq(tl('26-open-25-3.wdl').estimatedSeconds, 20 * 60);
+  it('does not read a cap over athlete-paced work as a length', () => {
+    // `for time, cap 12min:` says *at most* twelve minutes. An athlete who
+    // finishes Open 25.2 in eight took eight, so the workout has no known
+    // length — the twelve is a bound and is carried as one.
+    eq(tl('25-open-25-2.wdl').estimatedSeconds, undefined);
+    eq(tl('25-open-25-2.wdl').cap, 12 * 60);
+    eq(tl('26-open-25-3.wdl').estimatedSeconds, undefined);
+    eq(tl('26-open-25-3.wdl').cap, 20 * 60);
+  });
+
+  it('reads a cap as a length where the work runs until the clock stops', () => {
+    // Tiff is a run and then a bare `AMRAP:`, which takes whatever is left of
+    // the cap (spec §5.6) — so the block ends *at* twenty-five minutes rather
+    // than merely by then, and that is a duration.
+    eq(tl('77-tiff.wdl').estimatedSeconds, 25 * 60);
+    eq(tl('77-tiff.wdl').cap, 25 * 60);
+  });
+
+  it('lets a cap truncate work that is entirely on the clock', () => {
+    // Nothing here is athlete-paced, so the length is known either way; the cap
+    // is the shorter of the two and the wall clock stops there.
+    eq(tl2('for time, cap 5min:\n  - 4min Row\n  - 4min Bike').estimatedSeconds, 5 * 60);
+    eq(tl2('for time, cap 20min:\n  - 4min Row\n  - 4min Bike').estimatedSeconds, 8 * 60);
+  });
+
+  it('does not let a cap on one section speak for the workout', () => {
+    // The same rule `run` applies to a window: a capped section between two
+    // others caps that section and says nothing about the whole.
+    const t = tl2('sequence:\n  - 10min Row\nfor time, cap 5min:\n  - 50 Burpees');
+    eq(t.cap, undefined);
+    eq(t.estimatedSeconds, undefined);
   });
 
   it('reports athlete-paced when nothing bounds the work', () => {
