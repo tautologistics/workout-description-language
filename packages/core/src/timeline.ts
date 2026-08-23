@@ -128,8 +128,21 @@ export type TimelineItem = TimelineStep | TimelineRest | TimelineGroup;
 
 export interface Timeline {
   root: TimelineGroup;
-  /** Total seconds, when every part is clock-bounded. Undefined if athlete-paced. */
+  /**
+   * Total seconds, when every part is clock-bounded. Undefined if athlete-paced.
+   *
+   * A cap counts as bounding the work, so this is sometimes a ceiling rather
+   * than a length — `capped` says which, and a consumer that prints the number
+   * under the word *duration* has to read it.
+   */
   estimatedSeconds?: number;
+  /**
+   * True when `estimatedSeconds` is an *at most*: a cap supplied it, or clipped
+   * a total that would otherwise have run longer. `for time, cap 12min:` over
+   * athlete-paced work is twelve minutes in this field and no minutes at all in
+   * fact — the athlete finishes when they finish.
+   */
+  capped?: boolean;
   /** Regions an ordered timeline cannot represent, for exporters to report. */
   warnings: string[];
   score?: Score;
@@ -471,22 +484,39 @@ function compileBlock(b: Block, parent: Ctx, enclosing: { clock?: boolean; cappe
   return group;
 }
 
-/** Sum the wall-clock duration of a timeline, when every part is clock-bounded. */
-function estimate(item: TimelineItem): number | undefined {
-  if (item.kind === 'step') return item.seconds;
-  if (item.kind === 'rest') return item.seconds;
+/**
+ * A wall-clock length, and whether a cap is the only reason there is one.
+ *
+ * The two are not the same claim and a single number cannot carry both: twelve
+ * minutes of rowing and 21-15-9 under a twelve-minute cap both come out `720`,
+ * and only one of them is a workout that lasts twelve minutes.
+ */
+interface Estimate { seconds?: number; capped: boolean }
 
-  if (item.type === 'amrap' || item.type === 'build') return item.window;
+const measured = (seconds?: number): Estimate => ({ seconds, capped: false });
+
+/** Sum the wall-clock duration of a timeline, when every part is clock-bounded. */
+function estimate(item: TimelineItem): Estimate {
+  if (item.kind === 'step') return measured(item.seconds);
+  if (item.kind === 'rest') return measured(item.seconds);
+
+  if (item.type === 'amrap' || item.type === 'build') return measured(item.window);
   if (item.type === 'clock') {
-    if (item.untilFailure) return undefined;
-    return item.window ?? (item.every && item.rounds ? item.every * item.rounds : undefined);
+    if (item.untilFailure) return measured(undefined);
+    return measured(item.window ?? (item.every && item.rounds ? item.every * item.rounds : undefined));
   }
 
   let total = 0;
+  let capped = false;
   for (const c of item.items) {
     const s = estimate(c);
-    if (s === undefined) return item.cap;   // a cap still bounds it
-    total += s;
+    // A cap still bounds work no clock measures — but what it yields is a
+    // ceiling, and every sum it feeds into is a ceiling after it.
+    if (s.seconds === undefined) {
+      return item.cap !== undefined ? { seconds: item.cap, capped: true } : measured(undefined);
+    }
+    capped ||= s.capped;
+    total += s.seconds;
   }
 
   const repeats = (item.type === 'repeat' || item.type === 'attempts') ? item.rounds : undefined;
@@ -504,7 +534,11 @@ function estimate(item: TimelineItem): number | undefined {
       total -= last.seconds;
     }
   }
-  return item.cap !== undefined ? Math.min(total, item.cap) : total;
+  // A cap over work that already fits is not what bounds it, so the sum stands
+  // and stays a length. Only a cap that actually cuts the total makes it an
+  // at-most.
+  if (item.cap !== undefined && item.cap < total) return { seconds: item.cap, capped: true };
+  return { seconds: total, capped };
 }
 
 export function compile(w: Workout): Timeline {
@@ -515,7 +549,15 @@ export function compile(w: Workout): Timeline {
     label: w.title ?? '', items: [], score: w.score,
   };
   root.items = compileNodes(w.body, ctx, {});
-  return { root, estimatedSeconds: estimate(root), warnings, score: w.score };
+  // `capped` is about the whole workout, and it is read off the root's own
+  // computation rather than hoisted from whichever group happened to carry a
+  // cap — a cap anywhere inside makes the total an at-most, and a cap that
+  // never binds makes it nothing.
+  const e = estimate(root);
+  return {
+    root, estimatedSeconds: e.seconds, capped: e.capped || undefined,
+    warnings, score: w.score,
+  };
 }
 
 /** Flatten to a readable outline — what a display would render, and a debugging aid. */

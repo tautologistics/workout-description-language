@@ -114,7 +114,51 @@ describe('run: what a display shows', () => {
   });
 
   it('totals a workout that is entirely on the clock', () => {
-    eq(r('sequence:\n  - 2min Row\n  - 1min Bike').totalSeconds, 180);
+    const laid = r('sequence:\n  - 2min Row\n  - 1min Bike');
+    eq(laid.totalSeconds, 180);
+    eq(laid.maxSeconds, undefined, 'a length is not a ceiling');
+  });
+
+  it('reports a cap as a ceiling and not as a length', () => {
+    // The number is the same either way; the sentence is not. `duration 12:00`
+    // on a capped for-time reads as "this takes twelve minutes", when what the
+    // cap says is "this is over by twelve minutes" — and the athlete-paced work
+    // under it has no known length at all.
+    const capped = r('for time, cap 12min:\n  - 21-15-9 Thruster @ 95lb\n  - 21-15-9 Pull-Up');
+    eq(capped.maxSeconds, 12 * 60);
+    eq(capped.totalSeconds, undefined, 'a cap is not a duration');
+
+    // One step along: the cap is on part of the workout, so the ceiling is the
+    // sum and the sum is still an at-most.
+    const partly = r('sequence:\n  - 5min Run\n  for time, cap 12min:\n    - 50 Wall Ball');
+    eq(partly.maxSeconds, 17 * 60);
+    eq(partly.totalSeconds, undefined);
+
+    // And a cap over work that already fits bounds nothing, so the length stands.
+    const roomy = r('for time, cap 30min:\n  - 10min Row');
+    eq(roomy.totalSeconds, 10 * 60);
+    eq(roomy.maxSeconds, undefined);
+  });
+
+  it('lets a cap that bites beat the cue sum', () => {
+    // Every cue is timed, so summing them is the usual answer — but ten minutes
+    // of rowing inside a five-minute cap ends at five.
+    const laid = r('for time, cap 5min:\n  - 10min Row');
+    eq(laid.maxSeconds, 5 * 60);
+    eq(laid.totalSeconds, undefined);
+  });
+
+  it('keeps an AMRAP a duration, because it really does last its window', () => {
+    const laid = r('AMRAP 12min:\n  - 10 Push-Up');
+    eq(laid.window, 12 * 60);
+    eq(laid.totalSeconds, 12 * 60);
+    eq(laid.maxSeconds, undefined);
+  });
+
+  it('claims no bound at all when a cap covers only part of the unbounded work', () => {
+    const laid = r('sequence:\n  - 100 Burpee\n  for time, cap 12min:\n    - 50 Wall Ball');
+    eq(laid.totalSeconds, undefined);
+    eq(laid.maxSeconds, undefined, 'the burpees are outside the cap');
   });
 
   it('lays out every corpus workout, and every cue in them knows its line', () => {

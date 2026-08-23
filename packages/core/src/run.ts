@@ -66,8 +66,19 @@ export interface Run {
    * only the middle, which is the difference `loops` cannot express.
    */
   cycles: Cycle[];
-  /** Total seconds, when every cue is clock-bounded. */
+  /**
+   * Total seconds, when the workout has a length. Absent when the only thing
+   * bounding it is a cap — see `maxSeconds`.
+   */
   totalSeconds?: number;
+  /**
+   * The ceiling in seconds, when a cap is what bounds the work. `21-15-9` under
+   * `cap 12min` is twelve minutes *at most* and no known length at all, which
+   * is a different sentence from a twelve-minute row — and the two arrived in
+   * the same field until this existed. Exactly one of `totalSeconds` and
+   * `maxSeconds` is ever set.
+   */
+  maxSeconds?: number;
   /** What could not be laid out in order, carried from compilation. */
   warnings: string[];
 }
@@ -172,11 +183,21 @@ export function run(t: Timeline, opts: RunOptions = {}): Run {
   walk(t.root, [], true);
   if (truncated) warnings.push(`run truncated at ${maxCues} cues`);
 
-  const totalSeconds = cues.every((c) => c.seconds !== undefined) && !loops
+  // Summing the cues is the better answer where every one of them is timed,
+  // because it counts what a display will actually walk through. It is not the
+  // answer under a cap that bites: a ten-minute row inside `cap 5min` sums to
+  // ten and ends at five, and the timeline already worked that out.
+  const summed = cues.every((c) => c.seconds !== undefined) && !loops
     ? cues.reduce((n, c) => n + (c.seconds ?? 0), 0)
-    : t.estimatedSeconds;
+    : undefined;
+  const bound = summed !== undefined && !t.capped ? summed : t.estimatedSeconds;
 
-  return { cues, loops, window, cycles, totalSeconds, warnings };
+  return {
+    cues, loops, window, cycles,
+    totalSeconds: t.capped ? undefined : bound,
+    maxSeconds: t.capped ? bound : undefined,
+    warnings,
+  };
 }
 
 /**

@@ -644,10 +644,46 @@ divisions resolve at the workout layer (spec §10.1). Reasoning in
 [settled-decisions.md](settled-decisions.md), settled 2026-08-19.
 *Touches: a new module, `apps/display/`, and `progress` in goals.ts.*
 
-**3. A capped for-time reports `duration` where it means "at most".** `run()`
-does not expose the cap separately from a computed total. Same class as the
-AMRAP `duration`/`window` conflation, one step along.
-*Touches: `packages/core/src/run.ts`, `apps/builder/builder.js`.*
+**3. ~~A capped for-time reports `duration` where it means "at most".~~
+DONE 2026-08-22.** `run()` returns `totalSeconds` for a length and `maxSeconds`
+for a ceiling, and never both — so `for time, cap 12min:` over 21-15-9 is
+`maxSeconds: 720` with no `totalSeconds` at all, where a twelve-minute row is
+the reverse. The builder reads it as **`cap  at most 12:00`** beside the
+`clock` an AMRAP gets and the `duration` timed work gets: three sentences, three
+words, one number each.
+
+**The fix could not live in `run()` alone, which is what the item assumed.**
+`run()` gets its number from `Timeline.estimatedSeconds`, and *that* is where a
+cap and a total were already the same field — `estimate()` returned `item.cap`
+for work no clock measures and `Math.min(total, cap)` for work it does, with
+nothing to say which had happened. So `estimate()` now returns a length *and*
+whether a cap produced it, and `Timeline` carries `capped`. `estimatedSeconds`
+itself is unchanged in value and in meaning, which is why the Garmin adapter,
+`build-workouts.mjs` and the pinned interpretation digest all read the same
+after: the new fact is added beside the old number rather than taken out of it.
+
+**Two cases the one-field version had wrong in the other direction, both now
+right.** A cap that never binds — `for time, cap 30min:` over a ten-minute row —
+bounds nothing, so the ten minutes stands as a *length*; it had been laundered
+through `Math.min` and come out looking the same as a cap that did bite. And a
+cap that bites while every cue is timed — ten minutes of rowing inside
+`cap 5min` — ends at five, where `run()` had summed the cues to ten and ignored
+the timeline entirely.
+
+**A cap over *part* of the workout still makes the whole an at-most**, and this
+is the one place the flag is not read off a group that spans the whole. A
+5-minute run followed by a 12-minute-capped block is `maxSeconds: 1020`: unlike
+`window` and `loops`, an at-most *aggregates* — every sum a ceiling feeds into
+is a ceiling — so it is computed up from the root rather than hoisted from
+whichever group carried the cap. A cap covering only some of the unbounded work
+bounds nothing and says so: neither field is set.
+
+*Left alone deliberately:* spec §5.6's "a cap can supply an AMRAP's window" is
+still not inferred, so `for time, cap 25min:` around a bare `AMRAP:` reads as
+*at most* 25 minutes when it is exactly 25. That understates rather than
+misstates, which is the direction this item was about.
+*Touched: `packages/core/src/timeline.ts`, `run.ts`, `apps/builder/builder.js`,
+`test/run.test.ts`, `test/timeline.test.ts`. 1746 passing, 1 pending.*
 
 **4. Curate the generation pool.** `mark-core` scored 178 movements in on source
 agreement, which is a proxy for "commonly catalogued", not "worth putting in a

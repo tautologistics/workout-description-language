@@ -261,8 +261,15 @@ function renderReading() {
     // in a different format, made an AMRAP look like it still had the for-time
     // reading stuck to it — the same number twice, under a word that had
     // quietly changed meaning.
+    //
+    // A cap is the third of those, and it had been wearing the second's label:
+    // `duration 12:00` on a capped for-time reads as *this takes twelve
+    // minutes*, when what it says is *this is over by twelve minutes*. The
+    // number is the same and the sentence is not, so it gets its own word.
     ...(laid.window
       ? [['clock', clock(laid.window)]]
+      : laid.maxSeconds !== undefined
+      ? [['cap', `at most ${clock(laid.maxSeconds)}`]]
       : [['duration', laid.totalSeconds !== undefined ? clock(laid.totalSeconds) : 'athlete-paced']]),
     // A cycle that covers the whole workout is the workout repeating; one that
     // covers part of it is a section that does, and saying "repeats until the

@@ -132,13 +132,19 @@ already in hand at render time: `cycleOf` finds the specific cycle and then
 throws that away in favour of a bare class. Passing the cycle's index through
 (a `data-cycle` attribute, or `looping-1`/`looping-2`) is enough for CSS to
 colour them apart. Rails must stay legible in both themes.
-*Touches: `apps/builder/builder.js:276-284`, `apps/builder/builder.css:300-314`.*
+*Touches: `apps/builder/builder.js:298-306`, `apps/builder/builder.css:305-319`.*
 
-**The summary says title, cues and duration, but never the scoring.** A reader
+**The summary says title, cues and how long, but never the scoring.** A reader
 cannot tell from the top of the pane how the workout is scored. `workout.score`
 is parsed and available — `primary`, plus `tiebreak`, `onCap`, `aggregate`,
 `perRound`, and an `implied` flag for scores derived from a `for time` or AMRAP
 header rather than written. The summary's `rows` array reads none of it.
+
+*`onCap` is the sharpest case as of 2026-08-22, and it is now visibly missing.*
+The summary distinguishes `clock`, `duration` and `cap` — so a capped for-time
+says **`cap  at most 12:00`** on screen and still says nothing about what is
+scored when the cap is reached, which is the whole reason `on cap:` exists. The
+one row that made the question invisible is the row that now raises it.
 
 Two things to decide rather than guess at:
 - Whether an *implied* score is shown the same as a written one. The formatter
@@ -148,7 +154,7 @@ Two things to decide rather than guess at:
 - Blocks carry their own `score` as well as the workout, so a workout can have
   more than one. A single summary row cannot say that.
 
-*Touches: `apps/builder/builder.js:241-263`, `packages/core/src/ast.ts:164-181`.*
+*Touches: `apps/builder/builder.js:256-285`, `packages/core/src/ast.ts:164-181`.*
 
 **~~A movement with an `rx` weight split shows no weight at all.~~ Fixed
 2026-08-18** by queue item 1. A step with an unresolved split now reads as its

@@ -117,9 +117,14 @@ describe('timeline: duration', () => {
     eq(tl('24-open-25-1.wdl').estimatedSeconds, 15 * 60);
   });
 
-  it('bounds an athlete-paced workout by its cap', () => {
+  it('bounds an athlete-paced workout by its cap, and says the number is a ceiling', () => {
     eq(tl('25-open-25-2.wdl').estimatedSeconds, 12 * 60);
     eq(tl('26-open-25-3.wdl').estimatedSeconds, 20 * 60);
+    // The seconds alone cannot tell twelve minutes of work from work that is
+    // over by twelve minutes, so `capped` carries the difference out.
+    eq(tl('25-open-25-2.wdl').capped, true);
+    eq(tl('05-cindy.wdl').capped, undefined, 'an AMRAP lasts its window');
+    eq(tl('18-fight-gone-bad.wdl').capped, undefined, 'a sum of timed work is a length');
   });
 
   it('reports athlete-paced when nothing bounds the work', () => {

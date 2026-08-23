@@ -419,6 +419,32 @@ would be tidier".
   held: a reader who says `women` three rounds in is answering a question about
   the weights, not asking to begin again.
 
+- **A length and a ceiling are two fields, and a fact about the whole is hoisted
+  by whether it composes rather than by where it sits.** Settled 2026-08-22,
+  closing queue item 3. `run()` returns `totalSeconds` *or* `maxSeconds` and
+  never both, and `Timeline` carries `capped` beside `estimatedSeconds`. The
+  tidier-looking alternative — one number plus "read the score to know what it
+  means" — is what was there, and it is what let a capped for-time print
+  `duration 12:00`: the caller has to already know the answer to use the field.
+  A consumer that genuinely wants either takes `totalSeconds ?? maxSeconds` and
+  has said so.
+
+  **`estimatedSeconds` keeps its old value and its old meaning.** The new fact is
+  added beside it, not carved out of it, which is why the Garmin adapter,
+  `build-workouts.mjs` and the pinned interpretation digest were untouched. A
+  field with three consumers outside the change is not the place to relitigate a
+  meaning.
+
+  **`capped` does not follow the spine rule, and that is deliberate.** `window`
+  and `loops` may only be set by a group that spans the whole workout, because
+  neither composes — put a 20-minute AMRAP beside a run and there is no clock
+  over both. An at-most does compose: every sum a ceiling feeds into is a
+  ceiling, so a 5-minute run before a 12-minute-capped block is a workout that is
+  at most 17 minutes even though nothing in it spans the whole. It is computed up
+  from the root. The general rule is **whatever composition the fact actually
+  has**, and the spine is what that comes to for a fact that has none. See
+  [lessons-learned.md](lessons-learned.md).
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).

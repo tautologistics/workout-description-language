@@ -36,6 +36,31 @@ workout as a seven-cue loop on a 20-minute clock. Neither number was true of
 the run or the row. Now only a group on the spine — an only child of an only
 child, up to the root — may speak for the workout.
 
+*Extended 2026-08-22 by queue item 3, which found the one that does not work
+this way.* A **cap** is also a fact about the whole and the spine rule is the
+wrong test for it: a five-minute run followed by a twelve-minute-capped block is
+a workout that is at most seventeen minutes, and no group in it spans the whole.
+The difference is that an at-most **aggregates** — every sum a ceiling feeds into
+is a ceiling — where a window and a loop do not: put a 20-minute AMRAP beside a
+run and there is no clock that covers both. So `capped` is computed *up* from the
+root, and the rule is not "the spine" but **"whatever composition the fact
+actually has"**; the spine happens to be what that comes to for a flag that
+cannot compose. Getting this backwards is cheap to do, because the spine rule is
+written down and the reasoning behind it is not.
+
+**A word can mean two things and the number will never tell you.** `run()`
+reported a capped for-time's twelve minutes as `duration`, the same field a
+twelve-minute row uses, so a consumer could not tell *this takes twelve minutes*
+from *this is over by twelve minutes*. It is the AMRAP `duration`/`window`
+conflation exactly, one layer along, and the tell is the same both times: two
+sentences, one field, no way for a caller to ask which. What the second one added
+is **where** to split. The fix looked like it belonged in `run()`, because that is
+where the wrong word was printed — but `run()` was reading `estimatedSeconds`,
+and `estimate()` had already thrown the distinction away by returning `item.cap`
+and a real sum through the same `return`. *A field that conflates is usually
+conflating something a layer below it; fix it where the two values are still
+apart, not where they are noticed.* Recorded 2026-08-22.
+
 **Position is not a safe way to say which is which.** `(105/145)` for a
 women's and a men's Rx reads by *magnitude* — the larger is the men's — because
 whiteboards write `95/65` meaning men first, so anyone writing the lighter first
