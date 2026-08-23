@@ -1,7 +1,7 @@
 # Running it
 
 ```bash
-npm --prefix packages/core test     # 1743 tests, 1 pending, ~10s
+npm --prefix packages/core test     # 1744 tests, 1 pending, ~10s
 node scripts/build-canonical.ts     # rebuild registry/ from its sources
 node scripts/check-aliases.mjs      # aliases that resolve to more than one record
 node scripts/build-web.mjs          # emit the core as browser modules
@@ -26,6 +26,18 @@ The server must be rooted at the repository — the apps reach `build/` and
 A change to the apps needs `build-web.mjs` before the browser sees it, and the
 board and builder are verified by driving them, not only by the suite — see
 *Tests do not read* in [lessons-learned.md](lessons-learned.md).
+
+**A change to the registry needs the corpus attributed twice, and there is no
+command for it.** The golden snapshot holds shape, pacing and volume, and
+muscle attribution is in none of them — so a merge that moves which record a
+name points at moves muscles and *nothing the regenerators can see*. Until the
+digest covers it (queued under item 8), the check is by hand: keep the previous
+`registry/movements.canonical.json`, run `muscleLoad(compile(parse(src)))` over
+every file in `examples/corpus` against each of the two, and diff. `provide()`
+takes the corpus as a thunk, so pointing one run at an old file is a one-line
+change — see `packages/core/node.ts` for the shape of the providers. Recorded
+because "the goldens regenerated clean" was true and meant nothing; the
+[lessons-learned.md](lessons-learned.md) entry has the case.
 
 **The parser is an Ohm grammar as of 2026-08-15, and it is slower.** Measured on
 the day of the swap: parsing all 190 corpus files went from **3.1ms to 172ms**

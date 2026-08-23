@@ -573,4 +573,6 @@ would have hidden both.
 
 *Ask which digest would have to move for the change you actually made. If the
 answer is "none of them", that is not reassurance — it is a gap.* Recorded
-2026-08-23.
+2026-08-23. Closing the gap properly — putting `byMuscle` in the digest — is
+queued under item 8; until then the by-hand recipe is in
+[running-it.md](running-it.md).

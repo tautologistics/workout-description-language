@@ -755,7 +755,8 @@ been added to this file, so there was nothing here to take off. It is written up
 after the fact, which is why it is a record rather than a plan.*
 
 Three things came out of it that are not aliases, and they are the part worth
-carrying forward. The first is closed; doing it raised a fourth:
+carrying forward. The first is closed; doing it raised two more, so four are
+open:
 
 - **~~A curated alias cannot merge a record, so an assertion of sameness lands as
   a collision.~~ DONE 2026-08-23.** `sameAs` on a curated record names the ids it
@@ -797,6 +798,20 @@ carrying forward. The first is closed; doing it raised a fourth:
   same shape and have not been looked at.
   *Touches: `registry/movements.json`, `scripts/dedupe-movements.mjs`,
   `packages/core/src/fold.ts`.*
+- **The golden digest should cover muscle attribution, and does not.** Raised
+  2026-08-23 by the merges above, which moved eight corpus files and were
+  reported clean by every regenerator. `test/golden/generate.ts` holds shape,
+  seconds, pacing, unbounded and volume-by-movement — everything about how a
+  *workout* is understood — and muscles are a property of the registry the
+  workout points into, which is why they were left out and why leaving them out
+  was defensible right up until a registry change needed reviewing. Adding
+  `muscleLoad`'s `byMuscle` to the digest makes a merge a reviewable diff like
+  everything else. It will move `interpretations.json` for most of the 190 files
+  on the first run, so it wants to land on its own rather than inside another
+  change.
+  *Touches: `packages/core/test/golden/generate.ts`,
+  `packages/core/test/golden/interpretations.json`,
+  `packages/core/test/golden.test.ts`.*
 
 `node scripts/check-aliases.mjs` reports both failure shapes — a key two records
 claim, and an alias whose plural shadows another record — across both registries.
@@ -808,10 +823,18 @@ ever validated the curated file, which is not the one analysis reads.
 *Ordering of 5, 6 and 7 against 1–4 is not settled — they are appended rather
 than placed, and all three were raised by writing and sending one workout rather
 than by a plan. **0f was lettered rather than numbered on purpose** — grammar work,
-belonging with the 0-series — and both its halves are closed, so **item 1 is the
-next one off the queue.** The one thing 0f left behind is `TABATA`, which is not
-an abbreviation to read but a structure to define; it is written up under 0f
-rather than given a number, because nobody has asked for it yet.*
+belonging with the 0-series — and both its halves are closed. The one thing 0f
+left behind is `TABATA`, which is not an abbreviation to read but a structure to
+define; it is written up under 0f rather than given a number, because nobody has
+asked for it yet.*
+
+*Corrected 2026-08-23: this said **item 1 is the next one off the queue**, and
+had said so since before 1 and 1a were both closed on 2026-08-18 and 08-20. The
+next unstarted numbered item is **2, Results** — the largest piece on this
+list, which is worth knowing before starting rather than three paragraphs in.
+The residue under 8 is smaller and self-contained if that is what a session
+wants instead. A pointer that names one item goes stale the moment that item
+lands; this one is worded as a fact about the numbers so it stays checkable.*
 
 **Nobody has run a session off the board.** Everything is verified by tests and
 by driving the UI. Every defect Chris has caught by *looking* — `21 Thruster`,
