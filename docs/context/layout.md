@@ -17,6 +17,9 @@ packages/core/bin/     the `wdl` CLI.
 apps/builder/          write a workout: palette, outline, text, live goal feedback.
 apps/display/          the board: a workout as written, with a marker for where you are.
 registry/              movements, muscles, workouts. Rebuilt by scripts/build-canonical.ts.
+scripts/               the registry pipeline (build-canonical.ts runs all of it, in order),
+                       the web build, the server. check-aliases.mjs is a report, not a
+                       build step: every name two records answer to, and who wins.
 examples/              corpus (190 workouts), goals, programs, templates.
 spec/                  spec-0.1.md (the format), goals-0.1.md (the rules),
                        grammar-0.1.ohm (normative, every phase-2 line kind, no actions —

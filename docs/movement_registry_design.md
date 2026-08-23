@@ -140,8 +140,8 @@ What layer 1 still does **not** do: it does not know that `db` means `dumbbell`,
 
 Resolution order, first hit wins:
 
-1. `fold(input)` matches a canonical ID
-2. `fold(input)` matches an alias → canonical ID
+1. `fold(input)` matches an **explicit alias** → canonical ID
+2. `fold(input)` matches a record's **own name** — its canonical ID or its title
 3. `depluralize(fold(input))`, then retry 1 and 2
 4. Expand abbreviation tokens, then retry 1–3
 5. **Token-set match** — compare the retained token list as an unordered multiset against every entry's token list. Accept only if exactly one entry matches; otherwise report ambiguity. This catches word-order variation (`Thruster, Dumbbell` → [thruster, dumbbell] → matches `Dumbbell Thruster`) without needing an alias for every permutation.
@@ -149,7 +149,13 @@ Resolution order, first hit wins:
 
 Step 5 is deliberately last and deliberately requires uniqueness, because it is the only step that isn't order-preserving. Exercise names are overwhelmingly modifier-then-base (`hang power clean`, `overhead squat`), and reordering them doesn't produce a different real movement — but the uniqueness requirement means that if that assumption ever fails, the parser errors instead of guessing.
 
-**Why depluralization comes after exact matching, not inside `fold()`.** Algorithmic depluralization is unsafe in this vocabulary — naive rules turn `press` into `pres` and `dips` is a real word ending in `s`. Trying exact matches first means `press`, `push-press`, and any other legitimately-`s`-ending name resolve before the plural rules ever run. Depluralization becomes a safe fallback rather than a source of corruption. Explicit plural aliases in the registry always win over the algorithm.
+**Why depluralization comes after exact matching, not inside `fold()`.** Algorithmic depluralization is unsafe in this vocabulary — naive rules turn `press` into `pres` and `dips` is a real word ending in `s`. Trying exact matches first means `press`, `push-press`, and any other legitimately-`s`-ending name resolve before the plural rules ever run. Depluralization becomes a safe fallback rather than a source of corruption. An **irregular** plural alias in the registry still wins over the algorithm; a *regular* one is not indexed at all, for the reason two paragraphs down.
+
+**Why an alias outranks an ID, which is the opposite of what this document said until 2026-08-23.** The two are not the same kind of statement. A record's id and title say what *that record* is called; an alias is a curator answering the question actually being asked — when somebody writes this spelling, whom do they mean. Where both answer, only one of them was written *about the contested name*.
+
+Under the old order the answer depended on which record happened to be **named** after the contested spelling, and in a merged corpus that is an accident of what an upstream source called its row. `Squat` found an imported record whose id is `squat` — equipment `Barbell` — and discarded `air-squat`'s alias saying that a bare squat is the bodyweight one. Fourteen names were decided that way. Worse, it was **silent**: an id match is a hit, so the ambiguity rule below could never fire, and the curated registry and the merged corpus disagreed about `Squat` with nothing to say so. Reversing the two tiers resolves thirteen of the fourteen in the curator's favour and leaves one — a name both records hold only as an alias — genuinely ambiguous, which is the right answer for it. `scripts/check-aliases.mjs` prints the table.
+
+**A record's own plural is not an alias.** `Squats` on the record `squat`, `Lunges` on `lunge` — harvested from sources, and reconstructed exactly by `depluralize`. Indexed as aliases they would sit a tier above the singular and split `Squat` from `Squats` onto two different movements, so an alias the algorithm already reproduces is not indexed at all. An irregular plural, which the algorithm cannot reproduce, is a real alias and keeps its entry.
 
 **Abbreviation expansion is registry data, not string logic.** A small closed token table handles implements and common gym shorthand, because these compose across the whole vocabulary:
 

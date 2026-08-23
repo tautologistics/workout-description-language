@@ -6,6 +6,24 @@ when something looks odd before treating it as a discovery.
 - Three singular/plural duplicates remain in the registry's long tail
   (`Hindu Push-up`, `Rack Pull`, `Squat with Bands`). Pinned by a test so the
   count cannot grow; none used by the corpus.
+- **Fourteen names in the canonical merge are claimed by two records, and none
+  of the pairs is a duplicate.** Decided 2026-08-23 by queue item 8, which
+  fixed *who wins* rather than merging them: an explicit alias now outranks a
+  record's own id, so the curator's claim on a contested spelling beats an
+  imported record that merely happens to be named after it. `Squat` is
+  `air-squat`, not the barbell `squat`; `Air Bike` is `bike`, and that pair is
+  the trap — the imported `air-bike` record is the abdominal exercise, not the
+  machine. `node scripts/check-aliases.mjs` prints all fourteen with which
+  record wins and why.
+
+  What is still owed is the **curation** half: each pair needs a written verdict
+  saying whether the two records are the same movement, and `dumbbellbicepscurl`
+  — `Dumbbell Bicep Curl` against `Dumbbell Curl` — is the one no rule can
+  answer, because both records hold it only as an alias and neither as a name.
+  It resolves `ambiguous`, which is correct and is also what it did before, and
+  it is the only member of the list that does. Ranking cannot decide whether two
+  records are one movement; only a curator can.
+  *Touches: `registry/movements.json`, `scripts/dedupe-movements.mjs`.*
 - `Quad Stretch` scored into the 178 core movements on source agreement. Visible
   when generating with a bare `?`.
 - ~~The board cannot have a division *chosen* on it.~~ **Fixed 2026-08-20** by

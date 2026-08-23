@@ -152,7 +152,13 @@ export type Resolution =
   | { status: 'unregistered'; raw: string };
 
 export class Registry {
-  private byKey = new Map<string, MovementEntry>();
+  /**
+   * A record's own name for itself: its id and its title, which fold to the
+   * same key by the invariant `validate()` enforces. List-valued so two records
+   * claiming one name is reported rather than resolved by insertion order.
+   */
+  private byName = new Map<string, MovementEntry[]>();
+  /** Explicit aliases, and only those — a statement about a name, not a name. */
   private byAlias = new Map<string, MovementEntry[]>();
   readonly entries: MovementEntry[] = [];
 
@@ -162,16 +168,35 @@ export class Registry {
 
   add(entry: MovementEntry) {
     this.entries.push(entry);
-    this.byKey.set(fold(entry.id), entry);
-    for (const a of [entry.title, ...(entry.aliases ?? [])]) {
-      const k = fold(a);
-      if (!this.byAlias.has(k)) this.byAlias.set(k, []);
-      const list = this.byAlias.get(k)!;
+    const claim = (map: Map<string, MovementEntry[]>, name: string) => {
+      const k = fold(name);
+      if (!k) return;
+      if (!map.has(k)) map.set(k, []);
+      const list = map.get(k)!;
       if (!list.includes(entry)) list.push(entry);
+    };
+    claim(this.byName, entry.id);
+    claim(this.byName, entry.title);
+    for (const a of entry.aliases ?? []) {
+      // A record's own plural is not a claim about a name — it is the record's
+      // name written for more than one, and `depluralize` reconstructs it
+      // without help. Indexed as an alias it would sit a tier *above* the
+      // singular, so `Squats` and `Squat` would answer with different
+      // movements; indexed as a name it would exact-match before the plural
+      // fallback could run and do the same. So it is not indexed at all. An
+      // irregular plural, which the algorithm cannot reconstruct, is a real
+      // alias and stays one.
+      if (depluralize(fold(a)) === fold(entry.id)) continue;
+      claim(this.byAlias, a);
     }
   }
 
-  /** `fold(id) === fold(title)` for every entry, plus no alias collisions. */
+  /**
+   * `fold(id) === fold(title)` for every entry, plus every name answered by one
+   * movement. A name held as one record's id and another's alias is *not* a
+   * problem — `lookup` decides it, and `scripts/check-aliases.mjs` lists them.
+   * What is left here is what no rule can decide.
+   */
   validate(): string[] {
     const problems: string[] = [];
     for (const e of this.entries) {
@@ -179,18 +204,38 @@ export class Registry {
         problems.push(`${e.id}: title "${e.title}" folds to "${fold(e.title)}", not "${fold(e.id)}"`);
       }
     }
+    for (const [key, list] of this.byName) {
+      if (list.length > 1) problems.push(`name "${key}" maps to ${list.map((e) => e.id).join(', ')}`);
+    }
     for (const [key, list] of this.byAlias) {
       if (list.length > 1) problems.push(`alias "${key}" maps to ${list.map((e) => e.id).join(', ')}`);
     }
     return problems;
   }
 
+  /**
+   * Two tiers, and the order between them is the whole of this method.
+   *
+   * **An explicit alias outranks a record's own name.** The two are not the
+   * same kind of statement. A record's id and title say what *it* is called; an
+   * alias is a curator answering the question actually being asked — when
+   * somebody writes this, whom do they mean. Where both answer, only one of
+   * them was written about this name.
+   *
+   * The order used to be the other way round, which made the answer depend on
+   * which record happened to be *named* after the contested spelling: `Squat`
+   * found an imported record whose id is `squat` and threw away `air-squat`'s
+   * alias saying that is what a bare squat means. Worse, it was silent — the id
+   * matched, so the `ambiguous` branch below could never be reached, and the
+   * curated registry and the canonical one disagreed about `Squat` without
+   * anything saying so.
+   */
   private lookup(key: string): MovementEntry | MovementEntry[] | undefined {
-    const direct = this.byKey.get(key);
-    if (direct) return direct;
-    const aliased = this.byAlias.get(key);
-    if (aliased?.length === 1) return aliased[0];
-    if (aliased && aliased.length > 1) return aliased;
+    for (const map of [this.byAlias, this.byName]) {
+      const hit = map.get(key);
+      if (hit?.length === 1) return hit[0];
+      if (hit && hit.length > 1) return hit;
+    }
     return undefined;
   }
 
