@@ -569,44 +569,97 @@ when something looks odd before treating it as a discovery.
   orphaning it and invalidating the file. `shift` guards only against negative
   indent, never against having no parent to attach to.
 
-- **Twelve aliases in the canonical corpus are claimed by two records, and the
-  registry has no way to say which is meant.** Found 2026-08-22 during the alias
-  pass over the core, by running `Registry.validate()` on `canonicalRegistry()`
-  for the first time — the suite had only ever validated the *curated* file, and
-  analysis reads the other one. Pinned exactly in `fold.test.ts` and reported by
-  `scripts/check-aliases.mjs`.
+- **~~Twelve aliases in the canonical corpus are claimed by two records, and the
+  registry has no way to say which is meant.~~ Curated 2026-08-23: eight merged,
+  two withdrawn, two open and pinned.** Found 2026-08-22 during the alias pass
+  over the core, by running `Registry.validate()` on `canonicalRegistry()` for
+  the first time — the suite had only ever validated the *curated* file, and
+  analysis reads the other one. Reported by `scripts/check-aliases.mjs`, which
+  goes from 13 problems to 2.
 
-  Every one is the same shape. A curated record carries an alias that is another
-  record's *title*: `shoulder-press` claims `overhead press`, and the merged
-  corpus also holds `Overhead Press` from wger. **The registry has no way for a
-  curator to say "these two records are the same thing"** — an alias attaches a
-  string to one record, it does not merge the other into it — so an assertion of
-  sameness lands as a collision. `lookup()` tries `byKey` before `byAlias`, so
-  the name resolves to whichever record owns the matching *id* and the curator's
-  claim is silently discarded; it does not even reach the `ambiguous` branch.
+  Every one was the same shape. A curated record carried an alias that is
+  another record's *title*: `shoulder-press` claims `overhead press`, and the
+  merged corpus also holds `Overhead Press` from wger. **The registry had no way
+  for a curator to say "these two records are the same thing"** — an alias
+  attaches a string to one record, it does not merge the other into it — so an
+  assertion of sameness landed as a collision. `lookup()` tries `byKey` before
+  `byAlias`, so the name resolved to whichever record owned the matching *id*
+  and the curator's claim was silently discarded, without even reaching the
+  `ambiguous` branch.
 
-  Verified pair by pair. Nine read as genuine duplicates the merge did not
-  catch, because the two names differ by a token `find-duplicates` treats as
-  distinguishing: `overhead-press`/`shoulder-press`, `strict-press`/
-  `shoulder-press`, `farmer-s-walk`/`farmers-carry`, `l-sit`/`l-sit-hold`,
-  `pistol-squat`/`pistol`, `bodyweight-squat`/`air-squat`, `assault-bike`/`bike`,
-  `dumbbell-bicep-curl`/`dumbbell-curl` (twice), `american-swing`/
-  `kettlebell-swing`. Two are a curator's judgement rather than a fact —
-  `block-deadlift`/`rack-pull` are different bars in different positions and are
-  conflated in every gym; `american-swing` is a *variant* of the kettlebell
-  swing, not a synonym. One is neither, and is listed on its own below.
+  **`sameAs` is the missing mechanism**, and it is one field on a curated
+  record naming the ids it is one movement with. See
+  [settled-decisions.md](settled-decisions.md) for why it is written down
+  explicitly rather than inferred from the alias that is already there.
 
-  Not fixed here because the fix is a mechanism, not an edit: something has to
-  read a curated alias as an instruction to absorb the record it names, and that
-  is a change to `dedupe-movements.mjs`, which merges on title tokens and has
-  never looked at an alias. Two more were fixed, because they were the opposite
-  error — see the next entry.
+  **The verdicts, one per pair.** Each was checked against what the two records
+  actually say, not against how alike the names look:
+
+  | Pair | Verdict |
+  |---|---|
+  | `overhead-press` / `shoulder-press` | **One movement.** Merged. Two names for the same barbell press; the corpus writes both. |
+  | `strict-press` / `shoulder-press` | **One movement.** Merged. `Strict` names what it is *not* — a push press — rather than a different lift. Brings Garmin's traps and upper-chest claim with it. |
+  | `farmer-s-walk` / `farmers-carry` | **One movement.** Merged. Garmin lists `CARRY/FARMERS_WALK` and `CARRY/FARMERS_CARRY` as separate exercises; that is Garmin carrying two spellings, not two lifts. |
+  | `l-sit` / `l-sit-hold` | **One movement.** Merged. An L-sit is a hold; the curated title says so twice. |
+  | `pistol-squat` / `pistol` | **One movement.** Merged, and it puts `Pistol` back in the core — see the entry below, which this closes. |
+  | `bodyweight-squat` / `air-squat` | **One movement.** Merged. `Air Squat` is the CrossFit name for it and already carried `bodyweight squat` as an alias. |
+  | `dumbbell-bicep-curl` / `dumbbell-curl` (twice) | **One movement.** Merged. Two collisions, one pair: `dumbbellbicepcurl` and `dumbbellbicepscurl` are the singular and plural of the same claim. **This is the pair no rule could have fixed** — see below. |
+  | `block-deadlift` / `rack-pull` | **Not one movement.** Alias withdrawn. A rack pull is off the pins of a power rack, a block deadlift off blocks under the plates; the bar starts at a different height off a different surface. Every gym conflates them and the registry should not. Withdrawing the alias also cleared the plural shadow, where `Rack Pulls` depluralized onto `block-deadlift` and made `rack-pull` unreachable by its own plural. |
+  | `american-swing` / `kettlebell-swing` | **Not one movement.** Alias withdrawn. The American swing finishes overhead; that is the whole difference and it is what the name is for. It is a *variant*, and `russian swing` — which really is the standard swing under another name — stays an alias, which is the distinction the two spellings exist to draw. |
+  | `assault-bike` / `bike` | **Open, and pinned.** See below. |
+  | `air-bike` / `bike` | **Open, and pinned.** See below. |
+
+  **Both open ones are `Bike`, and they are one finding rather than two.**
+  `Bike` is not a movement but a *modality* — a curated lump over the erg, the
+  fan bike and the road, with `air bike`, `airdyne`, `assault bike`, `bike erg`,
+  `echo bike` and `fan bike` all aliases of it on purpose. Absorbing one machine
+  into a lump spreads that machine's muscles over all of them: merging
+  `Assault Bike` put Garmin's `chest` claim onto six corpus workouts, a 40km
+  ride among them. Today the claim is correctly confined to whoever writes
+  `Assault Bike`, and the merge would have leaked it. `Air Bike` fails the same
+  way and worse, because that record is itself a false merge — the next entry.
+
+  Both aliases are correct English that people write, so neither is withdrawn.
+  **The collision is the price of a lump the registry cannot express**, and what
+  is actually missing is a way to say "these names are one modality, and each
+  keeps its own muscles". Pinned in `fold.test.ts` rather than argued away.
+
+  **What the merges cost, stated because it is not free.** Eight corpus files
+  move in muscle attribution — and *only* in muscle attribution: the golden
+  interpretation snapshot regenerated byte-identical, so no structure, total or
+  pacing moved anywhere. Six of the eight gain something right (a loaded carry
+  works the glutes; a strict press works the traps; an L-sit works the lats and
+  triceps). **Two do not: `11-mary` and `55-maggie` now attribute `biceps` and
+  `shoulders` to a pistol squat**, because wger claims them and merging brought
+  wger's claim into the record Mary resolves to. wger is simply wrong about a
+  pistol, and the merge is still right — identity is not the lever for fixing a
+  bad source claim, and `support` records it as one source out of three so a
+  caller asking for consensus never sees it. But there is no way to *correct* a
+  source's claim today, and this is the first place it has cost something.
+
+- **~~`Dumbbell Biceps Curl` resolved `ambiguous`, and no rule could have
+  ranked it.~~ Fixed 2026-08-23, and it is the case that justified `sameAs`.**
+  Eleven of the twelve collisions resolved to *something*: `lookup()` tries ids
+  before aliases, so the name landed on whichever record owned the matching id —
+  the wrong answer, but a single one. `dumbbellbicepscurl` was held **only as an
+  alias by both** `Dumbbell Bicep Curl` and `Dumbbell Curl`, and as the name of
+  neither, so there was no id to prefer and nothing to rank. It reached the
+  `ambiguous` branch, and `musclesFor` treats that exactly like an unregistered
+  movement: the step drops out of muscle attribution, out of volume and out of
+  every goal rule, while `wdl check` says nothing.
+
+  **No tie-breaking rule fixes this**, and that is the point. Prefer the record
+  with more sources, or the curated one, or the shorter title, and each is a
+  guess dressed as a policy — the two records were the same movement, and any
+  rule that picks one *record* has still thrown the other's four sources away.
+  The only thing that closes it is a person saying they are one record, which is
+  what `sameAs` is for. Pinned by name in `fold.test.ts`, because a resolution
+  that goes from `ambiguous` to correct leaves no other trace.
 
 - **`Air Bike` is one record holding two different exercises.** Found 2026-08-22.
   Garmin's `INDOOR_BIKE/AIR_BIKE` is the fan bike; free-exercise-db's `Air_Bike`
   and everkinetic's `0284` are the *bicycle crunch* — "lie flat on the floor
-  with your lower back pressed to the ground". `dedupe-movements.mjs` merges on
-  identical title tokens, so it collapsed them, and the result claims `abs` and
+  with your lower back pressed to the ground". The result claims `abs` and
   `quads` as primaries and scores `core` on `3-sources` — a signal that reads as
   three catalogues agreeing when it is three catalogues being merged by their
   spelling. `Bicycle Crunch` is separately a record of its own.
@@ -616,6 +669,18 @@ when something looks odd before treating it as a discovery.
   `dedupe-movements.mjs` stop *similar* names from merging, and nothing stops
   *identical* ones. A title match is treated as proof, and for a name this
   generic it is not.
+
+  *Corrected 2026-08-23: this was written as a `dedupe-movements.mjs` bug and it
+  is not one. That script never saw the pair — the record has no `mergedFrom`.
+  All three sources are named "Air Bike", so they land in the same record inside
+  `add(fold(e.name), …)` in `build-movements.mjs`, before dedup runs at all. The
+  fix is a way to say "this source's record is not the one that name already
+  means", which is a different mechanism in a different script from `sameAs`,
+  and `sameAs` cannot express it: it merges records, and this needs one split.*
+
+  This is what holds the `airbike` collision open. Merging `Air Bike` into
+  `Bike`, as the curated alias asks, would pull an abdominal exercise's muscles
+  onto every bike in the corpus.
 
 - **`scripts/find-duplicates.mjs` cannot see a near-duplicate inside our own
   registry, by construction.** Established 2026-08-22 by checking the pairs it
@@ -637,7 +702,10 @@ when something looks odd before treating it as a discovery.
     proposed.
   - It reads `title` and never `aliases` — so the twelve collisions above, where
     a curator has already written down that two records are the same, are
-    invisible to it.
+    invisible to it. *2026-08-23: those twelve are now answered by `sameAs`
+    rather than by this script, which is the right division — the curator's
+    answer was never a thing to detect. What remains missing is the pairs where
+    nobody has written anything down yet.*
   - Its Jaccard runs on raw tokens with no lemmas, unlike `dedupe-movements.mjs`.
     `Hyperextensions` and `Back Extension` share no token at all and score zero.
 
@@ -653,8 +721,13 @@ when something looks odd before treating it as a discovery.
   with different rules — starting from aliases, which is where the answer is
   already written down.
 
-- **`Pistol` fell out of the core, correctly, and should probably be put back by
-  hand.** 2026-08-22. `Air Squat` carried the alias `squat`, which is a movement
+- **~~`Pistol` fell out of the core, correctly, and should probably be put back
+  by hand.~~ Closed 2026-08-23 without a hand, by merging `Pistol Squat` into
+  it.** The two sources that record came with take `Pistol` from one source to
+  three and its score from 3 to 8, so it is core again on the same threshold
+  that dropped it. Worth keeping the entry: nothing about the threshold changed,
+  and the argument below for queue item 4 is unaffected by the fact that this
+  particular movement stopped being an example of it. 2026-08-22. `Air Squat` carried the alias `squat`, which is a movement
   in its own right; `link-families.mjs` indexes aliases before titles in id
   order, so wger's squat variation group resolved its member "Squat" to
   `air-squat`, and the family was then named after its shortest member —

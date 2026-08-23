@@ -1,5 +1,5 @@
 {
- "$comment": "Movement registry seed. Only id and title are required; everything else is advisory (movement_registry_design.md §2). Classification data serves balance analysis only.",
+ "$comment": "Movement registry seed. Only id and title are required; everything else is advisory (movement_registry_design.md §2). Classification data serves balance analysis only. `sameAs` is the one field that is not advisory and not a fact about the movement: it names ids in the merged corpus that this record is one movement with, and scripts/dedupe-movements.mjs absorbs them and drops the field.",
  "version": "2026.5",
  "movements": [
   {
@@ -105,6 +105,9 @@
    "aliases": [
     "bodyweight squat",
     "bw squat"
+   ],
+   "sameAs": [
+    "bodyweight-squat"
    ],
    "equipment": [
     "bodyweight"
@@ -1807,8 +1810,7 @@
    "id": "block-deadlift",
    "title": "Block Deadlift",
    "aliases": [
-    "block pull",
-    "rack pull"
+    "block pull"
    ],
    "muscles": {
     "primary": [
@@ -4324,6 +4326,9 @@
     "dumbbell bicep curl",
     "dumbbell biceps curl"
    ],
+   "sameAs": [
+    "dumbbell-bicep-curl"
+   ],
    "implements": 2,
    "load": "per-implement",
    "laterality": [
@@ -5190,6 +5195,9 @@
    "aliases": [
     "farmer carry",
     "farmers walk"
+   ],
+   "sameAs": [
+    "farmer-s-walk"
    ],
    "implements": 2,
    "load": "per-implement",
@@ -7528,7 +7536,6 @@
    "id": "kettlebell-swing",
    "title": "Kettlebell Swing",
    "aliases": [
-    "american swing",
     "kb swing",
     "kbs",
     "russian swing"
@@ -7903,6 +7910,9 @@
    "title": "L-Sit Hold",
    "aliases": [
     "l sit hold on parallettes",
+    "l-sit"
+   ],
+   "sameAs": [
     "l-sit"
    ],
    "equipment": [
@@ -10258,6 +10268,9 @@
     "single leg squat",
     "pistol squat"
    ],
+   "sameAs": [
+    "pistol-squat"
+   ],
    "equipment": [
     "bodyweight"
    ],
@@ -12358,6 +12371,10 @@
     "press",
     "strict press",
     "strict shoulder press"
+   ],
+   "sameAs": [
+    "overhead-press",
+    "strict-press"
    ],
    "implements": 1,
    "load": "total",

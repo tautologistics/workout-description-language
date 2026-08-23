@@ -444,6 +444,50 @@ would be tidier".
   held: a reader who says `women` three rounds in is answering a question about
   the weights, not asking to begin again.
 
+- **Two records are one movement only when a curator says so, in a field that
+  says nothing else.** Settled 2026-08-23, closing queue item 8's residue.
+  `sameAs` on a curated record names ids in the merged corpus it is one movement
+  with; `dedupe-movements.mjs` absorbs them and deletes the field, so no record
+  in the canonical corpus carries one.
+
+  **The tempting cheaper version is to read the alias that is already there**,
+  and it is wrong. `Shoulder Press` carries `overhead press`, `Overhead Press`
+  is a record, and merging on that would have been three lines and no new field.
+  But an alias is a much weaker claim — it says a *name reaches this record* —
+  and the standing rule that an alias must not be a movement in its own right
+  exists precisely because reading one as a merge is how a real movement gets
+  redirected into another record's muscles. The alias pass rejected **fourteen**
+  candidates on that rule in one sitting, `Military Press` and `Barbell Row` and
+  `Handstand` among them; had aliases merged, all fourteen would have merged and
+  each would have been silent. The two claims have to be separable, so they are
+  two fields.
+
+  **It is an instruction, not a fact**, and that is why it does not survive into
+  the corpus. What actually happened is in `mergedFrom` on the surviving record
+  and in `asserted` in `registry/dedupe-audit.json`, so any merge can be read
+  back or unpicked. A `sameAs` naming an id no source produced fails the build
+  by name rather than doing nothing, because doing nothing leaves a collision
+  that was supposed to be gone and no way to tell that from success.
+
+- **A pair judged *not* the same movement has its alias withdrawn.** Same date,
+  and it is the other half of the decision above — without it "no collisions"
+  has two readings and the wrong one is easier. An alias naming a record the
+  curator has just decided is a *different* movement is asserting something
+  false; deleting it is correcting the claim, not quieting the checker. That is
+  the opposite of deleting an alias for a pair that really is one movement,
+  which throws away a curator's answer to keep a checker quiet and is what
+  `sameAs` exists to prevent. `rack pull` came off `Block Deadlift` and
+  `american swing` off `Kettlebell Swing`; `russian swing` stayed, because that
+  one really is the same swing under another name.
+
+  **A collision may also be correct and stay**, which is the third outcome and
+  the one a rule would have missed. `air bike` and `assault bike` on `Bike` are
+  both true — that is what people call those machines — and `Bike` is a lump
+  over several of them. Merging spreads one machine's muscles across all of
+  them; withdrawing throws away a name people write. Both are pinned in
+  `fold.test.ts` with the reason, which is what a debt looks like when neither
+  available move is an improvement.
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).

@@ -51,30 +51,46 @@ describe('registry', () => {
    * nothing validated it — an alias two records claimed resolved to whichever
    * of them owned the matching id, silently, with no test able to notice.
    *
-   * Each survivor is one shape: a curated alias that names a movement the
-   * merged corpus holds as a record of its own. The registry has no way for a
-   * curator to say "these two are the same record" — an alias only attaches a
-   * string to one of them — so the assertion lands as a collision instead of a
-   * merge. Whether each pair *should* merge is a judgement per pair, written up
-   * in docs/context/known-debts.md; the list is pinned exactly rather than
-   * bounded, so a merge that lands fails here as stale instead of leaving a
-   * loose ceiling nobody tightens.
+   * Twelve were found the first time this ran. Every one was the same shape: a
+   * curated alias naming a movement the merged corpus holds as a record of its
+   * own, because the registry had no way for a curator to say "these two are
+   * one record". `sameAs` is that way now, and eight of the twelve were one
+   * movement and are merged; two were not, and the alias asserting otherwise
+   * was withdrawn. The verdicts are per pair in docs/context/known-debts.md.
+   *
+   * Both survivors are `Bike`, and they are one finding rather than two: `Bike`
+   * is a *modality* — a curated lump over the erg, the fan bike and the road —
+   * and absorbing one machine into it spreads that machine's muscles across all
+   * of them. Merging `Assault Bike` put Garmin's chest claim on six cycling
+   * workouts, a 40km ride among them. `Air Bike` is worse: that record is
+   * itself a false merge of Garmin's fan bike with free-exercise-db's bicycle
+   * crunch. Both aliases are correct English and stay; the collision is the
+   * price of a lump the registry cannot express, and is pinned rather than
+   * argued away.
+   *
+   * Pinned exactly rather than bounded, so a merge that lands fails here as
+   * stale instead of leaving a loose ceiling nobody tightens.
    */
   it('has only the known alias collisions in the canonical corpus', () => {
     eq(canonicalRegistry().validate(), [
       'alias "airbike" maps to air-bike, bike',
-      'alias "bodyweightsquat" maps to air-squat, bodyweight-squat',
-      'alias "americanswing" maps to american-swing, kettlebell-swing',
       'alias "assaultbike" maps to assault-bike, bike',
-      'alias "rackpull" maps to block-deadlift, rack-pull',
-      'alias "dumbbellbicepcurl" maps to dumbbell-bicep-curl, dumbbell-curl',
-      'alias "dumbbellbicepscurl" maps to dumbbell-bicep-curl, dumbbell-curl',
-      'alias "farmerswalk" maps to farmer-s-walk, farmers-carry',
-      'alias "lsit" maps to l-sit, l-sit-hold',
-      'alias "overheadpress" maps to overhead-press, shoulder-press',
-      'alias "pistolsquat" maps to pistol, pistol-squat',
-      'alias "strictpress" maps to shoulder-press, strict-press',
     ]);
+  });
+
+  /**
+   * The shape no rule could have fixed, and the reason `sameAs` had to exist.
+   *
+   * `Dumbbell Bicep Curl` and `Dumbbell Curl` both held `dumbbellbicepscurl`
+   * as an *alias* and neither as its name, so there was nothing to rank: every
+   * other collision resolved — wrongly, but uniquely — to whichever record
+   * owned the matching id, while this one reached the `ambiguous` branch and
+   * the step dropped out of muscle attribution entirely. Only a curator saying
+   * the two records are one movement closes it.
+   */
+  it('resolves a spelling that was only ever an alias on both records', () => {
+    const r = canonicalRegistry().resolve('Dumbbell Biceps Curl');
+    ok(r.status === 'ok' && r.entry.id === 'dumbbell-curl', JSON.stringify(r));
   });
 
   it('resolves canonical ids and titles', () => {

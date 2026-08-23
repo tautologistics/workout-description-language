@@ -550,3 +550,27 @@ changed.
 
 *The blast radius of a wrong name is every pass that indexes by name.* Recorded
 2026-08-22.
+
+**The golden snapshot does not cover muscles, so "the corpus did not move" is
+only ever a claim about structure.** `interpretations.json` regenerated
+byte-identical across a merge that moved muscle attribution in eight of the 190
+corpus files, and `workouts.canonical.json` differed only in its date. Every
+habitual check said nothing changed. They were all telling the truth: the digest
+in `test/golden/generate.ts` holds shape, seconds, pacing, unbounded and volume
+by movement, and muscle attribution is not in it — reasonably, since it is a
+digest of how a workout is *understood*, and muscles are a property of the
+registry the workout points into rather than of the workout.
+
+Merging two records changes what a name points at, so it moves muscles and
+nothing else. That is the one shape of change the snapshot is blind to by
+construction, and it is exactly the shape a registry merge has. The diff was
+found by attributing the whole corpus twice — `muscleLoad` over every file,
+once against the previous `movements.canonical.json` and once against the new
+one — which took a throwaway twenty-line script and is the only thing that would
+have caught it. Six of the eight moves were improvements and two were a source's
+bad claim reaching a workout it had not reached before; reporting "no change"
+would have hidden both.
+
+*Ask which digest would have to move for the change you actually made. If the
+answer is "none of them", that is not reassurance — it is a gap.* Recorded
+2026-08-23.

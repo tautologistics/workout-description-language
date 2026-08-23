@@ -755,15 +755,21 @@ been added to this file, so there was nothing here to take off. It is written up
 after the fact, which is why it is a record rather than a plan.*
 
 Three things came out of it that are not aliases, and they are the part worth
-carrying forward:
+carrying forward. The first is closed; doing it raised a fourth:
 
-- **A curated alias cannot merge a record, so an assertion of sameness lands as
-  a collision.** Twelve remain in the canonical corpus, pinned in `fold.test.ts`
-  and listed with per-pair verdicts in [known-debts.md](known-debts.md). Nine of
-  them are genuine duplicates. The fix is a mechanism — `dedupe-movements.mjs`
-  merges on title tokens and has never read an alias — and it is the next thing
-  to build here.
-  *Touches: `scripts/dedupe-movements.mjs`, `packages/core/test/fold.test.ts`.*
+- **~~A curated alias cannot merge a record, so an assertion of sameness lands as
+  a collision.~~ DONE 2026-08-23.** `sameAs` on a curated record names the ids it
+  is one movement with, `dedupe-movements.mjs` absorbs them and drops the field,
+  and `check-aliases.mjs` goes from **13 problems to 2**. Eight of the twelve
+  were one movement and are merged, two were not and the alias asserting
+  otherwise was withdrawn, and two are correct aliases on `Bike` that cannot be
+  merged or withdrawn without making something worse. Verdicts one per pair, and
+  what the merges cost, are in [known-debts.md](known-debts.md); why the
+  mechanism is a field rather than a reading of the alias already there is in
+  [settled-decisions.md](settled-decisions.md).
+  *Touched: `registry/movements.json`, `scripts/dedupe-movements.mjs`,
+  `scripts/build-movements.mjs`, `packages/core/src/fold.ts`,
+  `packages/core/test/fold.test.ts`.*
 - **`find-duplicates.mjs` cannot find a duplicate inside our own registry.** Not
   a bug: it skips same-source pairs, vetoes on any distinguishing token, and
   never reads aliases. A within-registry pass needs different rules, and should
@@ -772,8 +778,25 @@ carrying forward:
 - **`Air Bike` is two exercises in one record**, merged on an identical title:
   Garmin's fan bike and free-exercise-db's bicycle crunch. Nothing guards against
   a title match being wrong, and the merged record scores `core` on
-  `3-sources` for it.
-  *Touches: `scripts/dedupe-movements.mjs`.*
+  `3-sources` for it. *Corrected 2026-08-23: this touches `build-movements.mjs`,
+  not `dedupe-movements.mjs` — all three sources are literally named "Air Bike",
+  so they land in one record inside `add(fold(e.name), …)` before dedup runs.
+  `sameAs` cannot help: it merges records and this one needs splitting.* It is
+  what holds the `airbike` collision open, and it is now the oldest thing on this
+  list with a corpus consequence: `Air Bike` in a workout gets an abdominal
+  exercise's muscles.
+  *Touches: `scripts/build-movements.mjs`.*
+- **`Bike` is a modality, not a movement, and the registry has no word for that.**
+  Raised 2026-08-23 by declining two merges. `Bike` is one record standing for
+  the erg, the fan bike and the road, with six aliases saying so on purpose.
+  Absorbing `Assault Bike` into it put Garmin's `chest` claim onto six corpus
+  workouts including a 40km ride, so it was declined — but the alias is correct
+  English and stays, so the collision stays with it. What is missing is a way to
+  say *these names are one modality and each keeps its own muscles*, which is a
+  third relation beside `sameAs` and `variantOf`. `Row`, `Ski` and `Run` are the
+  same shape and have not been looked at.
+  *Touches: `registry/movements.json`, `scripts/dedupe-movements.mjs`,
+  `packages/core/src/fold.ts`.*
 
 `node scripts/check-aliases.mjs` reports both failure shapes — a key two records
 claim, and an alias whose plural shadows another record — across both registries.
