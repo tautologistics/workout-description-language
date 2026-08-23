@@ -649,11 +649,56 @@ does not expose the cap separately from a computed total. Same class as the
 AMRAP `duration`/`window` conflation, one step along.
 *Touches: `packages/core/src/run.ts`, `apps/builder/builder.js`.*
 
-**4. Curate the generation pool.** `mark-core` scored 178 movements in on source
-agreement, which is a proxy for "commonly catalogued", not "worth putting in a
-workout" — `Quad Stretch` made the cut. Bounded, and it makes generation
-trustworthy.
-*Touches: `registry/movements.json`, `scripts/mark-core.mjs`.*
+**4. ~~Curate the generation pool.~~ DONE 2026-08-23.** `mark-core` scored 178
+movements in on source agreement, which is a proxy for "commonly catalogued", not
+"worth putting in a workout" — `Quad Stretch` made the cut. **178 → 129**, and the
+palette and the generator both read it.
+
+**It was never the threshold.** Moving the bar to 5 drops `Sumo Deadlift`,
+`Face Pull`, `Dips` and `Pistol` and keeps `Smith Machine Squat`, because
+"well attested" and "worth writing into a round" are not the same axis and no
+cut along one orders the other. `commonality` answers the first, which is what
+dedup needs and what it was built for. The pool asks the second.
+
+**So the pool asks for a judgement, and three of the six signals are one:** a
+workout in our corpus writes it, the curator wrote a record for it, or a vendor
+tracks a 1RM for it. Sources agreeing, heading a family and absorbing duplicates
+are facts about *catalogues and names*, and no quantity of them adds up to a
+judgement. They still score, and the score still cuts dedup; they no longer put
+a movement in front of a reader by themselves.
+
+**The threshold went with them**, because it was the same inversion from the
+other side. Curation is +3 against a bar of 4, so a hand-written record that no
+corpus workout happens to use never reached the pool — fourteen did not, among
+them `Bar-Facing Burpee`, `Hang Power Clean`, `Squat Snatch`, `Kettlebell
+Snatch`, `Atlas Stone to Shoulder` and `Log Press`, every one of them carrying a
+`pattern`. Meanwhile `Smith Machine Close-Grip Bench Press` was in.
+
+**What the old rule admitted is the argument for the new one.** Of the 77 records
+it let in on catalogue evidence alone, **every one had no `pattern`** — nothing
+saying it is a squat, a hinge, a pull. `? squat` could not reach one of them.
+They were reachable only through a bare `?`, which is to say only by being picked
+blind, and that is what a bare `?` was doing: three seeds of `15 ? / 12 ? / 10 ?`
+came back `Decline Dumbbell Bench Presses, Dumbbell Floor Presses, Bench Presses`
+— three spellings of one movement in one round.
+
+**Eight records were curated in**, because the cut left real holes and the way to
+fill a hole in the pool is to *write the record*, which is what `registry/movements.json`
+is for. `Barbell Row`, `Inverted Row` and `Ring Row` (horizontal pull had three
+movements, one of which is the erg), `Romanian Deadlift` and `Sumo Deadlift`,
+`Chin-Up`, `Step-up` (the pool had none) and `Russian Twist` (the pool had no
+rotation at all). Five were promotions of records the seed already carried as
+free-exercise-db imports; three are new. Nothing else in 3120 records moved —
+the rebuild diff is those eight and the scores.
+
+**Nothing was removed from the language.** A movement out of the pool is still in
+the registry, still validates, still analyses, and the palette still finds it the
+moment you type — the builder's own rule, that typing is how you reach past the
+core, is what makes a tight pool safe. *Verified in the browser: the palette reads
+`129 of the core set`, `Quad Stretch` is gone from it and still reachable by
+search, and `Ring Row` adds and cues.*
+*Touched: `registry/movements.json`, `scripts/mark-core.mjs`,
+`packages/core/test/generate.test.ts`.*
 
 **5. A range is only a rep range.** `8-12 Toes-to-Bar` is a first-class quantity;
 `100-150ft Farmers Carry` is *not read at all* — the whole thing lands in the

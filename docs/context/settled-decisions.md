@@ -419,6 +419,38 @@ would be tidier".
   held: a reader who says `women` three rounds in is answering a question about
   the weights, not asking to begin again.
 
+- **The generation pool is a judgement, not a score.** Settled 2026-08-23,
+  closing queue item 4. `core` — what `wdl generate` fills a `?` from, and what
+  the builder's palette shows with an empty search box — is the union of the
+  three `mark-core` signals that are somebody's judgement: a workout in our
+  corpus writes it, the curator wrote a record for it in
+  `registry/movements.json`, or a vendor tracks a 1RM for it. There is **no
+  threshold**, and catalogue evidence — sources agreeing, heading a family,
+  absorbing duplicates — cannot put a movement in the pool however much of it
+  there is.
+
+  **The thing to not re-derive is that this is not a tuning knob.** `commonality`
+  measures how well *attested* a record is, which is what deduplication needs and
+  what it was built for; the pool asks whether the movement is worth writing into
+  a round. No cut along the first orders the second — at 5 the pool loses
+  `Sumo Deadlift`, `Face Pull` and `Pistol` and keeps `Smith Machine Squat`. If
+  the pool is wrong again, the fix is a record in the curated seed or a signal
+  that is a judgement, **not a new number**.
+
+  **What follows: curation is how the pool grows.** `registry/movements.json` is
+  the only place a person's judgement enters the pipeline, so a movement that
+  ought to be generated and is not gets a record written for it. Eight were
+  written the day this landed. That also means the curated seed now says two
+  things — this is the authoritative record, *and* this belongs in the pool — and
+  the file's `$sources.curated` note says so.
+
+  **And the pool is not the language.** A movement outside it still validates,
+  still carries muscle data, still analyses, and the palette still finds it the
+  moment you type. Keeping the pool tight is safe precisely because typing
+  reaches past it; that is the builder's own rule, and it is what makes a cut
+  from 178 to 129 a narrowing of what is *offered* rather than of what is
+  *possible*.
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).

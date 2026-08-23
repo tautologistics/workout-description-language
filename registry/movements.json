@@ -1109,6 +1109,38 @@
    "source": "free-exercise-db"
   },
   {
+   "id": "barbell-row",
+   "title": "Barbell Row",
+   "aliases": [
+    "bent-over row",
+    "bent over row"
+   ],
+   "implements": 1,
+   "load": "total",
+   "equipment": [
+    "barbell"
+   ],
+   "pattern": [
+    "horizontal-pull"
+   ],
+   "muscles": {
+    "primary": [
+     "lats",
+     "mid-back",
+     "traps"
+    ],
+    "secondary": [
+     "biceps",
+     "erectors",
+     "forearms"
+    ]
+   },
+   "laterality": [
+    "both"
+   ],
+   "defaultLaterality": "both"
+  },
+  {
    "id": "barbell-seated-calf-raise",
    "title": "Barbell Seated Calf Raise",
    "equipment": "barbell",
@@ -3040,19 +3072,32 @@
   {
    "id": "chin-up",
    "title": "Chin-Up",
+   "aliases": [
+    "chinup"
+   ],
+   "equipment": [
+    "pull-up bar"
+   ],
+   "pattern": [
+    "vertical-pull"
+   ],
    "muscles": {
     "primary": [
-     "lats"
+     "lats",
+     "biceps"
     ],
     "secondary": [
-     "biceps",
-     "forearms",
-     "mid-back"
+     "mid-back",
+     "forearms"
     ]
    },
-   "force": "pull",
-   "mechanic": "compound",
-   "source": "free-exercise-db"
+   "laterality": [
+    "both"
+   ],
+   "defaultLaterality": "both",
+   "related": [
+    "pull-up"
+   ]
   },
   {
    "id": "circus-bell",
@@ -6640,17 +6685,30 @@
   {
    "id": "inverted-row",
    "title": "Inverted Row",
+   "aliases": [
+    "bodyweight row"
+   ],
+   "equipment": [
+    "pull-up bar",
+    "rack"
+   ],
+   "pattern": [
+    "horizontal-pull"
+   ],
    "muscles": {
     "primary": [
+     "lats",
      "mid-back"
     ],
     "secondary": [
-     "lats"
+     "biceps",
+     "forearms"
     ]
    },
-   "force": "pull",
-   "mechanic": "compound",
-   "source": "free-exercise-db"
+   "laterality": [
+    "both"
+   ],
+   "defaultLaterality": "both"
   },
   {
    "id": "inverted-row-straps",
@@ -11103,6 +11161,30 @@
    ]
   },
   {
+   "id": "ring-row",
+   "title": "Ring Row",
+   "equipment": [
+    "rings"
+   ],
+   "pattern": [
+    "horizontal-pull"
+   ],
+   "muscles": {
+    "primary": [
+     "lats",
+     "mid-back"
+    ],
+    "secondary": [
+     "biceps",
+     "abs"
+    ]
+   },
+   "laterality": [
+    "both"
+   ],
+   "defaultLaterality": "both"
+  },
+  {
    "id": "rocket-jump",
    "title": "Rocket Jump",
    "muscles": {
@@ -11152,20 +11234,32 @@
   {
    "id": "romanian-deadlift",
    "title": "Romanian Deadlift",
-   "equipment": "barbell",
+   "aliases": [
+    "rdl"
+   ],
+   "implements": 1,
+   "load": "total",
+   "equipment": [
+    "barbell"
+   ],
+   "pattern": [
+    "hinge"
+   ],
    "muscles": {
     "primary": [
-     "hamstrings"
+     "hamstrings",
+     "glutes"
     ],
     "secondary": [
-     "calves",
-     "glutes",
-     "erectors"
+     "erectors",
+     "lats",
+     "forearms"
     ]
    },
-   "force": "pull",
-   "mechanic": "compound",
-   "source": "free-exercise-db"
+   "laterality": [
+    "both"
+   ],
+   "defaultLaterality": "both"
   },
   {
    "id": "romanian-deadlift-from-deficit",
@@ -11360,17 +11454,28 @@
   {
    "id": "russian-twist",
    "title": "Russian Twist",
+   "equipment": [
+    "bodyweight",
+    "dumbbell",
+    "kettlebell"
+   ],
+   "pattern": [
+    "core"
+   ],
    "muscles": {
     "primary": [
+     "obliques",
      "abs"
     ],
     "secondary": [
-     "erectors"
+     "erectors",
+     "hip-flexors"
     ]
    },
-   "force": "pull",
-   "mechanic": "compound",
-   "source": "free-exercise-db"
+   "laterality": [
+    "both"
+   ],
+   "defaultLaterality": "both"
   },
   {
    "id": "sandbag-carry",
@@ -14468,6 +14573,33 @@
    "source": "free-exercise-db"
   },
   {
+   "id": "step-up",
+   "title": "Step-up",
+   "equipment": [
+    "box",
+    "bodyweight",
+    "dumbbell"
+   ],
+   "pattern": [
+    "squat"
+   ],
+   "muscles": {
+    "primary": [
+     "quads",
+     "glutes"
+    ],
+    "secondary": [
+     "hamstrings",
+     "calves"
+    ]
+   },
+   "laterality": [
+    "split",
+    "per-side"
+   ],
+   "defaultLaterality": "per-side"
+  },
+  {
    "id": "step-up-knee-raise",
    "title": "Step-up with Knee Raise",
    "muscles": {
@@ -14695,24 +14827,31 @@
   {
    "id": "sumo-deadlift",
    "title": "Sumo Deadlift",
-   "equipment": "barbell",
+   "implements": 1,
+   "load": "total",
+   "equipment": [
+    "barbell"
+   ],
+   "pattern": [
+    "hinge"
+   ],
    "muscles": {
     "primary": [
+     "glutes",
+     "quads",
      "hamstrings"
     ],
     "secondary": [
      "adductors",
-     "forearms",
-     "glutes",
      "erectors",
-     "mid-back",
-     "quads",
-     "traps"
+     "traps",
+     "forearms"
     ]
    },
-   "force": "pull",
-   "mechanic": "compound",
-   "source": "free-exercise-db"
+   "laterality": [
+    "both"
+   ],
+   "defaultLaterality": "both"
   },
   {
    "id": "sumo-deadlift-bands",
@@ -16166,7 +16305,7 @@
   }
  ],
  "$sources": {
-  "curated": "Hand-written entries covering the example corpus. Authoritative where they overlap an import.",
+  "curated": "Hand-written entries covering the example corpus. Authoritative where they overlap an import, and — since 2026-08-23 — the judgement that puts a movement in the generation pool: scripts/mark-core.mjs marks a curated record core whatever its score, and marks nothing core on catalogue agreement alone.",
   "free-exercise-db": "https://github.com/yuhonas/free-exercise-db — public domain (Unlicense). Imported for titles, muscles, and equipment; entries carry source: free-exercise-db."
  }
 }

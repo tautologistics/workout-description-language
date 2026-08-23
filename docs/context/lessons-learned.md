@@ -64,6 +64,34 @@ Derive the merged view *from* the claims; never alongside them.
 and never added to `build-canonical.ts`, so a rebuild erased `core` from all 3120
 records. Each step rewrites the file from the one before.
 
+**One number cannot answer two questions, and a threshold hides that it is
+trying.** `commonality` scores how well *attested* a movement is, which is what
+deduplication needs. The generation pool and the builder's palette read the same
+number for something else — is this worth putting in a workout — and `Quad
+Stretch` reached the pool on three catalogues listing it. The trap is that the
+failure looks like a badly-chosen threshold, so the fix looks like moving it; it
+is not. Raising the bar to 5 drops `Sumo Deadlift`, `Face Pull` and `Pistol` and
+keeps `Smith Machine Squat`, because there is no cut along "well attested" that
+orders "worth writing into a round". **When one score is serving two questions,
+separate the questions, not the cut.** The pool now takes the three signals that
+are a *judgement* — the corpus writes it, the curator wrote a record, a vendor
+tracks a 1RM — and the score is left alone to go on doing dedup.
+
+The same collision had the *strongest* evidence in the whole pipeline coming
+last: hand curation is +3 against a bar of 4, so a curated record no corpus
+workout happened to use never reached the pool at all. Fourteen did not, while
+`Smith Machine Close-Grip Bench Press` did. A weight and a threshold quietly rank
+kinds of evidence against each other; naming which evidence answers which
+question does not.
+
+**And the shape of the wrong answers is where to look for the rule.** All 77
+records the threshold admitted on catalogue evidence alone had **no `pattern`** —
+none of them classified as a squat, a hinge or a pull, so `? squat` could never
+reach one and they entered workouts only through a bare `?`. That correlation was
+sitting in the data the whole time and is what turned a taste argument about
+which movements deserve to be there into a statement that can be checked. Found
+2026-08-23, queue item 4.
+
 **A wrong turn worth recording:** the first fix for browser portability was a
 build-time module substitution — emit a `registry.web.js` and swap the specifier.
 That is a workaround for a design smell. The core should not know where its data
