@@ -738,6 +738,50 @@ picture can say before it starts lying.
 *Touches: a new asset (the SVG), `apps/builder/`, `apps/display/`, and reads from
 `muscles.ts` / `volume.ts` — no core change expected.*
 
+**8. ~~An alias pass over the core.~~ DONE 2026-08-22, with a residue.** The
+registry held 278 aliases across 219 of 3120 movements, 117 of the 178 core.
+It now holds **407 across 265, and 162 of the 177 core** — 131 written by hand
+onto the core, against the two rules the measurement had already shown mattered:
+an alias must fold to something no other entry claims, and an alias must not be
+a movement in its own right. The second rule did most of the work and cost the
+most judgement: **fourteen candidates were rejected because the registry already
+held them as records** — `Military Press`, `Barbell Row`, `Handstand`,
+`Squat Snatch`, `Hollow Rock`, `Ring Row`, `Upright Row`, `Calf Raise`,
+`Bicycle Crunch` among them — and every one of those would have redirected a
+real movement into a different record's muscles.
+
+*Corrected 2026-08-22: this item was worked from a written brief but had never
+been added to this file, so there was nothing here to take off. It is written up
+after the fact, which is why it is a record rather than a plan.*
+
+Three things came out of it that are not aliases, and they are the part worth
+carrying forward:
+
+- **A curated alias cannot merge a record, so an assertion of sameness lands as
+  a collision.** Twelve remain in the canonical corpus, pinned in `fold.test.ts`
+  and listed with per-pair verdicts in [known-debts.md](known-debts.md). Nine of
+  them are genuine duplicates. The fix is a mechanism — `dedupe-movements.mjs`
+  merges on title tokens and has never read an alias — and it is the next thing
+  to build here.
+  *Touches: `scripts/dedupe-movements.mjs`, `packages/core/test/fold.test.ts`.*
+- **`find-duplicates.mjs` cannot find a duplicate inside our own registry.** Not
+  a bug: it skips same-source pairs, vetoes on any distinguishing token, and
+  never reads aliases. A within-registry pass needs different rules, and should
+  start from the aliases, where the answer is already written down.
+  *Touches: `scripts/find-duplicates.mjs` or a sibling.*
+- **`Air Bike` is two exercises in one record**, merged on an identical title:
+  Garmin's fan bike and free-exercise-db's bicycle crunch. Nothing guards against
+  a title match being wrong, and the merged record scores `core` on
+  `3-sources` for it.
+  *Touches: `scripts/dedupe-movements.mjs`.*
+
+`node scripts/check-aliases.mjs` reports both failure shapes — a key two records
+claim, and an alias whose plural shadows another record — across both registries.
+The suite validates the canonical corpus for the first time; before this it only
+ever validated the curated file, which is not the one analysis reads.
+*Touched: `registry/movements.json`, `scripts/build-movements.mjs`,
+`scripts/check-aliases.mjs`, `packages/core/test/fold.test.ts`.*
+
 *Ordering of 5, 6 and 7 against 1–4 is not settled — they are appended rather
 than placed, and all three were raised by writing and sending one workout rather
 than by a plan. **0f was lettered rather than numbered on purpose** — grammar work,

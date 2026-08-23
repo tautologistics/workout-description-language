@@ -1,6 +1,6 @@
 {
  "$comment": "Every merge this pass made, and every variant-of link. Each cluster lists the records absorbed, so a merge can be inspected or unpicked.",
- "generated": "2026-08-18",
+ "generated": "2026-08-22",
  "clusters": [
   {
    "key": "abs barbell rollout",
@@ -188,6 +188,7 @@
      "id": "barbell-bench-press",
      "title": "Barbell Bench Press",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -207,6 +208,7 @@
      "id": "barbell-biceps-curl",
      "title": "Barbell Biceps Curl",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -892,6 +894,7 @@
      "id": "bent-over-row-barbell",
      "title": "Bent-over Row with Barbell",
      "sources": [
+      "wdl-curated",
       "garmin",
       "everkinetic"
      ]
@@ -995,6 +998,7 @@
      "id": "biceps-curl-machine",
      "title": "Biceps Curl Machine",
      "sources": [
+      "wdl-curated",
       "wger",
       "everkinetic"
      ]
@@ -1054,6 +1058,7 @@
      "id": "box-jump-overs",
      "title": "Box Jump Overs",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -1171,6 +1176,7 @@
      "id": "cable-front-raise",
      "title": "Cable Front Raise",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -1567,6 +1573,7 @@
      "id": "dumbbell-fly",
      "title": "Dumbbell Fly",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -1905,6 +1912,7 @@
      "id": "dumbbell-split-squat",
      "title": "Dumbbell Split Squat",
      "sources": [
+      "wdl-curated",
       "garmin",
       "wger"
      ]
@@ -2125,6 +2133,7 @@
      "id": "front-raises",
      "title": "Front Raises",
      "sources": [
+      "wdl-curated",
       "wger",
       "everkinetic"
      ]
@@ -2203,6 +2212,7 @@
      "id": "hyperextensions",
      "title": "Hyperextensions",
      "sources": [
+      "wdl-curated",
       "wger",
       "everkinetic"
      ]
@@ -2418,6 +2428,7 @@
      "id": "lunge",
      "title": "Lunge",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -2994,6 +3005,7 @@
      "id": "squat",
      "title": "Squat",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -4009,6 +4021,7 @@
      "id": "dumbbell-fly",
      "title": "Dumbbell Fly",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -4112,6 +4125,7 @@
      "id": "front-raises",
      "title": "Front Raises",
      "sources": [
+      "wdl-curated",
       "wger",
       "everkinetic"
      ]
@@ -4230,6 +4244,7 @@
      "id": "hyperextensions",
      "title": "Hyperextensions",
      "sources": [
+      "wdl-curated",
       "wger",
       "everkinetic"
      ]
@@ -4243,6 +4258,7 @@
      "id": "incline-dumbbell-fly",
      "title": "Incline Dumbbell Fly",
      "sources": [
+      "wdl-curated",
       "garmin",
       "wger"
      ]
@@ -4363,6 +4379,7 @@
      "id": "lunge",
      "title": "Lunge",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -4603,6 +4620,7 @@
      "id": "squat",
      "title": "Squat",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },

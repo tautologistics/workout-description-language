@@ -510,3 +510,43 @@ imagined to live and the share link would never have been considered.
 
 *A claim of the form "X already does Y, so Z should too" is a measurement written
 in the past tense. Run it.* Recorded 2026-08-20.
+
+**A pipeline step that skips a record skips everything on it, including the parts
+nothing upstream supplies.** `build-movements.mjs` opened with
+`if (m.source === 'free-exercise-db') continue`, which is right for the reason it
+was written: those 852 records in `registry/movements.json` are a snapshot of the
+import, and their muscles and equipment are re-read from the reference file
+rather than trusted twice. But `aliases` is not in the snapshot — no upstream
+catalogue has the field — so an alias hand-written onto one of those records was
+dropped on the floor. Fifty-eight of the 178 core movements sit on such a record,
+so a third of the alias pass would have gone nowhere, silently, and the only
+visible symptom would have been aliases that failed to resolve — the exact
+failure the pass existed to remove.
+
+The tell was in the shape of the guard, not in the data: it filtered by *where a
+record came from* and used that to decide *what to do with all of it*. Provenance
+answers the first question and not the second. Aliases are now collected from
+those records and applied after every source has been read, and the script says
+so where the guard is.
+
+*A `continue` keyed on provenance is a claim that no field on the record is
+hand-kept. Check that it is one.* Recorded 2026-08-22.
+
+**An alias that overreaches does not merely fail to resolve — it redirects, and
+the redirect travels.** `Air Squat` carried the alias `squat` and `Walking Lunge`
+carried `lunge`, both of which are movements the registry holds as records of
+their own. The visible cost looked like a two-line duplicate-name problem. The
+actual cost was three steps downstream: `link-families.mjs` indexes aliases as
+well as titles, in id order, so `air-squat` claimed the key `squat` before the
+`Squat` record was reached; wger's squat variation group resolved its member
+"Squat" to `air-squat`; the family was named after its shortest member, and the
+squat family in `registry/movements.canonical.json` was called **`pistol`**.
+
+Nobody would have found that by reading the family list, because a family named
+`pistol` containing fourteen squats is not obviously wrong until you ask why.
+It was found by fixing the alias and watching an unrelated number move —
+`mark-core` reported 177 instead of 178 — and chasing the one record that
+changed.
+
+*The blast radius of a wrong name is every pass that indexes by name.* Recorded
+2026-08-22.

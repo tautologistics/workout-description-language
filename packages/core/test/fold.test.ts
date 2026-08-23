@@ -45,6 +45,38 @@ describe('registry', () => {
     eq(reg.validate(), []);
   });
 
+  /**
+   * The curated file is not the registry analysis reads. `muscles.ts`,
+   * `volume.ts` and every goal rule go through `canonicalRegistry()`, and
+   * nothing validated it — an alias two records claimed resolved to whichever
+   * of them owned the matching id, silently, with no test able to notice.
+   *
+   * Each survivor is one shape: a curated alias that names a movement the
+   * merged corpus holds as a record of its own. The registry has no way for a
+   * curator to say "these two are the same record" — an alias only attaches a
+   * string to one of them — so the assertion lands as a collision instead of a
+   * merge. Whether each pair *should* merge is a judgement per pair, written up
+   * in docs/context/known-debts.md; the list is pinned exactly rather than
+   * bounded, so a merge that lands fails here as stale instead of leaving a
+   * loose ceiling nobody tightens.
+   */
+  it('has only the known alias collisions in the canonical corpus', () => {
+    eq(canonicalRegistry().validate(), [
+      'alias "airbike" maps to air-bike, bike',
+      'alias "bodyweightsquat" maps to air-squat, bodyweight-squat',
+      'alias "americanswing" maps to american-swing, kettlebell-swing',
+      'alias "assaultbike" maps to assault-bike, bike',
+      'alias "rackpull" maps to block-deadlift, rack-pull',
+      'alias "dumbbellbicepcurl" maps to dumbbell-bicep-curl, dumbbell-curl',
+      'alias "dumbbellbicepscurl" maps to dumbbell-bicep-curl, dumbbell-curl',
+      'alias "farmerswalk" maps to farmer-s-walk, farmers-carry',
+      'alias "lsit" maps to l-sit, l-sit-hold',
+      'alias "overheadpress" maps to overhead-press, shoulder-press',
+      'alias "pistolsquat" maps to pistol, pistol-squat',
+      'alias "strictpress" maps to shoulder-press, strict-press',
+    ]);
+  });
+
   it('resolves canonical ids and titles', () => {
     const r = reg.resolve('Thruster');
     ok(r.status === 'ok' && r.entry.id === 'thruster', JSON.stringify(r));

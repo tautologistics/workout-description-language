@@ -569,6 +569,103 @@ when something looks odd before treating it as a discovery.
   orphaning it and invalidating the file. `shift` guards only against negative
   indent, never against having no parent to attach to.
 
+- **Twelve aliases in the canonical corpus are claimed by two records, and the
+  registry has no way to say which is meant.** Found 2026-08-22 during the alias
+  pass over the core, by running `Registry.validate()` on `canonicalRegistry()`
+  for the first time — the suite had only ever validated the *curated* file, and
+  analysis reads the other one. Pinned exactly in `fold.test.ts` and reported by
+  `scripts/check-aliases.mjs`.
+
+  Every one is the same shape. A curated record carries an alias that is another
+  record's *title*: `shoulder-press` claims `overhead press`, and the merged
+  corpus also holds `Overhead Press` from wger. **The registry has no way for a
+  curator to say "these two records are the same thing"** — an alias attaches a
+  string to one record, it does not merge the other into it — so an assertion of
+  sameness lands as a collision. `lookup()` tries `byKey` before `byAlias`, so
+  the name resolves to whichever record owns the matching *id* and the curator's
+  claim is silently discarded; it does not even reach the `ambiguous` branch.
+
+  Verified pair by pair. Nine read as genuine duplicates the merge did not
+  catch, because the two names differ by a token `find-duplicates` treats as
+  distinguishing: `overhead-press`/`shoulder-press`, `strict-press`/
+  `shoulder-press`, `farmer-s-walk`/`farmers-carry`, `l-sit`/`l-sit-hold`,
+  `pistol-squat`/`pistol`, `bodyweight-squat`/`air-squat`, `assault-bike`/`bike`,
+  `dumbbell-bicep-curl`/`dumbbell-curl` (twice), `american-swing`/
+  `kettlebell-swing`. Two are a curator's judgement rather than a fact —
+  `block-deadlift`/`rack-pull` are different bars in different positions and are
+  conflated in every gym; `american-swing` is a *variant* of the kettlebell
+  swing, not a synonym. One is neither, and is listed on its own below.
+
+  Not fixed here because the fix is a mechanism, not an edit: something has to
+  read a curated alias as an instruction to absorb the record it names, and that
+  is a change to `dedupe-movements.mjs`, which merges on title tokens and has
+  never looked at an alias. Two more were fixed, because they were the opposite
+  error — see the next entry.
+
+- **`Air Bike` is one record holding two different exercises.** Found 2026-08-22.
+  Garmin's `INDOOR_BIKE/AIR_BIKE` is the fan bike; free-exercise-db's `Air_Bike`
+  and everkinetic's `0284` are the *bicycle crunch* — "lie flat on the floor
+  with your lower back pressed to the ground". `dedupe-movements.mjs` merges on
+  identical title tokens, so it collapsed them, and the result claims `abs` and
+  `quads` as primaries and scores `core` on `3-sources` — a signal that reads as
+  three catalogues agreeing when it is three catalogues being merged by their
+  spelling. `Bicycle Crunch` is separately a record of its own.
+
+  This is the failure mode the merge was built to avoid, arriving from the
+  direction nobody guarded: the veto lists in `find-duplicates.mjs` and
+  `dedupe-movements.mjs` stop *similar* names from merging, and nothing stops
+  *identical* ones. A title match is treated as proof, and for a name this
+  generic it is not.
+
+- **`scripts/find-duplicates.mjs` cannot see a near-duplicate inside our own
+  registry, by construction.** Established 2026-08-22 by checking the pairs it
+  misses against its own rules, rather than by treating each miss as a bug. It
+  is a *cross-source, same-shape* detector, and every one of these fails a gate
+  it applies on purpose:
+
+  - `if (A.sources.some((s) => B.sources.includes(s))) continue` — a pair
+    sharing any source is skipped as deliberate. `Pec Deck` and
+    `Machine chest fly` are both wger-only, so they are never compared;
+    `Butterfly` shares wger with both, so it is never compared with either.
+    wger is the largest single catalogue, which makes this the widest blind spot.
+  - A veto token present in one name and absent from the other rules the pair
+    out entirely. That is the whole "generic versus qualified" class:
+    `Curl`/`Barbell Curl`, `Leg Curl`/`Seated Leg Curl`,
+    `Star Jump`/`Jumping Jacks`, `Hyperextensions`/`Back Extension`.
+  - `if (idxs.length > 300) continue` drops any blocking token that common, so a
+    pair whose only shared non-veto token is `press` or `curl` is never even
+    proposed.
+  - It reads `title` and never `aliases` — so the twelve collisions above, where
+    a curator has already written down that two records are the same, are
+    invisible to it.
+  - Its Jaccard runs on raw tokens with no lemmas, unlike `dedupe-movements.mjs`.
+    `Hyperextensions` and `Back Extension` share no token at all and score zero.
+
+  So the 52 collisions an external alias set turned up are not a failure of the
+  script — they are outside what it looks for. **Three of the five pairs
+  suspected of being near-duplicates are not duplicates**, and checking beat
+  guessing every time: `Curl`, `Leg Curl` and `Squat` are family bases with
+  `variantOf` links already pointing at them, and `Star Jump` is a plyometric
+  squat jump ("squat down halfway and explode back up... spreading your legs and
+  arms") while `Jumping Jacks` is a standing cardio jack. `Pec Deck`/
+  `Butterfly`/`Machine chest fly` do look like one machine under three names,
+  and are the pair worth a decision. What is missing is a *within-registry* pass
+  with different rules — starting from aliases, which is where the answer is
+  already written down.
+
+- **`Pistol` fell out of the core, correctly, and should probably be put back by
+  hand.** 2026-08-22. `Air Squat` carried the alias `squat`, which is a movement
+  in its own right; `link-families.mjs` indexes aliases before titles in id
+  order, so wger's squat variation group resolved its member "Squat" to
+  `air-squat`, and the family was then named after its shortest member —
+  `Pistol`. The squat family was called `pistol`. Dropping the overreaching alias
+  names the family `Squat`, which is right, and costs `Pistol` the `family-base`
+  point that was holding it at the threshold: 4 → 3, and core goes 178 → 177.
+
+  Nothing about Pistol changed. This is `mark-core`'s threshold behaving as
+  documented — "a threshold, not a truth" — and it is an argument for queue item
+  4, where pool membership is decided by judgement instead of by score.
+
 The ones with a plan attached are queued in
 [ready-to-pick-up.md](ready-to-pick-up.md); the ones found by driving the
 builder are in [builder-ux.md](builder-ux.md).

@@ -51,8 +51,19 @@ function add(key, title, source, f = {}) {
 }
 
 // 1. curated core
+//
+// A record marked `source: free-exercise-db` is a snapshot of the import, so
+// its classification is re-read from the reference file rather than trusted
+// here. Its *aliases* are not part of that snapshot — nothing upstream carries
+// them — so they are hand-kept like any other and are applied below, after the
+// record exists. Skipping the whole record silently dropped them, which is the
+// same shape of failure an unresolvable alias is: no error, just no effect.
+const handKeptAliases = new Map();
 for (const m of JSON.parse(readFileSync('registry/movements.json', 'utf8')).movements) {
-  if (m.source === 'free-exercise-db') continue;
+  if (m.source === 'free-exercise-db') {
+    if (m.aliases?.length) handKeptAliases.set(fold(m.title), m.aliases);
+    continue;
+  }
   add(fold(m.title), m.title, 'wdl-curated', {
     aliases: m.aliases ?? [], primary: norm(m.muscles?.primary), secondary: norm(m.muscles?.secondary),
     pattern: m.pattern ?? [],
@@ -105,6 +116,17 @@ if (existsSync('docs/references/everkinetic.json')) {
       __upstream: e.id, __name: t,
     });
   }
+}
+
+// The hand-kept aliases of records seeded from free-exercise-db, applied now
+// that every source has been read and the records they name exist.
+for (const [key, aliases] of handKeptAliases) {
+  const r = records.get(key);
+  if (!r) {
+    console.error(`registry/movements.json carries aliases for "${key}", which no source produced.`);
+    process.exit(1);
+  }
+  for (const a of aliases) r.aliases.add(a);
 }
 
 if (unknownMuscles.size) {

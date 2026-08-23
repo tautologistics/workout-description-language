@@ -43,6 +43,31 @@ would be tidier".
   the format only works once a program has reformatted it, the format has failed.
 - **Movement identity survives spelling.** `fold()` depluralizes, so `Pull-Up`
   and `Pull-Ups` resolve to one record. Pluralization is how a name *reads*.
+- **An alias is another spelling of one movement — never a claim that two
+  records are the same one.** Settled 2026-08-22, during the alias pass over the
+  core. `Back Squat` does not fold into `Squat`: the registry holds both and they
+  are different lifts, so a name that is a movement in its own right stays a
+  record and never becomes an alias of another. Fourteen candidates in that pass
+  were rejected on this rule alone — `Military Press`, `Barbell Row`,
+  `Handstand`, `Upright Row`, `Bicycle Crunch` among them — and each would have
+  redirected a real movement into a different record's muscles while `wdl check`
+  said nothing.
+
+  **The rule holds even when the two records really are the same movement**, and
+  that is the part that is easy to get backwards. `shoulder-press` carries the
+  alias `overhead press` and the merged corpus also holds `Overhead Press`; the
+  alias is *right* about them being one lift and is still the wrong instrument.
+  `Registry.lookup()` tries ids before aliases, so the claim is discarded in
+  silence rather than honoured. Sameness needs a merge, which is a thing the
+  registry cannot yet express — see [known-debts.md](known-debts.md). **The fix
+  for such a pair is to merge the records, never to delete the alias**, which is
+  the tempting reading of "no collisions" and would throw away a curator's answer
+  to keep a checker quiet.
+
+  What *is* an alias: an abbreviation (`t2b`, `rdl`, `hspu`), a regional or
+  colloquial spelling (`tyre flip`, `australian pull-up`, `prowler push`), or a
+  word order the token matcher does not reach. `node scripts/check-aliases.mjs`
+  reports every alias that stops pointing somewhere unique.
 - **The grammar is written in PEG, and the notation carries no actions.** Settled
   2026-08-14 by the exploration in
   [../grammar-exploration.md](../grammar-exploration.md). PEG rather than EBNF
