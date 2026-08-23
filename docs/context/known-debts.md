@@ -569,6 +569,34 @@ when something looks odd before treating it as a discovery.
   orphaning it and invalidating the file. `shift` guards only against negative
   indent, never against having no parent to attach to.
 
+- **A duplicate whose two names share no words is invisible to
+  `find-duplicates.mjs`, and always was.** The finder scores Jaccard overlap of
+  folded token sets and vetoes on a discriminative token — the implement, the
+  side, the grip. Both halves work as designed. But a **synonym** is not a
+  variant: `Butterfly` and `Machine chest fly` have no token in common, and no
+  tuning of a token-overlap score reaches a pair whose overlap is zero. Same for
+  `Star Jump` / `Jumping Jacks`. Two more are vetoed *correctly by the rule and
+  wrongly by the outcome* — `Curl` / `Barbell Curl` and `Low row` /
+  `Seated Cable Row` differ by a discriminative token, which is exactly the
+  signal that keeps `Barbell Bench Press` apart from `Dumbbell Bench Press`.
+
+  Surfaced 2026-08-22 by matching an external alias vocabulary against the
+  registry, which threw 52 collisions. That is the point worth keeping: **an
+  alias list is the only thing that bridges two names sharing no tokens**, so
+  alias coverage and duplicate detection are the same problem seen from two
+  sides. Queue item 8 does both in one pass.
+
+  Not every pair is a duplicate — folding `Back Squat` into `Squat` would be
+  wrong here, since the registry holds both and they are different lifts — so
+  the list is a lead, not a work order.
+
+- **`registry/duplicate-candidates.json` is a 694-item backlog nobody has
+  triaged.** Generated 2026-08-12 and untouched since. Two of the pairs the alias
+  comparison surfaced — `GHD Back Extensions` / `Hyperextensions & Back
+  Extensions`, and `Seated Leg Curl` / `Leg Curl` — **are already in it**. So for
+  those the finder is not the problem; nothing reads its output. A report that
+  runs, writes 694 rows and is never opened costs the same as not running.
+
 The ones with a plan attached are queued in
 [ready-to-pick-up.md](ready-to-pick-up.md); the ones found by driving the
 builder are in [builder-ux.md](builder-ux.md).

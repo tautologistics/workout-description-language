@@ -738,9 +738,50 @@ picture can say before it starts lying.
 *Touches: a new asset (the SVG), `apps/builder/`, `apps/display/`, and reads from
 `muscles.ts` / `volume.ts` — no core change expected.*
 
-*Ordering of 5, 6 and 7 against 1–4 is not settled — they are appended rather
-than placed, and all three were raised by writing and sending one workout rather
-than by a plan. **0f was lettered rather than numbered on purpose** — grammar work,
+**8. An alias pass over the core.** The registry holds **278 aliases across 219
+of 3120 movements**, and an alias it does not know is not a small loss — the step
+fails to resolve, so it drops out of muscle attribution, out of volume, and out
+of every goal rule, while `wdl check` says nothing. That is the same silence
+shape as item 5.
+
+The hole was *measured* rather than guessed, while pricing a source we did not
+take (see **Strength Level** in
+[deliberately-not-done.md](deliberately-not-done.md)). Their catalogue named 55
+ways of writing a movement we hold that we cannot currently resolve — `Pulldown`
+for Lat Pull-down, `Bench` for Bench Press, `Seated Row` for Seated Cable Row,
+`Pushdown` for Triceps Pushdown, `Elbow Plank` for Plank, `Fly` for Dumbbell Fly
+— **24 of them on core movements**. None of that is anyone's proprietary
+knowledge; it is what a gym says out loud, and the reason it is a queue item
+rather than an import is that a curator with our own movement list can write it
+unaided. Their data sized the hole. It is not needed to fill it.
+
+Bounded the same way `mark-core` is: **178 core movements**, each asked what else
+it gets called. Two rules that the measurement already proves matter — every new
+alias must fold to something no other entry claims (`Registry.validate()` already
+fails on a collision, so the suite enforces this for free), and an alias must not
+be a movement in its own right. That second one is the whole difficulty: folding
+`Back Squat` into `Squat` is *wrong here* even though Strength Level does it,
+because we hold both and they are different lifts.
+
+Do the audit in the same pass. Comparing their aliases to ours threw **52
+collisions**, and a good share are near-duplicates *inside our registry* rather
+than disagreements with them — `Curl` apart from `Barbell Curl`, `Leg Curl` from
+`Seated Leg Curl`, `Hyperextensions` from `Back Extension`, `Butterfly` and
+`Pec Deck` from `Machine chest fly`, `Star Jump` from `Jumping Jacks`. Those are
+facts about our own data, and they split two ways — see the two duplicate entries
+in [known-debts.md](known-debts.md). Some are **already** in
+`registry/duplicate-candidates.json`, a 694-row report generated 2026-08-12 that
+nothing has read since. The rest are invisible to `find-duplicates.mjs` by
+construction: it scores token overlap, and `Butterfly` shares no word with
+`Machine chest fly`. An alias list is the only thing that bridges those, which
+is why the two halves of this item are one job.
+*Touches: `registry/movements.json`, `scripts/build-movements.mjs`,
+`scripts/find-duplicates.mjs`, and a regenerate of `registry/`.*
+
+*Ordering of 5, 6, 7 and 8 against 1–4 is not settled — they are appended rather
+than placed. The first three were raised by writing and sending one workout
+rather than by a plan; 8 came out of pricing a source that was declined.
+**0f was lettered rather than numbered on purpose** — grammar work,
 belonging with the 0-series — and both its halves are closed, so **item 1 is the
 next one off the queue.** The one thing 0f left behind is `TABATA`, which is not
 an abbreviation to read but a structure to define; it is written up under 0f
