@@ -569,6 +569,17 @@ when something looks odd before treating it as a discovery.
   orphaning it and invalidating the file. `shift` guards only against negative
   indent, never against having no parent to attach to.
 
+- **`docs/product_vision_and_roadmap.md` still cites the pre-second-dedup corpus.**
+  Section G reads "3148 merged from five sources, of which 181 are marked core and
+  101 cover the corpus"; the file holds **3120** with **178** core. Left wrong on
+  2026-08-23 while fixing the same stale `3148` in `registry/SOURCES.md` and
+  `scripts/mark-core.mjs`, because the third figure in that sentence cannot be
+  reproduced: "101 cover the corpus" matches neither the **67** records whose
+  `commonalityWhy` includes `used-in-corpus` nor the **126** distinct movements the
+  corpus actually uses. Correcting two of three would make the line look freshly
+  checked when it is not. Someone has to work out what "cover the corpus" was
+  measuring before the sentence is worth touching.
+
 The ones with a plan attached are queued in
 [ready-to-pick-up.md](ready-to-pick-up.md); the ones found by driving the
 builder are in [builder-ux.md](builder-ux.md).
