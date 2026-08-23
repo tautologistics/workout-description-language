@@ -264,7 +264,7 @@
     }
   ],
   "mergedCorpora": {
-    "registry/movements.canonical.json": "3335 movements from wdl-curated, garmin, free-exercise-db, wger and everkinetic. 3161 carry muscle data, 1510 a Garmin mapping, 850 names in other languages.",
+    "registry/movements.canonical.json": "3120 movements from garmin, free-exercise-db, wger, everkinetic and wdl-curated. 2983 carry muscle data, 1503 a Garmin mapping, 621 a name in another language, 178 marked core.",
     "registry/workouts.canonical.json": "202 workouts with source text, parsed AST and derived summary."
   }
 }
