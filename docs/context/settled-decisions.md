@@ -419,6 +419,31 @@ would be tidier".
   held: a reader who says `women` three rounds in is answering a question about
   the weights, not asking to begin again.
 
+- **A bound and a length are two fields, and what decides between them is what
+  ends the work.** Settled 2026-08-23, closing queue item 3. The tempting
+  simplification is the one that was already in the code: a cap bounds the
+  workout, so report it as the duration and be done. It is wrong in the way that
+  matters most here, because the number then appears on a whiteboard-adjacent
+  screen under a word that means something else — `duration: 12:00` over a file
+  that says *at most* twelve. So `Timeline.cap`/`Run.cap` carry the bound,
+  `estimatedSeconds`/`totalSeconds` carry the length, and **neither is ever
+  filled in with the other**. A surface that can only show one number must choose
+  explicitly and say which it chose; `wdl export --to connect` does, because
+  Connect has one field and nowhere to say "at most".
+
+  **The test is not "is there a cap" but "does the work end when the work is
+  done, or when the clock is".** A bare `AMRAP:` under a cap runs until the clock
+  stops (§5.6), so it ends *at* the cap and the cap is genuinely its length —
+  both fields are set for that shape and only that shape. Asked the first way the
+  fix needs an exception list and breaks `77-tiff.wdl`; asked the second way the
+  exception falls out of the rule. That is `fillsTheClock()` in `timeline.ts`.
+
+  **A cap counts only on the spine**, which is the rule already settled for a
+  window: an only child of an only child, up to the root. A capped section
+  between two others caps that section and says nothing about how long the
+  workout may take. Nothing about a cap justified a second rule for the same
+  question.
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).

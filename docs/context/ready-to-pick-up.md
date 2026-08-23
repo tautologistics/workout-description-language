@@ -682,13 +682,9 @@ passing, 1 pending.
 `test/golden/generate.ts` + `interpretations.json`,
 `registry/workouts.canonical.json`.*
 
-**The board still shows no cap, and that is now the gap this leaves.** A capped
-workout counts *up* on the board with nothing to race, because a cap creates no
-cycle and the countdown comes from `cycle.window`. `Run.cap` is what a countdown
-would need and it exists now, but what happens at expiry is a real question —
-§5.6 says the workout ends — and it is a different piece of work from telling the
-two numbers apart. Filed rather than folded in. *(While looking: `state.window`
-in `board.js` is assigned and never read.)*
+**The gap this leaves is item 8**, and it is filed rather than folded in: the
+board still shows no cap, because telling the two numbers apart and deciding what
+a running clock does when one expires are different pieces of work.
 
 **4. Curate the generation pool.** `mark-core` scored 178 movements in on source
 agreement, which is a proxy for "commonly catalogued", not "worth putting in a
@@ -779,13 +775,44 @@ picture can say before it starts lying.
 *Touches: a new asset (the SVG), `apps/builder/`, `apps/display/`, and reads from
 `muscles.ts` / `volume.ts` — no core change expected.*
 
-*Ordering of 5, 6 and 7 against 1–4 is not settled — they are appended rather
-than placed, and all three were raised by writing and sending one workout rather
-than by a plan. **0f was lettered rather than numbered on purpose** — grammar work,
-belonging with the 0-series — and both its halves are closed, so **item 1 is the
-next one off the queue.** The one thing 0f left behind is `TABATA`, which is not
-an abbreviation to read but a structure to define; it is written up under 0f
-rather than given a number, because nobody has asked for it yet.*
+**8. A cap is a clock, and the board does not run it.** Open 25.2 on the board
+counts *up* from zero with nothing to race, which is the wrong number on the
+screen for the one workout shape where a clock is the entire point — a twelve
+minute cap is what the athlete is looking at. Raised 2026-08-23 while closing
+item 3, which is what makes it cheap: `Run.cap` exists now and is exactly what a
+countdown reads.
+
+**The reason it is not part of item 3 is the expiry, not the display.** A cap
+creates no cycle, so the board's countdown — which comes from `cycle.window` via
+`expired()` — never sees it. Wiring the number up is small. Deciding what happens
+when it runs out is not: spec §5.6 says *the workout ends*, so the cursor should
+presumably stop where it stands rather than advance, and §9.5 says the score
+becomes reps completed, which is a statement about a result and therefore leans
+on item 2. The honest middle is probably to show the countdown and stop at zero
+without claiming anything about the score.
+
+**Two things to settle while there.** A cap and a section window can both be
+running (`for time, cap 25min:` around a bare `AMRAP:` — `77-tiff.wdl`), so the
+board needs a rule for which is the nearer deadline, and it already has one for
+the cue-versus-section case to copy. And `state.window` in `board.js` is
+**assigned and never read** — dead since the cycle rewrite — so the cap should
+not be plumbed in beside it without deleting it.
+*Touches: `apps/display/board.js`, and `board.css` if the cap needs its own row.*
+
+*Ordering of 5, 6, 7 and 8 against 1–4 is not settled — they are appended rather
+than placed, and 5, 6 and 7 were all raised by writing and sending one workout
+rather than by a plan. **0f was lettered rather than numbered on purpose** —
+grammar work, belonging with the 0-series — and both its halves are closed. The
+one thing 0f left behind is `TABATA`, which is not an abbreviation to read but a
+structure to define; it is written up under 0f rather than given a number,
+because nobody has asked for it yet.*
+
+*As of 2026-08-23, items 0–1a and 3 are closed here, which leaves **2 (Results)
+at the head of the queue and 4 behind it**. A caveat rather than a fact: the
+session that closed item 3 was briefed that item 2 was already done, and this
+tree has no commit for it and no `results` module — so either the briefing was
+wrong or Results landed somewhere this branch has not seen. Worth one look before
+starting it rather than one discovery halfway through.*
 
 **Nobody has run a session off the board.** Everything is verified by tests and
 by driving the UI. Every defect Chris has caught by *looking* — `21 Thruster`,

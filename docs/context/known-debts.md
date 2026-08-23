@@ -38,6 +38,9 @@ when something looks odd before treating it as a discovery.
   resolver one.
 - Templates and workouts share the `.wdl` extension, so `wdl fmt` on a template
   is easy to do by accident.
+- `state.window` in `apps/display/board.js` is **assigned and never read** — dead
+  since the countdown moved onto `cycle.window`. Harmless, and worth deleting
+  rather than plumbing a cap in beside it; queue item 8 is where that happens.
 - ~~A capped for-time workout reports `duration: 12:00` in the builder.~~
   **Closed 2026-08-23** by queue item 3. `Timeline.cap` and `Run.cap` hold the
   bound, `estimatedSeconds` and `totalSeconds` hold the length, and neither
