@@ -40,6 +40,29 @@
     </div>
   </section>
   <p id="problems" class="problems" hidden></p>
+
+  <!--
+    What you just did, written down.
+
+    The board is the only thing in this project that knows how a session
+    actually went — it held the clock and the cursor — so it is the only thing
+    that can write the record. What it writes is *editable text*, in the format
+    itself, because a result that reads on a whiteboard is the same constraint
+    the workout is under: you should be able to see what is being claimed about
+    you before you keep it.
+  -->
+  <section id="record" class="record" hidden>
+    <h2>Result</h2>
+    <p class="hint">What the board measured. Everything it could not — what you
+      lifted, how it felt — is yours to add.</p>
+    <textarea id="record-text" spellcheck="false"></textarea>
+    <div class="record-actions">
+      <button id="record-save" class="primary">Download</button>
+      <button id="record-copy">Copy</button>
+      <button id="record-close">Close</button>
+      <span id="record-said" class="said" role="status"></span>
+    </div>
+  </section>
 </main>
 
 <footer id="controls" hidden>
@@ -50,6 +73,9 @@
        the athlete says it does, and nothing else can say it for them. -->
   <button id="leave" hidden>End section <kbd>e</kbd></button>
   <button id="reset">Reset</button>
+  <!-- Shown once a session has begun: a workout you stopped halfway is still
+       something that happened, and Reset is right there waiting to erase it. -->
+  <button id="record-open" hidden>Result</button>
   <span class="spacer"></span>
   <!-- Only shown by a workout that offers a division. Choosing one is a
        *reader's* action: it changes which weights the bar above calls out, and

@@ -24,6 +24,19 @@
 
 * { box-sizing: border-box; }
 
+/*
+ * `hidden` means hidden.
+ *
+ * The UA stylesheet says `[hidden] { display: none }`, and an *author* rule
+ * beats it whatever the specificity — so every element given a `display` here
+ * went on showing after JavaScript hid it. Three did: the bar and the footer,
+ * over the empty state, and the division picker, which claimed to appear only
+ * on a workout that offers a division and in fact appeared on all of them from
+ * the day it was written. Stated once and generally rather than per selector,
+ * because the next element laid out here would have inherited the same bug.
+ */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
   min-height: 100dvh;
@@ -129,6 +142,52 @@ main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
   font-size: 1.9vmin;
   white-space: pre-wrap;
 }
+
+/* --- the result: what the board measured, in the format itself ------------ */
+
+.record {
+  border-top: 1px solid var(--rule);
+  background: #0f1114;
+  padding: 1.6vmin 3vmin 2vmin;
+  /* Bounded, and scrolls inside itself: the record carries a snapshot of the
+     whole workout, so on a long one it would otherwise push the board off the
+     screen it is a record of. */
+  max-height: 55dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 1vmin;
+}
+
+.record h2 {
+  margin: 0;
+  font-size: 2.4vmin;
+  font-weight: 650;
+}
+
+.record .hint {
+  margin: 0;
+  color: var(--dim);
+  font-size: 1.8vmin;
+  max-width: 46rem;
+}
+
+.record textarea {
+  flex: 1;
+  min-height: 9rem;
+  resize: vertical;
+  padding: 1rem;
+  border: 1px solid var(--rule);
+  border-radius: .4rem;
+  background: var(--board);
+  color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: .95rem;
+  line-height: 1.5;
+  white-space: pre;
+}
+
+.record-actions { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+.record-actions .said { color: var(--dim); font-size: 1.8vmin; }
 
 .empty {
   max-width: 44rem;

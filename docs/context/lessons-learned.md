@@ -510,3 +510,64 @@ imagined to live and the share link would never have been considered.
 
 *A claim of the form "X already does Y, so Z should too" is a measurement written
 in the past tense. Run it.* Recorded 2026-08-20.
+
+**A CSS rule with a `display` silently overrules `hidden`, and the JavaScript
+goes on believing it worked.** The board's `offerDivisions` hides the division
+picker on a workout that offers none, `what-exists.md` said it did, and
+`builder-ux.md` had nothing against it — and it had been on every workout since
+the day it shipped, because `.division { display: flex }` is an *author* rule and
+`[hidden] { display: none }` is the user agent's. Author origin wins whatever the
+specificity. The bar and the footer had the same bug for longer: an empty board
+showed a clock reading 0:00 above the words "drop a file here".
+
+Three things worth keeping from it. **It was invisible to every kind of test this
+project has** — the state was right, the attribute was right, and only a rendered
+pixel disagreed. **It shipped inside a feature that was verified by driving the
+app**: item 1a was checked in a browser on a workout *with* divisions, and the
+case that broke was the workout without any, which nobody thinks to open. And the
+fix was written twice — first as `.record[hidden], header[hidden], footer[hidden]`,
+which is the failure list, then as a single `[hidden] { display: none !important }`,
+which is the rule. *A guardrail written as a list of the elements that broke will
+be missing the next one.* Recorded 2026-08-23.
+
+**The field named `rounds` is not the rounds.** The board's splits keyed on
+`Cue.rounds`, which is what it is called and what it looks like, and recorded no
+splits at all for Fran — the one workout the roadmap uses to *illustrate* splits.
+`run` fills `rounds` only for a block that repeats, and `21-15-9` does not repeat:
+`compile` expands a rep scheme into three explicit tiers, so every cue in Fran
+carries an empty round list. Nothing was wrong in the core; the name was a
+promise it never made.
+
+What replaced it is not a bigger lookup but a different question — **a round is a
+line you have already been on** — which is a fact about the cue list rather than
+a reading of a field, and which covers a ladder, a `5 sets:` and a pass of an
+AMRAP with one rule. *When a field's name matches the question, check what fills
+it before believing it answers it.* Found by running Fran on the board, which is
+the only place it could have been found. Recorded 2026-08-23.
+
+**A new check can re-create the noise an old mechanism exists to suppress.**
+`progress` was made to report a series where it saw no load at all, since two
+zeroes satisfy any ramp. Written per **slot**, it immediately fired on the real
+programs: "ramp the pull" found no lats in the push slot or the leg slot — which
+is not a silence, it is the slot mechanism *working*, and suppressing exactly
+that comparison is why slots exist. The check is right only across the whole
+series, where an empty measure really does mean the rule saw nothing.
+
+The suite caught this one, which is the part worth noticing: `program: slots`
+exists precisely because that noise was once real, and a test written to pin a
+past fix is what stopped a new feature from undoing it. *Before adding a report,
+find the mechanism that already decided what is worth reporting, and check the
+new one is not arguing with it.* Recorded 2026-08-23.
+
+**The first real record of a thing is where the format finds out what it cannot
+write.** `parseDuration` read `1:30` and had for the life of the project.
+Nothing needed more, because no workout file states an elapsed hour — a workout
+says what to do, not how long it took. The **first result** written for a real
+session was a HYROX, whose score is `1:04:19`, and the language could not read
+its own example. One regex, two fields to three.
+
+This is the third time a hand-typed real example has found what 1700 tests could
+not, and the distribution argument from 2026-08-15 holds exactly: the corpus is
+190 *definitions*, so no amount of widening it could have contained an hour-long
+finishing time. *A new record type is a new distribution of input, and the
+cheapest way to test one is to write a real one.* Recorded 2026-08-23.

@@ -50,6 +50,25 @@ no clock ends when the athlete says so, which is what `End section` is for.
 Stepping back into a section does not restart its clock; that is how a mis-tap
 is undone, not a way to buy another twenty minutes.
 
+**When it is over, the board writes down what happened.** It held the clock and
+it held the cursor, so it is the only thing in this project that can — and what
+it writes is the result format's own text, editable before you keep it, because
+a claim about your session should be readable by you first. Download it as a
+`.wdlr`, or copy it.
+
+It records **only what it observed**: the time, the splits, and — where the
+workout is scored by rounds — how many closed. What no clock can see — the weight you used, the reps in
+the last partial round — is left as a line to type, with the loads the file
+states offered as commented-out hints. Filling one in with a plausible number
+would be the board making something up about your training.
+
+**A split is a line you have already been on.** `Cue.rounds` looks like the
+answer and is not: `run` fills it only for a block that *repeats*, and `21-15-9`
+does not repeat — the timeline expands a rep scheme into three explicit tiers, so
+every cue in Fran carries an empty round list. Returning to a line you passed
+since the last split is what going round again *is*, and one rule covers a
+ladder, a `5 sets:` and a pass of an AMRAP alike.
+
 ## Where the work actually happens
 
 Nothing here parses or compiles anything. `@wdl/core` does that, and this file
@@ -69,3 +88,7 @@ validation hints go quiet and it says so in the console.
 | `→` `←` | next, back |
 | `e` | end the section you are in, when one repeats |
 | `r` | reset |
+
+The result panel opens by itself when a session ends, and by the **Result**
+button at any point after it has begun — a workout you stopped halfway still
+happened, and `Reset` is right there waiting to erase it.

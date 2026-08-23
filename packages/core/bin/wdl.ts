@@ -13,6 +13,7 @@ import { exportErg } from '../src/adapters/erg.ts';
 import { exportFit } from '../src/adapters/fit.ts';
 import { exportGarminConnect } from '../src/adapters/garmin-connect.ts';
 import { parseGoals, check, checkSeries } from '../src/goals.ts';
+import { parseResult, checkResult, resultSeries } from '../src/result.ts';
 import { generate, generateProgram } from '../src/generate.ts';
 import { loadProgram, checkProgram } from '../node/program.ts';
 
@@ -39,7 +40,7 @@ const variant = variantIdx >= 0 ? args[variantIdx + 1] : undefined;
 const equipIdx = args.indexOf('--equipment');
 const equipment = equipIdx >= 0 ? args[equipIdx + 1].split(',').map((x) => x.trim()) : undefined;
 
-if (!cmd || !['fmt', 'check', 'timeline', 'export', 'goals', 'generate', 'program'].includes(cmd) || (files.length === 0 && !programPath)
+if (!cmd || !['fmt', 'check', 'timeline', 'export', 'goals', 'generate', 'program', 'result'].includes(cmd) || (files.length === 0 && !programPath)
     || (cmd === 'export' && !EXPORTERS.includes(to as any))
     || (cmd === 'goals' && !goalsPath)
     || (cmd === 'generate' && !goalsPath && !programPath)) {
@@ -50,8 +51,37 @@ if (!cmd || !['fmt', 'check', 'timeline', 'export', 'goals', 'generate', 'progra
   console.error('       wdl generate --goals <file.wdlg> [--seed N] [--equipment a,b] <template.wdl>');
   console.error('              a template is a workout with `?` where a movement goes');
   console.error('       wdl program <file.wdlp>   check a training block against the goals it names');
+  console.error('       wdl result [--goals <file.wdlg>] <file.wdlr>...   check what was done against');
+  console.error('              what it was a result of, and the series against a `progress` rule');
   console.error('       wdl generate --program <file.wdlp> [-w] [--seed N] [--equipment a,b]');
   console.error('              fill the holes across a whole block, one choice per slot');
+  process.exit(2);
+}
+
+/**
+ * Four record types share one CLI, and only one of them can be rewritten in
+ * place. `wdl fmt -w` reads anything as a workout, so pointed at a goals file, a
+ * program or a **result** it would parse the fields as steps and write the
+ * mangling back over the file. Everything else here is recoverable — a workout
+ * can be retyped, a goals file rewritten — and a training log cannot.
+ *
+ * The extension is the whole of the check, deliberately: sniffing the contents
+ * would be a fifth grammar guessing at the other four. A file with no extension
+ * or an unexpected one is left alone, because the guard exists to catch the
+ * obvious mistake (`wdl fmt -w *`) and not to police what anybody names a file.
+ */
+const KIND: Record<string, string> = {
+  '': 'a workout', wdlg: 'a goals file', wdlp: 'a program', wdlr: 'a result',
+};
+const extensionOf = (f: string) => (f.match(/\.(wdl[gpr])$/i)?.[1] ?? '').toLowerCase();
+/** What each verb's file arguments are. Everything not listed reads workouts. */
+const READS: Record<string, string> = { program: 'wdlp', result: 'wdlr' };
+for (const file of files) {
+  const ext = extensionOf(file);
+  const wanted = READS[cmd] ?? '';
+  if (ext === wanted) continue;
+  console.error(`${file} is ${KIND[ext]}, not ${KIND[wanted]} — \`wdl ${cmd}\` reads it as one`
+    + (wanted === '' && write ? ', and `-w` would write the misreading back over it' : ''));
   process.exit(2);
 }
 
@@ -82,6 +112,59 @@ if (cmd === 'program') {
       }
     }
     console.log('\nacross the block');
+    if (!findings.length) console.log('  ok');
+    for (const f of findings) { console.log(`  ${f.rule}: ${f.message}`); bad++; }
+  }
+  process.exit(bad ? 1 : 0);
+}
+
+/**
+ * `result` reads what was actually done.
+ *
+ * Two questions, and the second only when asked. Each record is checked against
+ * its own snapshot — did this division exist, does this score have the shape the
+ * workout declared, is a recorded load for a movement the workout contains. Then,
+ * with `--goals`, the records are read **in date order as one series**, which is
+ * the only way a `progress` rule about load can be asked at all: the weight on
+ * the bar is a fact about an execution, so a series of executions is what has to
+ * be compared.
+ */
+if (cmd === 'result') {
+  let bad = 0;
+  const results = [];
+  for (const file of files) {
+    const r = parseResult(readFileSync(file, 'utf8'));
+    for (const e of r.errors) { console.error(`${file}:${e.line}: ${e.message}`); bad++; }
+    const { diagnostics } = checkResult(r);
+    for (const d of diagnostics) {
+      const where = d.line ? `${file}:${d.line}` : file;
+      console.log(`${where}: ${d.severity}: ${d.message}`);
+      if (d.severity === 'error') bad++;
+    }
+    if (!r.errors.length && !diagnostics.length) console.log(`${file}: ok`);
+    results.push(r);
+  }
+
+  if (goalsPath) {
+    const goals = parseGoals(readFileSync(goalsPath, 'utf8'));
+    for (const e of goals.errors) console.error(`${goalsPath}:${e.line}: ${e.message}`);
+    if (goals.errors.length) process.exit(2);
+    const series = resultSeries(results);
+    if (!series.length) {
+      console.error('nothing to check a series against: no result carries a snapshot');
+      process.exit(2);
+    }
+    const { perWorkout, findings } = checkSeries(series, goals);
+    for (const { name, report } of perWorkout) {
+      const notes = [
+        ...(report.unresolved.length ? [`no muscle data for ${report.unresolved.join(', ')}`] : []),
+        ...(report.unbounded ? ['open-ended: amounts below are floors'] : []),
+      ];
+      console.log(`\n${name}${notes.length ? `  (${notes.join('; ')})` : ''}`);
+      if (!report.findings.length) console.log('  ok');
+      for (const f of report.findings) { console.log(`  ${f.rule}: ${f.message}${f.count > 1 ? `  (\u00d7${f.count})` : ''}`); bad++; }
+    }
+    console.log('\nacross the series');
     if (!findings.length) console.log('  ok');
     for (const f of findings) { console.log(`  ${f.rule}: ${f.message}`); bad++; }
   }

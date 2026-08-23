@@ -419,6 +419,101 @@ would be tidier".
   held: a reader who says `women` three rounds in is answering a question about
   the weights, not asking to begin again.
 
+- **A result names what it is a result *of*, and carries the workout text
+  verbatim.** Settled 2026-08-23, closing queue item 2. The roadmap sketch
+  (§3.2) wrote `result:` as a header with a `workout:` field under it; the head
+  now carries the id directly — `result: crossfit:fran` — and `snapshot:` carries
+  the text. Two reasons, and the deviation is a spelling rather than a model
+  change. A result has no title worth writing, because the workout already has
+  one and the fact you want at the top of a log entry is which workout it is. And
+  `workout:` beside `snapshot:` would have been two names for the same thing one
+  field apart, which is what queue item 1 spent a day unifying elsewhere.
+
+  **The id is optional and the snapshot is the anchor.** A workout written this
+  morning has no `@id` and was still done: the snapshot is what makes the record
+  self-contained, the id is what makes it findable, and a record with neither is
+  refused. The snapshot is sliced out of the **raw source** by line and column
+  rather than read through the line tree and re-rendered — everything the tree
+  does to a line (dropping blanks, lifting comments onto their owner) is a
+  change, and a snapshot that has been changed is a copy of what the formatter
+  thinks *today*, which is exactly the reference §3.2.1 rejected.
+
+  **Fields read both flat and nested, and that is forced rather than generous.**
+  `result:` with no id ends in a colon, so phase 1 opens a container and every
+  line after it is its child (spec §2). Accepting one shape would have made the
+  id optional in the type and unwritable in practice.
+
+- **A result's loads are applied after its division, and a movement swap is not
+  read at all.** Settled 2026-08-23. The division goes first because the author
+  wrote both weights into the file — resolving it is *reading* the file, which is
+  the 2026-08-19 exception. The recorded load goes over the top because the file
+  says 145lb and you did 125lb, and the record of what you did is the one that is
+  true of you. Matching is by movement through the registry, which is
+  `variants.ts`'s machinery **shared rather than copied**: `movementLookup`,
+  `sameMovement` and `withTargets` are now exported, because a table keyed by
+  movement and applied to the steps it names is one operation and two copies of
+  it would drift.
+
+  A `variants:` value may name a **movement to swap in**; a result's may not, and
+  the asymmetry is deliberate. What a division prescribes is part of the class,
+  because it was written into the file. What somebody substituted on the day is a
+  *modification*, and whether modifications want structure or free text is an
+  open question in the roadmap (§3.2) — reading one here would have settled it by
+  accident, so it goes in `notes:` and the question stays open.
+
+- **`measure: load` is the heaviest, in kilograms, and never multiplied by
+  rounds.** Settled 2026-08-23. Every other dimension is a total and this one
+  cannot be: three sets at 100kg is not 300kg of anything. The heaviest is also
+  what the language already means by a load — spec §9.1 reads `score: load` as
+  "heaviest successful" — so the precedent was in the format rather than invented
+  for the rule. Kilograms because two loads in different units cannot be
+  compared, converted once at the edge, which is why `at least: 10lb` is read as
+  4.54kg rather than compared against a number in another unit.
+
+  **What stays unreadable is what the 2026-08-19 objection was actually about.**
+  The goals spec said load needed "a 1RM and a model that turns percentages into
+  comparable work". That is still true of a *percentage*, and `85% 1RM`
+  contributes nothing; so does an unlabelled magnitude, since `(105/65)` is a
+  real prescription on a whiteboard and not a quantity anywhere else. What is now
+  read is the **absolute** load, which needs no model — it is a number of
+  kilograms somebody lifted.
+
+- **A `progress` rule that sees nothing says so.** Settled 2026-08-23. `now >=
+  prev * 1.025` is satisfied by two zeroes, so a ramp asked of a series that
+  records no load passed in silence, which is the worst answer available.
+  **Across the whole series, not per slot** — the first version was per slot and
+  re-created the exact noise the slot mechanism exists to prevent: "ramp the
+  pull" finds no lats on leg day *because leg day was never supposed to have
+  any*. The suite caught it; see [lessons-learned.md](lessons-learned.md).
+
+- **Each CLI verb states what its file arguments are, by extension.** Settled
+  2026-08-23. Four record types share one `wdl`, and `fmt`, `check`, `timeline`
+  and `export` read anything handed to them as a workout — so `wdl fmt -w` on a
+  `.wdlr` parsed a training log's fields as steps and wrote the mangling back
+  over it. A workout can be retyped and a goals file rewritten; a log of what
+  somebody did cannot. **The extension is the whole of the check**, deliberately:
+  sniffing the contents would be a fifth grammar guessing at the other four, and
+  a file with no extension or an unexpected one is left alone, because the guard
+  exists to catch `wdl fmt -w *` and not to police what anybody names a file.
+  A template, whose extension is honest `.wdl`, is exactly where it was — see
+  [known-debts.md](known-debts.md).
+
+- **The board writes the record, and records only what it observed.** Settled
+  2026-08-23. It held the clock and the cursor — the two things the core
+  deliberately does not have — so it is the only thing in this project that can
+  say how a session went. It writes the time, the splits, and — where the workout
+  is scored by rounds — how many closed. It does **not** write a load: what the file prescribes is
+  not evidence of what anybody lifted, and an absent field is not a claim. Where
+  it cannot compute the declared score it says so in a comment and leaves the
+  line to be typed, keeping the elapsed time in the comment so nothing measured
+  is thrown away. A plausible number invented there would be software making
+  something up about somebody's training.
+
+  What it writes is the **format's own text in an editable box**, not a form and
+  not a download that appears without being read. The whiteboard constraint
+  applies to a result for the same reason it applies to a workout, and one layer
+  further: you should be able to see what is being claimed about you.
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).

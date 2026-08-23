@@ -90,7 +90,7 @@ export function resolve(w: Workout, division: string, opts: ResolveOptions = {})
   // divisions come only from rx splits needs no registry at all, and the
   // registry accessors throw when the host has not provided one.
   const table = w.variants?.[division];
-  const look = table ? lookup(opts.registry) : undefined;
+  const look = table ? movementLookup(opts.registry) : undefined;
 
   const body = w.body.map((n) => mapNode(n, (s) => {
     let step = s;
@@ -130,6 +130,10 @@ export function resolve(w: Workout, division: string, opts: ResolveOptions = {})
 /**
  * The registries to consult, in order, for a name.
  *
+ * Exported because a *result* applies its loads the same way a `variants:` table
+ * applies its values — a table keyed by movement, matched against the steps it
+ * names — and two copies of that matching would drift. See `result.ts`.
+ *
  * Both, because they answer different questions and a variant needs both
  * answers. The curated registry is what `validate` consults and is the vetted
  * one; the canonical merge is the superset, and it is where `Ring Row` — the
@@ -139,7 +143,7 @@ export function resolve(w: Workout, division: string, opts: ResolveOptions = {})
  * Either may be absent: nothing under `src/` opens a file, so a host that
  * provided neither gets a lookup that knows nothing rather than a throw.
  */
-function lookup(provided?: Registry): (name: string) => MovementEntry | undefined {
+export function movementLookup(provided?: Registry): (name: string) => MovementEntry | undefined {
   const regs: Registry[] = [];
   if (provided) regs.push(provided);
   else if (has('movements')) regs.push(defaultRegistry());
@@ -167,7 +171,7 @@ function lookup(provided?: Registry): (name: string) => MovementEntry | undefine
  * equality missed the whole entry — the women's wall ball silently stayed at the
  * men's 9kg to 10ft. Found 2026-08-18 by resolving that file for the first time.
  */
-function sameMovement(a: string, b: string, look?: (n: string) => MovementEntry | undefined): boolean {
+export function sameMovement(a: string, b: string, look?: (n: string) => MovementEntry | undefined): boolean {
   const ea = look?.(a);
   const eb = look?.(b);
   if (ea && eb) return ea.id === eb.id;
@@ -199,7 +203,7 @@ function readValue(
 }
 
 /** Own targets win by kind, which is what `mergeTargets` means one layer down. */
-function withTargets(s: Step, incoming: Target[]): Step {
+export function withTargets(s: Step, incoming: Target[]): Step {
   const kinds = new Set(incoming.map((t) => t.kind));
   return { ...s, targets: [...s.targets.filter((t) => !kinds.has(t.kind)), ...incoming] };
 }

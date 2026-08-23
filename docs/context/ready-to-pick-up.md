@@ -626,23 +626,78 @@ divisions, and 375px.
 *Touched: `apps/display/board.js`, `apps/display/index.html`,
 `apps/display/board.css`.*
 
-**2. Results.** The largest piece, and the one that makes `progress` mean
-something. The board already knows the position and has the clock; a result is
-what it tracks, written down. Identity was settled long ago (§3.2.1: any unique
-string, optional `namespace:` prefix, never derived from content).
+**2. ~~Results.~~ DONE 2026-08-23.** A `.wdlr` record in the same line grammar
+as a workout, a goals file and a program; the board writes one when a session
+ends; and `measure: load` reads a series of them. The class/instantiation
+framing the item asked to carry into the design carried the whole way: the head
+of a result names what it is a result *of*, a `snapshot:` holds the workout text
+verbatim, `instantiate()` applies the division and then the recorded loads, and
+everything downstream reads an ordinary workout. Spec
+[results-0.1.md](../../spec/results-0.1.md); decisions in
+[settled-decisions.md](settled-decisions.md); 1742 → 1773 passing, 1 pending.
 
-**It is also what load progression is waiting on**, and that framing is worth
-carrying into the design. A workout is a *class*; an execution with a person's
-loads on it is an *instantiation*. Nothing in the analysis layer reads an
-absolute load today and that is correct — reps, distance, calories and seconds
-are properties of the class, and the weight on the bar is not one. A load a
-reader would want ramped week over week is a fact about a **result**, so
-`Dimension` gaining a `load` is part of this item rather than a gap in
-`goals.ts`. The exception, already handled, is a load the author wrote into the
-file: an rx split or a `variants:` entry is part of the class, which is why
-divisions resolve at the workout layer (spec §10.1). Reasoning in
-[settled-decisions.md](settled-decisions.md), settled 2026-08-19.
-*Touches: a new module, `apps/display/`, and `progress` in goals.ts.*
+**The one deviation from the roadmap sketch is a spelling.** §3.2 wrote
+`result:` as a header with `workout:` under it; the head carries the id
+directly, because a result has no title worth writing and `workout:` beside
+`snapshot:` would be two names for one thing a field apart. The id is
+**optional**: a workout you wrote this morning has no `@id` and was still done,
+so the snapshot is the anchor and the id is the pointer.
+
+**A movement swap is deliberately not read**, and that is the one part of the
+hole left open on purpose. A `variants:` value may name a movement, because the
+author wrote the swap into the class; what somebody substituted on the day is a
+*modification*, and whether modifications want structure is an open roadmap
+question — reading one here would have closed it by accident. It goes in
+`notes:`, and [not-built.md](not-built.md) says so.
+
+**`measure: load` needed one thing the item did not predict: a rule about
+silence.** Two zeroes satisfy `now >= prev * 1.025`, so a ramp asked of results
+that record no load passed without a word. Reporting it is right; reporting it
+*per slot* was wrong, and re-created the exact noise slots exist to suppress —
+"ramp the pull" finds no lats on leg day because leg day was never supposed to
+have any. `program: slots`, a test pinning a past fix, is what caught it.
+
+**Five things found by driving it, three of them not the item.**
+- **The board recorded no splits for Fran** — the one workout the roadmap uses
+  to illustrate splits. `Cue.rounds` is what it is called and is not what it
+  means: `run` fills it only for a block that *repeats*, and a rep scheme is
+  expanded into explicit tiers. A split is now **a line you have already been
+  on**, which is a fact about the cue list and covers a ladder, a `5 sets:` and
+  an AMRAP pass alike.
+- **`hidden` did not hide.** `.division { display: flex }` is an author rule and
+  `[hidden] { display: none }` is the user agent's, so the division picker had
+  been showing on *every* workout since item 1a — including the ones that offer
+  no division, which is precisely what that item claimed it did not do. The bar
+  and the footer had it for longer: an empty board showed a 0:00 clock over
+  "drop a file here". Fixed once and generally, `[hidden] { display: none
+  !important }`, rather than as a list of the three that broke.
+- **A HYROX finishes in `1:04:19` and the language could not read it.**
+  `parseDuration` took two clock fields, which was enough for as long as nothing
+  wrote down an elapsed hour — and no *workout file* ever does. The first real
+  result did. Spec §3.
+- **A `progress` message rounded its own rule away.** `at least: +2.5%` printed
+  as `3% more required`, harmless while every dimension counted whole things and
+  wrong the moment one counted kilos.
+- **A `5 sets:` scored by rounds recorded zero of them.** The board counted
+  rounds with `lap`, which counts passes of a *section that comes round again* —
+  exact where there is one and simply zero where there is not. Where there is no
+  such section the rounds are the boundaries the cursor crossed, which is what a
+  split already is.
+
+**One guard added rather than found.** Four record types now share one CLI, and
+`wdl fmt -w` read anything as a workout — so pointed at a `.wdlr` it would parse
+the fields as steps and write the mangling back. Every other file here is
+recoverable and a training log is not, so each verb states what its arguments
+are. The extension is the whole of the check; sniffing the contents would be a
+fifth grammar guessing at the other four.
+
+*Touched: `packages/core/src/result.ts` (new), `units.ts`, `muscles.ts`,
+`goals.ts`, `variants.ts`, `index.ts`, `bin/wdl.ts`,
+`packages/core/README.md`, `test/result.test.ts` (new), `test/goals.test.ts`,
+`test/all.ts`, `apps/display/board.js`, `index.html`, `board.css`,
+`apps/display/README.md`, `spec/results-0.1.md` (new), `spec/goals-0.1.md`,
+`spec/spec-0.1.md` §3, `examples/results/` (new),
+`examples/goals/ramp-the-squat.wdlg` (new).*
 
 **3. A capped for-time reports `duration` where it means "at most".** `run()`
 does not expose the cap separately from a computed total. Same class as the
@@ -741,10 +796,11 @@ picture can say before it starts lying.
 *Ordering of 5, 6 and 7 against 1–4 is not settled — they are appended rather
 than placed, and all three were raised by writing and sending one workout rather
 than by a plan. **0f was lettered rather than numbered on purpose** — grammar work,
-belonging with the 0-series — and both its halves are closed, so **item 1 is the
-next one off the queue.** The one thing 0f left behind is `TABATA`, which is not
-an abbreviation to read but a structure to define; it is written up under 0f
-rather than given a number, because nobody has asked for it yet.*
+belonging with the 0-series — and both its halves are closed, so with 1, 1a and 2
+closed too, **item 3 is the next one off the queue.** The one thing 0f left behind
+is `TABATA`, which is not an abbreviation to read but a structure to define; it is
+written up under 0f rather than given a number, because nobody has asked for it
+yet.*
 
 **Nobody has run a session off the board.** Everything is verified by tests and
 by driving the UI. Every defect Chris has caught by *looking* — `21 Thruster`,

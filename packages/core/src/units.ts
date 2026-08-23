@@ -57,9 +57,16 @@ export function parseDuration(s: string, bareMIsMinutes = false): Unit | null {
     const seconds = (+(m[1] ?? 0)) * 3600 + (+(m[2] ?? 0)) * 60 + (+(m[3] ?? 0));
     return { kind: 'duration', seconds };
   }
-  // mm:ss
-  const clock = t.match(/^(\d+):([0-5]\d)$/);
-  if (clock) return { kind: 'duration', seconds: +clock[1] * 60 + +clock[2] };
+  // mm:ss, and h:mm:ss — which is not decoration. A HYROX finishes in `1:04:19`
+  // and that is how the time gets written down; until 2026-08-23 the clock form
+  // stopped at two fields, so the first real result record anybody wrote had a
+  // score the language could not read. Found by writing one, not by the suite.
+  const clock = t.match(/^(\d+):([0-5]\d)(?::([0-5]\d))?$/);
+  if (clock) {
+    return clock[3] !== undefined
+      ? { kind: 'duration', seconds: +clock[1] * 3600 + +clock[2] * 60 + +clock[3] }
+      : { kind: 'duration', seconds: +clock[1] * 60 + +clock[2] };
+  }
   // `EMOM 10` / `AMRAP 12` — a bare number in a duration position is minutes.
   if (bareMIsMinutes && /^\d+$/.test(t)) return { kind: 'duration', seconds: +t * 60 };
   return null;
@@ -234,6 +241,36 @@ export function formatLoad(l: Load): string {
  */
 export function formatRx(rx: Record<string, Load>): string {
   return Object.entries(rx).map(([who, l]) => `${who} ${formatLoad(l)}`).join(' / ');
+}
+
+/**
+ * A load in kilograms, or `undefined` where the language cannot say.
+ *
+ * Kilograms because two loads written in different units cannot be compared, and
+ * comparing loads across executions is the whole reason anything reads one — see
+ * `measure: load` in `goals.ts`. One unit, converted once, at the edge.
+ *
+ * Three loads deliberately have no answer here, and each silence is a fact:
+ *
+ * - **A percentage or a multiple of bodyweight.** `85% 1RM` is a load only once
+ *   an athlete profile says what the 1RM is, and inventing one would make the
+ *   number look measured when it was guessed (spec §8.2).
+ * - **A magnitude with no unit.** An unlabelled rx split writes `(105/65)`,
+ *   which is a real prescription on a whiteboard and not a quantity anywhere
+ *   else; see the `Load` comment in `ast.ts`.
+ * - **A reference to a named result** — `85% of heavy-single` — which is a load
+ *   the *session* determines (spec §8.3).
+ *
+ * A paired load is the total carried: `2x24kg` is 24kg in each hand and 48kg in
+ * the athlete's hands, which is what spec §3 says the notation means.
+ */
+const KILOGRAMS: Record<string, number> = { kg: 1, lb: 0.45359237, pood: 16.38 };
+
+export function loadKilograms(l: Load): number | undefined {
+  if (l.kind !== 'absolute' || !l.unit) return undefined;
+  const per = KILOGRAMS[l.unit];
+  if (per === undefined) return undefined;
+  return Math.round(l.value * per * (l.implements ?? 1) * 100) / 100;
 }
 
 export function formatTarget(t: Target): string {

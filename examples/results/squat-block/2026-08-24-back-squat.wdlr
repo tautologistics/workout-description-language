@@ -1,0 +1,18 @@
+result: back-squat-5x5
+date: 2026-08-24
+athlete: chris
+score: 107.5kg
+
+// The one thing the file cannot say. `5 Back Squat` is the same session every
+// week — the class — and what goes on the bar is what changes.
+loads:
+  - Back Squat @ 107.5kg
+
+snapshot:
+  # Back squat 5×5
+  @id back-squat-5x5
+
+  5 sets:
+    - 5 Back Squat
+    rest 3min
+  score: load

@@ -31,5 +31,6 @@ import './muscles.test.ts';
 import './goals.test.ts';
 import './generate.test.ts';
 import './program.test.ts';
+import './result.test.ts';
 import { report } from './lib.ts';
 process.exit(report());
