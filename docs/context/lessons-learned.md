@@ -510,3 +510,28 @@ imagined to live and the share link would never have been considered.
 
 *A claim of the form "X already does Y, so Z should too" is a measurement written
 in the past tense. Run it.* Recorded 2026-08-20.
+
+**A figure in prose has to say what it counts, or it cannot be re-checked.** The
+roadmap's §G said the registry held *"3148 merged from five sources, of which 181
+are marked core and 101 cover the corpus"*. Two of the three had gone stale with
+a rebuild — 3120 and 178 — and the third could not be checked at all, because
+"cover the corpus" named a *purpose* rather than a query. Nothing in
+`movements.canonical.json` counts 101 of anything called coverage: the records a
+corpus line actually resolves to are 67 (the `used-in-corpus` signal in
+`scripts/mark-core.mjs`), and 101 is the size of the **hand-curated** set —
+`sources` containing `wdl-curated`. That set is the descendant of the original
+plan's "~150 movements covering the corpus", which is where the word came from,
+and it does not literally cover the corpus: 61 of the 67 are curated, 6 came in
+from a catalogue.
+
+The stale numbers cost a re-derivation. The unverifiable one cost a dig through
+the commit that wrote it — 93bce99, where the registry did hold 3148 / 181 / 101
+— to establish that the figure was right and only the noun was wrong. **Write a
+figure as the thing that produces it** — "101 carry the `wdl-curated` source",
+not "101 cover the corpus" — so the next reader re-runs it in a line instead of
+guessing what was meant. It pairs with the arrow convention: arrows
+(`3335 → 3148`) for what a run did, bare counts for what is true now, and either
+way the sentence names the set being counted. The second half of the fix is
+knowing there are two copies: `what-exists.md` **owns** the registry counts and
+the roadmap restates them, so a rebuild that moves them has to reach both — this
+one had been stale in the roadmap alone since 93bce99. Recorded 2026-08-22.
