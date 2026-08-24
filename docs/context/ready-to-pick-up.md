@@ -792,25 +792,30 @@ search, and `Ring Row` adds and cues.*
 *Touched: `registry/movements.json`, `scripts/mark-core.mjs`,
 `packages/core/test/generate.test.ts`.*
 
-**5. A range is only a rep range.** `8-12 Toes-to-Bar` is a first-class quantity;
-`100-150ft Farmers Carry` is *not read at all* — the whole thing lands in the
-movement name with the quantity left `open`, so the step matches no registry
-entry, drops out of muscle and volume analysis, and `wdl fmt` pluralizes what it
-was handed into `100-150 ft Farmers Carries`. `wdl check` says ok throughout.
-That is the exact failure shape leading `5x5` had before item 0e, and it is
-found the same way: by writing a real workout.
+**5. ~~A range is only a rep range.~~ DONE 2026-08-23.** `100-150ft Farmers
+Carry` used to land whole in the movement name with the quantity left `open`,
+so the step matched no registry entry and `wdl fmt` pluralized what it was
+handed into `100-150 ft Farmers Carries`, with `wdl check` silent throughout —
+the exact failure shape leading `5x5` had before item 0e.
 
-The question is not really "is this a bug" — spec §3's unit table genuinely
-defines a range for reps only, so the parser matches the spec. It is **whether a
-range should generalise**. A carry written `100-150ft` says what `8-12` says —
-*somewhere in this band, you choose* — and so does `rest 60-90s`. If it
-generalises, `Quantity` needs a range that carries a unit and every consumer of
-`kind: 'range'` needs to stop assuming reps; if it does not, the parser must
-**say** it cannot read the quantity instead of silently swallowing it into the
-name. Either answer closes the silence, which is the part that is not optional.
-Raised 2026-08-15 while encoding a partner carry circuit.
-*Touches: `spec/grammar-0.1.ohm`, `packages/core/src/units.ts`, `ast.ts`,
-`format.ts`, `volume.ts`, `timeline.ts`, `spec/spec-0.1.md`.*
+**The range does not generalise — not on one caller's say-so.** A carry written
+`100-150ft` says what `8-12` says, and so does `rest 60-90s`, which is a real
+argument for teaching `Quantity`'s range a unit. But distance and duration
+ranges are different shapes, not one kind with a unit bolted on, and every
+consumer of `kind: 'range'` would need to stop assuming reps for a feature asked
+for once. What was not optional was the silence, and closing it does not
+require settling that: the grammar now matches `<int>-<int><letters>` as its own
+production, `unreadableRange`, ahead of `anyQuantity`, and reads it the way an
+unrecognized comma modifier already reads (item 0d) — quantity `open`, raw text
+in `Step.unknown`, reported by `validate.ts`'s existing `unread()` as a `note`.
+The movement name comes out right, so muscle attribution resolves; volume does
+not, honestly, because there is no single number to give it. `rest 60-90s` was
+already closed correctly before this — `restLine` fails outright on a dash, so
+`parseRest`'s fallback reports `unreadable rest duration "60-90s"`; only the
+step-line case needed the fix. Full decision in
+[settled-decisions.md](settled-decisions.md).
+*Touched: `spec/grammar-0.1.ohm`, `packages/core/src/grammar/step-semantics.ts`,
+`spec/spec-0.1.md`, `packages/core/test/golden/vocabulary.ts`.*
 
 **6. A load can be a word, and the language has no scale for it.** `@ heavy`
 parses to a raw target: held, round-tripped, displayed, and inert — no volume, no

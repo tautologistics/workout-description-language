@@ -78,6 +78,12 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     // min < max and otherwise leaves the digits in the movement name; the
     // grammar cannot state that constraint, so this is where the two part.
     '10-5 Squat',
+    // A range wearing a unit — `8-12` says what a range is, but spec §3 gives
+    // the shape to reps only. Read as `open` with the raw text held in
+    // `unknown`, rather than swallowed into the movement name — item 5 of
+    // docs/context/ready-to-pick-up.md, closed by making the parser say it
+    // cannot read the quantity instead of generalising the range.
+    '100-150ft Farmers Carry',
     '1+ Deadlift',
     'max Pull-Up',
     'max Bench Press',

@@ -726,6 +726,41 @@ would be tidier".
   about the shape: a collision that looks like an unavoidable trade-off is worth
   checking for a bad record underneath before it is written down as a debt.*
 
+- **A range does not carry a unit, and a range that has one says so rather than
+  vanishing into the movement name.** Settled 2026-08-23, closing queue item 5.
+  `8-12 Toes-to-Bar` is a first-class quantity because spec §3's unit table
+  gives a range to reps and nothing else; `100-150ft Farmers Carry` matched no
+  rule at all, so the whole token — digits, dash and unit together — fell into
+  `movement`, the step matched no registry entry, `wdl check` said nothing, and
+  `wdl fmt` pluralized text nobody meant as a noun into `Farmers Carries`.
+
+  **The question was whether a range should generalise, and the answer is no —
+  not here.** A carry written `100-150ft` says what `8-12` says (*somewhere in
+  this band*), and `rest 60-90s` wants the same reading, which is a real
+  argument for teaching `Quantity`'s `range` a unit. But that is a wider
+  redesign — duration and distance ranges are different shapes, not one kind
+  with a unit bolted on, and every consumer of `kind: 'range'` (`volume.ts`,
+  `timeline.ts`, `format.ts`, both exporters) would need to stop assuming reps
+  for a feature only ever asked for once. **What was not optional was the
+  silence**, and that does not require settling the wider question: the grammar
+  now matches `<int>-<int><letters>` as its own production, `unreadableRange`,
+  ahead of `anyQuantity` — so it is *caught* rather than left for `movement` to
+  absorb — and reads it the way an unrecognized comma modifier already reads
+  (queue item 0d): quantity stays `open`, the raw text goes in `Step.unknown`,
+  and `validate.ts`'s existing `unread()` reports it as a `note`. The movement
+  name comes out right either way, so muscle attribution (name-keyed, not
+  quantity-keyed) resolves normally; volume does not, honestly, because there
+  genuinely is no single number to give it.
+
+  A rest already closed this silence correctly before today: `rest 60-90s`
+  fails `restLine` outright (no production accepts a dash there), so the
+  existing fallback in `parseRest` reports `unreadable rest duration "60-90s"`.
+  Only the step-line case needed the fix. Whether a range should generalise to
+  a unit stays open — see [ready-to-pick-up.md](ready-to-pick-up.md) if it is
+  raised again, with a real second caller wanting it.
+  *Touched: `spec/grammar-0.1.ohm`, `packages/core/src/grammar/step-semantics.ts`,
+  `spec/spec-0.1.md`, `packages/core/test/golden/vocabulary.ts`.*
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).

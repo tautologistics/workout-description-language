@@ -1033,6 +1033,38 @@
   },
   "fixpoint": true
  },
+ "quantity/other :: 100-150ft Farmers Carry": {
+  "canonical": "for time:\n  - Farmers Carry, 100-150ft",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Farmers Carry",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       },
+       "unknown": [
+        "100-150ft"
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "quantity/other :: 1+ Deadlift": {
   "canonical": "for time:\n  - 1+ Deadlift",
   "errors": [],

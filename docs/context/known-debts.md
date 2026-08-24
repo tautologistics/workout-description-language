@@ -611,16 +611,14 @@ when something looks odd before treating it as a discovery.
   `rx` entry above: `stepCue` builds from a subset of the step. Found 2026-08-15
   while encoding a partner circuit; no corpus workout uses a team block.
 
-- **A distance range is not a form, and it fails the way `5x5` used to.**
-  `- 100-150ft Farmers Carry` puts `100-150ft Farmers Carry` in the *movement
-  name* with the quantity left `open`, so the step matches no registry entry and
-  drops out of muscle and volume analysis — and `wdl fmt` then pluralizes what it
-  was handed, writing `100-150 ft Farmers Carries`. Spec §3's unit table defines a
-  range for **reps only** (`8-12`), and that is a real decision (a carry written
-  `100-150ft` is a coach saying "somewhere in this range", which is the same thing
-  `8-12` says), but nothing reports the gap. `wdl check` says ok. Found 2026-08-15
-  while encoding a carry circuit. Either ranges generalise to distance and
-  duration, or the parser should say it cannot read the quantity.
+- ~~**A distance range is not a form, and it fails the way `5x5` used to.**~~
+  **Closed 2026-08-23** by queue item 5. `- 100-150ft Farmers Carry` no longer
+  lands in the movement name: the grammar now catches a range wearing a unit
+  ahead of the movement, reads it the way an unrecognized comma modifier already
+  reads (`open` quantity, raw text in `Step.unknown`), and `validate.ts` reports
+  it as a note. The movement resolves and `wdl fmt` no longer pluralizes the
+  digits. Full decision, and why the range itself was not taught a unit, in
+  [settled-decisions.md](settled-decisions.md).
 
 - **The builder's outline disagrees with the workout about an unindented
   `score:`, until you canonicalise.** The outline is built from `readLines`
