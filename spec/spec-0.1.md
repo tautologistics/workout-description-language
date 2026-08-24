@@ -83,7 +83,7 @@ Four rules, and each is separately justified:
 | Reps | `10` | `10 reps`, `10x` |
 | Rep range | `8-12` | — |
 | Distance | `400m` `1km` `1mi` `50ft` `25yd` | `400 meters`, `1 mile` |
-| Duration | `12min` `1h` `1min30s` `45s` | `12m`, `90s`, `1:30`, `90 sec`, `10` (in a duration position) |
+| Duration | `12min` `1h` `1min30s` `45s` | `12m`, `90s`, `1:30`, `1:04:19`, `90 sec`, `10` (in a duration position) |
 | Calories | `15cal` | `15 calories`, `15c` |
 | Load | `95lb` `60kg` `2pood` | `95#`, `95 lbs` |
 | Paired load | `2x24kg` | `2 x 24kg`, `24kg each hand` |
@@ -94,6 +94,12 @@ Four rules, and each is separately justified:
 | Heart rate | `150-160bpm` `Z2` | |
 | Height | `24in` `50cm` | `24"` |
 | Tempo | `31X1` | |
+
+**The clock form takes two fields or three.** `1:30` is a minute and a half and
+`1:04:19` is an hour and change — the way anybody writes down a session that ran
+past the hour. *Added 2026-08-23: two fields was the whole of it until the first
+real result record ([results-0.1.md](results-0.1.md)) recorded a HYROX, whose score the language then could
+not read.*
 
 **Durations decompose into the largest units that express the value exactly.** Ninety seconds is written `1min30s`, not `90s`; forty-five seconds stays `45s`. One rule, no threshold — the alternative (seconds below some cutoff, decomposed above) is an arbitrary line that gets forgotten. Both spellings parse.
 

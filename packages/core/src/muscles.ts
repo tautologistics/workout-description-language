@@ -28,6 +28,7 @@ import type { Timeline, TimelineItem, TimelineStep } from './timeline.ts';
 import type { Registry } from './fold.ts';
 import { canonicalRegistry } from './registry.ts';
 import { stepVolume, type MovementVolume } from './volume.ts';
+import { loadKilograms } from './units.ts';
 import { required, type MuscleRecord } from './env.ts';
 
 export type Muscle = MuscleRecord;
@@ -117,6 +118,24 @@ export interface Exposure {
   rounds: number;
   /** This step's work, once. Multiply by `rounds` for the total. */
   volume: MovementVolume;
+  /**
+   * What was on the bar, in kilograms — the heaviest absolute load the step
+   * carries, or absent where there is none the language can convert.
+   *
+   * **Not part of `volume`, and that is the point.** Everything in
+   * `MovementVolume` is work done and adds up: two rounds of ten is twenty reps.
+   * A load does not — three sets at 100kg is not 300kg of anything — so it is a
+   * property of the exposure rather than a quantity of it, and `rounds` never
+   * multiplies it. See `amountFor` in `goals.ts`, which maxes this where it sums
+   * everything else.
+   *
+   * On a workout this is the prescribed load; on an execution it is what the
+   * athlete used, because a result writes its loads onto the steps before
+   * anything is compiled (`instantiate` in `result.ts`). That difference is the
+   * class/instantiation split, settled 2026-08-19, and neither layer has to know
+   * which it is looking at.
+   */
+  load?: number;
   /** True when the amount is open-ended, so any total containing it is a floor. */
   open: boolean;
   /** True when the step resolved to no muscle data at all. */
@@ -156,6 +175,7 @@ export function exposures(t: Timeline, opts: AttributionOptions = {}): Exposures
         unordered,
         rounds,
         volume,
+        load: heaviest(item),
         open,
         unattributed: !a,
       });
@@ -178,6 +198,24 @@ export function exposures(t: Timeline, opts: AttributionOptions = {}): Exposures
 
   walk(t.root, [], undefined, undefined, 1);
   return { list, unresolved: [...unresolved] };
+}
+
+/**
+ * The heaviest load a step states, in kilograms.
+ *
+ * Heaviest rather than first because a step may carry more than one load target
+ * only by having been given one — a division's, then an execution's — and
+ * `withTargets` replaces by kind, so in practice there is one. Taking a maximum
+ * rather than trusting that is one line and cannot be wrong.
+ */
+function heaviest(step: TimelineStep): number | undefined {
+  let kg: number | undefined;
+  for (const t of step.targets) {
+    if (t.kind !== 'load') continue;
+    const v = loadKilograms(t.load);
+    if (v !== undefined) kg = Math.max(kg ?? 0, v);
+  }
+  return kg;
 }
 
 const inside = (e: Exposure, p: number[]) =>

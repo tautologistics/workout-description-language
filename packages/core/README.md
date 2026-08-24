@@ -14,6 +14,7 @@ node bin/wdl.ts fmt   file.wdl [-w]   # canonical formatting; -w rewrites in pla
 node bin/wdl.ts check file.wdl        # parse and report errors
 node bin/wdl.ts timeline file.wdl     # compile to an execution outline
 node bin/wdl.ts export --to zwo file.wdl          # also erg, mrc, connect; fit needs -o
+node bin/wdl.ts result file.wdlr      # check what was done against what it was a result of
 npm test                              # every check, one summary
 ```
 

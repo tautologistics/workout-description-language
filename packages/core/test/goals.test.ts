@@ -29,12 +29,29 @@ describe('goals: reading the rules', () => {
   it('reports a measure it cannot read rather than substituting one', () => {
     // Until 2026-08-19 `DIMENSIONS[written] ?? fallback` made every unread
     // spelling become the default: this file parsed clean and produced a *rep*
-    // check, so a rule asking to ramp weight quietly asked for repetitions.
-    const g = parseGoals('progress:\n  muscles: quads\n  at least: +5%\n  measure: load\n');
+    // check, so a rule asking to ramp tonnage quietly asked for repetitions.
+    // `measure: load` was the example that found it and is now a dimension —
+    // the fix stands on its own, since the fault was substituting *any* unread
+    // spelling rather than missing this one.
+    const g = parseGoals('progress:\n  muscles: quads\n  at least: +5%\n  measure: tonnage\n');
     eq(g.rules, []);
     eq(g.errors.length, 1);
-    ok(g.errors[0].message.includes('`load`'), 'names what it could not read');
+    ok(g.errors[0].message.includes('`tonnage`'), 'names what it could not read');
     ok(g.errors[0].message.includes('reps'), 'lists what it can');
+  });
+
+  it('reads `measure: load`, and an amount written in either unit', () => {
+    const pct = parseGoals('progress:\n  muscles: quads\n  at least: +5%\n  measure: load\n');
+    eq(pct.errors, []);
+    eq((pct.rules[0] as any).measure, 'load');
+    eq((pct.rules[0] as any).bound, { value: 0.05, dimension: 'load', relative: true });
+
+    // Kilograms is what the dimension is kept in, so a bound written in pounds
+    // is converted where the spelling is still visible rather than compared
+    // against a number in another unit.
+    const abs = parseGoals('progress:\n  muscles: quads\n  at least: 10lb\n  measure: load\n');
+    eq(abs.errors, []);
+    eq((abs.rules[0] as any).bound, { value: 4.54, dimension: 'load', relative: false });
   });
 
   it('reports an unread measure on balance too, with its own default', () => {

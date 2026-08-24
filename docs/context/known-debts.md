@@ -45,8 +45,34 @@ when something looks odd before treating it as a discovery.
   for anything else. Deliberate as of 2026-08-18 — a quantity override needs the
   quantity grammar in a value position, which is a grammar change, not a
   resolver one.
+- **A result's loads are keyed by movement, so one number covers every step of
+  that movement.** `- Back Squat @ 100kg` applies to all of them, and a session
+  that ramped 60 → 80 → 100 can only record the one figure. This is exactly the
+  information loss `variants.ts` refused when it kept an rx split on the *step*
+  rather than lowering it into the movement-keyed table — and here it is
+  unavoidable in the same way it was avoidable there, because a result has no
+  step to hang a number on: it names a movement, not a position in a file. The
+  fix, if it is ever wanted, is for a `loads:` entry to be able to say *which*
+  one — by line, by set, or by writing several. Nobody has asked yet, and
+  inventing the spelling before somebody has recorded a real build is how the
+  wrong one gets in. Raised 2026-08-23 with queue item 2.
+  *Touches: `packages/core/src/result.ts`, `spec/results-0.1.md`.*
+- **The board decides a step is loaded by looking for an `@` in the cue's
+  label.** It offers a commented `loads:` skeleton for movements the file
+  prescribes a weight for, and a `Cue` carries `movement`, `quantity` and
+  `label` but not `targets` — so the honest question cannot be asked without a
+  core change, and a regex over rendered display text is standing in for it. The
+  cost is bounded: a false positive is one extra comment line in a record, and a
+  false negative is one missing hint. But it is precisely the shape this project
+  removed from `parse.ts`, sitting in an app instead. Raised 2026-08-23.
+  *Touches: `packages/core/src/run.ts`, `apps/display/board.js`.*
 - Templates and workouts share the `.wdl` extension, so `wdl fmt` on a template
-  is easy to do by accident.
+  is easy to do by accident. *The other three record types no longer are: as of
+  2026-08-23 each verb states what its file arguments are, and `wdl fmt -w` on a
+  `.wdlr` refuses instead of parsing a training log as steps and writing the
+  mangling back. The extension is the whole of the check, because sniffing the
+  contents would be a fifth grammar guessing at the other four — which leaves a
+  template, whose extension is honest, exactly where it was.*
 - A capped for-time workout reports `duration: 12:00` in the builder, which
   reads as "this takes twelve minutes" where it means "you have at most twelve".
   `run` does not expose the cap separately from a computed total, so telling

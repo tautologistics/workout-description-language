@@ -1,0 +1,27 @@
+// A result is what you write next to the workout when you are done, in a
+// different hand, afterwards. The workout is the class; this is one execution
+// of it — one person, one day, the weight that was actually on the bar.
+
+result: crossfit:fran
+date: 2026-08-21
+athlete: chris
+score: 8:42
+splits: 2:50, 3:01, 2:51
+notes: grip gave out in round 3
+
+// The file says 95lb. This says what was lifted, which is the number that is
+// true of this athlete on this day — and the one a `progress` rule can ramp.
+loads:
+  - Thruster @ 65lb
+
+// The workout as it was, held verbatim. It survives the file being edited,
+// deleted or unreachable, and it doubles as the version record — which is why
+// nothing here is numbered by revision (roadmap §3.2.1).
+snapshot:
+  # Fran
+  @id crossfit:fran
+
+  for time:
+    21-15-9:
+      - Thrusters @ 95lb
+      - Pull-Ups

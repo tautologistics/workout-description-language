@@ -15,10 +15,12 @@ packages/core/node.ts  the Node host: reads the data files and hands them to src
 packages/core/node/    the parts that genuinely need a filesystem.
 packages/core/bin/     the `wdl` CLI.
 apps/builder/          write a workout: palette, outline, text, live goal feedback.
-apps/display/          the board: a workout as written, with a marker for where you are.
+apps/display/          the board: a workout as written, with a marker for where you are,
+                       and the result it writes down when the session ends.
 registry/              movements, muscles, workouts. Rebuilt by scripts/build-canonical.ts.
-examples/              corpus (190 workouts), goals, programs, templates.
+examples/              corpus (190 workouts), goals, programs, templates, results.
 spec/                  spec-0.1.md (the format), goals-0.1.md (the rules),
+                       results-0.1.md (what was done),
                        grammar-0.1.ohm (normative, every phase-2 line kind, no actions —
                        and the file the parser runs, handed to src/ by a host).
 docs/context/          this directory: the project's memory. Start at README.md.

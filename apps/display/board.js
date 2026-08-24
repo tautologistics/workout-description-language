@@ -11,6 +11,13 @@
  * what you wrote is what you read, and a display that regenerates the workout
  * into its own layout is quietly asserting the text was not good enough.
  *
+ * Since 2026-08-23 it holds a fourth: **what happened**. A result is the record
+ * of one execution, and the board is the only thing in this project that can
+ * write one — it held the clock and it held the cursor, which is exactly the
+ * pair the core deliberately does not have. What it writes is the format's own
+ * text, editable before you keep it, because a claim about your session should
+ * be readable by you first.
+ *
  * Since 2026-08-20 it holds a third such thing: which **division** is being
  * read. That is not something the core lacks — `resolve()` is core — but the
  * *choosing* is a reader's act, like the clock and the cursor, and like them it
@@ -23,6 +30,7 @@ import { compile } from '../../build/web/core/timeline.js';
 import { run, roundLabel } from '../../build/web/core/run.js';
 import { validate } from '../../build/web/core/validate.js';
 import { divisions, resolve } from '../../build/web/core/variants.js';
+import { declaredScore } from '../../build/web/core/result.js';
 import { provide, has } from '../../build/web/core/env.js';
 
 // The core is handed its data; it reads no files itself. On Node that is
@@ -82,6 +90,13 @@ const state = {
   cycleStartedAt: 0, // ms, for the section that repeats
   running: false,
   lap: 0,            // completed passes of the section the cursor is in
+  // Cumulative workout seconds at each round boundary. Deltas are computed when
+  // the record is written; keeping the running total means a split never drifts
+  // from the clock above it.
+  splits: [],
+  // Source lines the cursor has been on since the last split. Coming back to one
+  // is what closes a round; see `crossed`.
+  seen: new Set(),
 };
 
 /**
@@ -189,6 +204,9 @@ function paint() {
   // something to say it with. Shown only where it means something.
   el('leave').hidden = !cycle;
   el('start').disabled = finished;
+  // Once a session has begun there is something to record, whether or not it
+  // reached the end: a workout you stopped halfway still happened.
+  el('record-open').hidden = state.at < 0;
   el('start').textContent = state.running ? 'Pause' : state.at < 0 ? 'Start' : 'Resume';
 }
 
@@ -298,11 +316,15 @@ function goTo(index) {
 }
 
 function finish() {
+  markSplit();
   state.at = state.cues.length;
   state.running = false;
   hold();
   paint();
   tick();
+  // The record is what the session was for; it should not need finding. Shown
+  // rather than written over anything the athlete has already typed into it.
+  if (state.splits.length || state.at > 0) showRecord();
 }
 
 /**
@@ -326,11 +348,60 @@ function advance(by) {
   // section's clock is up it is over, and falling through ends it.
   if (cycle && next >= endOf(cycle) && !expired(cycle)) {
     state.lap++;
+    crossed(cycle.from);
     goTo(cycle.from);
     return;
   }
   if (next >= state.cues.length) finish();
-  else goTo(Math.max(0, next));
+  else {
+    // Forward only. Stepping back is how a mis-tap is undone, and a board that
+    // recorded a split for it would put a number in the log that names nothing
+    // the athlete did.
+    if (by > 0) crossed(next);
+    goTo(Math.max(0, next));
+  }
+}
+
+/**
+ * Arriving at a cue, and noticing when it means a round has closed.
+ *
+ * **A round is a line you have already been on.** That is the whole rule, and it
+ * is a fact about the cue list rather than a guess: coming back to a line you
+ * passed since the last split is what going round again *is*.
+ *
+ * The obvious rule was the wrong one. `Cue.rounds` looks like the answer — it is
+ * literally called rounds — but `run` only fills it for a block that *repeats*,
+ * and `21-15-9` does not repeat: the timeline expands a rep scheme into three
+ * explicit tiers (`compile`, the `ladder` case), so every cue in Fran carries an
+ * empty round list. A board keying on it recorded no splits at all for the one
+ * workout the roadmap uses to illustrate them. Found by running Fran on the
+ * board, which is the only way it could have been.
+ *
+ * One rule covers all three shapes for the same reason: a ladder tier, a round
+ * of a `5 sets:` and a pass of an AMRAP all return the cursor to a line it has
+ * already been on.
+ */
+function crossed(index) {
+  const line = state.cues[index]?.line;
+  if (line === undefined) return;
+  if (state.seen.has(line)) { markSplit(); state.seen.clear(); }
+  state.seen.add(line);
+}
+
+/**
+ * Close a split at the elapsed workout time.
+ *
+ * Cumulative, and turned into deltas only when the record is written — so a
+ * split can never disagree with the clock that was on the screen. A boundary
+ * crossed in under a second is a mis-tap being corrected rather than a round,
+ * and recording it would put a `0:00` in a log of real efforts.
+ */
+function markSplit() {
+  if (state.at < 0) return;
+  const total = state.running ? (performance.now() - state.startedAt) / 1000 : state.heldTotal ?? 0;
+  const last = state.splits[state.splits.length - 1] ?? 0;
+  if (total - last < 1) return;
+  state.splits.push(total);
 }
 
 /** Freeze the clocks where they are, so pausing does not lose the count. */
@@ -360,19 +431,164 @@ function toggle() {
   if (state.running) resume(); else hold();
   // Starting goes through `goTo` so that a workout which opens with a section —
   // an AMRAP with nothing before it — starts that section's clock too.
-  if (starting) goTo(0); else { paint(); tick(); }
+  if (starting) { crossed(0); goTo(0); } else { paint(); tick(); }
 }
 
 function reset() {
   visited.clear();
+  clearRecord();
   state.at = -1;
   state.lap = 0;
+  state.splits = [];
+  state.seen.clear();
   state.running = false;
   state.heldCue = 0;
   state.heldTotal = 0;
   state.heldCycle = 0;
   paint();
   tick();
+}
+
+// --- the record -------------------------------------------------------------
+
+/**
+ * Today, in local time.
+ *
+ * `toISOString` is the obvious call and it is the wrong one: it converts to UTC,
+ * so a session finished at nine in the evening west of Greenwich is stamped
+ * tomorrow. This cost a day in `generate` once already — a stamp is read in
+ * local time, so it must be written in local time.
+ */
+function today() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/** `8:42`, and `1:04:19` once a session runs past the hour. */
+function clockText(seconds) {
+  const n = Math.max(0, Math.round(seconds));
+  const h = Math.floor(n / 3600);
+  const m = Math.floor((n % 3600) / 60);
+  const s = n % 60;
+  return h
+    ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+    : `${m}:${String(s).padStart(2, '0')}`;
+}
+
+/** Seconds on the workout clock, whether it is running or held. */
+const totalElapsed = () =>
+  (state.running ? (performance.now() - state.startedAt) / 1000 : state.heldTotal ?? 0);
+
+/**
+ * What the board is *entitled* to claim it measured.
+ *
+ * It held a clock and it counted passes, and that is the whole of what it knows.
+ * A workout scored by time gets its time; one scored by rounds gets the passes
+ * of the section that repeats. Everything else — a load, a tiebreak, the reps in
+ * the last partial round — is a fact about the athlete that no clock observed,
+ * so the board says it could not and leaves the line to be typed. Writing a
+ * plausible number there would be the board making something up about somebody's
+ * training, which is the one thing a log must never do.
+ */
+function measuredScore() {
+  const primary = declaredScore(state.workout) ?? '';
+  const total = totalElapsed();
+  if (/time/.test(primary) || !primary) {
+    return { score: clockText(total), note: primary ? undefined
+      : 'this workout declares no score — the time is what the board measured' };
+  }
+  if (/^rounds/.test(primary)) {
+    // `lap` counts passes of a section that comes round again, and is exact —
+    // it counts loops, not clock. A workout with no such section has no laps at
+    // all, so a `5 sets:` scored by rounds would have recorded **zero**; there
+    // the rounds are the boundaries the cursor crossed, which is what a split
+    // already is.
+    const passes = state.cycles.length ? state.lap : state.splits.length;
+    return {
+      score: String(passes),
+      note: primary === 'rounds + reps'
+        ? `${passes} full passes in ${clockText(total)} — add the reps of the one you were in`
+        : undefined,
+    };
+  }
+  return { note: `the workout is scored by \`${primary}\`, which no clock can see — `
+    + `it took ${clockText(total)}` };
+}
+
+/**
+ * The session, as a result record.
+ *
+ * Written in the format rather than through `formatResult`, because what belongs
+ * on the screen here is not only the record: it is the record *plus what the
+ * board could not measure*, as comments, so nothing measured is thrown away and
+ * nothing unmeasured is invented. Comments are stripped when it is read back,
+ * which is exactly right — a hint is not data.
+ */
+function recordText() {
+  const w = state.workout;
+  const id = w?.directives?.id;
+  const out = [];
+  const { score, note } = measuredScore();
+
+  out.push(`result:${id ? ` ${id}` : ''}`);
+  if (!id) out.push('// no @id on the workout — the snapshot below is what makes this findable');
+  out.push(`date: ${today()}`);
+  if (state.division) out.push(`division: ${state.division}`);
+  if (note) out.push(`// ${note}`);
+  if (score !== undefined) out.push(`score: ${score}`);
+
+  // Deltas, from the cumulative marks. Fewer than two and the only split is the
+  // whole workout, which the score already says.
+  if (state.splits.length > 1) {
+    const deltas = state.splits.map((at, i) => clockText(at - (state.splits[i - 1] ?? 0)));
+    out.push(`splits: ${deltas.join(', ')}`);
+  }
+
+  // The loads the *file* states, commented out, one per movement that carries
+  // one. Offered rather than filled in: what the workout prescribes is not
+  // evidence of what anybody lifted, and an absent field is not a claim.
+  const loaded = [...new Set(state.cues.filter(hasLoad).map((c) => c.movement))];
+  if (loaded.length) {
+    out.push('', '// what you actually lifted, where it was not what the file says:');
+    out.push('// loads:');
+    for (const m of loaded) out.push(`//   - ${m} @ `);
+  }
+
+  out.push('', 'snapshot:');
+  for (const line of state.source.replace(/\n+$/, '').split('\n')) {
+    out.push(line.trim() ? `  ${line}` : '');
+  }
+  return out.join('\n') + '\n';
+}
+
+/** A cue whose line prescribes a weight, which is the only kind worth offering. */
+const hasLoad = (cue) => !!cue.movement && /@/.test(cue.label);
+
+/** Forget the record, so the next session writes its own rather than inheriting. */
+function clearRecord() {
+  const box = el('record-text');
+  if (box) box.value = '';
+  const panel = el('record');
+  if (panel) panel.hidden = true;
+}
+
+function showRecord() {
+  const box = el('record-text');
+  // Never over what is already there: the panel opens on finishing and again on
+  // the button, and the second time would otherwise wipe what was typed.
+  if (!box.value.trim()) box.value = recordText();
+  el('record').hidden = false;
+  said('');
+}
+
+const said = (text) => { el('record-said').textContent = text; };
+
+/** The filename a person would have chosen: the date and what it was. */
+function recordName() {
+  const title = (state.workout?.title || 'result').toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return `${today()}-${title || 'result'}.wdlr`;
 }
 
 // --- loading ----------------------------------------------------------------
@@ -555,6 +771,7 @@ function load(source, division = '') {
 
   offerDivisions();
   visited.clear();
+  clearRecord();
   recue();
 
   bar.hidden = false;
@@ -589,6 +806,21 @@ el('next').onclick = () => advance(1);
 el('prev').onclick = () => advance(-1);
 el('leave').onclick = leave;
 el('reset').onclick = reset;
+el('record-open').onclick = showRecord;
+el('record-close').onclick = () => { el('record').hidden = true; };
+el('record-copy').onclick = async () => {
+  try { await navigator.clipboard.writeText(el('record-text').value); said('copied'); }
+  catch (e) { said(`could not copy: ${e.message}`); }
+};
+el('record-save').onclick = () => {
+  const blob = new Blob([el('record-text').value], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = recordName();
+  a.click();
+  URL.revokeObjectURL(a.href);
+  said(`saved ${a.download}`);
+};
 el('edit').onclick = showEmpty;
 picker.onchange = () => chooseDivision(picker.value);
 

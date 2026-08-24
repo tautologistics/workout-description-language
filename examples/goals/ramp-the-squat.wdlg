@@ -1,0 +1,12 @@
+goals: Put weight on the bar, week after week
+
+  // The rule the whole result record exists for. `measure: load` is a question
+  // about a series of *executions*, not about a series of files: the workout
+  // says `5 Back Squat` every week and means to, and the number that has to go
+  // up is the one only a result knows.
+  //
+  // Checked with `wdl result --goals`, which reads the records in date order.
+  progress:
+    muscles: quads, glutes
+    at least: +2.5%
+    measure: load

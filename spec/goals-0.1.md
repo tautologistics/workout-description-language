@@ -62,6 +62,7 @@ The muscle names are the ids in `registry/muscles.json`. Regions are `upper`,
 | `exposures` | the same, with rounds multiplied in |
 | `reps` | reps, rounds included |
 | `seconds`, `metres`, `calories` | likewise, for steps measured that way |
+| `load` | the heaviest load on the group, in kilograms — see below |
 
 `movements` and `exposures` are different rules. "No more than three shoulder
 movements in a session" does not change when you add a round; "no more than
@@ -71,6 +72,18 @@ Reps are not comparable across movements — a deadlift rep and a sit-up rep bot
 count as one. Nothing converts reps to load, so `reps` is meaningful for trend
 and for balance between similar movements, and misleading between dissimilar
 ones. Prefer `movements` when comparing unlike things.
+
+**`load` is the odd one and is odd in three ways**, each of which is the honest
+answer rather than the consistent one:
+
+- **It is not a total.** Every other dimension adds up; a sum of loads is not a
+  quantity, since three sets at 100kg is not 300kg of anything. It is the
+  *heaviest* load on the group, and rounds do not multiply it. §9.1 already
+  reads `score: load` as "heaviest successful".
+- **It is in kilograms**, converted once, because two loads written in different
+  units cannot be compared. A bound may be written either way: `at least: 10lb`
+  is read as 4.54kg.
+- **It is mostly a question about a result**, not about a file. See below.
 
 ## `level`
 
@@ -139,8 +152,13 @@ progress:
   measure: reps
 ```
 
-`at least` takes a percentage (`+10%`) or an absolute step (`5 reps`), required
-from each workout in the block to the next.
+`at least` takes a percentage (`+10%`) or an absolute step (`5 reps`, `2.5kg`),
+required from each workout in the block to the next.
+
+`measure: load` reads a load wherever one is written, but ramping it across
+*files* is rarely the question — the same file every week is the point, and the
+weight that changes is recorded on a **result**. See *What is deliberately
+absent* below.
 
 ## Checking
 
@@ -169,10 +187,34 @@ them:
 adding them before the muscle rules have been used in anger would be guessing at
 what is needed.
 
-**Weights and intensity.** `progress` counts reps because reps are a fact about
-the file. Counting load would need a 1RM and a model that turns percentages into
-comparable work, and inventing one would make the output look more authoritative
-than it is.
+**A model that turns intensity into comparable work.** *This section read
+"weights and intensity" until 2026-08-23, and the objection it recorded is
+intact — it was just wider than the thing it ruled out.*
+
+A **percentage** load is still absent, for exactly the reason given then: `85%
+1RM` is a load only once an athlete profile says what the 1RM is, and inventing
+one would make the output look more authoritative than it is. So is an
+unlabelled magnitude — `(105/65)` is a real prescription on a whiteboard and not
+a quantity anywhere else. Neither contributes to `measure: load`, silently and
+by construction.
+
+What is now present is the **absolute** load, which needs no model at all: it is
+a number of kilograms somebody actually lifted. And it is mostly a fact about an
+*execution* rather than about a file — a workout is a class and the weight on
+the bar is not part of it — so "ramp the squat week over week" is asked of a
+series of **results**, not of a series of workout files:
+
+```bash
+wdl result --goals ramp-the-squat.wdlg week1.wdlr week2.wdlr week3.wdlr
+```
+
+See [results-0.1.md](results-0.1.md). A load the *author* wrote into the file is
+read where it is written, because that one was stated in the file — which is the
+same exception that makes divisions resolve at the workout layer (§10.1).
+
+A `progress` rule that finds **nothing anywhere** in the series reports that
+rather than passing: two zeroes satisfy any ramp, and a ramp reported as met
+when nothing was measured is the worst answer available.
 
 **Severity.** Every finding is a finding. Whether a stacked pair of glute
 movements matters is a judgement for the person reading, not for the rule.

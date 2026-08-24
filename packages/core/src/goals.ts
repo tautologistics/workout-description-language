@@ -43,7 +43,28 @@ import type { MovementVolume } from './volume.ts';
  * sixty shoulder efforts" are different rules, and only one of them changes when
  * you add a round.
  */
-export type Dimension = 'movements' | 'exposures' | 'reps' | 'seconds' | 'metres' | 'calories';
+export type Dimension =
+  | 'movements' | 'exposures' | 'reps' | 'seconds' | 'metres' | 'calories'
+  /**
+   * The weight on the bar, in kilograms — **the one dimension that is not a
+   * total**, and the one that only means something about an *execution*.
+   *
+   * Not a total because a sum of loads is not a quantity: three sets at 100kg is
+   * not 300kg of anything. `amountFor` takes the heaviest instead, which is also
+   * what this language already means by a load — spec §9.1 reads `score: load`
+   * as "heaviest successful".
+   *
+   * Only about an execution because a workout is a class and the weight a person
+   * puts on the bar is not part of it (settled 2026-08-19). A load the *author*
+   * wrote into the file is read here, because that one was stated in the file —
+   * but "ramp the squat week over week" is a statement about a series of
+   * results, and `resultSeries` in `result.ts` is what produces one.
+   *
+   * A percentage load contributes nothing, and that is the original objection
+   * kept intact: `85% 1RM` is a load only once an athlete profile says what the
+   * 1RM is.
+   */
+  | 'load';
 
 /**
  * What a rule is asked of. A floor on pushing volume is usually a statement
@@ -146,11 +167,14 @@ function resolveTargets(names: string[]): { ok: string[]; unknown: string[] } {
  * Reading a `measure:` line, and **refusing to substitute one**.
  *
  * `DIMENSIONS[written] ?? fallback` was the shape until 2026-08-19, and it made
- * every unrecognized spelling silently become the default: `measure: load`
- * parsed with no error and produced a *rep* check, so a rule asking to ramp
- * weight quietly asked to ramp repetitions instead. A typo did the same —
- * `measure: repss` was a rep check — and so did a dimension the language simply
- * does not have.
+ * every unrecognized spelling silently become the default: `measure: tonnage`
+ * parsed with no error and produced a *rep* check, and a typo did the same —
+ * `measure: repss` was a rep check.
+ *
+ * *`measure: load` was the example that found this, and it is no longer one: as
+ * of queue item 2 the language measures load, on a result. The fix it bought
+ * stands on its own — the failure was substituting **any** unread spelling, not
+ * missing this one.*
  *
  * A missing line still takes the default, because that is the author declining
  * to choose. A line that is *present and unread* is reported by name, and the
@@ -176,7 +200,28 @@ const DIMENSIONS: Record<string, Dimension> = {
   second: 'seconds', seconds: 'seconds', sec: 'seconds', s: 'seconds',
   metre: 'metres', metres: 'metres', meter: 'metres', meters: 'metres', m: 'metres',
   calorie: 'calories', calories: 'calories', cal: 'calories', cals: 'calories',
+  load: 'load', loads: 'load', kg: 'load', kgs: 'load', lb: 'load', lbs: 'load',
 };
+
+/**
+ * Amounts written in a unit the dimension is not kept in. `at least: 10lb` is a
+ * real thing to ask for and the load dimension is kilograms, so the conversion
+ * happens once, here, where the spelling is still visible.
+ */
+const AMOUNT_IN: Record<string, number> = { lb: 0.45359237, lbs: 0.45359237 };
+
+/** What a dimension is counted in, for a message. `load` is the only one that differs. */
+const UNIT_OF = (d: Dimension) => (d === 'load' ? 'kg' : d);
+
+/**
+ * A number in a message, to two decimals and no trailing zeroes.
+ *
+ * `Math.round` was here until 2026-08-23 and was fine while every dimension
+ * counted whole things: you cannot do 2.5 reps. Kilos are not whole, and a
+ * rounded message misreports the rule it came from — `at least: +2.5%` printed
+ * as `3% more required`, which is a different rule from the one in the file.
+ */
+const num = (n: number) => String(Math.round(n * 100) / 100);
 
 /** `2 exposures`, `50 reps`, `+5%`, `25%`. */
 function parseAmount(text: string, fallback: Dimension): Amount | undefined {
@@ -184,9 +229,11 @@ function parseAmount(text: string, fallback: Dimension): Amount | undefined {
   if (pct) return { value: Number(pct[1]) / 100, dimension: fallback, relative: true };
   const m = text.match(/^([+-]?\d+(?:\.\d+)?)\s*([a-z]*)$/i);
   if (!m) return undefined;
-  const dim = m[2] ? DIMENSIONS[m[2].toLowerCase()] : fallback;
+  const written = m[2].toLowerCase();
+  const dim = m[2] ? DIMENSIONS[written] : fallback;
   if (!dim) return undefined;
-  return { value: Number(m[1]), dimension: dim, relative: false };
+  const scale = AMOUNT_IN[written] ?? 1;
+  return { value: Math.round(Number(m[1]) * scale * 100) / 100, dimension: dim, relative: false };
 }
 
 const KEYS = (body: Line[]) => {
@@ -350,6 +397,11 @@ function amountFor(
   });
   if (d === 'movements') return hits.length;
   if (d === 'exposures') return hits.reduce((n, e) => n + e.rounds, 0);
+  // The heaviest, not the sum, and never multiplied by rounds: five sets at
+  // 100kg is five sets at 100kg. This is the only dimension that is not a
+  // total, and it is what the language already means by a load — spec §9.1
+  // reads `score: load` as "heaviest successful".
+  if (d === 'load') return hits.reduce((n, e) => Math.max(n, e.load ?? 0), 0);
   return hits.reduce((n, e) => n + DIMENSION_OF(e.volume, d) * e.rounds, 0);
 }
 
@@ -418,7 +470,7 @@ export function checkExposures(
           if (under || over) {
             findings.push({
               rule: rule.kind, line: rule.line,
-              message: `${g.name}: ${got} ${rule.bound.dimension}, ${rule.kind === 'cover' ? 'at least' : 'at most'} ${rule.bound.value} required`,
+              message: `${g.name}: ${num(got)} ${UNIT_OF(rule.bound.dimension)}, ${rule.kind === 'cover' ? 'at least' : 'at most'} ${num(rule.bound.value)} required`,
             });
           }
         }
@@ -433,7 +485,7 @@ export function checkExposures(
         if (low < high * (1 - rule.tolerance)) {
           findings.push({
             rule: rule.kind, line: rule.line,
-            message: `${got.map((g) => `${g.name} ${g.amount}`).join(' vs ')} ${rule.measure}`
+            message: `${got.map((g) => `${g.name} ${num(g.amount)}`).join(' vs ')} ${UNIT_OF(rule.measure)}`
               + ` — a spread of ${Math.round((1 - low / high) * 100)}%, over the ${Math.round(rule.tolerance * 100)}% allowed`,
           });
         }
@@ -505,6 +557,29 @@ export function checkSeriesExposures(
     if (rule.kind !== 'progress') continue;
     for (const g of rule.targets) {
       const amounts = series.map((s) => amountFor(s.exp, g.muscles, rule.measure, rule.level));
+      /**
+       * Nothing to compare is not the same as nothing wrong.
+       *
+       * `now >= prev * 1.05` is satisfied by two zeroes, so a rule asking to ramp
+       * a load across results that record no load passes in silence. A ramp
+       * reported as met when nothing was measured is the worst answer this can
+       * give, so the rule says it saw nothing instead.
+       *
+       * **Across the whole series, not per slot**, and the first version of this
+       * was per slot and wrong. `progress` is asked of every slot, and a slot
+       * that never touches the group is the *design working*: "ramp the pull"
+       * finds no lats on leg day because leg day was never supposed to have any,
+       * which is the exact noise the slot mechanism exists to prevent. Only a
+       * measure that is empty *everywhere* is the rule failing to see anything.
+       */
+      if (series.length > 1 && amounts.every((a) => a === 0)) {
+        findings.push({
+          rule: rule.kind, line: rule.line, count: 1,
+          message: `${g.name}: no ${UNIT_OF(rule.measure)} recorded in any of ${series.length} sessions`
+            + ' — nothing to compare, so this rule says nothing',
+        });
+        continue;
+      }
       for (const [slot, positions] of slots) {
         for (let n = 1; n < positions.length; n++) {
           const [a, b] = [positions[n - 1], positions[n]];
@@ -513,8 +588,8 @@ export function checkSeriesExposures(
           if (now >= need) continue;
           findings.push({
             rule: rule.kind, line: rule.line, count: 1,
-            message: `${g.name}${slot ? ` (${slot})` : ''}: ${series[a].name} ${prev} \u2192 ${series[b].name} ${now} ${rule.measure};`
-              + ` ${rule.bound.relative ? `${Math.round(rule.bound.value * 100)}% more` : `${rule.bound.value} more`} required (${Math.round(need)})`,
+            message: `${g.name}${slot ? ` (${slot})` : ''}: ${series[a].name} ${num(prev)} \u2192 ${series[b].name} ${num(now)} ${UNIT_OF(rule.measure)};`
+              + ` ${rule.bound.relative ? `${num(rule.bound.value * 100)}% more` : `${num(rule.bound.value)} more`} required (${num(need)})`,
           });
         }
       }

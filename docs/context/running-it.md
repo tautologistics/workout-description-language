@@ -1,7 +1,7 @@
 # Running it
 
 ```bash
-npm --prefix packages/core test     # 1742 tests, 1 pending, ~10s
+npm --prefix packages/core test     # 1773 tests, 1 pending, ~10s
 node scripts/build-canonical.ts     # rebuild registry/ from its sources
 node scripts/describe-corpora.mjs   # report whether SOURCES.json/.md still count the corpora right
 node scripts/build-web.mjs          # emit the core as browser modules
@@ -15,11 +15,17 @@ imported by relative path, because a dependency the core is allowed is still one
 the browser cannot resolve — see [settled-decisions.md](settled-decisions.md).
 There is no `package-lock.json` and no `node_modules` again.
 
-The CLI: `wdl fmt | check | timeline | export | goals | generate | program`.
+The CLI: `wdl fmt | check | timeline | export | goals | generate | program | result`.
 `--variant <name>` on the first four reads the file as one division — an rx split
 or a `variants:` entry, whichever way it was written (spec §10.1). The board asks
 the same question through a picker in its footer, and a division chosen there
 rides in the URL: `#<workout>&division=women`.
+
+`wdl result <file.wdlr>` checks a result against the snapshot it carries;
+`--goals` reads the records as one series, in date order, which is the only way
+a `progress` rule about load can be asked. The board writes a `.wdlr` when a
+session ends.
+
 The server must be rooted at the repository — the apps reach `build/` and
 `registry/` from there.
 
