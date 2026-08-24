@@ -18,12 +18,16 @@ import { parseGoals, check, checkSeries } from '../src/goals.ts';
 import { generate, generateProgram } from '../src/generate.ts';
 import { parseProgram } from '../src/program.ts';
 import { canonicalRegistry } from '../src/registry.ts';
+import { fold } from '../src/fold.ts';
 import type { MovementEntry } from '../src/fold.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const example = (p: string) => readFileSync(join(here, '../../../examples', p), 'utf8');
 const tpl = (src: string) => parse(src).workout;
 const rotate = () => parseGoals(example('goals/rotate-muscles.wdlg'));
+/** The curated layer as written, before the merge folds it into the corpus. */
+const curatedRecords = (): MovementEntry[] =>
+  JSON.parse(readFileSync(join(here, '../../../registry/movements.json'), 'utf8')).movements;
 
 describe('generate: reading a template', () => {
   it('finds the holes and leaves everything else alone', () => {
@@ -268,10 +272,22 @@ describe('generate: the pool', () => {
     ok(attested.length > 50, `${attested.length} records are attested but unjudged`);
   });
 
-  it('holds every curated record, whatever it scores', () => {
+  it('holds every curated record that says something about the movement', () => {
     // Curation is +3 against a bar of 4, so a threshold dropped hand-written
     // records that no corpus workout happens to use. Fourteen of them.
-    const missing = entries().filter((e) => (e.sources ?? []).includes('wdl-curated') && !e.core);
+    //
+    // "Curated" has to mean the record makes a claim about the *movement*. The
+    // alias pass writes records carrying nothing but `aliases`, and an alias is
+    // a claim about a **name** — this spelling should resolve — which is no
+    // reason to put a movement in front of a reader. Nine such records exist
+    // and are deliberately out of the pool; they are still in the language,
+    // still resolvable, still findable in the palette by typing.
+    const SAYS_NOTHING = new Set(['id', 'title', 'aliases', 'sameAs']);
+    const judged = new Set(curatedRecords()
+      .filter((r) => Object.keys(r).some((k) => !SAYS_NOTHING.has(k)))
+      .map((r) => fold(r.id)));
+    const missing = entries().filter((e) =>
+      (e.sources ?? []).includes('wdl-curated') && judged.has(fold(e.id)) && !e.core);
     eq(missing.map((e) => e.title), [], 'curated but out of the pool');
     const titles = new Set(pool().map((e) => e.title));
     for (const t of ['Bar-Facing Burpee', 'Hang Power Clean', 'Squat Snatch', 'Log Press']) {
@@ -279,11 +295,21 @@ describe('generate: the pool', () => {
     }
   });
 
-  it('is 129 movements', () => {
+  it('is 128 movements', () => {
     // Pinned so it cannot drift in either direction unnoticed: silently growing
     // is how `Quad Stretch` arrived, and silently shrinking is how a rebuild
     // that forgot `mark-core` would read.
-    eq(pool().length, 129);
+    //
+    // 129 until the alias pass and `sameAs` landed beside this rule. One record
+    // left — `Dumbbell Bicep Curl`, merged into `Dumbbell Curl` — which is the
+    // whole intended effect. It briefly read 137, and that was this pin doing
+    // its job: the alias pass writes curated records carrying nothing but
+    // `aliases`, and `mark-core` read presence in the curated file as somebody
+    // having judged the movement worth writing. Seven accessory movements the
+    // pass happened to touch were promoted on a claim about a *name*. The
+    // `curated` signal now asks that the record say something about the
+    // movement; see the header of `scripts/mark-core.mjs`.
+    eq(pool().length, 128);
   });
 
   it('is nothing a reader would have to warm up before', () => {

@@ -875,45 +875,87 @@ picture can say before it starts lying.
 *Touches: a new asset (the SVG), `apps/builder/`, `apps/display/`, and reads from
 `muscles.ts` / `volume.ts` — no core change expected.*
 
-**8. An alias pass over the core.** The registry holds **278 aliases across 219
-of 3120 movements**, and an alias it does not know is not a small loss — the step
-fails to resolve, so it drops out of muscle attribution, out of volume, and out
-of every goal rule, while `wdl check` says nothing. That is the same silence
-shape as item 5.
+**8. ~~An alias pass over the core.~~ DONE 2026-08-22, with a residue.** The
+registry held 278 aliases across 219 of 3120 movements, 117 of the 178 core.
+It now holds **407 across 265, and 162 of the 177 core** — 131 written by hand
+onto the core, against the two rules the measurement had already shown mattered:
+an alias must fold to something no other entry claims, and an alias must not be
+a movement in its own right. The second rule did most of the work and cost the
+most judgement: **fourteen candidates were rejected because the registry already
+held them as records** — `Military Press`, `Barbell Row`, `Handstand`,
+`Squat Snatch`, `Hollow Rock`, `Ring Row`, `Upright Row`, `Calf Raise`,
+`Bicycle Crunch` among them — and every one of those would have redirected a
+real movement into a different record's muscles.
 
-The hole was *measured* rather than guessed, while pricing a source we did not
-take (see **Strength Level** in
-[deliberately-not-done.md](deliberately-not-done.md)). Their catalogue named 55
-ways of writing a movement we hold that we cannot currently resolve — `Pulldown`
-for Lat Pull-down, `Bench` for Bench Press, `Seated Row` for Seated Cable Row,
-`Pushdown` for Triceps Pushdown, `Elbow Plank` for Plank, `Fly` for Dumbbell Fly
-— **24 of them on core movements**. None of that is anyone's proprietary
-knowledge; it is what a gym says out loud, and the reason it is a queue item
-rather than an import is that a curator with our own movement list can write it
-unaided. Their data sized the hole. It is not needed to fill it.
+*Corrected 2026-08-22: this item was worked from a written brief but had never
+been added to this file, so there was nothing here to take off. It is written up
+after the fact, which is why it is a record rather than a plan.*
 
-Bounded the same way `mark-core` is: **178 core movements**, each asked what else
-it gets called. Two rules that the measurement already proves matter — every new
-alias must fold to something no other entry claims (`Registry.validate()` already
-fails on a collision, so the suite enforces this for free), and an alias must not
-be a movement in its own right. That second one is the whole difficulty: folding
-`Back Squat` into `Squat` is *wrong here* even though Strength Level does it,
-because we hold both and they are different lifts.
+Three things came out of it that are not aliases, and they are the part worth
+carrying forward. The first is closed; doing it raised two more, so four are
+open:
 
-Do the audit in the same pass. Comparing their aliases to ours threw **52
-collisions**, and a good share are near-duplicates *inside our registry* rather
-than disagreements with them — `Curl` apart from `Barbell Curl`, `Leg Curl` from
-`Seated Leg Curl`, `Hyperextensions` from `Back Extension`, `Butterfly` and
-`Pec Deck` from `Machine chest fly`, `Star Jump` from `Jumping Jacks`. Those are
-facts about our own data, and they split two ways — see the two duplicate entries
-in [known-debts.md](known-debts.md). Some are **already** in
-`registry/duplicate-candidates.json`, a 694-row report generated 2026-08-12 that
-nothing has read since. The rest are invisible to `find-duplicates.mjs` by
-construction: it scores token overlap, and `Butterfly` shares no word with
-`Machine chest fly`. An alias list is the only thing that bridges those, which
-is why the two halves of this item are one job.
-*Touches: `registry/movements.json`, `scripts/build-movements.mjs`,
-`scripts/find-duplicates.mjs`, and a regenerate of `registry/`.*
+- **~~A curated alias cannot merge a record, so an assertion of sameness lands as
+  a collision.~~ DONE 2026-08-23.** `sameAs` on a curated record names the ids it
+  is one movement with, `dedupe-movements.mjs` absorbs them and drops the field,
+  and `check-aliases.mjs` goes from **13 problems to 2**. Eight of the twelve
+  were one movement and are merged, two were not and the alias asserting
+  otherwise was withdrawn, and two are correct aliases on `Bike` that cannot be
+  merged or withdrawn without making something worse. Verdicts one per pair, and
+  what the merges cost, are in [known-debts.md](known-debts.md); why the
+  mechanism is a field rather than a reading of the alias already there is in
+  [settled-decisions.md](settled-decisions.md).
+  *Touched: `registry/movements.json`, `scripts/dedupe-movements.mjs`,
+  `scripts/build-movements.mjs`, `packages/core/src/fold.ts`,
+  `packages/core/test/fold.test.ts`.*
+- **`find-duplicates.mjs` cannot find a duplicate inside our own registry.** Not
+  a bug: it skips same-source pairs, vetoes on any distinguishing token, and
+  never reads aliases. A within-registry pass needs different rules, and should
+  start from the aliases, where the answer is already written down.
+  *Touches: `scripts/find-duplicates.mjs` or a sibling.*
+- **`Air Bike` is two exercises in one record**, merged on an identical title:
+  Garmin's fan bike and free-exercise-db's bicycle crunch. Nothing guards against
+  a title match being wrong, and the merged record scores `core` on
+  `3-sources` for it. *Corrected 2026-08-23: this touches `build-movements.mjs`,
+  not `dedupe-movements.mjs` — all three sources are literally named "Air Bike",
+  so they land in one record inside `add(fold(e.name), …)` before dedup runs.
+  `sameAs` cannot help: it merges records and this one needs splitting.* It is
+  what holds the `airbike` collision open, and it is now the oldest thing on this
+  list with a corpus consequence: `Air Bike` in a workout gets an abdominal
+  exercise's muscles.
+  *Touches: `scripts/build-movements.mjs`.*
+- **`Bike` is a modality, not a movement, and the registry has no word for that.**
+  Raised 2026-08-23 by declining two merges. `Bike` is one record standing for
+  the erg, the fan bike and the road, with six aliases saying so on purpose.
+  Absorbing `Assault Bike` into it put Garmin's `chest` claim onto six corpus
+  workouts including a 40km ride, so it was declined — but the alias is correct
+  English and stays, so the collision stays with it. What is missing is a way to
+  say *these names are one modality and each keeps its own muscles*, which is a
+  third relation beside `sameAs` and `variantOf`. `Row`, `Ski` and `Run` are the
+  same shape and have not been looked at.
+  *Touches: `registry/movements.json`, `scripts/dedupe-movements.mjs`,
+  `packages/core/src/fold.ts`.*
+- **The golden digest should cover muscle attribution, and does not.** Raised
+  2026-08-23 by the merges above, which moved eight corpus files and were
+  reported clean by every regenerator. `test/golden/generate.ts` holds shape,
+  seconds, pacing, unbounded and volume-by-movement — everything about how a
+  *workout* is understood — and muscles are a property of the registry the
+  workout points into, which is why they were left out and why leaving them out
+  was defensible right up until a registry change needed reviewing. Adding
+  `muscleLoad`'s `byMuscle` to the digest makes a merge a reviewable diff like
+  everything else. It will move `interpretations.json` for most of the 190 files
+  on the first run, so it wants to land on its own rather than inside another
+  change.
+  *Touches: `packages/core/test/golden/generate.ts`,
+  `packages/core/test/golden/interpretations.json`,
+  `packages/core/test/golden.test.ts`.*
+
+`node scripts/check-aliases.mjs` reports both failure shapes — a key two records
+claim, and an alias whose plural shadows another record — across both registries.
+The suite validates the canonical corpus for the first time; before this it only
+ever validated the curated file, which is not the one analysis reads.
+*Touched: `registry/movements.json`, `scripts/build-movements.mjs`,
+`scripts/check-aliases.mjs`, `packages/core/test/fold.test.ts`.*
 
 **8a. ~~A bare name two records answer to picks a winner by accident and says
 nothing.~~ DONE 2026-08-23, the resolution half.** `Registry.lookup` tried
@@ -926,15 +968,13 @@ now the other way round, an explicit alias outranks a record's own name, and the
 reasoning is in [settled-decisions.md](settled-decisions.md).
 
 **Fourteen contested names, not five, and that is the first thing to say.** The
-item was written against a branch carrying merge work this one does not have, so
-the nine pairs it expected to be gone — `bodyweight-squat`, `assault-bike`,
-`dumbbell-bicep-curl`, `farmer-s-walk`, `l-sit`, `overhead-press`,
-`pistol-squat`, `strict-press` and the second dumbbell-curl spelling — are still
-two records each here, and the verdicts it said were written up in
-[known-debts.md](known-debts.md) were not in that file. Nothing was merged on
-their behalf: merging is a curation call and needs the curator, and it is
-recorded as still owed. The ranking decides *who answers*, which is the half
-that was in scope, and it decides all fourteen the same way.
+item was written against merge work this branch did not have, so the nine pairs
+it expected to be gone were still two records each when the ranking landed, and
+the verdicts it said were in [known-debts.md](known-debts.md) were not yet in
+that file. *Both arrived with item 8 above, which is why the count fell to two:
+the ranking decided who answers all fourteen, and the curation half then merged
+eight pairs and withdrew two aliases.* Nothing was merged on the ranking's
+behalf — merging is a curation call and needed the curator.
 
 **All fourteen id-holders are imported and all fourteen alias-holders curated**,
 so the rule the item proposed — a curated record's alias beats an imported
@@ -1007,18 +1047,17 @@ the cue-versus-section case to copy. And `state.window` in `board.js` is
 not be plumbed in beside it without deleting it.
 *Touches: `apps/display/board.js`, and `board.css` if the cap needs its own row.*
 
-*Ordering of 5, 6, 7, 8 and 9 against 1-4 is not settled - they are appended
+*Ordering of 5, 6, 7 and 9 against 1-4 is not settled - they are appended
 rather than placed. 5, 6 and 7 were raised by writing and sending one workout
-rather than by a plan; 8 came out of pricing a source that was declined, and 9
-out of closing item 3. **0f was lettered rather than numbered on purpose** -
-grammar work, belonging with the 0-series - and both its halves are closed.
-Closed so far: the whole 0-series, 1, 1a, 2 and 3, so **the open numbered items
-are 4 and up**. Stated as a set rather than as a name on purpose: a pointer
-naming one item goes stale the moment that item lands, which is how an earlier
-one came to send readers at finished work. The one thing 0f left behind is
-`TABATA`, which is not an abbreviation to read but a structure to define; it is
-written up under 0f rather than given a number, because nobody has asked for it
-yet.*
+rather than by a plan, and 9 by closing item 3. **0f was lettered rather than
+numbered on purpose** - grammar work, belonging with the 0-series - and both its
+halves are closed. Closed so far: the whole 0-series, 1, 1a, 2, 3, 8 and 8a, so
+**the open numbered items are 4, 5, 6, 7 and 9**. Stated as a set rather than as
+a name on purpose: a pointer naming one item goes stale the moment that item
+lands, which is how an earlier one came to send readers at finished work. The
+one thing 0f left behind is `TABATA`, which is not an abbreviation to read but a
+structure to define; it is written up under 0f rather than given a number,
+because nobody has asked for it yet.*
 
 **Nobody has run a session off the board.** Everything is verified by tests and
 by driving the UI. Every defect Chris has caught by *looking* — `21 Thruster`,

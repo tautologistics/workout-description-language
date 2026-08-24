@@ -18,6 +18,16 @@
  *   - it cannot decide a name two records both hold as an alias. Those come
  *     out as AMBIGUOUS, which is what `resolve()` returns for them too.
  *
+ * A second shape, folded in from the rival implementation of this script: a
+ * **plural shadow** — an alias whose depluralized form is another record's name.
+ * `resolve()` tries the exact key before the plural fallback, so the alias wins
+ * and the other record becomes unreachable by its own plural. Neither
+ * `validate()` nor the contended-name pass above can see it, because the two
+ * keys differ. `depluralize` is imported rather than copied for it: the rival
+ * kept its own transcription and said in a comment that a divergence would
+ * report the wrong thing rather than fail, which is a good reason not to have
+ * one.
+ *
  * A report, not a gate — it always exits 0. What stops a new collision landing
  * quietly is the pinned list in `packages/core/test/fold.test.ts`, *has only the
  * known alias collisions in the canonical corpus*; this is what you run to see
@@ -26,7 +36,7 @@
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Registry, fold } from '../packages/core/src/fold.ts';
+import { Registry, fold, depluralize } from '../packages/core/src/fold.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (f) => JSON.parse(readFileSync(join(root, 'registry', f), 'utf8')).movements;
@@ -65,6 +75,24 @@ function report(label, records) {
       const mark = r.status === 'ok' && r.entry === e ? '*' : ' ';
       const src = (e.sources ?? []).join(',') || 'curated';
       console.log(`   ${mark} ${e.id.padEnd(24)} as ${claims(e, key).join('+').padEnd(9)} [${src}]`);
+    }
+  }
+
+  const shadows = [];
+  for (const e of records) {
+    for (const a of e.aliases ?? []) {
+      const k = fold(a);
+      const singular = depluralize(k);
+      if (singular === k) continue;
+      for (const other of holders.get(singular) ?? []) {
+        if (other !== e) shadows.push({ e, a, other });
+      }
+    }
+  }
+  if (shadows.length) {
+    console.log(`\n  plural shadows — an alias that depluralizes onto another record:`);
+    for (const { e, a, other } of shadows) {
+      console.log(`    ${e.id}: "${a}" shadows ${other.id}`);
     }
   }
 

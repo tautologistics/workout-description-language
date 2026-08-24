@@ -355,9 +355,9 @@ Variants/scaling syntax; variant picker in builder and display. Result record fo
 
 **G — Movement registry & analysis** — *shipped, differently*
 Not a separate repo: `registry/` in this one, rebuilt by `scripts/build-canonical.ts`.
-Not ~150 movements: 3120 merged from five sources, of which 178 are marked core
-on evidence and 101 carry the `wdl-curated` source — that hand-written set is
-what the ~150 was going to be. Every record names the sources that contributed
+Not ~150 movements: 3113 merged from five sources, of which 128 are in the
+generation pool on somebody's judgement and 124 carry the `wdl-curated` source —
+that hand-written set is what the ~150 was going to be. Every record names the sources that contributed
 to it and keeps their muscle claims separately, so the merge stays reversible
 and the licence question stays answerable. Muscle names are a closed 19-entry vocabulary
 in `registry/muscles.json`; an unrecognised name fails the build rather than

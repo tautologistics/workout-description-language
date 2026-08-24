@@ -122,6 +122,16 @@ export interface MovementEntry {
   /** Canonical human rendering. The invariant is `fold(id) === fold(title)`. */
   title: string;
   aliases?: string[];
+  /**
+   * Ids in the merged corpus this record is *the same movement as* — a
+   * curator's answer where no rule over the two titles could reach it.
+   *
+   * The only field here that is neither advisory nor a fact about the movement:
+   * it is an instruction to `scripts/dedupe-movements.mjs`, which absorbs what
+   * it names and deletes it, so no record in the canonical corpus carries one.
+   * Distinct from an alias, which says only that a name reaches this record.
+   */
+  sameAs?: string[];
   /** Advisory validation hints. None is required to parse a file. */
   implements?: number;
   load?: 'total' | 'per-implement';

@@ -1,5 +1,5 @@
 {
- "$comment": "Movement registry seed. Only id and title are required; everything else is advisory (movement_registry_design.md §2). Classification data serves balance analysis only.",
+ "$comment": "Movement registry seed. Only id and title are required; everything else is advisory (movement_registry_design.md §2). Classification data serves balance analysis only. `sameAs` is the one field that is not advisory and not a fact about the movement: it names ids in the merged corpus that this record is one movement with, and scripts/dedupe-movements.mjs absorbs them and drops the field.",
  "version": "2026.5",
  "movements": [
   {
@@ -104,7 +104,10 @@
    "title": "Air Squat",
    "aliases": [
     "bodyweight squat",
-    "squat"
+    "bw squat"
+   ],
+   "sameAs": [
+    "bodyweight-squat"
    ],
    "equipment": [
     "bodyweight"
@@ -324,6 +327,9 @@
   {
    "id": "ankle-circles",
    "title": "Ankle Circles",
+   "aliases": [
+    "ankle circle"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -518,6 +524,8 @@
    "id": "back-extension",
    "title": "Back Extension",
    "aliases": [
+    "ghd back extension",
+    "ghd hip extension",
     "hip extension"
    ],
    "equipment": [
@@ -554,6 +562,9 @@
   {
    "id": "back-squat",
    "title": "Back Squat",
+   "aliases": [
+    "bs"
+   ],
    "implements": 1,
    "load": "total",
    "equipment": [
@@ -769,6 +780,7 @@
    "id": "bar-muscle-up",
    "title": "Bar Muscle-Up",
    "aliases": [
+    "bar mu",
     "bmu"
    ],
    "equipment": [
@@ -790,6 +802,9 @@
   {
    "id": "barbell-ab-rollout",
    "title": "Barbell Ab Rollout",
+   "aliases": [
+    "bb ab rollout"
+   ],
    "equipment": "barbell",
    "muscles": {
     "primary": [
@@ -822,6 +837,13 @@
    "source": "free-exercise-db"
   },
   {
+   "id": "barbell-bench-press",
+   "title": "Barbell Bench Press",
+   "aliases": [
+    "flat barbell bench press"
+   ]
+  },
+  {
    "id": "barbell-bench-press-medium-grip",
    "title": "Barbell Bench Press - Medium Grip",
    "equipment": "barbell",
@@ -837,6 +859,13 @@
    "force": "push",
    "mechanic": "compound",
    "source": "free-exercise-db"
+  },
+  {
+   "id": "barbell-biceps-curl",
+   "title": "Barbell Biceps Curl",
+   "aliases": [
+    "bb curl"
+   ]
   },
   {
    "id": "barbell-curl",
@@ -965,6 +994,9 @@
   {
    "id": "barbell-hack-squat",
    "title": "Barbell Hack Squat",
+   "aliases": [
+    "bb hack squat"
+   ],
    "equipment": "barbell",
    "muscles": {
     "primary": [
@@ -1033,6 +1065,9 @@
   {
    "id": "barbell-lunge",
    "title": "Barbell Lunge",
+   "aliases": [
+    "bb lunge"
+   ],
    "equipment": "barbell",
    "muscles": {
     "primary": [
@@ -1051,6 +1086,9 @@
   {
    "id": "barbell-overhead-press",
    "title": "Barbell Overhead Press",
+   "aliases": [
+    "ohp"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -1173,6 +1211,9 @@
   {
    "id": "barbell-shrug",
    "title": "Barbell Shrug",
+   "aliases": [
+    "bb shrug"
+   ],
    "equipment": "barbell",
    "muscles": {
     "primary": [
@@ -1275,6 +1316,9 @@
   {
    "id": "barbell-step-ups",
    "title": "Barbell Step Ups",
+   "aliases": [
+    "bb step up"
+   ],
    "equipment": "barbell",
    "muscles": {
     "primary": [
@@ -1294,6 +1338,9 @@
   {
    "id": "barbell-walking-lunge",
    "title": "Barbell Walking Lunge",
+   "aliases": [
+    "bb walking lunge"
+   ],
    "equipment": "barbell",
    "muscles": {
     "primary": [
@@ -1329,6 +1376,9 @@
   {
    "id": "bear-crawl",
    "title": "Bear Crawl",
+   "aliases": [
+    "bear crawls"
+   ],
    "muscles": {
     "primary": [
      "shoulders",
@@ -1389,6 +1439,9 @@
   {
    "id": "bench-dips",
    "title": "Bench Dips",
+   "aliases": [
+    "tricep bench dip"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -1422,6 +1475,10 @@
   {
    "id": "bench-press",
    "title": "Bench Press",
+   "aliases": [
+    "bp",
+    "flat bench press"
+   ],
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -1629,6 +1686,10 @@
    "source": "free-exercise-db"
   },
   {
+   "id": "bent-over-row-barbell",
+   "title": "Bent-over Row with Barbell"
+  },
+  {
    "id": "bent-over-two-arm-long-bar-row",
    "title": "Bent Over Two-Arm Long Bar Row",
    "equipment": "barbell",
@@ -1702,6 +1763,14 @@
    "source": "free-exercise-db"
   },
   {
+   "id": "biceps-curl-machine",
+   "title": "Biceps Curl Machine",
+   "aliases": [
+    "machine biceps curl",
+    "machine curl"
+   ]
+  },
+  {
    "id": "bicycling",
    "title": "Bicycling",
    "equipment": "other",
@@ -1737,11 +1806,13 @@
    "id": "bike",
    "title": "Bike",
    "aliases": [
-    "assault bike",
-    "echo bike",
     "air bike",
+    "airdyne",
+    "assault bike",
     "bike erg",
-    "bikeerg"
+    "bikeerg",
+    "echo bike",
+    "fan bike"
    ],
    "muscles": {
     "primary": [
@@ -1768,7 +1839,7 @@
    "id": "block-deadlift",
    "title": "Block Deadlift",
    "aliases": [
-    "rack pull"
+    "block pull"
    ],
    "muscles": {
     "primary": [
@@ -1977,6 +2048,13 @@
    "source": "free-exercise-db"
   },
   {
+   "id": "box-jump-overs",
+   "title": "Box Jump Overs",
+   "aliases": [
+    "box jump over"
+   ]
+  },
+  {
    "id": "box-skip",
    "title": "Box Skip",
    "equipment": "other",
@@ -2089,6 +2167,9 @@
   {
    "id": "buddy-carry",
    "title": "Buddy Carry",
+   "aliases": [
+    "partner carry"
+   ],
    "muscles": {
     "primary": [
      "erectors",
@@ -2133,6 +2214,9 @@
   {
    "id": "burpee",
    "title": "Burpee",
+   "aliases": [
+    "chest to floor burpee"
+   ],
    "equipment": [
     "bodyweight"
    ],
@@ -2185,6 +2269,9 @@
   {
    "id": "burpee-broad-jump",
    "title": "Burpee Broad Jump",
+   "aliases": [
+    "broad jump burpee"
+   ],
    "muscles": {
     "primary": [
      "quads",
@@ -2347,6 +2434,9 @@
   {
    "id": "cable-fly",
    "title": "Cable Fly",
+   "aliases": [
+    "cable flye"
+   ],
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -2357,6 +2447,13 @@
      "chest"
     ]
    }
+  },
+  {
+   "id": "cable-front-raise",
+   "title": "Cable Front Raise",
+   "aliases": [
+    "cable front raises"
+   ]
   },
   {
    "id": "cable-hammer-curls-rope-attachment",
@@ -2452,6 +2549,9 @@
   {
    "id": "cable-lying-triceps-extension",
    "title": "Cable Lying Triceps Extension",
+   "aliases": [
+    "cable skullcrusher"
+   ],
    "equipment": "cable",
    "muscles": {
     "primary": [
@@ -3073,7 +3173,8 @@
    "id": "chin-up",
    "title": "Chin-Up",
    "aliases": [
-    "chinup"
+    "chinup",
+    "supinated pull-up"
    ],
    "equipment": [
     "pull-up bar"
@@ -3123,6 +3224,9 @@
   {
    "id": "clean",
    "title": "Clean",
+   "aliases": [
+    "full clean"
+   ],
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -3591,6 +3695,9 @@
   {
    "id": "crunches",
    "title": "Crunches",
+   "aliases": [
+    "ab crunch"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -3646,6 +3753,10 @@
   {
    "id": "deadlift",
    "title": "Deadlift",
+   "aliases": [
+    "conventional deadlift",
+    "dl"
+   ],
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -3871,6 +3982,9 @@
   {
    "id": "deficit-deadlift",
    "title": "Deficit Deadlift",
+   "aliases": [
+    "deficit dl"
+   ],
    "equipment": "barbell",
    "muscles": {
     "primary": [
@@ -3925,6 +4039,13 @@
    "force": "push",
    "mechanic": "compound",
    "source": "free-exercise-db"
+  },
+  {
+   "id": "dips",
+   "title": "Dips",
+   "aliases": [
+    "bar dips"
+   ]
   },
   {
    "id": "dips-chest-version",
@@ -4089,8 +4210,9 @@
    "id": "double-under",
    "title": "Double-Under",
    "aliases": [
+    "double unders",
     "du",
-    "double unders"
+    "dubs"
    ],
    "equipment": [
     "jump rope"
@@ -4177,6 +4299,9 @@
   {
    "id": "dumbbell-bench-press",
    "title": "Dumbbell Bench Press",
+   "aliases": [
+    "db bench press"
+   ],
    "equipment": "dumbbell",
    "muscles": {
     "primary": [
@@ -4236,9 +4361,13 @@
    "aliases": [
     "bicep curl",
     "biceps curl",
+    "db bicep curl",
     "db curl",
     "dumbbell bicep curl",
     "dumbbell biceps curl"
+   ],
+   "sameAs": [
+    "dumbbell-bicep-curl"
    ],
    "implements": 2,
    "load": "per-implement",
@@ -4260,8 +4389,18 @@
    }
   },
   {
+   "id": "dumbbell-deadlift",
+   "title": "Dumbbell Deadlift",
+   "aliases": [
+    "db deadlift"
+   ]
+  },
+  {
    "id": "dumbbell-floor-press",
    "title": "Dumbbell Floor Press",
+   "aliases": [
+    "db floor press"
+   ],
    "equipment": "dumbbell",
    "muscles": {
     "primary": [
@@ -4275,6 +4414,14 @@
    "force": "push",
    "mechanic": "compound",
    "source": "free-exercise-db"
+  },
+  {
+   "id": "dumbbell-fly",
+   "title": "Dumbbell Fly",
+   "aliases": [
+    "db fly",
+    "dumbbell flye"
+   ]
   },
   {
    "id": "dumbbell-flyes",
@@ -4363,6 +4510,9 @@
   {
    "id": "dumbbell-lunges",
    "title": "Dumbbell Lunges",
+   "aliases": [
+    "db lunge"
+   ],
    "equipment": "dumbbell",
    "muscles": {
     "primary": [
@@ -4530,7 +4680,8 @@
    "id": "dumbbell-row",
    "title": "Dumbbell Row",
    "aliases": [
-    "db row"
+    "db row",
+    "one arm db row"
    ],
    "implements": 1,
    "load": "total",
@@ -4603,6 +4754,9 @@
   {
    "id": "dumbbell-shoulder-press",
    "title": "Dumbbell Shoulder Press",
+   "aliases": [
+    "db shoulder press"
+   ],
    "equipment": "dumbbell",
    "muscles": {
     "primary": [
@@ -4619,6 +4773,9 @@
   {
    "id": "dumbbell-shrug",
    "title": "Dumbbell Shrug",
+   "aliases": [
+    "db shrug"
+   ],
    "equipment": "dumbbell",
    "muscles": {
     "primary": [
@@ -4632,6 +4789,9 @@
   {
    "id": "dumbbell-side-bend",
    "title": "Dumbbell Side Bend",
+   "aliases": [
+    "db side bend"
+   ],
    "equipment": "dumbbell",
    "muscles": {
     "primary": [
@@ -4646,7 +4806,8 @@
    "id": "dumbbell-snatch",
    "title": "Dumbbell Snatch",
    "aliases": [
-    "db snatch"
+    "db snatch",
+    "one arm dumbbell snatch"
    ],
    "muscles": {
     "primary": [
@@ -4678,8 +4839,18 @@
    "defaultLaterality": "split"
   },
   {
+   "id": "dumbbell-split-squat",
+   "title": "Dumbbell Split Squat",
+   "aliases": [
+    "db split squat"
+   ]
+  },
+  {
    "id": "dumbbell-squat",
    "title": "Dumbbell Squat",
+   "aliases": [
+    "db squat"
+   ],
    "equipment": "dumbbell",
    "muscles": {
     "primary": [
@@ -4719,7 +4890,8 @@
    "id": "dumbbell-squat-clean",
    "title": "Dumbbell Squat Clean",
    "aliases": [
-    "db squat clean"
+    "db squat clean",
+    "db squat cleans"
    ],
    "muscles": {
     "primary": [
@@ -4747,6 +4919,9 @@
   {
    "id": "dumbbell-step-ups",
    "title": "Dumbbell Step Ups",
+   "aliases": [
+    "db step up"
+   ],
    "equipment": "dumbbell",
    "muscles": {
     "primary": [
@@ -4766,7 +4941,8 @@
    "id": "dumbbell-thruster",
    "title": "Dumbbell Thruster",
    "aliases": [
-    "db thruster"
+    "db thruster",
+    "db thrusters"
    ],
    "muscles": {
     "primary": [
@@ -5037,6 +5213,9 @@
   {
    "id": "face-pull",
    "title": "Face Pull",
+   "aliases": [
+    "cable face pull"
+   ],
    "equipment": "cable",
    "muscles": {
     "primary": [
@@ -5056,6 +5235,9 @@
    "aliases": [
     "farmer carry",
     "farmers walk"
+   ],
+   "sameAs": [
+    "farmer-s-walk"
    ],
    "implements": 2,
    "load": "per-implement",
@@ -5213,6 +5395,9 @@
   {
    "id": "flutter-kicks",
    "title": "Flutter Kicks",
+   "aliases": [
+    "flutter kick"
+   ],
    "muscles": {
     "primary": [
      "glutes"
@@ -5435,6 +5620,9 @@
   {
    "id": "front-dumbbell-raise",
    "title": "Front Dumbbell Raise",
+   "aliases": [
+    "db front raise"
+   ],
    "equipment": "dumbbell",
    "muscles": {
     "primary": [
@@ -5501,8 +5689,18 @@
    "source": "free-exercise-db"
   },
   {
+   "id": "front-raises",
+   "title": "Front Raises",
+   "aliases": [
+    "front delt raise"
+   ]
+  },
+  {
    "id": "front-squat",
    "title": "Front Squat",
+   "aliases": [
+    "fs"
+   ],
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -5803,6 +6001,9 @@
   {
    "id": "halting-deadlift",
    "title": "Halting Deadlift",
+   "aliases": [
+    "halting dl"
+   ],
    "muscles": {
     "primary": [
      "erectors",
@@ -5885,6 +6086,9 @@
   {
    "id": "hand-release-push-up",
    "title": "Hand-Release Push-Up",
+   "aliases": [
+    "hrpu"
+   ],
    "muscles": {
     "primary": [
      "chest",
@@ -5908,6 +6112,9 @@
   {
    "id": "handstand-hold",
    "title": "Handstand Hold",
+   "aliases": [
+    "wall facing handstand hold"
+   ],
    "equipment": [
     "bodyweight"
    ],
@@ -6120,6 +6327,9 @@
   {
    "id": "hanging-leg-raise",
    "title": "Hanging Leg Raise",
+   "aliases": [
+    "hanging straight leg raise"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -6257,6 +6467,9 @@
   {
    "id": "hollow-hold",
    "title": "Hollow Hold",
+   "aliases": [
+    "hollow body hold"
+   ],
    "pattern": [
     "core"
    ],
@@ -6316,6 +6529,14 @@
    "force": "push",
    "mechanic": "compound",
    "source": "free-exercise-db"
+  },
+  {
+   "id": "hyperextensions",
+   "title": "Hyperextensions",
+   "aliases": [
+    "45 degree back extension",
+    "roman chair back extension"
+   ]
   },
   {
    "id": "hyperextensions-back-extensions",
@@ -6469,6 +6690,13 @@
    "force": "pull",
    "mechanic": "isolation",
    "source": "free-exercise-db"
+  },
+  {
+   "id": "incline-dumbbell-fly",
+   "title": "Incline Dumbbell Fly",
+   "aliases": [
+    "incline db fly"
+   ]
   },
   {
    "id": "incline-dumbbell-flyes",
@@ -6686,6 +6914,7 @@
    "id": "inverted-row",
    "title": "Inverted Row",
    "aliases": [
+    "australian pull-up",
     "bodyweight row"
    ],
    "equipment": [
@@ -6940,6 +7169,9 @@
   {
    "id": "jm-press",
    "title": "JM Press",
+   "aliases": [
+    "jm bench press"
+   ],
    "equipment": "barbell",
    "muscles": {
     "primary": [
@@ -6957,6 +7189,9 @@
   {
    "id": "jog",
    "title": "Jog",
+   "aliases": [
+    "easy run"
+   ],
    "muscles": {
     "primary": [
      "quads",
@@ -6999,6 +7234,9 @@
   {
    "id": "jumping-pull-up",
    "title": "Jumping Pull-Up",
+   "aliases": [
+    "assisted jumping pull-up"
+   ],
    "muscles": {
     "primary": [
      "lats",
@@ -7228,7 +7466,9 @@
    "id": "kettlebell-press",
    "title": "Kettlebell Press",
    "aliases": [
-    "kb press"
+    "kb press",
+    "kb strict press",
+    "kettlebell strict press"
    ],
    "muscles": {
     "primary": [
@@ -7347,8 +7587,8 @@
    "title": "Kettlebell Swing",
    "aliases": [
     "kb swing",
-    "russian swing",
-    "american swing"
+    "kbs",
+    "russian swing"
    ],
    "implements": 1,
    "load": "total",
@@ -7689,6 +7929,9 @@
   {
    "id": "l-pull-up",
    "title": "L-Pull-Up",
+   "aliases": [
+    "l sit pull-up"
+   ],
    "muscles": {
     "primary": [
      "lats",
@@ -7716,6 +7959,10 @@
    "id": "l-sit-hold",
    "title": "L-Sit Hold",
    "aliases": [
+    "l sit hold on parallettes",
+    "l-sit"
+   ],
+   "sameAs": [
     "l-sit"
    ],
    "equipment": [
@@ -7890,6 +8137,10 @@
   {
    "id": "leg-extensions",
    "title": "Leg Extensions",
+   "aliases": [
+    "knee extension",
+    "quad extension"
+   ],
    "equipment": "machine",
    "muscles": {
     "primary": [
@@ -7935,6 +8186,9 @@
   {
    "id": "leg-press",
    "title": "Leg Press",
+   "aliases": [
+    "leg press machine"
+   ],
    "equipment": "machine",
    "muscles": {
     "primary": [
@@ -8301,6 +8555,14 @@
    },
    "force": "static",
    "source": "free-exercise-db"
+  },
+  {
+   "id": "lunge",
+   "title": "Lunge",
+   "aliases": [
+    "forward lunge",
+    "static lunge"
+   ]
   },
   {
    "id": "lunge-pass-through",
@@ -8864,6 +9126,9 @@
   {
    "id": "muscle-up",
    "title": "Muscle-Up",
+   "aliases": [
+    "mu"
+   ],
    "muscles": {
     "primary": [
      "lats",
@@ -9710,7 +9975,8 @@
    "id": "overhead-squat",
    "title": "Overhead Squat",
    "aliases": [
-    "ohs"
+    "ohs",
+    "ohs squat"
    ],
    "implements": 1,
    "load": "total",
@@ -9903,6 +10169,10 @@
   {
    "id": "parallette-handstand-push-up",
    "title": "Parallette Handstand Push-Up",
+   "aliases": [
+    "deficit handstand push-up",
+    "parallette hspu"
+   ],
    "muscles": {
     "primary": [
      "shoulders",
@@ -9927,6 +10197,9 @@
   {
    "id": "partner-barbell-carry",
    "title": "Partner Barbell Carry",
+   "aliases": [
+    "partner bar carry"
+   ],
    "muscles": {
     "primary": [
      "traps",
@@ -10045,6 +10318,9 @@
     "single leg squat",
     "pistol squat"
    ],
+   "sameAs": [
+    "pistol-squat"
+   ],
    "equipment": [
     "bodyweight"
    ],
@@ -10066,6 +10342,10 @@
   {
    "id": "plank",
    "title": "Plank",
+   "aliases": [
+    "forearm plank",
+    "plank hold"
+   ],
    "pattern": [
     "core"
    ],
@@ -10184,6 +10464,9 @@
   {
    "id": "power-clean",
    "title": "Power Clean",
+   "aliases": [
+    "pc"
+   ],
    "muscles": {
     "primary": [
      "glutes",
@@ -10264,6 +10547,9 @@
   {
    "id": "power-snatch",
    "title": "Power Snatch",
+   "aliases": [
+    "ps"
+   ],
    "muscles": {
     "primary": [
      "shoulders",
@@ -10664,6 +10950,9 @@
   {
    "id": "quad-stretch",
    "title": "Quad Stretch",
+   "aliases": [
+    "standing quad stretch"
+   ],
    "equipment": "other",
    "muscles": {
     "primary": [
@@ -10960,6 +11249,9 @@
   {
    "id": "reverse-crunch",
    "title": "Reverse Crunch",
+   "aliases": [
+    "reverse crunches"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -11147,6 +11439,9 @@
   {
    "id": "ring-dip",
    "title": "Ring Dip",
+   "aliases": [
+    "Ring Dips"
+   ],
    "pattern": [
     "vertical-push"
    ],
@@ -11155,10 +11450,7 @@
      "triceps",
      "chest"
     ]
-   },
-   "aliases": [
-    "Ring Dips"
-   ]
+   }
   },
   {
    "id": "ring-row",
@@ -11283,6 +11575,9 @@
   {
    "id": "rope-climb",
    "title": "Rope Climb",
+   "aliases": [
+    "rope climbs"
+   ],
    "measures": [
     "distance"
    ],
@@ -11358,9 +11653,10 @@
    "id": "row",
    "title": "Row",
    "aliases": [
-    "rower",
+    "c2",
     "concept2",
-    "c2"
+    "row erg",
+    "rower"
    ],
    "muscles": {
     "primary": [
@@ -11407,6 +11703,9 @@
   {
    "id": "run",
    "title": "Run",
+   "aliases": [
+    "running"
+   ],
    "measures": [
     "distance"
    ],
@@ -11454,6 +11753,9 @@
   {
    "id": "russian-twist",
    "title": "Russian Twist",
+   "aliases": [
+    "seated russian twist"
+   ],
    "equipment": [
     "bodyweight",
     "dumbbell",
@@ -11533,6 +11835,9 @@
   {
    "id": "sandbag-lunge",
    "title": "Sandbag Lunge",
+   "aliases": [
+    "sandbag walking lunge"
+   ],
    "muscles": {
     "primary": [
      "quads",
@@ -11703,6 +12008,9 @@
   {
    "id": "seated-cable-rows",
    "title": "Seated Cable Rows",
+   "aliases": [
+    "cable seated row"
+   ],
    "equipment": "cable",
    "muscles": {
     "primary": [
@@ -12153,9 +12461,14 @@
    "id": "shoulder-press",
    "title": "Shoulder Press",
    "aliases": [
-    "strict press",
+    "overhead press",
     "press",
-    "overhead press"
+    "strict press",
+    "strict shoulder press"
+   ],
+   "sameAs": [
+    "overhead-press",
+    "strict-press"
    ],
    "implements": 1,
    "load": "total",
@@ -12220,6 +12533,9 @@
   {
    "id": "shuttle-sprint",
    "title": "Shuttle Sprint",
+   "aliases": [
+    "shuttle run"
+   ],
    "muscles": {
     "primary": [
      "quads",
@@ -12369,6 +12685,9 @@
   {
    "id": "side-plank",
    "title": "Side Plank",
+   "aliases": [
+    "side plank hold"
+   ],
    "laterality": [
     "per-side"
    ],
@@ -12761,6 +13080,8 @@
    "id": "skullcrusher",
    "title": "Skullcrusher",
    "aliases": [
+    "french press",
+    "lying tricep extension",
     "lying triceps extension"
    ],
    "implements": 1,
@@ -12829,6 +13150,9 @@
   {
    "id": "sled-pull",
    "title": "Sled Pull",
+   "aliases": [
+    "sled drag"
+   ],
    "muscles": {
     "primary": [
      "lats",
@@ -12857,6 +13181,9 @@
   {
    "id": "sled-push",
    "title": "Sled Push",
+   "aliases": [
+    "prowler push"
+   ],
    "muscles": {
     "primary": [
      "quads",
@@ -13275,6 +13602,9 @@
   {
    "id": "snatch",
    "title": "Snatch",
+   "aliases": [
+    "full snatch"
+   ],
    "muscles": {
     "primary": [
      "shoulders",
@@ -13638,6 +13968,9 @@
   {
    "id": "sprint",
    "title": "Sprint",
+   "aliases": [
+    "all-out sprint"
+   ],
    "muscles": {
     "primary": [
      "hamstrings",
@@ -13667,6 +14000,9 @@
   {
    "id": "sprint-drag-carry",
    "title": "Sprint-Drag-Carry",
+   "aliases": [
+    "sdc"
+   ],
    "muscles": {
     "primary": [
      "quads",
@@ -13692,6 +14028,10 @@
     "locomotion",
     "carry"
    ]
+  },
+  {
+   "id": "squat",
+   "title": "Squat"
   },
   {
    "id": "squat-bands",
@@ -14259,6 +14599,9 @@
   {
    "id": "standing-leg-curl",
    "title": "Standing Leg Curl",
+   "aliases": [
+    "standing hamstring curl"
+   ],
    "equipment": "machine",
    "muscles": {
     "primary": [
@@ -14652,6 +14995,10 @@
   {
    "id": "stiff-legged-deadlift",
    "title": "Stiff-Legged Deadlift",
+   "aliases": [
+    "sldl",
+    "stiff leg deadlift"
+   ],
    "muscles": {
     "primary": [
      "hamstrings",
@@ -14783,6 +15130,9 @@
   {
    "id": "strict-pull-up",
    "title": "Strict Pull-Up",
+   "aliases": [
+    "dead hang pull-up"
+   ],
    "muscles": {
     "primary": [
      "lats",
@@ -14827,6 +15177,9 @@
   {
    "id": "sumo-deadlift",
    "title": "Sumo Deadlift",
+   "aliases": [
+    "sumo dl"
+   ],
    "implements": 1,
    "load": "total",
    "equipment": [
@@ -14935,6 +15288,9 @@
   {
    "id": "superman",
    "title": "Superman",
+   "aliases": [
+    "superman hold"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -15107,6 +15463,9 @@
   {
    "id": "swim",
    "title": "Swim",
+   "aliases": [
+    "swimming"
+   ],
    "muscles": {
     "primary": [
      "lats",
@@ -15200,6 +15559,9 @@
   {
    "id": "thruster",
    "title": "Thruster",
+   "aliases": [
+    "barbell thruster"
+   ],
    "implements": 1,
    "load": "total",
    "pattern": [
@@ -15228,6 +15590,9 @@
   {
    "id": "tire-flip",
    "title": "Tire Flip",
+   "aliases": [
+    "tyre flip"
+   ],
    "muscles": {
     "primary": [
      "glutes",
@@ -15324,6 +15689,10 @@
   {
    "id": "tricep-dumbbell-kickback",
    "title": "Tricep Dumbbell Kickback",
+   "aliases": [
+    "db kickback",
+    "tricep kickback"
+   ],
    "equipment": "dumbbell",
    "muscles": {
     "primary": [
@@ -15431,6 +15800,7 @@
    "id": "turkish-get-up",
    "title": "Turkish Get-Up",
    "aliases": [
+    "get-up",
     "tgu"
    ],
    "muscles": {
@@ -15710,7 +16080,7 @@
    "id": "walking-lunge",
    "title": "Walking Lunge",
    "aliases": [
-    "lunge"
+    "walking lunges"
    ],
    "measures": [
     "distance"
@@ -15753,8 +16123,10 @@
    "id": "wall-ball",
    "title": "Wall Ball",
    "aliases": [
-    "wallball",
+    "medicine ball thruster",
     "wall ball shot",
+    "wall ball shots",
+    "wallball",
     "wb"
    ],
    "implements": 1,
@@ -15804,6 +16176,9 @@
   {
    "id": "wall-walk",
    "title": "Wall Walk",
+   "aliases": [
+    "wall walks"
+   ],
    "equipment": [
     "wall"
    ],
@@ -15869,6 +16244,9 @@
   {
    "id": "weighted-crunches",
    "title": "Weighted Crunches",
+   "aliases": [
+    "weighted ab crunch"
+   ],
    "equipment": "medicine ball",
    "muscles": {
     "primary": [
@@ -16206,6 +16584,9 @@
   {
    "id": "yoke-carry",
    "title": "Yoke Carry",
+   "aliases": [
+    "yoke pick up and carry"
+   ],
    "muscles": {
     "primary": [
      "traps",

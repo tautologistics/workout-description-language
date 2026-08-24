@@ -45,6 +45,57 @@ describe('registry', () => {
     eq(reg.validate(), []);
   });
 
+  /**
+   * The curated file is not the registry analysis reads. `muscles.ts`,
+   * `volume.ts` and every goal rule go through `canonicalRegistry()`, and
+   * nothing validated it — an alias two records claimed resolved to whichever
+   * of them owned the matching id, silently, with no test able to notice.
+   *
+   * Twelve were found the first time this ran. Every one was the same shape: a
+   * curated alias naming a movement the merged corpus holds as a record of its
+   * own, because the registry had no way for a curator to say "these two are
+   * one record". `sameAs` is that way now, and eight of the twelve were one
+   * movement and are merged; two were not, and the alias asserting otherwise
+   * was withdrawn. The verdicts are per pair in docs/context/known-debts.md.
+   *
+   * Both survivors are `Bike`, and they are one finding rather than two: `Bike`
+   * is a *modality* — a curated lump over the erg, the fan bike and the road —
+   * and absorbing one machine into it spreads that machine's muscles across all
+   * of them. Merging `Assault Bike` put Garmin's chest claim on six cycling
+   * workouts, a 40km ride among them. `Air Bike` is worse: that record is
+   * itself a false merge of Garmin's fan bike with free-exercise-db's bicycle
+   * crunch. Both aliases are correct English and stay; the collision is the
+   * price of a lump the registry cannot express, and is pinned rather than
+   * argued away.
+   *
+   * Pinned exactly rather than bounded, so a merge that lands fails here as
+   * stale instead of leaving a loose ceiling nobody tightens.
+   */
+  it('leaves validate() nothing to report on the canonical corpus', () => {
+    // This asserted the two `Bike` pairs by name until the ranking landed.
+    // `validate()` now reports only what no rule can decide, and a name held as
+    // one record's id and another's alias is decided by `lookup` — so the two
+    // survivors moved to the contended-names test below, which pins who wins
+    // rather than merely that a contest exists. Empty here is the stronger
+    // claim it looks like: no name is claimed twice *within* either tier.
+    eq(canonicalRegistry().validate(), []);
+  });
+
+  /**
+   * The shape no rule could have fixed, and the reason `sameAs` had to exist.
+   *
+   * `Dumbbell Bicep Curl` and `Dumbbell Curl` both held `dumbbellbicepscurl`
+   * as an *alias* and neither as its name, so there was nothing to rank: every
+   * other collision resolved — wrongly, but uniquely — to whichever record
+   * owned the matching id, while this one reached the `ambiguous` branch and
+   * the step dropped out of muscle attribution entirely. Only a curator saying
+   * the two records are one movement closes it.
+   */
+  it('resolves a spelling that was only ever an alias on both records', () => {
+    const r = canonicalRegistry().resolve('Dumbbell Biceps Curl');
+    ok(r.status === 'ok' && r.entry.id === 'dumbbell-curl', JSON.stringify(r));
+  });
+
   it('resolves canonical ids and titles', () => {
     const r = reg.resolve('Thruster');
     ok(r.status === 'ok' && r.entry.id === 'thruster', JSON.stringify(r));
@@ -91,24 +142,25 @@ describe('registry', () => {
   // `node scripts/check-aliases.mjs` prints this table with the reasoning.
   it('has only the known alias collisions in the canonical corpus', () => {
     const canon = canonicalRegistry();
+    // Fourteen when the ranking landed, two once the curation half did. The
+    // ranking decided *who answers*; it could not say whether two records are
+    // one movement, and eight pairs were — merged by `sameAs` — while two more
+    // were not and the alias claiming otherwise was withdrawn. Both survivors
+    // are `Bike`, and they are one finding rather than two: `Bike` is a
+    // *modality*, a curated lump over the erg, the fan bike and the road, so
+    // absorbing one machine into it spreads that machine's muscles across all
+    // of them. Merging `Assault Bike` put Garmin's chest claim on six cycling
+    // workouts, a 40km ride among them. `Air Bike` is worse — that record is
+    // itself a false merge of Garmin's fan bike with free-exercise-db's bicycle
+    // crunch, so it needs splitting and `sameAs` only merges. Both aliases are
+    // correct English and stay; the collision is the price of a lump the
+    // registry cannot express, and is pinned rather than argued away.
+    //
+    // Pinned exactly rather than bounded, so a merge that lands fails here as
+    // stale instead of leaving a loose ceiling nobody tightens.
     const KNOWN: Record<string, string> = {
       airbike: 'bike',
-      americanswing: 'kettlebell-swing',
       assaultbike: 'bike',
-      bodyweightsquat: 'air-squat',
-      dumbbellbicepcurl: 'dumbbell-curl',
-      // The only one no rule can answer: both records hold it as an alias and
-      // neither as its name, so there is nothing to rank. It was ambiguous
-      // before the ranking existed too.
-      dumbbellbicepscurl: 'ambiguous',
-      farmerswalk: 'farmers-carry',
-      lsit: 'l-sit-hold',
-      lunge: 'walking-lunge',
-      overheadpress: 'shoulder-press',
-      pistolsquat: 'pistol',
-      rackpull: 'block-deadlift',
-      squat: 'air-squat',
-      strictpress: 'shoulder-press',
     };
 
     const holders = new Map<string, Set<string>>();

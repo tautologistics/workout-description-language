@@ -1,5 +1,5 @@
 {
- "$comment": "Every merge this pass made, and every variant-of link. Each cluster lists the records absorbed, so a merge can be inspected or unpicked.",
+ "$comment": "Every merge this pass made, and every variant-of link. Each cluster lists the records absorbed, so a merge can be inspected or unpicked. `asserted` is the subset a curator merged by hand with `sameAs` in registry/movements.json, where no rule over the titles could have reached it.",
  "generated": "2026-08-23",
  "clusters": [
   {
@@ -188,6 +188,7 @@
      "id": "barbell-bench-press",
      "title": "Barbell Bench Press",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -207,6 +208,7 @@
      "id": "barbell-biceps-curl",
      "title": "Barbell Biceps Curl",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -892,6 +894,7 @@
      "id": "bent-over-row-barbell",
      "title": "Bent-over Row with Barbell",
      "sources": [
+      "wdl-curated",
       "garmin",
       "everkinetic"
      ]
@@ -995,6 +998,7 @@
      "id": "biceps-curl-machine",
      "title": "Biceps Curl Machine",
      "sources": [
+      "wdl-curated",
       "wger",
       "everkinetic"
      ]
@@ -1054,6 +1058,7 @@
      "id": "box-jump-overs",
      "title": "Box Jump Overs",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -1171,6 +1176,7 @@
      "id": "cable-front-raise",
      "title": "Cable Front Raise",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -1567,6 +1573,7 @@
      "id": "dumbbell-fly",
      "title": "Dumbbell Fly",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -1905,6 +1912,7 @@
      "id": "dumbbell-split-squat",
      "title": "Dumbbell Split Squat",
      "sources": [
+      "wdl-curated",
       "garmin",
       "wger"
      ]
@@ -2125,6 +2133,7 @@
      "id": "front-raises",
      "title": "Front Raises",
      "sources": [
+      "wdl-curated",
       "wger",
       "everkinetic"
      ]
@@ -2203,6 +2212,7 @@
      "id": "hyperextensions",
      "title": "Hyperextensions",
      "sources": [
+      "wdl-curated",
       "wger",
       "everkinetic"
      ]
@@ -2419,6 +2429,7 @@
      "id": "lunge",
      "title": "Lunge",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -2995,6 +3006,7 @@
      "id": "squat",
      "title": "Squat",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -4011,6 +4023,7 @@
      "id": "dumbbell-fly",
      "title": "Dumbbell Fly",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -4114,6 +4127,7 @@
      "id": "front-raises",
      "title": "Front Raises",
      "sources": [
+      "wdl-curated",
       "wger",
       "everkinetic"
      ]
@@ -4232,6 +4246,7 @@
      "id": "hyperextensions",
      "title": "Hyperextensions",
      "sources": [
+      "wdl-curated",
       "wger",
       "everkinetic"
      ]
@@ -4245,6 +4260,7 @@
      "id": "incline-dumbbell-fly",
      "title": "Incline Dumbbell Fly",
      "sources": [
+      "wdl-curated",
       "garmin",
       "wger"
      ]
@@ -4366,6 +4382,7 @@
      "id": "lunge",
      "title": "Lunge",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -4606,6 +4623,7 @@
      "id": "squat",
      "title": "Squat",
      "sources": [
+      "wdl-curated",
       "garmin"
      ]
     },
@@ -4991,6 +5009,67 @@
       "free-exercise-db"
      ]
     }
+   ]
+  }
+ ],
+ "asserted": [
+  {
+   "by": "air-squat",
+   "absorbs": "bodyweight-squat",
+   "title": "Bodyweight Squat",
+   "sources": [
+    "free-exercise-db"
+   ]
+  },
+  {
+   "by": "dumbbell-curl",
+   "absorbs": "dumbbell-bicep-curl",
+   "title": "Dumbbell Bicep Curl",
+   "sources": [
+    "free-exercise-db"
+   ]
+  },
+  {
+   "by": "farmers-carry",
+   "absorbs": "farmer-s-walk",
+   "title": "Farmer's Walk",
+   "sources": [
+    "garmin",
+    "free-exercise-db"
+   ]
+  },
+  {
+   "by": "l-sit-hold",
+   "absorbs": "l-sit",
+   "title": "L Sit",
+   "sources": [
+    "garmin",
+    "wger"
+   ]
+  },
+  {
+   "by": "pistol",
+   "absorbs": "pistol-squat",
+   "title": "Pistol Squat",
+   "sources": [
+    "garmin",
+    "wger"
+   ]
+  },
+  {
+   "by": "shoulder-press",
+   "absorbs": "overhead-press",
+   "title": "Overhead Press",
+   "sources": [
+    "wger"
+   ]
+  },
+  {
+   "by": "shoulder-press",
+   "absorbs": "strict-press",
+   "title": "Strict Press",
+   "sources": [
+    "garmin"
    ]
   }
  ],
@@ -6534,13 +6613,6 @@
    ]
   },
   {
-   "variant": "bodyweight-squat",
-   "of": "squat",
-   "adds": [
-    "bodyweight"
-   ]
-  },
-  {
    "variant": "box-squat",
    "of": "squat",
    "adds": [
@@ -6601,13 +6673,6 @@
    "of": "squat",
    "adds": [
     "overhead"
-   ]
-  },
-  {
-   "variant": "pistol-squat",
-   "of": "squat",
-   "adds": [
-    "pistol"
    ]
   },
   {
@@ -9518,28 +9583,6 @@
    ]
   },
   {
-   "variant": "ring-l-sit",
-   "of": "l-sit",
-   "adds": [
-    "ring"
-   ]
-  },
-  {
-   "variant": "weighted-l-sit",
-   "of": "l-sit",
-   "adds": [
-    "weighted"
-   ]
-  },
-  {
-   "variant": "weighted-ring-l-sit",
-   "of": "l-sit",
-   "adds": [
-    "weighted",
-    "ring"
-   ]
-  },
-  {
    "variant": "dumbbell-lateral-raise",
    "of": "lateral-raises",
    "adds": [
@@ -10166,35 +10209,6 @@
    ]
   },
   {
-   "variant": "barbell-overhead-press",
-   "of": "overhead-press",
-   "adds": [
-    "barbell"
-   ]
-  },
-  {
-   "variant": "overhead-dumbbell-press",
-   "of": "overhead-press",
-   "adds": [
-    "dumbbell"
-   ]
-  },
-  {
-   "variant": "sandbag-overhead-press",
-   "of": "overhead-press",
-   "adds": [
-    "sandbag"
-   ]
-  },
-  {
-   "variant": "smith-machine-overhead-press",
-   "of": "overhead-press",
-   "adds": [
-    "smith",
-    "machine"
-   ]
-  },
-  {
    "variant": "overhead-barbell-squat",
    "of": "overhead-squat",
    "adds": [
@@ -10282,35 +10296,6 @@
    "of": "piriformis-stretch",
    "adds": [
     "seated"
-   ]
-  },
-  {
-   "variant": "kettlebell-pistol-squat",
-   "of": "pistol-squat",
-   "adds": [
-    "kettlebell"
-   ]
-  },
-  {
-   "variant": "pistol-squats-right",
-   "of": "pistol-squat",
-   "adds": [
-    "right"
-   ]
-  },
-  {
-   "variant": "weighted-pistol-squat",
-   "of": "pistol-squat",
-   "adds": [
-    "weighted"
-   ]
-  },
-  {
-   "variant": "smith-machine-pistol-squat",
-   "of": "pistol-squat",
-   "adds": [
-    "smith",
-    "machine"
    ]
   },
   {
@@ -12868,87 +12853,6 @@
    "of": "dumbbell-bench-press",
    "adds": [
     "incline"
-   ]
-  },
-  {
-   "variant": "alternating-dumbbell-biceps-curl",
-   "of": "dumbbell-bicep-curl",
-   "adds": [
-    "alternating"
-   ]
-  },
-  {
-   "variant": "biceps-curl-dumbbell-reverse",
-   "of": "dumbbell-bicep-curl",
-   "adds": [
-    "reverse"
-   ]
-  },
-  {
-   "variant": "dumbbell-alternate-bicep-curl",
-   "of": "dumbbell-bicep-curl",
-   "adds": [
-    "alternate"
-   ]
-  },
-  {
-   "variant": "dumbbell-wide-bicep-curls",
-   "of": "dumbbell-bicep-curl",
-   "adds": [
-    "wide"
-   ]
-  },
-  {
-   "variant": "incline-dumbbell-biceps-curl",
-   "of": "dumbbell-bicep-curl",
-   "adds": [
-    "incline"
-   ]
-  },
-  {
-   "variant": "seated-dumbbell-biceps-curl",
-   "of": "dumbbell-bicep-curl",
-   "adds": [
-    "seated"
-   ]
-  },
-  {
-   "variant": "standing-dumbbell-biceps-curl",
-   "of": "dumbbell-bicep-curl",
-   "adds": [
-    "standing"
-   ]
-  },
-  {
-   "variant": "alternating-incline-dumbbell-biceps-curl",
-   "of": "dumbbell-bicep-curl",
-   "adds": [
-    "alternating",
-    "incline"
-   ]
-  },
-  {
-   "variant": "lying-supine-biceps-curl-dumbbell",
-   "of": "dumbbell-bicep-curl",
-   "adds": [
-    "lying",
-    "supine"
-   ]
-  },
-  {
-   "variant": "prone-incline-biceps-curl-dumbbell",
-   "of": "dumbbell-bicep-curl",
-   "adds": [
-    "prone",
-    "incline"
-   ]
-  },
-  {
-   "variant": "seated-alternating-dumbbell-biceps-curl",
-   "of": "dumbbell-bicep-curl",
-   "adds": [
-    "seated",
-    "alternating"
    ]
   },
   {

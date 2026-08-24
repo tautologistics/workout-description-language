@@ -12,7 +12,7 @@
  * Commonality is inferred from evidence rather than opinion:
  *
  *   +3  referenced by a workout in our corpus  — the strongest signal there is
- *   +3  hand-curated                            — we already judged it worth writing
+ *   +3  hand-curated *about the movement*      — we already judged it worth writing
  *   +2  a lift Garmin tracks a 1RM for          — a vendor's view of what matters
  *   +2  per source beyond the first             — independent catalogues agreeing
  *   +1  is the base of a variation family       — the thing others are variants of
@@ -86,13 +86,39 @@ const familyBase = new Set((doc.families ?? []).map((f) => f.id));
  */
 const JUDGED = new Set(['used-in-corpus', 'curated', 'garmin-benchmark']);
 
+/**
+ * A curated record counts as a judgement only if it says something about the
+ * *movement*. An alias pass writes records that carry nothing but `aliases`,
+ * and an alias is a claim about a **name** — this spelling should resolve — not
+ * about whether the thing belongs in a round. Reading mere presence in
+ * `registry/movements.json` as "somebody judged this worth writing" put nine
+ * records into the pool that nobody had judged at all: seven accessory
+ * movements the alias pass happened to touch (`dumbbell-fly`,
+ * `cable-front-raise`, `incline-dumbbell-fly` and the rest), plus one record
+ * left carrying no fields whatsoever.
+ *
+ * This is the same category error the pool rule was written to end, arriving
+ * from the other side: one signal answering two questions. `sources` still
+ * records `wdl-curated`, because the alias genuinely did come from curation —
+ * provenance is not the thing being narrowed here, the *judgement* reading is.
+ */
+const SAYS_NOTHING_ABOUT_THE_MOVEMENT = new Set(['id', 'title', 'aliases', 'sameAs']);
+const judgedByCurator = new Set(
+  JSON.parse(readFileSync('registry/movements.json', 'utf8')).movements
+    .filter((r) => Object.keys(r).some((k) => !SAYS_NOTHING_ABOUT_THE_MOVEMENT.has(k)))
+    // Keyed by the folded id, not the literal one: `fold` is what identity is
+    // by here, and it collapses the joining words, so curated `clean-and-jerk`
+    // is canonical `clean-jerk`. Matching literally dropped three judged
+    // records — `Clean & Jerk` among them — which is how this was caught.
+    .map((r) => fold(r.id)));
+
 let core = 0;
 for (const r of movements) {
   const why = [];
   let score = 0;
   const keys = [fold(r.title), ...(r.aliases ?? []).map(fold)];
   if (keys.some((k) => used.has(k))) { score += 3; why.push('used-in-corpus'); }
-  if (r.sources.includes('wdl-curated')) { score += 3; why.push('curated'); }
+  if (r.sources.includes('wdl-curated') && judgedByCurator.has(fold(r.id))) { score += 3; why.push('curated'); }
   if (keys.some((k) => benchmarks.has(k)) || benchmarks.has(fold(r.external?.garminExercise ?? ''))) {
     score += 2; why.push('garmin-benchmark');
   }

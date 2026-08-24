@@ -51,8 +51,19 @@ function add(key, title, source, f = {}) {
 }
 
 // 1. curated core
+//
+// A record marked `source: free-exercise-db` is a snapshot of the import, so
+// its classification is re-read from the reference file rather than trusted
+// here. Its *aliases* are not part of that snapshot — nothing upstream carries
+// them — so they are hand-kept like any other and are applied below, after the
+// record exists. Skipping the whole record silently dropped them, which is the
+// same shape of failure an unresolvable alias is: no error, just no effect.
+const handKept = new Map();
 for (const m of JSON.parse(readFileSync('registry/movements.json', 'utf8')).movements) {
-  if (m.source === 'free-exercise-db') continue;
+  if (m.source === 'free-exercise-db') {
+    if (m.aliases?.length || m.sameAs?.length) handKept.set(fold(m.title), { aliases: m.aliases, sameAs: m.sameAs });
+    continue;
+  }
   add(fold(m.title), m.title, 'wdl-curated', {
     aliases: m.aliases ?? [], primary: norm(m.muscles?.primary), secondary: norm(m.muscles?.secondary),
     pattern: m.pattern ?? [],
@@ -60,6 +71,11 @@ for (const m of JSON.parse(readFileSync('registry/movements.json', 'utf8')).move
     equipment: Array.isArray(m.equipment) ? m.equipment : m.equipment ? [m.equipment] : [],
     implements: m.implements, load: m.load, measures: m.measures,
     laterality: m.laterality, defaultLaterality: m.defaultLaterality,
+    // A build directive, not a fact about the movement: dedupe-movements.mjs
+    // reads it, absorbs what it names, and deletes it. Carried through here
+    // because it is written on the curated record and the merge is what acts
+    // on it.
+    sameAs: m.sameAs,
   });
 }
 // 2. Garmin — authoritative muscles plus the interop identifiers
@@ -107,6 +123,18 @@ if (existsSync('docs/references/everkinetic.json')) {
   }
 }
 
+// The hand-kept aliases of records seeded from free-exercise-db, applied now
+// that every source has been read and the records they name exist.
+for (const [key, kept] of handKept) {
+  const r = records.get(key);
+  if (!r) {
+    console.error(`registry/movements.json carries hand-kept fields for "${key}", which no source produced.`);
+    process.exit(1);
+  }
+  for (const a of kept.aliases ?? []) r.aliases.add(a);
+  if (kept.sameAs?.length) r.sameAs = [...new Set([...(r.sameAs ?? []), ...kept.sameAs])];
+}
+
 if (unknownMuscles.size) {
   console.error('Unknown muscle names. Add them to registry/muscles.json as synonyms of an existing');
   console.error('muscle, or as a new muscle if they are genuinely one we do not track yet:');
@@ -123,6 +151,9 @@ const out = [...records.values()].sort((a, b) => a.id.localeCompare(b.id)).map((
   for (const k of ['pattern', 'equipment']) if (r[k].size) rec[k] = [...r[k]].sort();
   for (const k of ['implements', 'load', 'measures', 'laterality', 'defaultLaterality', 'force', 'mechanic'])
     if (r[k] !== undefined) rec[k] = r[k];
+  // Written out so the next step in the pipeline can read it, and deleted
+  // there. No record in the finished corpus carries it.
+  if (r.sameAs?.length) rec.sameAs = r.sameAs;
   if (Object.keys(r.translations).length) rec.translations = r.translations;
   if (r.variationGroup !== undefined) rec.variationGroup = r.variationGroup;
   if (Object.keys(r.external).length) rec.external = r.external;

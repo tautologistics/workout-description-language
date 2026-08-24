@@ -8,7 +8,7 @@
  * and every decision is recorded in registry/dedupe-audit.json, so any cluster
  * can be inspected or unpicked afterwards.
  *
- * Three ideas do the work:
+ * Four ideas do the work:
  *
  * 1. LEMMAS. Token sets are compared after depluralising and folding a small
  *    synonym table, so `Tricep Extensions` and `Triceps Extension` become the
@@ -24,6 +24,14 @@
  *    External Rotation` is not `Cable External Rotation`. These are recorded as
  *    variant-of relationships instead of being merged, which is where a naive
  *    similarity threshold does its worst damage.
+ *
+ * 4. A CURATOR CAN SAY SO. The three rules above all reason from the title, and
+ *    a pair whose two names share no token — `Shoulder Press` and `Overhead
+ *    Press` — is beyond any of them. `sameAs` on a curated record names the ids
+ *    it is one movement with, and this pass absorbs them. It is not inferred
+ *    from an alias: an alias says a name reaches a record, which is a much
+ *    weaker claim, and reading it as a merge is how a real movement gets
+ *    redirected into another record's muscles.
  *
  * Merging is transitive via union-find, so A=B and B=C collapse to one cluster
  * rather than two overlapping pairs.
@@ -127,6 +135,45 @@ for (const [k, idxs] of [...byKey, ...bySolid]) {
   merges.push({ key: k, members: keep.map((i) => ({ id: movements[i].id, title: movements[i].title, sources: movements[i].sources })) });
 }
 
+// --- a curator saying so -------------------------------------------------
+//
+// Everything above reasons from the title, and there is a whole class of pair
+// it cannot reach: `Shoulder Press` and `Overhead Press` share no token at all,
+// and `Pistol`/`Pistol Squat` differ by a token the veto list exists to treat
+// as distinguishing. Those are not failures of the derivation — they are pairs
+// where no rule over the names can decide it and a person already has.
+//
+// `sameAs` is where that answer is written: on the curated record, naming the
+// ids it is one movement with. It is deliberately *not* inferred from an alias.
+// An alias says only "this name reaches this record", and the standing rule
+// that an alias must not name a movement in its own right exists because
+// reading one as a merge is how a real movement gets silently redirected into
+// another record's muscles — fourteen alias candidates were rejected on that
+// rule in a single pass, and every one of them would have merged.
+const byId = new Map(movements.map((r, i) => [r.id, i]));
+const asserted = [], unresolved = [];
+movements.forEach((r, i) => {
+  for (const id of r.sameAs ?? []) {
+    const j = byId.get(id);
+    if (j === undefined || j === i) { unresolved.push(`${r.id} -> ${id}`); continue; }
+    // A family is inferred from a source's variation group; `sameAs` is not
+    // inferred at all. The curator's answer outranks it, and says so out loud
+    // rather than merging two families' worth of records without a word.
+    const fa = family.get(r.id), fb = family.get(movements[j].id);
+    if (fa && fb && fa !== fb) console.log(`  note: ${r.id} sameAs ${id} joins families ${fa} and ${fb}`);
+    union(i, j);
+    asserted.push({ by: r.id, absorbs: id, title: movements[j].title, sources: movements[j].sources });
+  }
+});
+// Loud, because the failure it prevents is silence: a `sameAs` naming an id no
+// source produced does nothing at all, and the only symptom is a collision that
+// was supposed to be gone.
+if (unresolved.length) {
+  console.error('registry/movements.json asserts sameAs against ids the corpus does not hold, or against itself:');
+  for (const u of unresolved) console.error(`  ${u}`);
+  process.exit(1);
+}
+
 // --- collapse ------------------------------------------------------------
 const clusters = new Map();
 movements.forEach((r, i) => {
@@ -174,6 +221,10 @@ for (const [root, idxs] of clusters) {
   out.mergedFrom = idxs.filter((i) => i !== pick).map((i) => movements[i].id);
   merged.push(out);
 }
+// Consumed. `sameAs` is an instruction to this pass, and a finished record
+// carrying one would read as a claim about the movement that nothing acts on —
+// what actually happened is in `mergedFrom` and in the audit file.
+for (const r of merged) delete r.sameAs;
 merged.sort((a, b) => a.id.localeCompare(b.id));
 
 // --- strict subsets are variants, not duplicates --------------------------
@@ -209,6 +260,7 @@ for (const r of merged) {
 
 console.log(`${movements.length} records in`);
 console.log(`  clusters merged:        ${merges.length}  (${movements.length - merged.length} records absorbed)`);
+console.log(`  absorbed by sameAs:     ${asserted.length}`);
 console.log(`  variant links recorded: ${variantsApplied}`);
 console.log(`  blocked by family:      ${familyBlocked}`);
 console.log(`  found only by ignoring hyphenation: ${solidFound}`);
@@ -217,9 +269,9 @@ console.log(`  records out:            ${merged.length}`);
 if (!apply) { console.log('\nReport only. Re-run with --apply to rewrite the canonical file.'); process.exit(0); }
 
 writeFileSync('registry/dedupe-audit.json', JSON.stringify({
-  $comment: 'Every merge this pass made, and every variant-of link. Each cluster lists the records absorbed, so a merge can be inspected or unpicked.',
+  $comment: 'Every merge this pass made, and every variant-of link. Each cluster lists the records absorbed, so a merge can be inspected or unpicked. `asserted` is the subset a curator merged by hand with `sameAs` in registry/movements.json, where no rule over the titles could have reached it.',
   generated: today(),
-  clusters: merges, variants: variants.slice(0, 5000),
+  clusters: merges, asserted, variants: variants.slice(0, 5000),
 }, null, 1) + '\n');
 
 doc.movements = merged;

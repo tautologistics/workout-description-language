@@ -746,3 +746,69 @@ word appears would have left the two values already merged one call down.
 *Fix a conflated field where the two values are still apart, not where somebody
 noticed.* Recorded 2026-08-23, from the branch whose implementation was not the
 one taken — the observation outlived the code.
+
+**A pipeline step that skips a record skips everything on it, including the parts
+nothing upstream supplies.** `build-movements.mjs` opened with
+`if (m.source === 'free-exercise-db') continue`, which is right for the reason it
+was written: those 852 records in `registry/movements.json` are a snapshot of the
+import, and their muscles and equipment are re-read from the reference file
+rather than trusted twice. But `aliases` is not in the snapshot — no upstream
+catalogue has the field — so an alias hand-written onto one of those records was
+dropped on the floor. Fifty-eight of the 178 core movements sit on such a record,
+so a third of the alias pass would have gone nowhere, silently, and the only
+visible symptom would have been aliases that failed to resolve — the exact
+failure the pass existed to remove.
+
+The tell was in the shape of the guard, not in the data: it filtered by *where a
+record came from* and used that to decide *what to do with all of it*. Provenance
+answers the first question and not the second. Aliases are now collected from
+those records and applied after every source has been read, and the script says
+so where the guard is.
+
+*A `continue` keyed on provenance is a claim that no field on the record is
+hand-kept. Check that it is one.* Recorded 2026-08-22.
+
+**An alias that overreaches does not merely fail to resolve — it redirects, and
+the redirect travels.** `Air Squat` carried the alias `squat` and `Walking Lunge`
+carried `lunge`, both of which are movements the registry holds as records of
+their own. The visible cost looked like a two-line duplicate-name problem. The
+actual cost was three steps downstream: `link-families.mjs` indexes aliases as
+well as titles, in id order, so `air-squat` claimed the key `squat` before the
+`Squat` record was reached; wger's squat variation group resolved its member
+"Squat" to `air-squat`; the family was named after its shortest member, and the
+squat family in `registry/movements.canonical.json` was called **`pistol`**.
+
+Nobody would have found that by reading the family list, because a family named
+`pistol` containing fourteen squats is not obviously wrong until you ask why.
+It was found by fixing the alias and watching an unrelated number move —
+`mark-core` reported 177 instead of 178 — and chasing the one record that
+changed.
+
+*The blast radius of a wrong name is every pass that indexes by name.* Recorded
+2026-08-22.
+
+**The golden snapshot does not cover muscles, so "the corpus did not move" is
+only ever a claim about structure.** `interpretations.json` regenerated
+byte-identical across a merge that moved muscle attribution in eight of the 190
+corpus files, and `workouts.canonical.json` differed only in its date. Every
+habitual check said nothing changed. They were all telling the truth: the digest
+in `test/golden/generate.ts` holds shape, seconds, pacing, unbounded and volume
+by movement, and muscle attribution is not in it — reasonably, since it is a
+digest of how a workout is *understood*, and muscles are a property of the
+registry the workout points into rather than of the workout.
+
+Merging two records changes what a name points at, so it moves muscles and
+nothing else. That is the one shape of change the snapshot is blind to by
+construction, and it is exactly the shape a registry merge has. The diff was
+found by attributing the whole corpus twice — `muscleLoad` over every file,
+once against the previous `movements.canonical.json` and once against the new
+one — which took a throwaway twenty-line script and is the only thing that would
+have caught it. Six of the eight moves were improvements and two were a source's
+bad claim reaching a workout it had not reached before; reporting "no change"
+would have hidden both.
+
+*Ask which digest would have to move for the change you actually made. If the
+answer is "none of them", that is not reassurance — it is a gap.* Recorded
+2026-08-23. Closing the gap properly — putting `byMuscle` in the digest — is
+queued under item 8; until then the by-hand recipe is in
+[running-it.md](running-it.md).
