@@ -58,15 +58,19 @@ describe('registry', () => {
    * movement and are merged; two were not, and the alias asserting otherwise
    * was withdrawn. The verdicts are per pair in docs/context/known-debts.md.
    *
-   * Both survivors are `Bike`, and they are one finding rather than two: `Bike`
-   * is a *modality* — a curated lump over the erg, the fan bike and the road —
-   * and absorbing one machine into it spreads that machine's muscles across all
-   * of them. Merging `Assault Bike` put Garmin's chest claim on six cycling
-   * workouts, a 40km ride among them. `Air Bike` is worse: that record is
-   * itself a false merge of Garmin's fan bike with free-exercise-db's bicycle
-   * crunch. Both aliases are correct English and stay; the collision is the
-   * price of a lump the registry cannot express, and is pinned rather than
-   * argued away.
+   * Both survivors were `Bike`, and one of them closed on 2026-08-23. `Air
+   * Bike` was a false merge before it was a collision — Garmin's fan bike and
+   * free-exercise-db's *bicycle crunch* under one spelling — and once
+   * `build-movements.mjs` split the crunch out, what was left was Garmin's fan
+   * bike claiming exactly what `Bike` claims, which is what the curated alias
+   * said all along. It is merged.
+   *
+   * `Assault Bike` is the survivor, and it is the modality finding: `Bike` is a
+   * curated lump over the erg, the fan bike and the road, and absorbing one
+   * machine into it spreads that machine's muscles across all of them. Merging
+   * it put Garmin's chest claim on six cycling workouts, a 40km ride among
+   * them. The alias is correct English and stays; the collision is the price of
+   * a lump the registry cannot express, and is pinned rather than argued away.
    *
    * Pinned exactly rather than bounded, so a merge that lands fails here as
    * stale instead of leaving a loose ceiling nobody tightens.
@@ -94,6 +98,42 @@ describe('registry', () => {
   it('resolves a spelling that was only ever an alias on both records', () => {
     const r = canonicalRegistry().resolve('Dumbbell Biceps Curl');
     ok(r.status === 'ok' && r.entry.id === 'dumbbell-curl', JSON.stringify(r));
+  });
+
+  /**
+   * The mirror of the case above, and the reason a *split* had to exist beside
+   * `sameAs`.
+   *
+   * `Air Bike` was one record holding two exercises. Garmin's
+   * `INDOOR_BIKE/AIR_BIKE` is the fan bike; free-exercise-db's `Air_Bike` and
+   * everkinetic's `0284` are the bicycle crunch, and all three fold to the same
+   * key, so they merged inside `build-movements.mjs` before any dedup rule
+   * could look at them. The result claimed `abs` and `quads` at once and scored
+   * `3-sources` for it — three catalogues agreeing, read off a shared spelling.
+   *
+   * Every guard in the pipeline stops *similar* names merging. Nothing stopped
+   * identical ones, because a title match was treated as proof. `sameAs` cannot
+   * undo it either: it merges records, and this needed one split. The
+   * correction is a table in `build-movements.mjs` keyed on `source:upstream-id`
+   * — the entry, not the record, because the name is the thing that is wrong.
+   *
+   * Pinned from both ends: the crunch keeps the two catalogues it gained, and
+   * the name keeps meaning the machine.
+   */
+  it('splits a name two traditions gave to different exercises', () => {
+    const canon = canonicalRegistry();
+    const crunch = canon.resolve('Bicycle Crunch');
+    ok(crunch.status === 'ok' && crunch.entry.id === 'bicycle-crunch', JSON.stringify(crunch));
+    // Two before the split, four after: free-exercise-db and everkinetic filed
+    // it under `Air Bike` and now count towards the exercise they described.
+    eq(crunch.status === 'ok' ? crunch.entry.muscles?.sources : 0, 4);
+
+    const bike = canon.resolve('Air Bike');
+    ok(bike.status === 'ok' && bike.entry.id === 'bike', JSON.stringify(bike));
+    const muscles = bike.status === 'ok' ? bike.entry.muscles : undefined;
+    ok(muscles?.primary?.includes('quads'), JSON.stringify(muscles));
+    ok(!muscles?.primary?.includes('abs') && !muscles?.secondary?.includes('abs'),
+       `Air Bike is a machine, not an abdominal exercise: ${JSON.stringify(muscles)}`);
   });
 
   it('resolves canonical ids and titles', () => {
@@ -132,8 +172,7 @@ describe('registry', () => {
 
   // Two records answering to one name is ordinary in a merged corpus, and none
   // of the pairs below is a duplicate — known-debts.md carries the verdict on
-  // each, and `Air Bike` is the trap: the imported record is the abdominal
-  // exercise, not the machine. What would be a defect is a *new* collision
+  // each. What would be a defect is a *new* collision
   // arriving unnoticed, or one of these quietly changing its mind about who
   // wins. `resolve` ranks an explicit alias above a record's own id, so a
   // curator's claim on a contested spelling beats an imported record that
@@ -142,24 +181,31 @@ describe('registry', () => {
   // `node scripts/check-aliases.mjs` prints this table with the reasoning.
   it('has only the known alias collisions in the canonical corpus', () => {
     const canon = canonicalRegistry();
-    // Fourteen when the ranking landed, two once the curation half did. The
-    // ranking decided *who answers*; it could not say whether two records are
-    // one movement, and eight pairs were — merged by `sameAs` — while two more
-    // were not and the alias claiming otherwise was withdrawn. Both survivors
-    // are `Bike`, and they are one finding rather than two: `Bike` is a
-    // *modality*, a curated lump over the erg, the fan bike and the road, so
-    // absorbing one machine into it spreads that machine's muscles across all
-    // of them. Merging `Assault Bike` put Garmin's chest claim on six cycling
-    // workouts, a 40km ride among them. `Air Bike` is worse — that record is
-    // itself a false merge of Garmin's fan bike with free-exercise-db's bicycle
-    // crunch, so it needs splitting and `sameAs` only merges. Both aliases are
-    // correct English and stay; the collision is the price of a lump the
-    // registry cannot express, and is pinned rather than argued away.
+    // Fourteen when the ranking landed, two once the curation half did, one
+    // since `Air Bike` was split. The ranking decided *who answers*; it could
+    // not say whether two records are one movement, and eight pairs were —
+    // merged by `sameAs` — while two more were not and the alias claiming
+    // otherwise was withdrawn.
+    //
+    // `Air Bike` was neither: it was one record holding two exercises, Garmin's
+    // fan bike merged with free-exercise-db's and everkinetic's *bicycle
+    // crunch* on the spelling they share. `sameAs` could not reach it because
+    // `sameAs` merges and this needed a split; the split is a table in
+    // `build-movements.mjs` keyed on the source entry, and once the crunch left,
+    // the fan bike claimed exactly what `Bike` claims and was merged into it.
+    //
+    // `Assault Bike` survives, and it is the modality finding: `Bike` is a
+    // curated lump over the erg, the fan bike and the road, so absorbing one
+    // machine into it spreads that machine's muscles across all of them.
+    // Merging it put Garmin's chest claim on six cycling workouts, a 40km ride
+    // among them — which is exactly what merging `Air Bike` did *not* do, and
+    // the difference is the whole reason one closed and the other did not. The
+    // alias is correct English and stays; the collision is the price of a lump
+    // the registry cannot express, and is pinned rather than argued away.
     //
     // Pinned exactly rather than bounded, so a merge that lands fails here as
     // stale instead of leaving a loose ceiling nobody tightens.
     const KNOWN: Record<string, string> = {
-      airbike: 'bike',
       assaultbike: 'bike',
     };
 

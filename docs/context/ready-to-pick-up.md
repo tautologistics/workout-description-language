@@ -892,8 +892,9 @@ been added to this file, so there was nothing here to take off. It is written up
 after the fact, which is why it is a record rather than a plan.*
 
 Three things came out of it that are not aliases, and they are the part worth
-carrying forward. The first is closed; doing it raised two more, so four are
-open:
+carrying forward. The first was closed, and doing it raised two more — five in
+all, of which three have closed. **Two are open**, and they are the two that
+need a mechanism nobody has designed yet:
 
 - **~~A curated alias cannot merge a record, so an assertion of sameness lands as
   a collision.~~ DONE 2026-08-23.** `sameAs` on a curated record names the ids it
@@ -913,17 +914,27 @@ open:
   never reads aliases. A within-registry pass needs different rules, and should
   start from the aliases, where the answer is already written down.
   *Touches: `scripts/find-duplicates.mjs` or a sibling.*
-- **`Air Bike` is two exercises in one record**, merged on an identical title:
-  Garmin's fan bike and free-exercise-db's bicycle crunch. Nothing guards against
-  a title match being wrong, and the merged record scores `core` on
-  `3-sources` for it. *Corrected 2026-08-23: this touches `build-movements.mjs`,
-  not `dedupe-movements.mjs` — all three sources are literally named "Air Bike",
-  so they land in one record inside `add(fold(e.name), …)` before dedup runs.
-  `sameAs` cannot help: it merges records and this one needs splitting.* It is
-  what holds the `airbike` collision open, and it is now the oldest thing on this
-  list with a corpus consequence: `Air Bike` in a workout gets an abdominal
-  exercise's muscles.
-  *Touches: `scripts/build-movements.mjs`.*
+- **~~`Air Bike` is two exercises in one record~~ DONE 2026-08-23.** Two
+  exercises merged on an identical title: Garmin's fan bike, and
+  free-exercise-db's and everkinetic's bicycle crunch. Nothing guarded against a
+  title match being wrong, so the record claimed `abs` and `quads` at once and
+  scored `3-sources` for it. `NOT_WHAT_THE_NAME_MEANS` in
+  `build-movements.mjs` is the fix: a table keyed on `source:upstream-id` naming
+  the record an entry actually belongs to, checked at build time so a directive
+  that matches nothing fails loudly. The crunch went to `Bicycle Crunch` (two
+  sources to four); what was left of `Air Bike` was Garmin's fan bike claiming
+  exactly what `Bike` claims, so `sameAs` absorbed it and the `airbike`
+  collision closed — `check-aliases.mjs` goes from **2 contended names to 1**,
+  and the pinned list in `fold.test.ts` with it.
+  *Corrected 2026-08-23: this bullet said `Air Bike` was the oldest item here
+  with a corpus consequence. It had none. An explicit alias had outranked a
+  record's own id since earlier the same day, so `Air Bike` in a workout already
+  resolved to `Bike` — and no corpus file writes the name anyway. The golden
+  digest moved not a byte, which is the correct result. What was really wrong
+  was a false agreement signal and a blocked merge, and neither is worth the
+  top of a queue.*
+  *Touched: `scripts/build-movements.mjs`, `registry/movements.json`,
+  `packages/core/test/fold.test.ts`.*
 - **`Bike` is a modality, not a movement, and the registry has no word for that.**
   Raised 2026-08-23 by declining two merges. `Bike` is one record standing for
   the erg, the fan bike and the road, with six aliases saying so on purpose.
@@ -933,6 +944,14 @@ open:
   say *these names are one modality and each keeps its own muscles*, which is a
   third relation beside `sameAs` and `variantOf`. `Row`, `Ski` and `Run` are the
   same shape and have not been looked at.
+  *Corrected 2026-08-23: one of the two declined merges has since been accepted.
+  `Air Bike`, once split, claimed muscle-for-muscle what `Bike` already claimed,
+  so absorbing it leaked nothing and it was merged. This is now a finding about
+  `Assault Bike` alone — and it is a thinner one than it looked, because it
+  turns on Garmin giving the assault bike a `chest` claim and the air bike none.
+  Two names for the same machine, and the lump is only visible where a source
+  happens to disagree with it. A modality relation would say so out loud instead
+  of waiting for a disagreement to reveal it.*
   *Touches: `registry/movements.json`, `scripts/dedupe-movements.mjs`,
   `packages/core/src/fold.ts`.*
 - **~~The golden digest should cover muscle attribution, and does not.~~ DONE

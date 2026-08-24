@@ -1,7 +1,7 @@
 # Running it
 
 ```bash
-npm --prefix packages/core test     # 1790 tests, 1 pending, ~10s
+npm --prefix packages/core test     # 1791 tests, 1 pending, ~10s
 node scripts/build-canonical.ts     # rebuild registry/ from its sources
 node scripts/describe-corpora.mjs   # report whether SOURCES.json/.md still count the corpora right
 node scripts/check-aliases.mjs      # every name two records answer to, and who wins

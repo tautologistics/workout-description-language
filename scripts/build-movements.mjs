@@ -9,6 +9,10 @@
  * so every muscle in the corpus can be traced back to who said so. Every record
  * names the sources that contributed to it, so the merge stays reversible and
  * the licence question stays answerable.
+ *
+ * Records are keyed on the folded title, so two sources using one name land in
+ * one record. Where that is wrong — one name, two different exercises — the
+ * entry is rehoused by `NOT_WHAT_THE_NAME_MEANS` below.
  */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { norm, deriveMuscles, unknownMuscles } from './lib/muscles.mjs';
@@ -20,9 +24,55 @@ const fold = (s) => String(s).normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerC
 const slug = (s) => String(s).normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
   .split(/[^a-z0-9]+/).filter((t) => t && !STOP.has(t)).join('-');
 
+/**
+ * Source entries whose name is not the movement that name means.
+ *
+ * Every merge rule in this project guards against *similar* names being folded
+ * together. Nothing guarded against *identical* ones, because a title match was
+ * treated as proof — and for a name generic enough that two traditions reached
+ * for it, it is not. `Air Bike` is the case that found this: Garmin's
+ * `INDOOR_BIKE/AIR_BIKE` is the fan bike, and free-exercise-db's `Air_Bike` and
+ * everkinetic's `0284` are the *bicycle crunch* ("lie flat on the floor with
+ * your lower back pressed to the ground"). All three fold to `airbike`, so they
+ * landed in one record before `dedupe-movements.mjs` ever saw them, and the
+ * result claimed `abs` and `quads` together while scoring `3-sources` — a
+ * signal that reads as three catalogues agreeing when it is three catalogues
+ * being merged by their spelling.
+ *
+ * `sameAs` cannot express this. It merges records, and this needs one *split*:
+ * a statement that a particular source's entry is not the movement its name
+ * already means. So it is keyed on the entry — `source:upstream-id`, the pair
+ * `origin` records — rather than on a record, and it names the record the entry
+ * actually belongs to. Keyed on the id and not the name on purpose: the name is
+ * the thing that is wrong.
+ *
+ * It lives here rather than in `registry/movements.json` because it is not a
+ * fact about a movement and has no record to hang off. It is a correction to a
+ * source, and this script is where the sources are read.
+ */
+const NOT_WHAT_THE_NAME_MEANS = {
+  'free-exercise-db:Air_Bike': 'Bicycle Crunch',
+  'everkinetic:0284': 'Bicycle Crunch',
+};
+/** Which of the directives above matched an entry, and which records a source
+ *  named under their own title. Both are checked once every source is read. */
+const split = new Set();
+const namedBySomeSource = new Set();
+
 const records = new Map();
 function add(key, title, source, f = {}) {
   if (!key || !title) return;
+  // A split, if one is written for this entry: the record it belongs to
+  // replaces the one its name folds to. `origin` still records the name the
+  // source used, so the correction stays visible rather than tidied away.
+  const belongsTo = f.__upstream == null ? undefined : NOT_WHAT_THE_NAME_MEANS[`${source}:${f.__upstream}`];
+  if (belongsTo) {
+    split.add(`${source}:${f.__upstream}`);
+    key = fold(belongsTo);
+    title = belongsTo;
+  } else {
+    namedBySomeSource.add(key);
+  }
   let r = records.get(key);
   if (!r) {
     r = { id: slug(title) || key, title, aliases: new Set(),
@@ -133,6 +183,20 @@ for (const [key, kept] of handKept) {
   }
   for (const a of kept.aliases ?? []) r.aliases.add(a);
   if (kept.sameAs?.length) r.sameAs = [...new Set([...(r.sameAs ?? []), ...kept.sameAs])];
+}
+
+// A split that matches no entry does nothing at all, and the only symptom is
+// the false merge still sitting there. A split into a title no source uses is
+// worse than nothing: it invents a record out of the entry it was meant to
+// rehouse, which is the original defect with a new name on it. Loud, for the
+// same reason an unresolved `sameAs` is.
+const dead = Object.entries(NOT_WHAT_THE_NAME_MEANS).filter(([entry]) => !split.has(entry));
+const invented = Object.entries(NOT_WHAT_THE_NAME_MEANS).filter(([, into]) => !namedBySomeSource.has(fold(into)));
+if (dead.length || invented.length) {
+  console.error('scripts/build-movements.mjs splits entries the sources do not hold:');
+  for (const [entry, into] of dead) console.error(`  ${entry} -> ${into}: no source produced that entry`);
+  for (const [entry, into] of invented) console.error(`  ${entry} -> ${into}: no source names that record`);
+  process.exit(1);
 }
 
 if (unknownMuscles.size) {

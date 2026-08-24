@@ -1019,7 +1019,9 @@
      "id": "bicycle-crunch",
      "title": "Bicycle Crunch",
      "sources": [
-      "garmin"
+      "garmin",
+      "free-exercise-db",
+      "everkinetic"
      ]
     },
     {
@@ -3767,7 +3769,9 @@
      "id": "bicycle-crunch",
      "title": "Bicycle Crunch",
      "sources": [
-      "garmin"
+      "garmin",
+      "free-exercise-db",
+      "everkinetic"
      ]
     },
     {
@@ -5019,6 +5023,14 @@
    "title": "Bodyweight Squat",
    "sources": [
     "free-exercise-db"
+   ]
+  },
+  {
+   "by": "bike",
+   "absorbs": "air-bike",
+   "title": "Air Bike",
+   "sources": [
+    "garmin"
    ]
   },
   {

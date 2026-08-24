@@ -88,7 +88,7 @@ hand-maintained until 2026-08-22, and by then both copies still carried the figu
 
 | File | Records | Contents |
 |---|---:|---|
-| `movements.canonical.json` | 3113 | Every movement we hold: 2976 with muscle data, 1502 with a Garmin mapping, 619 with a name in another language, 128 marked core |
+| `movements.canonical.json` | 3112 | Every movement we hold: 2975 with muscle data, 1501 with a Garmin mapping, 619 with a name in another language, 128 marked core |
 | `workouts.canonical.json` | 202 | Every workout, with source text, parsed AST, and a derived summary |
 
 **Every record names the sources that contributed to it.** That is what keeps the merge reversible:

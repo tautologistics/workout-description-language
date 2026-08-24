@@ -671,6 +671,35 @@ would be tidier".
   by name rather than doing nothing, because doing nothing leaves a collision
   that was supposed to be gone and no way to tell that from success.
 
+- **A source's entry can be told which record it belongs to, and that is a
+  separate mechanism from `sameAs`.** Settled 2026-08-23, by `Air Bike`.
+  `sameAs` merges two records; nothing could *split* one, and one needed it.
+  Three catalogues used the name "Air Bike" — Garmin for the fan bike,
+  free-exercise-db and everkinetic for the bicycle crunch — so all three folded
+  to one key and merged in `build-movements.mjs` before any dedup rule saw them.
+  Every veto in the pipeline guards against *similar* names merging; an
+  identical name was treated as proof, and for a name generic enough that two
+  traditions reached for it, it is not.
+
+  **The split is keyed on the entry, not the record**, as `source:upstream-id` —
+  the pair `origin` already records — and valued by the title of the record the
+  entry belongs to. Keying it on the name would be circular: the name is the
+  thing that is wrong. Keying it on the *record* is what `sameAs` does, and a
+  record that does not exist yet cannot be named.
+
+  **It lives in the script, not in `registry/movements.json`.** Every other
+  curated judgement hangs off a record, and this one has no record to hang off:
+  it is a correction to a *source*, made at the moment the sources are read, and
+  the file where curated movements live is not the place to say that
+  free-exercise-db filed a crunch under the wrong name. `origin` keeps the name
+  each source used, so the correction stays legible from the finished corpus
+  rather than being tidied out of it — `bicycle-crunch` says
+  `free-exercise-db: { id: Air_Bike, name: "Air Bike" }` in plain sight.
+
+  **A directive that matches nothing fails the build**, for the same reason an
+  unresolved `sameAs` does: the symptom of a dead directive is the defect still
+  sitting there, which is indistinguishable from success.
+
 - **A pair judged *not* the same movement has its alias withdrawn.** Same date,
   and it is the other half of the decision above — without it "no collisions"
   has two readings and the wrong one is easier. An alias naming a record the
@@ -683,12 +712,19 @@ would be tidier".
   one really is the same swing under another name.
 
   **A collision may also be correct and stay**, which is the third outcome and
-  the one a rule would have missed. `air bike` and `assault bike` on `Bike` are
-  both true — that is what people call those machines — and `Bike` is a lump
-  over several of them. Merging spreads one machine's muscles across all of
-  them; withdrawing throws away a name people write. Both are pinned in
-  `fold.test.ts` with the reason, which is what a debt looks like when neither
-  available move is an improvement.
+  the one a rule would have missed. `assault bike` on `Bike` is true — that is
+  what people call the machine — and `Bike` is a lump over several of them.
+  Merging spreads one machine's muscles across all of them; withdrawing throws
+  away a name people write. It is pinned in `fold.test.ts` with the reason,
+  which is what a debt looks like when neither available move is an improvement.
+
+  *Corrected 2026-08-23: `air bike` was pinned here beside it and is no longer.
+  It looked like the same standoff and was not one — the `air-bike` record was a
+  false merge, and once the split above took the crunch out, Garmin's fan bike
+  claimed muscle-for-muscle what `Bike` already claimed. Nothing spread and
+  nothing was thrown away, so it merged. Worth keeping because of what it says
+  about the shape: a collision that looks like an unavoidable trade-off is worth
+  checking for a bad record underneath before it is written down as a debt.*
 
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in

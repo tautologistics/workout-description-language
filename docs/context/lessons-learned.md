@@ -819,3 +819,43 @@ gone from [running-it.md](running-it.md). **The lesson is not retired with it**,
 because what cost the time was not the missing recipe: it was believing three
 green checks that were each answering a question nobody had asked. The next
 change of a kind no digest covers will look exactly as clean as this one did.*
+
+**A defect's stated consequence goes stale, and the queue orders itself by the
+stale copy.** `Air Bike` sat at the top of item 8 as "the oldest thing on this
+list with a corpus consequence: `Air Bike` in a workout gets an abdominal
+exercise's muscles". That sentence was true when it was written and stopped
+being true a few hours later, on the same day, when `resolve` learned to rank an
+explicit alias above a record's own id — `Bike`'s curated `air bike` outranked
+the `air-bike` record from that moment, and `check-aliases.mjs` had been
+printing the winning `*` on `bike` ever since. No corpus file writes the name in
+any case. Regenerating the golden digest after the split moved **not one byte**,
+which is the correct result and would have read as a failure to anyone working
+from the bullet.
+
+The record was still wrong and still worth splitting — a false `3-sources`
+agreement signal is a real defect, and it was blocking a merge — but it was not
+the *urgent* one, and it was ranked as urgent because the sentence describing it
+had not been re-checked against the code since the day it was written. Two
+fixes landing on the same day, each correct, left the second one's write-up
+describing a world the first had already changed.
+
+*A consequence written down is a measurement with a date on it. Re-take it
+before letting it order the queue — `check-aliases.mjs` and a `grep` of the
+corpus were the whole cost here, and both were available the entire time.*
+Recorded 2026-08-23.
+
+**A collision that reads as an unavoidable trade-off may be a bad record
+wearing a trade-off's clothes.** `air bike` and `assault bike` on `Bike` were
+written up together as one finding — the price of a modality lump the registry
+cannot express, pinned rather than argued away. They were not one finding. Once
+`Air Bike` was split, Garmin's fan bike claimed `quads` primary with
+`hamstrings`, `glutes` and `calves` assisting: the same claim, muscle for
+muscle, that `Bike` already carried. Nothing would spread and nothing had to be
+thrown away, so it merged and the collision closed. What made it look like the
+`Assault Bike` case was the *shape* of the pair — a machine name colliding with
+the lump that covers it — not anything checked about the record underneath.
+
+*Before writing "neither move is an improvement", check whether the record on
+one side is sound. A standoff between two good records is a debt; a standoff
+where one side is a false merge is a bug with a debt written over it.* Recorded
+2026-08-23.

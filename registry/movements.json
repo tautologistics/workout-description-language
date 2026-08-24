@@ -1814,6 +1814,9 @@
     "echo bike",
     "fan bike"
    ],
+   "sameAs": [
+    "air-bike"
+   ],
    "muscles": {
     "primary": [
      "quads"

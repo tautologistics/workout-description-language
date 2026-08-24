@@ -11,10 +11,14 @@ when something looks odd before treating it as a discovery.
   fixed *who wins* rather than merging them: an explicit alias now outranks a
   record's own id, so the curator's claim on a contested spelling beats an
   imported record that merely happens to be named after it. `Squat` is
-  `air-squat`, not the barbell `squat`; `Air Bike` is `bike`, and that pair is
-  the trap — the imported `air-bike` record is the abdominal exercise, not the
-  machine. `node scripts/check-aliases.mjs` prints all fourteen with which
-  record wins and why.
+  `air-squat`, not the barbell `squat`; `Air Bike` was `bike`, and that pair was
+  the trap — the imported `air-bike` record was the abdominal exercise, not the
+  machine, so ranking was answering rightly for the wrong reason. *Corrected
+  2026-08-23: the trap is gone. The abdominal exercise was split out into
+  `Bicycle Crunch` and the machine merged into `Bike`, so one record now answers
+  and it is the right one. One of the fourteen is left contested —
+  `assaultbike`.* `node scripts/check-aliases.mjs` prints what is left with
+  which record wins and why.
 
   What is still owed is the **curation** half: each pair needs a written verdict
   saying whether the two records are the same movement, and `dumbbellbicepscurl`
@@ -685,22 +689,36 @@ when something looks odd before treating it as a discovery.
   | `block-deadlift` / `rack-pull` | **Not one movement.** Alias withdrawn. A rack pull is off the pins of a power rack, a block deadlift off blocks under the plates; the bar starts at a different height off a different surface. Every gym conflates them and the registry should not. Withdrawing the alias also cleared the plural shadow, where `Rack Pulls` depluralized onto `block-deadlift` and made `rack-pull` unreachable by its own plural. |
   | `american-swing` / `kettlebell-swing` | **Not one movement.** Alias withdrawn. The American swing finishes overhead; that is the whole difference and it is what the name is for. It is a *variant*, and `russian swing` — which really is the standard swing under another name — stays an alias, which is the distinction the two spellings exist to draw. |
   | `assault-bike` / `bike` | **Open, and pinned.** See below. |
-  | `air-bike` / `bike` | **Open, and pinned.** See below. |
+  | `air-bike` / `bike` | **One movement.** Merged 2026-08-23, once the split below left `Air Bike` holding only the fan bike. See below. |
 
-  **Both open ones are `Bike`, and they are one finding rather than two.**
-  `Bike` is not a movement but a *modality* — a curated lump over the erg, the
-  fan bike and the road, with `air bike`, `airdyne`, `assault bike`, `bike erg`,
-  `echo bike` and `fan bike` all aliases of it on purpose. Absorbing one machine
-  into a lump spreads that machine's muscles over all of them: merging
-  `Assault Bike` put Garmin's `chest` claim onto six corpus workouts, a 40km
-  ride among them. Today the claim is correctly confined to whoever writes
-  `Assault Bike`, and the merge would have leaked it. `Air Bike` fails the same
-  way and worse, because that record is itself a false merge — the next entry.
+  **Both were `Bike`, and they were never the same finding.** `Bike` is not a
+  movement but a *modality* — a curated lump over the erg, the fan bike and the
+  road, with `air bike`, `airdyne`, `assault bike`, `bike erg`, `echo bike` and
+  `fan bike` all aliases of it on purpose. Absorbing one machine into a lump
+  spreads that machine's muscles over all of them: merging `Assault Bike` put
+  Garmin's `chest` claim onto six corpus workouts, a 40km ride among them.
+  Today the claim is correctly confined to whoever writes `Assault Bike`, and
+  the merge would have leaked it. That one stays open.
 
-  Both aliases are correct English that people write, so neither is withdrawn.
-  **The collision is the price of a lump the registry cannot express**, and what
-  is actually missing is a way to say "these names are one modality, and each
-  keeps its own muscles". Pinned in `fold.test.ts` rather than argued away.
+  *Corrected 2026-08-23: `Air Bike` was filed here as "the same finding, and
+  worse". It was not the same finding at all. It was a false merge wearing a
+  modality collision's clothes, and once the split below took the bicycle crunch
+  out, what was left was Garmin's fan bike claiming `quads` primary with
+  `hamstrings`, `glutes` and `calves` assisting — **the same claim, muscle for
+  muscle, that `Bike` already carries from Garmin and from the curator.** There
+  was nothing left to leak, so `sameAs` on `Bike` absorbed it and the collision
+  closed. `Bike`'s derived muscles and its per-source `support` counts came out
+  byte-identical; it kept `BIKE_OUTDOOR/BIKE` as its Garmin mapping, which is
+  what "Air Bike" already exported before the merge, since the alias outranked
+  the record. The difference between the two machines is Garmin's, not ours: it
+  gives the assault bike a `chest` claim and the air bike none, and the registry
+  does not use identity to correct a source.*
+
+  `assault bike` is correct English that people write, so the alias is not
+  withdrawn. **That collision is the price of a lump the registry cannot
+  express**, and what is actually missing is a way to say "these names are one
+  modality, and each keeps its own muscles". Pinned in `fold.test.ts` rather
+  than argued away.
 
   **What the merges cost, stated because it is not free.** Eight corpus files
   move in muscle attribution — and *only* in muscle attribution: the golden
@@ -737,13 +755,15 @@ when something looks odd before treating it as a discovery.
   what `sameAs` is for. Pinned by name in `fold.test.ts`, because a resolution
   that goes from `ambiguous` to correct leaves no other trace.
 
-- **`Air Bike` is one record holding two different exercises.** Found 2026-08-22.
-  Garmin's `INDOOR_BIKE/AIR_BIKE` is the fan bike; free-exercise-db's `Air_Bike`
-  and everkinetic's `0284` are the *bicycle crunch* — "lie flat on the floor
-  with your lower back pressed to the ground". The result claims `abs` and
-  `quads` as primaries and scores `core` on `3-sources` — a signal that reads as
-  three catalogues agreeing when it is three catalogues being merged by their
-  spelling. `Bicycle Crunch` is separately a record of its own.
+- **~~`Air Bike` is one record holding two different exercises.~~ Fixed
+  2026-08-23, by the first *split* the pipeline has ever had.** Found
+  2026-08-22. Garmin's `INDOOR_BIKE/AIR_BIKE` is the fan bike;
+  free-exercise-db's `Air_Bike` and everkinetic's `0284` are the *bicycle
+  crunch* — "lie flat on the floor with your lower back pressed to the ground".
+  The result claimed `abs` and `quads` as primaries and scored `3-sources` for
+  it — a signal that reads as three catalogues agreeing when it is three
+  catalogues being merged by their spelling. `Bicycle Crunch` was separately a
+  record of its own.
 
   This is the failure mode the merge was built to avoid, arriving from the
   direction nobody guarded: the veto lists in `find-duplicates.mjs` and
@@ -759,9 +779,36 @@ when something looks odd before treating it as a discovery.
   means", which is a different mechanism in a different script from `sameAs`,
   and `sameAs` cannot express it: it merges records, and this needs one split.*
 
-  This is what holds the `airbike` collision open. Merging `Air Bike` into
-  `Bike`, as the curated alias asks, would pull an abdominal exercise's muscles
-  onto every bike in the corpus.
+  **What landed.** `NOT_WHAT_THE_NAME_MEANS` in `build-movements.mjs`, keyed on
+  `source:upstream-id` — the entry, not the record, because the name is the
+  thing that is wrong — and valued by the title of the record the entry actually
+  belongs to. `free-exercise-db:Air_Bike` and `everkinetic:0284` now say
+  `Bicycle Crunch`. `origin` still records the name each source used, so the
+  correction reads as a correction rather than as tidied-away history:
+  `bicycle-crunch` carries `free-exercise-db: { id: Air_Bike, name: "Air Bike" }`
+  in plain sight. It lives in the script and not in `registry/movements.json`
+  because it is not a fact about a movement and has no record to hang off — it
+  is a correction to a source, and that script is where the sources are read.
+  A directive that matches no entry, or names a record no source produced, exits
+  the build with a message, for the reason an unresolved `sameAs` does: the
+  symptom of a dead directive is the false merge still sitting there.
+
+  `Bicycle Crunch` went from two sources to four (`abs` now [4,0] in `support`);
+  `Air Bike` went to Garmin alone, and was then absorbed into `Bike` — see the
+  collision table above for why that was safe and why `Assault Bike` still is
+  not. Both ends are pinned in `fold.test.ts`.
+
+  **The corpus consequence this was carrying was already gone, and the entry did
+  not say so.** *Corrected 2026-08-23: "`Air Bike` in a workout gets an
+  abdominal exercise's muscles" stopped being true the day `resolve` learned to
+  rank an explicit alias above a record's own id — `Bike`'s curated `air bike`
+  outranked the `air-bike` record from then on, and `check-aliases.mjs` had been
+  printing the `*` on `bike` ever since. No corpus file writes the name in any
+  case. Regenerating the golden digest after the split moved **nothing**, which
+  is the right answer and not a sign the split did nothing: what it fixed was a
+  false `3-sources` agreement signal and a merge the collision was blocking.
+  The cost of the wrong sentence was that this sat at the top of the queue as
+  the oldest item "with a corpus consequence" when it had none.*
 
 - **`scripts/find-duplicates.mjs` cannot see a near-duplicate inside our own
   registry, by construction.** Established 2026-08-22 by checking the pairs it
