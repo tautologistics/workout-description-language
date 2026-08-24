@@ -55,6 +55,7 @@ dumbbell-thruster:
 
   # naming
   aliases: [db-thruster]
+  sameAs: [dumbbell-thrusters-2]     # this record and that one are one movement (§2.2a)
 
   # classification — serves balance analysis and substitution only
   pattern: [squat, vertical-push]
@@ -72,6 +73,38 @@ dumbbell-thruster:
   external:
     fit_category: SQUAT
 ```
+
+### 2.2a `sameAs`: two records, one movement
+
+An alias says **how a name resolves**. It does not say two records are the same
+thing, and reading it as if it did merges records that are not one: `Air Squat`
+claims the alias `squat`, and an imported barbell `Squat` is a different
+movement that happens to answer to the same word. The alias pass rejected
+fourteen candidates on that rule in one sitting; had aliases merged, all
+fourteen would have merged silently.
+
+So saying *these two records are one movement* has its own field. `sameAs` lists
+**ids**, because an id is what every other cross-reference points by and a name
+is the thing that failed to match in the first place. It is a claim only the
+curated layer may make — no import is trusted to say two of its own are the
+same — and it is a directive rather than a fact about a record:
+`scripts/dedupe-movements.mjs` absorbs what it names, records the absorption
+under `asserted` in `registry/dedupe-audit.json`, and then deletes the field, so
+no record in the merged corpus carries one. The tombstone rule in §8 does the
+rest: the absorbed record's title survives as an alias of the survivor, so every
+name that resolved before still resolves.
+
+A `sameAs` naming an id the corpus does not hold **fails the build by name**. An
+assertion that quietly does nothing would leave a collision that was supposed to
+be gone, with no way to tell that from success — the same silence the field
+exists to end. Where the two records sit in different variation families the
+merge still happens and the pass says so on stdout, because a family is inferred
+from a source's variation group and `sameAs` is a curator overriding exactly
+that kind of inference.
+
+It is needed because every other route to a merge compares *names*, and two
+records for one movement that were never named alike — `Overhead Press` and
+`Shoulder Press` — are exactly the pair no comparison of names can reach.
 
 ### 2.3 Quantity is not a movement property
 
