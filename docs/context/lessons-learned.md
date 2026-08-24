@@ -721,3 +721,15 @@ value beside it.* The suite could not have found this: it asserts the two number
 in two different files, and nothing asked them the same question at the same
 time. Recorded 2026-08-23, and it is [the builder pane](builder-ux.md) finding a
 core bug for the third time.
+
+**A field that conflates is usually conflating something a layer below it.** The
+same cap defect, found independently on a second branch, and what that reading
+added is *where* to split. The fix looks like it belongs in `run()`, because
+`run()` is where the wrong word was printed — but `run()` was reading
+`estimatedSeconds`, and `estimate()` in `timeline.ts` had already thrown the
+distinction away, returning `item.cap` for work no clock measures and a real sum
+for work it does, through the same `return`. Splitting at the place the wrong
+word appears would have left the two values already merged one call down.
+*Fix a conflated field where the two values are still apart, not where somebody
+noticed.* Recorded 2026-08-23, from the branch whose implementation was not the
+one taken — the observation outlived the code.

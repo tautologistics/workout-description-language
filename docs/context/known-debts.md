@@ -89,6 +89,20 @@ when something looks odd before treating it as a discovery.
   stands in for the other; the builder and `wdl timeline` say `duration:
   athlete-paced` and `cap: 12:00 at most` on two rows. See
   [what-exists.md](what-exists.md).
+- **A cap that bounds only part of the workout surfaces as nothing at all.**
+  `spineCap()` counts a cap only where it and every group above it is an only
+  child, the same rule `window` follows, so `for time, cap 12min:` beside a
+  five-minute run reports no cap — and that workout genuinely is *at most
+  seventeen minutes*. The competing branch closed on 2026-08-23 argued the rule
+  is wrong for this fact: a window and a loop do not compose, because putting a
+  20-minute AMRAP beside a run gives no clock covering both, but an at-most
+  **aggregates** — every sum a ceiling feeds into is a ceiling. Its conclusion
+  was that the general rule is *whatever composition the fact actually has*, and
+  that the spine is merely what that comes to for facts which cannot compose.
+  Recorded rather than acted on: the spine rule is what the merged code does and
+  what its tests pin, and changing it means deciding what a partial bound should
+  say on a surface that today has one row for the whole workout. The argument is
+  the expensive half and would have been lost with the branch.
 
 - ~~**An unrecognized `measure:` in a goal file was silently swapped for the
   default.**~~ **Closed 2026-08-19.** `DIMENSIONS[written] ?? fallback` meant
