@@ -116,9 +116,25 @@ WDL {
                | durationQty spaces maxWord ~letter spaces              -- clockMax
                | maxWord ~letter spaces                                 -- max
                | setsByReps spaces                                      -- setsByReps
+               | unreadableRange spaces                                 -- unreadableRange
                | anyQuantity spaces                                     -- plain
 
   maxWord = caseInsensitive<"max">
+
+  // `100-150ft Farmers Carry` — a range is a rep range (spec §3's unit table
+  // says so, in so many words), and a range with a unit stapled on is a shape
+  // the language does not have a reading for. Matched here, ahead of
+  // `anyQuantity`, so it is *caught* rather than left to fall through: with no
+  // rule claiming it, `100-150ft` was not a quantity at all, so the whole
+  // token — number, dash and unit alike — became the front of the movement
+  // name, `wdl check` never saw a quantity to be missing, and `wdl fmt`
+  // pluralized text nobody meant as a noun. This does not teach the range a
+  // unit; it only stops the silence, so `unreadableRange` reads as `open` with
+  // the raw text kept in `Step.unknown` — the same held-and-reported treatment
+  // an unrecognized comma modifier already gets (see `step-semantics.ts`).
+  // Whether a range *should* carry a unit is queue item 5's other half, left
+  // open in docs/context/ready-to-pick-up.md.
+  unreadableRange = integer "-" integer letter+ ~wordChar
 
   // `5x5 Back Squat`, `3x10 Curl` — **sets** times **reps**, in that order,
   // which is how a gym writes it and how spec §1's own design rule 4 writes it.

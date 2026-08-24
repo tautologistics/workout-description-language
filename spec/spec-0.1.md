@@ -164,6 +164,8 @@ Accepted spellings: `<` / `>` or `below` / `above` / `under` / `over`, and `bpm`
 
 A rep range (`8-12`) is a step quantity; the same shape with a trailing colon (`21-15-9:`) is a block-level rep scheme. A range must ascend, which is what keeps `15-9` from being read as one.
 
+**A range does not carry a unit.** `8-12` is a rep range; `100-150ft` — a carry, or a rest, written as a band rather than a single figure — is not read at all. This is deliberate rather than an omission: reading it would mean every consumer of a rep range learning to handle a distance or duration range too, and that is a larger question than this line's parsing, left open in the roadmap. What is not deliberate is silence — `100-150ft Farmers Carry` is *reported*, at the `note` severity unrecognized text already carries (§12), rather than swallowed into the movement name the way it was before this was stated. `wdl check` names it; `wdl fmt` keeps it verbatim, after a comma, rather than folding it into a pluralized movement name.
+
 ```
 - 5+ Back Squat @ 85% TM       // 5/3/1 final set
 - max Pull-Up                   // remainder of enclosing clock
