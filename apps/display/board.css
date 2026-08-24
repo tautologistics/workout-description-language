@@ -76,6 +76,11 @@ header .sub {
 
 header .clock { text-align: right; flex: none; }
 
+header .bodymap { align-self: center; flex: none; }
+@media (max-width: 700px) {
+  header .bodymap { display: none; }   /* the clock and the cursor earn the room first */
+}
+
 header .time {
   font-size: 6.4vmin;
   font-weight: 600;

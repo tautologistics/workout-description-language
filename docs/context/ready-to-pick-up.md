@@ -856,50 +856,27 @@ distinction has to hold up against. 1791 → 1797 passing, 1 pending.
 *Touched: `packages/core/src/ast.ts`, `units.ts`, `spec/spec-0.1.md` §3, §7,
 `test/golden/vocabulary.ts`, `test/muscles.test.ts`.*
 
-**7. A body map in the builder and on the board.** Front and back of a body, with
-the muscle groups the workout hits drawn on it. Not high priority — this is a
-*view*, and every number it would draw already exists. Raised 2026-08-16.
-
-**The data layer is done, which is why this is a rendering job and not a
-project.** `registry/muscles.json` is a closed 19-muscle vocabulary
-(`Chest, Shoulders, Biceps, Triceps, Forearms, Lats, Mid-back, Traps, Neck, Abs,
-Obliques, Erectors, Hip flexors, Glutes, Quads, Hamstrings, Calves, Adductors,
-Abductors`) grouped into three regions, every muscle carrying the synonyms five
-upstream sources spell it by; `muscles.ts` attributes a workout's steps to it and
-`volume.ts` gives per-muscle volume. **The missing piece is one artefact: an SVG
-body with a path per muscle, id-matched to that vocabulary.** Because the
-vocabulary is *closed* and a build script fails on anything outside it, the SVG
-cannot silently drift out of step with the registry — which is what makes this
-worth doing as a drawing rather than as a feature.
-
-Four things to show, and they are not the same picture:
-
-- **Aggregate, in the builder** — everything the whole workout hits, so the shape
-  of a session is visible at a glance while writing it.
-- **Per-movement highlight** — selecting or hovering a movement in the palette or
-  the outline lights up what *it* hits. The interesting version is the one asked
-  for: light it **against** the aggregate rather than on its own, so the question
-  answered is "what does this add to what I already have" rather than "what does
-  this movement do".
-- **A heat map** — intensity by how much a group is worked, not merely whether it
-  is. Decide what the scale is: `volume.ts` gives reps × load, which is the honest
-  answer for loaded work and says nothing useful about a carry or a hang (see
-  items 5 and 6 — a step with a range quantity and a qualitative load contributes
-  *nothing*, so it would read as cold, which is worse than uncoloured). Frequency
-  is cruder and always available. It probably needs both, and it needs to
-  distinguish "not worked" from "cannot be measured".
-- **On the board, while a session runs** — the whole workout's map as a constant,
-  with the current movement emphasised on top of it. The board already knows the
-  position, so this is the same two layers as the builder's, driven by the cue
-  index instead of by a selection.
-
-The one design question worth settling before drawing anything: **a movement hits
-its muscles at different weights** (primary vs secondary — `muscles.ts` already
-distinguishes them, and the goals file's `level: any` keys off it). Whether the
-map shows that as opacity, as two colours, or not at all decides how much the
-picture can say before it starts lying.
-*Touches: a new asset (the SVG), `apps/builder/`, `apps/display/`, and reads from
-`muscles.ts` / `volume.ts` — no core change expected.*
+**7. ~~A body map in the builder and on the board.~~ DONE 2026-08-23.** Front and
+back, one stylised SVG path per muscle in `apps/shared/body-map.js`, id-matched
+to `registry/muscles.json`'s 19-muscle vocabulary — 10 muscles drawn on the front
+view, 9 on the back, each exactly once. Pure rendering and pure state functions
+(`aggregateStates`, `highlightStates`, `heatStates`) over what `exposures()`,
+`musclesFor()` and `muscleLoad()` already report, so no core change was needed,
+as scoped. All four views landed: the builder's **aggregate** (a "Body" panel
+under "What it reads as"), **per-movement highlight** against it from hovering
+either the palette or an outline row, a **heat map** toggling `frequency` vs
+`volume` with a hatch pattern for "worked but this measure does not apply", and
+the **board's header**, the same aggregate/highlight pair driven by the cue
+cursor. The design question — opacity, two colours, or nothing for primary vs
+secondary — is settled as opacity; see
+[settled-decisions.md](settled-decisions.md), which also carries the heat-scale
+decision the item asked for. One touch outside the stated scope: the board's
+`canonicalMovements` fetch, previously lazy, is now eager (not awaited) because
+the map wants an attribution for every cue; see
+[known-debts.md](known-debts.md).
+*Touched: `apps/shared/body-map.js` (new), `apps/shared/body-map.css` (new),
+`apps/builder/index.html`, `apps/builder/builder.js`, `apps/builder/builder.css`,
+`apps/display/index.html`, `apps/display/board.js`, `apps/display/board.css`.*
 
 **8. ~~An alias pass over the core.~~ DONE 2026-08-22, with a residue.** The
 registry held 278 aliases across 219 of 3120 movements, 117 of the 178 core.
@@ -1140,9 +1117,12 @@ neither branch's own paragraph saw the other land. Closed so far: the whole
 0-series, 1, 1a, 2, 3, 4, 5, 6, 8 and 8a, so **the open numbered items are 7 and
 9**.*
 
-*Corrected again 2026-08-23, closing item 9: closed so far is the whole
-0-series, 1, 1a, 2, 3, 4, 5, 6, 8, 8a and 9, so **the only open numbered item is
-7**.*
+*Corrected a third time 2026-08-23, at the merge to `main`: items 7 and 9 both
+closed the same day, on two branches merged together, so neither branch's own
+paragraph saw the other land — the same shape as the 5/6 merge above. Closed
+so far: the whole 0-series, 1, 1a, 2, 3, 4, 5, 6, 7, 8, 8a and 9 — **every
+numbered item raised so far is closed.** The next task is whatever gets found
+or raised next, not a number waiting here.*
 
 **Nobody has run a session off the board.** Everything is verified by tests and
 by driving the UI. Every defect Chris has caught by *looking* — `21 Thruster`,

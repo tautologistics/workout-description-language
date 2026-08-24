@@ -1,0 +1,35 @@
+/*
+ * Shared by the builder and the board. Reads the host page's own `--rule` and
+ * `--dim` custom properties rather than defining a palette of its own, so the
+ * idle figure and the hatch both sit at the right contrast in whichever theme
+ * the page is in. Colour for a painted muscle is set inline, per view — see
+ * `body-map.js` — because the builder and the board each pick their own
+ * accents for "aggregate" versus "highlight".
+ */
+
+.bodymap { display: flex; gap: .7rem; align-items: flex-start; }
+.bodymap .mm-view { display: flex; flex-direction: column; align-items: center; gap: .15rem; }
+.bodymap svg { width: 78px; height: 156px; display: block; }
+.bodymap .mm-label {
+  font-size: .62rem; letter-spacing: .04em; text-transform: uppercase; color: var(--dim, #888);
+}
+
+.bodymap .mm-scenery > * { fill: var(--rule, #ccc); opacity: .5; stroke: none; }
+
+.bodymap path[data-muscle] {
+  fill: var(--rule, #ccc);
+  opacity: .26;
+  stroke: var(--dim, #888);
+  stroke-width: 1;
+  transition: fill .12s ease, opacity .12s ease;
+}
+
+/* Worked, but this view's number does not apply to it — a carry, a hold, a
+   max effort under the volume heat scale. Distinct from "not worked" (idle,
+   above) and from a real heat colour, on purpose: see `heatStates` in
+   body-map.js. */
+.bodymap .mm-unmeasured { fill: url(#mm-hatch) !important; }
+
+.bodymap.small { gap: .4rem; }
+.bodymap.small svg { width: 44px; height: 88px; }
+.bodymap.small .mm-label { display: none; }

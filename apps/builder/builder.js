@@ -31,6 +31,8 @@ import { validate } from '../../build/web/core/validate.js';
 import { run, roundLabel } from '../../build/web/core/run.js';
 import { provide, has } from '../../build/web/core/env.js';
 import { parseGoals, check } from '../../build/web/core/goals.js';
+import { exposures, muscleLoad, musclesFor } from '../../build/web/core/muscles.js';
+import { mountBody, paintBody, aggregateStates, highlightStates, heatStates, heatColor } from '../shared/body-map.js';
 
 const GRAMMAR = '../../spec/grammar-0.1.ohm';
 const REGISTRY = '../../registry/movements.json';
@@ -120,6 +122,7 @@ function render(focusLine) {
   renderOutline();
   renderReading();
   renderFindings();
+  renderBody();
   const link = el('board');
   link.href = `../display/#${encodeURIComponent(text())}`;
 }
@@ -129,6 +132,20 @@ function renderOutline() {
   outline.innerHTML = '';
   const parsed = parse(text());
   const badLines = new Set(parsed.errors.map((e) => e.line));
+
+  // Which movement a line prescribes, if any, for the body map's outline
+  // hover — the AST's own line numbers, not the outline's, because a rep
+  // scheme step and its outline row do not always number the same way an
+  // inline block does.
+  const movementOf = new Map();
+  const collect = (nodes) => {
+    for (const n of nodes) {
+      if (n.node === 'step') movementOf.set(n.line, n.movement);
+      else if (n.node === 'block') collect(n.children);
+      else if (n.node === 'interrupt') collect(n.body);
+    }
+  };
+  collect(parsed.workout.body);
 
   const walk = (nodes, depth) => {
     for (const n of nodes) {
@@ -160,6 +177,7 @@ function renderOutline() {
         el('text').value = text();
         renderReading();
         renderFindings();
+        renderBody();
       });
       input.addEventListener('change', () => render(n.line));
       input.addEventListener('focus', () => { focused = n.line; });
@@ -213,6 +231,12 @@ function renderOutline() {
           insert(anchor, e.dataTransfer.getData('text/wdl-movement'));
         }
       });
+
+      const movement = movementOf.get(n.line);
+      if (movement) {
+        node.addEventListener('mouseenter', () => hoverBody(musclesFor(movement) ?? { primary: [], secondary: [] }));
+        node.addEventListener('mouseleave', unhoverBody);
+      }
 
       node.append(rails, input, tools);
       outline.append(node);
@@ -350,6 +374,55 @@ function renderReading() {
   el('dirty').hidden = text() === format(workout);
 }
 
+// --- the body map --------------------------------------------------------------
+
+const AGG_COLOR = 'var(--accent)';
+const HI_COLOR = 'var(--ask)';
+
+mountBody(el('bodymap'));
+
+/**
+ * Which movement, if any, to show against the aggregate — set by hovering a
+ * palette entry or an outline row, cleared on mouseleave. `null` means "just
+ * the aggregate", which is also what a compile error or a missing muscle
+ * registry falls back to.
+ */
+let hoverMovement = null;
+
+const HINTS = {
+  aggregate: 'Opacity: solid is a primary mover, faint is a muscle a step only assists. '
+    + 'Hover a movement in the palette or the outline to see what it would add.',
+  'heat-frequency': 'How many steps touch each muscle, primary or secondary — always defined.',
+  'heat-volume': 'Reps attributed to each muscle. Hatched means the muscle was worked but by a '
+    + 'carry, a hold or a max effort — none of which have a rep count to show.',
+};
+
+function renderBody() {
+  const mode = el('body-mode').value;
+  el('body-hint').textContent = HINTS[mode];
+  const box = el('bodymap');
+  if (!has('muscles') || !has('canonicalMovements')) { paintBody(box, {}); return; }
+
+  const { workout } = parse(text());
+  let timeline;
+  try { timeline = compile(workout); } catch { paintBody(box, {}); return; }
+
+  const list = exposures(timeline).list;
+  if (mode === 'aggregate') {
+    paintBody(box, hoverMovement
+      ? highlightStates(list, hoverMovement, AGG_COLOR, HI_COLOR)
+      : aggregateStates(list, AGG_COLOR));
+    return;
+  }
+  const report = muscleLoad(timeline);
+  paintBody(box, heatStates(report.byMuscle, mode === 'heat-frequency' ? 'frequency' : 'volume', heatColor));
+}
+
+const hoverBody = (attribution) => { hoverMovement = attribution; renderBody(); };
+const unhoverBody = () => { hoverMovement = null; renderBody(); };
+
+el('body-mode').addEventListener('change', renderBody);
+
 // --- wiring ------------------------------------------------------------------
 
 el('text').addEventListener('input', () => {
@@ -358,6 +431,7 @@ el('text').addEventListener('input', () => {
   renderOutline();
   renderReading();
   renderFindings();
+  renderBody();
   el('board').href = `../display/#${encodeURIComponent(text())}`;
 });
 
@@ -539,6 +613,9 @@ function renderPalette() {
       e.dataTransfer.setData('text/wdl-movement', lineFor(m));
       e.dataTransfer.effectAllowed = 'copy';
     });
+    item.addEventListener('mouseenter', () =>
+      hoverBody({ primary: m.muscles?.primary ?? [], secondary: m.muscles?.secondary ?? [] }));
+    item.addEventListener('mouseleave', unhoverBody);
     box.append(item);
   }
   const scope = chosen ? 'in this set' : el('search').value.trim() ? 'of all movements' : 'of the core set';
@@ -845,6 +922,7 @@ const analysis = Promise.all([load(CANONICAL), load(MUSCLES)])
     renderMuscleChips();
     renderPalette();
     renderFindings();
+    renderBody();
   })
   .catch((e) => {
     console.warn('no analysis data:', e.message);
