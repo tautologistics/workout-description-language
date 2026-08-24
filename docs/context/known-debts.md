@@ -357,17 +357,18 @@ when something looks odd before treating it as a discovery.
   remains unread and is not the same question: it names a structure to define
   rather than a header to abbreviate.*
 
-- **Open: a qualitative load (`@ heavy`) is held verbatim and means nothing.**
-  `- 150ft Farmers Carry @ heavy` parses to `{kind: 'raw', text: 'heavy'}` — it
-  round-trips, it shows on the board and in the builder, and no analysis can act
-  on it: no volume, no per-muscle load, nothing for `progress` to ramp. That is
-  the same holding answer `@ 95` has (see above) and it is *more* defensible here,
-  because `heavy` genuinely is not a number. But `heavy`, `moderate`, `light` and
-  `unloaded` are a small closed vocabulary that coaches use constantly, and a
-  carry prescribed by feel is not an error — it is the normal way to write a
-  carry. Related but distinct from the unitless-number question: that one is
-  about a missing unit, this one is about a load stated on a different scale
-  altogether. Found 2026-08-15 while encoding a carry circuit. Queued as item 6.
+- ~~**Open: a qualitative load (`@ heavy`) is held verbatim and means
+  nothing.**~~ **Closed 2026-08-23** by queue item 6. `heavy`, `moderate`,
+  `light` and `unloaded` are now a `Load` kind (`qualitative`) alongside
+  absolute, percent, multiple and reference — `- 150ft Farmers Carry @ heavy`
+  parses to `{kind: 'load', load: {kind: 'qualitative', value: 'heavy'}}`
+  rather than falling into `raw`. It still carries no kilograms — `loadKilograms`
+  returns `undefined` for it, the same silence a percentage of an unknown 1RM
+  already has — so volume, `progress` and export are unchanged. What moved is
+  that the step now reads as *loaded* to anything checking for one, where a raw
+  target did not. Spec §7, §3. Related but distinct from the unitless-number
+  question below: that one is a missing unit, this one is a load on a different
+  scale altogether. Found 2026-08-15 while encoding a carry circuit.
 
 - **Open: whether the leading `NxM` spelling should be the *canonical* one.**
   Deliberately not decided while closing the parse defect above, because it is a

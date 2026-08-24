@@ -37,7 +37,18 @@ export type Load =
   | { kind: 'absolute'; value: number; unit?: 'lb' | 'kg'; implements?: number }
   | { kind: 'percent'; value: number; of?: string }    // 75%, 85% TM, 95% FTP
   | { kind: 'multiple'; value: number; of: string }    // 1.5x BW
-  | { kind: 'reference'; name: string };               // 85% of heavy-single
+  | { kind: 'reference'; name: string }                // 85% of heavy-single
+  /**
+   * A load stated on a coach's scale rather than a number — `@ heavy`. A small
+   * closed vocabulary, read exactly like the words a coach says out loud. It
+   * carries no kilograms and never will: `loadKilograms` returns `undefined`
+   * for it on purpose, the same silence a percentage of an unknown 1RM already
+   * has, because inventing a number would be a guess dressed as a measurement.
+   * What it buys over holding the text raw is that a step wearing it is still
+   * a `Load` — visible to anything that asks "was this step given a load" —
+   * rather than falling out of every load-aware check the way free text does.
+   */
+  | { kind: 'qualitative'; value: 'heavy' | 'moderate' | 'light' | 'unloaded' };
 
 export type Target =
   | { kind: 'load'; load: Load }

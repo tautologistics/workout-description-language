@@ -88,6 +88,7 @@ Four rules, and each is separately justified:
 | Load | `95lb` `60kg` `2pood` | `95#`, `95 lbs` |
 | Paired load | `2x24kg` | `2 x 24kg`, `24kg each hand` |
 | Relative load | `75%` `80% 1RM` `85% 3RM` `85% TM` `1.5x BW` | `75 percent` |
+| Qualitative load | `heavy` `moderate` `light` `unloaded` | case-insensitive; canonical is lowercase (§7) |
 | Effort | `RPE 8` `RIR 2` | |
 | Pace | `4:30/km` `2:00/500m` `7:00/mi` `5k pace` | `threshold pace`, `marathon pace` (§8.2) |
 | Power | `250W` `90% FTP` | |
@@ -574,6 +575,23 @@ the space cannot be ignored on the letter side the way it is on the digit side.
 A target that is a bare number with no unit — `@ 95` — is held as written and
 means nothing further. It is 95lb in one gym and 95kg in another, and the format
 does not guess.
+
+A load can also be a word from a small closed vocabulary — `heavy`, `moderate`,
+`light`, `unloaded` — read exactly like a coach says it out loud:
+
+```
+- 150ft Farmers Carry @ heavy
+```
+
+This is a `Load`, not a fallback to raw text: coaches prescribe a carry, a KB
+swing or a build by feel constantly, and that is the normal way to write one
+rather than an omission. It carries no kilograms, on purpose — the same silence
+`85% 1RM` already has when no profile says what the 1RM is — so it contributes
+nothing to volume, to a `progress` ramp, or to an exporter that wants a number.
+What it buys over holding the word as unrecognized text is that the step still
+reads as *loaded*: anything checking whether a step carries a load gets a true
+answer and an honestly-unresolvable value, rather than the target falling out
+of every load-aware check the way free text does.
 
 `spec/grammar-0.1.ohm` states all of this in the `targetGroup` rule, and where
 this prose and that file disagree, that file is right.

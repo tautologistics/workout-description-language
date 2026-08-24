@@ -121,6 +121,18 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     '200m Farmers Carry @ 2x24kg',
     '12 Dumbbell Curl @ 2x35lb',
   ] },
+  // A load on a coach's scale instead of a number — a small closed vocabulary,
+  // read as a `Load` in its own right (item 6) rather than falling into
+  // `raw` the way `@ 95` does. It carries no kilograms, on purpose — same
+  // silence a percentage of an unknown 1RM already has — but it is still
+  // visible to anything asking whether a step was given a load at all.
+  { group: 'target/qualitative', lines: [
+    '150ft Farmers Carry @ heavy',
+    '10 Thruster @ moderate',
+    '20 Kettlebell Swing @ light',
+    '20 Air Squat @ unloaded',
+    '10 Thruster @ HEAVY',
+  ] },
   { group: 'target/relative', lines: [
     '3 Back Squat @ 85% 1RM',
     '1 Deadlift @ 105% TM',

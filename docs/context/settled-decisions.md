@@ -760,6 +760,39 @@ would be tidier".
   raised again, with a real second caller wanting it.
   *Touched: `spec/grammar-0.1.ohm`, `packages/core/src/grammar/step-semantics.ts`,
   `spec/spec-0.1.md`, `packages/core/test/golden/vocabulary.ts`.*
+- **A qualitative load (`@ heavy`) is a `Load` kind, not raw text — and it stays
+  exactly as unresolvable as the numeric loads that already have no kilogram
+  answer.** Settled 2026-08-23, closing queue item 6. The two candidates were a
+  real fork on paper — teach the language the vocabulary, or state in the spec
+  that a carry prescribed by feel can never contribute to analysis — but reading
+  what `loadKilograms` already does made it not one in practice. `85% 1RM` with
+  no profile and `85% of a name nobody labelled` already return `undefined`
+  rather than a guessed number; `heavy` joining them as a fifth `Load` kind costs
+  nothing new and is the more honest reading, because `heavy` genuinely is not a
+  number standing in disguise — it is a category, the same way `TM` or `FTP` are
+  categories the language holds without resolving.
+
+  **What actually moved is visibility, not resolution.** A raw target and a
+  `Load` target look identical to a person reading the board — both round-trip,
+  both display — but they are not identical to *code*: `heaviest()` in
+  `muscles.ts`, and anything shaped like it, walks `targets` filtering on
+  `t.kind === 'load'`, so a target sitting in `raw` was invisible to every
+  load-aware check by construction, indistinguishable from a step that carries
+  no load at all. Moving it into `Load` does not make it resolvable — it makes it
+  *findable*, so a check built for loads can say "loaded, magnitude unknown"
+  instead of silently skipping the step. Same shape as item 0d's `unknown` field:
+  the fix was a place to be seen, not a way to be understood.
+
+  **This did not reach item 5, and did not need to.** A carry with both a range
+  quantity and a qualitative load (`100-150ft Farmers Carry @ heavy`) is
+  upstream of `targets` entirely, in the quantity grammar, and closing item 6
+  did nothing to it on its own — the two items were raised together because one
+  workout hit both, and closing one was not evidence toward the other. *Correction,
+  merge to `main`: item 5 closed independently the same day (see its entry
+  above), so the combined case now reads correctly on `main` — `Farmers Carry`
+  resolves, `@ heavy` is a `Load` target, and `100-150ft` is reported in
+  `unknown` — but that is item 5's fix doing its own job, not anything this one
+  reaches.*
 
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in

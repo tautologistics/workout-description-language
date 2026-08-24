@@ -92,6 +92,19 @@ describe('exposures: what is worked, in order', () => {
     eq(list.length, 2);
     ok(list.every((e) => !e.cycle), 'nothing in a tally is adjacent to anything');
   });
+
+  it('is unresolvable but not absent for a qualitative load (item 6)', () => {
+    // `@ heavy` reads as a `Load`, same as `@ 95lb` — just one `loadKilograms`
+    // cannot convert. That is different from writing no load at all: the step
+    // still resolves to muscles and still contributes reps, only `load` itself
+    // stays undefined, the same silence a bare percentage already has.
+    const heavy = exposures(t('sequence:\n  - 150ft Farmers Carry @ heavy')).list[0];
+    const none = exposures(t('sequence:\n  - 150ft Farmers Carry')).list[0];
+    eq(heavy.load, undefined);
+    eq(none.load, undefined);
+    eq(heavy.unattributed, false, 'the movement still resolves');
+    eq(heavy.primary, none.primary, 'attribution does not depend on whether the load is a number');
+  });
 });
 
 describe('adjacency', () => {

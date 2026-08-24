@@ -209,6 +209,8 @@ export function parseTarget(text: string): Target {
   if (/^power\s*(zone\s*)?Z?\d$/i.test(t)) return { kind: 'power', text: `power Z${t.match(/(\d)$/)![1]}` };
   if (/^Z\d$|bpm$/i.test(t)) return { kind: 'heartRate', text: t };
   if (/^RPE|^RIR/i.test(t)) return { kind: 'effort', text: t };
+  if (/^(heavy|moderate|light|unloaded)$/i.test(t))
+    return { kind: 'load', load: { kind: 'qualitative', value: t.toLowerCase() as any } };
   return { kind: 'raw', text: t };
 }
 
@@ -224,6 +226,7 @@ export function formatLoad(l: Load): string {
     case 'percent': return l.of ? `${l.value}% ${l.of}` : `${l.value}%`;
     case 'multiple': return `${l.value}x ${l.of}`;
     case 'reference': return `of ${l.name}`;
+    case 'qualitative': return l.value;
   }
 }
 
@@ -250,7 +253,7 @@ export function formatRx(rx: Record<string, Load>): string {
  * comparing loads across executions is the whole reason anything reads one — see
  * `measure: load` in `goals.ts`. One unit, converted once, at the edge.
  *
- * Three loads deliberately have no answer here, and each silence is a fact:
+ * Four loads deliberately have no answer here, and each silence is a fact:
  *
  * - **A percentage or a multiple of bodyweight.** `85% 1RM` is a load only once
  *   an athlete profile says what the 1RM is, and inventing one would make the
@@ -260,6 +263,8 @@ export function formatRx(rx: Record<string, Load>): string {
  *   else; see the `Load` comment in `ast.ts`.
  * - **A reference to a named result** — `85% of heavy-single` — which is a load
  *   the *session* determines (spec §8.3).
+ * - **A qualitative load** — `@ heavy` — which was never a number to begin
+ *   with. See the `qualitative` case in the `Load` comment in `ast.ts`.
  *
  * A paired load is the total carried: `2x24kg` is 24kg in each hand and 48kg in
  * the athlete's hands, which is what spec §3 says the notation means.
