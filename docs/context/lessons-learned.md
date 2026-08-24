@@ -18,6 +18,19 @@ The habit worth copying is not "check the browser"; it is that a hand-typed
 example is drawn from a different distribution than anything already written
 down, which is why it finds what the suite cannot.
 
+**A ranking between two kinds of name has to survive the plural.** Reversing
+the resolver's two tiers on 2026-08-23 so an explicit alias beats a record's own
+id was correct, resolved every contested name the way the curator meant, and
+immediately split `Squat` from `Squats` onto two different movements — because
+the imported record carries its own plural in `aliases`, so the plural matched
+the *alias* tier on one record while the singular matched it on the other. A
+reordering is not a local change: it changes which tier every *derived* spelling
+lands in too. The fix is that a regular self-plural is not a name the registry
+needs to hold — `depluralize` reconstructs it — so it is not indexed at all.
+*It was caught by a test rather than by thinking, and by the one test written
+for exactly this: `never changes which movement a name resolves to`. Second time
+it has paid.*
+
 **An absent field is not a claim.** 64 movements had no equipment declared, and
 `usable()` read that as bodyweight — so "generate for a dumbbell and a pull-up
 bar" returned a workout with a sandbag carry in it. Absent means absent.

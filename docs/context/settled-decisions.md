@@ -579,6 +579,48 @@ would be tidier".
   open in [known-debts.md](known-debts.md) rather than lost, because the two
   branches agreed on everything except this and only one of them can be true.
 
+- **An explicit alias outranks a record's own id.** Settled 2026-08-23, closing
+  queue item 8, and it is the *reverse* of the order
+  [../movement_registry_design.md](../movement_registry_design.md) §3 had stated
+  since it was written. The two are not the same kind of statement: a record's
+  id and title say what *that record* is called, while an alias is a curator
+  answering the question actually being asked — when somebody writes this
+  spelling, whom do they mean. Where both answer, only one of them was written
+  about the contested name.
+
+  **The old order made the answer an accident of upstream naming.** In a merged
+  corpus, whether a record's id happens to be the contested spelling is a fact
+  about what Garmin called a row, not about movement. `Squat` found an imported
+  record whose id is `squat`, equipment `Barbell`, and threw away `air-squat`'s
+  alias saying a bare squat is the bodyweight one. Fourteen names went that way,
+  and **all fourteen id-holders were imported and all fourteen alias-holders
+  curated** — the rule and the provenance agree on every case in the data.
+
+  **It was decided on the rule, not on the provenance, and that was the
+  choice.** "A curated record's alias beats an imported record's id" reads more
+  cautious and is worse: `sources` is written by the merge pipeline and
+  `registry/movements.json` carries none of it, so in the very registry
+  `validate` consults every record would count as imported and the rule would
+  invert itself silently. Provenance-blind behaves identically in both
+  registries and needs no field that `MovementEntry` does not have.
+
+  **Silence was the actual defect.** An id match is a hit, so the `ambiguous`
+  branch §3 calls the whole point of the resolver could never be reached, and
+  the curated registry and the merged corpus disagreed about `Squat` with
+  nothing to say so. After the change the two agree on thirteen and the
+  fourteenth is `ambiguous` on purpose — the merged corpus may now decline to
+  answer where the curator has, but it may not contradict, and a test asserts
+  that. `Registry.validate()` reports only what no rule can decide.
+
+  **A record's own plural is not an alias, and finding that out was the cost.**
+  Reversing the tiers first split `Squat` from `Squats`: the imported record
+  carries `Squats` in its own `aliases`, so the plural hit the alias tier while
+  the singular hit it on the other record. A regular self-plural is exactly what
+  `depluralize` reconstructs, so it is not indexed at all and the plural now
+  takes the same path as the singular. Caught by the pinned test that exists for
+  precisely this — *never changes which movement a name resolves to* — which is
+  the second time that test has earned its place.
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).

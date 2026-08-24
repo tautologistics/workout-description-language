@@ -79,6 +79,70 @@ describe('registry', () => {
     eq(r.status === 'ok' ? r.via : '', 'tokens');
   });
 
+  // Two records answering to one name is ordinary in a merged corpus, and none
+  // of the pairs below is a duplicate — known-debts.md carries the verdict on
+  // each, and `Air Bike` is the trap: the imported record is the abdominal
+  // exercise, not the machine. What would be a defect is a *new* collision
+  // arriving unnoticed, or one of these quietly changing its mind about who
+  // wins. `resolve` ranks an explicit alias above a record's own id, so a
+  // curator's claim on a contested spelling beats an imported record that
+  // merely happens to be named after it; the right-hand column is that answer.
+  //
+  // `node scripts/check-aliases.mjs` prints this table with the reasoning.
+  it('has only the known alias collisions in the canonical corpus', () => {
+    const canon = canonicalRegistry();
+    const KNOWN: Record<string, string> = {
+      airbike: 'bike',
+      americanswing: 'kettlebell-swing',
+      assaultbike: 'bike',
+      bodyweightsquat: 'air-squat',
+      dumbbellbicepcurl: 'dumbbell-curl',
+      // The only one no rule can answer: both records hold it as an alias and
+      // neither as its name, so there is nothing to rank. It was ambiguous
+      // before the ranking existed too.
+      dumbbellbicepscurl: 'ambiguous',
+      farmerswalk: 'farmers-carry',
+      lsit: 'l-sit-hold',
+      lunge: 'walking-lunge',
+      overheadpress: 'shoulder-press',
+      pistolsquat: 'pistol',
+      rackpull: 'block-deadlift',
+      squat: 'air-squat',
+      strictpress: 'shoulder-press',
+    };
+
+    const holders = new Map<string, Set<string>>();
+    for (const e of canon.entries) {
+      for (const name of [e.id, e.title, ...(e.aliases ?? [])]) {
+        const k = fold(name);
+        if (!k) continue;
+        if (!holders.has(k)) holders.set(k, new Set());
+        holders.get(k)!.add(e.id);
+      }
+    }
+    const contended = [...holders].filter(([, ids]) => ids.size > 1).map(([k]) => k).sort();
+    eq(contended, Object.keys(KNOWN).sort(), 'names claimed by more than one record');
+
+    const answers = Object.fromEntries(contended.map((k) => {
+      const r = canon.resolve(k);
+      return [k, r.status === 'ok' ? r.entry.id : r.status];
+    }));
+    eq(answers, KNOWN, 'who wins each contested name');
+
+    // The defect this ranking fixes was never that a name was contested. It was
+    // that the two registries answered differently and nothing said so: `Squat`
+    // was Air Squat to `validate`, which reads the curated file, and a barbell
+    // Squat to the muscle analysis, which reads this one. Where the curator has
+    // answered, the corpus may decline to answer but may not contradict.
+    for (const name of contended) {
+      const a = defaultRegistry().resolve(name);
+      if (a.status !== 'ok') continue;
+      const b = canon.resolve(name);
+      ok(b.status === 'ambiguous' || (b.status === 'ok' && b.entry.id === a.entry.id),
+         `${name}: curated says ${a.entry.id}, canonical says ${JSON.stringify(b)}`);
+    }
+  });
+
   it('reports ambiguity rather than guessing', () => {
     const amb = new Registry([
       { id: 'row', title: 'Row', aliases: ['erg'] },

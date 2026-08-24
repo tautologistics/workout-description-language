@@ -915,6 +915,74 @@ is why the two halves of this item are one job.
 *Touches: `registry/movements.json`, `scripts/build-movements.mjs`,
 `scripts/find-duplicates.mjs`, and a regenerate of `registry/`.*
 
+**8a. ~~A bare name two records answer to picks a winner by accident and says
+nothing.~~ DONE 2026-08-23, the resolution half.** `Registry.lookup` tried
+`byKey` before `byAlias`, so the record holding a contested spelling as its
+**id** won and the other record's explicit alias on that spelling was discarded
+— and because an id match is a hit, the `ambiguous` branch
+[../movement_registry_design.md](../movement_registry_design.md) §3 calls the
+whole point of the resolver could never fire. Nobody was told. The two tiers are
+now the other way round, an explicit alias outranks a record's own name, and the
+reasoning is in [settled-decisions.md](settled-decisions.md).
+
+**Fourteen contested names, not five, and that is the first thing to say.** The
+item was written against a branch carrying merge work this one does not have, so
+the nine pairs it expected to be gone — `bodyweight-squat`, `assault-bike`,
+`dumbbell-bicep-curl`, `farmer-s-walk`, `l-sit`, `overhead-press`,
+`pistol-squat`, `strict-press` and the second dumbbell-curl spelling — are still
+two records each here, and the verdicts it said were written up in
+[known-debts.md](known-debts.md) were not in that file. Nothing was merged on
+their behalf: merging is a curation call and needs the curator, and it is
+recorded as still owed. The ranking decides *who answers*, which is the half
+that was in scope, and it decides all fourteen the same way.
+
+**All fourteen id-holders are imported and all fourteen alias-holders curated**,
+so the rule the item proposed — a curated record's alias beats an imported
+record's id — and the simpler provenance-blind one agree on every case except
+`dumbbellbicepscurl`, where both records hold the name only as an alias. The
+provenance-blind rule was taken, and *not* because it is simpler:
+`registry/movements.json` carries no `sources` field at all, so a provenance
+rule would treat every record in the registry `validate` consults as imported
+and quietly invert itself there. The one name it leaves `ambiguous` was
+ambiguous before too, and is the honest answer — nothing distinguishes two
+records that both merely mention a name.
+
+**Measured before committing to it, and the corpus did not move.** Across every
+id, title, alias and plural in both registries — 3629 names curated, 12016
+canonical — **the curated registry does not move at all** and 72 canonical names
+move, every one of them a spelling of the thirteen. Of the 135 distinct movement
+names the corpus uses, exactly one changes: `Squat`, from the imported barbell
+`squat` to `air-squat`. Muscle attribution is **identical** — the two records
+carry the same primaries, secondaries and source count — so
+`interpretations.json` regenerated to no change, the goldens to no change, and
+`registry/` to nothing but its date stamp. What did change is what a bare
+`Squat` *is*: bodyweight rather than `equipment: [Barbell]`, with a
+`defaultLaterality` and a squat `pattern` the imported record never had.
+
+**The cost, and it was caught by an existing pinned test rather than by
+thinking.** Reversing the tiers split `Squat` from `Squats`: the imported record
+carries its own plural in `aliases`, so the plural matched the alias tier on one
+record while the singular matched it on the other. *never changes which movement
+a name resolves to* went from 3 splits to 6 the moment the order flipped. A
+regular self-plural is precisely what `depluralize` reconstructs, so it is no
+longer indexed at all and the plural takes the singular's path; the count is
+back to its pinned 3.
+
+**`node scripts/check-aliases.mjs` is new and is the artefact to keep.** It
+lists every contested name in both registries, how each record claims it (id,
+title or alias), that record's sources, who wins and by which tier. It is a
+**report and not a gate** — it always exits 0, because one name is ambiguous on
+purpose and a check that fails every time is not a check. What stops a new
+collision landing quietly is the pinned list, *has only the known alias
+collisions in the canonical corpus* in `packages/core/test/fold.test.ts`, which
+also asserts the property the defect broke: **where the curated registry has an
+answer, the merged corpus never contradicts it.**
+
+*Suite 1742 → 1743, 1 pending, unchanged. The house note said 1744; this branch
+was at 1742 before the change, which is the same merge work being missing.*
+*Touched: `packages/core/src/fold.ts`, `packages/core/test/fold.test.ts`,
+`scripts/check-aliases.mjs`, `docs/movement_registry_design.md` §3.*
+
 **9. A cap is a clock, and the board does not run it.** Open 25.2 on the board
 counts *up* from zero with nothing to race, which is the wrong number on the
 screen for the one workout shape where a clock is the entire point — a twelve
