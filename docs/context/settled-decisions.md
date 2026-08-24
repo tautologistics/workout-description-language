@@ -794,6 +794,48 @@ would be tidier".
   `unknown` — but that is item 5's fix doing its own job, not anything this one
   reaches.*
 
+- **The body map shows primary vs secondary as opacity, one colour per layer —
+  not two colours, and not left unshown.** Settled 2026-08-23, closing queue
+  item 7's one open design question. Two colours was the real alternative — a
+  primary mover in one hue, a muscle a step only *assists* in another. Opacity
+  won because every one of the map's four views already spends a
+  colour on something else — the aggregate is one colour, a per-movement
+  highlight is a second colour laid over it "against" the aggregate, the
+  board's current-cue emphasis is a third context — and a two-colour
+  primary/secondary axis on top would have meant naming a colour pair for
+  *each* of those layers rather than one. Opacity composes with any of them
+  for free: whatever colour a layer paints with, a primary mover gets it at
+  full strength and a secondary one at about 40%, so the reader learns the
+  vocabulary once ("faint means it only assists") and it holds everywhere
+  rather than meaning something different pane to pane. Not shown at all was
+  rejected outright — `muscles.ts` has carried the distinction since before this
+  item, `goals.ts`'s `level: any` already keys off it, and a map that could not
+  say a pull-up primarily hits lats rather than merely touching biceps would
+  answer a shallower question than the data already answers.
+  *Touched: `apps/shared/body-map.js` (`aggregateStates`, `highlightStates`),
+  no core change.*
+
+- **The heat map's scale is a choice per view, not one number, and a muscle
+  worked by something the scale cannot read is hatched, never coloured cold.**
+  Settled 2026-08-23, closing the second half of queue item 7. The item's own
+  text named the trap: `volume.ts`'s reps are the honest number for loaded
+  work and say nothing for a carry, a hold or a max effort, since `stepVolume`
+  reads all three as zero reps by construction (see items 5 and 6 above) — a
+  reps-only scale would paint every farmer's-carry-only muscle the coldest
+  colour on the map, which reads as "not worked" and is a lie. **`frequency`**
+  (`MuscleLoad.exposures` — how many steps touched a muscle, primary or
+  secondary) is always defined, so it is the default; **`volume`** (reps) is
+  offered beside it for the workouts where it says something a count cannot —
+  which set moves the most iron — and a muscle with exposures but zero reps
+  under it is marked `unmeasured` and drawn hatched, a third visual state
+  distinct from both "not worked" (idle, uncoloured) and any real heat colour.
+  Distance, calorie and duration work reads as `unmeasured` under `volume` too,
+  for the same reason a carry does — reps is not a unit those quantities have,
+  and inventing an exchange rate between metres and reps would be a guess
+  wearing a number's clothes. *Touched: `apps/shared/body-map.js`
+  (`heatStates`), no core change — the split is entirely a read of
+  `MuscleLoad`'s existing fields, not a new one.*
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).

@@ -32,12 +32,15 @@ import { validate } from '../../build/web/core/validate.js';
 import { divisions, resolve } from '../../build/web/core/variants.js';
 import { declaredScore } from '../../build/web/core/result.js';
 import { provide, has } from '../../build/web/core/env.js';
+import { exposures, musclesFor } from '../../build/web/core/muscles.js';
+import { mountBody, paintBody, aggregateStates, highlightStates } from '../shared/body-map.js';
 
 // The core is handed its data; it reads no files itself. On Node that is
 // packages/core/node.ts, here it is a fetch.
 const GRAMMAR = '../../spec/grammar-0.1.ohm';
 const REGISTRY = '../../registry/movements.json';
 const CANONICAL = '../../registry/movements.canonical.json';
+const MUSCLES = '../../registry/muscles.json';
 
 // The grammar first, and awaited: `parse` is that file, so unlike the registry
 // below — which only takes the validation hints with it — a board without it is
@@ -59,6 +62,11 @@ const controls = el('controls');
 const problems = el('problems');
 const picker = el('division');
 const pickerRow = el('division-pick');
+const bodyEl = mountBody(el('bodymap'));
+const AGG_COLOR = '#5b8dd9';
+// The same yellow the current cue is marked with elsewhere on the board —
+// "what you are doing right now" reads as one colour throughout.
+const HI_COLOR = 'var(--now)';
 
 const SAMPLES = {
   Fran: '# Fran\nfor time:\n  21-15-9:\n    - Thruster @ 95lb\n    - Pull-Up\n',
@@ -83,6 +91,7 @@ const state = {
   lines: [],
   cues: [],
   cycles: [],
+  exposures: [],
   window: undefined,
   at: -1,            // -1 is "not started"
   startedAt: 0,      // ms, for the whole workout
@@ -208,6 +217,14 @@ function paint() {
   // reached the end: a workout you stopped halfway still happened.
   el('record-open').hidden = state.at < 0;
   el('start').textContent = state.running ? 'Pause' : state.at < 0 ? 'Start' : 'Resume';
+
+  // The whole workout as a constant, the current cue's movement emphasised on
+  // top — the same two layers as the builder's per-movement highlight, driven
+  // by the cursor instead of a hover.
+  const attribution = cue?.movement && has('canonicalMovements') ? musclesFor(cue.movement) : undefined;
+  paintBody(bodyEl, attribution
+    ? highlightStates(state.exposures, attribution, AGG_COLOR, HI_COLOR)
+    : aggregateStates(state.exposures, AGG_COLOR));
 }
 
 /** Seconds spent in the section the cursor is in, frozen while paused. */
@@ -722,7 +739,12 @@ function recue() {
   }
   picker.value = state.division;
 
-  const laid = run(compile(workout));
+  const timeline = compile(workout);
+  const laid = run(timeline);
+  // For the body map: which division is read never changes what a step
+  // works, so this is the one thing here resolving cannot change — recomputed
+  // anyway because it is cheap and `timeline` is a new object either way.
+  state.exposures = has('muscles') && has('canonicalMovements') ? exposures(timeline).list : [];
 
   // Resolving changes what a step prescribes, never how the workout is shaped,
   // so the cue ranges come back identical — but the objects are new and
@@ -891,3 +913,26 @@ fetch(new URL(REGISTRY, location.href))
     const { source, division } = readHash();
     if (source.trim()) load(source, division);
   });
+
+/**
+ * The body map's data: the muscle vocabulary, and the canonical registry that
+ * attributes a movement name to it. `wantCanonical` above fetches the same
+ * 1.7MB file lazily, on the one signal that variant resolution needs it — the
+ * body map is not that rare, it wants an attribution for every step of every
+ * workout, so here it is fetched once, eagerly, but *not* awaited: the board
+ * is usable — text, clock, cursor — the instant the grammar and registry are
+ * in, and the map fills itself in a moment later rather than holding up
+ * anything else.
+ */
+const wantMuscles = () => (has('canonicalMovements')
+  ? Promise.resolve()
+  : fetch(new URL(CANONICAL, location.href)).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`${r.status}`))))
+    .then((data) => provide({ canonicalMovements: () => data.movements })));
+
+Promise.all([
+  fetch(new URL(MUSCLES, location.href)).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`${r.status}`))))
+    .then((data) => provide({ muscles: () => data.muscles })),
+  wantMuscles(),
+])
+  .then(() => { if (state.workout) { recue(); paint(); } })
+  .catch((e) => console.warn('no muscle data, the body map stays blank:', e.message));

@@ -253,6 +253,12 @@ button:hover, .button:hover { border-color: var(--dim); }
 .node[data-drop="after"]::after { bottom: -1px; }
 .node.dragging { opacity: .4; }
 
+/* --- the body map ----------------------------------------------------------- */
+
+.body-head { display: flex; align-items: baseline; gap: .5rem; justify-content: space-between; }
+.body-head select { font: inherit; font-size: .8rem; }
+#bodymap { margin-bottom: .2rem; }
+
 /* --- goals ---------------------------------------------------------------- */
 
 .goals-head { display: flex; align-items: baseline; gap: .5rem; justify-content: space-between; }

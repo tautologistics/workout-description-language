@@ -68,6 +68,16 @@ when something looks odd before treating it as a discovery.
   *Correction 2026-08-23: `Ring Row` is a curated record now — queue item 4 wrote
   one so the pool could reach a horizontal pull — so the example above no longer
   reproduces. The debt is unchanged; only the movement that demonstrated it is.*
+  *Correction 2026-08-23: queue item 7's body map needs a muscle attribution for
+  every cue of every workout, not one name lookup, so "lazy and narrowly
+  triggered" stopped being true of the whole file that day — the board now
+  fetches the 1.7MB merge (and `registry/muscles.json` beside it) unconditionally,
+  though still not awaited, so the map fills in a moment after the board is
+  otherwise usable rather than holding anything up. `wantCanonical()` is
+  unchanged and still exists for the case this entry describes; it is now
+  usually a no-op because the eager fetch already landed first. The slim
+  name-index fix below would still shrink both call sites, and now has two
+  reasons to happen instead of one.*
 - A `variants:` value that is a **rep or distance override** is reported and not
   applied. Spec §10 says a variant may override reps or distance; `resolve()`
   reads a load, a load-plus-height, or a movement to swap, and says so by name
