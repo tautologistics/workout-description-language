@@ -9,7 +9,9 @@
 
 .bodymap { display: flex; gap: .7rem; align-items: flex-start; }
 .bodymap .mm-view { display: flex; flex-direction: column; align-items: center; gap: .15rem; }
-.bodymap svg { width: 78px; height: 156px; display: block; }
+/* The source viewBox is 35×93 per view (see body-map.js); height is left to
+   the browser rather than computed here so the figure never distorts. */
+.bodymap svg { width: 78px; height: auto; display: block; }
 .bodymap .mm-label {
   font-size: .62rem; letter-spacing: .04em; text-transform: uppercase; color: var(--dim, #888);
 }
@@ -20,7 +22,7 @@
   fill: var(--rule, #ccc);
   opacity: .26;
   stroke: var(--dim, #888);
-  stroke-width: 1;
+  stroke-width: .15;
   transition: fill .12s ease, opacity .12s ease;
 }
 
@@ -31,5 +33,46 @@
 .bodymap .mm-unmeasured { fill: url(#mm-hatch) !important; }
 
 .bodymap.small { gap: .4rem; }
-.bodymap.small svg { width: 44px; height: 88px; }
+.bodymap.small svg { width: 40px; height: auto; }
 .bodymap.small .mm-label { display: none; }
+
+/* --- click to enlarge -------------------------------------------------- */
+
+.mm-zoomable { cursor: zoom-in; border-radius: .3rem; }
+.mm-zoomable:hover svg { filter: brightness(1.12); }
+.mm-zoomable:focus-visible { outline: 2px solid var(--accent, #6ea8ff); outline-offset: 3px; }
+
+.mm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, .78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5vmin;
+  cursor: zoom-out;
+}
+
+.mm-overlay-panel { position: relative; cursor: default; }
+
+.mm-overlay .mm-big { display: flex; gap: 5vmin; align-items: flex-start; }
+.mm-overlay .mm-big svg { width: min(32vmin, 420px); height: auto; display: block; }
+.mm-overlay .mm-big .mm-label { font-size: 1rem; color: #d8dae0; }
+.mm-overlay .mm-big .mm-scenery > * { fill: #4a4f5c; }
+.mm-overlay .mm-big path[data-muscle] { fill: #4a4f5c; stroke: #6b7180; stroke-width: .1; }
+
+.mm-overlay-close {
+  position: absolute;
+  top: -2.6rem;
+  right: 0;
+  background: none;
+  border: none;
+  color: #f2f2ef;
+  font-size: 1.7rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: .2rem .5rem;
+}
+.mm-overlay-close:hover { color: #fff; }
+.mm-overlay-close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }

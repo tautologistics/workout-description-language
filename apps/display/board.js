@@ -33,7 +33,7 @@ import { divisions, resolve } from '../../build/web/core/variants.js';
 import { declaredScore } from '../../build/web/core/result.js';
 import { provide, has } from '../../build/web/core/env.js';
 import { exposures, musclesFor } from '../../build/web/core/muscles.js';
-import { mountBody, paintBody, aggregateStates, highlightStates } from '../shared/body-map.js';
+import { mountBody, paintBody, aggregateStates, highlightStates, attachZoom } from '../shared/body-map.js';
 
 // The core is handed its data; it reads no files itself. On Node that is
 // packages/core/node.ts, here it is a fetch.
@@ -62,7 +62,7 @@ const controls = el('controls');
 const problems = el('problems');
 const picker = el('division');
 const pickerRow = el('division-pick');
-const bodyEl = mountBody(el('bodymap'));
+const bodyEl = attachZoom(mountBody(el('bodymap')));
 const AGG_COLOR = '#5b8dd9';
 // The same yellow the current cue is marked with elsewhere on the board —
 // "what you are doing right now" reads as one colour throughout.

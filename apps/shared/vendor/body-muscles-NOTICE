@@ -1,0 +1,25 @@
+This directory's SVG muscle path data (apps/shared/body-map.js, the contents
+of frontSvg() and backSvg()) is adapted from:
+
+  Body Muscles
+  Copyright 2024 Ivan Vulović
+  https://github.com/vulovix/body-muscles
+
+Licensed under the Apache License, Version 2.0 (see body-muscles-LICENSE in
+this directory, or http://www.apache.org/licenses/LICENSE-2.0).
+
+What changed from the original: the source project draws 70-odd named
+anatomical regions across two views (src/data/muscles.front.ts,
+src/data/muscles.back.ts); this project uses only the raw `path` string of
+each region, dropping the JS/TS runtime entirely, and merges the regions
+many-to-one onto workout-definition-language's own closed 19-muscle
+vocabulary (registry/muscles.json) by combining left/right pairs and
+anatomical sub-regions under one `data-muscle` id apiece. Two ids have no
+exact source counterpart and are approximated: `mid-back` from the source's
+`spine` region, and `abductors` by reclassifying `gluteus-medius` out of the
+source's combined glute grouping. Everything the source draws that has no
+place in this project's vocabulary (head, face, hands, feet, knees, elbows,
+the shin) is kept only as inert background scenery. No other part of the
+source project — its TypeScript runtime, its intensity-colour system, its
+interactivity — is used; workout-definition-language's own body-map.js does
+all of the painting and state logic.

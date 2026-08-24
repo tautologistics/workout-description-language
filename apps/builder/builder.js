@@ -32,7 +32,7 @@ import { run, roundLabel } from '../../build/web/core/run.js';
 import { provide, has } from '../../build/web/core/env.js';
 import { parseGoals, check } from '../../build/web/core/goals.js';
 import { exposures, muscleLoad, musclesFor } from '../../build/web/core/muscles.js';
-import { mountBody, paintBody, aggregateStates, highlightStates, heatStates, heatColor } from '../shared/body-map.js';
+import { mountBody, paintBody, aggregateStates, highlightStates, heatStates, heatColor, attachZoom } from '../shared/body-map.js';
 
 const GRAMMAR = '../../spec/grammar-0.1.ohm';
 const REGISTRY = '../../registry/movements.json';
@@ -379,7 +379,7 @@ function renderReading() {
 const AGG_COLOR = 'var(--accent)';
 const HI_COLOR = 'var(--ask)';
 
-mountBody(el('bodymap'));
+attachZoom(mountBody(el('bodymap')));
 
 /**
  * Which movement, if any, to show against the aggregate — set by hovering a
