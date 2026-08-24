@@ -159,7 +159,7 @@ similar the rest looks. `Band Internal Rotation` and `Band External Rotation` st
 **A strict subset is a variant, not a duplicate.** If one token set contains the other and the extra
 words are all qualifiers, the longer name is a *more specific* exercise — `45 Degree Cable External
 Rotation` is not `Cable External Rotation`. These become `variantOf` links instead of merges, which
-is where a plain similarity threshold does its worst damage. 1108 such links now exist, each
+is where a plain similarity threshold does its worst damage. 1106 such links now exist, each
 pointing at the closest parent rather than the broadest.
 
 Merging is transitive via union-find, so three spellings of the same curl collapse to one record
@@ -172,6 +172,13 @@ one catalogue rather than hiding behind different spellings.
 One ordering bug worth remembering: variants were originally computed *before* the collapse, so
 half the links pointed at records about to be absorbed — `barbell-burpee` came out as a variant of
 both `burpee` and `burpees`. They are computed after now.
+
+A second pass later took it further. The tokenizer treats `pullups` as one token and `pull-up` as
+two, so singular and plural spellings of the same movement had survived as separate records —
+`pull-up` and `pullups` were *both* marked core, and muscle analysis read a different one depending
+on how you spelt it. Comparing names with the word boundaries taken out found 66 such pairs, every
+one inspected before applying: **3148 → 3120 records**. The two arrows above are what each run did;
+counts elsewhere in this file that describe the corpus as it stands are against 3120.
 
 
 ## Families: the sources' own opinion
@@ -203,7 +210,7 @@ same-family pairs.
 
 ## Where this stops: a core, and a long tail left alone
 
-Chasing duplicates through 3148 records is diminishing returns. The tail is machine variants, banded
+Chasing duplicates through 3120 records is diminishing returns. The tail is machine variants, banded
 rehab work and cable isolation nobody writes into a workout, and two of those staying separate costs
 nothing. What matters is that the *common* movements each have exactly one canonical record.
 
@@ -236,4 +243,4 @@ similarity cannot tell a qualifier from the thing being qualified without knowin
 movements — and at that point it is a taxonomy, not a string comparison.
 
 So the core is clean, the tail is left as it is, and the useful structure that remains is the part
-that does not depend on names at all: 1108 `variantOf` links and 50 source-attested families.
+that does not depend on names at all: 1106 `variantOf` links and 50 source-attested families.

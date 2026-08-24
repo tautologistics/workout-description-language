@@ -4,7 +4,7 @@
  *
  *   node scripts/mark-core.mjs [--apply]
  *
- * Chasing duplicates through 3148 records is diminishing returns: the long tail
+ * Chasing duplicates through 3120 records is diminishing returns: the long tail
  * is machine variants and rehab work that nobody writes into a workout, and if
  * two of those stay separate it costs nothing. What matters is that the common
  * movements each have exactly one canonical record.

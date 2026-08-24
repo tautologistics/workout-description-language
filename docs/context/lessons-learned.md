@@ -535,3 +535,19 @@ way the sentence names the set being counted. The second half of the fix is
 knowing there are two copies: `what-exists.md` **owns** the registry counts and
 the roadmap restates them, so a rebuild that moves them has to reach both — this
 one had been stale in the roadmap alone since 93bce99. Recorded 2026-08-22.
+
+**A number in prose is either a measurement or a record of a run, and the two go
+stale in opposite directions.** `registry/SOURCES.md` carried `3335 → 3148
+records` (what the dedup run did — permanently true) two paragraphs above
+`Chasing duplicates through 3148 records is diminishing returns` (a claim about
+the file as it stands — false the moment the corpus changed). Both are the same
+numeral, so nothing distinguishes them by grep, and the second dedup pass landed
+inside a commit about *pluralization*: the file that owns the dedup story was
+never opened. `3148` stayed on the page for eleven days, and the `variantOf` count
+beside it drifted 1108 → 1106 unnoticed.
+
+Two corrections. Prefer arrows for what a run did and bare counts for what is
+true now, so the *shape* of the sentence says which kind it is — and when a fix
+changes the corpus as a side effect, the owning doc is part of the change, not
+follow-up. Present-tense figures against `movements.canonical.json` are cheap to
+re-derive; there is no reason for one to be wrong. Recorded 2026-08-23.
