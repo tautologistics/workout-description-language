@@ -824,6 +824,19 @@ when something looks odd before treating it as a discovery.
   Nothing about Pistol changed. This is `mark-core`'s threshold behaving as
   documented — "a threshold, not a truth" — and it is an argument for queue item
   4, where pool membership is decided by judgement instead of by score.
+- **Two curated records for the barbell bent-over row, and no verdict on which
+  survives.** Surfaced 2026-08-23 by the merge itself, visible from no single
+  branch: one session curated `barbell-row` into the generation pool (a
+  garmin-only record, one muscle source) while another gave
+  `bent-over-row-barbell` a curated alias (four sources, three muscle sources,
+  and `mid-back` that the other lacks). Both then claimed `bent over row`, which
+  `Registry.validate()` refuses. The **collision** is resolved — the alias was
+  withdrawn from the thinner claim, so the name reaches `barbell-row` alone —
+  but the **merge** is not, and the two are different questions. Nothing in
+  `examples/corpus` writes either, so the cost today is confined to the pool and
+  the palette showing one lift twice. Deciding it means choosing which record's
+  muscles the corpus should read, which is a curator's call and is exactly what
+  `sameAs` exists to record once made.
 - **`registry/duplicate-candidates.json` is a 694-item backlog nobody has
   triaged.** Generated 2026-08-12 and untouched since. Two of the pairs the alias
   comparison surfaced — `GHD Back Extensions` / `Hyperextensions & Back
