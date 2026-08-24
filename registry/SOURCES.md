@@ -79,20 +79,26 @@ than any amount of further reading would have.
 
 ## The merged corpora
 
-Two canonical files, rebuilt by `scripts/build-canonical.ts`:
+Two canonical files, rebuilt by `scripts/build-canonical.ts`.
+
+**The row counts below, and the `mergedCorpora` block in `SOURCES.json`, are written by
+`scripts/describe-corpora.mjs` as the last step of that rebuild. Do not hand-edit them.** They were
+hand-maintained until 2026-08-22, and by then both copies still carried the figures
+`build-movements.mjs` prints *before* dedup — 3335 movements against a file holding 3120.
 
 | File | Records | Contents |
 |---|---:|---|
-| `movements.canonical.json` | 3335 | Every movement we hold: 3161 with muscle data, 1510 with a Garmin mapping, 850 with names in other languages |
+| `movements.canonical.json` | 3120 | Every movement we hold: 2983 with muscle data, 1503 with a Garmin mapping, 621 with a name in another language, 178 marked core |
 | `workouts.canonical.json` | 202 | Every workout, with source text, parsed AST, and a derived summary |
 
 **Every record names the sources that contributed to it.** That is what keeps the merge reversible:
 the licence question is deferred, not dissolved, and a record can be traced or dropped later.
 
-One honest caveat on the movement merge: only 233 of the 3335 appear in more than one source. The
-catalogues use genuinely different naming, so `fold()` only unifies exact matches, and the true
+One honest caveat on the movement merge: only 351 of the 3120 appear in more than one source —
+written as 233 of 3335 when the merge first ran, and restated here against the deduplicated file.
+The catalogues use genuinely different naming, so `fold()` only unifies exact matches, and the true
 overlap is certainly far higher than the merge detects — five sources each holding several hundred
-to 1500 exercises will not have 93% disjoint vocabularies. Deduplicating properly would mean
+to 1500 exercises will not have 89% disjoint vocabularies. Deduplicating properly would mean
 matching on muscles and equipment rather than names alone. Until then the count is of *records*,
 not of *distinct movements*.
 
@@ -129,7 +135,8 @@ tempo — present in one name and missing from the other, which rules the pair o
 The veto list is the whole game, and it is where this goes wrong if it goes wrong. An earlier draft
 omitted `internal` and `external`, and duly proposed merging internal and external rotations.
 
-Current output on 3335 records:
+Output on the 3335-record merge, before dedup collapsed it — where the numbers below end up is
+under *Automated deduplication*:
 
 | Confidence | Pairs | Meaning |
 |---|---:|---|

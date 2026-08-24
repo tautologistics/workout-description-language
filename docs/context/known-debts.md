@@ -8,6 +8,15 @@ when something looks odd before treating it as a discovery.
   count cannot grow; none used by the corpus.
 - `Quad Stretch` scored into the 178 core movements on source agreement. Visible
   when generating with a bare `?`.
+- Two places still size the corpus at **3148 records** — `registry/SOURCES.md`
+  under *Where this stops*, and the docstring of `scripts/mark-core.mjs`. That was
+  true the day dedup ran; the file holds **3120**. Both are the same sentence
+  ("chasing duplicates through 3148 records is diminishing returns") and the
+  argument survives the correction, which is why it is a debt and not a bug. The
+  neighbouring `3335 → 3148` line is a record of what that run did and is
+  correct as history. Left 2026-08-23, when the `mergedCorpora` counts beside them
+  were fixed and made generated; the family and `variantOf` figures in the same
+  file (50 families / 221 movements, 1108 links) have not been re-measured either.
 - ~~The board cannot have a division *chosen* on it.~~ **Fixed 2026-08-20** by
   queue item 1a. A workout that offers a division shows a picker in the footer,
   built from `divisions()`; choosing one re-cues from `resolve()` **from where

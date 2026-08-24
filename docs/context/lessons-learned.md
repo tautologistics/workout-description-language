@@ -64,6 +64,19 @@ Derive the merged view *from* the claims; never alongside them.
 and never added to `build-canonical.ts`, so a rebuild erased `core` from all 3120
 records. Each step rewrites the file from the one before.
 
+**A count nobody regenerates is a count that lies.** `SOURCES.json`'s
+`mergedCorpora` line and the `SOURCES.md` table both described the merged corpus
+by hand, and both still carried the figures `build-movements.mjs` prints *before*
+dedup — 3335 movements, 3161 with muscle data, 1510 with a Garmin mapping, 850
+translated — against a file holding 3120, 2983, 1503 and 621. All four were
+wrong, in the file whose whole job is to be believed about provenance.
+`describe-corpora.mjs` writes both now, as the last pipeline step, counted from
+the finished corpora rather than from the merge. Two of the four were only
+findable by measuring: the Garmin figure was a coincidence — 1510 is the size of
+Garmin's *catalogue*, quoted correctly elsewhere and wrong here — and the
+translation figure had no definition until one was chosen, since 784 records
+carry a translations block but 163 hold only the English name again.
+
 **A wrong turn worth recording:** the first fix for browser portability was a
 build-time module substitution — emit a `registry.web.js` and swap the specifier.
 That is a workaround for a design smell. The core should not know where its data

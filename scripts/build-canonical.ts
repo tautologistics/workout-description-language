@@ -16,6 +16,11 @@
  * This is the whole pipeline, and it must stay that way: every step rewrites
  * movements.canonical.json from the step before, so a script left out of this
  * list silently loses whatever it added the last time it was run by hand.
+ *
+ * The exception is the last step, which writes no movements: it restates what
+ * the finished corpora hold, back into registry/SOURCES.json and SOURCES.md.
+ * Those counts used to be maintained by hand and had drifted by two hundred
+ * records, so they are now derived here or not at all.
  */
 import { execFileSync } from 'node:child_process';
 import { join, dirname } from 'node:path';
@@ -34,3 +39,5 @@ execFileSync('node', [join(root, 'scripts/link-families.mjs'), '--apply'], { cwd
 // which records absorbed duplicates, and which head a family.
 execFileSync('node', [join(root, 'scripts/mark-core.mjs'), '--apply'], { cwd: root, stdio: 'inherit' });
 execFileSync('node', [join(root, 'scripts/build-workouts.mjs')], { cwd: root, stdio: 'inherit' });
+// Last of all, because it describes what every step above produced.
+execFileSync('node', [join(root, 'scripts/describe-corpora.mjs'), '--apply'], { cwd: root, stdio: 'inherit' });

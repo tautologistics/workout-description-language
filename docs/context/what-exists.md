@@ -8,7 +8,7 @@ when something lands, and take the same thing out of
 |---|---|
 | **Format** | Parser, canonical formatter, validator, timeline compiler. 190-workout corpus round-trips. Alternatives: `A or B`, `A/B`, `A|B`, and a `choice:` block. Rx by division: `(women 105lb / men 145lb)` or `(105/145)`. |
 | **Interop** | Import: `.zwo`, `.erg`/`.mrc`, FIT. Export: those plus Garmin Connect JSON. Verified against a real watch. |
-| **Registry** | 3120 movements merged from five sources, 178 marked core, 2983 with muscle data, 101 carrying the `wdl-curated` source. Every record names its sources and keeps their claims separately. |
+| **Registry** | 3120 movements merged from five sources, 178 marked core, 2983 with muscle data, 101 carrying the `wdl-curated` source. Every record names its sources and keeps their claims separately. What the corpus holds is restated on every rebuild by `scripts/describe-corpora.mjs`, into `registry/SOURCES.json` and the `SOURCES.md` table — those two are the live figures; this row is a summary and can lag them. |
 | **Analysis** | Muscle attribution with a closed 19-muscle vocabulary; per-muscle volume; ordering with the repeat-wrap. |
 | **Goals** | Five rules — `no repeat`, `cover`, `limit`, `balance`, `progress` — in a separate file. `wdl goals`. |
 | **Generation** | `?` holes in a template, filled to satisfy the goals. `wdl generate`, single workout or a whole block. |
