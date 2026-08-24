@@ -571,6 +571,14 @@ would be tidier".
   workout may take. Nothing about a cap justified a second rule for the same
   question.
 
+  *The spine half of this was contested and is the one part not unanimous.* A
+  second branch fixed the same defect at the same time and chose the other
+  representation — one number plus a `capped` flag — and with it the opposite
+  composition rule, on the argument that an at-most **aggregates** where a window
+  and a loop do not. This entry is what the merged code does; that argument is
+  open in [known-debts.md](known-debts.md) rather than lost, because the two
+  branches agreed on everything except this and only one of them can be true.
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).
