@@ -1078,29 +1078,42 @@ was at 1742 before the change, which is the same merge work being missing.*
 *Touched: `packages/core/src/fold.ts`, `packages/core/test/fold.test.ts`,
 `scripts/check-aliases.mjs`, `docs/movement_registry_design.md` §3.*
 
-**9. A cap is a clock, and the board does not run it.** Open 25.2 on the board
-counts *up* from zero with nothing to race, which is the wrong number on the
-screen for the one workout shape where a clock is the entire point — a twelve
-minute cap is what the athlete is looking at. Raised 2026-08-23 while closing
-item 3, which is what makes it cheap: `Run.cap` exists now and is exactly what a
-countdown reads.
+**9. ~~A cap is a clock, and the board does not run it.~~ DONE 2026-08-23.**
+`tick()` now reads `state.cap` — set from `laid.cap` in `recue()` — the same way
+it already read a section's `window`: `onClock` is whichever of a running
+section's own clock and the cap is nearer, computed once and used everywhere the
+old single-source value was. No new row. A twelve-minute cap now counts down in
+the same place the cue and section clocks already do, because the athlete does
+not care which field of the file produced the deadline, only which one is
+closer.
 
-**The reason it is not part of item 3 is the expiry, not the display.** A cap
-creates no cycle, so the board's countdown — which comes from `cycle.window` via
-`expired()` — never sees it. Wiring the number up is small. Deciding what happens
-when it runs out is not: spec §5.6 says *the workout ends*, so the cursor should
-presumably stop where it stands rather than advance, and §9.5 says the score
-becomes reps completed, which is a statement about a result and therefore leans
-on item 2. The honest middle is probably to show the countdown and stop at zero
-without claiming anything about the score.
+**The expiry was the real half, and the answer is: stop where you stand, not at
+the end.** `capOut()` is not `finish()` — it freezes the clock, disables
+`start`/`next`/`prev`/`leave`, and opens the record panel, but leaves `state.at`
+exactly where the cursor was. Spec §5.6 says the workout ends; it does not say
+the athlete reached the last cue, and `finish()`'s "jump to the end" would have
+claimed exactly that on a screen that is supposed to be honest about what it
+measured. `measuredScore()` needed no change: it already reads the clock rather
+than the cursor for a `for time` score, so a cap-out reports the same time
+score `finish()` would have, and it still declines to invent a reps or rounds
+number — that guess is item 2's business, on a *result*, not this one's.
 
-**Two things to settle while there.** A cap and a section window can both be
-running (`for time, cap 25min:` around a bare `AMRAP:` — `77-tiff.wdl`), so the
-board needs a rule for which is the nearer deadline, and it already has one for
-the cue-versus-section case to copy. And `state.window` in `board.js` is
-**assigned and never read** — dead since the cycle rewrite — so the cap should
-not be plumbed in beside it without deleting it.
-*Touches: `apps/display/board.js`, and `board.css` if the cap needs its own row.*
+**The nearer-deadline rule generalizes the one that already existed.** A cue's
+own clock already outranked a section's; a cap is a third clock, checked in the
+same order — cue, then the nearer of section-or-cap. `77-tiff.wdl`
+(`for time, cap 25min:` around a bare `AMRAP:`) is the proof: the AMRAP has no
+window of its own, so the cap is what the display and the expiry both use, and a
+synthetic file nesting a *short* AMRAP window inside a *longer* cap (driven on
+the board, not just read) confirmed the other direction — the section's own
+clock expires it first, `leave()` drops the cursor back to the spine, and the
+cap goes on counting down over what is left.
+
+**`state.window` is gone**, per the debt that flagged it — it was dead since the
+cycle rewrite and nothing reads it now that `state.cap` exists beside it instead
+of plumbed in.
+*Touched: `apps/display/board.js`. `board.css` untouched — the cap reads through
+the clock and its `aside` that a section's window already used, so it needed no
+row of its own.*
 
 *Ordering of 5, 6, 7 and 9 against 1-4 is not settled - they are appended
 rather than placed. 5, 6 and 7 were raised by writing and sending one workout
@@ -1126,6 +1139,10 @@ the same day, on two branches merged together — 5 as
 neither branch's own paragraph saw the other land. Closed so far: the whole
 0-series, 1, 1a, 2, 3, 4, 5, 6, 8 and 8a, so **the open numbered items are 7 and
 9**.*
+
+*Corrected again 2026-08-23, closing item 9: closed so far is the whole
+0-series, 1, 1a, 2, 3, 4, 5, 6, 8, 8a and 9, so **the only open numbered item is
+7**.*
 
 **Nobody has run a session off the board.** Everything is verified by tests and
 by driving the UI. Every defect Chris has caught by *looking* — `21 Thruster`,
