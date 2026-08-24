@@ -2087,6 +2087,202 @@
   },
   "fixpoint": true
  },
+ "target/qualitative :: 150ft Farmers Carry @ heavy": {
+  "canonical": "for time:\n  - 150ft Farmers Carry @ heavy",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Farmers Carry",
+       "node": "step",
+       "quantity": {
+        "kind": "distance",
+        "unit": "ft",
+        "value": 150
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "qualitative",
+          "value": "heavy"
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/qualitative :: 10 Thruster @ moderate": {
+  "canonical": "for time:\n  - 10 Thrusters @ moderate",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "qualitative",
+          "value": "moderate"
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/qualitative :: 20 Kettlebell Swing @ light": {
+  "canonical": "for time:\n  - 20 Kettlebell Swings @ light",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Kettlebell Swing",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 20
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "qualitative",
+          "value": "light"
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/qualitative :: 20 Air Squat @ unloaded": {
+  "canonical": "for time:\n  - 20 Air Squats @ unloaded",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Air Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 20
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "qualitative",
+          "value": "unloaded"
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "target/qualitative :: 10 Thruster @ HEAVY": {
+  "canonical": "for time:\n  - 10 Thrusters @ heavy",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "qualitative",
+          "value": "heavy"
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "target/relative :: 3 Back Squat @ 85% 1RM": {
   "canonical": "for time:\n  - 3 Back Squats @ 85% 1RM",
   "errors": [],

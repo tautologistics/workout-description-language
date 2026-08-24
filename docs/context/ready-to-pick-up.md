@@ -812,23 +812,44 @@ Raised 2026-08-15 while encoding a partner carry circuit.
 *Touches: `spec/grammar-0.1.ohm`, `packages/core/src/units.ts`, `ast.ts`,
 `format.ts`, `volume.ts`, `timeline.ts`, `spec/spec-0.1.md`.*
 
-**6. A load can be a word, and the language has no scale for it.** `@ heavy`
-parses to a raw target: held, round-tripped, displayed, and inert — no volume, no
-per-muscle load, nothing `progress` can ramp. Same holding answer as `@ 95`, and
-better justified, since `heavy` is not a number at all. But `heavy` / `moderate`
-/ `light` / `unloaded` are a small closed vocabulary coaches use constantly, and
-a carry prescribed by feel is the *normal* way to write a carry rather than an
-omission.
+**6. ~~A load can be a word, and the language has no scale for it.~~ DONE
+2026-08-23.** Qualitative load is now a **category the language knows**: `Load`
+gained a fifth kind, `qualitative`, holding `heavy` / `moderate` / `light` /
+`unloaded` — a small closed vocabulary, read case-insensitively and canonicalised
+to lowercase. `- 150ft Farmers Carry @ heavy` parses to `{kind: 'load', load:
+{kind: 'qualitative', value: 'heavy'}}` instead of falling into `raw`, which is
+the whole of the fix: `parseTarget` in `units.ts` gets one more branch, ahead of
+the `raw` fallback.
 
-The decision is whether qualitative load is a **category the language knows** —
-in which case it is a `Load` kind alongside absolute and relative, and a
-sensible-but-unresolvable one that analysis can at least count as loaded — or
-stays raw, in which case a carry can never contribute to volume and that should
-be said in the spec rather than discovered. Note the interaction with item 5:
-both showed up in the same workout, and a carry hit by both contributes *nothing*
-to any analysis while validating clean. Raised 2026-08-15.
-*Touches: `packages/core/src/ast.ts`, `units.ts`, `volume.ts`, `muscles.ts`,
-`format.ts`, `spec/spec-0.1.md`.*
+**It stays a sensible-but-unresolvable value, on purpose — the option this item
+framed as the alternative to "stays raw" turned out not to be a fork.**
+`loadKilograms` returns `undefined` for `qualitative` exactly as it already does
+for `percent` and `reference`, so volume, `measure: load` and export are
+unchanged: nothing invents a kilogram figure a coach never wrote. What moved is
+narrower and is the part worth stating precisely — everything that walks
+`targets` looking for `t.kind === 'load'` (muscle-load's `heaviest()`, a future
+"was this step loaded" check) now **sees** the target and can say "loaded, not
+resolvable" instead of not seeing it at all, because it is no longer sitting in
+`raw` beside stray commas and unrecognized phrases. Held-and-inert must not also
+be invisible to a check built for loads — the same shape item 0d closed for
+`unknown` text, one layer up.
+
+**The interaction with item 5 this item flagged does not go away, and is worth
+restating precisely: item 5 is still open.** A range with a unit
+(`100-150ft Farmers Carry`) still lands whole in the movement name, so a carry
+written with both a range quantity and a qualitative load still contributes
+nothing to volume or muscle attribution — but it now validates *and* is visibly
+unresolvable on the load side rather than silently wrong on both. Closing this
+item does not close that one.
+
+**No corpus file uses the vocabulary**, so `interpretations.json` regenerated to
+no change. Five pinned forms under a new `target/qualitative` vocabulary group,
+plus a test pinning that the step still resolves to muscles with `load`
+`undefined` — the same reading a step with no load target at all gets,
+deliberately, since that is the shape the "unresolvable is not absent"
+distinction has to hold up against. 1791 → 1797 passing, 1 pending.
+*Touched: `packages/core/src/ast.ts`, `units.ts`, `spec/spec-0.1.md` §3, §7,
+`test/golden/vocabulary.ts`, `test/muscles.test.ts`.*
 
 **7. A body map in the builder and on the board.** Front and back of a body, with
 the muscle groups the workout hits drawn on it. Not high priority — this is a
@@ -1080,13 +1101,19 @@ not be plumbed in beside it without deleting it.
 rather than placed. 5, 6 and 7 were raised by writing and sending one workout
 rather than by a plan, and 9 by closing item 3. **0f was lettered rather than
 numbered on purpose** - grammar work, belonging with the 0-series - and both its
-halves are closed. Closed so far: the whole 0-series, 1, 1a, 2, 3, 8 and 8a, so
-**the open numbered items are 4, 5, 6, 7 and 9**. Stated as a set rather than as
+halves are closed. Closed so far: the whole 0-series, 1, 1a, 2, 3, 4, 6, 8 and
+8a, so **the open numbered items are 5, 7 and 9**. Stated as a set rather than as
 a name on purpose: a pointer naming one item goes stale the moment that item
 lands, which is how an earlier one came to send readers at finished work. The
 one thing 0f left behind is `TABATA`, which is not an abbreviation to read but a
 structure to define; it is written up under 0f rather than given a number,
 because nobody has asked for it yet.*
+
+*Corrected 2026-08-23: this paragraph said "4, 5, 6, 7 and 9" while item 4 sat
+above it already marked DONE — closed the same day this paragraph was last
+touched, and never carried down into the set it names. A queue item can go
+stale one paragraph at a time; this is that, caught while closing item 6 rather
+than left for whoever reads it next.*
 
 **Nobody has run a session off the board.** Everything is verified by tests and
 by driving the UI. Every defect Chris has caught by *looking* — `21 Thruster`,
