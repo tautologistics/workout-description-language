@@ -6,17 +6,21 @@ when something looks odd before treating it as a discovery.
 - Three singular/plural duplicates remain in the registry's long tail
   (`Hindu Push-up`, `Rack Pull`, `Squat with Bands`). Pinned by a test so the
   count cannot grow; none used by the corpus.
-- `Quad Stretch` scored into the 178 core movements on source agreement. Visible
-  when generating with a bare `?`.
-- Two places still size the corpus at **3148 records** — `registry/SOURCES.md`
-  under *Where this stops*, and the docstring of `scripts/mark-core.mjs`. That was
-  true the day dedup ran; the file holds **3120**. Both are the same sentence
-  ("chasing duplicates through 3148 records is diminishing returns") and the
-  argument survives the correction, which is why it is a debt and not a bug. The
-  neighbouring `3335 → 3148` line is a record of what that run did and is
-  correct as history. Left 2026-08-23, when the `mergedCorpora` counts beside them
-  were fixed and made generated; the family and `variantOf` figures in the same
-  file (50 families / 221 movements, 1108 links) have not been re-measured either.
+- ~~`Quad Stretch` scored into the 178 core movements on source agreement.~~
+  **Fixed 2026-08-23** by queue item 4. It was never a threshold problem: raising
+  the bar to 5 would have dropped `Sumo Deadlift`, `Face Pull` and `Pistol` and
+  kept `Smith Machine Squat`, because the two are not ordered on the same axis.
+  `commonality` says how well *attested* a record is, which is what dedup needs;
+  the pool asks whether anyone has treated it as *work*, and catalogue agreement
+  cannot answer that. So the pool now takes only the three signals that are a
+  judgement — a corpus workout writes it, the curator wrote a record for it, a
+  vendor tracks a 1RM for it — and the threshold is gone with them, because at +3
+  against a bar of 4 curation could never carry a record on its own. **178 → 129.**
+  The score is untouched and still cuts dedup. What the old rule let in is the
+  argument: all 77 records it admitted on catalogue evidence alone had **no
+  `pattern`**, so `? squat` could not reach them — they were reachable only by
+  being picked blind. See [what-exists.md](what-exists.md) and the header of
+  `scripts/mark-core.mjs`.
 - ~~The board cannot have a division *chosen* on it.~~ **Fixed 2026-08-20** by
   queue item 1a. A workout that offers a division shows a picker in the footer,
   built from `divisions()`; choosing one re-cues from `resolve()` **from where
@@ -39,6 +43,9 @@ when something looks odd before treating it as a discovery.
   of the bytes, and would let the board simply fetch it up front.
   *Touches: `scripts/build-canonical.ts`, `apps/display/board.js`,
   `packages/core/src/registry.ts`.*
+  *Correction 2026-08-23: `Ring Row` is a curated record now — queue item 4 wrote
+  one so the pool could reach a horizontal pull — so the example above no longer
+  reproduces. The debt is unchanged; only the movement that demonstrated it is.*
 - A `variants:` value that is a **rep or distance override** is reported and not
   applied. Spec §10 says a variant may override reps or distance; `resolve()`
   reads a load, a load-plus-height, or a movement to swap, and says so by name

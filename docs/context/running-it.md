@@ -8,6 +8,12 @@ node scripts/build-web.mjs          # emit the core as browser modules
 node scripts/serve.mjs 8081         # then open http://localhost:8081/
 ```
 
+`build-canonical.ts` is the whole registry pipeline and the only way to run any
+step of it — `mark-core.mjs` last, because it scores from what the earlier steps
+produced. Never run a step by hand: each rewrites the file from the one before,
+so a step run alone is erased by the next rebuild. See *Every pipeline step must
+be in the pipeline* in [lessons-learned.md](lessons-learned.md).
+
 **Nothing to install.** *Corrected 2026-08-15: for one day this said to run
 `npm --prefix packages/core install` first, which was true while `ohm-js` was a
 dependency.* It is now vendored into `packages/core/src/grammar/vendor/` and

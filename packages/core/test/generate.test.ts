@@ -17,6 +17,8 @@ import { compile } from '../src/timeline.ts';
 import { parseGoals, check, checkSeries } from '../src/goals.ts';
 import { generate, generateProgram } from '../src/generate.ts';
 import { parseProgram } from '../src/program.ts';
+import { canonicalRegistry } from '../src/registry.ts';
+import type { MovementEntry } from '../src/fold.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const example = (p: string) => readFileSync(join(here, '../../../examples', p), 'utf8');
@@ -224,5 +226,82 @@ describe('generate: across a block', () => {
     const viaProgram = generateProgram([{ name: 'x', workout: one }], rotate(), { seed: 5 });
     const direct = generate(one, rotate(), { seed: 5 });
     eq(direct.chosen.map((c) => c?.title), viaProgram.chosen.map((c) => c?.title));
+  });
+});
+
+/**
+ * The pool: what a `?` may be filled with, and what the palette shows with an
+ * empty search box. Both read one flag — `core`, written by
+ * `scripts/mark-core.mjs` — so these are properties of the registry rather than
+ * of the search.
+ *
+ * The rule they pin is that the pool asks for a **judgement**. A record is in it
+ * because a workout in our corpus writes it, because the curator wrote a record
+ * for it, or because a vendor tracks a 1RM for it. Catalogues agreeing that a
+ * movement exists is a different fact, and it used to be enough: `Quad Stretch`
+ * was in the pool on three sources listing it. See the header of `mark-core.mjs`.
+ */
+describe('generate: the pool', () => {
+  /** The signals that are somebody's judgement. Kept in step with `mark-core.mjs`. */
+  const JUDGED = ['used-in-corpus', 'curated', 'garmin-benchmark'];
+  const entries = () => canonicalRegistry().entries as (MovementEntry & {
+    core?: boolean; commonality?: number; commonalityWhy?: string[]; sources?: string[];
+    external?: { garminCategory?: string };
+  })[];
+  const pool = () => entries().filter((e) => e.core);
+
+  it('is every record somebody judged, and only those', () => {
+    const unjudged = pool().filter((e) => !(e.commonalityWhy ?? []).some((w) => JUDGED.includes(w)));
+    eq(unjudged.map((e) => e.title), [], 'in the pool on catalogue evidence alone');
+  });
+
+  it('leaves out what catalogues merely agree exists', () => {
+    const titles = new Set(pool().map((e) => e.title));
+    // Named rather than counted, because these are the ones that made the rule
+    // visible: a stretch, a warm-up drill, and a machine variant of a movement
+    // already in the pool, each carried in by three catalogues listing it.
+    for (const t of ['Quad Stretch', 'Ankle Circles', 'Smith Machine Close-Grip Bench Press']) {
+      ok(!titles.has(t), `${t} is not in the pool`);
+    }
+    // And the rule has to bite, or the assertions above are about nothing.
+    const attested = entries().filter((e) => !e.core && (e.commonality ?? 0) >= 4);
+    ok(attested.length > 50, `${attested.length} records are attested but unjudged`);
+  });
+
+  it('holds every curated record, whatever it scores', () => {
+    // Curation is +3 against a bar of 4, so a threshold dropped hand-written
+    // records that no corpus workout happens to use. Fourteen of them.
+    const missing = entries().filter((e) => (e.sources ?? []).includes('wdl-curated') && !e.core);
+    eq(missing.map((e) => e.title), [], 'curated but out of the pool');
+    const titles = new Set(pool().map((e) => e.title));
+    for (const t of ['Bar-Facing Burpee', 'Hang Power Clean', 'Squat Snatch', 'Log Press']) {
+      ok(titles.has(t), `${t} is in the pool`);
+    }
+  });
+
+  it('is 129 movements', () => {
+    // Pinned so it cannot drift in either direction unnoticed: silently growing
+    // is how `Quad Stretch` arrived, and silently shrinking is how a rebuild
+    // that forgot `mark-core` would read.
+    eq(pool().length, 129);
+  });
+
+  it('is nothing a reader would have to warm up before', () => {
+    const warmups = pool().filter((e) => e.external?.garminCategory === 'WARM_UP'
+      || /\bstretch(es)?\b/i.test(e.title));
+    eq(warmups.map((e) => e.title), [], 'warm-up and mobility work in the pool');
+  });
+
+  it('is entirely attributable, so nothing in it is unreachable', () => {
+    // `generate` drops any candidate with no primary movers, so a record in the
+    // pool without them is in a pool the generator cannot use.
+    eq(pool().filter((e) => !e.muscles?.primary?.length).map((e) => e.title), []);
+  });
+
+  it('is what a bare `?` draws from', () => {
+    const r = generate(tpl('sequence:\n  - 15 ?\n'), parseGoals(''));
+    const ids = new Set(pool().map((e) => e.id));
+    ok(r.holes[0].candidates.length > 100, `${r.holes[0].candidates.length} candidates`);
+    ok(r.holes[0].candidates.every((e) => ids.has(e.id)), 'every candidate is in the pool');
   });
 });
