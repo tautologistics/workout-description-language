@@ -168,7 +168,7 @@
         "docs/references/fit-profile-enums.json",
         "packages/core/src/adapters/fit.ts"
       ],
-      "notes": "This is the official specification, and unlike the Connect JSON API it is public. All 22 enum values our FIT exporter writes were verified against it — every one matched, including duration_type 29 (reps), which we had earlier and wrongly claimed did not exist.",
+      "notes": "This is the official specification, and unlike the Connect JSON API it is public. All 22 enum values our FIT exporter writes were verified against it \u2014 every one matched, including duration_type 29 (reps), which we had earlier and wrongly claimed did not exist.",
       "mirror": "docs/references/fit-profile-enums.json"
     },
     {
@@ -214,7 +214,7 @@
       ],
       "mirror": "docs/references/wger.json",
       "fetchScript": "scripts/fetch-wger.py",
-      "notes": "The only source carrying translations. Fetch with scripts/fetch-wger.py, which pages slowly and resumes: wger runs a small public instance. Two earlier notes here were wrong. The API does not time out — it responds in well under a second. And the failure is not DNS resolution order: forcing ipv4first changes nothing. Node cannot reach this host by either route in this environment (undici gives UND_ERR_CONNECT_TIMEOUT, the core https module gives ECONNRESET) while curl and Python's urllib both succeed. Two different failure modes from two different Node clients suggests TLS negotiation, but that is unconfirmed."
+      "notes": "The only source carrying translations. Fetch with scripts/fetch-wger.py, which pages slowly and resumes: wger runs a small public instance. Two earlier notes here were wrong. The API does not time out \u2014 it responds in well under a second. And the failure is not DNS resolution order: forcing ipv4first changes nothing. Node cannot reach this host by either route in this environment (undici gives UND_ERR_CONNECT_TIMEOUT, the core https module gives ECONNRESET) while curl and Python's urllib both succeed. Two different failure modes from two different Node clients suggests TLS negotiation, but that is unconfirmed."
     }
   ],
   "candidates": [
@@ -234,7 +234,7 @@
         "a logged-lift popularity count"
       ],
       "status": "declined 2026-08-22 on terms; measured the same day, which did not change the answer",
-      "notes": "Researched as a sixth source for names, aliases and muscle data, and declined. https://strengthlevel.com/terms-and-conditions § \"Automated Access and API Usage\" (last updated 2025-01-23) prohibits, unless authorized in writing: automated means \"to access, query or otherwise collect information from the Service\"; access through \"APIs that haven't been officially published\" — /api/exercises is undocumented, so it is exactly that; and systematically downloading, storing or copying any content. robots.txt says `Allow: /`, which is a crawl directive and not a licence, and does not survive the contract. Strength Level Limited is a UK company selling subscriptions against this data. Same disposition and same reason as `musclewiki` below. The only lawful route is written authorization or a partnership, at the Company's discretion — support@strengthlevel.com. MEASURED 2026-08-22 (a-z + 0-9, serial, 2s apart; digits return nothing) to price the decision, not to reopen it: 290 distinct exercises under standard=true; limit=256 is not a cap (largest letter 254, and limit=1000 returns the same 254); all fields 100% populated except aliases at 40.7%; the response also carries id and name, which the documented exercise.fields list does not ask for. Against our 3120: 197 already held, 0 of the 137 muscle-data gaps closed (they are stretches and mobility; this is a strength-standards catalogue), 55 genuinely new aliases of which 24 land on core movements, and 93 unresolved of which 62 are near-matches on spelling rather than new movements. bodypart is one coarse label from nine values and cannot fill muscleClaims[source] = {primary, secondary} honestly. The `count` field — real logged lifts, Bench Press 48.7M — is the popularity signal queue item 4 actually wants and is the most proprietary thing on the endpoint. Full write-up and the reasoning in docs/context/deliberately-not-done.md; the alias hole it measured is queue item 8.",
+      "notes": "Researched as a sixth source for names, aliases and muscle data, and declined. https://strengthlevel.com/terms-and-conditions \u00a7 \"Automated Access and API Usage\" (last updated 2025-01-23) prohibits, unless authorized in writing: automated means \"to access, query or otherwise collect information from the Service\"; access through \"APIs that haven't been officially published\" \u2014 /api/exercises is undocumented, so it is exactly that; and systematically downloading, storing or copying any content. robots.txt says `Allow: /`, which is a crawl directive and not a licence, and does not survive the contract. Strength Level Limited is a UK company selling subscriptions against this data. Same disposition and same reason as `musclewiki` below. The only lawful route is written authorization or a partnership, at the Company's discretion \u2014 support@strengthlevel.com. MEASURED 2026-08-22 (a-z + 0-9, serial, 2s apart; digits return nothing) to price the decision, not to reopen it: 290 distinct exercises under standard=true; limit=256 is not a cap (largest letter 254, and limit=1000 returns the same 254); all fields 100% populated except aliases at 40.7%; the response also carries id and name, which the documented exercise.fields list does not ask for. Against our 3120: 197 already held, 0 of the 137 muscle-data gaps closed (they are stretches and mobility; this is a strength-standards catalogue), 55 genuinely new aliases of which 24 land on core movements, and 93 unresolved of which 62 are near-matches on spelling rather than new movements. bodypart is one coarse label from nine values and cannot fill muscleClaims[source] = {primary, secondary} honestly. The `count` field \u2014 real logged lifts, Bench Press 48.7M \u2014 is the popularity signal queue item 4 actually wants and is the most proprietary thing on the endpoint. Full write-up and the reasoning in docs/context/deliberately-not-done.md; the alias hole it measured is queue item 8.",
       "records": 290
     },
     {
@@ -279,7 +279,7 @@
         "measured %MVIC activation per exercise"
       ],
       "status": "not imported",
-      "notes": "The only source of *measured* rather than editorially assigned muscle involvement. No consolidated open dataset exists — it is per-study, heterogeneous in protocol, and covers a few hundred exercises at most. Valuable as targeted evidence for a small set of movements; unusable as a bulk import."
+      "notes": "The only source of *measured* rather than editorially assigned muscle involvement. No consolidated open dataset exists \u2014 it is per-study, heterogeneous in protocol, and covers a few hundred exercises at most. Valuable as targeted evidence for a small set of movements; unusable as a bulk import."
     }
   ],
   "mergedCorpora": {
