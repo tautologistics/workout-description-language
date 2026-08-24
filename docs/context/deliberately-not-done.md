@@ -40,8 +40,9 @@ has a reason it is not one here. Check this before proposing one of them.
   [registry/SOURCES.json](../../registry/SOURCES.json), for the same reason.
   Revisit only on written authorization — support@strengthlevel.com.
 
-  **What the sweep found**, against the registry as it stands (3120 movements,
-  2983 with muscle data, 178 core). 36 requests, `a`–`z` and `0`–`9`, serial with
+  **What the sweep found**, against the registry as it stood on 2026-08-22
+  (3120 movements, 2983 with muscle data, 178 core — since moved to 3113, 2976
+  and 128, which changes none of the conclusions below). 36 requests, `a`–`z` and `0`–`9`, serial with
   a 2s delay; digits return nothing, so the alphabet is the sweep. The catalogue
   is **290 distinct exercises** — small, because `standard=true` is the set they
   publish strength standards for. `limit=256` is not a cap: the largest letter

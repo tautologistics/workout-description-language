@@ -84,7 +84,7 @@ Two canonical files, rebuilt by `scripts/build-canonical.ts`.
 **The row counts below, and the `mergedCorpora` block in `SOURCES.json`, are written by
 `scripts/describe-corpora.mjs` as the last step of that rebuild. Do not hand-edit them.** They were
 hand-maintained until 2026-08-22, and by then both copies still carried the figures
-`build-movements.mjs` prints *before* dedup — 3335 movements against a file holding 3120.
+`build-movements.mjs` prints *before* dedup — 3335 movements against a file holding 3113.
 
 | File | Records | Contents |
 |---|---:|---|
@@ -94,7 +94,7 @@ hand-maintained until 2026-08-22, and by then both copies still carried the figu
 **Every record names the sources that contributed to it.** That is what keeps the merge reversible:
 the licence question is deferred, not dissolved, and a record can be traced or dropped later.
 
-One honest caveat on the movement merge: only 351 of the 3120 appear in more than one source —
+One honest caveat on the movement merge: only 354 of the 3113 appear in more than one source —
 written as 233 of 3335 when the merge first ran, and restated here against the deduplicated file.
 The catalogues use genuinely different naming, so `fold()` only unifies exact matches, and the true
 overlap is certainly far higher than the merge detects — five sources each holding several hundred
@@ -111,8 +111,12 @@ Every record in `movements.canonical.json` carries three layers of it:
 - **`origin`** — each source's own identifier and the name *it* used, so a merged record can be
   traced back to the exact upstream row. Garmin's is `CATEGORY/EXERCISE`, wger's is its uuid.
 - **`muscleClaims`** — each source's muscle assignment, kept separately **wherever they disagree**.
-  178 records have this. The unioned `muscles` field is convenient; `muscleClaims` is the truth
-  about what each catalogue actually says.
+  263 records have sources that actually disagree. The unioned `muscles` field is convenient;
+  `muscleClaims` is the truth about what each catalogue actually says. *Read 178 until 2026-08-23,
+  and unlike the figures above that is not drift: it measured 262 before the registry merge and 263
+  after, so it was wrong when written and survived two passes that corrected its neighbours. The
+  number the sentence wants is records where more than one source claims muscles and the claims
+  differ; `describe-corpora.mjs` does not generate it, which is why it outlived them.*
 
 The raw, unmerged source files are mirrored under `docs/references/`, so the merge is always
 reproducible from originals rather than being the only surviving copy.
@@ -166,7 +170,7 @@ similar the rest looks. `Band Internal Rotation` and `Band External Rotation` st
 **A strict subset is a variant, not a duplicate.** If one token set contains the other and the extra
 words are all qualifiers, the longer name is a *more specific* exercise — `45 Degree Cable External
 Rotation` is not `Cable External Rotation`. These become `variantOf` links instead of merges, which
-is where a plain similarity threshold does its worst damage. 1106 such links now exist, each
+is where a plain similarity threshold does its worst damage. 1093 such links now exist, each
 pointing at the closest parent rather than the broadest.
 
 Merging is transitive via union-find, so three spellings of the same curl collapse to one record
@@ -185,7 +189,7 @@ two, so singular and plural spellings of the same movement had survived as separ
 `pull-up` and `pullups` were *both* marked core, and muscle analysis read a different one depending
 on how you spelt it. Comparing names with the word boundaries taken out found 66 such pairs, every
 one inspected before applying: **3148 → 3120 records**. The two arrows above are what each run did;
-counts elsewhere in this file that describe the corpus as it stands are against 3120.
+counts elsewhere in this file that describe the corpus as it stands are against 3113.
 
 
 ## Families: the sources' own opinion
@@ -217,7 +221,7 @@ same-family pairs.
 
 ## Where this stops: a core, and a long tail left alone
 
-Chasing duplicates through 3120 records is diminishing returns. The tail is machine variants, banded
+Chasing duplicates through 3113 records is diminishing returns. The tail is machine variants, banded
 rehab work and cable isolation nobody writes into a workout, and two of those staying separate costs
 nothing. What matters is that the *common* movements each have exactly one canonical record.
 
@@ -250,4 +254,4 @@ similarity cannot tell a qualifier from the thing being qualified without knowin
 movements — and at that point it is a taxonomy, not a string comparison.
 
 So the core is clean, the tail is left as it is, and the useful structure that remains is the part
-that does not depend on names at all: 1106 `variantOf` links and 50 source-attested families.
+that does not depend on names at all: 1093 `variantOf` links and 50 source-attested families.

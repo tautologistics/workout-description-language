@@ -824,6 +824,21 @@ when something looks odd before treating it as a discovery.
   Nothing about Pistol changed. This is `mark-core`'s threshold behaving as
   documented — "a threshold, not a truth" — and it is an argument for queue item
   4, where pool membership is decided by judgement instead of by score.
+- **`describe-corpora.mjs` regenerates the table row and leaves the prose
+  beside it to rot.** The generator writes `SOURCES.json` and the `SOURCES.md`
+  table, which is why those were right after the registry merge while six
+  figures in the same file's prose were not: the corpus size in two places, the
+  cross-source caveat, the `variantOf` count in two more. Fixed by hand on
+  2026-08-23, which is the third time this file has been corrected by hand and
+  the second time a generator existed while it happened.
+
+  One of the six was **not** drift and is the sharper finding: *"178 records
+  have this"* about disagreeing `muscleClaims` measured **262** before the merge
+  and 263 after. It was wrong when written and outlived two separate passes that
+  corrected the figures on either side of it, because nothing generates it and
+  nothing counts it. The fix is to widen the generator to the prose figures it
+  can derive, rather than to keep correcting them.
+
 - **Two curated records for the barbell bent-over row, and no verdict on which
   survives.** Surfaced 2026-08-23 by the merge itself, visible from no single
   branch: one session curated `barbell-row` into the generation pool (a
