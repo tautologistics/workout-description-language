@@ -40,17 +40,16 @@ A change to the apps needs `build-web.mjs` before the browser sees it, and the
 board and builder are verified by driving them, not only by the suite — see
 *Tests do not read* in [lessons-learned.md](lessons-learned.md).
 
-**A change to the registry needs the corpus attributed twice, and there is no
-command for it.** The golden snapshot holds shape, pacing and volume, and
-muscle attribution is in none of them — so a merge that moves which record a
-name points at moves muscles and *nothing the regenerators can see*. Until the
-digest covers it (queued under item 8), the check is by hand: keep the previous
-`registry/movements.canonical.json`, run `muscleLoad(compile(parse(src)))` over
-every file in `examples/corpus` against each of the two, and diff. `provide()`
-takes the corpus as a thunk, so pointing one run at an old file is a one-line
-change — see `packages/core/node.ts` for the shape of the providers. Recorded
-because "the goldens regenerated clean" was true and meant nothing; the
-[lessons-learned.md](lessons-learned.md) entry has the case.
+**A change to the registry is checked by regenerating the goldens, like every
+other change.** `node packages/core/test/golden/generate.ts`, then read the
+diff: the digest holds each file's muscle attribution as well as its shape,
+pacing and volume, so a merge that moves which record a name points at moves
+`interpretations.json` and says so. *Corrected 2026-08-23: for one day this
+paragraph gave a by-hand recipe — attribute all 190 files twice, once against
+each `registry/movements.canonical.json`, and diff — because attribution was in
+no digest and "the goldens regenerated clean" was true and meaningless after a
+merge. That gap is closed; the [lessons-learned.md](lessons-learned.md) entry
+keeps the case, because the reflex it teaches outlives the recipe.*
 
 **The parser is an Ohm grammar as of 2026-08-15, and it is slower.** Measured on
 the day of the swap: parsing all 190 corpus files went from **3.1ms to 172ms**

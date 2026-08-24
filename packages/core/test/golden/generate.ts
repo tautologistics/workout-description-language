@@ -3,10 +3,10 @@
  *   node test/golden/generate.ts
  *
  * The snapshot is a compact digest of how every corpus file is *understood* —
- * structure, totals, pacing, duration. Hand-written assertions in truth.test.ts
- * cover the well-known workouts against outside fact; this covers the rest, so
- * a change in interpretation anywhere shows up as a reviewable diff rather than
- * silently passing a round-trip.
+ * structure, totals, pacing, duration, and what it works. Hand-written
+ * assertions in truth.test.ts cover the well-known workouts against outside
+ * fact; this covers the rest, so a change in interpretation anywhere shows up
+ * as a reviewable diff rather than silently passing a round-trip.
  */
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -17,6 +17,7 @@ import '../../node.ts';
 import { parse } from '../../src/parse.ts';
 import { compile, type TimelineItem } from '../../src/timeline.ts';
 import { volume } from '../../src/volume.ts';
+import { muscleLoad } from '../../src/muscles.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const CORPUS = join(here, '../../../../examples/corpus');
@@ -57,6 +58,21 @@ export function digest(src: string) {
     movements: Object.fromEntries(Object.entries(v.byMovement)
       .map(([k, m]) => [k, [m.reps, r(m.distanceM), m.calories, m.seconds]])
       .filter(([, a]) => (a as number[]).some(Boolean))),
+    // What the workout works, which is the one thing here that a *registry*
+    // change can move. Everything above is a property of the text; muscles are
+    // a property of the record the text resolves into, so a merge that changes
+    // which record a name points at moves this and nothing else. Leaving it out
+    // made "the goldens regenerated clean" true and meaningless after a merge —
+    // see docs/context/lessons-learned.md.
+    //
+    // Per muscle: exposures, then the same four amounts as `movements` twice —
+    // once for the steps it drives, once for the steps it assists. The two are
+    // kept apart because a merge can move a muscle between them without moving
+    // a number, and combining them behind a weighting would hide that.
+    muscles: Object.fromEntries(Object.entries(muscleLoad(t).byMuscle)
+      .map(([k, m]) => [k, [m.exposures,
+        m.primary.reps, r(m.primary.distanceM), m.primary.calories, m.primary.seconds,
+        m.secondary.reps, r(m.secondary.distanceM), m.secondary.calories, m.secondary.seconds]])),
     warnings: t.warnings.length,
   };
 }

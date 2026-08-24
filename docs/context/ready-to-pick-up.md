@@ -935,20 +935,30 @@ open:
   same shape and have not been looked at.
   *Touches: `registry/movements.json`, `scripts/dedupe-movements.mjs`,
   `packages/core/src/fold.ts`.*
-- **The golden digest should cover muscle attribution, and does not.** Raised
-  2026-08-23 by the merges above, which moved eight corpus files and were
-  reported clean by every regenerator. `test/golden/generate.ts` holds shape,
-  seconds, pacing, unbounded and volume-by-movement — everything about how a
-  *workout* is understood — and muscles are a property of the registry the
-  workout points into, which is why they were left out and why leaving them out
-  was defensible right up until a registry change needed reviewing. Adding
-  `muscleLoad`'s `byMuscle` to the digest makes a merge a reviewable diff like
-  everything else. It will move `interpretations.json` for most of the 190 files
-  on the first run, so it wants to land on its own rather than inside another
-  change.
-  *Touches: `packages/core/test/golden/generate.ts`,
-  `packages/core/test/golden/interpretations.json`,
-  `packages/core/test/golden.test.ts`.*
+- **~~The golden digest should cover muscle attribution, and does not.~~ DONE
+  2026-08-23.** `muscles` is a field of the digest now: per muscle, how many
+  exposures reached it and the same four amounts `movements` already carries,
+  once for the steps it drives and once for the steps it assists. Primary and
+  secondary are kept apart because **a merge can move a muscle between them
+  without moving a number**, and one combined figure would hide exactly that.
+
+  **It was verified against the change that raised it, not against reasoning.**
+  `provide()` takes the corpus as a thunk, so a throwaway run digested all 190
+  files twice — once against `registry/movements.canonical.json` and once
+  against the file as it stood before the `sameAs` merges (`adfefe5`) — and the
+  new digest differs in **exactly the eight files that merge moved, and in
+  nothing but `muscles`**. Those eight are the ones every regenerator called
+  clean on the day; `11-mary` gains a `hamstrings` entry that was not there at
+  all, which is the shape of change nothing could previously see.
+
+  **The diff is 22,710 added lines and not one removed**, across all 190 files
+  — which is why this was kept off the back of a registry change. The suite is
+  unchanged at 1790 passing / 1 pending, and so is the time it takes:
+  `muscleLoad` over the corpus is a fraction of a second, and `muscles.test.ts`,
+  `fold.test.ts` and `generate.test.ts` were already building the canonical
+  registry, so the golden suite inherits it rather than paying for it.
+  *Touched: `packages/core/test/golden/generate.ts`,
+  `packages/core/test/golden/interpretations.json`.*
 
 `node scripts/check-aliases.mjs` reports both failure shapes — a key two records
 claim, and an alias whose plural shadows another record — across both registries.

@@ -809,6 +809,13 @@ would have hidden both.
 
 *Ask which digest would have to move for the change you actually made. If the
 answer is "none of them", that is not reassurance — it is a gap.* Recorded
-2026-08-23. Closing the gap properly — putting `byMuscle` in the digest — is
-queued under item 8; until then the by-hand recipe is in
-[running-it.md](running-it.md).
+2026-08-23.
+
+*Closed the same day: `muscleLoad`'s `byMuscle` is in the digest, so the eight
+files that moved would now have moved `interpretations.json` too — verified by
+regenerating against the pre-merge `movements.canonical.json`, which produces a
+difference in exactly those eight and in nothing else. The by-hand recipe is
+gone from [running-it.md](running-it.md). **The lesson is not retired with it**,
+because what cost the time was not the missing recipe: it was believing three
+green checks that were each answering a question nobody had asked. The next
+change of a kind no digest covers will look exactly as clean as this one did.*
