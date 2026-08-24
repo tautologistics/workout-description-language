@@ -83,7 +83,8 @@ const state = {
   lines: [],
   cues: [],
   cycles: [],
-  window: undefined,
+  cap: undefined,    // seconds, when a cap bounds the whole workout
+  timeUp: false,     // the cap ran out; the cursor stopped where it stood
   at: -1,            // -1 is "not started"
   startedAt: 0,      // ms, for the whole workout
   cueStartedAt: 0,   // ms, for the current cue
@@ -178,6 +179,11 @@ function paint() {
   // says Ready when you have just done the last rep is telling you nothing
   // happened.
   const finished = state.cues.length > 0 && state.at >= state.cues.length;
+  // The cap ran out. Distinct from `finished`: the cursor is still on a real
+  // cue, mid-workout, and the label says so rather than claiming "Done" —
+  // "Done" would say the athlete reached the last cue, which capping out never
+  // certifies.
+  const timeUp = state.timeUp;
   el('now-label').textContent = cue ? cue.label : finished ? 'Done' : 'Ready';
   // The division leads, and it is the one item here that never changes while
   // the workout runs. It earns the place because the label above it may name a
@@ -189,7 +195,8 @@ function paint() {
     cue ? roundLabel(cue.rounds) : '',
     cycle ? cycle.label : '',
     cycle && state.lap ? `pass ${state.lap + 1}` : '',
-    cue?.pacing === 'athlete' ? 'press space when done' : '',
+    cue?.pacing === 'athlete' && !timeUp ? 'press space when done' : '',
+    timeUp ? 'time — cap reached' : '',
     finished ? `${state.cues.length} cues` : '',
   ].filter(Boolean).join(' · ');
 
@@ -198,16 +205,17 @@ function paint() {
   el('position').textContent = state.cues.length
     ? `${Math.min(Math.max(0, state.at + 1), state.cues.length)} / ${state.cues.length}${cycle ? '+' : ''}`
     : '';
-  el('prev').disabled = state.at <= 0;
-  el('next').disabled = !state.cues.length || finished;
+  el('prev').disabled = state.at <= 0 || timeUp;
+  el('next').disabled = !state.cues.length || finished || timeUp;
   // A section with no clock ends when the athlete says so, and there has to be
-  // something to say it with. Shown only where it means something.
-  el('leave').hidden = !cycle;
-  el('start').disabled = finished;
+  // something to say it with. Shown only where it means something — and once
+  // the cap has ended the workout there is nothing left to leave.
+  el('leave').hidden = !cycle || timeUp;
+  el('start').disabled = finished || timeUp;
   // Once a session has begun there is something to record, whether or not it
   // reached the end: a workout you stopped halfway still happened.
   el('record-open').hidden = state.at < 0;
-  el('start').textContent = state.running ? 'Pause' : state.at < 0 ? 'Start' : 'Resume';
+  el('start').textContent = state.running ? 'Pause' : timeUp ? 'Time' : state.at < 0 ? 'Start' : 'Resume';
 }
 
 /** Seconds spent in the section the cursor is in, frozen while paused. */
@@ -222,6 +230,17 @@ function expired(cycle) {
 }
 
 /**
+ * True when the workout's own cap has run out. A workout with none never has.
+ *
+ * `Run.cap` counts only on the spine (the same rule a window follows), so this
+ * is the workout's own deadline rather than any one section's — a section
+ * inside a capped workout can still expire first, and does, in `77-tiff.wdl`.
+ */
+function capExpired() {
+  return state.cap !== undefined && totalElapsed() >= state.cap;
+}
+
+/**
  * The clock ticks on the cue, on the section, and on the workout as a whole.
  *
  * The big number is the nearest deadline: the cue's if it has one, otherwise the
@@ -233,6 +252,13 @@ function expired(cycle) {
  * A timed cue counts *down*, because what matters mid-effort is how much is
  * left, and one that overruns keeps counting, in red, rather than sitting at
  * zero pretending the athlete finished.
+ *
+ * A cap is a third clock on top of the cue and the section, and reads as the
+ * same "the clock" the section already does — the athlete cares which number
+ * is nearer, not which field of the file produced it. `77-tiff.wdl` runs a
+ * cap and a section clock at once (`for time, cap 25min:` around a bare
+ * `AMRAP:`), so `onClock` takes whichever of the two is closer, the same way
+ * a cue's own clock already outranks the section's.
  */
 function tick() {
   const cue = state.cues[state.at];
@@ -240,7 +266,11 @@ function tick() {
   const now = performance.now();
   const elapsed = state.running ? (now - state.cueStartedAt) / 1000 : state.heldCue ?? 0;
   const total = state.running ? (now - state.startedAt) / 1000 : state.heldTotal ?? 0;
-  const onClock = cycle?.window !== undefined ? cycle.window - cycleElapsed() : undefined;
+  const sectionClock = cycle?.window !== undefined ? cycle.window - cycleElapsed() : undefined;
+  const capClock = state.cap !== undefined ? state.cap - total : undefined;
+  const onClock = sectionClock === undefined ? capClock
+    : capClock === undefined ? sectionClock
+    : Math.min(sectionClock, capClock);
 
   let text, sub, waiting = false, overrun = false, aside = '';
   if (!cue) {
@@ -266,6 +296,11 @@ function tick() {
   bar.classList.toggle('waiting', waiting && !overrun);
   bar.classList.toggle('overrun', overrun);
 
+  // The cap ends the whole workout where the cursor stands — spec §5.6 — so it
+  // is checked before a section's own clock: the outermost deadline outranks
+  // one that only bounds part of the work, the same way a section's clock
+  // outranks a cue's.
+  if (state.running && capExpired()) { capOut(); return; }
   // The clock that bounds a section ends it where you stand: an AMRAP does not
   // let you finish the round you are in. Checked before the cue's own clock
   // because it is the outer deadline — the last row of a 20-minute AMRAP does
@@ -324,6 +359,24 @@ function finish() {
   tick();
   // The record is what the session was for; it should not need finding. Shown
   // rather than written over anything the athlete has already typed into it.
+  if (state.splits.length || state.at > 0) showRecord();
+}
+
+/**
+ * The cap ran out. Spec §5.6: the workout ends — so, unlike `finish()`, the
+ * cursor is left exactly where it stands rather than moved to the last cue. A
+ * cap did not certify the athlete reached the end of what was written, only
+ * that the clock did; `state.at` staying put is what keeps `measuredScore`
+ * honest about that, and what a score *on cap* means is item 2's question, not
+ * this one's.
+ */
+function capOut() {
+  markSplit();
+  state.running = false;
+  state.timeUp = true;
+  hold();
+  paint();
+  tick();
   if (state.splits.length || state.at > 0) showRecord();
 }
 
@@ -442,6 +495,7 @@ function reset() {
   state.splits = [];
   state.seen.clear();
   state.running = false;
+  state.timeUp = false;
   state.heldCue = 0;
   state.heldTotal = 0;
   state.heldCycle = 0;
@@ -737,7 +791,7 @@ function recue() {
 
   state.cues = laid.cues;
   state.cycles = laid.cycles;
-  state.window = laid.window;
+  state.cap = laid.cap;
 
   // Errors mean the board is showing something the parser did not fully
   // understand. Say so, and show it anyway — a workout you can read beats a
