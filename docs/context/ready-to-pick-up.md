@@ -699,10 +699,47 @@ fifth grammar guessing at the other four.
 `spec/spec-0.1.md` §3, `examples/results/` (new),
 `examples/goals/ramp-the-squat.wdlg` (new).*
 
-**3. A capped for-time reports `duration` where it means "at most".** `run()`
-does not expose the cap separately from a computed total. Same class as the
-AMRAP `duration`/`window` conflation, one step along.
-*Touches: `packages/core/src/run.ts`, `apps/builder/builder.js`.*
+**3. ~~A capped for-time reports `duration` where it means "at most".~~
+DONE 2026-08-23.** `Timeline.cap` and `Run.cap` carry the bound; `estimatedSeconds`
+and `totalSeconds` carry the length; neither stands in for the other. The builder
+and `wdl timeline` print two rows — `duration: athlete-paced` and `cap: 12:00 at
+most` — because they answer two questions.
+
+**The item as written was half the answer, and driving the corpus found the other
+half.** "A cap is not a duration" is true of nine of the ten capped files and
+*false* of `77-tiff.wdl`, which is a run and then a bare `AMRAP:`. That AMRAP
+takes whatever is left of the cap (spec §5.6), so the block ends **at**
+twenty-five minutes rather than merely by then, and twenty-five is its length.
+So the rule is not about caps at all: it is about whether the work inside ends
+when the *work* is done or when the *clock* is. `fillsTheClock()` in `timeline.ts`
+is that one question, and it is the reason a blanket fix would have broken a file
+the suite was already pinning correctly.
+
+**A second defect, found by driving the builder and not by the suite.** `run()`
+sums the cues itself when every one is timed, and that sum never knew about the
+cap — so `for time, cap 5min:` over eight minutes of rowing and biking printed
+`duration 8:00` beside `cap 5:00 at most`, two rows contradicting each other on
+one screen. `estimate()` had clamped the same case correctly for as long as it
+has existed; run's sum was a worse copy of it. Only visible once the cap had a
+row of its own, which is the shape of every bug this pane has found.
+
+**Where the number moved, and where it did not.** Nine corpus files lose an
+`estimatedSeconds` and gain a `cap`; `77-tiff.wdl` keeps both; nothing else in
+190 files moves. `wdl export --to connect` hands the cap over as
+`estimatedDurationInSecs` where there is no length — Connect has one field and
+nowhere to say "at most", so the choice is now explicit instead of inherited from
+a timeline that blurred the two. The golden digest records `cap` beside `seconds`
+so the distinction is pinned for every file, not only the ten. 1742 → 1749
+passing, 1 pending.
+*Touched: `packages/core/src/timeline.ts`, `run.ts`, `adapters/garmin-connect.ts`,
+`bin/wdl.ts`, `apps/builder/builder.js`, `scripts/build-workouts.mjs`,
+`spec/spec-0.1.md` §5.6, `test/timeline.test.ts`, `test/run.test.ts`,
+`test/golden/generate.ts` + `interpretations.json`,
+`registry/workouts.canonical.json`.*
+
+**The gap this leaves is item 8**, and it is filed rather than folded in: the
+board still shows no cap, because telling the two numbers apart and deciding what
+a running clock does when one expires are different pieces of work.
 
 **4. ~~Curate the generation pool.~~ DONE 2026-08-23.** `mark-core` scored 178
 movements in on source agreement, which is a proxy for "commonly catalogued", not
@@ -878,17 +915,42 @@ is why the two halves of this item are one job.
 *Touches: `registry/movements.json`, `scripts/build-movements.mjs`,
 `scripts/find-duplicates.mjs`, and a regenerate of `registry/`.*
 
-*Ordering of 5, 6, 7 and 8 against 1-4 is not settled - they are appended rather
-than placed. The first three were raised by writing and sending one workout
-rather than by a plan; 8 came out of pricing a source that was declined.
-**0f was lettered rather than numbered on purpose** - grammar work, belonging
-with the 0-series - and both its halves are closed. Closed so far: the whole
-0-series, 1, 1a and 2, so **the open numbered items run from 3 up**. Stated as a
-set rather than as a name on purpose: a pointer naming one item goes stale the
-moment that item lands, which is how the previous one came to send readers at
-finished work. The one thing 0f left behind is `TABATA`, which is not an
-abbreviation to read but a structure to define; it is written up under 0f rather
-than given a number, because nobody has asked for it yet.*
+**9. A cap is a clock, and the board does not run it.** Open 25.2 on the board
+counts *up* from zero with nothing to race, which is the wrong number on the
+screen for the one workout shape where a clock is the entire point — a twelve
+minute cap is what the athlete is looking at. Raised 2026-08-23 while closing
+item 3, which is what makes it cheap: `Run.cap` exists now and is exactly what a
+countdown reads.
+
+**The reason it is not part of item 3 is the expiry, not the display.** A cap
+creates no cycle, so the board's countdown — which comes from `cycle.window` via
+`expired()` — never sees it. Wiring the number up is small. Deciding what happens
+when it runs out is not: spec §5.6 says *the workout ends*, so the cursor should
+presumably stop where it stands rather than advance, and §9.5 says the score
+becomes reps completed, which is a statement about a result and therefore leans
+on item 2. The honest middle is probably to show the countdown and stop at zero
+without claiming anything about the score.
+
+**Two things to settle while there.** A cap and a section window can both be
+running (`for time, cap 25min:` around a bare `AMRAP:` — `77-tiff.wdl`), so the
+board needs a rule for which is the nearer deadline, and it already has one for
+the cue-versus-section case to copy. And `state.window` in `board.js` is
+**assigned and never read** — dead since the cycle rewrite — so the cap should
+not be plumbed in beside it without deleting it.
+*Touches: `apps/display/board.js`, and `board.css` if the cap needs its own row.*
+
+*Ordering of 5, 6, 7, 8 and 9 against 1-4 is not settled - they are appended
+rather than placed. 5, 6 and 7 were raised by writing and sending one workout
+rather than by a plan; 8 came out of pricing a source that was declined, and 9
+out of closing item 3. **0f was lettered rather than numbered on purpose** -
+grammar work, belonging with the 0-series - and both its halves are closed.
+Closed so far: the whole 0-series, 1, 1a, 2 and 3, so **the open numbered items
+are 4 and up**. Stated as a set rather than as a name on purpose: a pointer
+naming one item goes stale the moment that item lands, which is how an earlier
+one came to send readers at finished work. The one thing 0f left behind is
+`TABATA`, which is not an abbreviation to read but a structure to define; it is
+written up under 0f rather than given a number, because nobody has asked for it
+yet.*
 
 **Nobody has run a session off the board.** Everything is verified by tests and
 by driving the UI. Every defect Chris has caught by *looking* — `21 Thruster`,

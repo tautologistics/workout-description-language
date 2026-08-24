@@ -353,7 +353,11 @@ export function exportGarminConnect(t: Timeline, opts: ConnectExportOptions = {}
     workoutName: (opts.name || t.root.label || 'Workout').slice(0, 80),
     description: opts.description ?? '',
     sportType,
-    estimatedDurationInSecs: t.estimatedSeconds ?? 0,
+    // Connect wants one number and has nowhere to say "at most", so a capped
+    // workout hands over its cap. That is the closest true thing the field can
+    // hold, and it is chosen here rather than inherited from a timeline that
+    // used to blur the two.
+    estimatedDurationInSecs: t.estimatedSeconds ?? t.cap ?? 0,
     workoutSegments: [{ segmentOrder: 1, sportType, workoutSteps }],
   };
 

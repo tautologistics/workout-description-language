@@ -689,3 +689,35 @@ not, and the distribution argument from 2026-08-15 holds exactly: the corpus is
 190 *definitions*, so no amount of widening it could have contained an hour-long
 finishing time. *A new record type is a new distribution of input, and the
 cheapest way to test one is to write a real one.* Recorded 2026-08-23.
+
+**A rule stated as "X is never Y" is worth testing against the corpus before it
+is written down, because the corpus is where the exception lives.** Queue item 3
+said a cap is not a duration, which is true of nine of the ten capped files and
+false of the tenth. `77-tiff.wdl` is a run and then a bare `AMRAP:`, and that
+AMRAP takes whatever is left of the cap — so the block ends **at** twenty-five
+minutes and twenty-five minutes is its length. A blanket "a cap is a bound"
+would have broken a file the suite was already pinning correctly, and the failure
+would have looked like a test being wrong rather than a rule being too wide.
+
+The exception was not a special case to carve out; it was the actual rule showing
+through. The question is never "is there a cap" but **"does the work inside end
+when the work is done, or when the clock is"** — and once it is asked that way
+the AMRAP case falls out rather than being excluded. *When a fix needs an
+exception list, the rule is probably one question away from not needing one.*
+Recorded 2026-08-23.
+
+**Two numbers computed in two places agree until something puts them side by
+side.** `run()` sums the cues itself when every one is timed, and that sum never
+knew about a cap; `estimate()` in `timeline.ts` had clamped the same case with
+`Math.min(total, cap)` since the day it was written. Both had been shipping for
+months and neither was ever wrong on screen, because the cap had no row of its
+own — so the only visible number was the wrong one, alone, with nothing to
+disagree with. Giving the cap a row made `for time, cap 5min:` over eight minutes
+of rowing print `duration 8:00` beside `cap 5:00 at most`, two rows contradicting
+each other, and that was the first anyone knew of it.
+
+*Adding a display for a value you already had is a way of testing every other
+value beside it.* The suite could not have found this: it asserts the two numbers
+in two different files, and nothing asked them the same question at the same
+time. Recorded 2026-08-23, and it is [the builder pane](builder-ux.md) finding a
+core bug for the third time.

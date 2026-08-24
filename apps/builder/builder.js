@@ -264,6 +264,12 @@ function renderReading() {
     ...(laid.window
       ? [['clock', clock(laid.window)]]
       : [['duration', laid.totalSeconds !== undefined ? clock(laid.totalSeconds) : 'athlete-paced']]),
+    // And a cap is neither. It says how long you are *given*, so a capped
+    // for-time workout read `duration: 12:00` — "this takes twelve minutes"
+    // where the file says "you have at most twelve". Its own row, its own word,
+    // and the duration beside it now says `athlete-paced`, which is the true
+    // answer to the question the other row asks.
+    ...(laid.cap !== undefined ? [['cap', `${clock(laid.cap)} at most`]] : []),
     // A cycle that covers the whole workout is the workout repeating; one that
     // covers part of it is a section that does, and saying "repeats until the
     // clock stops" of the whole thing puts the buy-in and the buy-out on a

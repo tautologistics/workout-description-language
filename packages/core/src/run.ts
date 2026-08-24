@@ -61,6 +61,16 @@ export interface Run {
   /** The overall clock, when one bounds the workout. */
   window?: number;
   /**
+   * The most the workout may take, when a cap bounds it.
+   *
+   * Not a total. `for time, cap 12min:` was reported as `totalSeconds`, which a
+   * display reads as "this takes twelve minutes" where it means "you have at
+   * most twelve" — an athlete who finishes in eight took eight. The cap and the
+   * total are the same number only where the cap is also the length: a bare
+   * AMRAP under one runs until it expires (spec §5.6).
+   */
+  cap?: number;
+  /**
    * The parts that come round again, in order. A workout that is entirely an
    * AMRAP has one covering every cue; a buy-in around one has a cycle covering
    * only the middle, which is the difference `loops` cannot express.
@@ -172,11 +182,26 @@ export function run(t: Timeline, opts: RunOptions = {}): Run {
   walk(t.root, [], true);
   if (truncated) warnings.push(`run truncated at ${maxCues} cues`);
 
-  const totalSeconds = cues.every((c) => c.seconds !== undefined) && !loops
+  // Summing the cues answers a question the tree cannot once a caller has asked
+  // for an unbounded block to be laid out flat, so the sum stands — but a cap
+  // stops the clock whatever the cues add up to. Without this a fully-timed
+  // workout under a five-minute cap reported eight minutes of work beside the
+  // five minutes it is given, which is two rows contradicting each other.
+  const summed = cues.every((c) => c.seconds !== undefined) && !loops
     ? cues.reduce((n, c) => n + (c.seconds ?? 0), 0)
-    : t.estimatedSeconds;
+    : undefined;
+  // The cap is taken from the timeline rather than hoisted in the walk above,
+  // because the rule is the same one and it is stated there: only a group on
+  // the spine may speak for the workout.
+  const cap = t.cap;
+  const totalSeconds = summed === undefined ? t.estimatedSeconds
+    : cap !== undefined ? Math.min(summed, cap)
+    : summed;
 
-  return { cues, loops, window, cycles, totalSeconds, warnings };
+  // The cap comes from the timeline rather than from this walk, because the
+  // rule is the same one and it is stated there: only a group on the spine may
+  // speak for the workout.
+  return { cues, loops, window, cap, cycles, totalSeconds, warnings };
 }
 
 /**

@@ -316,6 +316,9 @@ for (const file of files) {
     console.log(t.estimatedSeconds !== undefined
       ? `\n  duration: ${fmtClock(t.estimatedSeconds)}`
       : '\n  duration: athlete-paced');
+    // A cap is a separate line and a separate word, because it answers a
+    // different question: not how long this takes, but how long you are given.
+    if (t.cap !== undefined) console.log(`  cap: ${fmtClock(t.cap)} (at most)`);
     for (const w of t.warnings) console.log(`  warning: ${w}`);
   } else if (cmd === 'check') {
     const diags = validate(workout);

@@ -80,11 +80,15 @@ when something looks odd before treating it as a discovery.
   mangling back. The extension is the whole of the check, because sniffing the
   contents would be a fifth grammar guessing at the other four — which leaves a
   template, whose extension is honest, exactly where it was.*
-- A capped for-time workout reports `duration: 12:00` in the builder, which
-  reads as "this takes twelve minutes" where it means "you have at most twelve".
-  `run` does not expose the cap separately from a computed total, so telling
-  them apart needs a core change. Same class as the AMRAP `duration`/`window`
-  duplication that Chris caught.
+- `state.window` in `apps/display/board.js` is **assigned and never read** — dead
+  since the countdown moved onto `cycle.window`. Harmless, and worth deleting
+  rather than plumbing a cap in beside it; queue item 9 is where that happens.
+- ~~A capped for-time workout reports `duration: 12:00` in the builder.~~
+  **Closed 2026-08-23** by queue item 3. `Timeline.cap` and `Run.cap` hold the
+  bound, `estimatedSeconds` and `totalSeconds` hold the length, and neither
+  stands in for the other; the builder and `wdl timeline` say `duration:
+  athlete-paced` and `cap: 12:00 at most` on two rows. See
+  [what-exists.md](what-exists.md).
 
 - ~~**An unrecognized `measure:` in a goal file was silently swapped for the
   default.**~~ **Closed 2026-08-19.** `DIMENSIONS[written] ?? fallback` meant

@@ -392,6 +392,13 @@ for time, cap 15min:
 
 Wraps any container. On expiry the workout ends; scoring follows §9.5.
 
+**A cap is a bound, not a duration.** It says how long you are *given*, and a
+capped for-time workout is still athlete-paced: an athlete who finishes Open 25.2
+in eight minutes took eight, not the twelve they were allowed. A tool must not
+report a cap as how long the workout takes. The one case where the two coincide
+is work that runs until the clock stops rather than until the work is done — the
+bare `AMRAP:` below — which ends *at* the cap and so has that as its length.
+
 **A cap can supply an AMRAP's window.** A bare `AMRAP:` is legal when something above it bounds the time — the "buy-in then AMRAP with whatever is left" shape:
 
 ```wdl
