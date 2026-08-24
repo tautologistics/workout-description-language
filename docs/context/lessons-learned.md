@@ -564,3 +564,39 @@ true now, so the *shape* of the sentence says which kind it is — and when a fi
 changes the corpus as a side effect, the owning doc is part of the change, not
 follow-up. Present-tense figures against `movements.canonical.json` are cheap to
 re-derive; there is no reason for one to be wrong. Recorded 2026-08-23.
+
+**A source has two gates, and the one that costs nothing is the licence.** Strength
+Level was researched as a sixth registry source on 2026-08-22. The terms took
+four minutes to read and closed it: *Automated Access and API Usage* forbids
+automated collection and, by name, access "through APIs that haven't been
+officially published", which is exactly what an undocumented `/api/exercises` is.
+`robots.txt` said `Allow: /`, and that is the trap worth naming — **a crawl
+directive is not a licence**, and reading it as one would have had the whole merge
+designed before anything checked whether the data could be used at all.
+
+Two things came out of it that are not about this source.
+
+**The shape of a claim is a second gate, and it is not the same question as
+whether the claim is true.** Their `bodypart` is one coarse label from nine
+values; every existing source fills `muscleClaims[source] = { primary, secondary
+}`, and `mark-core` counts *how many sources* named each muscle. *Legs* maps onto
+six of the closed 19, so writing it in as a primary claim on all six would not
+merely be imprecise — it would **manufacture agreement**, reading to the scorer
+as a sixth source independently confirming what wger said. A coarse claim
+recorded in a precise field does not degrade gracefully; it forges a vote. Ask
+what *kind* of claim a source makes before asking how good it is.
+
+**A source you decline can still pay, and the payment is a measurement.** The
+sweep was run afterwards, deliberately, to price the decision rather than reopen
+it. It closed **0** of the 137 muscle-data gaps — predicted near-zero, measured
+exactly zero, because the gaps are stretches and mobility and this was a
+strength-standards catalogue. But it found **55** names for movements we already
+hold that the registry cannot resolve, 24 of them on core movements. The 55 are
+`Pulldown`, `Bench`, `Seated Row`, `Pushdown` — gym shorthand any curator writes
+unaided from our own titles. **The data was unusable and the measurement was
+not**: it sized a hole nobody had sized, and that hole is queue item 8. Comparing
+their aliases to ours also threw 52 collisions, a good share of which are
+duplicates *inside our registry* rather than disagreements with theirs.
+
+*Declining a source is a decision about its data. It is not a decision about what
+looking at it can teach.* Recorded 2026-08-22.
