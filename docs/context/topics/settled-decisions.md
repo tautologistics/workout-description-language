@@ -4,13 +4,29 @@ Closed questions, and what each answer buys. Read this before changing how
 something is structured: reopening one of these needs a reason better than "it
 would be tidier".
 
+The fifteen structurally significant decisions carry a `DEC-NNN` heading and
+are indexed with a one-line summary in [../decisions.md](../decisions.md);
+every decision below — headed or not — is equally settled, the heading only
+marks the ones worth a top-level pointer.
+
+### DEC-001 Intent lives outside the workout
+*Status: active.*
+
 - **Intent lives outside the workout.** Goals are a separate artifact. The same
   workout is good against one intent and bad against another, which is unsayable
   if the intent is inside the file.
+
+### DEC-002 Two-phase parse
+*Status: active.*
+
 - **Two-phase parse.** `readLines` turns indentation into a tree and knows
   nothing about workouts; phase 2 is an ordinary line grammar over it. This has
   paid for itself three times: workouts, goals and programs are each a grammar
   over the same reader.
+
+### DEC-003 `src/` is portable and is handed its data
+*Status: active. Sharpened 2026-08-15.*
+
 - **`src/` is portable and is handed its data.** Enforced by a test. It decays
   the moment one module adds one convenient import, and the Node suite would keep
   passing while the browser broke.
@@ -24,6 +40,9 @@ would be tidier".
   `ohm-js` fail there in the same way. `portable.test.ts` and
   `scripts/build-web.mjs` now read every specifier in a file and fail on any that
   does not start with `.`, naming the file and the specifier.
+### DEC-004 The dependency rule binds the shipped core, not the repository
+*Status: active. Recorded 2026-08-14.*
+
 - **The dependency rule binds the shipped core, not the repository.** The rule
   is: **`packages/core/src/` has no external dependencies**, because it ships
   into a server, a browser and eventually a mobile app, and a dependency there
@@ -36,6 +55,9 @@ would be tidier".
   *Recorded 2026-08-14, after the loose phrasing was read as a repo-wide ban and
   nearly bought a hand-written PEG engine that a build-time generator already
   does. See [lessons-learned.md](lessons-learned.md).*
+### DEC-005 The text is the document
+*Status: active.*
+
 - **The text is the document.** Structural edits splice lines in place rather
   than regenerating from the AST, so comments and spacing survive. Canonicalising
   is a button, never a side effect.
@@ -68,15 +90,21 @@ would be tidier".
   colloquial spelling (`tyre flip`, `australian pull-up`, `prowler push`), or a
   word order the token matcher does not reach. `node scripts/check-aliases.mjs`
   reports every alias that stops pointing somewhere unique.
+### DEC-006 The grammar is written in PEG, notation carries no actions
+*Status: active. Settled 2026-08-14.*
+
 - **The grammar is written in PEG, and the notation carries no actions.** Settled
   2026-08-14 by the exploration in
-  [../grammar-exploration.md](../grammar-exploration.md). PEG rather than EBNF
+  [../grammar-exploration.md](../../grammar-exploration.md). PEG rather than EBNF
   because WDL's rules are inherently *ordered* — `each arm` before bare `each`,
   `min` before a bare `m` — and EBNF's alternation is unordered, so every such
   rule would need a prose caveat beside it, which is prose beside an
   implementation again. In PEG the ordering *is* the specification. The grammar
   file holds no semantic actions, so it stays readable as a contract and
   portable; what each production contributes to the AST is a separate mapping.
+### DEC-007 The grammar is an Ohm grammar, semantics in a separate file
+*Status: active.*
+
 - **The grammar is an Ohm grammar, executed by `ohm-js`, with the semantics in
   a separate file.** Ohm's defining property is the one the spec needs: it
   *completely separates grammars from semantic actions*, so the grammar file is
@@ -93,6 +121,9 @@ would be tidier".
   no-imports line ever has to be absolute, `ohm.min.js` can be vendored into the
   core outright. That the decision is reversible in both directions is what
   makes it safe.
+
+### DEC-008 ohm-js is vendored, imported by relative path
+*Status: active. Settled 2026-08-15.*
 
 - **The escape hatch was taken: `ohm-js` is vendored into
   `packages/core/src/grammar/vendor/` and imported by relative path.** Settled
@@ -151,6 +182,9 @@ would be tidier".
   the pure spec would have to be generated from it by stripping them, and it
   checks 128K of generated JS into the source path. Ohm needs neither.*
 
+### DEC-009 The grammar is the parser, reaches the core like data
+*Status: active. Settled 2026-08-15 by queue item 0a.*
+
 - **The grammar is the parser, and it reaches the core the way data does.**
   Settled 2026-08-15 by queue item 0a. There is one reading of a WDL line in the
   project: `parse.ts` matches `spec/grammar-0.1.ohm` and walks it. The grammar
@@ -190,6 +224,9 @@ would be tidier".
   `score:` is now named in an error, at both call sites, and the bare `score:` it
   leaves is reported as `score-without-primary`. Declining a form is not a licence
   to drop what somebody wrote.
+
+### DEC-010 Unknown text is held, inert, and said out loud as a note
+*Status: active. Settled 2026-08-15 by queue item 0d.*
 
 - **Unknown text is held, inert, and *said out loud* — as a `note`, a fourth
   diagnostic severity.** Settled 2026-08-15 by queue item 0d. A modifier no rule
@@ -352,6 +389,9 @@ would be tidier".
   score that has to fit on one line, which is precisely what the brace spelling
   is for. `score: {tiebreak: reps at 5min}` is now its own fixpoint.
 
+### DEC-011 An rx split lowers into the variant resolver, not the variants: table
+*Status: active. Settled 2026-08-18, closing queue item 1.*
+
 - **An rx split lowers into the variant *resolver*, not into the `variants:`
   table.** Settled 2026-08-18, closing queue item 1 — and it is a deliberate
   departure from how that item was written ("`rx` should desugar into
@@ -388,6 +428,9 @@ would be tidier".
   because `Ring Row` — spec §10's own example of a movement swap — is only in the
   merge, and consulting the curated registry alone made the spec's example
   unreadable.
+
+### DEC-012 A workout is a class; an execution is an instantiation
+*Status: active. Settled 2026-08-19 with Chris.*
 
 - **A workout is a class; an execution is an instantiation, and load lives on
   the instantiation.** Settled 2026-08-19 with Chris, prompted by noticing that
@@ -539,6 +582,9 @@ would be tidier".
   applies to a result for the same reason it applies to a workout, and one layer
   further: you should be able to see what is being claimed about you.
 
+### DEC-013 The generation pool is a judgement, not a score
+*Status: active. Settled 2026-08-23, closing queue item 4.*
+
 - **The generation pool is a judgement, not a score.** Settled 2026-08-23,
   closing queue item 4. `core` — what `wdl generate` fills a `?` from, and what
   the builder's palette shows with an empty search box — is the union of the
@@ -604,9 +650,12 @@ would be tidier".
   open in [known-debts.md](known-debts.md) rather than lost, because the two
   branches agreed on everything except this and only one of them can be true.
 
+### DEC-014 An explicit alias outranks a record's own id
+*Status: active. Settled 2026-08-23, closing queue item 8.*
+
 - **An explicit alias outranks a record's own id.** Settled 2026-08-23, closing
   queue item 8, and it is the *reverse* of the order
-  [../movement_registry_design.md](../movement_registry_design.md) §3 had stated
+  [../movement_registry_design.md](../../movement_registry_design.md) §3 had stated
   since it was written. The two are not the same kind of statement: a record's
   id and title say what *that record* is called, while an alias is a curator
   answering the question actually being asked — when somebody writes this
@@ -645,6 +694,9 @@ would be tidier".
   takes the same path as the singular. Caught by the pinned test that exists for
   precisely this — *never changes which movement a name resolves to* — which is
   the second time that test has earned its place.
+
+### DEC-015 Two records are one movement only when a curator says so (sameAs)
+*Status: active. Settled 2026-08-23, closing queue item 8's residue.*
 
 - **Two records are one movement only when a curator says so, in a field that
   says nothing else.** Settled 2026-08-23, closing queue item 8's residue.

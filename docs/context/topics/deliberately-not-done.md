@@ -15,7 +15,7 @@ has a reason it is not one here. Check this before proposing one of them.
   Declining it here was reasoning from "no outside implementers" to "no rigorous
   spec needed", which does not follow. The grammar is severed from this entry and
   is now queue item 0; conformance suites and third-party implementations stay
-  declined for the reason given. See the clarification in [README.md](README.md).
+  declined for the reason given. See the clarification in [INDEX.md](../INDEX.md).
 - **A field per property in the builder.** It would always lag the grammar, and
   the grammar is the interesting part.
 - **Reps → load conversion.** Would need a 1RM and a physiological model.
@@ -37,7 +37,7 @@ has a reason it is not one here. Check this before proposing one of them.
   `Allow: /`; that is a crawl directive, not a licence, and it does not survive
   the contract. Strength Level Limited sells subscriptions against this data.
   Same disposition MuscleWiki already has in
-  [registry/SOURCES.json](../../registry/SOURCES.json), for the same reason.
+  [registry/SOURCES.json](../../../registry/SOURCES.json), for the same reason.
   Revisit only on written authorization — support@strengthlevel.com.
 
   **What the sweep found**, against the registry as it stood on 2026-08-22
@@ -125,4 +125,4 @@ has a reason it is not one here. Check this before proposing one of them.
   measured at 55 — but they were estimates, and the numbers above are not.*
 
 
-What is missing but *wanted* is in [not-built.md](not-built.md).
+What is missing but *wanted* is in [tasks/deferred.md](../tasks/deferred.md).

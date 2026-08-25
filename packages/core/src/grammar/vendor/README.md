@@ -1,7 +1,7 @@
 # Vendored: ohm-js
 
 The parser engine, checked in rather than installed. This is the escape hatch
-[settled-decisions.md](../../../../../docs/context/settled-decisions.md) named
+[settled-decisions.md](../../../../../docs/context/topics/settled-decisions.md) named
 when it accepted a runtime import inside `packages/core/src/`: *"if the
 no-imports line ever has to be absolute, `ohm.min.js` can be vendored into the
 core outright."* It had to be, and this is it.

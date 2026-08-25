@@ -408,7 +408,7 @@ actually wants to implement it.
 > "Not competing for adoption" rules out decisions justified by *popularity*, not
 > decisions justified by rigour. It was read as licensing a loose spec, which is
 > how 83 regexes came to stand in for a grammar. Queue item 0 in
-> [docs/context/ready-to-pick-up.md](context/ready-to-pick-up.md) took this up,
+> [docs/context/tasks/completed.md](context/tasks/completed.md) took this up,
 > and item 0a finished it: the regexes are gone.
 
 ---

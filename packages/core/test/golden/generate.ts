@@ -63,7 +63,7 @@ export function digest(src: string) {
     // a property of the record the text resolves into, so a merge that changes
     // which record a name points at moves this and nothing else. Leaving it out
     // made "the goldens regenerated clean" true and meaningless after a merge —
-    // see docs/context/lessons-learned.md.
+    // see docs/context/topics/lessons-learned.md.
     //
     // Per muscle: exposures, then the same four amounts as `movements` twice —
     // once for the steps it drives, once for the steps it assists. The two are

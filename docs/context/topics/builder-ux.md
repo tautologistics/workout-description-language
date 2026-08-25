@@ -1,7 +1,7 @@
 # Builder UX: caught by looking
 
 Observations from driving the builder, captured in a pass on 2026-08-14. These
-are separate from [ready-to-pick-up.md](ready-to-pick-up.md) because they arrived
+are separate from [tasks.md](../tasks.md) because they arrived
 as a batch and would swamp that file's ordering; each is still meant to be
 self-contained enough to dispatch on its own.
 
@@ -62,7 +62,7 @@ It splits in two, and the halves are not equally ready:
   takes a duration or an EMOM an interval. The spec is prose in
   `spec/spec-0.1.md`. Deriving this half means first describing the grammar in a
   form something other than the parser can read — which is queue item 0 in
-  [ready-to-pick-up.md](ready-to-pick-up.md). These two are coupled: item 0 is
+  [tasks/completed.md](../tasks/completed.md). These two are coupled: item 0 is
   the prerequisite, and this half is one of the two things that justifies it.
 
 *Touches: `registry/movements.json` (first half), `packages/core/src/parse.ts:277-320`

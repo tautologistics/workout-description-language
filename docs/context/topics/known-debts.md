@@ -911,5 +911,5 @@ when something looks odd before treating it as a discovery.
   runs, writes 694 rows and is never opened costs the same as not running.
 
 The ones with a plan attached are queued in
-[ready-to-pick-up.md](ready-to-pick-up.md); the ones found by driving the
+[tasks.md](../tasks.md); the ones found by driving the
 builder are in [builder-ux.md](builder-ux.md).

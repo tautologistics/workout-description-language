@@ -56,7 +56,7 @@ describe('registry', () => {
    * own, because the registry had no way for a curator to say "these two are
    * one record". `sameAs` is that way now, and eight of the twelve were one
    * movement and are merged; two were not, and the alias asserting otherwise
-   * was withdrawn. The verdicts are per pair in docs/context/known-debts.md.
+   * was withdrawn. The verdicts are per pair in docs/context/topics/known-debts.md.
    *
    * Both survivors were `Bike`, and one of them closed on 2026-08-23. `Air
    * Bike` was a false merge before it was a collision — Garmin's fan bike and

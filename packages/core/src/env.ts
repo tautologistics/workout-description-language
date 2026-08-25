@@ -38,7 +38,7 @@ export interface CoreData {
    * four switch a *feature* off, and this one is the parser. A host that forgets
    * it gets the error below on the first line it tries to read, which is the
    * intended outcome — see "Silence is worse than a crash" in
-   * docs/context/lessons-learned.md.
+   * docs/context/topics/lessons-learned.md.
    */
   grammar: string;
   /** The hand-kept registry. What `validate` consults. */

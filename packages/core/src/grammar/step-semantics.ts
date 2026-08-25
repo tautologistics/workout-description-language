@@ -3,7 +3,7 @@
  *
  * `spec/grammar-0.1.ohm` states the shape of a step line and carries no
  * semantic actions — that separation is the reason Ohm was chosen (see
- * docs/context/settled-decisions.md). This file is the other half for the step
+ * docs/context/topics/settled-decisions.md). This file is the other half for the step
  * line: one action per production, mapping a parse into the `Step` in `../ast.ts`.
  *
  * The amounts, durations and thresholds a step is built out of are in

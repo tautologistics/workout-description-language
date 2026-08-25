@@ -1,16 +1,26 @@
-# Ready to pick up
+# Completed and terminal tasks
 
-The queue. Each of these is self-contained enough for its own session, roughly
-in the order I would take them. Load this when starting a session with no task
-named; when one lands, take it off this list and say so in
-[what-exists.md](what-exists.md).
+The queue's closed history, numbered as it was worked — including the
+occasional wrong turn caught and corrected in place, because a queue item is a
+record of what actually happened, not a plan tidied after the fact. Read it to
+see why something is built the way it is, or before re-proposing a fix that was
+already tried. Still-open queue items are in [current.md](current.md); items
+declined or postponed on purpose are in [deferred.md](deferred.md).
+
+This file is long because the queue's own numbering is the most legible
+organizing principle available and splitting it by date or domain would cut
+across items that reference each other. If it keeps growing, split by item
+range (e.g. `completed/0-series.md`, `completed/1-9.md`) and leave this file as
+a short index — nothing below depends on staying in one file.
+
+---
 
 **0. ~~Explore expressing the grammar in a formal specification language.~~
-ANSWERED 2026-08-14 — see [../grammar-exploration.md](../grammar-exploration.md).**
+ANSWERED 2026-08-14 — see [../grammar-exploration.md](../../grammar-exploration.md).**
 Yes, it fits. The step line is stated in `spec/grammar-0.1.ohm`, an Ohm grammar
 carrying no semantic actions, and with a semantics file it reproduces the
 hand-written parser's AST on **538/538** lines. Notation and engine are settled
-in [settled-decisions.md](settled-decisions.md).
+in [settled-decisions.md](../topics/settled-decisions.md).
 
 **0a. ~~Wire the grammar up.~~ DONE 2026-08-15.** `packages/core/src/parse.ts`
 matches `spec/grammar-0.1.ohm` and walks it with the semantics under
@@ -51,7 +61,7 @@ no fields. A third was a regression and was fixed in the grammar rather than
 worked around: a comma with nothing after it now separates nothing, because
 requiring a modifier made one stray keystroke cost a whole line's reading.
 
-**It is slower, and the number is in [running-it.md](running-it.md).** Parsing
+**It is slower, and the number is in [running-it.md](../topics/running-it.md).** Parsing
 the 190-file corpus goes from 3.1ms to 172ms — 55× — while `wdl check` on one
 file goes from 0.16s to 0.22s, because a CLI invocation is mostly Node starting
 up and a one-off 107ms grammar compile. Nobody is waiting on the 55×; if that
@@ -85,7 +95,7 @@ same division that keeps `readLines` free of WDL knowledge. It is stated at the 
 of the grammar file so it reads as a boundary rather than as a gap.
 
 **Seven defects found and recorded, none fixed here** — see
-[known-debts.md](known-debts.md). Two are the grammar being right and `parse.ts`
+[known-debts.md](../topics/known-debts.md). Two are the grammar being right and `parse.ts`
 wrong (the `@`-plus-digit family, a header target after a comma), so the swap is
 their fix. Five are shared or downstream and need a decision rather than a
 transcription: leading `sets x reps` (`5x5 Back Squat`, spec §1's own example),
@@ -115,7 +125,7 @@ fourth diagnostic severity that claims nothing: not `error`, because the rest of
 the line executes exactly as written and four corpus workouts carry deliberate
 prose the language models nothing of; not `warning`, for the same reason; not
 `question`, because there are no readings to choose between. See
-[settled-decisions.md](settled-decisions.md).
+[settled-decisions.md](../topics/settled-decisions.md).
 
 **What it cost that was not in the plan: the `note:` marker became
 load-bearing.** Once a bare phrase after a comma means *unrecognized*, a note
@@ -141,7 +151,7 @@ vocabulary forms, and 1628 tests became 1653 with the same single pending case.
 **0e. ~~Six defects the grammar work turned up that need a decision, not a
 transcription.~~ DONE 2026-08-15. All six closed; two smaller things found on the
 way are open and written up.** Each is now marked closed in
-[known-debts.md](known-debts.md) with what it used to do kept beside what it does
+[known-debts.md](../topics/known-debts.md) with what it used to do kept beside what it does
 now. The suite went **1592 passing / 9 pending to 1628 / 1**, and the one pending
 is a form nobody had pinned before this session.
 
@@ -174,7 +184,7 @@ ways its author cannot see; re-read it against the code before working it.**
   range already lives.
 - **The nested `score:` block.** Closed by **correcting the spec**, decided on the
   whiteboard constraint rather than on cost. See
-  [settled-decisions.md](settled-decisions.md); the silence it left — two field
+  [settled-decisions.md](../topics/settled-decisions.md); the silence it left — two field
   lines dropped without a word — is closed either way.
 - **Leading `sets x reps`.** Closed. `3x10 Curl` is `10 Curl x3` and produces the
   same tree, so nothing downstream learned a concept; `sets` reaches only `format`
@@ -183,7 +193,7 @@ ways its author cannot see; re-read it against the code before working it.**
   wins" reading.
 
 **Two things left open on purpose, both written up in
-[known-debts.md](known-debts.md).** Neither is a leftover — each is a question the
+[known-debts.md](../topics/known-debts.md).** Neither is a leftover — each is a question the
 work surfaced and neither was in scope to answer:
 - **`10x Curl` is not read**, though spec §3's unit table documents `10x` as a rep
   spelling. Same family, different form: reading it means deciding whether a bare
@@ -257,7 +267,7 @@ Why it earns its place:
   matures and grows more complex.
 - **It unblocks the builder's modifier affordance.** Showing what a line can take
   next needs something machine-readable to derive from; the per-block half of
-  that work has no source today. See [builder-ux.md](builder-ux.md).
+  that work has no source today. See [builder-ux.md](../topics/builder-ux.md).
 
 **Do not justify this by adoption, and do not decline it by adoption either.**
 Both were tried and both are wrong. The README's *"not competing for adoption"*
@@ -266,7 +276,7 @@ was misread as licensing a loose spec — see the clarification there. A formal
 grammar is owed to whoever maintains this in five years, which is the author.
 Reimplementability by others is a side effect, not the case for it. Settled
 2026-08-14; the corresponding entry in
-[deliberately-not-done.md](deliberately-not-done.md) has been corrected.
+[deliberately-not-done.md](../topics/deliberately-not-done.md) has been corrected.
 *Touches: `packages/core/src/parse.ts`, `spec/spec-0.1.md`, and whatever the
 parser would be generated from.*
 
@@ -274,7 +284,7 @@ parser would be generated from.*
 DONE 2026-08-15.** `readLines` adopts, `wdl fmt` writes the indentation back, and
 the rule is stated in spec §2 as three sentences rather than one. Both open
 questions were answered rather than deferred, and both answers are in
-[settled-decisions.md](settled-decisions.md).
+[settled-decisions.md](../topics/settled-decisions.md).
 
 **Phase 1 still knows one character.** The trailing `:` is the whole of what
 `readLines` learned — syntax rather than semantics, true of every kind of block
@@ -294,7 +304,7 @@ nested `AMRAP 20min:` and a trailing `score:`, written *half*-indented — and i
 came out as three top-level things with the score overwriting the for-time's
 kind. **Neither the suite nor the corpus could see it**: no example file is
 written half-indented, so the shape existed nowhere the tests could reach. See
-[lessons-learned.md](lessons-learned.md).
+[lessons-learned.md](../topics/lessons-learned.md).
 
 **The state it replaces was worse than "does not nest": it was unsettled.** A flat
 `AMRAP 12min:` with three steps under it parsed to an **empty AMRAP followed by
@@ -311,7 +321,7 @@ dash before anything looked at the colon. Four `structure` vocabulary forms were
 written that way and so recorded the loss as the canonical form; `deep nesting`
 had been sitting in the snapshot as `conditioning:\n  - 3 rounds:s`. It is fixed
 here rather than filed, because adoption turned its stable loss into a
-compounding one — see [known-debts.md](known-debts.md).
+compounding one — see [known-debts.md](../topics/known-debts.md).
 
 **The corpus did not move at all.** No example file has a container followed by a
 line that is not indented deeper, so `interpretations.json` and
@@ -387,7 +397,7 @@ Absorption is accepted for work but **not for a `score:` line**, which is not
 work and does real damage when absorbed onto a `for time:`. And a block header
 terminates the run **only if it is flat too**, which is what reads a
 half-indented file — the shape the first answer had no example of. Reasoning, and
-what each version cost, in [settled-decisions.md](settled-decisions.md).*
+what each version cost, in [settled-decisions.md](../topics/settled-decisions.md).*
 
 **0f. ~~`3 RFT:` is a header spelling nobody has stated, and `for time, 3 rounds:`
 is one the spec already promises and silently loses.~~ DONE 2026-08-16, both
@@ -459,7 +469,7 @@ before working it, even one written the same week.**
 
 *Two pre-existing formatter defects surfaced on the way, were kept out of this
 change so that what moved stayed legible, and were then **closed 2026-08-16** in a
-commit of their own — see [known-debts.md](known-debts.md). `wdl fmt` wrote two
+commit of their own — see [known-debts.md](../topics/known-debts.md). `wdl fmt` wrote two
 clock headers no rule reads (`every 1min30s x undefined:` for a bare `every`, and
 `every 2min for 20min:` for an E2MOM), each of which reparsed to a named sequence
 with the clock gone and then formatted back to itself — a stable round trip of a
@@ -532,10 +542,10 @@ Spec §10.1.
 correction to this item as written.** A `variants:` entry is keyed by *movement*
 and a split belongs to a *step*, so rewriting one into the other collapses two
 Thruster steps at different splits into whichever was written last — silently.
-Reasoning in [settled-decisions.md](settled-decisions.md).
+Reasoning in [settled-decisions.md](../topics/settled-decisions.md).
 
 **The display half was not free, which this item and
-[builder-ux.md](builder-ux.md) both predicted it would be.** "The load would
+[builder-ux.md](../topics/builder-ux.md) both predicted it would be.** "The load would
 arrive through `targets`" is true only once a division is **chosen**, and neither
 app ever chooses one. `stepCue` needed its own branch. With no division chosen a
 step now reads as its at-rest text — `30 Clean & Jerks (women 105lb / men
@@ -600,7 +610,7 @@ number rather than in the footer.
 **Three things found by driving it, all fixed here, none of them the item.**
 - **`unknown-division` carries no line**, so a division named by a link and not
   by the file would have printed `line undefined: no division \`mens\``. That is
-  the `line undefined:` debt in [builder-ux.md](builder-ux.md), and adding a
+  the `line undefined:` debt in [builder-ux.md](../topics/builder-ux.md), and adding a
   fourth way to hit it is a reason to close it rather than to file beside it.
   A bad division falls back to *as written*, says why, and is dropped from the
   URL — the board must not go on claiming to read something it is not.
@@ -611,7 +621,7 @@ number rather than in the footer.
   canonical merge is now fetched lazily, on exactly one signal: the resolver said
   it could not read a value. A table of loads like the HYROX file never pays.
   **It is 1.7MB for a name lookup**, which is the crude half of the fix and is
-  written up in [known-debts.md](known-debts.md).
+  written up in [known-debts.md](../topics/known-debts.md).
 - **The footer was already wider than a phone** — `Reset` clipped at 375px,
   `Edit` past the edge — and the picker made it worse by a hundred pixels, which
   turned an ugly edge into a control that did not exist on a phone. One line,
@@ -633,8 +643,8 @@ framing the item asked to carry into the design carried the whole way: the head
 of a result names what it is a result *of*, a `snapshot:` holds the workout text
 verbatim, `instantiate()` applies the division and then the recorded loads, and
 everything downstream reads an ordinary workout. Spec
-[results-0.1.md](../../spec/results-0.1.md); decisions in
-[settled-decisions.md](settled-decisions.md); 1742 → 1773 passing, 1 pending.
+[results-0.1.md](../../../spec/results-0.1.md); decisions in
+[settled-decisions.md](../topics/settled-decisions.md); 1742 → 1773 passing, 1 pending.
 
 **The one deviation from the roadmap sketch is a spelling.** §3.2 wrote
 `result:` as a header with `workout:` under it; the head carries the id
@@ -648,7 +658,7 @@ hole left open on purpose. A `variants:` value may name a movement, because the
 author wrote the swap into the class; what somebody substituted on the day is a
 *modification*, and whether modifications want structure is an open roadmap
 question — reading one here would have closed it by accident. It goes in
-`notes:`, and [not-built.md](not-built.md) says so.
+`notes:`, and [deferred.md](deferred.md) says so.
 
 **`measure: load` needed one thing the item did not predict: a rule about
 silence.** Two zeroes satisfy `now >= prev * 1.025`, so a ramp asked of results
@@ -792,26 +802,6 @@ search, and `Ring Row` adds and cues.*
 *Touched: `registry/movements.json`, `scripts/mark-core.mjs`,
 `packages/core/test/generate.test.ts`.*
 
-**5. A range is only a rep range.** `8-12 Toes-to-Bar` is a first-class quantity;
-`100-150ft Farmers Carry` is *not read at all* — the whole thing lands in the
-movement name with the quantity left `open`, so the step matches no registry
-entry, drops out of muscle and volume analysis, and `wdl fmt` pluralizes what it
-was handed into `100-150 ft Farmers Carries`. `wdl check` says ok throughout.
-That is the exact failure shape leading `5x5` had before item 0e, and it is
-found the same way: by writing a real workout.
-
-The question is not really "is this a bug" — spec §3's unit table genuinely
-defines a range for reps only, so the parser matches the spec. It is **whether a
-range should generalise**. A carry written `100-150ft` says what `8-12` says —
-*somewhere in this band, you choose* — and so does `rest 60-90s`. If it
-generalises, `Quantity` needs a range that carries a unit and every consumer of
-`kind: 'range'` needs to stop assuming reps; if it does not, the parser must
-**say** it cannot read the quantity instead of silently swallowing it into the
-name. Either answer closes the silence, which is the part that is not optional.
-Raised 2026-08-15 while encoding a partner carry circuit.
-*Touches: `spec/grammar-0.1.ohm`, `packages/core/src/units.ts`, `ast.ts`,
-`format.ts`, `volume.ts`, `timeline.ts`, `spec/spec-0.1.md`.*
-
 **6. ~~A load can be a word, and the language has no scale for it.~~ DONE
 2026-08-23.** Qualitative load is now a **category the language knows**: `Load`
 gained a fifth kind, `qualitative`, holding `heavy` / `moderate` / `light` /
@@ -851,51 +841,6 @@ distinction has to hold up against. 1791 → 1797 passing, 1 pending.
 *Touched: `packages/core/src/ast.ts`, `units.ts`, `spec/spec-0.1.md` §3, §7,
 `test/golden/vocabulary.ts`, `test/muscles.test.ts`.*
 
-**7. A body map in the builder and on the board.** Front and back of a body, with
-the muscle groups the workout hits drawn on it. Not high priority — this is a
-*view*, and every number it would draw already exists. Raised 2026-08-16.
-
-**The data layer is done, which is why this is a rendering job and not a
-project.** `registry/muscles.json` is a closed 19-muscle vocabulary
-(`Chest, Shoulders, Biceps, Triceps, Forearms, Lats, Mid-back, Traps, Neck, Abs,
-Obliques, Erectors, Hip flexors, Glutes, Quads, Hamstrings, Calves, Adductors,
-Abductors`) grouped into three regions, every muscle carrying the synonyms five
-upstream sources spell it by; `muscles.ts` attributes a workout's steps to it and
-`volume.ts` gives per-muscle volume. **The missing piece is one artefact: an SVG
-body with a path per muscle, id-matched to that vocabulary.** Because the
-vocabulary is *closed* and a build script fails on anything outside it, the SVG
-cannot silently drift out of step with the registry — which is what makes this
-worth doing as a drawing rather than as a feature.
-
-Four things to show, and they are not the same picture:
-
-- **Aggregate, in the builder** — everything the whole workout hits, so the shape
-  of a session is visible at a glance while writing it.
-- **Per-movement highlight** — selecting or hovering a movement in the palette or
-  the outline lights up what *it* hits. The interesting version is the one asked
-  for: light it **against** the aggregate rather than on its own, so the question
-  answered is "what does this add to what I already have" rather than "what does
-  this movement do".
-- **A heat map** — intensity by how much a group is worked, not merely whether it
-  is. Decide what the scale is: `volume.ts` gives reps × load, which is the honest
-  answer for loaded work and says nothing useful about a carry or a hang (see
-  items 5 and 6 — a step with a range quantity and a qualitative load contributes
-  *nothing*, so it would read as cold, which is worse than uncoloured). Frequency
-  is cruder and always available. It probably needs both, and it needs to
-  distinguish "not worked" from "cannot be measured".
-- **On the board, while a session runs** — the whole workout's map as a constant,
-  with the current movement emphasised on top of it. The board already knows the
-  position, so this is the same two layers as the builder's, driven by the cue
-  index instead of by a selection.
-
-The one design question worth settling before drawing anything: **a movement hits
-its muscles at different weights** (primary vs secondary — `muscles.ts` already
-distinguishes them, and the goals file's `level: any` keys off it). Whether the
-map shows that as opacity, as two colours, or not at all decides how much the
-picture can say before it starts lying.
-*Touches: a new asset (the SVG), `apps/builder/`, `apps/display/`, and reads from
-`muscles.ts` / `volume.ts` — no core change expected.*
-
 **8. ~~An alias pass over the core.~~ DONE 2026-08-22, with a residue.** The
 registry held 278 aliases across 219 of 3120 movements, 117 of the 178 core.
 It now holds **407 across 265, and 162 of the 177 core** — 131 written by hand
@@ -924,9 +869,9 @@ need a mechanism nobody has designed yet:
   were one movement and are merged, two were not and the alias asserting
   otherwise was withdrawn, and two are correct aliases on `Bike` that cannot be
   merged or withdrawn without making something worse. Verdicts one per pair, and
-  what the merges cost, are in [known-debts.md](known-debts.md); why the
+  what the merges cost, are in [known-debts.md](../topics/known-debts.md); why the
   mechanism is a field rather than a reading of the alias already there is in
-  [settled-decisions.md](settled-decisions.md).
+  [settled-decisions.md](../topics/settled-decisions.md).
   *Touched: `registry/movements.json`, `scripts/dedupe-movements.mjs`,
   `scripts/build-movements.mjs`, `packages/core/src/fold.ts`,
   `packages/core/test/fold.test.ts`.*
@@ -1012,15 +957,15 @@ nothing.~~ DONE 2026-08-23, the resolution half.** `Registry.lookup` tried
 `byKey` before `byAlias`, so the record holding a contested spelling as its
 **id** won and the other record's explicit alias on that spelling was discarded
 — and because an id match is a hit, the `ambiguous` branch
-[../movement_registry_design.md](../movement_registry_design.md) §3 calls the
+[../movement_registry_design.md](../../movement_registry_design.md) §3 calls the
 whole point of the resolver could never fire. Nobody was told. The two tiers are
 now the other way round, an explicit alias outranks a record's own name, and the
-reasoning is in [settled-decisions.md](settled-decisions.md).
+reasoning is in [settled-decisions.md](../topics/settled-decisions.md).
 
 **Fourteen contested names, not five, and that is the first thing to say.** The
 item was written against merge work this branch did not have, so the nine pairs
 it expected to be gone were still two records each when the ranking landed, and
-the verdicts it said were in [known-debts.md](known-debts.md) were not yet in
+the verdicts it said were in [known-debts.md](../topics/known-debts.md) were not yet in
 that file. *Both arrived with item 8 above, which is why the count fell to two:
 the ranking decided who answers all fourteen, and the curation half then merged
 eight pairs and withdrew two aliases.* Nothing was merged on the ranking's
@@ -1073,49 +1018,3 @@ was at 1742 before the change, which is the same merge work being missing.*
 *Touched: `packages/core/src/fold.ts`, `packages/core/test/fold.test.ts`,
 `scripts/check-aliases.mjs`, `docs/movement_registry_design.md` §3.*
 
-**9. A cap is a clock, and the board does not run it.** Open 25.2 on the board
-counts *up* from zero with nothing to race, which is the wrong number on the
-screen for the one workout shape where a clock is the entire point — a twelve
-minute cap is what the athlete is looking at. Raised 2026-08-23 while closing
-item 3, which is what makes it cheap: `Run.cap` exists now and is exactly what a
-countdown reads.
-
-**The reason it is not part of item 3 is the expiry, not the display.** A cap
-creates no cycle, so the board's countdown — which comes from `cycle.window` via
-`expired()` — never sees it. Wiring the number up is small. Deciding what happens
-when it runs out is not: spec §5.6 says *the workout ends*, so the cursor should
-presumably stop where it stands rather than advance, and §9.5 says the score
-becomes reps completed, which is a statement about a result and therefore leans
-on item 2. The honest middle is probably to show the countdown and stop at zero
-without claiming anything about the score.
-
-**Two things to settle while there.** A cap and a section window can both be
-running (`for time, cap 25min:` around a bare `AMRAP:` — `77-tiff.wdl`), so the
-board needs a rule for which is the nearer deadline, and it already has one for
-the cue-versus-section case to copy. And `state.window` in `board.js` is
-**assigned and never read** — dead since the cycle rewrite — so the cap should
-not be plumbed in beside it without deleting it.
-*Touches: `apps/display/board.js`, and `board.css` if the cap needs its own row.*
-
-*Ordering of 5, 6, 7 and 9 against 1-4 is not settled - they are appended
-rather than placed. 5, 6 and 7 were raised by writing and sending one workout
-rather than by a plan, and 9 by closing item 3. **0f was lettered rather than
-numbered on purpose** - grammar work, belonging with the 0-series - and both its
-halves are closed. Closed so far: the whole 0-series, 1, 1a, 2, 3, 4, 6, 8 and
-8a, so **the open numbered items are 5, 7 and 9**. Stated as a set rather than as
-a name on purpose: a pointer naming one item goes stale the moment that item
-lands, which is how an earlier one came to send readers at finished work. The
-one thing 0f left behind is `TABATA`, which is not an abbreviation to read but a
-structure to define; it is written up under 0f rather than given a number,
-because nobody has asked for it yet.*
-
-*Corrected 2026-08-23: this paragraph said "4, 5, 6, 7 and 9" while item 4 sat
-above it already marked DONE — closed the same day this paragraph was last
-touched, and never carried down into the set it names. A queue item can go
-stale one paragraph at a time; this is that, caught while closing item 6 rather
-than left for whoever reads it next.*
-
-**Nobody has run a session off the board.** Everything is verified by tests and
-by driving the UI. Every defect Chris has caught by *looking* — `21 Thruster`,
-the AMRAP clock, the run-on notes — was invisible to 1257 tests. A real session
-will reorder this list.
