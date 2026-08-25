@@ -319,11 +319,18 @@ function renderReading() {
   // is visible at a glance — the summary line says which cues repeat, but
   // counting to them is work the reader should not have to do.
   const cycleOf = (i) => laid.cycles.find((c) => i >= c.from && i < (c.to ?? laid.cues.length));
+  // Cycles cycle through a small palette rather than each getting its own
+  // fixed colour — the count in one workout is unbounded, the palette is
+  // not. `indexOf` on the (small, per-render) cycle list is cheap enough
+  // not to bother precomputing.
+  const CYCLE_HUES = 4;
   for (const cue of laid.cues.slice(0, 24)) {
     const cycle = cycleOf(cue.index);
     const row = document.createElement('div');
     row.className = `cue ${cue.kind}${cycle ? ' looping' : ''}`;
     if (cycle) {
+      const hue = laid.cycles.indexOf(cycle) % CYCLE_HUES;
+      if (hue > 0) row.classList.add(`cycle-hue-${hue}`);
       if (cue.index === cycle.from) row.classList.add('cycle-start');
       if (cue.index === (cycle.to ?? laid.cues.length) - 1) row.classList.add('cycle-end');
     }

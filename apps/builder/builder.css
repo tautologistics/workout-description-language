@@ -13,6 +13,13 @@
   --warn: #b3541e;
   --error: #c0392b;
   --ask: #7d4bbd;
+  /* A cycling palette for repeating blocks — distinct from --accent (which
+     stays cycle 0's colour, so a single cycle looks unchanged) and from
+     --warn/--error/--ask, which carry their own meaning and would be a false
+     alarm if reused here. */
+  --cycle-2: #1a7f5c;
+  --cycle-3: #a6790a;
+  --cycle-4: #b8348f;
   color-scheme: light;
 }
 
@@ -27,6 +34,9 @@
     --warn: #e0a45e;
     --error: #ff7a68;
     --ask: #b79be8;
+    --cycle-2: #4ddb9e;
+    --cycle-3: #e8c34a;
+    --cycle-4: #ff8fd0;
     color-scheme: dark;
   }
 }
@@ -307,18 +317,24 @@ button:hover, .button:hover { border-color: var(--dim); }
 }
 
 /* Cues inside a cycle are marked by a rail down their left, closed at both
-   ends: the shape says "these come round again" without a word per row. */
-.summary .cue.looping { position: relative; }
+   ends: the shape says "these come round again" without a word per row.
+   Each cycle in the workout gets its own colour from a small cycling
+   palette (`--rail`, set per row by `.cycle-hue-N`) — otherwise two
+   repeating blocks back to back read as one continuous cycle. */
+.summary .cue.looping { position: relative; --rail: var(--accent); }
+.summary .cue.cycle-hue-1 { --rail: var(--cycle-2); }
+.summary .cue.cycle-hue-2 { --rail: var(--cycle-3); }
+.summary .cue.cycle-hue-3 { --rail: var(--cycle-4); }
 .summary .cue.looping::before {
   content: ''; position: absolute; left: 1.9rem; top: 0; bottom: 0;
-  border-left: 2px solid var(--accent); opacity: .5;
+  border-left: 2px solid var(--rail); opacity: .5;
 }
 .summary .cue.cycle-start::before { top: .35rem; border-top-left-radius: 3px; }
 .summary .cue.cycle-end::before { bottom: .35rem; border-bottom-left-radius: 3px; }
 .summary .cue.cycle-start::after,
 .summary .cue.cycle-end::after {
   content: ''; position: absolute; left: 1.9rem; width: .4rem;
-  border-top: 2px solid var(--accent); opacity: .5;
+  border-top: 2px solid var(--rail); opacity: .5;
 }
 .summary .cue.cycle-start::after { top: .35rem; }
 .summary .cue.cycle-end::after { bottom: .35rem; }

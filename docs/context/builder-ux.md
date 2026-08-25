@@ -125,15 +125,17 @@ work together is closer to that pillar than to a palette convenience.
 
 ## What it reads
 
-**Every cycle rail is the same blue, so two repeating blocks in a row read as
-one.** The rail is a single fixed colour — `border-left: 2px solid var(--accent)`
-— applied through one `looping` class. Distinct cycles need distinct colours, or
-back-to-back repeating blocks cannot be told apart. The identity needed is
-already in hand at render time: `cycleOf` finds the specific cycle and then
-throws that away in favour of a bare class. Passing the cycle's index through
-(a `data-cycle` attribute, or `looping-1`/`looping-2`) is enough for CSS to
-colour them apart. Rails must stay legible in both themes.
-*Touches: `apps/builder/builder.js:276-284`, `apps/builder/builder.css:300-314`.*
+**~~Every cycle rail is the same blue, so two repeating blocks in a row read as
+one.~~ Fixed 2026-08-25.** The rail no longer draws from a single fixed
+`--accent`; each cycle now gets a colour from a small cycling palette
+(`--cycle-2`, `--cycle-3`, `--cycle-4`, alongside `--accent` for the first),
+picked by `laid.cycles.indexOf(cycle) % 4` in `renderReading()` and applied as
+a `cycle-hue-N` class that sets `--rail` for the row's rail to read
+(`apps/builder/builder.js:321-334`, `apps/builder/builder.css:309-327`). The
+palette is distinct from `--warn`/`--error`/`--ask`, which already carry their
+own meaning. Verified by driving the builder with two `AMRAP 6min:` blocks
+back to back: the two rails read as different colours, checked in both light
+and dark themes via the computed `border-left-color` of each cycle's rail.
 
 **The summary says title, cues and how long, but never the scoring.** A reader
 cannot tell from the top of the pane how the workout is scored. `workout.score`
