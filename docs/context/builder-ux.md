@@ -12,16 +12,17 @@ so; where it is a reading that still needs a click to confirm, it says that too.
 
 ## Outline
 
-**Indent is allowed on a line with nothing above it, producing an orphan.** A
-top-level line that is first in the document can still be indented, which leaves
-a child with no parent and makes the whole file invalid. `shift` guards only
-against negative indent — `indentOf(lines[line - 1]) + by < 0` — and never checks
-that a preceding sibling exists to become the parent. The guard belongs in core,
-not in the button: Tab at end-of-line calls the same `shift(n.line, 2)`, so
-disabling the button would leave the bug reachable by keyboard. `previousSibling`
-in the builder and `spans().siblings` already express the test needed.
-*Touches: `packages/core/src/edit.ts:176`, `apps/builder/builder.js:96` (button),
-`apps/builder/builder.js:153` (Tab).*
+**~~Indent is allowed on a line with nothing above it, producing an orphan.~~
+Fixed 2026-08-24.** A top-level line that is first in the document could still be
+indented, leaving a child with no parent and making the whole file invalid.
+`shift` in `packages/core/src/edit.ts` now refuses to increase indent when the
+line has no preceding sibling — `self.index === 0` from `spans()` — the same
+test `previousSibling` in the builder already expressed. Fixed in core, so both
+call sites are covered: the button (`apps/builder/builder.js:96`) and Tab at
+end-of-line (`apps/builder/builder.js:153`), which call the same `shift`.
+Verified by driving the builder, both by button and by Tab, on the first line
+of a fresh document. `packages/core/test/edit.test.ts` covers a first-in-document
+line and a first-child-of-a-block line, both refused.
 
 **The caret on every outline row does nothing.** Intent unknown — it is not in
 the builder's markup or CSS. Every row's input carries `list="movements"`, so the

@@ -656,9 +656,11 @@ when something looks odd before treating it as a discovery.
   drifted this time either. The debt is unchanged: nothing runs the rebuild and
   nothing checks the result, so "it was fine twice" is still luck.
 
-- The builder's Indent allows a first-in-document top-level line to be indented,
-  orphaning it and invalidating the file. `shift` guards only against negative
-  indent, never against having no parent to attach to.
+- ~~The builder's Indent allows a first-in-document top-level line to be
+  indented, orphaning it and invalidating the file.~~ **Fixed 2026-08-24.**
+  `shift` in `packages/core/src/edit.ts` now also refuses to increase indent
+  when the line has no preceding sibling to become its parent. See
+  [builder-ux.md](builder-ux.md).
 
 - **~~Twelve aliases in the canonical corpus are claimed by two records, and the
   registry has no way to say which is meant.~~ Curated 2026-08-23: eight merged,
