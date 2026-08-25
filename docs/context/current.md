@@ -1,6 +1,8 @@
 # Current State
 
-*Last updated: 2026-08-23 (134 commits, 1797 tests passing, 1 pending).*
+*Last updated: 2026-08-25 (136 commits, 1800 tests passing, 1 pending). Every
+numbered queue item raised so far is closed — see
+[current/next-steps.md](current/next-steps.md).*
 
 ## Working State
 
@@ -10,8 +12,9 @@ Connect JSON. The registry merges 3112 movements from five sources, 128 in the
 curated generation pool. Analysis covers muscle attribution, per-muscle
 volume, and five goal rules across six dimensions including `load`. Both apps
 (builder, board) run in a browser over the same core; the board now writes a
-`.wdlr` result when a session ends. Full detail, by area, is in
-[topics/what-exists.md](topics/what-exists.md) — read that before building
+`.wdlr` result when a session ends, runs a cap as a clock, and both apps draw
+a body map (front and back) of what a workout hits. Full detail, by area, is
+in [topics/what-exists.md](topics/what-exists.md) — read that before building
 something again.
 
 ## Active Work

@@ -13,6 +13,13 @@
   --warn: #b3541e;
   --error: #c0392b;
   --ask: #7d4bbd;
+  /* A cycling palette for repeating blocks — distinct from --accent (which
+     stays cycle 0's colour, so a single cycle looks unchanged) and from
+     --warn/--error/--ask, which carry their own meaning and would be a false
+     alarm if reused here. */
+  --cycle-2: #1a7f5c;
+  --cycle-3: #a6790a;
+  --cycle-4: #b8348f;
   color-scheme: light;
 }
 
@@ -27,6 +34,9 @@
     --warn: #e0a45e;
     --error: #ff7a68;
     --ask: #b79be8;
+    --cycle-2: #4ddb9e;
+    --cycle-3: #e8c34a;
+    --cycle-4: #ff8fd0;
     color-scheme: dark;
   }
 }
@@ -102,10 +112,12 @@ main {
 .node .rail { width: 1.1rem; border-left: 1px solid var(--rule); height: 1.9rem; }
 .node .rail:first-child { border-left: 0; width: .9rem; }
 
+.node .line-wrap { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
+
 .node input.line {
   flex: 1;
   min-width: 0;
-  padding: .3rem .5rem;
+  padding: .3rem 1.5rem .3rem .5rem;
   border: 1px solid transparent;
   border-radius: .3rem;
   background: transparent;
@@ -119,6 +131,61 @@ main {
 .node.block input.line { font-weight: 650; }
 .node.comment input.line { color: var(--dim); font-style: italic; }
 .node.bad input.line { border-color: var(--error); }
+
+/* The movement caret: hidden until the row is worth showing tools on, same as
+   `.tools` — it opens a live-filtered list of curated movements matching
+   whatever is being typed in place of the browser's native (and useless,
+   since a row's value is never just a movement name) datalist popup. */
+.node .caret {
+  position: absolute;
+  right: .3rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: var(--dim);
+  font-size: .65rem;
+  line-height: 1;
+  padding: .2rem;
+  border-radius: .2rem;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.node:hover .caret, .node:focus-within .caret { opacity: 1; }
+.node .caret:hover { background: var(--rule); color: var(--ink); }
+
+.node .suggestions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 20;
+  margin-top: .2rem;
+  max-height: 12rem;
+  overflow: auto;
+  padding: .25rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: .35rem;
+  box-shadow: 0 .4rem 1rem rgba(0, 0, 0, .3);
+}
+
+.node .suggestions .suggestion {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: .3rem .5rem;
+  border: 0;
+  border-radius: .25rem;
+  background: transparent;
+  color: inherit;
+  font: 400 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  cursor: pointer;
+}
+
+.node .suggestions .suggestion:hover,
+.node .suggestions .suggestion.active { background: var(--rule); }
 
 .node .tools { display: flex; gap: .1rem; opacity: 0; flex: none; }
 .node:hover .tools, .node:focus-within .tools { opacity: 1; }
@@ -253,6 +320,12 @@ button:hover, .button:hover { border-color: var(--dim); }
 .node[data-drop="after"]::after { bottom: -1px; }
 .node.dragging { opacity: .4; }
 
+/* --- the body map ----------------------------------------------------------- */
+
+.body-head { display: flex; align-items: baseline; gap: .5rem; justify-content: space-between; }
+.body-head select { font: inherit; font-size: .8rem; }
+#bodymap { margin-bottom: .2rem; }
+
 /* --- goals ---------------------------------------------------------------- */
 
 .goals-head { display: flex; align-items: baseline; gap: .5rem; justify-content: space-between; }
@@ -301,18 +374,24 @@ button:hover, .button:hover { border-color: var(--dim); }
 }
 
 /* Cues inside a cycle are marked by a rail down their left, closed at both
-   ends: the shape says "these come round again" without a word per row. */
-.summary .cue.looping { position: relative; }
+   ends: the shape says "these come round again" without a word per row.
+   Each cycle in the workout gets its own colour from a small cycling
+   palette (`--rail`, set per row by `.cycle-hue-N`) — otherwise two
+   repeating blocks back to back read as one continuous cycle. */
+.summary .cue.looping { position: relative; --rail: var(--accent); }
+.summary .cue.cycle-hue-1 { --rail: var(--cycle-2); }
+.summary .cue.cycle-hue-2 { --rail: var(--cycle-3); }
+.summary .cue.cycle-hue-3 { --rail: var(--cycle-4); }
 .summary .cue.looping::before {
   content: ''; position: absolute; left: 1.9rem; top: 0; bottom: 0;
-  border-left: 2px solid var(--accent); opacity: .5;
+  border-left: 2px solid var(--rail); opacity: .5;
 }
 .summary .cue.cycle-start::before { top: .35rem; border-top-left-radius: 3px; }
 .summary .cue.cycle-end::before { bottom: .35rem; border-bottom-left-radius: 3px; }
 .summary .cue.cycle-start::after,
 .summary .cue.cycle-end::after {
   content: ''; position: absolute; left: 1.9rem; width: .4rem;
-  border-top: 2px solid var(--accent); opacity: .5;
+  border-top: 2px solid var(--rail); opacity: .5;
 }
 .summary .cue.cycle-start::after { top: .35rem; }
 .summary .cue.cycle-end::after { bottom: .35rem; }

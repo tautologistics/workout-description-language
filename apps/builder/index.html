@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WDL — builder</title>
 <link rel="stylesheet" href="builder.css">
+<link rel="stylesheet" href="../shared/body-map.css">
 </head>
 <body>
 
@@ -71,6 +72,16 @@
     <div id="summary" class="summary"></div>
     <ul id="diagnostics" class="diagnostics"></ul>
 
+    <h2 class="body-head">Body
+      <select id="body-mode" title="What the map shows">
+        <option value="aggregate">Aggregate</option>
+        <option value="heat-frequency">Heat — how often</option>
+        <option value="heat-volume">Heat — reps</option>
+      </select>
+    </h2>
+    <div id="bodymap"></div>
+    <p class="hint" id="body-hint"></p>
+
     <h2 class="goals-head">Against your goals
       <select id="goal-pick" title="Which goals to check against"></select>
     </h2>
@@ -89,7 +100,6 @@
   </section>
 </main>
 
-<datalist id="movements"></datalist>
 <input type="file" id="file" accept=".wdl,.txt" hidden>
 <input type="file" id="goal-file" accept=".wdlg,.txt" hidden>
 

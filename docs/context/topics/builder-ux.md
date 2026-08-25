@@ -12,28 +12,34 @@ so; where it is a reading that still needs a click to confirm, it says that too.
 
 ## Outline
 
-**Indent is allowed on a line with nothing above it, producing an orphan.** A
-top-level line that is first in the document can still be indented, which leaves
-a child with no parent and makes the whole file invalid. `shift` guards only
-against negative indent — `indentOf(lines[line - 1]) + by < 0` — and never checks
-that a preceding sibling exists to become the parent. The guard belongs in core,
-not in the button: Tab at end-of-line calls the same `shift(n.line, 2)`, so
-disabling the button would leave the bug reachable by keyboard. `previousSibling`
-in the builder and `spans().siblings` already express the test needed.
-*Touches: `packages/core/src/edit.ts:176`, `apps/builder/builder.js:96` (button),
-`apps/builder/builder.js:153` (Tab).*
+**~~Indent is allowed on a line with nothing above it, producing an orphan.~~
+Fixed 2026-08-24.** A top-level line that is first in the document could still be
+indented, leaving a child with no parent and making the whole file invalid.
+`shift` in `packages/core/src/edit.ts` now refuses to increase indent when the
+line has no preceding sibling — `self.index === 0` from `spans()` — the same
+test `previousSibling` in the builder already expressed. Fixed in core, so both
+call sites are covered: the button (`apps/builder/builder.js:96`) and Tab at
+end-of-line (`apps/builder/builder.js:153`), which call the same `shift`.
+Verified by driving the builder, both by button and by Tab, on the first line
+of a fresh document. `packages/core/test/edit.test.ts` covers a first-in-document
+line and a first-child-of-a-block line, both refused.
 
-**The caret on every outline row does nothing.** Intent unknown — it is not in
-the builder's markup or CSS. Every row's input carries `list="movements"`, so the
-caret is the browser's native datalist affordance. *Likely* cause, not yet
-confirmed by clicking: the datalist filters its options against the input's whole
+**~~The caret on every outline row does nothing.~~ Fixed 2026-08-25.** Confirmed
+by clicking: the native datalist filtered its options against the input's whole
 value, and a row's value is the entire logical line (`21 Thruster 95lb`), which
-matches no movement name — so the popup opens empty every time. Decide whether
-per-row movement completion is wanted at all: if yes it needs to match against
-the movement-name part of the line rather than the whole of it; if no, the
-`list` attribute should come off so the affordance stops advertising something
-that will not happen.
-*Touches: `apps/builder/builder.js:139`, `apps/builder/index.html:92`.*
+matched no movement name, so the popup opened empty every time. Per-row movement
+completion was wanted, so the native datalist is gone — `apps/builder/builder.js`
+now strips the leading dash and quantity off a row's value to get the
+movement-name fragment being typed, matches it against the curated registry
+(prefix either direction, so both "Thr" while typing and the fully-typed name
+with trailing load still match), and shows a custom dropdown that replaces just
+that fragment, preserving quantity and any trailing modifiers. Arrow keys move
+the highlight, Enter picks, Escape closes. Verified by driving the builder in
+both themes: typing a partial name opens matching suggestions, picking one
+splices in the full name and leaves the rest of the line alone, and Escape
+closes without touching the text.
+*Touched `apps/builder/builder.js`, `apps/builder/builder.css`,
+`apps/builder/index.html` (removed the now-unused `<datalist>`).*
 
 **Not an issue, checked:** indenting a parent such as an `amrap` carries its
 children with it correctly.
@@ -124,38 +130,60 @@ work together is closer to that pillar than to a palette convenience.
 
 ## What it reads
 
-**Every cycle rail is the same blue, so two repeating blocks in a row read as
-one.** The rail is a single fixed colour — `border-left: 2px solid var(--accent)`
-— applied through one `looping` class. Distinct cycles need distinct colours, or
-back-to-back repeating blocks cannot be told apart. The identity needed is
-already in hand at render time: `cycleOf` finds the specific cycle and then
-throws that away in favour of a bare class. Passing the cycle's index through
-(a `data-cycle` attribute, or `looping-1`/`looping-2`) is enough for CSS to
-colour them apart. Rails must stay legible in both themes.
-*Touches: `apps/builder/builder.js:276-284`, `apps/builder/builder.css:300-314`.*
+**~~Every cycle rail is the same blue, so two repeating blocks in a row read as
+one.~~ Fixed 2026-08-25.** The rail no longer draws from a single fixed
+`--accent`; each cycle now gets a colour from a small cycling palette
+(`--cycle-2`, `--cycle-3`, `--cycle-4`, alongside `--accent` for the first),
+picked by `laid.cycles.indexOf(cycle) % 4` in `renderReading()` and applied as
+a `cycle-hue-N` class that sets `--rail` for the row's rail to read
+(`apps/builder/builder.js:321-334`, `apps/builder/builder.css:309-327`). The
+palette is distinct from `--warn`/`--error`/`--ask`, which already carry their
+own meaning. Verified by driving the builder with two `AMRAP 6min:` blocks
+back to back: the two rails read as different colours, checked in both light
+and dark themes via the computed `border-left-color` of each cycle's rail.
 
-**The summary says title, cues and how long, but never the scoring.** A reader
-cannot tell from the top of the pane how the workout is scored. `workout.score`
-is parsed and available — `primary`, plus `tiebreak`, `onCap`, `aggregate`,
-`perRound`, and an `implied` flag for scores derived from a `for time` or AMRAP
-header rather than written. The summary's `rows` array reads none of it.
+**~~The summary says title, cues and how long, but never the scoring.~~ Fixed
+2026-08-25.** `renderReading()`'s `rows` array now includes a `score` row —
+`workout.score`, described as `primary` plus `on cap: …` / `tiebreak: …` when
+present (`apps/builder/builder.js`, `describeScore()` around the `rows` array).
+No AST change was needed; `Score` already carried everything to show.
 
-Two things to decide rather than guess at:
-- Whether an *implied* score is shown the same as a written one. The formatter
-  deliberately does not re-emit implied scores, on the grounds that the header
-  already states them; the summary is a different surface and may want the
-  opposite.
-- Blocks carry their own `score` as well as the workout, so a workout can have
-  more than one. A single summary row cannot say that.
+Two decisions were needed and Chris made both:
+- **An implied score is shown the same as a written one.** The canonical
+  formatter deliberately does not re-emit implied scores, because the header
+  already states them — but the summary is a different surface asking "how is
+  this scored?", and an implied score still answers that. No visual marking
+  distinguishes implied from written.
+- **Block-level scores are out of scope for this pass.** A workout can have
+  more than one scoring rule (a block can carry its own `score` beside the
+  workout's), and a single summary row cannot say that — left for a later item
+  rather than guessed at here.
 
-*`onCap` is the sharpest case, and as of 2026-08-23 it is visibly missing.* The
-summary now tells `clock`, `duration` and `cap` apart, so a capped for-time reads
-`duration  athlete-paced` above `cap  12:00 at most` — and still says nothing
-about what is scored when that cap is reached, which is the whole reason
-`on cap:` exists. The one row that used to make the question invisible is the row
-that now raises it.
+The second decision turned out to interact with the first in a way worth
+recording: **most real workouts have no `workout.score` at all.** A bare
+`for time:` or `AMRAP` states its score only as an *implied* score on the one
+top-level block — `workout.score` is `undefined` for them, and reading only
+`workout.score` would have left the row missing for the common case, not just
+the multi-block one the second decision was actually about. The fix resolves
+the same way `declaredScore()` already does in `packages/core/src/result.ts`
+(what the board asks after a run, to know what it is allowed to claim it
+measured): use `workout.score` if present, else the single top-level block's
+score if there is exactly one block. More than one top-level block falls
+through to no row — that is the "more than one scoring rule" case the second
+decision declines to guess at, not a bug in the one-block case.
 
-*Touches: `apps/builder/builder.js:256-272`, `packages/core/src/ast.ts:164-181`.*
+`onCap` was the sharpest case and is no longer missing: a capped for-time with
+an explicit `on cap:` line now reads `cap  12:00 at most` above
+`score  time, on cap: reps completed`. A cap with no `on cap:` line written
+reads `score  time` alone — the row states what the AST actually records, not
+a semantic default (`reps`) that exists only in consumers like `checkScore`,
+which was not part of either decision above.
+
+Verified driving the builder with a plain `for time:`, an `AMRAP 15min:`, and
+a `for time, cap 12min:` with an explicit `score: time` / `on cap:` pair — all
+three showed a sensible `score` row, checked in both light and dark themes.
+`npm --prefix packages/core test` passed before and after (1800/1800, 1
+pending), unaffected since this is builder app code, not core logic.
 
 **~~A movement with an `rx` weight split shows no weight at all.~~ Fixed
 2026-08-18** by queue item 1. A step with an unresolved split now reads as its

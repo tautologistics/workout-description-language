@@ -778,6 +778,40 @@ marks the ones worth a top-level pointer.
   about the shape: a collision that looks like an unavoidable trade-off is worth
   checking for a bad record underneath before it is written down as a debt.*
 
+- **A range does not carry a unit, and a range that has one says so rather than
+  vanishing into the movement name.** Settled 2026-08-23, closing queue item 5.
+  `8-12 Toes-to-Bar` is a first-class quantity because spec §3's unit table
+  gives a range to reps and nothing else; `100-150ft Farmers Carry` matched no
+  rule at all, so the whole token — digits, dash and unit together — fell into
+  `movement`, the step matched no registry entry, `wdl check` said nothing, and
+  `wdl fmt` pluralized text nobody meant as a noun into `Farmers Carries`.
+
+  **The question was whether a range should generalise, and the answer is no —
+  not here.** A carry written `100-150ft` says what `8-12` says (*somewhere in
+  this band*), and `rest 60-90s` wants the same reading, which is a real
+  argument for teaching `Quantity`'s `range` a unit. But that is a wider
+  redesign — duration and distance ranges are different shapes, not one kind
+  with a unit bolted on, and every consumer of `kind: 'range'` (`volume.ts`,
+  `timeline.ts`, `format.ts`, both exporters) would need to stop assuming reps
+  for a feature only ever asked for once. **What was not optional was the
+  silence**, and that does not require settling the wider question: the grammar
+  now matches `<int>-<int><letters>` as its own production, `unreadableRange`,
+  ahead of `anyQuantity` — so it is *caught* rather than left for `movement` to
+  absorb — and reads it the way an unrecognized comma modifier already reads
+  (queue item 0d): quantity stays `open`, the raw text goes in `Step.unknown`,
+  and `validate.ts`'s existing `unread()` reports it as a `note`. The movement
+  name comes out right either way, so muscle attribution (name-keyed, not
+  quantity-keyed) resolves normally; volume does not, honestly, because there
+  genuinely is no single number to give it.
+
+  A rest already closed this silence correctly before today: `rest 60-90s`
+  fails `restLine` outright (no production accepts a dash there), so the
+  existing fallback in `parseRest` reports `unreadable rest duration "60-90s"`.
+  Only the step-line case needed the fix. Whether a range should generalise to
+  a unit stays open — see [tasks/completed.md](../tasks/completed.md) (item 5)
+  if it is raised again, with a real second caller wanting it.
+  *Touched: `spec/grammar-0.1.ohm`, `packages/core/src/grammar/step-semantics.ts`,
+  `spec/spec-0.1.md`, `packages/core/test/golden/vocabulary.ts`.*
 - **A qualitative load (`@ heavy`) is a `Load` kind, not raw text — and it stays
   exactly as unresolvable as the numeric loads that already have no kilogram
   answer.** Settled 2026-08-23, closing queue item 6. The two candidates were a
@@ -801,12 +835,58 @@ marks the ones worth a top-level pointer.
   instead of silently skipping the step. Same shape as item 0d's `unknown` field:
   the fix was a place to be seen, not a way to be understood.
 
-  **This does not reach item 5.** A carry with both a range quantity and a
-  qualitative load (`100-150ft Farmers Carry @ heavy`) still loses the range to
-  the movement name — that failure is upstream of `targets` entirely, in the
-  quantity grammar, and closing item 6 does nothing to it. The two items were
-  raised together because one workout hit both; closing one is not evidence
-  toward the other.
+  **This did not reach item 5, and did not need to.** A carry with both a range
+  quantity and a qualitative load (`100-150ft Farmers Carry @ heavy`) is
+  upstream of `targets` entirely, in the quantity grammar, and closing item 6
+  did nothing to it on its own — the two items were raised together because one
+  workout hit both, and closing one was not evidence toward the other. *Correction,
+  merge to `main`: item 5 closed independently the same day (see its entry
+  above), so the combined case now reads correctly on `main` — `Farmers Carry`
+  resolves, `@ heavy` is a `Load` target, and `100-150ft` is reported in
+  `unknown` — but that is item 5's fix doing its own job, not anything this one
+  reaches.*
+
+- **The body map shows primary vs secondary as opacity, one colour per layer —
+  not two colours, and not left unshown.** Settled 2026-08-23, closing queue
+  item 7's one open design question. Two colours was the real alternative — a
+  primary mover in one hue, a muscle a step only *assists* in another. Opacity
+  won because every one of the map's four views already spends a
+  colour on something else — the aggregate is one colour, a per-movement
+  highlight is a second colour laid over it "against" the aggregate, the
+  board's current-cue emphasis is a third context — and a two-colour
+  primary/secondary axis on top would have meant naming a colour pair for
+  *each* of those layers rather than one. Opacity composes with any of them
+  for free: whatever colour a layer paints with, a primary mover gets it at
+  full strength and a secondary one at about 40%, so the reader learns the
+  vocabulary once ("faint means it only assists") and it holds everywhere
+  rather than meaning something different pane to pane. Not shown at all was
+  rejected outright — `muscles.ts` has carried the distinction since before this
+  item, `goals.ts`'s `level: any` already keys off it, and a map that could not
+  say a pull-up primarily hits lats rather than merely touching biceps would
+  answer a shallower question than the data already answers.
+  *Touched: `apps/shared/body-map.js` (`aggregateStates`, `highlightStates`),
+  no core change.*
+
+- **The heat map's scale is a choice per view, not one number, and a muscle
+  worked by something the scale cannot read is hatched, never coloured cold.**
+  Settled 2026-08-23, closing the second half of queue item 7. The item's own
+  text named the trap: `volume.ts`'s reps are the honest number for loaded
+  work and say nothing for a carry, a hold or a max effort, since `stepVolume`
+  reads all three as zero reps by construction (see items 5 and 6 above) — a
+  reps-only scale would paint every farmer's-carry-only muscle the coldest
+  colour on the map, which reads as "not worked" and is a lie. **`frequency`**
+  (`MuscleLoad.exposures` — how many steps touched a muscle, primary or
+  secondary) is always defined, so it is the default; **`volume`** (reps) is
+  offered beside it for the workouts where it says something a count cannot —
+  which set moves the most iron — and a muscle with exposures but zero reps
+  under it is marked `unmeasured` and drawn hatched, a third visual state
+  distinct from both "not worked" (idle, uncoloured) and any real heat colour.
+  Distance, calorie and duration work reads as `unmeasured` under `volume` too,
+  for the same reason a carry does — reps is not a unit those quantities have,
+  and inventing an exchange rate between metres and reps would be a guess
+  wearing a number's clothes. *Touched: `apps/shared/body-map.js`
+  (`heatStates`), no core change — the split is entirely a read of
+  `MuscleLoad`'s existing fields, not a new one.*
 
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in

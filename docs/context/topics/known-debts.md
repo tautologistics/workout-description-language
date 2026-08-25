@@ -68,6 +68,16 @@ when something looks odd before treating it as a discovery.
   *Correction 2026-08-23: `Ring Row` is a curated record now — queue item 4 wrote
   one so the pool could reach a horizontal pull — so the example above no longer
   reproduces. The debt is unchanged; only the movement that demonstrated it is.*
+  *Correction 2026-08-23: queue item 7's body map needs a muscle attribution for
+  every cue of every workout, not one name lookup, so "lazy and narrowly
+  triggered" stopped being true of the whole file that day — the board now
+  fetches the 1.7MB merge (and `registry/muscles.json` beside it) unconditionally,
+  though still not awaited, so the map fills in a moment after the board is
+  otherwise usable rather than holding anything up. `wantCanonical()` is
+  unchanged and still exists for the case this entry describes; it is now
+  usually a no-op because the eager fetch already landed first. The slim
+  name-index fix below would still shrink both call sites, and now has two
+  reasons to happen instead of one.*
 - A `variants:` value that is a **rep or distance override** is reported and not
   applied. Spec §10 says a variant may override reps or distance; `resolve()`
   reads a load, a load-plus-height, or a movement to swap, and says so by name
@@ -102,9 +112,9 @@ when something looks odd before treating it as a discovery.
   mangling back. The extension is the whole of the check, because sniffing the
   contents would be a fifth grammar guessing at the other four — which leaves a
   template, whose extension is honest, exactly where it was.*
-- `state.window` in `apps/display/board.js` is **assigned and never read** — dead
-  since the countdown moved onto `cycle.window`. Harmless, and worth deleting
-  rather than plumbing a cap in beside it; queue item 9 is where that happens.
+- ~~`state.window` in `apps/display/board.js` is assigned and never read.~~
+  **Closed 2026-08-23** by queue item 9: deleted rather than kept beside the cap
+  that replaced it — `state.cap` is what `tick()` reads now.
 - ~~A capped for-time workout reports `duration: 12:00` in the builder.~~
   **Closed 2026-08-23** by queue item 3. `Timeline.cap` and `Run.cap` hold the
   bound, `estimatedSeconds` and `totalSeconds` hold the length, and neither
@@ -612,16 +622,14 @@ when something looks odd before treating it as a discovery.
   `rx` entry above: `stepCue` builds from a subset of the step. Found 2026-08-15
   while encoding a partner circuit; no corpus workout uses a team block.
 
-- **A distance range is not a form, and it fails the way `5x5` used to.**
-  `- 100-150ft Farmers Carry` puts `100-150ft Farmers Carry` in the *movement
-  name* with the quantity left `open`, so the step matches no registry entry and
-  drops out of muscle and volume analysis — and `wdl fmt` then pluralizes what it
-  was handed, writing `100-150 ft Farmers Carries`. Spec §3's unit table defines a
-  range for **reps only** (`8-12`), and that is a real decision (a carry written
-  `100-150ft` is a coach saying "somewhere in this range", which is the same thing
-  `8-12` says), but nothing reports the gap. `wdl check` says ok. Found 2026-08-15
-  while encoding a carry circuit. Either ranges generalise to distance and
-  duration, or the parser should say it cannot read the quantity.
+- ~~**A distance range is not a form, and it fails the way `5x5` used to.**~~
+  **Closed 2026-08-23** by queue item 5. `- 100-150ft Farmers Carry` no longer
+  lands in the movement name: the grammar now catches a range wearing a unit
+  ahead of the movement, reads it the way an unrecognized comma modifier already
+  reads (`open` quantity, raw text in `Step.unknown`), and `validate.ts` reports
+  it as a note. The movement resolves and `wdl fmt` no longer pluralizes the
+  digits. Full decision, and why the range itself was not taught a unit, in
+  [settled-decisions.md](settled-decisions.md).
 
 - **The builder's outline disagrees with the workout about an unindented
   `score:`, until you canonicalise.** The outline is built from `readLines`
@@ -648,9 +656,11 @@ when something looks odd before treating it as a discovery.
   drifted this time either. The debt is unchanged: nothing runs the rebuild and
   nothing checks the result, so "it was fine twice" is still luck.
 
-- The builder's Indent allows a first-in-document top-level line to be indented,
-  orphaning it and invalidating the file. `shift` guards only against negative
-  indent, never against having no parent to attach to.
+- ~~The builder's Indent allows a first-in-document top-level line to be
+  indented, orphaning it and invalidating the file.~~ **Fixed 2026-08-24.**
+  `shift` in `packages/core/src/edit.ts` now also refuses to increase indent
+  when the line has no preceding sibling to become its parent. See
+  [builder-ux.md](builder-ux.md).
 
 - **~~Twelve aliases in the canonical corpus are claimed by two records, and the
   registry has no way to say which is meant.~~ Curated 2026-08-23: eight merged,

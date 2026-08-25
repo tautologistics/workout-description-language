@@ -802,6 +802,31 @@ search, and `Ring Row` adds and cues.*
 *Touched: `registry/movements.json`, `scripts/mark-core.mjs`,
 `packages/core/test/generate.test.ts`.*
 
+**5. ~~A range is only a rep range.~~ DONE 2026-08-23.** `100-150ft Farmers
+Carry` used to land whole in the movement name with the quantity left `open`,
+so the step matched no registry entry and `wdl fmt` pluralized what it was
+handed into `100-150 ft Farmers Carries`, with `wdl check` silent throughout —
+the exact failure shape leading `5x5` had before item 0e.
+
+**The range does not generalise — not on one caller's say-so.** A carry written
+`100-150ft` says what `8-12` says, and so does `rest 60-90s`, which is a real
+argument for teaching `Quantity`'s range a unit. But distance and duration
+ranges are different shapes, not one kind with a unit bolted on, and every
+consumer of `kind: 'range'` would need to stop assuming reps for a feature asked
+for once. What was not optional was the silence, and closing it does not
+require settling that: the grammar now matches `<int>-<int><letters>` as its own
+production, `unreadableRange`, ahead of `anyQuantity`, and reads it the way an
+unrecognized comma modifier already reads (item 0d) — quantity `open`, raw text
+in `Step.unknown`, reported by `validate.ts`'s existing `unread()` as a `note`.
+The movement name comes out right, so muscle attribution resolves; volume does
+not, honestly, because there is no single number to give it. `rest 60-90s` was
+already closed correctly before this — `restLine` fails outright on a dash, so
+`parseRest`'s fallback reports `unreadable rest duration "60-90s"`; only the
+step-line case needed the fix. Full decision in
+[settled-decisions.md](../topics/settled-decisions.md).
+*Touched: `spec/grammar-0.1.ohm`, `packages/core/src/grammar/step-semantics.ts`,
+`spec/spec-0.1.md`, `packages/core/test/golden/vocabulary.ts`.*
+
 **6. ~~A load can be a word, and the language has no scale for it.~~ DONE
 2026-08-23.** Qualitative load is now a **category the language knows**: `Load`
 gained a fifth kind, `qualitative`, holding `heavy` / `moderate` / `light` /
@@ -840,6 +865,28 @@ deliberately, since that is the shape the "unresolvable is not absent"
 distinction has to hold up against. 1791 → 1797 passing, 1 pending.
 *Touched: `packages/core/src/ast.ts`, `units.ts`, `spec/spec-0.1.md` §3, §7,
 `test/golden/vocabulary.ts`, `test/muscles.test.ts`.*
+
+**7. ~~A body map in the builder and on the board.~~ DONE 2026-08-23.** Front and
+back, one stylised SVG path per muscle in `apps/shared/body-map.js`, id-matched
+to `registry/muscles.json`'s 19-muscle vocabulary — 10 muscles drawn on the front
+view, 9 on the back, each exactly once. Pure rendering and pure state functions
+(`aggregateStates`, `highlightStates`, `heatStates`) over what `exposures()`,
+`musclesFor()` and `muscleLoad()` already report, so no core change was needed,
+as scoped. All four views landed: the builder's **aggregate** (a "Body" panel
+under "What it reads as"), **per-movement highlight** against it from hovering
+either the palette or an outline row, a **heat map** toggling `frequency` vs
+`volume` with a hatch pattern for "worked but this measure does not apply", and
+the **board's header**, the same aggregate/highlight pair driven by the cue
+cursor. The design question — opacity, two colours, or nothing for primary vs
+secondary — is settled as opacity; see
+[settled-decisions.md](../topics/settled-decisions.md), which also carries the
+heat-scale decision the item asked for. One touch outside the stated scope: the
+board's `canonicalMovements` fetch, previously lazy, is now eager (not awaited)
+because the map wants an attribution for every cue; see
+[known-debts.md](../topics/known-debts.md).
+*Touched: `apps/shared/body-map.js` (new), `apps/shared/body-map.css` (new),
+`apps/builder/index.html`, `apps/builder/builder.js`, `apps/builder/builder.css`,
+`apps/display/index.html`, `apps/display/board.js`, `apps/display/board.css`.*
 
 **8. ~~An alias pass over the core.~~ DONE 2026-08-22, with a residue.** The
 registry held 278 aliases across 219 of 3120 movements, 117 of the 178 core.
@@ -1018,3 +1065,76 @@ was at 1742 before the change, which is the same merge work being missing.*
 *Touched: `packages/core/src/fold.ts`, `packages/core/test/fold.test.ts`,
 `scripts/check-aliases.mjs`, `docs/movement_registry_design.md` §3.*
 
+**9. ~~A cap is a clock, and the board does not run it.~~ DONE 2026-08-23.**
+`tick()` now reads `state.cap` — set from `laid.cap` in `recue()` — the same way
+it already read a section's `window`: `onClock` is whichever of a running
+section's own clock and the cap is nearer, computed once and used everywhere the
+old single-source value was. No new row. A twelve-minute cap now counts down in
+the same place the cue and section clocks already do, because the athlete does
+not care which field of the file produced the deadline, only which one is
+closer.
+
+**The expiry was the real half, and the answer is: stop where you stand, not at
+the end.** `capOut()` is not `finish()` — it freezes the clock, disables
+`start`/`next`/`prev`/`leave`, and opens the record panel, but leaves `state.at`
+exactly where the cursor was. Spec §5.6 says the workout ends; it does not say
+the athlete reached the last cue, and `finish()`'s "jump to the end" would have
+claimed exactly that on a screen that is supposed to be honest about what it
+measured. `measuredScore()` needed no change: it already reads the clock rather
+than the cursor for a `for time` score, so a cap-out reports the same time
+score `finish()` would have, and it still declines to invent a reps or rounds
+number — that guess is item 2's business, on a *result*, not this one's.
+
+**The nearer-deadline rule generalizes the one that already existed.** A cue's
+own clock already outranked a section's; a cap is a third clock, checked in the
+same order — cue, then the nearer of section-or-cap. `77-tiff.wdl`
+(`for time, cap 25min:` around a bare `AMRAP:`) is the proof: the AMRAP has no
+window of its own, so the cap is what the display and the expiry both use, and a
+synthetic file nesting a *short* AMRAP window inside a *longer* cap (driven on
+the board, not just read) confirmed the other direction — the section's own
+clock expires it first, `leave()` drops the cursor back to the spine, and the
+cap goes on counting down over what is left.
+
+**`state.window` is gone**, per the debt that flagged it — it was dead since the
+cycle rewrite and nothing reads it now that `state.cap` exists beside it instead
+of plumbed in.
+*Touched: `apps/display/board.js`. `board.css` untouched — the cap reads through
+the clock and its `aside` that a section's window already used, so it needed no
+row of its own.*
+
+*Ordering of 5, 6, 7 and 9 against 1-4 is not settled - they are appended
+rather than placed. 5, 6 and 7 were raised by writing and sending one workout
+rather than by a plan, and 9 by closing item 3. **0f was lettered rather than
+numbered on purpose** - grammar work, belonging with the 0-series - and both its
+halves are closed. Closed so far: the whole 0-series, 1, 1a, 2, 3, 4, 6, 8 and
+8a, so **the open numbered items are 5, 7 and 9**. Stated as a set rather than as
+a name on purpose: a pointer naming one item goes stale the moment that item
+lands, which is how an earlier one came to send readers at finished work. The
+one thing 0f left behind is `TABATA`, which is not an abbreviation to read but a
+structure to define; it is written up under 0f rather than given a number,
+because nobody has asked for it yet.*
+
+*Corrected 2026-08-23: this paragraph said "4, 5, 6, 7 and 9" while item 4 sat
+above it already marked DONE — closed the same day this paragraph was last
+touched, and never carried down into the set it names. A queue item can go
+stale one paragraph at a time; this is that, caught while closing item 6 rather
+than left for whoever reads it next.*
+
+*Corrected again 2026-08-23, at the merge to `main`: items 5 and 6 both closed
+the same day, on two branches merged together — 5 as
+`claude/confident-kalam-90bad5`, 6 as `claude/qualitative-load-item6` — so
+neither branch's own paragraph saw the other land. Closed so far: the whole
+0-series, 1, 1a, 2, 3, 4, 5, 6, 8 and 8a, so **the open numbered items are 7 and
+9**.*
+
+*Corrected a third time 2026-08-23, at the merge to `main`: items 7 and 9 both
+closed the same day, on two branches merged together, so neither branch's own
+paragraph saw the other land — the same shape as the 5/6 merge above. Closed
+so far: the whole 0-series, 1, 1a, 2, 3, 4, 5, 6, 7, 8, 8a and 9 — **every
+numbered item raised so far is closed.** The next task is whatever gets found
+or raised next, not a number waiting here.*
+
+**Nobody has run a session off the board.** Everything is verified by tests and
+by driving the UI. Every defect Chris has caught by *looking* — `21 Thruster`,
+the AMRAP clock, the run-on notes — was invisible to 1257 tests. A real session
+will reorder this list.

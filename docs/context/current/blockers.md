@@ -2,10 +2,8 @@
 
 ## Active Blockers
 
-- None that stop the current queue. The nearest thing is
-  [../tasks/current.md](../tasks/current.md) item 9 (a cap is a clock and the
-  board does not run it), which needs a decision about what happens when a cap
-  expires before it can be built.
+- None. The queue in [../tasks/current.md](../tasks/current.md) is empty —
+  every numbered item raised so far is closed.
 
 ## Accepted Risks
 

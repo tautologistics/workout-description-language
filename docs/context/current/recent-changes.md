@@ -2,6 +2,19 @@
 
 ## Changes
 
+- **2026-08-25 — The queue emptied out.** Items 5 (a distance/duration range
+  is caught rather than silently swallowed into the movement name), 7 (a body
+  map, front and back, in the builder and on the board), and 9 (the board
+  runs a cap as a clock, stopping where the cursor stands rather than
+  claiming the end) all closed, on separate branches merged the same day.
+  Every numbered item raised so far — the whole 0-series, 1, 1a, 2, 3, 4, 5,
+  6, 7, 8, 8a and 9 — is now closed; see
+  [../tasks/completed.md](../tasks/completed.md). Also landed the same day:
+  the builder's outline caret now does real per-row movement completion
+  instead of an empty native datalist, an indent guard against orphaning a
+  first-in-document line, distinct rail colours for back-to-back repeating
+  blocks, the builder's summary showing a workout's scoring rule, and the
+  body map's anatomical shapes were swapped in from a real reference source.
 - **2026-08-23 — A load can be a word.** `heavy`, `moderate`, `light`,
   `unloaded` are a fifth `Load` kind, `qualitative`, so a target like `@ heavy`
   is visible to anything checking for a load instead of sitting inert in

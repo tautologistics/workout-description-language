@@ -172,10 +172,18 @@ export function moveTo(
   return [...rest.slice(0, at), ...moved, ...rest.slice(at)];
 }
 
-/** Re-indent a thing and its contents together, so the nesting stays legal. */
+/**
+ * Re-indent a thing and its contents together, so the nesting stays legal.
+ *
+ * Indenting needs a preceding sibling to become the parent — without one there
+ * is nothing for the deeper indent to nest under, and the thing becomes an
+ * orphan: still parsed as sitting where it was, just with indentation that
+ * claims otherwise. `self.index === 0` is that check: no sibling before it.
+ */
 export function shift(lines: string[], line: number, by: number): string[] {
   const self = spans(lines).get(line);
   if (!self || indentOf(lines[line - 1]) + by < 0) return lines;
+  if (by > 0 && self.index === 0) return lines;
   const out = lines.slice();
   for (let i = self.from; i <= self.to; i++) {
     if (!out[i - 1].trim()) continue;

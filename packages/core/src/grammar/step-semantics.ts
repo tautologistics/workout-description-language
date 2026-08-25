@@ -91,6 +91,17 @@ export function installStep(semantics: Semantics): void {
       this.args.step.quantity = { kind: 'reps', value: num(reps) };
     },
     leadQuantity_plain(q, _s) { this.args.step.quantity = q.unit(); },
+    // `100-150ft` — a range wearing a unit the language does not read (spec §3
+    // gives a range to reps and nothing else). Held the way an unrecognized
+    // comma modifier is: quantity stays `open` rather than a guess, the raw
+    // text goes in `unknown` so `validate.ts`'s existing `unread()` reports it,
+    // and the movement name is left correctly *without* the digits, so the step
+    // still resolves against the registry. See `unreadableRange` in the grammar.
+    leadQuantity_unreadableRange(r, _s) {
+      const step = this.args.step;
+      step.quantity = { kind: 'open' };
+      (step.unknown ??= []).push(r.sourceString.trim());
+    },
 
     // --- what may trail a movement ---
     targetGroup_flag(_at, name) { this.args.step.flags.push(name.sourceString); },

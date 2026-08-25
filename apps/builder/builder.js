@@ -31,6 +31,8 @@ import { validate } from '../../build/web/core/validate.js';
 import { run, roundLabel } from '../../build/web/core/run.js';
 import { provide, has } from '../../build/web/core/env.js';
 import { parseGoals, check } from '../../build/web/core/goals.js';
+import { exposures, muscleLoad, musclesFor } from '../../build/web/core/muscles.js';
+import { mountBody, paintBody, aggregateStates, highlightStates, heatStates, heatColor, attachZoom } from '../shared/body-map.js';
 
 const GRAMMAR = '../../spec/grammar-0.1.ohm';
 const REGISTRY = '../../registry/movements.json';
@@ -63,6 +65,8 @@ const START = `# New workout
 let lines = START.replace(/\n$/, '').split('\n');
 /** Which line the caret was on, so a redraw does not steal focus back to the top. */
 let focused = null;
+/** The curated registry, for per-row movement suggestions. Empty until it loads. */
+let curatedMovements = [];
 
 const text = () => `${lines.join('\n')}\n`;
 
@@ -120,15 +124,53 @@ function render(focusLine) {
   renderOutline();
   renderReading();
   renderFindings();
+  renderBody();
   const link = el('board');
   link.href = `../display/#${encodeURIComponent(text())}`;
 }
+
+/**
+ * The part of a row's value that names a movement — not a parse, because a
+ * row can be mid-edit and still deserves suggestions. Strips the leading
+ * `- ` a step carries and the quantity in front of the movement (`10 `,
+ * `21 `, `400m `, `20cal `), leaving whatever the mover is typing, trailing
+ * modifiers and all.
+ */
+const movementFragment = (value) => value
+  .replace(/^-\s+/, '')
+  .replace(/^[\d:./x%]+\s*/i, '');
+
+/** Curated movements whose name plausibly matches what is being typed, either way. */
+const movementSuggestions = (fragment) => {
+  const q = fragment.trim().toLowerCase();
+  if (!q) return [];
+  return curatedMovements
+    .filter((m) => {
+      const t = m.title.toLowerCase();
+      return t.startsWith(q) || q.startsWith(t) || t.includes(q);
+    })
+    .slice(0, 20);
+};
 
 function renderOutline() {
   const outline = el('outline');
   outline.innerHTML = '';
   const parsed = parse(text());
   const badLines = new Set(parsed.errors.map((e) => e.line));
+
+  // Which movement a line prescribes, if any, for the body map's outline
+  // hover — the AST's own line numbers, not the outline's, because a rep
+  // scheme step and its outline row do not always number the same way an
+  // inline block does.
+  const movementOf = new Map();
+  const collect = (nodes) => {
+    for (const n of nodes) {
+      if (n.node === 'step') movementOf.set(n.line, n.movement);
+      else if (n.node === 'block') collect(n.children);
+      else if (n.node === 'interrupt') collect(n.body);
+    }
+  };
+  collect(parsed.workout.body);
 
   const walk = (nodes, depth) => {
     for (const n of nodes) {
@@ -148,11 +190,71 @@ function renderOutline() {
 
       // A wrapped inline block is one row standing for several lines; show the
       // whole of it, and write it back over all of them.
+      const wrap = document.createElement('span');
+      wrap.className = 'line-wrap';
+
       const input = document.createElement('input');
       input.className = 'line';
       input.value = logicalText(lines, n.line);
-      input.setAttribute('list', 'movements');
       input.dataset.line = String(n.line);
+
+      // The movement caret: a live-filtered list of curated movements matching
+      // whatever is being typed, replacing just the movement-name part of the
+      // line so quantity and modifiers already on it survive the pick.
+      const suggestions = document.createElement('div');
+      suggestions.className = 'suggestions';
+      suggestions.hidden = true;
+      let highlighted = -1;
+
+      const closeSuggestions = () => {
+        suggestions.hidden = true;
+        suggestions.innerHTML = '';
+        highlighted = -1;
+      };
+
+      const pick = (m) => {
+        const value = input.value;
+        const fragment = movementFragment(value);
+        const prefixLen = value.length - fragment.length;
+        const rest = fragment.toLowerCase().startsWith(m.title.toLowerCase())
+          ? fragment.slice(m.title.length)
+          : '';
+        input.value = value.slice(0, prefixLen) + m.title + rest;
+        closeSuggestions();
+        lines = replaceLogical(lines, n.line, input.value);
+        el('text').value = text();
+        renderReading();
+        renderFindings();
+        renderBody();
+        const at = prefixLen + m.title.length;
+        input.focus();
+        input.setSelectionRange(at, at);
+      };
+
+      const openSuggestions = () => {
+        const matches = movementSuggestions(movementFragment(input.value));
+        if (!matches.length) return closeSuggestions();
+        suggestions.innerHTML = '';
+        for (const m of matches) {
+          const item = document.createElement('button');
+          item.type = 'button';
+          item.className = 'suggestion';
+          item.textContent = m.title;
+          item.onmousedown = (e) => e.preventDefault();   // keep focus in the input
+          item.onclick = () => pick(m);
+          suggestions.append(item);
+        }
+        highlighted = -1;
+        suggestions.hidden = false;
+      };
+
+      const highlight = (i) => {
+        for (const it of suggestions.children) it.classList.remove('active');
+        const item = suggestions.children[i];
+        if (item) { item.classList.add('active'); item.scrollIntoView({ block: 'nearest' }); }
+        highlighted = i;
+      };
+
       input.addEventListener('input', () => {
         // The indent is structure, and the outline is not where you change it —
         // that is what indent and outdent are for. `replaceLogical` keeps it.
@@ -160,15 +262,39 @@ function renderOutline() {
         el('text').value = text();
         renderReading();
         renderFindings();
+        renderBody();
+        openSuggestions();
       });
       input.addEventListener('change', () => render(n.line));
       input.addEventListener('focus', () => { focused = n.line; });
+      input.addEventListener('blur', closeSuggestions);
       input.addEventListener('keydown', (e) => {
+        if (!suggestions.hidden && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+          e.preventDefault();
+          const count = suggestions.children.length;
+          highlight(e.key === 'ArrowDown' ? (highlighted + 1) % count : (highlighted - 1 + count) % count);
+          return;
+        }
+        if (!suggestions.hidden && e.key === 'Enter' && highlighted >= 0) {
+          e.preventDefault(); suggestions.children[highlighted].click(); return;
+        }
+        if (!suggestions.hidden && e.key === 'Escape') { closeSuggestions(); return; }
         if (e.key === 'Enter') { e.preventDefault(); insert(n.line, ''); }
         if (e.key === 'Tab' && !e.shiftKey && input.selectionStart === input.value.length) {
           e.preventDefault(); shift(n.line, 2);
         }
       });
+
+      const caret = document.createElement('button');
+      caret.type = 'button';
+      caret.className = 'caret';
+      caret.title = 'Movement suggestions';
+      caret.tabIndex = -1;
+      caret.textContent = '▾';
+      caret.onmousedown = (e) => e.preventDefault();   // keep focus in the input
+      caret.onclick = () => (suggestions.hidden ? (input.focus(), openSuggestions()) : closeSuggestions());
+
+      wrap.append(input, caret, suggestions);
 
       const tools = document.createElement('span');
       tools.className = 'tools';
@@ -214,7 +340,13 @@ function renderOutline() {
         }
       });
 
-      node.append(rails, input, tools);
+      const movement = movementOf.get(n.line);
+      if (movement) {
+        node.addEventListener('mouseenter', () => hoverBody(musclesFor(movement) ?? { primary: [], secondary: [] }));
+        node.addEventListener('mouseleave', unhoverBody);
+      }
+
+      node.append(rails, wrap, tools);
       outline.append(node);
       walk(n.children, depth + 1);
     }
@@ -252,6 +384,39 @@ function renderReading() {
   }
 
   const clock = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
+  // Mirrors `declaredScore` in packages/core/src/result.ts (the same question
+  // the board asks after a run, to know what it is allowed to claim it
+  // measured) rather than reading `workout.score` alone: most real workouts
+  // — a bare `for time:` or `AMRAP`, no separate `score:` line — carry their
+  // only score on the one top-level block, implied by the header, and
+  // `workout.score` is undefined for them. Falling back to that single
+  // block's score is what makes the row appear for the common case, not just
+  // the case where a score line was written out at the top.
+  //
+  // Blocks-carry-their-own-score is only resolved here in the one-block,
+  // one-score case. More than one top-level block (so more than one
+  // candidate score) is the "workout can have more than one scoring rule"
+  // case the builder-ux.md item flags as a separate, undecided display
+  // question — left out of scope for this pass, so the row is simply absent
+  // rather than guessing which block's score to show.
+  const declaredScoreNode = (w) => {
+    if (w.score) return w.score;
+    const blocks = w.body.filter((n) => n.node === 'block');
+    return blocks.length === 1 ? blocks[0].score : undefined;
+  };
+  // `raw` already carries the primary phrase as written (or as implied by the
+  // header, e.g. `for time` implies `time`) — an implied score reads the same
+  // as a written one here, on the call that this pane is a different surface
+  // from the canonical formatter, which deliberately omits them because the
+  // header already states them. The summary's job is "how is this scored?",
+  // and an implied score still answers that.
+  const describeScore = (s) => {
+    const parts = [s.raw || s.primary];
+    if (s.onCap) parts.push(`on cap: ${s.onCap}`);
+    if (s.tiebreak) parts.push(`tiebreak: ${s.tiebreak}`);
+    return parts.join(', ');
+  };
+  const score = declaredScoreNode(workout);
   const dl = document.createElement('dl');
   const rows = [
     ['title', workout.title ?? '—'],
@@ -270,6 +435,9 @@ function renderReading() {
     // and the duration beside it now says `athlete-paced`, which is the true
     // answer to the question the other row asks.
     ...(laid.cap !== undefined ? [['cap', `${clock(laid.cap)} at most`]] : []),
+    // The scoring rule, including what happens at the cap — `on cap:` is the
+    // whole reason a cap row above can say "at most" instead of "this takes".
+    ...(score ? [['score', describeScore(score)]] : []),
     // A cycle that covers the whole workout is the workout repeating; one that
     // covers part of it is a section that does, and saying "repeats until the
     // clock stops" of the whole thing puts the buy-in and the buy-out on a
@@ -295,11 +463,18 @@ function renderReading() {
   // is visible at a glance — the summary line says which cues repeat, but
   // counting to them is work the reader should not have to do.
   const cycleOf = (i) => laid.cycles.find((c) => i >= c.from && i < (c.to ?? laid.cues.length));
+  // Cycles cycle through a small palette rather than each getting its own
+  // fixed colour — the count in one workout is unbounded, the palette is
+  // not. `indexOf` on the (small, per-render) cycle list is cheap enough
+  // not to bother precomputing.
+  const CYCLE_HUES = 4;
   for (const cue of laid.cues.slice(0, 24)) {
     const cycle = cycleOf(cue.index);
     const row = document.createElement('div');
     row.className = `cue ${cue.kind}${cycle ? ' looping' : ''}`;
     if (cycle) {
+      const hue = laid.cycles.indexOf(cycle) % CYCLE_HUES;
+      if (hue > 0) row.classList.add(`cycle-hue-${hue}`);
       if (cue.index === cycle.from) row.classList.add('cycle-start');
       if (cue.index === (cycle.to ?? laid.cues.length) - 1) row.classList.add('cycle-end');
     }
@@ -350,6 +525,55 @@ function renderReading() {
   el('dirty').hidden = text() === format(workout);
 }
 
+// --- the body map --------------------------------------------------------------
+
+const AGG_COLOR = 'var(--accent)';
+const HI_COLOR = 'var(--ask)';
+
+attachZoom(mountBody(el('bodymap')));
+
+/**
+ * Which movement, if any, to show against the aggregate — set by hovering a
+ * palette entry or an outline row, cleared on mouseleave. `null` means "just
+ * the aggregate", which is also what a compile error or a missing muscle
+ * registry falls back to.
+ */
+let hoverMovement = null;
+
+const HINTS = {
+  aggregate: 'Opacity: solid is a primary mover, faint is a muscle a step only assists. '
+    + 'Hover a movement in the palette or the outline to see what it would add.',
+  'heat-frequency': 'How many steps touch each muscle, primary or secondary — always defined.',
+  'heat-volume': 'Reps attributed to each muscle. Hatched means the muscle was worked but by a '
+    + 'carry, a hold or a max effort — none of which have a rep count to show.',
+};
+
+function renderBody() {
+  const mode = el('body-mode').value;
+  el('body-hint').textContent = HINTS[mode];
+  const box = el('bodymap');
+  if (!has('muscles') || !has('canonicalMovements')) { paintBody(box, {}); return; }
+
+  const { workout } = parse(text());
+  let timeline;
+  try { timeline = compile(workout); } catch { paintBody(box, {}); return; }
+
+  const list = exposures(timeline).list;
+  if (mode === 'aggregate') {
+    paintBody(box, hoverMovement
+      ? highlightStates(list, hoverMovement, AGG_COLOR, HI_COLOR)
+      : aggregateStates(list, AGG_COLOR));
+    return;
+  }
+  const report = muscleLoad(timeline);
+  paintBody(box, heatStates(report.byMuscle, mode === 'heat-frequency' ? 'frequency' : 'volume', heatColor));
+}
+
+const hoverBody = (attribution) => { hoverMovement = attribution; renderBody(); };
+const unhoverBody = () => { hoverMovement = null; renderBody(); };
+
+el('body-mode').addEventListener('change', renderBody);
+
 // --- wiring ------------------------------------------------------------------
 
 el('text').addEventListener('input', () => {
@@ -358,6 +582,7 @@ el('text').addEventListener('input', () => {
   renderOutline();
   renderReading();
   renderFindings();
+  renderBody();
   el('board').href = `../display/#${encodeURIComponent(text())}`;
 });
 
@@ -539,6 +764,9 @@ function renderPalette() {
       e.dataTransfer.setData('text/wdl-movement', lineFor(m));
       e.dataTransfer.effectAllowed = 'copy';
     });
+    item.addEventListener('mouseenter', () =>
+      hoverBody({ primary: m.muscles?.primary ?? [], secondary: m.muscles?.secondary ?? [] }));
+    item.addEventListener('mouseleave', unhoverBody);
     box.append(item);
   }
   const scope = chosen ? 'in this set' : el('search').value.trim() ? 'of all movements' : 'of the core set';
@@ -825,13 +1053,7 @@ const load = (url) => fetch(new URL(url, location.href))
 const curated = load(REGISTRY)
   .then((data) => {
     provide({ movements: () => data.movements });
-    const list = el('movements');
-    for (const m of data.movements) {
-      const option = document.createElement('option');
-      option.value = `- 10 ${m.title}`;
-      option.label = m.title;
-      list.append(option);
-    }
+    curatedMovements = data.movements;
   })
   .catch((e) => console.warn('no movement registry:', e.message));
 
@@ -845,6 +1067,7 @@ const analysis = Promise.all([load(CANONICAL), load(MUSCLES)])
     renderMuscleChips();
     renderPalette();
     renderFindings();
+    renderBody();
   })
   .catch((e) => {
     console.warn('no analysis data:', e.message);

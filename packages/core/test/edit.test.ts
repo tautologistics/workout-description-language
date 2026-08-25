@@ -106,6 +106,17 @@ describe('edit: indenting, duplicating, deleting', () => {
     eq(shift(NESTED, 2, -2), NESTED);
   });
 
+  it('refuses to indent a line with no preceding sibling to become its parent', () => {
+    // Line 1 (the title) is the first line in the document — indenting it
+    // would orphan it, a child with nothing above it to be a child of.
+    eq(shift(NESTED, 1, 2), NESTED);
+  });
+
+  it('still refuses when the orphan would be a first child rather than the first line', () => {
+    // Line 4 is the first child of `for time:` — no sibling above it either.
+    eq(shift(NESTED, 4, 2), NESTED);
+  });
+
   it('duplicates a block below itself', () => {
     const out = duplicate(NESTED, 7);
     eq(out.length, NESTED.length + 4);
