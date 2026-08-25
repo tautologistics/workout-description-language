@@ -30,6 +30,7 @@ import { compile } from '../../build/web/core/timeline.js';
 import { validate } from '../../build/web/core/validate.js';
 import { run, roundLabel } from '../../build/web/core/run.js';
 import { provide, has } from '../../build/web/core/env.js';
+import { defaultRegistry } from '../../build/web/core/registry.js';
 import { parseGoals, check } from '../../build/web/core/goals.js';
 import { exposures, muscleLoad, musclesFor } from '../../build/web/core/muscles.js';
 import { mountBody, paintBody, aggregateStates, highlightStates, heatStates, heatColor, attachZoom } from '../shared/body-map.js';
@@ -152,10 +153,22 @@ const movementSuggestions = (fragment) => {
     .slice(0, 20);
 };
 
-/** The curated entry for an exact movement name — what a row's modifier
- * affordance reads, as opposed to `movementSuggestions`' fuzzy match while
- * typing a name. */
-const movementEntry = (title) => curatedMovements.find((m) => m.title.toLowerCase() === (title ?? '').toLowerCase());
+/**
+ * The curated entry a movement name actually resolves to — what a row's
+ * modifier affordance reads, as opposed to `movementSuggestions`' fuzzy match
+ * while typing a name. Goes through `Registry.resolve()`, the same
+ * alias/plural/abbreviation/token-set pipeline the parser and `validate` use
+ * (movement_registry_design.md §3), so an alias (`DB Curl`) or a plural
+ * (`Dumbbell Curls`) finds the same entry the exact title does — an earlier
+ * version of this function did a bare exact-title match and missed both.
+ * `has('movements')` guards the window before the registry fetch resolves,
+ * when `defaultRegistry()` would otherwise throw.
+ */
+const movementEntry = (title) => {
+  if (!title || !has('movements')) return undefined;
+  const resolution = defaultRegistry().resolve(title);
+  return resolution.status === 'ok' ? resolution.entry : undefined;
+};
 
 /**
  * What one curated movement supports, as insertable defaults — derived from

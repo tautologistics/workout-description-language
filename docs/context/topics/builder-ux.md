@@ -88,6 +88,26 @@ It splits in two, and the halves are not equally ready:
   dropdown; and picking an item inserts editable default text into the line —
   an editor, not a reference-only panel — the same behaviour the
   movement-name caret already has.
+
+  **Correction, same day.** "Resolves to" above overstated what the first cut
+  did: `movementEntry()` matched the row's parsed movement text against a
+  curated title by bare case-insensitive equality, so an alias (`DB Curl`) or
+  a regular plural (`Dumbbell Curls`) found nothing and the caret silently
+  hid — indistinguishable from "no modifier data for this movement," which is
+  the common case, so it read as correct. Caught by Chris driving the
+  builder and finding no affordance on a plain `Dumbbell Curl` line typed as
+  a plural. Fixed by routing through `defaultRegistry().resolve()`
+  (`packages/core/src/fold.ts`) instead — the same alias → plural →
+  abbreviation → token-set pipeline `validate()` already uses
+  (movement_registry_design.md §3) — so the caret now agrees with what the
+  parser and the diagnostics pane already believe the movement is. This was
+  the only movement-name lookup in either app that had its own ad hoc
+  matching instead of going through `Registry`; swept `apps/builder/builder.js`,
+  `apps/display/board.js` and `apps/shared/body-map.js` for others and found
+  none — `musclesFor()` and `board.js`'s variant resolution were already
+  routing through the shared registry. Verified against both `DB Curl` and
+  `Dumbbell Curls` in the builder, each now showing and correctly applying
+  the same modifier panel `Dumbbell Curl` does.
 - **Per-block modifiers have nothing to derive from.** Block headers are parsed
   by an if/else chain of regexes; there is no declarative table saying an AMRAP
   takes a duration or an EMOM an interval. The spec is prose in
