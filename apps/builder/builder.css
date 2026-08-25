@@ -117,7 +117,7 @@ main {
 .node input.line {
   flex: 1;
   min-width: 0;
-  padding: .3rem 1.5rem .3rem .5rem;
+  padding: .3rem 2.8rem .3rem .5rem;
   border: 1px solid transparent;
   border-radius: .3rem;
   background: transparent;
@@ -155,6 +155,11 @@ main {
 .node:hover .caret, .node:focus-within .caret { opacity: 1; }
 .node .caret:hover { background: var(--rule); color: var(--ink); }
 
+/* The modifier caret sits left of the movement caret, same treatment, and is
+   hidden per-row (not just faded) when the row names no curated movement or
+   the entry has nothing to offer — see `movementModifiers`. */
+.node .caret.modcaret { right: 1.6rem; }
+
 .node .suggestions {
   position: absolute;
   left: 0;
@@ -186,6 +191,14 @@ main {
 
 .node .suggestions .suggestion:hover,
 .node .suggestions .suggestion.active { background: var(--rule); }
+
+.node .suggestions .modifier-info {
+  padding: .3rem .5rem;
+  color: var(--dim);
+  font: 400 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  border-top: 1px solid var(--rule);
+  margin-top: .2rem;
+}
 
 .node .tools { display: flex; gap: .1rem; opacity: 0; flex: none; }
 .node:hover .tools, .node:focus-within .tools { opacity: 1; }

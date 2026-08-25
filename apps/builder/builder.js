@@ -152,6 +152,45 @@ const movementSuggestions = (fragment) => {
     .slice(0, 20);
 };
 
+/** The curated entry for an exact movement name — what a row's modifier
+ * affordance reads, as opposed to `movementSuggestions`' fuzzy match while
+ * typing a name. */
+const movementEntry = (title) => curatedMovements.find((m) => m.title.toLowerCase() === (title ?? '').toLowerCase());
+
+/**
+ * What one curated movement supports, as insertable defaults — derived from
+ * the registry so this can never lag the grammar the way a hand-maintained
+ * field per property would (see the file header). Canonical text per
+ * movement_registry_design.md §6 (laterality) and spec §4 (measured output).
+ * `equipment` is returned for context only; nothing inserts it.
+ */
+const movementModifiers = (entry) => {
+  // Shown even when only one mode is listed: without a `defaultLaterality`,
+  // the parser has nothing to assume (movement_registry_design.md §6) — a
+  // single-mode entry still needs the mode written, it just has no choice
+  // among alternatives.
+  const laterality = (entry.laterality ?? []).map((mode) => ({
+    text: mode === 'split' ? '(split)' : mode === 'per-side' ? 'each side' : '(both)',
+    label: mode === 'split' ? 'count divided across sides'
+      : mode === 'per-side' ? 'full count per side'
+      : 'both sides together',
+    isDefault: mode === entry.defaultLaterality,
+  }));
+  const measures = (entry.measures ?? []).map((mode) => ({
+    text: `, count ${mode === 'calories' ? 'cal' : mode}`,
+    label: mode === 'calories' ? 'measured in calories' : 'measured in distance',
+  }));
+  const load = entry.load
+    ? {
+        text: entry.load === 'per-implement' && entry.implements ? `@ ${entry.implements}x` : '@ ',
+        label: entry.load === 'per-implement'
+          ? `takes a load, per implement (holds ${entry.implements ?? 2})`
+          : 'takes a load',
+      }
+    : null;
+  return { laterality, measures, load, equipment: entry.equipment ?? [] };
+};
+
 function renderOutline() {
   const outline = el('outline');
   outline.innerHTML = '';
@@ -294,7 +333,108 @@ function renderOutline() {
       caret.onmousedown = (e) => e.preventDefault();   // keep focus in the input
       caret.onclick = () => (suggestions.hidden ? (input.focus(), openSuggestions()) : closeSuggestions());
 
-      wrap.append(input, caret, suggestions);
+      // The modifier caret: what *this* movement supports, read off the
+      // registry entry the row currently names — laterality, measured
+      // output, load — each with the default text a pick splices in right
+      // after the movement name, the same seam `pick()` replaces it at.
+      // Hidden entirely when the row names no curated movement, or the
+      // entry has nothing to offer, rather than opening to say so.
+      const modifiers = document.createElement('div');
+      modifiers.className = 'suggestions modifiers';
+      modifiers.hidden = true;
+
+      const closeModifiers = () => { modifiers.hidden = true; modifiers.innerHTML = ''; };
+
+      // Where a modifier lands: laterality is the first inline word after the
+      // movement name (spec §4 — "attach to the movement and precede the
+      // target"), load follows it and precedes any comma modifiers (`10
+      // Dumbbell Curl each arm @ 2x35lb`), and measured output is itself a
+      // comma modifier, so it goes at the very end.
+      const applyModifier = (entryTitle, addition, position) => {
+        const value = input.value;
+        let next; let caretAt;
+        if (position === 'end') {
+          next = value + addition;
+          caretAt = next.length;
+        } else {
+          const fragment = movementFragment(value);
+          const prefixLen = value.length - fragment.length;
+          const matchLen = fragment.toLowerCase().startsWith(entryTitle.toLowerCase())
+            ? entryTitle.length : fragment.length;
+          const titleEnd = prefixLen + matchLen;
+          let insertAt = titleEnd;
+          if (position === 'load') {
+            const commaIdx = value.slice(titleEnd).indexOf(',');
+            insertAt = commaIdx === -1 ? value.length : titleEnd + commaIdx;
+          }
+          const head = value.slice(0, insertAt);
+          const rest = value.slice(insertAt);
+          const lead = head && !head.endsWith(' ') ? ' ' : '';
+          const trail = rest && !rest.startsWith(' ') && !rest.startsWith(',') ? ' ' : '';
+          next = `${head}${lead}${addition}${trail}${rest}`;
+          caretAt = head.length + lead.length + addition.length;
+        }
+        input.value = next;
+        closeModifiers();
+        lines = replaceLogical(lines, n.line, next);
+        el('text').value = text();
+        renderReading();
+        renderFindings();
+        renderBody();
+        input.focus();
+        input.setSelectionRange(caretAt, caretAt);
+      };
+
+      const openModifiers = () => {
+        const title = movementOf.get(n.line);
+        const entry = title && movementEntry(title);
+        if (!entry) return;
+        const mods = movementModifiers(entry);
+        const items = [
+          ...mods.laterality.map((m) => ({ ...m, addition: m.text, position: 'title' })),
+          ...mods.measures.map((m) => ({ ...m, addition: m.text, position: 'end' })),
+          ...(mods.load ? [{ ...mods.load, addition: mods.load.text, position: 'load' }] : []),
+        ];
+        if (!items.length) return;
+        modifiers.innerHTML = '';
+        for (const it of items) {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'suggestion';
+          b.textContent = `${it.text}${it.isDefault ? ' (default)' : ''} — ${it.label}`;
+          b.onmousedown = (e) => e.preventDefault();
+          b.onclick = () => applyModifier(entry.title, it.addition, it.position);
+          modifiers.append(b);
+        }
+        if (mods.equipment.length) {
+          const info = document.createElement('div');
+          info.className = 'modifier-info';
+          info.textContent = `Equipment: ${mods.equipment.join(', ')}`;
+          modifiers.append(info);
+        }
+        modifiers.hidden = false;
+      };
+
+      const modCaret = document.createElement('button');
+      modCaret.type = 'button';
+      modCaret.className = 'caret modcaret';
+      modCaret.title = 'What this movement takes';
+      modCaret.tabIndex = -1;
+      modCaret.textContent = '»';
+      modCaret.hidden = true;
+      modCaret.onmousedown = (e) => e.preventDefault();   // keep focus in the input
+      modCaret.onclick = () => (modifiers.hidden ? (input.focus(), openModifiers()) : closeModifiers());
+      input.addEventListener('blur', closeModifiers);
+
+      {
+        const title = movementOf.get(n.line);
+        const entry = title && movementEntry(title);
+        const mods = entry && movementModifiers(entry);
+        const hasAny = mods && (mods.laterality.length || mods.measures.length || mods.load);
+        modCaret.hidden = !hasAny;
+      }
+
+      wrap.append(input, modCaret, caret, suggestions, modifiers);
 
       const tools = document.createElement('span');
       tools.className = 'tools';

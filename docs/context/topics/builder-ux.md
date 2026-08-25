@@ -58,11 +58,36 @@ there are enough modifiers that knowing which ones apply *here* is the hard part
 
 It splits in two, and the halves are not equally ready:
 
-- **Per-movement modifiers are answerable from data today.** The registry already
-  carries `measures` (`distance`, `calories`), `load` (`total`,
-  `per-implement`), `laterality` (`both`, `per-side`, `split`), plus
-  `defaultLaterality`, `implements` and `equipment`. This half needs no new
-  source of truth — start here.
+- **~~Per-movement modifiers are answerable from data today.~~ Fixed
+  2026-08-25.** A second caret on a step row (`»`, beside the existing movement
+  caret) opens a panel of what the row's *current* movement actually supports —
+  laterality modes (`(both)`, `(split)`, `each side`, marking which is the
+  registry's `defaultLaterality`), measured output (`, count cal` /
+  `, count distance` from `measures`), and whether it takes a load (`@ ` or,
+  for a `per-implement` movement, `@ Nx` seeded from `implements`) — plus
+  `equipment` shown for context, not inserted. The panel is built by
+  `movementModifiers()` in `apps/builder/builder.js`, reading the exact
+  curated-registry entry the row's parsed movement name resolves to
+  (`movementOf`, already collected for the body-map hover); it is hidden
+  entirely, not just empty, when the row names no curated movement or the entry
+  has nothing to offer. Picking an item splices its default text into the line
+  at the position the spec's inline ordering requires — laterality right after
+  the movement name, load after any laterality and before comma modifiers
+  (`10 Dumbbell Curl each arm @ 2x35lb`), measured output at the end since it
+  is itself a comma modifier — the same seam the movement-name caret already
+  splices into, so quantity, existing modifiers and the rest of the line
+  survive untouched. Verified driving the builder in both themes against a
+  split-laterality movement (Dumbbell Curl), a calorie/distance-measured one
+  (Bike) and a load-taking one (Back Squat, and Bulgarian Split Squat for
+  per-implement), including applying laterality and load in either order and
+  confirming both converge on spec order.
+
+  Two decisions Chris made before this was built: the affordance is a second
+  caret opening a panel (reusing the existing movement-suggestion caret's
+  interaction model), not always-visible chips or a merge into the one
+  dropdown; and picking an item inserts editable default text into the line —
+  an editor, not a reference-only panel — the same behaviour the
+  movement-name caret already has.
 - **Per-block modifiers have nothing to derive from.** Block headers are parsed
   by an if/else chain of regexes; there is no declarative table saying an AMRAP
   takes a duration or an EMOM an interval. The spec is prose in
