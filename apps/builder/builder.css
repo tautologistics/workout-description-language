@@ -112,10 +112,12 @@ main {
 .node .rail { width: 1.1rem; border-left: 1px solid var(--rule); height: 1.9rem; }
 .node .rail:first-child { border-left: 0; width: .9rem; }
 
+.node .line-wrap { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
+
 .node input.line {
   flex: 1;
   min-width: 0;
-  padding: .3rem .5rem;
+  padding: .3rem 1.5rem .3rem .5rem;
   border: 1px solid transparent;
   border-radius: .3rem;
   background: transparent;
@@ -129,6 +131,61 @@ main {
 .node.block input.line { font-weight: 650; }
 .node.comment input.line { color: var(--dim); font-style: italic; }
 .node.bad input.line { border-color: var(--error); }
+
+/* The movement caret: hidden until the row is worth showing tools on, same as
+   `.tools` — it opens a live-filtered list of curated movements matching
+   whatever is being typed in place of the browser's native (and useless,
+   since a row's value is never just a movement name) datalist popup. */
+.node .caret {
+  position: absolute;
+  right: .3rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: var(--dim);
+  font-size: .65rem;
+  line-height: 1;
+  padding: .2rem;
+  border-radius: .2rem;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.node:hover .caret, .node:focus-within .caret { opacity: 1; }
+.node .caret:hover { background: var(--rule); color: var(--ink); }
+
+.node .suggestions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 20;
+  margin-top: .2rem;
+  max-height: 12rem;
+  overflow: auto;
+  padding: .25rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: .35rem;
+  box-shadow: 0 .4rem 1rem rgba(0, 0, 0, .3);
+}
+
+.node .suggestions .suggestion {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: .3rem .5rem;
+  border: 0;
+  border-radius: .25rem;
+  background: transparent;
+  color: inherit;
+  font: 400 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  cursor: pointer;
+}
+
+.node .suggestions .suggestion:hover,
+.node .suggestions .suggestion.active { background: var(--rule); }
 
 .node .tools { display: flex; gap: .1rem; opacity: 0; flex: none; }
 .node:hover .tools, .node:focus-within .tools { opacity: 1; }

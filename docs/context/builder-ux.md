@@ -24,17 +24,22 @@ Verified by driving the builder, both by button and by Tab, on the first line
 of a fresh document. `packages/core/test/edit.test.ts` covers a first-in-document
 line and a first-child-of-a-block line, both refused.
 
-**The caret on every outline row does nothing.** Intent unknown — it is not in
-the builder's markup or CSS. Every row's input carries `list="movements"`, so the
-caret is the browser's native datalist affordance. *Likely* cause, not yet
-confirmed by clicking: the datalist filters its options against the input's whole
+**~~The caret on every outline row does nothing.~~ Fixed 2026-08-25.** Confirmed
+by clicking: the native datalist filtered its options against the input's whole
 value, and a row's value is the entire logical line (`21 Thruster 95lb`), which
-matches no movement name — so the popup opens empty every time. Decide whether
-per-row movement completion is wanted at all: if yes it needs to match against
-the movement-name part of the line rather than the whole of it; if no, the
-`list` attribute should come off so the affordance stops advertising something
-that will not happen.
-*Touches: `apps/builder/builder.js:139`, `apps/builder/index.html:92`.*
+matched no movement name, so the popup opened empty every time. Per-row movement
+completion was wanted, so the native datalist is gone — `apps/builder/builder.js`
+now strips the leading dash and quantity off a row's value to get the
+movement-name fragment being typed, matches it against the curated registry
+(prefix either direction, so both "Thr" while typing and the fully-typed name
+with trailing load still match), and shows a custom dropdown that replaces just
+that fragment, preserving quantity and any trailing modifiers. Arrow keys move
+the highlight, Enter picks, Escape closes. Verified by driving the builder in
+both themes: typing a partial name opens matching suggestions, picking one
+splices in the full name and leaves the rest of the line alone, and Escape
+closes without touching the text.
+*Touched `apps/builder/builder.js`, `apps/builder/builder.css`,
+`apps/builder/index.html` (removed the now-unused `<datalist>`).*
 
 **Not an issue, checked:** indenting a parent such as an `amrap` carries its
 children with it correctly.

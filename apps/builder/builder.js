@@ -65,6 +65,8 @@ const START = `# New workout
 let lines = START.replace(/\n$/, '').split('\n');
 /** Which line the caret was on, so a redraw does not steal focus back to the top. */
 let focused = null;
+/** The curated registry, for per-row movement suggestions. Empty until it loads. */
+let curatedMovements = [];
 
 const text = () => `${lines.join('\n')}\n`;
 
@@ -127,6 +129,29 @@ function render(focusLine) {
   link.href = `../display/#${encodeURIComponent(text())}`;
 }
 
+/**
+ * The part of a row's value that names a movement — not a parse, because a
+ * row can be mid-edit and still deserves suggestions. Strips the leading
+ * `- ` a step carries and the quantity in front of the movement (`10 `,
+ * `21 `, `400m `, `20cal `), leaving whatever the mover is typing, trailing
+ * modifiers and all.
+ */
+const movementFragment = (value) => value
+  .replace(/^-\s+/, '')
+  .replace(/^[\d:./x%]+\s*/i, '');
+
+/** Curated movements whose name plausibly matches what is being typed, either way. */
+const movementSuggestions = (fragment) => {
+  const q = fragment.trim().toLowerCase();
+  if (!q) return [];
+  return curatedMovements
+    .filter((m) => {
+      const t = m.title.toLowerCase();
+      return t.startsWith(q) || q.startsWith(t) || t.includes(q);
+    })
+    .slice(0, 20);
+};
+
 function renderOutline() {
   const outline = el('outline');
   outline.innerHTML = '';
@@ -165,11 +190,71 @@ function renderOutline() {
 
       // A wrapped inline block is one row standing for several lines; show the
       // whole of it, and write it back over all of them.
+      const wrap = document.createElement('span');
+      wrap.className = 'line-wrap';
+
       const input = document.createElement('input');
       input.className = 'line';
       input.value = logicalText(lines, n.line);
-      input.setAttribute('list', 'movements');
       input.dataset.line = String(n.line);
+
+      // The movement caret: a live-filtered list of curated movements matching
+      // whatever is being typed, replacing just the movement-name part of the
+      // line so quantity and modifiers already on it survive the pick.
+      const suggestions = document.createElement('div');
+      suggestions.className = 'suggestions';
+      suggestions.hidden = true;
+      let highlighted = -1;
+
+      const closeSuggestions = () => {
+        suggestions.hidden = true;
+        suggestions.innerHTML = '';
+        highlighted = -1;
+      };
+
+      const pick = (m) => {
+        const value = input.value;
+        const fragment = movementFragment(value);
+        const prefixLen = value.length - fragment.length;
+        const rest = fragment.toLowerCase().startsWith(m.title.toLowerCase())
+          ? fragment.slice(m.title.length)
+          : '';
+        input.value = value.slice(0, prefixLen) + m.title + rest;
+        closeSuggestions();
+        lines = replaceLogical(lines, n.line, input.value);
+        el('text').value = text();
+        renderReading();
+        renderFindings();
+        renderBody();
+        const at = prefixLen + m.title.length;
+        input.focus();
+        input.setSelectionRange(at, at);
+      };
+
+      const openSuggestions = () => {
+        const matches = movementSuggestions(movementFragment(input.value));
+        if (!matches.length) return closeSuggestions();
+        suggestions.innerHTML = '';
+        for (const m of matches) {
+          const item = document.createElement('button');
+          item.type = 'button';
+          item.className = 'suggestion';
+          item.textContent = m.title;
+          item.onmousedown = (e) => e.preventDefault();   // keep focus in the input
+          item.onclick = () => pick(m);
+          suggestions.append(item);
+        }
+        highlighted = -1;
+        suggestions.hidden = false;
+      };
+
+      const highlight = (i) => {
+        for (const it of suggestions.children) it.classList.remove('active');
+        const item = suggestions.children[i];
+        if (item) { item.classList.add('active'); item.scrollIntoView({ block: 'nearest' }); }
+        highlighted = i;
+      };
+
       input.addEventListener('input', () => {
         // The indent is structure, and the outline is not where you change it —
         // that is what indent and outdent are for. `replaceLogical` keeps it.
@@ -178,15 +263,38 @@ function renderOutline() {
         renderReading();
         renderFindings();
         renderBody();
+        openSuggestions();
       });
       input.addEventListener('change', () => render(n.line));
       input.addEventListener('focus', () => { focused = n.line; });
+      input.addEventListener('blur', closeSuggestions);
       input.addEventListener('keydown', (e) => {
+        if (!suggestions.hidden && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+          e.preventDefault();
+          const count = suggestions.children.length;
+          highlight(e.key === 'ArrowDown' ? (highlighted + 1) % count : (highlighted - 1 + count) % count);
+          return;
+        }
+        if (!suggestions.hidden && e.key === 'Enter' && highlighted >= 0) {
+          e.preventDefault(); suggestions.children[highlighted].click(); return;
+        }
+        if (!suggestions.hidden && e.key === 'Escape') { closeSuggestions(); return; }
         if (e.key === 'Enter') { e.preventDefault(); insert(n.line, ''); }
         if (e.key === 'Tab' && !e.shiftKey && input.selectionStart === input.value.length) {
           e.preventDefault(); shift(n.line, 2);
         }
       });
+
+      const caret = document.createElement('button');
+      caret.type = 'button';
+      caret.className = 'caret';
+      caret.title = 'Movement suggestions';
+      caret.tabIndex = -1;
+      caret.textContent = '▾';
+      caret.onmousedown = (e) => e.preventDefault();   // keep focus in the input
+      caret.onclick = () => (suggestions.hidden ? (input.focus(), openSuggestions()) : closeSuggestions());
+
+      wrap.append(input, caret, suggestions);
 
       const tools = document.createElement('span');
       tools.className = 'tools';
@@ -238,7 +346,7 @@ function renderOutline() {
         node.addEventListener('mouseleave', unhoverBody);
       }
 
-      node.append(rails, input, tools);
+      node.append(rails, wrap, tools);
       outline.append(node);
       walk(n.children, depth + 1);
     }
@@ -909,13 +1017,7 @@ const load = (url) => fetch(new URL(url, location.href))
 const curated = load(REGISTRY)
   .then((data) => {
     provide({ movements: () => data.movements });
-    const list = el('movements');
-    for (const m of data.movements) {
-      const option = document.createElement('option');
-      option.value = `- 10 ${m.title}`;
-      option.label = m.title;
-      list.append(option);
-    }
+    curatedMovements = data.movements;
   })
   .catch((e) => console.warn('no movement registry:', e.message));
 
