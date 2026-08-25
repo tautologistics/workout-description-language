@@ -142,28 +142,48 @@ own meaning. Verified by driving the builder with two `AMRAP 6min:` blocks
 back to back: the two rails read as different colours, checked in both light
 and dark themes via the computed `border-left-color` of each cycle's rail.
 
-**The summary says title, cues and how long, but never the scoring.** A reader
-cannot tell from the top of the pane how the workout is scored. `workout.score`
-is parsed and available — `primary`, plus `tiebreak`, `onCap`, `aggregate`,
-`perRound`, and an `implied` flag for scores derived from a `for time` or AMRAP
-header rather than written. The summary's `rows` array reads none of it.
+**~~The summary says title, cues and how long, but never the scoring.~~ Fixed
+2026-08-25.** `renderReading()`'s `rows` array now includes a `score` row —
+`workout.score`, described as `primary` plus `on cap: …` / `tiebreak: …` when
+present (`apps/builder/builder.js`, `describeScore()` around the `rows` array).
+No AST change was needed; `Score` already carried everything to show.
 
-Two things to decide rather than guess at:
-- Whether an *implied* score is shown the same as a written one. The formatter
-  deliberately does not re-emit implied scores, on the grounds that the header
-  already states them; the summary is a different surface and may want the
-  opposite.
-- Blocks carry their own `score` as well as the workout, so a workout can have
-  more than one. A single summary row cannot say that.
+Two decisions were needed and Chris made both:
+- **An implied score is shown the same as a written one.** The canonical
+  formatter deliberately does not re-emit implied scores, because the header
+  already states them — but the summary is a different surface asking "how is
+  this scored?", and an implied score still answers that. No visual marking
+  distinguishes implied from written.
+- **Block-level scores are out of scope for this pass.** A workout can have
+  more than one scoring rule (a block can carry its own `score` beside the
+  workout's), and a single summary row cannot say that — left for a later item
+  rather than guessed at here.
 
-*`onCap` is the sharpest case, and as of 2026-08-23 it is visibly missing.* The
-summary now tells `clock`, `duration` and `cap` apart, so a capped for-time reads
-`duration  athlete-paced` above `cap  12:00 at most` — and still says nothing
-about what is scored when that cap is reached, which is the whole reason
-`on cap:` exists. The one row that used to make the question invisible is the row
-that now raises it.
+The second decision turned out to interact with the first in a way worth
+recording: **most real workouts have no `workout.score` at all.** A bare
+`for time:` or `AMRAP` states its score only as an *implied* score on the one
+top-level block — `workout.score` is `undefined` for them, and reading only
+`workout.score` would have left the row missing for the common case, not just
+the multi-block one the second decision was actually about. The fix resolves
+the same way `declaredScore()` already does in `packages/core/src/result.ts`
+(what the board asks after a run, to know what it is allowed to claim it
+measured): use `workout.score` if present, else the single top-level block's
+score if there is exactly one block. More than one top-level block falls
+through to no row — that is the "more than one scoring rule" case the second
+decision declines to guess at, not a bug in the one-block case.
 
-*Touches: `apps/builder/builder.js:256-272`, `packages/core/src/ast.ts:164-181`.*
+`onCap` was the sharpest case and is no longer missing: a capped for-time with
+an explicit `on cap:` line now reads `cap  12:00 at most` above
+`score  time, on cap: reps completed`. A cap with no `on cap:` line written
+reads `score  time` alone — the row states what the AST actually records, not
+a semantic default (`reps`) that exists only in consumers like `checkScore`,
+which was not part of either decision above.
+
+Verified driving the builder with a plain `for time:`, an `AMRAP 15min:`, and
+a `for time, cap 12min:` with an explicit `score: time` / `on cap:` pair — all
+three showed a sensible `score` row, checked in both light and dark themes.
+`npm --prefix packages/core test` passed before and after (1800/1800, 1
+pending), unaffected since this is builder app code, not core logic.
 
 **~~A movement with an `rx` weight split shows no weight at all.~~ Fixed
 2026-08-18** by queue item 1. A step with an unresolved split now reads as its

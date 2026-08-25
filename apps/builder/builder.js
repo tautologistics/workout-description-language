@@ -384,6 +384,39 @@ function renderReading() {
   }
 
   const clock = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
+  // Mirrors `declaredScore` in packages/core/src/result.ts (the same question
+  // the board asks after a run, to know what it is allowed to claim it
+  // measured) rather than reading `workout.score` alone: most real workouts
+  // — a bare `for time:` or `AMRAP`, no separate `score:` line — carry their
+  // only score on the one top-level block, implied by the header, and
+  // `workout.score` is undefined for them. Falling back to that single
+  // block's score is what makes the row appear for the common case, not just
+  // the case where a score line was written out at the top.
+  //
+  // Blocks-carry-their-own-score is only resolved here in the one-block,
+  // one-score case. More than one top-level block (so more than one
+  // candidate score) is the "workout can have more than one scoring rule"
+  // case the builder-ux.md item flags as a separate, undecided display
+  // question — left out of scope for this pass, so the row is simply absent
+  // rather than guessing which block's score to show.
+  const declaredScoreNode = (w) => {
+    if (w.score) return w.score;
+    const blocks = w.body.filter((n) => n.node === 'block');
+    return blocks.length === 1 ? blocks[0].score : undefined;
+  };
+  // `raw` already carries the primary phrase as written (or as implied by the
+  // header, e.g. `for time` implies `time`) — an implied score reads the same
+  // as a written one here, on the call that this pane is a different surface
+  // from the canonical formatter, which deliberately omits them because the
+  // header already states them. The summary's job is "how is this scored?",
+  // and an implied score still answers that.
+  const describeScore = (s) => {
+    const parts = [s.raw || s.primary];
+    if (s.onCap) parts.push(`on cap: ${s.onCap}`);
+    if (s.tiebreak) parts.push(`tiebreak: ${s.tiebreak}`);
+    return parts.join(', ');
+  };
+  const score = declaredScoreNode(workout);
   const dl = document.createElement('dl');
   const rows = [
     ['title', workout.title ?? '—'],
@@ -402,6 +435,9 @@ function renderReading() {
     // and the duration beside it now says `athlete-paced`, which is the true
     // answer to the question the other row asks.
     ...(laid.cap !== undefined ? [['cap', `${clock(laid.cap)} at most`]] : []),
+    // The scoring rule, including what happens at the cap — `on cap:` is the
+    // whole reason a cap row above can say "at most" instead of "this takes".
+    ...(score ? [['score', describeScore(score)]] : []),
     // A cycle that covers the whole workout is the workout repeating; one that
     // covers part of it is a section that does, and saying "repeats until the
     // clock stops" of the whole thing puts the buy-in and the buy-out on a
