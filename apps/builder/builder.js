@@ -201,7 +201,13 @@ const movementModifiers = (entry) => {
           : 'takes a load',
       }
     : null;
-  return { laterality, measures, load, equipment: entry.equipment ?? [] };
+  // Array.isArray, not just `?? []`: registry/movements.json carried
+  // `equipment` as a bare string on 669 entries until 2026-08-25 (a curated
+  // seed-file inconsistency `scripts/build-movements.mjs` only normalizes on
+  // the canonical merge, not here) — `?? []` lets a truthy string straight
+  // through, and `.join` below then throws. See lessons-learned.md.
+  const equipment = Array.isArray(entry.equipment) ? entry.equipment : [];
+  return { laterality, measures, load, equipment };
 };
 
 function renderOutline() {

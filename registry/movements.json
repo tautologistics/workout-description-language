@@ -31,7 +31,9 @@
   {
    "id": "ab-crunch-machine",
    "title": "Ab Crunch Machine",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -44,7 +46,9 @@
   {
    "id": "ab-roller",
    "title": "Ab Roller",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -60,7 +64,9 @@
   {
    "id": "adductor",
    "title": "Adductor",
-   "equipment": "foam roll",
+   "equipment": [
+    "foam roll"
+   ],
    "muscles": {
     "primary": [
      "adductors"
@@ -84,7 +90,9 @@
   {
    "id": "advanced-kettlebell-windmill",
    "title": "Advanced Kettlebell Windmill",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -143,7 +151,9 @@
   {
    "id": "alternate-hammer-curl",
    "title": "Alternate Hammer Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -171,7 +181,9 @@
   {
    "id": "alternate-incline-dumbbell-curl",
    "title": "Alternate Incline Dumbbell Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -206,7 +218,9 @@
   {
    "id": "alternating-cable-shoulder-press",
    "title": "Alternating Cable Shoulder Press",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -222,7 +236,9 @@
   {
    "id": "alternating-deltoid-raise",
    "title": "Alternating Deltoid Raise",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -235,7 +251,9 @@
   {
    "id": "alternating-floor-press",
    "title": "Alternating Floor Press",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -253,7 +271,9 @@
   {
    "id": "alternating-hang-clean",
    "title": "Alternating Hang Clean",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -274,7 +294,9 @@
   {
    "id": "alternating-kettlebell-press",
    "title": "Alternating Kettlebell Press",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -290,7 +312,9 @@
   {
    "id": "alternating-kettlebell-row",
    "title": "Alternating Kettlebell Row",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -307,7 +331,9 @@
   {
    "id": "alternating-renegade-row",
    "title": "Alternating Renegade Row",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -353,7 +379,9 @@
   {
    "id": "anterior-tibialis-smr",
    "title": "Anterior Tibialis-SMR",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -365,7 +393,9 @@
   {
    "id": "anti-gravity-press",
    "title": "Anti-Gravity Press",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -398,7 +428,9 @@
   {
    "id": "arnold-dumbbell-press",
    "title": "Arnold Dumbbell Press",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -414,7 +446,9 @@
   {
    "id": "around-worlds",
    "title": "Around The Worlds",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -457,7 +491,9 @@
   {
    "id": "atlas-stone-trainer",
    "title": "Atlas Stone Trainer",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -477,7 +513,9 @@
   {
    "id": "atlas-stones",
    "title": "Atlas Stones",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -502,7 +540,9 @@
   {
    "id": "axle-deadlift",
    "title": "Axle Deadlift",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -545,7 +585,9 @@
   {
    "id": "back-flyes-bands",
    "title": "Back Flyes - With Bands",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -592,7 +634,9 @@
   {
    "id": "backward-drag",
    "title": "Backward Drag",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -612,7 +656,9 @@
   {
    "id": "backward-medicine-ball-throw",
    "title": "Backward Medicine Ball Throw",
-   "equipment": "medicine ball",
+   "equipment": [
+    "medicine ball"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -625,7 +671,9 @@
   {
    "id": "balance-board",
    "title": "Balance Board",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -641,7 +689,9 @@
   {
    "id": "ball-leg-curl",
    "title": "Ball Leg Curl",
-   "equipment": "exercise ball",
+   "equipment": [
+    "exercise ball"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -658,7 +708,9 @@
   {
    "id": "band-assisted-pull-up",
    "title": "Band Assisted Pull-Up",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -675,7 +727,9 @@
   {
    "id": "band-good-morning",
    "title": "Band Good Morning",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -692,7 +746,9 @@
   {
    "id": "band-good-morning-pull-through",
    "title": "Band Good Morning (Pull Through)",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -709,7 +765,9 @@
   {
    "id": "band-hip-adductions",
    "title": "Band Hip Adductions",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "adductors"
@@ -722,7 +780,9 @@
   {
    "id": "band-pull-apart",
    "title": "Band Pull Apart",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -739,7 +799,9 @@
   {
    "id": "band-skull-crusher",
    "title": "Band Skull Crusher",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -805,7 +867,9 @@
    "aliases": [
     "bb ab rollout"
    ],
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -822,7 +886,9 @@
   {
    "id": "barbell-ab-rollout-on-knees",
    "title": "Barbell Ab Rollout - On Knees",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -846,7 +912,9 @@
   {
    "id": "barbell-bench-press-medium-grip",
    "title": "Barbell Bench Press - Medium Grip",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -870,7 +938,9 @@
   {
    "id": "barbell-curl",
    "title": "Barbell Curl",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -886,7 +956,9 @@
   {
    "id": "barbell-curls-lying-against-an-incline",
    "title": "Barbell Curls Lying Against An Incline",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -899,7 +971,9 @@
   {
    "id": "barbell-deadlift",
    "title": "Barbell Deadlift",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -922,7 +996,9 @@
   {
    "id": "barbell-full-squat",
    "title": "Barbell Full Squat",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -941,7 +1017,9 @@
   {
    "id": "barbell-glute-bridge",
    "title": "Barbell Glute Bridge",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "glutes"
@@ -977,7 +1055,9 @@
   {
    "id": "barbell-guillotine-bench-press",
    "title": "Barbell Guillotine Bench Press",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -997,7 +1077,9 @@
    "aliases": [
     "bb hack squat"
    ],
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -1015,7 +1097,9 @@
   {
    "id": "barbell-hip-thrust",
    "title": "Barbell Hip Thrust",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "glutes"
@@ -1032,7 +1116,9 @@
   {
    "id": "barbell-incline-bench-press-medium-grip",
    "title": "Barbell Incline Bench Press - Medium Grip",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -1049,7 +1135,9 @@
   {
    "id": "barbell-incline-shoulder-raise",
    "title": "Barbell Incline Shoulder Raise",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -1068,7 +1156,9 @@
    "aliases": [
     "bb lunge"
    ],
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -1112,7 +1202,9 @@
   {
    "id": "barbell-rear-delt-row",
    "title": "Barbell Rear Delt Row",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -1130,7 +1222,9 @@
   {
    "id": "barbell-rollout-from-bench",
    "title": "Barbell Rollout from Bench",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -1181,7 +1275,9 @@
   {
    "id": "barbell-seated-calf-raise",
    "title": "Barbell Seated Calf Raise",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -1194,7 +1290,9 @@
   {
    "id": "barbell-shoulder-press",
    "title": "Barbell Shoulder Press",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -1214,7 +1312,9 @@
    "aliases": [
     "bb shrug"
    ],
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "traps"
@@ -1227,7 +1327,9 @@
   {
    "id": "barbell-shrug-behind-back",
    "title": "Barbell Shrug Behind The Back",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "traps"
@@ -1244,7 +1346,9 @@
   {
    "id": "barbell-side-bend",
    "title": "Barbell Side Bend",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -1260,7 +1364,9 @@
   {
    "id": "barbell-side-split-squat",
    "title": "Barbell Side Split Squat",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -1278,7 +1384,9 @@
   {
    "id": "barbell-squat",
    "title": "Barbell Squat",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -1297,7 +1405,9 @@
   {
    "id": "barbell-squat-bench",
    "title": "Barbell Squat To A Bench",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -1319,7 +1429,9 @@
    "aliases": [
     "bb step up"
    ],
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -1341,7 +1453,9 @@
    "aliases": [
     "bb walking lunge"
    ],
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -1359,7 +1473,9 @@
   {
    "id": "battling-ropes",
    "title": "Battling Ropes",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -1405,7 +1521,9 @@
   {
    "id": "bear-crawl-sled-drags",
    "title": "Bear Crawl Sled Drags",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -1423,7 +1541,9 @@
   {
    "id": "behind-head-chest-stretch",
    "title": "Behind Head Chest Stretch",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -1499,7 +1619,9 @@
   {
    "id": "bench-press-bands",
    "title": "Bench Press - With Bands",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -1516,7 +1638,9 @@
   {
    "id": "bench-press-chains",
    "title": "Bench Press with Chains",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -1534,7 +1658,9 @@
   {
    "id": "bench-press-powerlifting",
    "title": "Bench Press - Powerlifting",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -1553,7 +1679,9 @@
   {
    "id": "bench-sprint",
    "title": "Bench Sprint",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -1571,7 +1699,9 @@
   {
    "id": "bent-arm-barbell-pullover",
    "title": "Bent-Arm Barbell Pullover",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -1590,7 +1720,9 @@
   {
    "id": "bent-arm-dumbbell-pullover",
    "title": "Bent-Arm Dumbbell Pullover",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -1620,7 +1752,9 @@
   {
    "id": "bent-over-barbell-row",
    "title": "Bent Over Barbell Row",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -1638,7 +1772,9 @@
   {
    "id": "bent-over-dumbbell-rear-delt-raise-head-on-bench",
    "title": "Bent Over Dumbbell Rear Delt Raise With Head On Bench",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -1651,7 +1787,9 @@
   {
    "id": "bent-over-low-pulley-side-lateral",
    "title": "Bent Over Low-Pulley Side Lateral",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -1669,7 +1807,9 @@
   {
    "id": "bent-over-one-arm-long-bar-row",
    "title": "Bent Over One-Arm Long Bar Row",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -1692,7 +1832,9 @@
   {
    "id": "bent-over-two-arm-long-bar-row",
    "title": "Bent Over Two-Arm Long Bar Row",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -1709,7 +1851,9 @@
   {
    "id": "bent-over-two-dumbbell-row",
    "title": "Bent Over Two-Dumbbell Row",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -1727,7 +1871,9 @@
   {
    "id": "bent-over-two-dumbbell-row-palms-in",
    "title": "Bent Over Two-Dumbbell Row With Palms In",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -1744,7 +1890,9 @@
   {
    "id": "bent-press",
    "title": "Bent Press",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -1773,7 +1921,9 @@
   {
    "id": "bicycling",
    "title": "Bicycling",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -1789,7 +1939,9 @@
   {
    "id": "bicycling-stationary",
    "title": "Bicycling, Stationary",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -1873,7 +2025,9 @@
   {
    "id": "board-press",
    "title": "Board Press",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -1920,7 +2074,9 @@
   {
    "id": "bodyweight-flyes",
    "title": "Bodyweight Flyes",
-   "equipment": "e-z curl bar",
+   "equipment": [
+    "e-z curl bar"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -1938,7 +2094,9 @@
   {
    "id": "bodyweight-mid-row",
    "title": "Bodyweight Mid Row",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -1972,7 +2130,9 @@
   {
    "id": "bosu-ball-cable-crunch-side-bends",
    "title": "Bosu Ball Cable Crunch With Side Bends",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -1997,7 +2157,9 @@
   {
    "id": "bottoms-up-clean-from-hang-position",
    "title": "Bottoms-Up Clean From The Hang Position",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -2033,7 +2195,9 @@
   {
    "id": "box-jump-multiple-response",
    "title": "Box Jump (Multiple Response)",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -2060,7 +2224,9 @@
   {
    "id": "box-skip",
    "title": "Box Skip",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -2080,7 +2246,9 @@
   {
    "id": "box-squat",
    "title": "Box Squat",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -2100,7 +2268,9 @@
   {
    "id": "box-squat-bands",
    "title": "Box Squat with Bands",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -2121,7 +2291,9 @@
   {
    "id": "box-squat-chains",
    "title": "Box Squat with Chains",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -2142,7 +2314,9 @@
   {
    "id": "brachialis-smr",
    "title": "Brachialis-SMR",
-   "equipment": "foam roll",
+   "equipment": [
+    "foam roll"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -2154,7 +2328,9 @@
   {
    "id": "bradford-rocky-presses",
    "title": "Bradford/Rocky Presses",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -2359,7 +2535,9 @@
   {
    "id": "butterfly",
    "title": "Butterfly",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -2372,7 +2550,9 @@
   {
    "id": "cable-chest-press",
    "title": "Cable Chest Press",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -2389,7 +2569,9 @@
   {
    "id": "cable-crossover",
    "title": "Cable Crossover",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -2405,7 +2587,9 @@
   {
    "id": "cable-crunch",
    "title": "Cable Crunch",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -2418,7 +2602,9 @@
   {
    "id": "cable-deadlifts",
    "title": "Cable Deadlifts",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -2461,7 +2647,9 @@
   {
    "id": "cable-hammer-curls-rope-attachment",
    "title": "Cable Hammer Curls - Rope Attachment",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -2474,7 +2662,9 @@
   {
    "id": "cable-hip-adduction",
    "title": "Cable Hip Adduction",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -2487,7 +2677,9 @@
   {
    "id": "cable-incline-pushdown",
    "title": "Cable Incline Pushdown",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -2500,7 +2692,9 @@
   {
    "id": "cable-incline-triceps-extension",
    "title": "Cable Incline Triceps Extension",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -2513,7 +2707,9 @@
   {
    "id": "cable-internal-rotation",
    "title": "Cable Internal Rotation",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -2526,7 +2722,9 @@
   {
    "id": "cable-iron-cross",
    "title": "Cable Iron Cross",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -2539,7 +2737,9 @@
   {
    "id": "cable-judo-flip",
    "title": "Cable Judo Flip",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -2555,7 +2755,9 @@
    "aliases": [
     "cable skullcrusher"
    ],
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -2568,7 +2770,9 @@
   {
    "id": "cable-one-arm-tricep-extension",
    "title": "Cable One Arm Tricep Extension",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -2581,7 +2785,9 @@
   {
    "id": "cable-preacher-curl",
    "title": "Cable Preacher Curl",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -2597,7 +2803,9 @@
   {
    "id": "cable-rear-delt-fly",
    "title": "Cable Rear Delt Fly",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -2610,7 +2818,9 @@
   {
    "id": "cable-reverse-crunch",
    "title": "Cable Reverse Crunch",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -2623,7 +2833,9 @@
   {
    "id": "cable-rope-overhead-triceps-extension",
    "title": "Cable Rope Overhead Triceps Extension",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -2636,7 +2848,9 @@
   {
    "id": "cable-rope-rear-delt-rows",
    "title": "Cable Rope Rear-Delt Rows",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -2653,7 +2867,9 @@
   {
    "id": "cable-russian-twists",
    "title": "Cable Russian Twists",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -2666,7 +2882,9 @@
   {
    "id": "cable-seated-crunch",
    "title": "Cable Seated Crunch",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -2679,7 +2897,9 @@
   {
    "id": "cable-seated-lateral-raise",
    "title": "Cable Seated Lateral Raise",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -2696,7 +2916,9 @@
   {
    "id": "cable-shoulder-press",
    "title": "Cable Shoulder Press",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -2712,7 +2934,9 @@
   {
    "id": "cable-shrugs",
    "title": "Cable Shrugs",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "traps"
@@ -2725,7 +2949,9 @@
   {
    "id": "cable-wrist-curl",
    "title": "Cable Wrist Curl",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -2738,7 +2964,9 @@
   {
    "id": "calf-machine-shoulder-shrug",
    "title": "Calf-Machine Shoulder Shrug",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "traps"
@@ -2751,7 +2979,9 @@
   {
    "id": "calf-press",
    "title": "Calf Press",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -2764,7 +2994,9 @@
   {
    "id": "calf-press-on-leg-press-machine",
    "title": "Calf Press On The Leg Press Machine",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -2777,7 +3009,9 @@
   {
    "id": "calf-raise-on-dumbbell",
    "title": "Calf Raise On A Dumbbell",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -2790,7 +3024,9 @@
   {
    "id": "calf-raises-bands",
    "title": "Calf Raises - With Bands",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -2827,7 +3063,9 @@
   {
    "id": "calves-smr",
    "title": "Calves-SMR",
-   "equipment": "foam roll",
+   "equipment": [
+    "foam roll"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -2839,7 +3077,9 @@
   {
    "id": "car-deadlift",
    "title": "Car Deadlift",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -2859,7 +3099,9 @@
   {
    "id": "car-drivers",
    "title": "Car Drivers",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -2908,7 +3150,9 @@
   {
    "id": "catch-overhead-throw",
    "title": "Catch and Overhead Throw",
-   "equipment": "medicine ball",
+   "equipment": [
+    "medicine ball"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -2926,7 +3170,9 @@
   {
    "id": "chain-handle-extension",
    "title": "Chain Handle Extension",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -2939,7 +3185,9 @@
   {
    "id": "chain-press",
    "title": "Chain Press",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -2956,7 +3204,9 @@
   {
    "id": "chair-leg-extended-stretch",
    "title": "Chair Leg Extended Stretch",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -2987,7 +3237,9 @@
   {
    "id": "chair-squat",
    "title": "Chair Squat",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -3005,7 +3257,9 @@
   {
    "id": "chair-upper-body-stretch",
    "title": "Chair Upper Body Stretch",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -3021,7 +3275,9 @@
   {
    "id": "chest-front-shoulder-stretch",
    "title": "Chest And Front Of Shoulder Stretch",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -3037,7 +3293,9 @@
   {
    "id": "chest-push-from-3-point-stance",
    "title": "Chest Push from 3 point stance",
-   "equipment": "medicine ball",
+   "equipment": [
+    "medicine ball"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -3055,7 +3313,9 @@
   {
    "id": "chest-push-multiple-response",
    "title": "Chest Push (multiple response)",
-   "equipment": "medicine ball",
+   "equipment": [
+    "medicine ball"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -3073,7 +3333,9 @@
   {
    "id": "chest-push-run-release",
    "title": "Chest Push with Run Release",
-   "equipment": "medicine ball",
+   "equipment": [
+    "medicine ball"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -3091,7 +3353,9 @@
   {
    "id": "chest-push-single-response",
    "title": "Chest Push (single response)",
-   "equipment": "medicine ball",
+   "equipment": [
+    "medicine ball"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -3109,7 +3373,9 @@
   {
    "id": "chest-stretch-on-stability-ball",
    "title": "Chest Stretch on Stability Ball",
-   "equipment": "exercise ball",
+   "equipment": [
+    "exercise ball"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -3206,7 +3472,9 @@
   {
    "id": "circus-bell",
    "title": "Circus Bell",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -3293,7 +3561,9 @@
   {
    "id": "clean-deadlift",
    "title": "Clean Deadlift",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -3314,7 +3584,9 @@
   {
    "id": "clean-from-blocks",
    "title": "Clean from Blocks",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -3334,7 +3606,9 @@
   {
    "id": "clean-press",
    "title": "Clean and Press",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -3359,7 +3633,9 @@
   {
    "id": "clean-pull",
    "title": "Clean Pull",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -3379,7 +3655,9 @@
   {
    "id": "clean-shrug",
    "title": "Clean Shrug",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "traps"
@@ -3412,7 +3690,9 @@
   {
    "id": "close-grip-barbell-bench-press",
    "title": "Close-Grip Barbell Bench Press",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -3429,7 +3709,9 @@
   {
    "id": "close-grip-dumbbell-press",
    "title": "Close-Grip Dumbbell Press",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -3446,7 +3728,9 @@
   {
    "id": "close-grip-ez-bar-curl",
    "title": "Close-Grip EZ Bar Curl",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -3462,7 +3746,9 @@
   {
    "id": "close-grip-ez-bar-curl-band",
    "title": "Close-Grip EZ-Bar Curl with Band",
-   "equipment": "e-z curl bar",
+   "equipment": [
+    "e-z curl bar"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -3478,7 +3764,9 @@
   {
    "id": "close-grip-ez-bar-press",
    "title": "Close-Grip EZ-Bar Press",
-   "equipment": "e-z curl bar",
+   "equipment": [
+    "e-z curl bar"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -3495,7 +3783,9 @@
   {
    "id": "close-grip-front-lat-pulldown",
    "title": "Close-Grip Front Lat Pulldown",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -3530,7 +3820,9 @@
   {
    "id": "close-grip-standing-barbell-curl",
    "title": "Close-Grip Standing Barbell Curl",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -3558,7 +3850,9 @@
   {
    "id": "conan-s-wheel",
    "title": "Conan's Wheel",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -3579,7 +3873,9 @@
   {
    "id": "concentration-curls",
    "title": "Concentration Curls",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -3607,7 +3903,9 @@
   {
    "id": "cross-body-hammer-curl",
    "title": "Cross Body Hammer Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -3623,7 +3921,9 @@
   {
    "id": "cross-over-bands",
    "title": "Cross Over - With Bands",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -3658,7 +3958,9 @@
   {
    "id": "crucifix",
    "title": "Crucifix",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -3713,7 +4015,9 @@
   {
    "id": "cuban-press",
    "title": "Cuban Press",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -3784,7 +4088,9 @@
   {
    "id": "deadlift-bands",
    "title": "Deadlift with Bands",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -3805,7 +4111,9 @@
   {
    "id": "deadlift-chains",
    "title": "Deadlift with Chains",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -3826,7 +4134,9 @@
   {
    "id": "decline-barbell-bench-press",
    "title": "Decline Barbell Bench Press",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -3843,7 +4153,9 @@
   {
    "id": "decline-close-grip-bench-skull-crusher",
    "title": "Decline Close-Grip Bench To Skull Crusher",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -3872,7 +4184,9 @@
   {
    "id": "decline-dumbbell-bench-press",
    "title": "Decline Dumbbell Bench Press",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -3889,7 +4203,9 @@
   {
    "id": "decline-dumbbell-flyes",
    "title": "Decline Dumbbell Flyes",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -3902,7 +4218,9 @@
   {
    "id": "decline-dumbbell-triceps-extension",
    "title": "Decline Dumbbell Triceps Extension",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -3915,7 +4233,9 @@
   {
    "id": "decline-ez-bar-triceps-extension",
    "title": "Decline EZ Bar Triceps Extension",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -3968,7 +4288,9 @@
   {
    "id": "decline-smith-press",
    "title": "Decline Smith Press",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -3988,7 +4310,9 @@
    "aliases": [
     "deficit dl"
    ],
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -4009,7 +4333,9 @@
   {
    "id": "depth-jump-leap",
    "title": "Depth Jump Leap",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -4029,7 +4355,9 @@
   {
    "id": "dip-machine",
    "title": "Dip Machine",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -4053,7 +4381,9 @@
   {
    "id": "dips-chest-version",
    "title": "Dips - Chest Version",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -4086,7 +4416,9 @@
   {
    "id": "donkey-calf-raises",
    "title": "Donkey Calf Raises",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -4099,7 +4431,9 @@
   {
    "id": "double-kettlebell-alternating-hang-clean",
    "title": "Double Kettlebell Alternating Hang Clean",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -4121,7 +4455,9 @@
   {
    "id": "double-kettlebell-jerk",
    "title": "Double Kettlebell Jerk",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -4139,7 +4475,9 @@
   {
    "id": "double-kettlebell-push-press",
    "title": "Double Kettlebell Push Press",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -4157,7 +4495,9 @@
   {
    "id": "double-kettlebell-snatch",
    "title": "Double Kettlebell Snatch",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -4175,7 +4515,9 @@
   {
    "id": "double-kettlebell-windmill",
    "title": "Double Kettlebell Windmill",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -4236,7 +4578,9 @@
   {
    "id": "downward-facing-balance",
    "title": "Downward Facing Balance",
-   "equipment": "exercise ball",
+   "equipment": [
+    "exercise ball"
+   ],
    "muscles": {
     "primary": [
      "glutes"
@@ -4253,7 +4597,9 @@
   {
    "id": "drag-curl",
    "title": "Drag Curl",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -4269,7 +4615,9 @@
   {
    "id": "drop-push",
    "title": "Drop Push",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -4286,7 +4634,9 @@
   {
    "id": "dumbbell-alternate-bicep-curl",
    "title": "Dumbbell Alternate Bicep Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -4305,7 +4655,9 @@
    "aliases": [
     "db bench press"
    ],
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -4322,7 +4674,9 @@
   {
    "id": "dumbbell-bench-press-neutral-grip",
    "title": "Dumbbell Bench Press with Neutral Grip",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -4339,7 +4693,9 @@
   {
    "id": "dumbbell-clean",
    "title": "Dumbbell Clean",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -4404,7 +4760,9 @@
    "aliases": [
     "db floor press"
    ],
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -4429,7 +4787,9 @@
   {
    "id": "dumbbell-flyes",
    "title": "Dumbbell Flyes",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -4478,7 +4838,9 @@
   {
    "id": "dumbbell-incline-row",
    "title": "Dumbbell Incline Row",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -4497,7 +4859,9 @@
   {
    "id": "dumbbell-incline-shoulder-raise",
    "title": "Dumbbell Incline Shoulder Raise",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -4516,7 +4880,9 @@
    "aliases": [
     "db lunge"
    ],
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -4534,7 +4900,9 @@
   {
    "id": "dumbbell-lying-one-arm-rear-lateral-raise",
    "title": "Dumbbell Lying One-Arm Rear Lateral Raise",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -4550,7 +4918,9 @@
   {
    "id": "dumbbell-lying-pronation",
    "title": "Dumbbell Lying Pronation",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -4563,7 +4933,9 @@
   {
    "id": "dumbbell-lying-rear-lateral-raise",
    "title": "Dumbbell Lying Rear Lateral Raise",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -4576,7 +4948,9 @@
   {
    "id": "dumbbell-lying-supination",
    "title": "Dumbbell Lying Supination",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -4589,7 +4963,9 @@
   {
    "id": "dumbbell-one-arm-shoulder-press",
    "title": "Dumbbell One-Arm Shoulder Press",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -4605,7 +4981,9 @@
   {
    "id": "dumbbell-one-arm-triceps-extension",
    "title": "Dumbbell One-Arm Triceps Extension",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -4618,7 +4996,9 @@
   {
    "id": "dumbbell-one-arm-upright-row",
    "title": "Dumbbell One-Arm Upright Row",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -4635,7 +5015,9 @@
   {
    "id": "dumbbell-prone-incline-curl",
    "title": "Dumbbell Prone Incline Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -4648,7 +5030,9 @@
   {
    "id": "dumbbell-raise",
    "title": "Dumbbell Raise",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -4664,7 +5048,9 @@
   {
    "id": "dumbbell-rear-lunge",
    "title": "Dumbbell Rear Lunge",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -4710,7 +5096,9 @@
   {
    "id": "dumbbell-scaption",
    "title": "Dumbbell Scaption",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -4726,7 +5114,9 @@
   {
    "id": "dumbbell-seated-box-jump",
    "title": "Dumbbell Seated Box Jump",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -4744,7 +5134,9 @@
   {
    "id": "dumbbell-seated-one-leg-calf-raise",
    "title": "Dumbbell Seated One-Leg Calf Raise",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -4760,7 +5152,9 @@
    "aliases": [
     "db shoulder press"
    ],
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -4779,7 +5173,9 @@
    "aliases": [
     "db shrug"
    ],
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "traps"
@@ -4795,7 +5191,9 @@
    "aliases": [
     "db side bend"
    ],
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -4854,7 +5252,9 @@
    "aliases": [
     "db squat"
    ],
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -4873,7 +5273,9 @@
   {
    "id": "dumbbell-squat-bench",
    "title": "Dumbbell Squat To A Bench",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -4925,7 +5327,9 @@
    "aliases": [
     "db step up"
    ],
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -4975,7 +5379,9 @@
   {
    "id": "dumbbell-tricep-extension-pronated-grip",
    "title": "Dumbbell Tricep Extension -Pronated Grip",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -5055,7 +5461,9 @@
   {
    "id": "elevated-back-lunge",
    "title": "Elevated Back Lunge",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -5072,7 +5480,9 @@
   {
    "id": "elevated-cable-rows",
    "title": "Elevated Cable Rows",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -5089,7 +5499,9 @@
   {
    "id": "elliptical-trainer",
    "title": "Elliptical Trainer",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -5105,7 +5517,9 @@
   {
    "id": "exercise-ball-crunch",
    "title": "Exercise Ball Crunch",
-   "equipment": "exercise ball",
+   "equipment": [
+    "exercise ball"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -5118,7 +5532,9 @@
   {
    "id": "exercise-ball-pull-in",
    "title": "Exercise Ball Pull-In",
-   "equipment": "exercise ball",
+   "equipment": [
+    "exercise ball"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -5131,7 +5547,9 @@
   {
    "id": "extended-range-one-arm-kettlebell-floor-press",
    "title": "Extended Range One-Arm Kettlebell Floor Press",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -5148,7 +5566,9 @@
   {
    "id": "external-rotation",
    "title": "External Rotation",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -5161,7 +5581,9 @@
   {
    "id": "external-rotation-band",
    "title": "External Rotation with Band",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -5174,7 +5596,9 @@
   {
    "id": "external-rotation-cable",
    "title": "External Rotation with Cable",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -5187,7 +5611,9 @@
   {
    "id": "ez-bar-curl",
    "title": "EZ-Bar Curl",
-   "equipment": "e-z curl bar",
+   "equipment": [
+    "e-z curl bar"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -5200,7 +5626,9 @@
   {
    "id": "ez-bar-skullcrusher",
    "title": "EZ-Bar Skullcrusher",
-   "equipment": "e-z curl bar",
+   "equipment": [
+    "e-z curl bar"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -5219,7 +5647,9 @@
    "aliases": [
     "cable face pull"
    ],
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -5285,7 +5715,9 @@
   {
    "id": "finger-curls",
    "title": "Finger Curls",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -5298,7 +5730,9 @@
   {
    "id": "flat-bench-cable-flyes",
    "title": "Flat Bench Cable Flyes",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -5335,7 +5769,9 @@
   {
    "id": "flexor-incline-dumbbell-curls",
    "title": "Flexor Incline Dumbbell Curls",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -5364,7 +5800,9 @@
   {
    "id": "floor-press",
    "title": "Floor Press",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -5381,7 +5819,9 @@
   {
    "id": "floor-press-chains",
    "title": "Floor Press with Chains",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -5416,7 +5856,9 @@
   {
    "id": "foot-smr",
    "title": "Foot-SMR",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -5428,7 +5870,9 @@
   {
    "id": "forward-drag-press",
    "title": "Forward Drag with Press",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -5469,7 +5913,9 @@
   {
    "id": "frankenstein-squat",
    "title": "Frankenstein Squat",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -5534,7 +5980,9 @@
   {
    "id": "front-barbell-squat",
    "title": "Front Barbell Squat",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -5552,7 +6000,9 @@
   {
    "id": "front-barbell-squat-bench",
    "title": "Front Barbell Squat To A Bench",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -5570,7 +6020,9 @@
   {
    "id": "front-box-jump",
    "title": "Front Box Jump",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -5590,7 +6042,9 @@
   {
    "id": "front-cable-raise",
    "title": "Front Cable Raise",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -5603,7 +6057,9 @@
   {
    "id": "front-cone-hops-hurdle-hops",
    "title": "Front Cone Hops (or hurdle hops)",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -5626,7 +6082,9 @@
    "aliases": [
     "db front raise"
    ],
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -5639,7 +6097,9 @@
   {
    "id": "front-incline-dumbbell-raise",
    "title": "Front Incline Dumbbell Raise",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -5663,7 +6123,9 @@
   {
    "id": "front-plate-raise",
    "title": "Front Plate Raise",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -5676,7 +6138,9 @@
   {
    "id": "front-raise-pullover",
    "title": "Front Raise And Pullover",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -5727,7 +6191,9 @@
   {
    "id": "front-squat-clean-grip",
    "title": "Front Squat (Clean Grip)",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -5745,7 +6211,9 @@
   {
    "id": "front-squats-two-kettlebells",
    "title": "Front Squats With Two Kettlebells",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -5762,7 +6230,9 @@
   {
    "id": "front-two-dumbbell-raise",
    "title": "Front Two-Dumbbell Raise",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -5775,7 +6245,9 @@
   {
    "id": "full-range-motion-lat-pulldown",
    "title": "Full Range-Of-Motion Lat Pulldown",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -5812,7 +6284,9 @@
   {
    "id": "gironda-sternum-chins",
    "title": "Gironda Sternum Chins",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -5829,7 +6303,9 @@
   {
    "id": "glute-ham-raise",
    "title": "Glute Ham Raise",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -5861,7 +6337,9 @@
   {
    "id": "goblet-squat",
    "title": "Goblet Squat",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -5880,7 +6358,9 @@
   {
    "id": "good-morning",
    "title": "Good Morning",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -5898,7 +6378,9 @@
   {
    "id": "good-morning-off-pins",
    "title": "Good Morning off Pins",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -5986,7 +6468,9 @@
   {
    "id": "hack-squat",
    "title": "Hack Squat",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -6034,7 +6518,9 @@
   {
    "id": "hammer-curls",
    "title": "Hammer Curls",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -6047,7 +6533,9 @@
   {
    "id": "hammer-grip-incline-db-bench-press",
    "title": "Hammer Grip Incline DB Bench Press",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -6064,7 +6552,9 @@
   {
    "id": "hamstring-smr",
    "title": "Hamstring-SMR",
-   "equipment": "foam roll",
+   "equipment": [
+    "foam roll"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -6156,7 +6646,9 @@
   {
    "id": "hang-clean",
    "title": "Hang Clean",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -6178,7 +6670,9 @@
   {
    "id": "hang-clean-below-knees",
    "title": "Hang Clean - Below the Knees",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -6237,7 +6731,9 @@
   {
    "id": "hang-snatch",
    "title": "Hang Snatch",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -6260,7 +6756,9 @@
   {
    "id": "hang-snatch-below-knees",
    "title": "Hang Snatch - Below Knees",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -6312,7 +6810,9 @@
   {
    "id": "hanging-bar-good-morning",
    "title": "Hanging Bar Good Morning",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -6357,7 +6857,9 @@
   {
    "id": "heaving-snatch-balance",
    "title": "Heaving Snatch Balance",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -6378,7 +6880,9 @@
   {
    "id": "heavy-bag-thrust",
    "title": "Heavy Bag Thrust",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -6396,7 +6900,9 @@
   {
    "id": "high-cable-curls",
    "title": "High Cable Curls",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -6424,7 +6930,9 @@
   {
    "id": "hip-extension-bands",
    "title": "Hip Extension with Bands",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "glutes"
@@ -6440,7 +6948,9 @@
   {
    "id": "hip-flexion-band",
    "title": "Hip Flexion with Band",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -6453,7 +6963,9 @@
   {
    "id": "hip-lift-band",
    "title": "Hip Lift with Band",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "glutes"
@@ -6485,7 +6997,9 @@
   {
    "id": "hug-ball",
    "title": "Hug A Ball",
-   "equipment": "exercise ball",
+   "equipment": [
+    "exercise ball"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -6516,7 +7030,9 @@
   {
    "id": "hurdle-hops",
    "title": "Hurdle Hops",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -6544,7 +7060,9 @@
   {
    "id": "hyperextensions-back-extensions",
    "title": "Hyperextensions (Back Extensions)",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -6577,7 +7095,9 @@
   {
    "id": "iliotibial-tract-smr",
    "title": "Iliotibial Tract-SMR",
-   "equipment": "foam roll",
+   "equipment": [
+    "foam roll"
+   ],
    "muscles": {
     "primary": [
      "abductors"
@@ -6601,7 +7121,9 @@
   {
    "id": "incline-barbell-triceps-extension",
    "title": "Incline Barbell Triceps Extension",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -6617,7 +7139,9 @@
   {
    "id": "incline-bench-pull",
    "title": "Incline Bench Pull",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -6634,7 +7158,9 @@
   {
    "id": "incline-cable-chest-press",
    "title": "Incline Cable Chest Press",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -6651,7 +7177,9 @@
   {
    "id": "incline-cable-flye",
    "title": "Incline Cable Flye",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -6667,7 +7195,9 @@
   {
    "id": "incline-dumbbell-bench-palms-facing-in",
    "title": "Incline Dumbbell Bench With Palms Facing In",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -6684,7 +7214,9 @@
   {
    "id": "incline-dumbbell-curl",
    "title": "Incline Dumbbell Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -6704,7 +7236,9 @@
   {
    "id": "incline-dumbbell-flyes",
    "title": "Incline Dumbbell Flyes",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -6720,7 +7254,9 @@
   {
    "id": "incline-dumbbell-flyes-twist",
    "title": "Incline Dumbbell Flyes - With A Twist",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -6736,7 +7272,9 @@
   {
    "id": "incline-dumbbell-press",
    "title": "Incline Dumbbell Press",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -6753,7 +7291,9 @@
   {
    "id": "incline-hammer-curls",
    "title": "Incline Hammer Curls",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -6766,7 +7306,9 @@
   {
    "id": "incline-inner-biceps-curl",
    "title": "Incline Inner Biceps Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -6810,7 +7352,9 @@
   {
    "id": "incline-push-up-depth-jump",
    "title": "Incline Push-Up Depth Jump",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -6878,7 +7422,9 @@
   {
    "id": "intermediate-groin-stretch",
    "title": "Intermediate Groin Stretch",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -6891,7 +7437,9 @@
   {
    "id": "intermediate-hip-flexor-quad-stretch",
    "title": "Intermediate Hip Flexor and Quad Stretch",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -6904,7 +7452,9 @@
   {
    "id": "internal-rotation-band",
    "title": "Internal Rotation with Band",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -6945,7 +7495,9 @@
   {
    "id": "inverted-row-straps",
    "title": "Inverted Row with Straps",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -6962,7 +7514,9 @@
   {
    "id": "iron-cross",
    "title": "Iron Cross",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -7052,7 +7606,9 @@
   {
    "id": "it-band-glute-stretch",
    "title": "IT Band and Glute Stretch",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "abductors"
@@ -7088,7 +7644,9 @@
   {
    "id": "jefferson-squats",
    "title": "Jefferson Squats",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -7136,7 +7694,9 @@
   {
    "id": "jerk-balance",
    "title": "Jerk Balance",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -7155,7 +7715,9 @@
   {
    "id": "jerk-dip-squat",
    "title": "Jerk Dip Squat",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -7175,7 +7737,9 @@
    "aliases": [
     "jm bench press"
    ],
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -7222,7 +7786,9 @@
   {
    "id": "jogging-treadmill",
    "title": "Jogging, Treadmill",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -7267,7 +7833,9 @@
   {
    "id": "keg-load",
    "title": "Keg Load",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -7292,7 +7860,9 @@
   {
    "id": "kettlebell-arnold-press",
    "title": "Kettlebell Arnold Press",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -7342,7 +7912,9 @@
   {
    "id": "kettlebell-dead-clean",
    "title": "Kettlebell Dead Clean",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -7362,7 +7934,9 @@
   {
    "id": "kettlebell-figure-8",
    "title": "Kettlebell Figure 8",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -7378,7 +7952,9 @@
   {
    "id": "kettlebell-hang-clean",
    "title": "Kettlebell Hang Clean",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -7398,7 +7974,9 @@
   {
    "id": "kettlebell-one-legged-deadlift",
    "title": "Kettlebell One-Legged Deadlift",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -7415,7 +7993,9 @@
   {
    "id": "kettlebell-pass-between-legs",
    "title": "Kettlebell Pass Between The Legs",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -7433,7 +8013,9 @@
   {
    "id": "kettlebell-pirate-ships",
    "title": "Kettlebell Pirate Ships",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -7449,7 +8031,9 @@
   {
    "id": "kettlebell-pistol-squat",
    "title": "Kettlebell Pistol Squat",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -7502,7 +8086,9 @@
   {
    "id": "kettlebell-seated-press",
    "title": "Kettlebell Seated Press",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -7518,7 +8104,9 @@
   {
    "id": "kettlebell-seesaw-press",
    "title": "Kettlebell Seesaw Press",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -7568,7 +8156,9 @@
   {
    "id": "kettlebell-sumo-high-pull",
    "title": "Kettlebell Sumo High Pull",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "traps"
@@ -7612,7 +8202,9 @@
   {
    "id": "kettlebell-thruster",
    "title": "Kettlebell Thruster",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -7629,7 +8221,9 @@
   {
    "id": "kettlebell-turkish-get-up-lunge-style",
    "title": "Kettlebell Turkish Get-Up (Lunge style)",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -7648,7 +8242,9 @@
   {
    "id": "kettlebell-turkish-get-up-squat-style",
    "title": "Kettlebell Turkish Get-Up (Squat style)",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -7668,7 +8264,9 @@
   {
    "id": "kettlebell-windmill",
    "title": "Kettlebell Windmill",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -7687,7 +8285,9 @@
   {
    "id": "kipping-muscle-up",
    "title": "Kipping Muscle Up",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -7740,7 +8340,9 @@
   {
    "id": "knee-hip-raise-on-parallel-bars",
    "title": "Knee/Hip Raise On Parallel Bars",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -7786,7 +8388,9 @@
   {
    "id": "kneeling-cable-crunch-alternating-oblique-twists",
    "title": "Kneeling Cable Crunch With Alternating Oblique Twists",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -7799,7 +8403,9 @@
   {
    "id": "kneeling-cable-triceps-extension",
    "title": "Kneeling Cable Triceps Extension",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -7824,7 +8430,9 @@
   {
    "id": "kneeling-high-pulley-row",
    "title": "Kneeling High Pulley Row",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -7856,7 +8464,9 @@
   {
    "id": "kneeling-jump-squat",
    "title": "Kneeling Jump Squat",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "glutes"
@@ -7874,7 +8484,9 @@
   {
    "id": "kneeling-single-arm-high-pulley-row",
    "title": "Kneeling Single-Arm High Pulley Row",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -7891,7 +8503,9 @@
   {
    "id": "kneeling-squat",
    "title": "Kneeling Squat",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "glutes"
@@ -7984,7 +8598,9 @@
   {
    "id": "landmine-180-s",
    "title": "Landmine 180's",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -8002,7 +8618,9 @@
   {
    "id": "landmine-linear-jammer",
    "title": "Landmine Linear Jammer",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -8042,7 +8660,9 @@
   {
    "id": "lateral-box-jump",
    "title": "Lateral Box Jump",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "adductors"
@@ -8094,7 +8714,9 @@
   {
    "id": "lateral-cone-hops",
    "title": "Lateral Cone Hops",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "adductors"
@@ -8114,7 +8736,9 @@
   {
    "id": "lateral-raise-bands",
    "title": "Lateral Raise - With Bands",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -8127,7 +8751,9 @@
   {
    "id": "latissimus-dorsi-smr",
    "title": "Latissimus Dorsi-SMR",
-   "equipment": "foam roll",
+   "equipment": [
+    "foam roll"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -8144,7 +8770,9 @@
     "knee extension",
     "quad extension"
    ],
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -8172,7 +8800,9 @@
   {
    "id": "leg-over-floor-press",
    "title": "Leg-Over Floor Press",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -8192,7 +8822,9 @@
    "aliases": [
     "leg press machine"
    ],
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -8234,7 +8866,9 @@
   {
    "id": "leverage-chest-press",
    "title": "Leverage Chest Press",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -8251,7 +8885,9 @@
   {
    "id": "leverage-deadlift",
    "title": "Leverage Deadlift",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -8268,7 +8904,9 @@
   {
    "id": "leverage-decline-chest-press",
    "title": "Leverage Decline Chest Press",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -8285,7 +8923,9 @@
   {
    "id": "leverage-high-row",
    "title": "Leverage High Row",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -8301,7 +8941,9 @@
   {
    "id": "leverage-incline-chest-press",
    "title": "Leverage Incline Chest Press",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -8318,7 +8960,9 @@
   {
    "id": "leverage-iso-row",
    "title": "Leverage Iso Row",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -8335,7 +8979,9 @@
   {
    "id": "leverage-shoulder-press",
    "title": "Leverage Shoulder Press",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -8351,7 +8997,9 @@
   {
    "id": "leverage-shrug",
    "title": "Leverage Shrug",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "traps"
@@ -8399,7 +9047,9 @@
   {
    "id": "linear-depth-jump",
    "title": "Linear Depth Jump",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -8417,7 +9067,9 @@
   {
    "id": "log-lift",
    "title": "Log Lift",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -8462,7 +9114,9 @@
   {
    "id": "london-bridges",
    "title": "London Bridges",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -8492,7 +9146,9 @@
   {
    "id": "low-cable-crossover",
    "title": "Low Cable Crossover",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -8508,7 +9164,9 @@
   {
    "id": "low-cable-triceps-extension",
    "title": "Low Cable Triceps Extension",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -8521,7 +9179,9 @@
   {
    "id": "low-pulley-row-neck",
    "title": "Low Pulley Row To Neck",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -8550,7 +9210,9 @@
   {
    "id": "lower-back-smr",
    "title": "Lower Back-SMR",
-   "equipment": "foam roll",
+   "equipment": [
+    "foam roll"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -8570,7 +9232,9 @@
   {
    "id": "lunge-pass-through",
    "title": "Lunge Pass Through",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -8588,7 +9252,9 @@
   {
    "id": "lunge-sprint",
    "title": "Lunge Sprint",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -8606,7 +9272,9 @@
   {
    "id": "lying-bent-leg-groin",
    "title": "Lying Bent Leg Groin",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "adductors"
@@ -8618,7 +9286,9 @@
   {
    "id": "lying-cable-curl",
    "title": "Lying Cable Curl",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -8631,7 +9301,9 @@
   {
    "id": "lying-cambered-barbell-row",
    "title": "Lying Cambered Barbell Row",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -8649,7 +9321,9 @@
   {
    "id": "lying-close-grip-bar-curl-on-high-pulley",
    "title": "Lying Close-Grip Bar Curl On High Pulley",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -8662,7 +9336,9 @@
   {
    "id": "lying-close-grip-barbell-triceps-extension-behind-head",
    "title": "Lying Close-Grip Barbell Triceps Extension Behind The Head",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -8675,7 +9351,9 @@
   {
    "id": "lying-close-grip-barbell-triceps-press-chin",
    "title": "Lying Close-Grip Barbell Triceps Press To Chin",
-   "equipment": "e-z curl bar",
+   "equipment": [
+    "e-z curl bar"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -8699,7 +9377,9 @@
   {
    "id": "lying-dumbbell-tricep-extension",
    "title": "Lying Dumbbell Tricep Extension",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -8716,7 +9396,9 @@
   {
    "id": "lying-face-down-plate-neck-resistance",
    "title": "Lying Face Down Plate Neck Resistance",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "neck"
@@ -8729,7 +9411,9 @@
   {
    "id": "lying-face-up-plate-neck-resistance",
    "title": "Lying Face Up Plate Neck Resistance",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "neck"
@@ -8756,7 +9440,9 @@
   {
    "id": "lying-hamstring",
    "title": "Lying Hamstring",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -8771,7 +9457,9 @@
   {
    "id": "lying-high-bench-barbell-curl",
    "title": "Lying High Bench Barbell Curl",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -8784,7 +9472,9 @@
   {
    "id": "lying-leg-curls",
    "title": "Lying Leg Curls",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -8797,7 +9487,9 @@
   {
    "id": "lying-machine-squat",
    "title": "Lying Machine Squat",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -8815,7 +9507,9 @@
   {
    "id": "lying-one-arm-lateral-raise",
    "title": "Lying One-Arm Lateral Raise",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -8838,7 +9532,9 @@
   {
    "id": "lying-rear-delt-raise",
    "title": "Lying Rear Delt Raise",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -8851,7 +9547,9 @@
   {
    "id": "lying-supine-dumbbell-curl",
    "title": "Lying Supine Dumbbell Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -8864,7 +9562,9 @@
   {
    "id": "lying-t-bar-row",
    "title": "Lying T-Bar Row",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -8881,7 +9581,9 @@
   {
    "id": "lying-triceps-press",
    "title": "Lying Triceps Press",
-   "equipment": "e-z curl bar",
+   "equipment": [
+    "e-z curl bar"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -8894,7 +9596,9 @@
   {
    "id": "machine-bench-press",
    "title": "Machine Bench Press",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -8911,7 +9615,9 @@
   {
    "id": "machine-bicep-curl",
    "title": "Machine Bicep Curl",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -8924,7 +9630,9 @@
   {
    "id": "machine-preacher-curls",
    "title": "Machine Preacher Curls",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -8937,7 +9645,9 @@
   {
    "id": "machine-shoulder-military-press",
    "title": "Machine Shoulder (Military) Press",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -8953,7 +9663,9 @@
   {
    "id": "machine-triceps-extension",
    "title": "Machine Triceps Extension",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -8966,7 +9678,9 @@
   {
    "id": "medicine-ball-chest-pass",
    "title": "Medicine Ball Chest Pass",
-   "equipment": "medicine ball",
+   "equipment": [
+    "medicine ball"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -8983,7 +9697,9 @@
   {
    "id": "medicine-ball-full-twist",
    "title": "Medicine Ball Full Twist",
-   "equipment": "medicine ball",
+   "equipment": [
+    "medicine ball"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -8999,7 +9715,9 @@
   {
    "id": "medicine-ball-scoop-throw",
    "title": "Medicine Ball Scoop Throw",
-   "equipment": "medicine ball",
+   "equipment": [
+    "medicine ball"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -9017,7 +9735,9 @@
   {
    "id": "middle-back-shrug",
    "title": "Middle Back Shrug",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -9047,7 +9767,9 @@
   {
    "id": "mixed-grip-chin",
    "title": "Mixed Grip Chin",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -9064,7 +9786,9 @@
   {
    "id": "monster-walk",
    "title": "Monster Walk",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "abductors"
@@ -9109,7 +9833,9 @@
   {
    "id": "muscle-snatch",
    "title": "Muscle Snatch",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -9157,7 +9883,9 @@
   {
    "id": "narrow-stance-hack-squats",
    "title": "Narrow Stance Hack Squats",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -9175,7 +9903,9 @@
   {
    "id": "narrow-stance-leg-press",
    "title": "Narrow Stance Leg Press",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -9193,7 +9923,9 @@
   {
    "id": "narrow-stance-squats",
    "title": "Narrow Stance Squats",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -9229,7 +9961,9 @@
   {
    "id": "neck-press",
    "title": "Neck Press",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -9246,7 +9980,9 @@
   {
    "id": "neck-smr",
    "title": "Neck-SMR",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "neck"
@@ -9282,7 +10018,9 @@
   {
    "id": "olympic-squat",
    "title": "Olympic Squat",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -9300,7 +10038,9 @@
   {
    "id": "on-your-back-quad-stretch",
    "title": "On-Your-Back Quad Stretch",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -9337,7 +10077,9 @@
   {
    "id": "one-arm-chin-up",
    "title": "One Arm Chin-Up",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -9355,7 +10097,9 @@
   {
    "id": "one-arm-dumbbell-bench-press",
    "title": "One Arm Dumbbell Bench Press",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -9372,7 +10116,9 @@
   {
    "id": "one-arm-dumbbell-preacher-curl",
    "title": "One Arm Dumbbell Preacher Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -9385,7 +10131,9 @@
   {
    "id": "one-arm-dumbbell-row",
    "title": "One-Arm Dumbbell Row",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -9403,7 +10151,9 @@
   {
    "id": "one-arm-flat-bench-dumbbell-flye",
    "title": "One-Arm Flat Bench Dumbbell Flye",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -9416,7 +10166,9 @@
   {
    "id": "one-arm-floor-press",
    "title": "One Arm Floor Press",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -9433,7 +10185,9 @@
   {
    "id": "one-arm-high-pulley-cable-side-bends",
    "title": "One-Arm High-Pulley Cable Side Bends",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -9446,7 +10200,9 @@
   {
    "id": "one-arm-incline-lateral-raise",
    "title": "One-Arm Incline Lateral Raise",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -9459,7 +10215,9 @@
   {
    "id": "one-arm-kettlebell-clean",
    "title": "One-Arm Kettlebell Clean",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -9478,7 +10236,9 @@
   {
    "id": "one-arm-kettlebell-clean-jerk",
    "title": "One-Arm Kettlebell Clean and Jerk",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -9491,7 +10251,9 @@
   {
    "id": "one-arm-kettlebell-floor-press",
    "title": "One-Arm Kettlebell Floor Press",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -9507,7 +10269,9 @@
   {
    "id": "one-arm-kettlebell-jerk",
    "title": "One-Arm Kettlebell Jerk",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -9525,7 +10289,9 @@
   {
    "id": "one-arm-kettlebell-military-press-side",
    "title": "One-Arm Kettlebell Military Press To The Side",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -9541,7 +10307,9 @@
   {
    "id": "one-arm-kettlebell-para-press",
    "title": "One-Arm Kettlebell Para Press",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -9557,7 +10325,9 @@
   {
    "id": "one-arm-kettlebell-push-press",
    "title": "One-Arm Kettlebell Push Press",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -9575,7 +10345,9 @@
   {
    "id": "one-arm-kettlebell-row",
    "title": "One-Arm Kettlebell Row",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -9592,7 +10364,9 @@
   {
    "id": "one-arm-kettlebell-snatch",
    "title": "One-Arm Kettlebell Snatch",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -9613,7 +10387,9 @@
   {
    "id": "one-arm-kettlebell-split-jerk",
    "title": "One-Arm Kettlebell Split Jerk",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -9632,7 +10408,9 @@
   {
    "id": "one-arm-kettlebell-split-snatch",
    "title": "One-Arm Kettlebell Split Snatch",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -9649,7 +10427,9 @@
   {
    "id": "one-arm-kettlebell-swings",
    "title": "One-Arm Kettlebell Swings",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -9668,7 +10448,9 @@
   {
    "id": "one-arm-lat-pulldown",
    "title": "One Arm Lat Pulldown",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -9685,7 +10467,9 @@
   {
    "id": "one-arm-long-bar-row",
    "title": "One-Arm Long Bar Row",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -9702,7 +10486,9 @@
   {
    "id": "one-arm-medicine-ball-slam",
    "title": "One-Arm Medicine Ball Slam",
-   "equipment": "medicine ball",
+   "equipment": [
+    "medicine ball"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -9719,7 +10505,9 @@
   {
    "id": "one-arm-open-palm-kettlebell-clean",
    "title": "One-Arm Open Palm Kettlebell Clean",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -9739,7 +10527,9 @@
   {
    "id": "one-arm-overhead-kettlebell-squats",
    "title": "One-Arm Overhead Kettlebell Squats",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -9758,7 +10548,9 @@
   {
    "id": "one-arm-pronated-dumbbell-triceps-extension",
    "title": "One Arm Pronated Dumbbell Triceps Extension",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -9771,7 +10563,9 @@
   {
    "id": "one-arm-side-deadlift",
    "title": "One-Arm Side Deadlift",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -9792,7 +10586,9 @@
   {
    "id": "one-arm-side-laterals",
    "title": "One-Arm Side Laterals",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -9805,7 +10601,9 @@
   {
    "id": "one-arm-supinated-dumbbell-triceps-extension",
    "title": "One Arm Supinated Dumbbell Triceps Extension",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -9834,7 +10632,9 @@
   {
    "id": "one-handed-hang",
    "title": "One Handed Hang",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -9865,7 +10665,9 @@
   {
    "id": "one-leg-barbell-squat",
    "title": "One Leg Barbell Squat",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -9883,7 +10685,9 @@
   {
    "id": "one-legged-cable-kickback",
    "title": "One-Legged Cable Kickback",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "glutes"
@@ -9899,7 +10703,9 @@
   {
    "id": "open-palm-kettlebell-clean",
    "title": "Open Palm Kettlebell Clean",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -9918,7 +10724,9 @@
   {
    "id": "otis-up",
    "title": "Otis-Up",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -9936,7 +10744,9 @@
   {
    "id": "overhead-cable-curl",
    "title": "Overhead Cable Curl",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -9949,7 +10759,9 @@
   {
    "id": "overhead-lat",
    "title": "Overhead Lat",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -9964,7 +10776,9 @@
   {
    "id": "overhead-slam",
    "title": "Overhead Slam",
-   "equipment": "medicine ball",
+   "equipment": [
+    "medicine ball"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -10067,7 +10881,9 @@
   {
    "id": "pallof-press",
    "title": "Pallof Press",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -10085,7 +10901,9 @@
   {
    "id": "pallof-press-rotation",
    "title": "Pallof Press With Rotation",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -10103,7 +10921,9 @@
   {
    "id": "palms-down-dumbbell-wrist-curl-over-bench",
    "title": "Palms-Down Dumbbell Wrist Curl Over A Bench",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -10116,7 +10936,9 @@
   {
    "id": "palms-down-wrist-curl-over-bench",
    "title": "Palms-Down Wrist Curl Over A Bench",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -10129,7 +10951,9 @@
   {
    "id": "palms-up-barbell-wrist-curl-over-bench",
    "title": "Palms-Up Barbell Wrist Curl Over A Bench",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -10142,7 +10966,9 @@
   {
    "id": "palms-up-dumbbell-wrist-curl-over-bench",
    "title": "Palms-Up Dumbbell Wrist Curl Over A Bench",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -10155,7 +10981,9 @@
   {
    "id": "parallel-bar-dip",
    "title": "Parallel Bar Dip",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -10244,7 +11072,9 @@
   {
    "id": "peroneals-smr",
    "title": "Peroneals-SMR",
-   "equipment": "foam roll",
+   "equipment": [
+    "foam roll"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -10256,7 +11086,9 @@
   {
    "id": "peroneals-stretch",
    "title": "Peroneals Stretch",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -10268,7 +11100,9 @@
   {
    "id": "physioball-hip-bridge",
    "title": "Physioball Hip Bridge",
-   "equipment": "exercise ball",
+   "equipment": [
+    "exercise ball"
+   ],
    "muscles": {
     "primary": [
      "glutes"
@@ -10284,7 +11118,9 @@
   {
    "id": "pin-presses",
    "title": "Pin Presses",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -10304,7 +11140,9 @@
   {
    "id": "piriformis-smr",
    "title": "Piriformis-SMR",
-   "equipment": "foam roll",
+   "equipment": [
+    "foam roll"
+   ],
    "muscles": {
     "primary": [
      "glutes"
@@ -10361,7 +11199,9 @@
   {
    "id": "plate-pinch",
    "title": "Plate Pinch",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -10374,7 +11214,9 @@
   {
    "id": "plate-twist",
    "title": "Plate Twist",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -10387,7 +11229,9 @@
   {
    "id": "platform-hamstring-slides",
    "title": "Platform Hamstring Slides",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -10403,7 +11247,9 @@
   {
    "id": "plie-dumbbell-squat",
    "title": "Plie Dumbbell Squat",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -10422,7 +11268,9 @@
   {
    "id": "plyo-kettlebell-pushups",
    "title": "Plyo Kettlebell Pushups",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -10455,7 +11303,9 @@
   {
    "id": "posterior-tibialis-stretch",
    "title": "Posterior Tibialis Stretch",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -10500,7 +11350,9 @@
   {
    "id": "power-clean-from-blocks",
    "title": "Power Clean from Blocks",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -10516,7 +11368,9 @@
   {
    "id": "power-jerk",
    "title": "Power Jerk",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -10537,7 +11391,9 @@
   {
    "id": "power-partials",
    "title": "Power Partials",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -10581,7 +11437,9 @@
   {
    "id": "power-snatch-from-blocks",
    "title": "Power Snatch from Blocks",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -10604,7 +11462,9 @@
   {
    "id": "power-stairs",
    "title": "Power Stairs",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -10626,7 +11486,9 @@
   {
    "id": "preacher-curl",
    "title": "Preacher Curl",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -10639,7 +11501,9 @@
   {
    "id": "preacher-hammer-dumbbell-curl",
    "title": "Preacher Hammer Dumbbell Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -10655,7 +11519,9 @@
   {
    "id": "press-sit-up",
    "title": "Press Sit-Up",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -10685,7 +11551,9 @@
   {
    "id": "prowler-sprint",
    "title": "Prowler Sprint",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -10705,7 +11573,9 @@
   {
    "id": "pull-through",
    "title": "Pull Through",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "glutes"
@@ -10800,7 +11670,9 @@
   {
    "id": "push-press-behind-neck",
    "title": "Push Press - Behind the Neck",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -10905,7 +11777,9 @@
   {
    "id": "push-ups-feet-on-an-exercise-ball",
    "title": "Push-Ups With Feet On An Exercise Ball",
-   "equipment": "exercise ball",
+   "equipment": [
+    "exercise ball"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -10938,7 +11812,9 @@
   {
    "id": "pyramid",
    "title": "Pyramid",
-   "equipment": "exercise ball",
+   "equipment": [
+    "exercise ball"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -10956,7 +11832,9 @@
    "aliases": [
     "standing quad stretch"
    ],
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -10968,7 +11846,9 @@
   {
    "id": "quadriceps-smr",
    "title": "Quadriceps-SMR",
-   "equipment": "foam roll",
+   "equipment": [
+    "foam roll"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -10981,7 +11861,9 @@
   {
    "id": "quick-leap",
    "title": "Quick Leap",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -10998,7 +11880,9 @@
   {
    "id": "rack-delivery",
    "title": "Rack Delivery",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -11015,7 +11899,9 @@
   {
    "id": "rack-pull-bands",
    "title": "Rack Pull with Bands",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -11035,7 +11921,9 @@
   {
    "id": "rack-pulls",
    "title": "Rack Pulls",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -11065,7 +11953,9 @@
   {
    "id": "recumbent-bike",
    "title": "Recumbent Bike",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -11081,7 +11971,9 @@
   {
    "id": "return-push-from-stance",
    "title": "Return Push from Stance",
-   "equipment": "medicine ball",
+   "equipment": [
+    "medicine ball"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -11098,7 +11990,9 @@
   {
    "id": "reverse-band-bench-press",
    "title": "Reverse Band Bench Press",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -11118,7 +12012,9 @@
   {
    "id": "reverse-band-box-squat",
    "title": "Reverse Band Box Squat",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -11140,7 +12036,9 @@
   {
    "id": "reverse-band-deadlift",
    "title": "Reverse Band Deadlift",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -11161,7 +12059,9 @@
   {
    "id": "reverse-band-power-squat",
    "title": "Reverse Band Power Squat",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -11181,7 +12081,9 @@
   {
    "id": "reverse-band-sumo-deadlift",
    "title": "Reverse Band Sumo Deadlift",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -11204,7 +12106,9 @@
   {
    "id": "reverse-barbell-curl",
    "title": "Reverse Barbell Curl",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -11220,7 +12124,9 @@
   {
    "id": "reverse-barbell-preacher-curls",
    "title": "Reverse Barbell Preacher Curls",
-   "equipment": "e-z curl bar",
+   "equipment": [
+    "e-z curl bar"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -11236,7 +12142,9 @@
   {
    "id": "reverse-cable-curl",
    "title": "Reverse Cable Curl",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -11267,7 +12175,9 @@
   {
    "id": "reverse-flyes",
    "title": "Reverse Flyes",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -11280,7 +12190,9 @@
   {
    "id": "reverse-flyes-external-rotation",
    "title": "Reverse Flyes With External Rotation",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -11293,7 +12205,9 @@
   {
    "id": "reverse-grip-bent-over-rows",
    "title": "Reverse Grip Bent-Over Rows",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -11311,7 +12225,9 @@
   {
    "id": "reverse-grip-triceps-pushdown",
    "title": "Reverse Grip Triceps Pushdown",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -11324,7 +12240,9 @@
   {
    "id": "reverse-hyperextension",
    "title": "Reverse Hyperextension",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -11340,7 +12258,9 @@
   {
    "id": "reverse-machine-flyes",
    "title": "Reverse Machine Flyes",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -11353,7 +12273,9 @@
   {
    "id": "reverse-plate-curls",
    "title": "Reverse Plate Curls",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -11369,7 +12291,9 @@
   {
    "id": "reverse-triceps-bench-press",
    "title": "Reverse Triceps Bench Press",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -11386,7 +12310,9 @@
   {
    "id": "rhomboids-smr",
    "title": "Rhomboids-SMR",
-   "equipment": "foam roll",
+   "equipment": [
+    "foam roll"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -11401,7 +12327,9 @@
   {
    "id": "rickshaw-carry",
    "title": "Rickshaw Carry",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -11422,7 +12350,9 @@
   {
    "id": "rickshaw-deadlift",
    "title": "Rickshaw Deadlift",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -11498,7 +12428,9 @@
   {
    "id": "rocking-standing-calf-raise",
    "title": "Rocking Standing Calf Raise",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -11511,7 +12443,9 @@
   {
    "id": "rocky-pull-ups-pulldowns",
    "title": "Rocky Pull-Ups/Pulldowns",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -11559,7 +12493,9 @@
   {
    "id": "romanian-deadlift-from-deficit",
    "title": "Romanian Deadlift from Deficit",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -11598,7 +12534,9 @@
   {
    "id": "rope-crunch",
    "title": "Rope Crunch",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -11611,7 +12549,9 @@
   {
    "id": "rope-jumping",
    "title": "Rope Jumping",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -11626,7 +12566,9 @@
   {
    "id": "rope-straight-arm-pulldown",
    "title": "Rope Straight-Arm Pulldown",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -11639,7 +12581,9 @@
   {
    "id": "round-world-shoulder-stretch",
    "title": "Round The World Shoulder Stretch",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -11687,7 +12631,9 @@
   {
    "id": "rowing-stationary",
    "title": "Rowing, Stationary",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -11740,7 +12686,9 @@
   {
    "id": "running-treadmill",
    "title": "Running, Treadmill",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -11813,7 +12761,9 @@
   {
    "id": "sandbag-load",
    "title": "Sandbag Load",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -11914,7 +12864,9 @@
   {
    "id": "seated-band-hamstring-curl",
    "title": "Seated Band Hamstring Curl",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -11927,7 +12879,9 @@
   {
    "id": "seated-barbell-military-press",
    "title": "Seated Barbell Military Press",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -11943,7 +12897,9 @@
   {
    "id": "seated-barbell-twist",
    "title": "Seated Barbell Twist",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -11956,7 +12912,9 @@
   {
    "id": "seated-bent-over-one-arm-dumbbell-triceps-extension",
    "title": "Seated Bent-Over One-Arm Dumbbell Triceps Extension",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -11969,7 +12927,9 @@
   {
    "id": "seated-bent-over-rear-delt-raise",
    "title": "Seated Bent-Over Rear Delt Raise",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -11982,7 +12942,9 @@
   {
    "id": "seated-bent-over-two-arm-dumbbell-triceps-extension",
    "title": "Seated Bent-Over Two-Arm Dumbbell Triceps Extension",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -12014,7 +12976,9 @@
    "aliases": [
     "cable seated row"
    ],
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -12032,7 +12996,9 @@
   {
    "id": "seated-cable-shoulder-press",
    "title": "Seated Cable Shoulder Press",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -12048,7 +13014,9 @@
   {
    "id": "seated-calf-raise",
    "title": "Seated Calf Raise",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -12076,7 +13044,9 @@
   {
    "id": "seated-close-grip-concentration-barbell-curl",
    "title": "Seated Close-Grip Concentration Barbell Curl",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -12089,7 +13059,9 @@
   {
    "id": "seated-dumbbell-curl",
    "title": "Seated Dumbbell Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -12102,7 +13074,9 @@
   {
    "id": "seated-dumbbell-inner-biceps-curl",
    "title": "Seated Dumbbell Inner Biceps Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -12115,7 +13089,9 @@
   {
    "id": "seated-dumbbell-palms-down-wrist-curl",
    "title": "Seated Dumbbell Palms-Down Wrist Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -12128,7 +13104,9 @@
   {
    "id": "seated-dumbbell-palms-up-wrist-curl",
    "title": "Seated Dumbbell Palms-Up Wrist Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -12141,7 +13119,9 @@
   {
    "id": "seated-dumbbell-press",
    "title": "Seated Dumbbell Press",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -12211,7 +13191,9 @@
   {
    "id": "seated-good-mornings",
    "title": "Seated Good Mornings",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -12241,7 +13223,9 @@
   {
    "id": "seated-hamstring-calf-stretch",
    "title": "Seated Hamstring and Calf Stretch",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -12256,7 +13240,9 @@
   {
    "id": "seated-head-harness-neck-resistance",
    "title": "Seated Head Harness Neck Resistance",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "neck"
@@ -12269,7 +13255,9 @@
   {
    "id": "seated-leg-curl",
    "title": "Seated Leg Curl",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -12294,7 +13282,9 @@
   {
    "id": "seated-one-arm-cable-pulley-rows",
    "title": "Seated One-arm Cable Pulley Rows",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -12312,7 +13302,9 @@
   {
    "id": "seated-one-arm-dumbbell-palms-down-wrist-curl",
    "title": "Seated One-Arm Dumbbell Palms-Down Wrist Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -12325,7 +13317,9 @@
   {
    "id": "seated-one-arm-dumbbell-palms-up-wrist-curl",
    "title": "Seated One-Arm Dumbbell Palms-Up Wrist Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -12350,7 +13344,9 @@
   {
    "id": "seated-palm-up-barbell-wrist-curl",
    "title": "Seated Palm-Up Barbell Wrist Curl",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -12363,7 +13359,9 @@
   {
    "id": "seated-palms-down-barbell-wrist-curl",
    "title": "Seated Palms-Down Barbell Wrist Curl",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -12376,7 +13374,9 @@
   {
    "id": "seated-side-lateral-raise",
    "title": "Seated Side Lateral Raise",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -12389,7 +13389,9 @@
   {
    "id": "seated-triceps-press",
    "title": "Seated Triceps Press",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -12402,7 +13404,9 @@
   {
    "id": "seated-two-arm-palms-up-low-pulley-wrist-curl",
    "title": "Seated Two-Arm Palms-Up Low-Pulley Wrist Curl",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -12415,7 +13419,9 @@
   {
    "id": "see-saw-press-alternating-side-press",
    "title": "See-Saw Press (Alternating Side Press)",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -12432,7 +13438,9 @@
   {
    "id": "shotgun-row",
    "title": "Shotgun Row",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -12495,7 +13503,9 @@
   {
    "id": "shoulder-press-bands",
    "title": "Shoulder Press - With Bands",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -12579,7 +13589,9 @@
   {
    "id": "side-hop-sprint",
    "title": "Side Hop-Sprint",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -12610,7 +13622,9 @@
   {
    "id": "side-lateral-raise",
    "title": "Side Lateral Raise",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -12623,7 +13637,9 @@
   {
    "id": "side-laterals-front-raise",
    "title": "Side Laterals to Front Raise",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -12707,7 +13723,9 @@
   {
    "id": "side-side-box-shuffle",
    "title": "Side to Side Box Shuffle",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -12726,7 +13744,9 @@
   {
    "id": "side-side-chins",
    "title": "Side To Side Chins",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -12778,7 +13798,9 @@
   {
    "id": "single-arm-cable-crossover",
    "title": "Single-Arm Cable Crossover",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -12791,7 +13813,9 @@
   {
    "id": "single-arm-linear-jammer",
    "title": "Single-Arm Linear Jammer",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -12824,7 +13848,9 @@
   {
    "id": "single-cone-sprint-drill",
    "title": "Single-Cone Sprint Drill",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -12841,7 +13867,9 @@
   {
    "id": "single-dumbbell-raise",
    "title": "Single Dumbbell Raise",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -12888,7 +13916,9 @@
   {
    "id": "single-leg-high-box-squat",
    "title": "Single-Leg High Box Squat",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -12905,7 +13935,9 @@
   {
    "id": "single-leg-hop-progression",
    "title": "Single-Leg Hop Progression",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -12924,7 +13956,9 @@
   {
    "id": "single-leg-lateral-hop",
    "title": "Single-Leg Lateral Hop",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -12943,7 +13977,9 @@
   {
    "id": "single-leg-leg-extension",
    "title": "Single-Leg Leg Extension",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -12956,7 +13992,9 @@
   {
    "id": "single-leg-push-off",
    "title": "Single Leg Push-off",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -12973,7 +14011,9 @@
   {
    "id": "single-leg-stride-jump",
    "title": "Single-Leg Stride Jump",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -13032,7 +14072,9 @@
   {
    "id": "skating",
    "title": "Skating",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -13104,7 +14146,9 @@
   {
    "id": "sled-drag-harness",
    "title": "Sled Drag - Harness",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -13122,7 +14166,9 @@
   {
    "id": "sled-overhead-backward-walk",
    "title": "Sled Overhead Backward Walk",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -13140,7 +14186,9 @@
   {
    "id": "sled-overhead-triceps-extension",
    "title": "Sled Overhead Triceps Extension",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -13213,7 +14261,9 @@
   {
    "id": "sled-reverse-flye",
    "title": "Sled Reverse Flye",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -13226,7 +14276,9 @@
   {
    "id": "sled-row",
    "title": "Sled Row",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -13268,7 +14320,9 @@
   {
    "id": "sledgehammer-swings",
    "title": "Sledgehammer Swings",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -13288,7 +14342,9 @@
   {
    "id": "smith-incline-shoulder-raise",
    "title": "Smith Incline Shoulder Raise",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -13304,7 +14360,9 @@
   {
    "id": "smith-machine-behind-back-shrug",
    "title": "Smith Machine Behind the Back Shrug",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "traps"
@@ -13320,7 +14378,9 @@
   {
    "id": "smith-machine-bench-press",
    "title": "Smith Machine Bench Press",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -13337,7 +14397,9 @@
   {
    "id": "smith-machine-bent-over-row",
    "title": "Smith Machine Bent Over Row",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -13355,7 +14417,9 @@
   {
    "id": "smith-machine-calf-raise",
    "title": "Smith Machine Calf Raise",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -13368,7 +14432,9 @@
   {
    "id": "smith-machine-close-grip-bench-press",
    "title": "Smith Machine Close-Grip Bench Press",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -13385,7 +14451,9 @@
   {
    "id": "smith-machine-decline-press",
    "title": "Smith Machine Decline Press",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -13401,7 +14469,9 @@
   {
    "id": "smith-machine-hang-power-clean",
    "title": "Smith Machine Hang Power Clean",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -13421,7 +14491,9 @@
   {
    "id": "smith-machine-hip-raise",
    "title": "Smith Machine Hip Raise",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -13434,7 +14506,9 @@
   {
    "id": "smith-machine-incline-bench-press",
    "title": "Smith Machine Incline Bench Press",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -13451,7 +14525,9 @@
   {
    "id": "smith-machine-leg-press",
    "title": "Smith Machine Leg Press",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -13469,7 +14545,9 @@
   {
    "id": "smith-machine-one-arm-upright-row",
    "title": "Smith Machine One-Arm Upright Row",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -13486,7 +14564,9 @@
   {
    "id": "smith-machine-overhead-shoulder-press",
    "title": "Smith Machine Overhead Shoulder Press",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -13502,7 +14582,9 @@
   {
    "id": "smith-machine-pistol-squat",
    "title": "Smith Machine Pistol Squat",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -13520,7 +14602,9 @@
   {
    "id": "smith-machine-reverse-calf-raises",
    "title": "Smith Machine Reverse Calf Raises",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -13533,7 +14617,9 @@
   {
    "id": "smith-machine-squat",
    "title": "Smith Machine Squat",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -13552,7 +14638,9 @@
   {
    "id": "smith-machine-stiff-legged-deadlift",
    "title": "Smith Machine Stiff-Legged Deadlift",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -13569,7 +14657,9 @@
   {
    "id": "smith-machine-upright-row",
    "title": "Smith Machine Upright Row",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "traps"
@@ -13587,7 +14677,9 @@
   {
    "id": "smith-single-leg-split-squat",
    "title": "Smith Single-Leg Split Squat",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -13640,7 +14732,9 @@
   {
    "id": "snatch-balance",
    "title": "Snatch Balance",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -13660,7 +14754,9 @@
   {
    "id": "snatch-deadlift",
    "title": "Snatch Deadlift",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -13681,7 +14777,9 @@
   {
    "id": "snatch-from-blocks",
    "title": "Snatch from Blocks",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -13704,7 +14802,9 @@
   {
    "id": "snatch-pull",
    "title": "Snatch Pull",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -13724,7 +14824,9 @@
   {
    "id": "snatch-shrug",
    "title": "Snatch Shrug",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "traps"
@@ -13741,7 +14843,9 @@
   {
    "id": "speed-band-overhead-triceps",
    "title": "Speed Band Overhead Triceps",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -13754,7 +14858,9 @@
   {
    "id": "speed-box-squat",
    "title": "Speed Box Squat",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -13772,7 +14878,9 @@
   {
    "id": "speed-squats",
    "title": "Speed Squats",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -13791,7 +14899,9 @@
   {
    "id": "spell-caster",
    "title": "Spell Caster",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -13825,7 +14935,9 @@
   {
    "id": "spider-curl",
    "title": "Spider Curl",
-   "equipment": "e-z curl bar",
+   "equipment": [
+    "e-z curl bar"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -13856,7 +14968,9 @@
   {
    "id": "split-clean",
    "title": "Split Clean",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -13878,7 +14992,9 @@
   {
    "id": "split-jerk",
    "title": "Split Jerk",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -13914,7 +15030,9 @@
   {
    "id": "split-snatch",
    "title": "Split Snatch",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -13938,7 +15056,9 @@
   {
    "id": "split-squat-dumbbells",
    "title": "Split Squat with Dumbbells",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -14039,7 +15159,9 @@
   {
    "id": "squat-bands",
    "title": "Squat with Bands",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -14059,7 +15181,9 @@
   {
    "id": "squat-chains",
    "title": "Squat with Chains",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -14109,7 +15233,9 @@
   {
    "id": "squat-jerk",
    "title": "Squat Jerk",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -14129,7 +15255,9 @@
   {
    "id": "squat-plate-movers",
    "title": "Squat with Plate Movers",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -14179,7 +15307,9 @@
   {
    "id": "squats-bands",
    "title": "Squats - With Bands",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -14198,7 +15328,9 @@
   {
    "id": "stairmaster",
    "title": "Stairmaster",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -14214,7 +15346,9 @@
   {
    "id": "standing-alternating-dumbbell-press",
    "title": "Standing Alternating Dumbbell Press",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -14230,7 +15364,9 @@
   {
    "id": "standing-barbell-calf-raise",
    "title": "Standing Barbell Calf Raise",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -14243,7 +15379,9 @@
   {
    "id": "standing-barbell-press-behind-neck",
    "title": "Standing Barbell Press Behind Neck",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -14259,7 +15397,9 @@
   {
    "id": "standing-bent-over-one-arm-dumbbell-triceps-extension",
    "title": "Standing Bent-Over One-Arm Dumbbell Triceps Extension",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -14275,7 +15415,9 @@
   {
    "id": "standing-bent-over-two-arm-dumbbell-triceps-extension",
    "title": "Standing Bent-Over Two-Arm Dumbbell Triceps Extension",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -14288,7 +15430,9 @@
   {
    "id": "standing-biceps-cable-curl",
    "title": "Standing Biceps Cable Curl",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -14301,7 +15445,9 @@
   {
    "id": "standing-biceps-stretch",
    "title": "Standing Biceps Stretch",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -14318,7 +15464,9 @@
   {
    "id": "standing-bradford-press",
    "title": "Standing Bradford Press",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -14334,7 +15482,9 @@
   {
    "id": "standing-cable-chest-press",
    "title": "Standing Cable Chest Press",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -14351,7 +15501,9 @@
   {
    "id": "standing-cable-lift",
    "title": "Standing Cable Lift",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -14367,7 +15519,9 @@
   {
    "id": "standing-cable-wood-chop",
    "title": "Standing Cable Wood Chop",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -14383,7 +15537,9 @@
   {
    "id": "standing-calf-raises",
    "title": "Standing Calf Raises",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -14396,7 +15552,9 @@
   {
    "id": "standing-concentration-curl",
    "title": "Standing Concentration Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -14412,7 +15570,9 @@
   {
    "id": "standing-dumbbell-calf-raise",
    "title": "Standing Dumbbell Calf Raise",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "calves"
@@ -14425,7 +15585,9 @@
   {
    "id": "standing-dumbbell-press",
    "title": "Standing Dumbbell Press",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -14441,7 +15603,9 @@
   {
    "id": "standing-dumbbell-reverse-curl",
    "title": "Standing Dumbbell Reverse Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -14457,7 +15621,9 @@
   {
    "id": "standing-dumbbell-straight-arm-front-delt-raise-above-head",
    "title": "Standing Dumbbell Straight-Arm Front Delt Raise Above Head",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -14470,7 +15636,9 @@
   {
    "id": "standing-dumbbell-triceps-extension",
    "title": "Standing Dumbbell Triceps Extension",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -14483,7 +15651,9 @@
   {
    "id": "standing-dumbbell-upright-row",
    "title": "Standing Dumbbell Upright Row",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "traps"
@@ -14500,7 +15670,9 @@
   {
    "id": "standing-elevated-quad-stretch",
    "title": "Standing Elevated Quad Stretch",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -14512,7 +15684,9 @@
   {
    "id": "standing-front-barbell-raise-over-head",
    "title": "Standing Front Barbell Raise Over Head",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -14539,7 +15713,9 @@
   {
    "id": "standing-hamstring-calf-stretch",
    "title": "Standing Hamstring and Calf Stretch",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -14578,7 +15754,9 @@
   {
    "id": "standing-inner-biceps-curl",
    "title": "Standing Inner-Biceps Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -14605,7 +15783,9 @@
    "aliases": [
     "standing hamstring curl"
    ],
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -14635,7 +15815,9 @@
   {
    "id": "standing-low-pulley-deltoid-raise",
    "title": "Standing Low-Pulley Deltoid Raise",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -14651,7 +15833,9 @@
   {
    "id": "standing-low-pulley-one-arm-triceps-extension",
    "title": "Standing Low-Pulley One-Arm Triceps Extension",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -14668,7 +15852,9 @@
   {
    "id": "standing-military-press",
    "title": "Standing Military Press",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -14684,7 +15870,9 @@
   {
    "id": "standing-olympic-plate-hand-squeeze",
    "title": "Standing Olympic Plate Hand Squeeze",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -14700,7 +15888,9 @@
   {
    "id": "standing-one-arm-cable-curl",
    "title": "Standing One-Arm Cable Curl",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -14713,7 +15903,9 @@
   {
    "id": "standing-one-arm-dumbbell-curl-over-incline-bench",
    "title": "Standing One-Arm Dumbbell Curl Over Incline Bench",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -14726,7 +15918,9 @@
   {
    "id": "standing-one-arm-dumbbell-triceps-extension",
    "title": "Standing One-Arm Dumbbell Triceps Extension",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -14743,7 +15937,9 @@
   {
    "id": "standing-overhead-barbell-triceps-extension",
    "title": "Standing Overhead Barbell Triceps Extension",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -14759,7 +15955,9 @@
   {
    "id": "standing-palm-in-one-arm-dumbbell-press",
    "title": "Standing Palm-In One-Arm Dumbbell Press",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -14775,7 +15973,9 @@
   {
    "id": "standing-palms-in-dumbbell-press",
    "title": "Standing Palms-In Dumbbell Press",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -14791,7 +15991,9 @@
   {
    "id": "standing-palms-up-barbell-behind-back-wrist-curl",
    "title": "Standing Palms-Up Barbell Behind The Back Wrist Curl",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -14819,7 +16021,9 @@
   {
    "id": "standing-rope-crunch",
    "title": "Standing Rope Crunch",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -14870,7 +16074,9 @@
   {
    "id": "standing-two-arm-overhead-throw",
    "title": "Standing Two-Arm Overhead Throw",
-   "equipment": "medicine ball",
+   "equipment": [
+    "medicine ball"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -14905,7 +16111,9 @@
   {
    "id": "step-mill",
    "title": "Step Mill",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -14964,7 +16172,9 @@
   {
    "id": "stiff-leg-barbell-good-morning",
    "title": "Stiff Leg Barbell Good Morning",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -14981,7 +16191,9 @@
   {
    "id": "stiff-legged-barbell-deadlift",
    "title": "Stiff-Legged Barbell Deadlift",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -15025,7 +16237,9 @@
   {
    "id": "stiff-legged-dumbbell-deadlift",
    "title": "Stiff-Legged Dumbbell Deadlift",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -15069,7 +16283,9 @@
   {
    "id": "straight-arm-dumbbell-pullover",
    "title": "Straight-Arm Dumbbell Pullover",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -15087,7 +16303,9 @@
   {
    "id": "straight-arm-pulldown",
    "title": "Straight-Arm Pulldown",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -15100,7 +16318,9 @@
   {
    "id": "straight-bar-bench-mid-rows",
    "title": "Straight Bar Bench Mid Rows",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -15117,7 +16337,9 @@
   {
    "id": "straight-raises-on-incline-bench",
    "title": "Straight Raises on Incline Bench",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -15161,7 +16383,9 @@
   {
    "id": "stride-jump-crossover",
    "title": "Stride Jump Crossover",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -15212,7 +16436,9 @@
   {
    "id": "sumo-deadlift-bands",
    "title": "Sumo Deadlift with Bands",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -15234,7 +16460,9 @@
   {
    "id": "sumo-deadlift-chains",
    "title": "Sumo Deadlift with Chains",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -15310,7 +16538,9 @@
   {
    "id": "supine-chest-throw",
    "title": "Supine Chest Throw",
-   "equipment": "medicine ball",
+   "equipment": [
+    "medicine ball"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -15327,7 +16557,9 @@
   {
    "id": "supine-one-arm-overhead-throw",
    "title": "Supine One-Arm Overhead Throw",
-   "equipment": "medicine ball",
+   "equipment": [
+    "medicine ball"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -15345,7 +16577,9 @@
   {
    "id": "supine-two-arm-overhead-throw",
    "title": "Supine Two-Arm Overhead Throw",
-   "equipment": "medicine ball",
+   "equipment": [
+    "medicine ball"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -15363,7 +16597,9 @@
   {
    "id": "suspended-fallout",
    "title": "Suspended Fallout",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -15381,7 +16617,9 @@
   {
    "id": "suspended-push-up",
    "title": "Suspended Push-Up",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -15398,7 +16636,9 @@
   {
    "id": "suspended-reverse-crunch",
    "title": "Suspended Reverse Crunch",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -15411,7 +16651,9 @@
   {
    "id": "suspended-row",
    "title": "Suspended Row",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -15428,7 +16670,9 @@
   {
    "id": "suspended-split-squat",
    "title": "Suspended Split Squat",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -15448,7 +16692,9 @@
   {
    "id": "svend-press",
    "title": "Svend Press",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -15495,7 +16741,9 @@
   {
    "id": "t-bar-row-handle",
    "title": "T-Bar Row with Handle",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -15512,7 +16760,9 @@
   {
    "id": "tate-press",
    "title": "Tate Press",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -15529,7 +16779,9 @@
   {
    "id": "thigh-abductor",
    "title": "Thigh Abductor",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "abductors"
@@ -15545,7 +16797,9 @@
   {
    "id": "thigh-adductor",
    "title": "Thigh Adductor",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "adductors"
@@ -15648,7 +16902,9 @@
   {
    "id": "torso-rotation",
    "title": "Torso Rotation",
-   "equipment": "exercise ball",
+   "equipment": [
+    "exercise ball"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -15675,7 +16931,9 @@
   {
    "id": "trap-bar-deadlift",
    "title": "Trap Bar Deadlift",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -15696,7 +16954,9 @@
     "db kickback",
     "tricep kickback"
    ],
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -15723,7 +16983,9 @@
   {
    "id": "triceps-overhead-extension-rope",
    "title": "Triceps Overhead Extension with Rope",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -15736,7 +16998,9 @@
   {
    "id": "triceps-pushdown",
    "title": "Triceps Pushdown",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -15749,7 +17013,9 @@
   {
    "id": "triceps-pushdown-rope-attachment",
    "title": "Triceps Pushdown - Rope Attachment",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -15762,7 +17028,9 @@
   {
    "id": "triceps-pushdown-v-bar-attachment",
    "title": "Triceps Pushdown - V-Bar Attachment",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -15835,7 +17103,9 @@
   {
    "id": "two-arm-dumbbell-preacher-curl",
    "title": "Two-Arm Dumbbell Preacher Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -15848,7 +17118,9 @@
   {
    "id": "two-arm-kettlebell-clean",
    "title": "Two-Arm Kettlebell Clean",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -15868,7 +17140,9 @@
   {
    "id": "two-arm-kettlebell-jerk",
    "title": "Two-Arm Kettlebell Jerk",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -15886,7 +17160,9 @@
   {
    "id": "two-arm-kettlebell-military-press",
    "title": "Two-Arm Kettlebell Military Press",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -15902,7 +17178,9 @@
   {
    "id": "two-arm-kettlebell-row",
    "title": "Two-Arm Kettlebell Row",
-   "equipment": "kettlebells",
+   "equipment": [
+    "kettlebells"
+   ],
    "muscles": {
     "primary": [
      "mid-back"
@@ -15919,7 +17197,9 @@
   {
    "id": "underhand-cable-pulldowns",
    "title": "Underhand Cable Pulldowns",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -15966,7 +17246,9 @@
   {
    "id": "upright-barbell-row",
    "title": "Upright Barbell Row",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "shoulders"
@@ -15982,7 +17264,9 @@
   {
    "id": "upright-cable-row",
    "title": "Upright Cable Row",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "traps"
@@ -15998,7 +17282,9 @@
   {
    "id": "upright-row-bands",
    "title": "Upright Row - With Bands",
-   "equipment": "bands",
+   "equipment": [
+    "bands"
+   ],
    "muscles": {
     "primary": [
      "traps"
@@ -16029,7 +17315,9 @@
   {
    "id": "v-bar-pulldown",
    "title": "V-Bar Pulldown",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -16064,7 +17352,9 @@
   {
    "id": "vertical-swing",
    "title": "Vertical Swing",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -16109,7 +17399,9 @@
   {
    "id": "walking-treadmill",
    "title": "Walking, Treadmill",
-   "equipment": "machine",
+   "equipment": [
+    "machine"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -16199,7 +17491,9 @@
   {
    "id": "weighted-ball-hyperextension",
    "title": "Weighted Ball Hyperextension",
-   "equipment": "exercise ball",
+   "equipment": [
+    "exercise ball"
+   ],
    "muscles": {
     "primary": [
      "erectors"
@@ -16217,7 +17511,9 @@
   {
    "id": "weighted-ball-side-bend",
    "title": "Weighted Ball Side Bend",
-   "equipment": "exercise ball",
+   "equipment": [
+    "exercise ball"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -16230,7 +17526,9 @@
   {
    "id": "weighted-bench-dip",
    "title": "Weighted Bench Dip",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "triceps"
@@ -16250,7 +17548,9 @@
    "aliases": [
     "weighted ab crunch"
    ],
-   "equipment": "medicine ball",
+   "equipment": [
+    "medicine ball"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -16263,7 +17563,9 @@
   {
    "id": "weighted-jump-squat",
    "title": "Weighted Jump Squat",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -16282,7 +17584,9 @@
   {
    "id": "weighted-pull-ups",
    "title": "Weighted Pull Ups",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -16299,7 +17603,9 @@
   {
    "id": "weighted-sissy-squat",
    "title": "Weighted Sissy Squat",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -16317,7 +17623,9 @@
   {
    "id": "weighted-sit-ups-bands",
    "title": "Weighted Sit-Ups - With Bands",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "abs"
@@ -16330,7 +17638,9 @@
   {
    "id": "weighted-squat",
    "title": "Weighted Squat",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -16348,7 +17658,9 @@
   {
    "id": "wide-grip-barbell-bench-press",
    "title": "Wide-Grip Barbell Bench Press",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -16365,7 +17677,9 @@
   {
    "id": "wide-grip-decline-barbell-bench-press",
    "title": "Wide-Grip Decline Barbell Bench Press",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -16382,7 +17696,9 @@
   {
    "id": "wide-grip-decline-barbell-pullover",
    "title": "Wide-Grip Decline Barbell Pullover",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "chest"
@@ -16399,7 +17715,9 @@
   {
    "id": "wide-grip-lat-pulldown",
    "title": "Wide-Grip Lat Pulldown",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -16417,7 +17735,9 @@
   {
    "id": "wide-grip-pulldown-behind-neck",
    "title": "Wide-Grip Pulldown Behind The Neck",
-   "equipment": "cable",
+   "equipment": [
+    "cable"
+   ],
    "muscles": {
     "primary": [
      "lats"
@@ -16452,7 +17772,9 @@
   {
    "id": "wide-grip-standing-barbell-curl",
    "title": "Wide-Grip Standing Barbell Curl",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -16465,7 +17787,9 @@
   {
    "id": "wide-stance-barbell-squat",
    "title": "Wide Stance Barbell Squat",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -16484,7 +17808,9 @@
   {
    "id": "wide-stance-stiff-legs",
    "title": "Wide Stance Stiff Legs",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "hamstrings"
@@ -16558,7 +17884,9 @@
   {
    "id": "wrist-roller",
    "title": "Wrist Roller",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -16574,7 +17902,9 @@
   {
    "id": "wrist-rotations-straight-bar",
    "title": "Wrist Rotations with Straight Bar",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "forearms"
@@ -16619,7 +17949,9 @@
   {
    "id": "yoke-walk",
    "title": "Yoke Walk",
-   "equipment": "other",
+   "equipment": [
+    "other"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -16640,7 +17972,9 @@
   {
    "id": "zercher-squats",
    "title": "Zercher Squats",
-   "equipment": "barbell",
+   "equipment": [
+    "barbell"
+   ],
    "muscles": {
     "primary": [
      "quads"
@@ -16658,7 +17992,9 @@
   {
    "id": "zottman-curl",
    "title": "Zottman Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"
@@ -16674,7 +18010,9 @@
   {
    "id": "zottman-preacher-curl",
    "title": "Zottman Preacher Curl",
-   "equipment": "dumbbell",
+   "equipment": [
+    "dumbbell"
+   ],
    "muscles": {
     "primary": [
      "biceps"

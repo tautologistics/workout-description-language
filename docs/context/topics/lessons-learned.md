@@ -859,3 +859,28 @@ the lump that covers it — not anything checked about the record underneath.
 one side is sound. A standoff between two good records is a debt; a standoff
 where one side is a false merge is a bug with a debt written over it.* Recorded
 2026-08-23.
+
+**A field can be two shapes across one file and every consumer that only ever
+saw the common shape stays quiet about it.** `equipment` on 669 of
+`registry/movements.json`'s 971 curated entries was a bare string
+(`"equipment": "machine"`) rather than the array every other entry, and all of
+`movements.canonical.json`, uses — `scripts/build-movements.mjs` normalizes it
+on the canonical merge, but the curated seed file itself never went through
+that pass. Nothing had crashed on it: the builder's palette reads
+`canonicalMovements` (always arrays), and `generate()` defaults to
+`canonicalRegistry()` for the same reason, so the one place that reads
+`movements.json`'s `equipment` directly — a modifier-affordance panel added
+2026-08-25 — was also the first place with no array assumption to protect it,
+and even that only breaks for a row that has *both* string equipment *and*
+laterality/measures/load data, a combination that happened not to exist yet.
+Caught by generating a CSV export for Chris to eyeball, where a string's
+characters spread across a joined column read as `m; a; c; h; i; n; e` instead
+of `machine` — visibly wrong, the way a `TypeError` in a code path nothing
+exercises yet is not. Fixed by normalizing every string `equipment` to a
+single-element array in `registry/movements.json`, same shape as everywhere
+else.
+
+*A field's shape is only as uniform as its most restrictive consumer has
+proven it to be. `?? []` guards against absence; it does not guard against the
+wrong shape being present, and a merge step run on a downstream file does not
+retroactively fix the seed file feeding it.* Recorded 2026-08-25.

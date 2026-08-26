@@ -5,6 +5,7 @@ npm --prefix packages/core test     # 1797 tests, 1 pending, ~10s
 node scripts/build-canonical.ts     # rebuild registry/ from its sources
 node scripts/describe-corpora.mjs   # report whether SOURCES.json/.md still count the corpora right
 node scripts/check-aliases.mjs      # every name two records answer to, and who wins
+node scripts/import-movement-curation.mjs <curated.csv> [--apply]  # land curated modifier data
 node scripts/build-web.mjs          # emit the core as browser modules
 node scripts/serve.mjs 8081         # then open http://localhost:8081/
 ```
@@ -39,6 +40,20 @@ The server must be rooted at the repository — the apps reach `build/` and
 A change to the apps needs `build-web.mjs` before the browser sees it, and the
 board and builder are verified by driving them, not only by the suite — see
 *Tests do not read* in [lessons-learned.md](lessons-learned.md).
+
+**Curated modifier data (laterality, measures, load, force, mechanic,
+equipment) lands via `import-movement-curation.mjs`, from a CSV export of a
+one-off audit workbook, not by hand.** Chris reviews `registry/movements.json`
+in a spreadsheet (a CURRENT block for reference, a blank CURATE block to fill
+in) and exports it back to CSV in chunks; the script reads only the CURATE
+cells, per-cell rather than per-group — a blank cell means "not reviewed" and
+never touches the registry, a filled one is an assertion and does. Contradictory
+cells (both Load booleans TRUE, all three laterality modes FALSE, a
+`Default laterality` naming a mode not also marked TRUE) are reported and that
+one field is left untouched rather than guessed at; everything else in the same
+run still applies. Defaults to a dry-run report; `--apply` writes. Run it
+before and after chunks the same way — the report before applying is the
+whole safety mechanism.
 
 **A change to the registry is checked by regenerating the goldens, like every
 other change.** `node packages/core/test/golden/generate.ts`, then read the
