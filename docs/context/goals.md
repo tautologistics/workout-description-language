@@ -50,8 +50,11 @@ because nobody outside was asking for better. That inference was wrong.*
 - **A field per property in the builder.** It would always lag the grammar.
 - **Reps → load conversion.** Would need a 1RM and a physiological model that
   would make every number look more authoritative than it is.
-- **A file format for palette "sets".** A working preference, not something a
-  workout depends on.
+- **An authored file format for palette "sets".** A working preference, not
+  something a workout depends on. *Narrowed 2026-08-28: a plain JSON
+  backup/transfer file for the `localStorage` repertoire now exists; what stays
+  declined is a set as its own authored artifact with a grammar. See
+  [topics/deliberately-not-done.md](topics/deliberately-not-done.md).*
 - **Strength Level as a sixth registry source.** Its terms of use forbid the
   automated access this would need.
 - **Sharing, accounts, a platform.** Deliberately far off — see

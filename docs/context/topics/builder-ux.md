@@ -132,44 +132,63 @@ that temptation will arrive, because there is nothing to derive from yet.
 
 ## Movements
 
-**Movement sets cannot be composed by hand — a "set" is a saved search.** Bigger
-than a defect; this is a design direction. What exists: `set-save` snapshots
-whatever the current search text and muscle filter match and freezes it as a list
-of ids, and a set is then consumed only as a palette *filter*. There is no way to
-add a single movement to a set, remove one, reorder, rename, or put a set into
-the outline. Movements themselves already add to the outline by click and by
-drag; it is the set that is inert.
+**~~Movement sets cannot be composed by hand — a "set" is a saved search.~~
+Fixed 2026-08-28.** Was: `set-save` snapshotted whatever the search text and
+muscle filter matched, froze it as a list of ids, and a set could then be
+consumed only as a palette *filter* — no way to add a single movement, remove
+one, reorder, rename, or put a set into the outline. The "Movements" pane now
+has a **Sets** section (`<details id="repertoire">`) beside the catalogue and
+the `set-pick` filter, holding one editable card per set:
 
-Wanted instead — movements as their own section, with two things in it:
+- **Compose by hand, two ways.** Drag a movement from the catalogue onto a set
+  card (the card is a drop target for a new `text/wdl-movement-id` payload the
+  palette items now carry alongside the existing `text/wdl-movement` line), or
+  hit a card's **Compose** button and the palette turns into a checklist —
+  every movement shows `+`/`✓`, a click toggles it in the set, `Esc` ends it.
+  The button/checklist path is the touch- and no-drag answer.
+- **Edit a set.** Per-movement `↑ ↓ ✕` in the card reorder and remove; `✎`
+  renames (moving the `set-pick` selection and compose state with it); `✕`
+  deletes.
+- **Into the outline in one go.** A card's `↧` splices every movement in the
+  set into the outline as its own line, in the set's order, at the same seam a
+  single palette drop uses (`focused` → `spans().contentEnd`).
+- **New set** makes an empty one and drops straight into Compose; **Save
+  showing** keeps the old snapshot-a-query behaviour under a name.
 
-- **The catalogue**, picked from directly into the outline. Close to what exists.
-- **A repertoire of movement sets** beside it: movements selected or dragged in
-  to compose a set, sets added to, edited, and deleted, and a whole set added to
-  the outline in one go.
+The store is unchanged — still `{name: [ids]}` in `localStorage['wdl.sets']`,
+still the live working copy. On top of it, **Export** downloads the whole
+repertoire as `movement-sets.json` (`{format, version, sets}`) and **Import**
+reads one back, **merging**: a name in the file overwrites the local set of
+that name, new names are added, and local sets the file does not mention are
+left alone. Import also accepts a bare `{name: [ids]}` object, and skips
+malformed entries with a count in the summary. Unknown ids are kept, not
+dropped — the catalogue may not have loaded yet, and `renderPalette` /
+`renderSetCard` already tolerate an id they cannot resolve (shown as the raw
+id, filtered out of the palette view).
+*Touched `apps/builder/builder.js` (the whole palette-sets block —
+`renderPalette`, `renderSets`, new `renderSetList`/`renderSetCard`/
+`renameSet`/`addSetToOutline`/`setsChanged`/`saveSets`, and the
+new/save/export/import handlers), `apps/builder/index.html` (the `#repertoire`
+details and `#set-file` input, `set-drop` button removed), `apps/builder/builder.css`
+(the repertoire and compose-checklist styles). Verified by driving the builder
+in both themes: create, compose-add by click, drop-add by dispatched
+`DragEvent`, reorder, remove, rename, delete, add-whole-set-to-outline, export
+(captured blob), and import with the overwrite/add/keep/skip cases.
+`npm --prefix packages/core test` — 1800/1800, 1 pending, unaffected.*
 
-The point of it is a catalogue of groupings *that go well together*, plucked and
-recombined into different workouts — a building block for authoring rather than a
-way to narrow a list.
+**The closed decision this reopened is now decided.**
+[deliberately-not-done.md](deliberately-not-done.md) declined *a file format for
+palette sets* — *"A working preference, not something a workout depends on.
+`localStorage` until it earns more."* Chris's call: `localStorage` **stays**
+the primary store for exactly that reason, but a repertoire you author *from* is
+worth moving between machines and surviving a cleared browser, so a
+plain-JSON export/import sits on top of it. That is a modest correction to the
+old entry, not a reversal — recorded there under **Corrected 2026-08-28**, same
+pattern as its other corrected entries.
 
-Useful for whoever builds it: the storage shape is already `{name: [ids]}` in
-`localStorage`, so hand-curated sets need no change to the data model. Only the
-composing needs building — today the list can only be *derived* from a query,
-never assembled.
-*Touches: `apps/builder/builder.js:406` (store), `:486-492` (palette),
-`:554-572` (save/delete), `apps/builder/index.html:36-48`.*
-
-**This reopens a closed decision — not resolved, flagged.**
-[deliberately-not-done.md](deliberately-not-done.md) declines a file format for
-palette sets: *"A working preference, not something a workout depends on.
-`localStorage` until it earns more."* That reasoning holds for sets-as-filters.
-It does not obviously hold for sets as a repertoire you author *from*, which is a
-thing worth keeping, naming, and sharing between machines. Whether that counts as
-having earned more is Chris's call and has not been made. The decision stands as
-written until it is.
-
-Worth noting where this points: a curated set is also an input to *generation* —
-the second of the two things the project is for. A repertoire of groupings that
-work together is closer to that pillar than to a palette convenience.
+Worth keeping in view: a curated set is also an input to *generation* — the
+second of the two things the project is for — so a hand-composed repertoire is
+closer to that pillar than to a palette convenience.
 
 ---
 

@@ -22,6 +22,21 @@ has a reason it is not one here. Check this before proposing one of them.
   Inventing one would make every number look more authoritative than it is.
 - **A file format for palette "sets".** A working preference, not something a
   workout depends on. `localStorage` until it earns more.
+
+  **Corrected 2026-08-28.** Half of this still holds and half was given up. When
+  hand-composed movement sets landed (a repertoire you *author from*, not just a
+  frozen query — see [topics/builder-ux.md](builder-ux.md) under "## Movements"),
+  Chris's call was: `localStorage['wdl.sets']` **stays the primary store**, for
+  the reason above — a repertoire is a working preference, and nothing a workout
+  reads depends on it. But it is worth carrying between machines and worth
+  surviving a cleared browser, so the builder now also **exports** the whole
+  repertoire to a plain `movement-sets.json` (`{format, version, sets}`, the
+  same `{name: [ids]}` shape) and **imports** one back, merging by set name.
+  That file is a carrier for the working copy, not a format a workout is ever
+  written in and not a new grammar — so "no file format at all" was more than
+  the reasoning required. The [goals.md](../goals.md) Non-Goal is narrowed to
+  match: still no *authored artifact* for sets, but a backup/transfer file is
+  fine.
 - **Strength Level as a sixth registry source.** *Declined 2026-08-22 on terms.
   Measured 2026-08-22 anyway, at the author's direction, to size what was being
   given up; the measurement did not change the answer.*
