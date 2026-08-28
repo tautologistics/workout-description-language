@@ -801,14 +801,23 @@ addEventListener('drop', async (e) => {
  * machine variants and rehab work nobody writes into a workout, and a palette
  * you have to fight is not a palette. Search reaches the whole registry.
  *
- * A "set" is whatever is showing, saved under a name. That is deliberately not a
- * new file format — it is a working preference, not something a workout depends
- * on, and inventing an artifact for it would mean inventing a grammar, a parser
- * and a place for it to live before knowing whether anyone wants one.
+ * A "set" is a named list of movement ids — `{name: [ids]}` in `localStorage`,
+ * which stays the live store: a repertoire is a working preference, not
+ * something a workout depends on, so it does not want a place in the repository.
+ * A set can be composed by hand (drag a movement onto it, or "compose" it from
+ * the palette), reordered, renamed, dropped whole into the outline, and — so it
+ * can move between machines or outlive a cleared browser — exported to and
+ * imported from a plain JSON file. The file is a carrier for the same shape,
+ * not a format a workout is ever written in.
  */
 let catalogue = [];
 let vocabulary = [];
 let sets = JSON.parse(localStorage.getItem('wdl.sets') || '{}');
+const saveSets = () => localStorage.setItem('wdl.sets', JSON.stringify(sets));
+/** The set currently being composed from the palette, if any. */
+let composing = null;
+/** Which set cards are expanded, so a redraw keeps them that way. */
+const openSets = new Set();
 /**
  * Muscles the movement must work — all of them, not any of them.
  *
@@ -888,13 +897,21 @@ const lineFor = (m) => {
   return `- 10 ${m.title}`;
 };
 
+/** A movement id as its title, or the raw id if the catalogue has not loaded it. */
+const titleOf = (id) => catalogue.find((m) => m.id === id)?.title ?? id;
+
 function renderPalette() {
   const box = el('palette');
+  const keepScroll = box.scrollTop;
   const q = el('search').value.trim();
-  const chosen = sets[el('set-pick').value];
+  // While composing, the palette is a place to pick movements *into* a set, so
+  // it ignores the set-pick filter and searches the whole catalogue.
+  const chosen = composing ? undefined : sets[el('set-pick').value];
   const shown = chosen
     ? catalogue.filter((m) => chosen.includes(m.id))
     : catalogue.filter((m) => matches(m, q));
+
+  const inComposed = composing ? new Set(sets[composing] ?? []) : null;
 
   box.innerHTML = '';
   for (const m of shown.slice(0, 300)) {
@@ -908,6 +925,16 @@ function renderPalette() {
       (m.equipment ?? []).join(', '),
     ].filter(Boolean).join('  ·  ');
 
+    if (composing) {
+      const held = inComposed.has(m.id);
+      item.classList.toggle('in-set', held);
+      item.setAttribute('aria-pressed', String(held));
+      const tick = document.createElement('span');
+      tick.className = 'tick';
+      tick.textContent = held ? '✓' : '+';
+      item.append(tick);
+    }
+
     const name = document.createElement('span');
     name.className = 'name';
     name.textContent = m.title;
@@ -916,11 +943,19 @@ function renderPalette() {
     meta.textContent = (m.muscles?.primary ?? []).slice(0, 3).join(' ');
     item.append(name, meta);
 
-    // Click adds where you were last working, which is what "add this" means
-    // when the caret is somewhere. Dragging says where explicitly.
-    item.onclick = () => insert(focused, lineFor(m));
+    // Composing: a click toggles the movement in the set being built. Otherwise
+    // a click adds it where you were last working, which is what "add this"
+    // means when the caret is somewhere. Dragging always says where explicitly.
+    item.onclick = composing
+      ? () => {
+          const cur = sets[composing] ?? [];
+          sets[composing] = cur.includes(m.id) ? cur.filter((x) => x !== m.id) : [...cur, m.id];
+          setsChanged();
+        }
+      : () => insert(focused, lineFor(m));
     item.addEventListener('dragstart', (e) => {
       e.dataTransfer.setData('text/wdl-movement', lineFor(m));
+      e.dataTransfer.setData('text/wdl-movement-id', m.id);
       e.dataTransfer.effectAllowed = 'copy';
     });
     item.addEventListener('mouseenter', () =>
@@ -932,8 +967,16 @@ function renderPalette() {
   el('palette-count').textContent = shown.length > 300
     ? `${shown.length} ${scope}, showing 300`
     : `${shown.length} ${scope}`;
+
+  const hint = el('compose-hint');
+  hint.hidden = !composing;
+  if (composing) {
+    hint.textContent = `Composing “${composing}” — click a movement to add or remove it. Esc when done.`;
+  }
+  box.scrollTop = keepScroll;
 }
 
+/** The set-pick filter dropdown: choose a set to show only its movements. */
 function renderSets() {
   const pick = el('set-pick');
   const was = pick.value;
@@ -951,6 +994,153 @@ function renderSets() {
   pick.value = sets[was] ? was : '';
 }
 
+/** Everything a set change touches: persist, then redraw the three views of it. */
+function setsChanged() {
+  saveSets();
+  renderSets();
+  renderSetList();
+  renderPalette();
+}
+
+/** The repertoire: one editable card per set. */
+function renderSetList() {
+  const box = el('set-list');
+  box.innerHTML = '';
+  const names = Object.keys(sets).sort();
+  el('repertoire-count').textContent = names.length ? `· ${names.length}` : '';
+  if (!names.length) {
+    const p = document.createElement('p');
+    p.className = 'hint';
+    p.textContent = 'No sets yet. “New set”, or search then “Save showing”.';
+    box.append(p);
+    return;
+  }
+  for (const name of names) box.append(renderSetCard(name));
+}
+
+function renderSetCard(name) {
+  const ids = sets[name] ?? [];
+  const card = document.createElement('details');
+  card.className = 'set-card';
+  card.dataset.name = name;
+  card.open = openSets.has(name) || composing === name;
+  card.addEventListener('toggle', () => {
+    if (card.open) openSets.add(name); else openSets.delete(name);
+  });
+
+  const summary = document.createElement('summary');
+  const label = document.createElement('span');
+  label.className = 'set-name';
+  label.textContent = name;
+  const count = document.createElement('span');
+  count.className = 'set-n';
+  count.textContent = ids.length;
+  const actions = document.createElement('span');
+  actions.className = 'set-actions';
+
+  const act = (glyph, title, fn, pressed) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = glyph;
+    b.title = title;
+    if (pressed !== undefined) b.setAttribute('aria-pressed', String(pressed));
+    b.onclick = (e) => { e.preventDefault(); e.stopPropagation(); fn(); };
+    actions.append(b);
+    return b;
+  };
+
+  act('+', composing === name ? 'Stop composing' : 'Compose — click palette movements to add or remove them',
+    () => {
+      composing = composing === name ? null : name;
+      if (composing) { el('set-pick').value = ''; openSets.add(name); }
+      renderSetList();
+      renderPalette();
+    }, composing === name);
+  act('↧', 'Add every movement in this set to the outline', () => addSetToOutline(name));
+  act('✎', 'Rename this set', () => renameSet(name));
+  act('✕', 'Delete this set', () => {
+    if (!confirm(`Delete the set “${name}”?`)) return;
+    delete sets[name];
+    openSets.delete(name);
+    if (composing === name) composing = null;
+    if (el('set-pick').value === name) el('set-pick').value = '';
+    setsChanged();
+  });
+
+  summary.append(label, count, actions);
+  card.append(summary);
+
+  const list = document.createElement('ol');
+  list.className = 'set-movements';
+  if (!ids.length) {
+    const li = document.createElement('li');
+    li.className = 'empty';
+    li.textContent = 'Empty — drag a movement here, or use Compose.';
+    list.append(li);
+  }
+  ids.forEach((id, i) => {
+    const li = document.createElement('li');
+    const nm = document.createElement('span');
+    nm.textContent = titleOf(id);
+    const up = document.createElement('button');
+    up.type = 'button'; up.textContent = '↑'; up.title = 'Move up'; up.disabled = i === 0;
+    up.onclick = () => { const a = sets[name]; [a[i - 1], a[i]] = [a[i], a[i - 1]]; setsChanged(); };
+    const down = document.createElement('button');
+    down.type = 'button'; down.textContent = '↓'; down.title = 'Move down'; down.disabled = i === ids.length - 1;
+    down.onclick = () => { const a = sets[name]; [a[i + 1], a[i]] = [a[i], a[i + 1]]; setsChanged(); };
+    const rm = document.createElement('button');
+    rm.type = 'button'; rm.textContent = '✕'; rm.title = 'Remove from this set';
+    rm.onclick = () => { sets[name] = sets[name].filter((x) => x !== id); setsChanged(); };
+    li.append(nm, up, down, rm);
+    list.append(li);
+  });
+  card.append(list);
+
+  // A movement dragged from the palette lands in the set.
+  card.addEventListener('dragover', (e) => {
+    if (![...(e.dataTransfer?.types ?? [])].includes('text/wdl-movement-id')) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    card.dataset.drop = '';
+  });
+  card.addEventListener('dragleave', () => delete card.dataset.drop);
+  card.addEventListener('drop', (e) => {
+    delete card.dataset.drop;
+    const id = e.dataTransfer.getData('text/wdl-movement-id');
+    if (!id) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const cur = sets[name] ?? [];
+    if (!cur.includes(id)) { sets[name] = [...cur, id]; openSets.add(name); setsChanged(); }
+  });
+
+  return card;
+}
+
+function renameSet(name) {
+  const next = (prompt('Rename set', name) ?? '').trim();
+  if (!next || next === name) return;
+  if (sets[next] && !confirm(`Replace the existing set “${next}”?`)) return;
+  sets[next] = sets[name];
+  delete sets[name];
+  if (openSets.delete(name)) openSets.add(next);
+  if (composing === name) composing = next;
+  if (el('set-pick').value === name) el('set-pick').value = next;
+  setsChanged();
+}
+
+/** Drop every movement in a set into the outline as its own line, in order. */
+function addSetToOutline(name) {
+  const movs = (sets[name] ?? []).map((id) => catalogue.find((m) => m.id === id)).filter(Boolean);
+  if (!movs.length) return;
+  const after = focused ?? undefined;
+  const self = after !== undefined ? spans(lines).get(after) : undefined;
+  const at = self ? self.contentEnd : lines.length;
+  const indent = after !== undefined ? ' '.repeat(indentOf(after)) : '  ';
+  const block = movs.map((m) => indent + lineFor(m));
+  apply([...lines.slice(0, at), ...block, ...lines.slice(at)], at + 1);
+}
+
 el('search').addEventListener('input', () => { el('set-pick').value = ''; renderPalette(); });
 el('set-pick').addEventListener('change', renderPalette);
 el('muscle-clear').onclick = () => {
@@ -959,25 +1149,80 @@ el('muscle-clear').onclick = () => {
   renderPalette();
 };
 
-el('set-save').onclick = () => {
-  const q = el('search').value.trim();
-  const name = prompt('Name this set', q || 'My set');
+addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && composing) {
+    composing = null;
+    renderSetList();
+    renderPalette();
+  }
+});
+
+el('set-new').onclick = () => {
+  const name = (prompt('Name the new set', 'My set') ?? '').trim();
   if (!name) return;
-  sets[name] = catalogue.filter((m) => matches(m, q)).map((m) => m.id);
-  localStorage.setItem('wdl.sets', JSON.stringify(sets));
-  renderSets();
-  el('set-pick').value = name;
-  renderPalette();
+  if (sets[name] && !confirm(`Replace the existing set “${name}”?`)) return;
+  sets[name] = sets[name] ?? [];
+  el('repertoire').open = true;
+  openSets.add(name);
+  composing = name;
+  el('set-pick').value = '';
+  setsChanged();
 };
 
-el('set-drop').onclick = () => {
-  const name = el('set-pick').value;
-  if (!name || !confirm(`Delete the set "${name}"?`)) return;
-  delete sets[name];
-  localStorage.setItem('wdl.sets', JSON.stringify(sets));
-  renderSets();
-  renderPalette();
+el('set-save').onclick = () => {
+  const q = el('search').value.trim();
+  const name = (prompt('Name this set', q || 'My set') ?? '').trim();
+  if (!name) return;
+  if (sets[name] && !confirm(`Replace the existing set “${name}”?`)) return;
+  sets[name] = catalogue.filter((m) => matches(m, q)).map((m) => m.id);
+  el('repertoire').open = true;
+  openSets.add(name);
+  setsChanged();
 };
+
+el('set-export').onclick = () => {
+  const payload = JSON.stringify({ format: 'wdl-movement-sets', version: 1, sets }, null, 2);
+  const url = URL.createObjectURL(new Blob([payload], { type: 'application/json' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'movement-sets.json';
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+el('set-import').onclick = () => el('set-file').click();
+el('set-file').addEventListener('change', async () => {
+  const file = el('set-file').files?.[0];
+  el('set-file').value = '';
+  if (!file) return;
+  let data;
+  try {
+    data = JSON.parse(await file.text());
+  } catch {
+    alert('That file is not valid JSON.');
+    return;
+  }
+  // Accept either the exported envelope or a bare {name: [ids]} object.
+  const incoming = data && typeof data === 'object' && !Array.isArray(data)
+    ? (data.sets && typeof data.sets === 'object' && !Array.isArray(data.sets) ? data.sets : data)
+    : null;
+  if (!incoming) {
+    alert('No movement sets found in that file.');
+    return;
+  }
+  // Merge: a name in the file overwrites the local set, new names are added,
+  // and local sets the file does not mention are left alone.
+  let added = 0, replaced = 0, skipped = 0;
+  for (const [name, ids] of Object.entries(incoming)) {
+    if (!Array.isArray(ids) || !ids.every((x) => typeof x === 'string')) { skipped++; continue; }
+    if (name in sets) replaced++; else added++;
+    sets[name] = [...new Set(ids)];
+  }
+  el('repertoire').open = true;
+  setsChanged();
+  alert(`Imported ${added} new, replaced ${replaced}${skipped ? `, skipped ${skipped} malformed` : ''}. `
+    + `${Object.keys(sets).length} sets now; any not in the file were kept.`);
+});
 
 // --- goals -------------------------------------------------------------------
 
@@ -1225,6 +1470,7 @@ const analysis = Promise.all([load(CANONICAL), load(MUSCLES)])
     vocabulary = muscles.muscles;
     renderMuscleChips();
     renderPalette();
+    renderSetList();
     renderFindings();
     renderBody();
   })
@@ -1235,5 +1481,6 @@ const analysis = Promise.all([load(CANONICAL), load(MUSCLES)])
 
 renderGoalPicker(EXAMPLE + GOALS[0]);
 renderSets();
+renderSetList();
 curated.finally(render);
 analysis.then(() => el('goal-pick').dispatchEvent(new Event('change')));
