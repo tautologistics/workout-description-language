@@ -181,6 +181,38 @@ describe('timeline: what cannot be a timeline', () => {
   it('preserves team size for shared-total arithmetic', () => {
     eq(g(tl('02-partner-amrap.wdl').root.items[0]).teamSize, 2);
   });
+
+  // Spec §5.11: canonical output — and therefore the board's cue label, the one
+  // place a reader sees it — must state the team qualifier always, because "40
+  // Burpees" in a team context is exactly what a reader guesses wrong about.
+  for (const word of ['shared', 'each', 'synchronized'] as const) {
+    it(`renders the \`${word}\` team qualifier into the cue label`, () => {
+      const t = tl2(`team of 2:\n  - 40 Burpee ${word}\nscore: time`);
+      const [step] = steps(t.root);
+      eq(step.team, word);
+      ok(step.label.endsWith(` ${word}`),
+         `expected label to end with " ${word}", got ${JSON.stringify(step.label)}`);
+      eq(step.label, `40 Burpees ${word}`);
+    });
+  }
+
+  it('leaves a non-team step label untouched', () => {
+    const [step] = steps(tl2('for time:\n  - 40 Burpee\nscore: time').root);
+    eq(step.team, undefined);
+    eq(step.label, '40 Burpees');
+  });
+
+  it('does not double up bare `each` with per-side `each <limb>` laterality', () => {
+    // `each arm` is consumed as laterality before the team word can see it, so a
+    // plain per-side step carries no team qualifier and reads once.
+    const [plain] = steps(tl2('team of 2:\n  - 40 Dumbbell Snatch each arm\nscore: time').root);
+    eq(plain.team, undefined);
+    eq(plain.label, '40 Dumbbell Snatches each arm');
+    // Written explicitly together, both render — matching `format` line for line.
+    const [both] = steps(tl2('team of 2:\n  - 40 Dumbbell Snatch each arm each\nscore: time').root);
+    eq(both.team, 'each');
+    eq(both.label, '40 Dumbbell Snatches each arm each');
+  });
 });
 
 describe('timeline: whole corpus', () => {

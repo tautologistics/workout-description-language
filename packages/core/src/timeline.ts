@@ -245,6 +245,16 @@ function compileStep(s: Step, ctx: Ctx, enclosing: { clock?: boolean; capped?: b
   // line did not exist and an rx step reached the board with no load at all.
   if (s.rx) label += ` (${formatRx(s.rx)})`;
   for (const t of targets) label += ` @ ${formatTarget(t)}`;
+  // A team qualifier trails the target, exactly where `format` writes it (§5.11),
+  // because it qualifies the whole prescription. Spec §5.11 requires it stated
+  // *always* — "40 Burpees" in a team context is what a reader guesses wrong
+  // about — and the board's cue label is the one place a reader sees it, so
+  // dropping it here (as this did until 2026-08-28) defeated the rule. The bare
+  // `each` team word never collides with per-side `each <limb>` laterality: the
+  // grammar consumes `each arm` as the `-- limb` production before `-- team` can
+  // see it, so `s.team` is only ever set by an explicit second word. Written
+  // together (`each arm each`) both render, matching `format` line for line.
+  if (s.team) label += ` ${s.team}`;
   if (s.perRound && ctx.round === undefined) label += `, +${s.perRound.delta} each round`;
 
   return {
