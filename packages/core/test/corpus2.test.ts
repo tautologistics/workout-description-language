@@ -10,7 +10,7 @@ import { parse } from '../src/parse.ts';
 import { format } from '../src/format.ts';
 import { validate } from '../src/validate.ts';
 import { compile } from '../src/timeline.ts';
-import type { Block, Step, Rest } from '../src/ast.ts';
+import type { Block, Step, Rest, Interrupt } from '../src/ast.ts';
 
 const one = (src: string) => parse(src).workout;
 const firstStep = (src: string): Step => (one(src).body[0] as Block).children[0] as Step;
@@ -45,6 +45,42 @@ describe('corpus round two', () => {
     eq(s.movement, 'Dumbbell Curl');
     eq(s.laterality, 'per-side');
     eq(s.limb, 'arm');
+  });
+
+  it('reads a dashed inline block as the block, not a step named after the line', () => {
+    // `- AMRAP 3min:` already won on the colon; the inline-body twins did not.
+    // `- work 20s: Pull-Up` / `- min 1: 12cal Row` were read as steps whose
+    // movement was the whole line, the block dropped with no diagnostic.
+    const work = (one('10 rounds:\n  - work 20s: Pull-Up\n  rest 10s').body[0] as Block).children[0] as Block;
+    eq(work.node, 'block');
+    eq(work.type, 'work');
+    eq(work.duration, { kind: 'duration', seconds: 20 });
+    eq((work.children[0] as Step).movement, 'Pull-Up');
+
+    const min = (one('EMOM 10min:\n  - min 1: 12cal Row').body[0] as Block).children[0] as Block;
+    eq(min.node, 'block');
+    eq(min.type, 'cycleEntry');
+    eq(min.count, 1);
+    eq((min.children[0] as Step).movement, 'Row');
+
+    // `- every 1min: 5 Burpee` is the overlay, same as it is without the dash.
+    const overlay = (one('AMRAP 12min:\n  - every 1min: 5 Burpee').body[0] as Block).children[0] as Interrupt;
+    eq(overlay.node, 'interrupt');
+    eq(overlay.every, { kind: 'duration', seconds: 60 });
+    eq((overlay.body[0] as Step).movement, 'Burpee');
+
+    // The dash is decoration: canonical form drops it, and the result is stable.
+    eq(canon('10 rounds:\n  - work 20s: Pull-Up'), '10 rounds:\n  work 20s: Pull-Up');
+    eq(canon('EMOM 10min:\n  - min 1: 12cal Row'), 'EMOM 10min:\n  min 1: 12cal Row');
+  });
+
+  it('still reads `- AMRAP 3min: 10 Push-Up` as a step — a general inline block body is not a form', () => {
+    // Only min/work/every carry a body after the colon on one line. A bare
+    // AMRAP that does so has no rule, so it stays a (movement-named) step,
+    // exactly as before — recorded so the boundary is deliberate, not forgotten.
+    const s = (one('5 rounds:\n  - AMRAP 3min: 10 Push-Up').body[0] as Block).children[0] as Step;
+    eq(s.node, 'step');
+    eq(s.movement, 'AMRAP 3min: 10 Push-Up');
   });
 
   it('supports a duration-bounded block that is not an AMRAP', () => {

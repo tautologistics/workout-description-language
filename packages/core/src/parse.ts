@@ -140,7 +140,19 @@ class Parser {
     // given this line children on the strength of it. Read as a step it became a
     // movement named `AMRAP 3min:` and everything under it was dropped in
     // silence. The dash is decoration on a nested block, as it is on a step.
-    const text = raw.endsWith(':') ? raw.replace(/^-\s+/, '') : raw;
+    //
+    // The same holds for the three forms that carry their body *after* the colon
+    // on one line — `- min 1: 12cal Row`, `- work 20s: Pull-Up`,
+    // `- every 1min: 5 Burpee`. They don't end in `:`, so the rule above left the
+    // dash on, the `/^-\s+/` step branch below claimed them, and each became a
+    // step named after the whole line with its block reading and (for `every`)
+    // its overlay dropped, no diagnostic — the inline-body twin of the bug that
+    // rule fixed. `format` already writes all three back without the dash, so
+    // stripping it here is also what stops `wdl fmt` settling on the loss.
+    const undashed = raw.replace(/^-\s+/, '');
+    const opensBlock = undashed.endsWith(':')
+      || /^(?:min(?:ute)?\s+\d+|work\s+\S+|every\s+\S+):\s*\S/i.test(undashed);
+    const text = opensBlock ? undashed : raw;
 
     if (/^-\s+/.test(text)) return this.parseStep(text.replace(/^-\s+/, ''), line);
     if (/^rest\b/i.test(text)) return this.parseRest(text, line);
