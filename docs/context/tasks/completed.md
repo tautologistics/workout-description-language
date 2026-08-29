@@ -268,6 +268,9 @@ Why it earns its place:
 - **It unblocks the builder's modifier affordance.** Showing what a line can take
   next needs something machine-readable to derive from; the per-block half of
   that work has no source today. See [builder-ux.md](../topics/builder-ux.md).
+  *(Update 2026-08-28: it does now — the per-block affordance shipped, deriving
+  its modifier set from this grammar's `blockModifier_*` cases. builder-ux.md,
+  "## Outline".)*
 
 **Do not justify this by adoption, and do not decline it by adoption either.**
 Both were tried and both are wrong. The README's *"not competing for adoption"*

@@ -44,7 +44,8 @@ closes without touching the text.
 **Not an issue, checked:** indenting a parent such as an `amrap` carries its
 children with it correctly.
 
-**Nothing tells you what a line can take next.** A design direction, and the
+**~~Nothing tells you what a line can take next.~~ Both halves fixed — per
+movement 2026-08-25, per block 2026-08-28.** A design direction, and the
 largest outline item. The outline is already a GUI rather than a text editor —
 click to reorder, drag, button to indent, clone, delete — and this continues that
 premise instead of fighting it. Wanted: the syntax and the spec driving an
@@ -56,7 +57,7 @@ it can be split left/right, take a load, be measured in calories or distance —
 whichever that movement actually supports. The motivating problem is volume:
 there are enough modifiers that knowing which ones apply *here* is the hard part.
 
-It splits in two, and the halves are not equally ready:
+It split in two, and the halves were not equally ready — both are done now:
 
 - **~~Per-movement modifiers are answerable from data today.~~ Fixed
   2026-08-25.** A second caret on a step row (`»`, beside the existing movement
@@ -108,25 +109,62 @@ It splits in two, and the halves are not equally ready:
   routing through the shared registry. Verified against both `DB Curl` and
   `Dumbbell Curls` in the builder, each now showing and correctly applying
   the same modifier panel `Dumbbell Curl` does.
-- **Per-block modifiers have nothing to derive from.** Block headers are parsed
-  by an if/else chain of regexes; there is no declarative table saying an AMRAP
-  takes a duration or an EMOM an interval. The spec is prose in
-  `spec/spec-0.1.md`. Deriving this half means first describing the grammar in a
-  form something other than the parser can read — which is queue item 0 in
-  [tasks/completed.md](../tasks/completed.md). These two are coupled: item 0 is
-  the prerequisite, and this half is one of the two things that justifies it.
+- **~~Per-block modifiers have nothing to derive from.~~ Fixed 2026-08-28.**
+  Was: block headers were an if/else chain of regexes with no declarative table
+  saying an AMRAP takes a duration or an EMOM an interval, and the prerequisite
+  — a machine-readable grammar — was queue item 0. That prerequisite landed
+  (`spec/grammar-0.1.ohm`, nine start rules including `blockHeader` with its
+  `blockModifier` cases), so this half is now derived the same way the
+  per-movement half is derived from the registry. A second caret on a
+  block-header outline row (`»`, the same glyph and interaction model as the
+  step row's) opens a panel of what *this* header can take next: a duration to
+  finish a bare `AMRAP:` or `EMOM:` (or `every:`), and the comma modifiers the
+  grammar's `blockModifier` rule allows — `cap`, `for time`, `as <label>`,
+  `wearing …`, overrun behaviour, an inherited `@` target — each with an
+  editable default spliced in at the grammatically-valid spot (a kind
+  completion right after the kind word, a comma modifier before the `:` after
+  any existing header content). Singular modifiers already written
+  (`cap`, `for time`, a label) drop out of the list; a completion drops out
+  once the kind has more than its bare keyword, which is also what keeps
+  `for time:` from being offered `for`'s duration. Hidden entirely on step and
+  rest rows, and on a header once it has nothing left to offer.
+
+  The list is built by `blockModifierOptions()` / `blockKindCompletions()` in
+  **`packages/core/src/block-affordances.ts`**, which reads the compiled grammar
+  (`WdlParser.grammar`, newly exposed by `grammar/parser.ts`) — it enumerates
+  the `blockModifier_*` case rules and reads which `blockKind_*` rules carry a
+  `headerDuration`. The builder computes both lists once (`headerAffordances()`
+  in `apps/builder/builder.js`) and the outline row wires a `blockCaret` +
+  panel beside the movement `modCaret`, reusing its splice-into-the-line
+  machinery. Verified by driving the builder in both themes against AMRAP,
+  EMOM, every, `5 rounds`, `21-15-9` and `for time, cap 12min:` — right
+  completions offered, valid text spliced, diagnostics pane accepts every
+  result.
 
 *Touches: `registry/movements.json` (first half), `packages/core/src/parse.ts:277-320`
-and `spec/spec-0.1.md` (second half), `apps/builder/builder.js:93-100` (TOOLS).*
+and `spec/spec-0.1.md` (second half), `apps/builder/builder.js:93-100` (TOOLS),
+`packages/core/src/block-affordances.ts` + `packages/core/src/grammar/parser.ts`
++ `apps/builder/builder.js` (second half).*
 
-**Third collision with a closed decision — flagged, not resolved.**
+**~~Third collision with a closed decision — flagged, not resolved.~~ Resolved
+2026-08-28, in favour of deriving.**
 [deliberately-not-done.md](deliberately-not-done.md) rejects *"A field per
 property in the builder. It would always lag the grammar, and the grammar is the
 interesting part."* Driving the affordance *from* the syntax is the direct answer
-to that objection — derived, so it cannot lag. But it is only an answer while the
-derivation is real. A hand-maintained modifier table in the builder is the
-declined thing wearing a different hat, and the per-block half is exactly where
-that temptation will arrive, because there is nothing to derive from yet.
+to that objection — derived, so it cannot lag — and it is only an answer while
+the derivation is real. The per-block half is where the temptation to hand-write
+a modifier table would have arrived, and it was declined: the *set* of block
+modifiers and the *set* of kinds-that-need-a-quantity are both read out of
+`spec/grammar-0.1.ohm` at runtime. What is hand-written is one label and one
+default text per case, keyed by the grammar's own rule names — the wording of a
+menu entry, not its existence. `packages/core/test/block-affordances.test.ts`
+turns any drift into a red test: it fails if a `blockModifier_*` case is ever
+unannotated, if an annotation names a rule the grammar dropped, or if a "already
+present" probe uses a word the rule cannot match. So a modifier added to the
+grammar shows up in the builder immediately (labelled generically until someone
+writes its entry, which the test then requires), and one removed from the
+grammar cannot linger in a stale table. That is the line: the grammar owns *what
+exists*, the annotation owns *what to call it*.
 
 ---
 

@@ -18,6 +18,17 @@ has a reason it is not one here. Check this before proposing one of them.
   declined for the reason given. See the clarification in [INDEX.md](../INDEX.md).
 - **A field per property in the builder.** It would always lag the grammar, and
   the grammar is the interesting part.
+
+  **Still holds — and the test of it was met, not dodged (2026-08-28).** The
+  builder now has a "what can this line take next" affordance on both step rows
+  (from the registry) and block-header rows (from the grammar) — see
+  [topics/builder-ux.md](builder-ux.md) under "## Outline". It is not the
+  declined thing: the *set* of block modifiers is enumerated from
+  `spec/grammar-0.1.ohm`'s `blockModifier_*` cases at runtime, not hand-listed.
+  Only a label and a default string per case are hand-written, keyed by the
+  grammar's own rule names, and `packages/core/test/block-affordances.test.ts`
+  fails the moment that annotation drifts from the grammar. The grammar owns
+  what exists; the annotation owns only what to call it.
 - **Reps → load conversion.** Would need a 1RM and a physiological model.
   Inventing one would make every number look more authoritative than it is.
 - **A file format for palette "sets".** A working preference, not something a
