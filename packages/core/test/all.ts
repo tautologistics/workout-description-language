@@ -22,6 +22,7 @@ import './validate.test.ts';
 import './variants.test.ts';
 import './truth.test.ts';
 import './golden.test.ts';
+import './workouts-canonical.test.ts';
 import './vocabulary.test.ts';
 import './grammar.test.ts';
 import './block-affordances.test.ts';
