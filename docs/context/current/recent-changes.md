@@ -2,6 +2,18 @@
 
 ## Changes
 
+- **2026-08-29 — `Pec Deck` = `Butterfly` = `Machine chest fly`.** A curation
+  task off [../topics/known-debts.md](../topics/known-debts.md), not a queue
+  item. The three wger-only / wger-sharing records `find-duplicates.mjs`
+  cannot compare by construction were checked against their source
+  descriptions — all one seated chest-fly machine — and merged, along with
+  everkinetic's `Butterfly Machine`, into one curated `pec-deck` record
+  carrying `sameAs`. `cable-crossover` stays separate (standing, cable,
+  `force: push`, four sources). **3112 → 3109 records; pool 128 → 129.** No
+  corpus workout names any of them, so the golden snapshot did not move.
+  `generate.test.ts`'s pool-size pin went 128 → 129. See
+  [../topics/known-debts.md](../topics/known-debts.md) and
+  [../topics/what-exists.md](../topics/what-exists.md).
 - **2026-08-25 — The queue emptied out.** Items 5 (a distance/duration range
   is caught rather than silently swallowed into the movement name), 7 (a body
   map, front and back, in the builder and on the board), and 9 (the board

@@ -874,9 +874,11 @@ when something looks odd before treating it as a discovery.
 
   - `if (A.sources.some((s) => B.sources.includes(s))) continue` — a pair
     sharing any source is skipped as deliberate. `Pec Deck` and
-    `Machine chest fly` are both wger-only, so they are never compared;
-    `Butterfly` shares wger with both, so it is never compared with either.
-    wger is the largest single catalogue, which makes this the widest blind spot.
+    `Machine chest fly` were both wger-only, so they were never compared;
+    `Butterfly` shared wger with both, so it was never compared with either.
+    (That specific trio was merged by hand 2026-08-29 — see below — but it is
+    still the shape of the blind spot.) wger is the largest single catalogue,
+    which makes this the widest one.
 
   Surfaced from the other side too, on 2026-08-22, by matching an external alias
   vocabulary against the registry — 52 collisions. That is the framing worth
@@ -907,11 +909,34 @@ when something looks odd before treating it as a discovery.
   guessing every time: `Curl`, `Leg Curl` and `Squat` are family bases with
   `variantOf` links already pointing at them, and `Star Jump` is a plyometric
   squat jump ("squat down halfway and explode back up... spreading your legs and
-  arms") while `Jumping Jacks` is a standing cardio jack. `Pec Deck`/
-  `Butterfly`/`Machine chest fly` do look like one machine under three names,
-  and are the pair worth a decision. What is missing is a *within-registry* pass
-  with different rules — starting from aliases, which is where the answer is
-  already written down.
+  arms") while `Jumping Jacks` is a standing cardio jack.
+
+  **`Pec Deck`/`Butterfly`/`Machine chest fly` were one machine under three
+  names, and that one is decided. Merged 2026-08-29.** The evidence agreed on
+  every point checked: all four descriptions (wger's Pec Deck, Machine chest
+  fly and Butterfly, free-exercise-db's Butterfly) are a seated machine, back
+  on the pad, upper arms parallel to the floor, handles or elbow-pads brought
+  together in an arc squeezing the chest, slow return — and wger's own
+  Butterfly entry names the apparatus the *"Peck deck"* machine in its Spanish
+  text. A fourth record, everkinetic's `Butterfly Machine` (already
+  `variantOf: butterfly`, and the same movement described the same way), was
+  folded in too. A curated `pec-deck` record in `registry/movements.json`
+  carries `sameAs: [butterfly, butterfly-machine, machine-chest-fly]`; wger's
+  own `Pec Deck` merges into it on the shared name. `cable-crossover` stays
+  separate and is right to — four sources, `force: push`, cable equipment, a
+  standing movement. **3112 → 3109 records; core pool 128 → 129** (the curated
+  record makes a real claim about the movement — chest, machine,
+  horizontal-push — so it lands in the pool, net +1 over the three absorbed).
+  The `butterfly` variation family survives under the new base id `pec-deck`;
+  `butterfly-narrow-grip` and `butterfly-reverse` keep the `family` link but
+  lose their derived `variantOf: butterfly` (the base they pointed at no longer
+  exists as its own record). Golden interpretation snapshot regenerated to no
+  change — no corpus workout writes any of these names.
+
+  What is still missing is a general *within-registry* duplicate pass with
+  different rules — starting from aliases, which is where the answer is already
+  written down. This pair was curated by hand; the next same-source near-dup
+  with nobody's verdict on it will still be invisible to `find-duplicates.mjs`.
 
 - **~~`Pistol` fell out of the core, correctly, and should probably be put back
   by hand.~~ Closed 2026-08-23 without a hand, by merging `Pistol Squat` into

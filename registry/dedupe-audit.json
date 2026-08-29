@@ -1,6 +1,6 @@
 {
  "$comment": "Every merge this pass made, and every variant-of link. Each cluster lists the records absorbed, so a merge can be inspected or unpicked. `asserted` is the subset a curator merged by hand with `sameAs` in registry/movements.json, where no rule over the titles could have reached it.",
- "generated": "2026-08-23",
+ "generated": "2026-08-29",
  "clusters": [
   {
    "key": "abs barbell rollout",
@@ -5060,6 +5060,31 @@
    ]
   },
   {
+   "by": "pec-deck",
+   "absorbs": "butterfly",
+   "title": "Butterfly",
+   "sources": [
+    "free-exercise-db",
+    "wger"
+   ]
+  },
+  {
+   "by": "pec-deck",
+   "absorbs": "butterfly-machine",
+   "title": "Butterfly Machine",
+   "sources": [
+    "everkinetic"
+   ]
+  },
+  {
+   "by": "pec-deck",
+   "absorbs": "machine-chest-fly",
+   "title": "Machine chest fly",
+   "sources": [
+    "wger"
+   ]
+  },
+  {
    "by": "pistol",
    "absorbs": "pistol-squat",
    "title": "Pistol Squat",
@@ -5106,20 +5131,6 @@
    "adds": [
     "lateral",
     "barbell"
-   ]
-  },
-  {
-   "variant": "butterfly-machine",
-   "of": "butterfly",
-   "adds": [
-    "machine"
-   ]
-  },
-  {
-   "variant": "butterfly-reverse",
-   "of": "butterfly",
-   "adds": [
-    "reverse"
    ]
   },
   {

@@ -11058,6 +11058,35 @@
    ]
   },
   {
+   "id": "pec-deck",
+   "title": "Pec Deck",
+   "sameAs": [
+    "butterfly",
+    "butterfly-machine",
+    "machine-chest-fly"
+   ],
+   "muscles": {
+    "primary": [
+     "chest"
+    ],
+    "secondary": [
+     "shoulders"
+    ]
+   },
+   "equipment": [
+    "machine"
+   ],
+   "pattern": [
+    "horizontal-push"
+   ],
+   "force": "pull",
+   "mechanic": "isolation",
+   "laterality": [
+    "both"
+   ],
+   "defaultLaterality": "both"
+  },
+  {
    "id": "pelvic-tilt-into-bridge",
    "title": "Pelvic Tilt Into Bridge",
    "muscles": {

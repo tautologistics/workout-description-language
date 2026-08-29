@@ -137,11 +137,12 @@ has a reason it is not one here. Check this before proposing one of them.
   record. Some are real identity disagreements (they fold `Back Squat` into
   `Squat`; we hold both). But many are **near-duplicates inside our own
   registry**: `Curl` sits apart from `Barbell Curl`, `Leg Curl` from
-  `Seated Leg Curl`, `Hyperextensions` from `Back Extension`, `Butterfly` and
-  `Pec Deck` from `Machine chest fly`, `Star Jump` from `Jumping Jacks`. Those
-  pairs are facts about our own data, surfaced by the comparison rather than
-  taken from it, and they are dedupe candidates for
-  `scripts/find-duplicates.mjs`.
+  `Seated Leg Curl`, `Hyperextensions` from `Back Extension`, `Star Jump` from
+  `Jumping Jacks`. Those pairs are facts about our own data, surfaced by the
+  comparison rather than taken from it, and they are dedupe candidates for
+  `scripts/find-duplicates.mjs`. (`Butterfly` / `Pec Deck` / `Machine chest
+  fly` were on this list too and were merged by hand on 2026-08-29 — one
+  machine under three names; see [known-debts.md](known-debts.md).)
 
   *Correction to the entry as first written, same day: it said the decision was
   taken "before any request was made", and for a few hours that was true. The

@@ -295,21 +295,26 @@ describe('generate: the pool', () => {
     }
   });
 
-  it('is 128 movements', () => {
+  it('is 129 movements', () => {
     // Pinned so it cannot drift in either direction unnoticed: silently growing
     // is how `Quad Stretch` arrived, and silently shrinking is how a rebuild
     // that forgot `mark-core` would read.
     //
-    // 129 until the alias pass and `sameAs` landed beside this rule. One record
-    // left — `Dumbbell Bicep Curl`, merged into `Dumbbell Curl` — which is the
-    // whole intended effect. It briefly read 137, and that was this pin doing
-    // its job: the alias pass writes curated records carrying nothing but
-    // `aliases`, and `mark-core` read presence in the curated file as somebody
-    // having judged the movement worth writing. Seven accessory movements the
-    // pass happened to touch were promoted on a claim about a *name*. The
-    // `curated` signal now asks that the record say something about the
-    // movement; see the header of `scripts/mark-core.mjs`.
-    eq(pool().length, 128);
+    // 129 until the alias pass and `sameAs` landed beside this rule, when it
+    // dropped to 128: one record left — `Dumbbell Bicep Curl`, merged into
+    // `Dumbbell Curl` — which was the whole intended effect. It briefly read
+    // 137, and that was this pin doing its job: the alias pass writes curated
+    // records carrying nothing but `aliases`, and `mark-core` read presence in
+    // the curated file as somebody having judged the movement worth writing.
+    // Seven accessory movements the pass happened to touch were promoted on a
+    // claim about a *name*. The `curated` signal now asks that the record say
+    // something about the movement; see the header of `scripts/mark-core.mjs`.
+    //
+    // Back to 129 on 2026-08-29: the `Pec Deck` curation folded `Butterfly`,
+    // `Butterfly Machine` and `Machine chest fly` into one curated record with
+    // a real claim about the movement (chest, machine, horizontal-push), so the
+    // net of three records absorbed and one curated record added is +1 here.
+    eq(pool().length, 129);
   });
 
   it('is nothing a reader would have to warm up before', () => {
