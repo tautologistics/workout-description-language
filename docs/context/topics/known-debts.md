@@ -1004,12 +1004,27 @@ when something looks odd before treating it as a discovery.
   the palette showing one lift twice. Deciding it means choosing which record's
   muscles the corpus should read, which is a curator's call and is exactly what
   `sameAs` exists to record once made.
-- **`registry/duplicate-candidates.json` is a 694-item backlog nobody has
+- ~~**`registry/duplicate-candidates.json` is a 694-item backlog nobody has
   triaged.** Generated 2026-08-12 and untouched since. Two of the pairs the alias
   comparison surfaced — `GHD Back Extensions` / `Hyperextensions & Back
   Extensions`, and `Seated Leg Curl` / `Leg Curl` — **are already in it**. So for
   those the finder is not the problem; nothing reads its output. A report that
-  runs, writes 694 rows and is never opened costs the same as not running.
+  runs, writes 694 rows and is never opened costs the same as not running.~~
+  **Fixed 2026-08-29** by **retiring the artefact** (option A of three). The
+  committed file was deleted and `find-duplicates.mjs` now writes its JSON to
+  stdout — a run-on-demand report, exactly how `check-aliases.mjs` is already
+  treated: not a pipeline step, no committed output. `node
+  scripts/find-duplicates.mjs > pairs.json` captures a fresh list when a curator
+  wants one to triage. **Why not wire it into `build-canonical.ts` and pin it
+  with a drift test:** that needs a downstream consumer and there is none — the
+  script never merges, and the pipeline's own `dedupe-movements.mjs` step carries
+  its own veto logic. A generated file nothing reads is the rot the "every
+  pipeline step must be in the pipeline" lesson exists to stop, and committing it
+  fresh every run would just automate the rot. The `barbell-row` /
+  `bent-over-row-barbell` merge question above and the near-duplicate blind spots
+  (~line 890) are untouched — separate debts.
+  *Touched: `scripts/find-duplicates.mjs`, `registry/duplicate-candidates.json`
+  (deleted).*
 
 The ones with a plan attached are queued in
 [tasks.md](../tasks.md); the ones found by driving the

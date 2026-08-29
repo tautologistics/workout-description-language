@@ -2,6 +2,24 @@
 
 ## Changes
 
+- **2026-08-29 — `registry/duplicate-candidates.json` retired; `find-duplicates.mjs`
+  is a run-on-demand report.** A defect task off
+  [../topics/known-debts.md](../topics/known-debts.md), not a queue item (all
+  numbered items are closed). The 694-row file was generated once on 2026-08-12
+  and never touched: `find-duplicates.mjs` is not in `build-canonical.ts`,
+  nothing reads the file, no test guards it — a stale artefact rotting in the
+  tree, the shape the "every pipeline step must be in the pipeline" lesson
+  exists to stop. **Option A of three:** deleted the committed file; the script
+  now writes its summary to stderr and the candidate JSON to stdout, so `node
+  scripts/find-duplicates.mjs > pairs.json` captures a fresh list when a curator
+  wants one — the same treatment `check-aliases.mjs` already gets. Option B
+  (wire it into the pipeline, pin it with a drift test) was rejected: no
+  downstream consumer exists, and the script never merges. Pipeline still
+  succeeds, `git status` clean apart from the two intended changes; **2025
+  passing, 1 pending**, before and after (the suite does not touch either).
+  See [../topics/known-debts.md](../topics/known-debts.md),
+  [../topics/running-it.md](../topics/running-it.md),
+  [../topics/layout.md](../topics/layout.md).
 - **2026-08-29 — The builder's Outline and Text are one tabbed editor pane.**
   Queue item 10 (high priority, Chris). The `<main>` grid went 4 → 3 columns —
   the Outline (structural GUI) and the raw Text `<textarea>`, previously two

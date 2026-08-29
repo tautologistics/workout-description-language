@@ -5,6 +5,7 @@ npm --prefix packages/core test     # 2020 tests, 1 pending, ~10s
 node scripts/build-canonical.ts     # rebuild registry/ from its sources
 node scripts/describe-corpora.mjs   # report whether SOURCES.json/.md still count the corpora right
 node scripts/check-aliases.mjs      # every name two records answer to, and who wins
+node scripts/find-duplicates.mjs > pairs.json  # run-on-demand: likely cross-source dup pairs to triage
 node scripts/import-movement-curation.mjs <curated.csv> [--apply]  # land curated modifier data
 node scripts/build-web.mjs          # emit the core as browser modules
 node scripts/serve.mjs 8081         # then open http://localhost:8081/
