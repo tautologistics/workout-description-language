@@ -2,7 +2,15 @@
 /**
  * Find likely-duplicate movements across sources.
  *
- *   node scripts/find-duplicates.mjs        write registry/duplicate-candidates.json
+ *   node scripts/find-duplicates.mjs                 # summary to stderr, JSON to stdout
+ *   node scripts/find-duplicates.mjs > pairs.json    # capture the candidate list
+ *
+ * A run-on-demand report, like check-aliases.mjs — not a pipeline step, and it
+ * writes no committed file. It used to write registry/duplicate-candidates.json;
+ * that artefact was retired 2026-08-29 because nothing downstream read it, so a
+ * once-generated copy just rotted in the tree (pairs a later alias pass found
+ * were already sitting in it, unnoticed). Run it when you want a fresh list to
+ * triage; pipe stdout somewhere if you want to keep one.
  *
  * Reports for review; never merges. A wrong merge silently destroys a
  * distinction, and the sources disagree often enough that automatic merging
@@ -26,7 +34,7 @@
  * collapses into itself; the earlier draft omitted `internal` and `external`
  * and duly proposed merging internal and external rotations.
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { today } from './lib/stamp.mjs';
 
 const STOP = new Set(['and', 'or', 'the', 'a', 'of', 'to', 'with', 'for', 'on', 'in']);
@@ -121,11 +129,11 @@ candidates.sort((x, y) => order[x.confidence] - order[y.confidence] || y.name - 
 const counts = {};
 for (const c of candidates) counts[c.confidence] = (counts[c.confidence] ?? 0) + 1;
 
-writeFileSync('registry/duplicate-candidates.json', JSON.stringify({
+process.stdout.write(JSON.stringify({
   $comment: 'Likely-duplicate movements across sources, for review. Nothing here has been merged. `high` means the two names use identical word sets and the sources agree on primary muscles; `conflicting` means identical word sets but disagreeing muscles, which usually means the sources disagree rather than the exercises differing; `possible` means partial name overlap and needs a human.',
   generated: today(),
   counts, candidates,
 }, null, 1) + '\n');
 
-console.log(`${candidates.length} candidate pairs written to registry/duplicate-candidates.json`);
-for (const [k, v] of Object.entries(counts)) console.log(`  ${k.padEnd(12)} ${v}`);
+console.error(`${candidates.length} candidate pairs on stdout (redirect it to keep a copy)`);
+for (const [k, v] of Object.entries(counts)) console.error(`  ${k.padEnd(12)} ${v}`);
