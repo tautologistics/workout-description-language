@@ -13715,6 +13715,260 @@
   },
   "fixpoint": true
  },
+ "structure :: interrupt overlay unbounded": {
+  "canonical": "for time:\n  - 100 Thrusters @ 135lb\n  every 1min: 5 Burpees",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 135
+         }
+        }
+       ]
+      },
+      {
+       "body": [
+        {
+         "movement": "Burpee",
+         "node": "step",
+         "quantity": {
+          "kind": "reps",
+          "value": 5
+         }
+        }
+       ],
+       "every": {
+        "kind": "duration",
+        "seconds": 60
+       },
+       "node": "interrupt"
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "structure :: interrupt overlay until failure": {
+  "canonical": "for time:\n  - 100 Thrusters @ 135lb\n  every 1min until failure: 5 Burpees",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 135
+         }
+        }
+       ]
+      },
+      {
+       "body": [
+        {
+         "movement": "Burpee",
+         "node": "step",
+         "quantity": {
+          "kind": "reps",
+          "value": 5
+         }
+        }
+       ],
+       "every": {
+        "kind": "duration",
+        "seconds": 60
+       },
+       "node": "interrupt",
+       "untilFailure": true
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "structure :: interrupt overlay x count": {
+  "canonical": "for time:\n  - 100 Thrusters @ 135lb\n  every 1min30s x 5: 3 Power Cleans @ 185lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 135
+         }
+        }
+       ]
+      },
+      {
+       "body": [
+        {
+         "movement": "Power Clean",
+         "node": "step",
+         "quantity": {
+          "kind": "reps",
+          "value": 3
+         },
+         "targets": [
+          {
+           "kind": "load",
+           "load": {
+            "kind": "absolute",
+            "unit": "lb",
+            "value": 185
+           }
+          }
+         ]
+        }
+       ],
+       "count": 5,
+       "every": {
+        "kind": "duration",
+        "seconds": 90
+       },
+       "node": "interrupt"
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "structure :: interrupt overlay for a window": {
+  "canonical": "for time:\n  - 100 Thrusters @ 135lb\n  every 1min30s for 12min: 3 Power Cleans @ 185lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 100
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 135
+         }
+        }
+       ]
+      },
+      {
+       "body": [
+        {
+         "movement": "Power Clean",
+         "node": "step",
+         "quantity": {
+          "kind": "reps",
+          "value": 3
+         },
+         "targets": [
+          {
+           "kind": "load",
+           "load": {
+            "kind": "absolute",
+            "unit": "lb",
+            "value": 185
+           }
+          }
+         ]
+        }
+       ],
+       "duration": {
+        "kind": "duration",
+        "seconds": 720
+       },
+       "every": {
+        "kind": "duration",
+        "seconds": 90
+       },
+       "node": "interrupt"
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "structure :: choice block": {
   "canonical": "for time:\n  choice:\n    - 1000m Row\n    - 800m Run\n    - 2000m Bike",
   "errors": [],

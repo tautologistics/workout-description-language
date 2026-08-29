@@ -114,8 +114,17 @@ export interface TimelineGroup {
   freeOrder?: boolean;
   /** Team size, for shared/each arithmetic. */
   teamSize?: number;
-  /** A periodic interruption of everything in this group (spec §5.8). */
-  interrupt?: { every: number; items: TimelineItem[] };
+  /**
+   * A periodic interruption of everything in this group (spec §5.8). Its
+   * interval may state the same bound a clock-driven group's does (§5.5) —
+   * a count of cycles, a window, or failure — carried here so it reaches a
+   * display and round-trips. It does not feed `estimate()`: an overlay is
+   * bounded by the primary work beside it, and whether its own bound ends the
+   * group first is a per-execution question the ordered timeline does not
+   * answer (the block path leaves the same question open for a bare `AMRAP:`
+   * under a cap). No corpus workout writes a bounded overlay.
+   */
+  interrupt?: { every: number; count?: number; window?: number; untilFailure?: boolean; items: TimelineItem[] };
   equipment: string[];
   score?: Score;
   label: string;
@@ -359,6 +368,9 @@ function compileBlock(b: Block, parent: Ctx, enclosing: { clock?: boolean; cappe
   if (interrupt) {
     group.interrupt = {
       every: secondsOf(interrupt.every) ?? 60,
+      ...(interrupt.count !== undefined ? { count: interrupt.count } : {}),
+      ...(interrupt.duration ? { window: secondsOf(interrupt.duration) } : {}),
+      ...(interrupt.untilFailure ? { untilFailure: true } : {}),
       items: compileNodes(interrupt.body, ctx, here),
     };
   }
@@ -590,8 +602,13 @@ export function outline(t: Timeline): string[] {
     if (item.label) out.push(`${pad}${item.label}:`);
     for (const c of item.items) walk(c, item.label ? depth + 1 : depth);
     if (item.interrupt) {
-      out.push(`${pad}  ↻ every ${fmtClock(item.interrupt.every)}:`);
-      for (const c of item.interrupt.items) walk(c, depth + 2);
+      const iv = item.interrupt;
+      const bound = iv.untilFailure ? ' until failure'
+        : iv.window !== undefined ? ` for ${fmtClock(iv.window)}`
+        : iv.count !== undefined ? ` x ${iv.count}`
+        : '';
+      out.push(`${pad}  ↻ every ${fmtClock(iv.every)}${bound}:`);
+      for (const c of iv.items) walk(c, depth + 2);
     }
   };
   walk(t.root, 0);

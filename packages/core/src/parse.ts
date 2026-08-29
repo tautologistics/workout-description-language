@@ -4,7 +4,6 @@ import type {
   Workout, Node, Step, Rest, Block, Interrupt, Score,
 } from './ast.ts';
 import { readLines, expandInline, type Line } from './lines.ts';
-import { parseDuration } from './units.ts';
 import { wdl } from './grammar/parser.ts';
 import { blankStep } from './grammar/step-semantics.ts';
 
@@ -151,7 +150,7 @@ class Parser {
     // stripping it here is also what stops `wdl fmt` settling on the loss.
     const undashed = raw.replace(/^-\s+/, '');
     const opensBlock = undashed.endsWith(':')
-      || /^(?:min(?:ute)?\s+\d+|work\s+\S+|every\s+\S+):\s*\S/i.test(undashed);
+      || /^(?:min(?:ute)?\s+\d+|work\s+\S+|every\s+\S+(?:\s+(?:until\s+failure|for\s+\S+|x\s+\d+|×\s+\d+))?):\s*\S/i.test(undashed);
     const text = opensBlock ? undashed : raw;
 
     // A *general* `<block header>: <inline body>` on one line — `AMRAP 3min: 10
@@ -167,11 +166,10 @@ class Parser {
     // with round-trip and whiteboard-readability cost, for a form no corpus,
     // spec or template file writes — left as a parser/spec question.
     //
-    // This also catches the bounded interrupt overlay — `every 1min until
-    // failure: 5 Burpee`, `every 90s x 5: 3 Burpee` — which the overlay branch's
-    // `every <dur>: <body>` regex cannot read, so it too was becoming a garbage
-    // step. Reading those bounds is still a debt (the `Interrupt` node carries no
-    // bound); making the failure loud is the part that is in scope here.
+    // The bounded interrupt overlay — `every 1min until failure: 5 Burpee`,
+    // `every 90s x 5: 3 Power Clean` — is read below by handing its head to the
+    // grammar's `every` production; `opensBlock` above now recognizes those bound
+    // tails so the dash is stripped and this diagnostic steps aside for them.
     if (!opensBlock) {
       const stepText = text.replace(/^-\s+/, '');
       const colon = stepText.indexOf(':');
@@ -180,8 +178,10 @@ class Parser {
         const probe = wdl().tryHeader(before, line);
         // A recognized kind — not the catch-all `headerName`, which sets a `name`
         // on a plain `sequence` and matches any prose, so `- 1:30 Row` and
-        // `- 10 Thruster, note: "x"` never trip this.
-        if (probe.ok && !(probe.value.name && probe.value.type !== 'section')) {
+        // `- 10 Thruster, note: "x"` never trip this. An `every …:` head that
+        // reads as a clock is the overlay and is read below — no diagnostic.
+        const isOverlay = /^every\s/i.test(before) && probe.ok && probe.value.type === 'clock';
+        if (probe.ok && !isOverlay && !(probe.value.name && probe.value.type !== 'section')) {
           this.errors.push({
             line: line.line,
             message: `\`${before.trim()}:\` opens a block — put its body on the next line, `
@@ -221,18 +221,39 @@ class Parser {
       return step;
     }
 
-    // `every 3min x 5:` with children is a clock-driven repeat.
-    let m = text.match(/^every\s+(\S+):\s*(.+)$/i);
-    if (m) {
-      const body = this.parseStep(m[2].replace(/^-\s+/, ''), line);
-      return {
-        node: 'interrupt', every: parseDuration(m[1], true) ?? { kind: 'duration', seconds: 60 },
-        body: [body], comments: line.comments, line: line.line,
-      } as Interrupt;
+    // `every <interval>: <body>` on one line is an interrupt overlay (spec §5.8),
+    // and the interval carries the same bound tails a clock-driven block header
+    // takes (spec §5.5) — `every 90s x 5:`, `every 90s for 12min:`,
+    // `every 1min until failure:`, or nothing. The head before the colon is read
+    // by the grammar's own `every` production through `tryHeader` rather than a
+    // second bound parser here — that is the whole point of "the parser is the
+    // grammar" — and the bound it lands on the block (`every`, `count`,
+    // `duration`, `untilFailure`) is copied straight onto the `Interrupt`, which
+    // carries those same field names. A colon with nothing after it
+    // (`every 90s x 5:` with indented children) is the *block* form and falls
+    // through to the header branch below.
+    if (/^every\s/i.test(text)) {
+      const colon = text.indexOf(':');
+      const inlineBody = colon > 0 ? text.slice(colon + 1).trim() : '';
+      if (inlineBody) {
+        const hdr = wdl().tryHeader(text.slice(0, colon), line);
+        if (hdr.ok && hdr.value.type === 'clock') {
+          const b = hdr.value;
+          return {
+            node: 'interrupt',
+            every: b.every ?? { kind: 'duration', seconds: 60 },
+            ...(b.count !== undefined ? { count: b.count } : {}),
+            ...(b.duration ? { duration: b.duration } : {}),
+            ...(b.untilFailure ? { untilFailure: true } : {}),
+            body: [this.parseStep(inlineBody.replace(/^-\s+/, ''), line)],
+            comments: line.comments, line: line.line,
+          } as Interrupt;
+        }
+      }
     }
 
     // `min 1: 12cal Row` / `work 20s: Burpee` — header with inline single child
-    m = text.match(/^((?:min(?:ute)?\s+\d+|work\s+\S+)):\s*(.+)$/i);
+    const m = text.match(/^((?:min(?:ute)?\s+\d+|work\s+\S+)):\s*(.+)$/i);
     if (m) {
       const block = this.parseHeader(m[1], line);
       const child = /^rest\b/i.test(m[2])

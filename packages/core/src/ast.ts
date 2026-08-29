@@ -154,6 +154,18 @@ export interface Rest {
 export interface Interrupt {
   node: 'interrupt';
   every: Unit;
+  /**
+   * The overlay's interval is bounded the same four ways a clock-driven block
+   * header is (spec §5.5): by a count of cycles (`every 90s x 5:`), by a window
+   * (`every 90s for 12min:`), by failure (`every 1min until failure:`), or by
+   * nothing at all. These field names mirror `Block`'s clock fields on purpose —
+   * the overlay and the block header state the *same* bound, so they read it off
+   * one grammar production (`every`) and carry it in one spelling, the way an rx
+   * split and a `variants:` table resolve through one path.
+   */
+  count?: number;
+  duration?: Unit;
+  untilFailure?: boolean;
   body: Node[];
   comments: string[];
   line: number;

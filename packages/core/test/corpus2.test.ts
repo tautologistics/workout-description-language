@@ -69,6 +69,25 @@ describe('corpus round two', () => {
     eq(overlay.every, { kind: 'duration', seconds: 60 });
     eq((overlay.body[0] as Step).movement, 'Burpee');
 
+    // The overlay's interval takes the same bound tails a clock-driven block
+    // header does (spec §5.5) — read off the grammar's `every` production and
+    // carried on the `Interrupt` in `Block`'s clock field names. Before
+    // 2026-08-29 a one-token regex could not see past `every 90s`.
+    const bounded = (one('AMRAP 20min:\n  - 10 Burpee\n  every 90s x 5: 3 Power Clean @ 185lb')
+      .body[0] as Block).children[1] as Interrupt;
+    eq(bounded.node, 'interrupt');
+    eq(bounded.every, { kind: 'duration', seconds: 90 });
+    eq(bounded.count, 5);
+    eq((bounded.body[0] as Step).movement, 'Power Clean');
+    const window = (one('for time:\n  - 100 Thruster\n  every 90s for 12min: 3 Power Clean')
+      .body[0] as Block).children[1] as Interrupt;
+    eq(window.duration, { kind: 'duration', seconds: 720 });
+    const fail = (one('for time:\n  - 100 Thruster\n  every 1min until failure: 5 Burpee')
+      .body[0] as Block).children[1] as Interrupt;
+    eq(fail.untilFailure, true);
+    // The block form — a colon with nothing after it — is still a clock block.
+    eq((one('every 90s x 5:\n  - 3 Power Clean').body[0] as Block).type, 'clock');
+
     // The dash is decoration: canonical form drops it, and the result is stable.
     eq(canon('10 rounds:\n  - work 20s: Pull-Up'), '10 rounds:\n  work 20s: Pull-Up');
     eq(canon('EMOM 10min:\n  - min 1: 12cal Row'), 'EMOM 10min:\n  min 1: 12cal Row');
@@ -86,10 +105,6 @@ describe('corpus round two', () => {
       'for time: 50 Burpee',
       '21-15-9: Thruster',
       'complex: 3 Clean',
-      // The bounded interrupt overlay the `every <dur>: <body>` regex cannot
-      // read either — a garbage step before, a loud error now. Reading the
-      // bound stays a debt.
-      'every 1min until failure: 5 Burpee',
     ]) {
       const cases: Array<[string, boolean]> = [
         [body, true],                       // top level, no dash

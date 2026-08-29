@@ -28,8 +28,12 @@ function shape(i: TimelineItem): string {
   if (i.kind === 'rest') return 'rest';
   const n = i.rounds !== undefined ? `x${i.rounds}` : i.untilFailure ? 'x?' : '';
   const w = i.window !== undefined ? `@${i.window}s` : '';
+  const ib = i.interrupt
+    ? (i.interrupt.untilFailure ? 'x?' : i.interrupt.count !== undefined ? `x${i.interrupt.count}`
+        : i.interrupt.window !== undefined ? `@${i.interrupt.window}s` : '')
+    : '';
   return `${i.type}${n}${w}[${i.items.map(shape).join(',')}]` +
-    (i.interrupt ? `+every${i.interrupt.every}s[${i.interrupt.items.map(shape).join(',')}]` : '');
+    (i.interrupt ? `+every${i.interrupt.every}s${ib}[${i.interrupt.items.map(shape).join(',')}]` : '');
 }
 
 export function digest(src: string) {

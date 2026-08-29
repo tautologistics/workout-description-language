@@ -312,9 +312,19 @@ function emit(n: Node, depth: number, out: string[], scheme?: Scheme) {
       return;
     }
     case 'rest': out.push(pad + restText(n)); return;
-    case 'interrupt':
-      out.push(`${pad}every ${formatDuration(n.every)}: ${stepText(n.body[0] as Step).replace(/^- /, '')}`);
+    case 'interrupt': {
+      // The bound is spelled exactly as a clock-driven block header spells it
+      // (§5.5), minus the `EMOM` sugar — the overlay keeps the `every …` prefix
+      // it is parsed by. `until failure` before a window before a count, the
+      // same precedence `headerText`'s `clock` branch uses.
+      const every = formatDuration(n.every);
+      const head = n.untilFailure ? `every ${every} until failure`
+        : n.duration ? `every ${every} for ${formatDuration(n.duration)}`
+        : n.count !== undefined ? `every ${every} x ${n.count}`
+        : `every ${every}`;
+      out.push(`${pad}${head}: ${stepText(n.body[0] as Step).replace(/^- /, '')}`);
       return;
+    }
     case 'block': {
       // `min 1: 12cal Row` and `work 20s: Burpee` stay on one line
       if ((n.type === 'cycleEntry' || n.type === 'work') && n.children.length === 1) {

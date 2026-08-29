@@ -869,6 +869,18 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
 
   // --- overlays and nesting ---
   { group: 'structure', name: 'interrupt overlay', src: 'AMRAP 20min:\n  - 10 Burpee\n  every 1min: 5 Push-Up' },
+  // The overlay's interval states the same bound a clock-driven block header does
+  // (spec §5.5, §5.8) — count, window, failure, or nothing — read off the
+  // grammar's own `every` production and carried on the `Interrupt` in the field
+  // names `Block` uses for a clock. Until 2026-08-29 a bespoke one-token regex in
+  // `parseNode` could not see past the first token, so `every 90s x 5: …` fell
+  // into the "`<header>:` opens a block" diagnostic and the bounded overlay was
+  // unwritable on one line. The unbounded twin stays beside them so the contrast
+  // is pinned.
+  { group: 'structure', name: 'interrupt overlay unbounded', src: 'for time:\n  - 100 Thruster @ 135lb\n  every 1min: 5 Burpee' },
+  { group: 'structure', name: 'interrupt overlay until failure', src: 'for time:\n  - 100 Thruster @ 135lb\n  every 1min until failure: 5 Burpee' },
+  { group: 'structure', name: 'interrupt overlay x count', src: 'for time:\n  - 100 Thruster @ 135lb\n  every 90s x 5: 3 Power Clean @ 185lb' },
+  { group: 'structure', name: 'interrupt overlay for a window', src: 'for time:\n  - 100 Thruster @ 135lb\n  every 90s for 12min: 3 Power Clean @ 185lb' },
   { group: 'structure', name: 'choice block', src: 'for time:\n  choice:\n    - 1000m Row\n    - 800m Run\n    - 2000m Bike' },
   { group: 'structure', name: 'inline brace body', src: '8 rounds: { work 20s: Pull-Up, rest 10s }' },
   // A nested block written with a leading `- `. These four were pinned as

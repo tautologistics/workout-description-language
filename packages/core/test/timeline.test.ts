@@ -4,7 +4,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, eq, ok } from './lib.ts';
 import { parse } from '../src/parse.ts';
-import { compile, type TimelineGroup, type TimelineStep, type TimelineItem } from '../src/timeline.ts';
+import { compile, outline, type TimelineGroup, type TimelineStep, type TimelineItem } from '../src/timeline.ts';
 import { run } from '../src/run.ts';
 
 const dir = join(dirname(fileURLToPath(import.meta.url)), '../../../examples/corpus');
@@ -67,6 +67,24 @@ describe('timeline: desugaring', () => {
     eq(top.interrupt!.every, 60);
     eq(s(top.interrupt!.items[0]).movement, 'Burpees');
     eq(top.items.length, 1, 'the interrupt is not a sibling step');
+  });
+
+  it('carries a bounded overlay’s bound onto the group and into the outline', () => {
+    const src = 'for time:\n  - 100 Thruster @ 135lb\n  every 90s x 5: 3 Power Clean @ 185lb';
+    const top = g(tl2(src).root.items[0]);
+    eq(top.interrupt!.every, 90);
+    eq(top.interrupt!.count, 5);
+    ok(outline(tl2(src)).some((l) => /↻ every 1:30 x 5:/.test(l)), 'the bound shows in the outline');
+
+    // `for <window>` and `until failure` land the same way…
+    const win = g(tl2('for time:\n  - 100 Thruster\n  every 90s for 12min: 3 Power Clean').root.items[0]);
+    eq(win.interrupt!.window, 720);
+    const fail = g(tl2('for time:\n  - 100 Thruster\n  every 1min until failure: 5 Burpee').root.items[0]);
+    eq(fail.interrupt!.untilFailure, true);
+
+    // …and none of them feed the estimate: an overlay is bounded by the work
+    // beside it, and that work here is athlete-paced.
+    eq(tl2(src).estimatedSeconds, undefined);
   });
 
   it('turns a work block into a timed step', () => {
