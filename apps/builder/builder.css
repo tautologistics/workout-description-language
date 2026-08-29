@@ -1,6 +1,8 @@
 /*
- * Three panes over one document, at desk distance rather than gym distance —
- * so unlike the board, this is sized in rem and is light by default.
+ * Panes over one document, at desk distance rather than gym distance — so
+ * unlike the board, this is sized in rem and is light by default. The
+ * palette, the editor (Outline / Text as two tabs of one cell) and "what it
+ * reads as" are three grid columns.
  */
 
 :root {
@@ -69,7 +71,7 @@ main {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, .75fr) minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, .9fr);
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.6fr) minmax(0, .95fr);
 }
 
 .pane {
@@ -94,6 +96,35 @@ main {
 }
 
 .dirty { color: var(--accent); text-transform: none; letter-spacing: 0; font-weight: 400; }
+
+/* --- the editor: Outline / Text as two tabs of one cell ------------------- */
+
+/* The tab strip stands in for the two panes' `<h2>` bars, so it carries the
+   same metrics — the editor's content then starts level with the palette's
+   and the reading pane's. */
+.editor-tabs { display: flex; border-bottom: 1px solid var(--rule); }
+
+.editor-tab {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  padding: .5rem 1rem;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--dim);
+  cursor: pointer;
+}
+
+.editor-tab:hover { color: var(--ink); border-bottom-color: var(--rule); }
+.editor-tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+
+/* One view shows; the other is `display: none` so it reserves no height.
+   Each is a flex column so `#outline` (scrolls) and `#text` fill it. */
+.editor-view { display: none; flex: 1; min-height: 0; flex-direction: column; }
+.editor-view.active { display: flex; }
 
 /* --- outline -------------------------------------------------------------- */
 
@@ -277,10 +308,10 @@ button, .button {
 button:hover, .button:hover { border-color: var(--dim); }
 .button { display: inline-flex; align-items: center; }
 
-/* The palette is a fourth column, so the point at which four columns stop
-   fitting is further out than it was for three. */
+/* When three columns stop fitting, the palette goes full-width across the top
+   and the editor and reading panes share the row below it. */
 @media (max-width: 1180px) {
-  main { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, .9fr); }
+  main { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
   .palette-pane { grid-column: 1 / -1; border-bottom: 1px solid var(--rule); }
   .palette { max-height: 11rem; }
   .palette-controls { grid-template-columns: 1fr 1fr auto; align-items: center; }

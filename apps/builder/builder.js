@@ -850,6 +850,26 @@ const unhoverBody = () => { hoverMovement = null; renderBody(); };
 
 el('body-mode').addEventListener('change', renderBody);
 
+// --- the editor tabs -------------------------------------------------------
+// Outline and Text are two views of the same `lines`; only one shows at a
+// time. `render()` keeps painting both — a switch just reveals one — so this
+// is show/hide and nothing else. Default to Outline: the builder's pitch is
+// that it is a GUI, not a text editor. Remembered like the body-map mode and
+// the goals, so a reload keeps the mode. The `#dirty` "edited" badge lives on
+// the Text tab, so it stays visible from the Outline tab when hand edits have
+// drifted the text from canonical.
+function setEditorView(view) {
+  if (view !== 'text') view = 'outline';
+  for (const b of document.querySelectorAll('.editor-tab'))
+    b.setAttribute('aria-selected', String(b.dataset.view === view));
+  el('view-outline').classList.toggle('active', view === 'outline');
+  el('view-text').classList.toggle('active', view === 'text');
+  localStorage.setItem('wdl.editor-tab', view);
+}
+for (const b of document.querySelectorAll('.editor-tab'))
+  b.addEventListener('click', () => setEditorView(b.dataset.view));
+setEditorView(localStorage.getItem('wdl.editor-tab'));
+
 // --- wiring ------------------------------------------------------------------
 
 el('text').addEventListener('input', () => {

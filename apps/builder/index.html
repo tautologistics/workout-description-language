@@ -59,19 +59,22 @@
     <div id="palette" class="palette"></div>
   </section>
 
-  <section class="pane outline-pane">
-    <h2>Outline</h2>
-    <div id="outline" class="outline"></div>
-    <div class="add-row">
-      <button data-add="step">+ movement</button>
-      <button data-add="block">+ block</button>
-      <button data-add="rest">+ rest</button>
+  <section class="pane editor-pane">
+    <div class="editor-tabs" role="tablist">
+      <button id="tab-outline" class="editor-tab" role="tab" data-view="outline" aria-selected="true">Outline</button>
+      <button id="tab-text" class="editor-tab" role="tab" data-view="text" aria-selected="false">Text <span id="dirty" class="dirty" hidden>edited</span></button>
     </div>
-  </section>
-
-  <section class="pane text-pane">
-    <h2>Text <span id="dirty" class="dirty" hidden>edited</span></h2>
-    <textarea id="text" spellcheck="false" autocapitalize="off" autocorrect="off"></textarea>
+    <div id="view-outline" class="editor-view" role="tabpanel">
+      <div id="outline" class="outline"></div>
+      <div class="add-row">
+        <button data-add="step">+ movement</button>
+        <button data-add="block">+ block</button>
+        <button data-add="rest">+ rest</button>
+      </div>
+    </div>
+    <div id="view-text" class="editor-view" role="tabpanel">
+      <textarea id="text" spellcheck="false" autocapitalize="off" autocorrect="off"></textarea>
+    </div>
   </section>
 
   <section class="pane read-pane">
