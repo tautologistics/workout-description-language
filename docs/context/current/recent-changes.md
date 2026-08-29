@@ -2,6 +2,17 @@
 
 ## Changes
 
+- **2026-08-29 — `registry/workouts.canonical.json` is guarded against drift.**
+  A test task off [../topics/known-debts.md](../topics/known-debts.md), not a
+  queue item. `scripts/build-workouts.mjs` now exports `buildWorkoutsDoc()`,
+  the pure core of its derivation (CLI byte-identical, behind a main guard);
+  new `packages/core/test/workouts-canonical.test.ts` re-runs it in process
+  and asserts equality against the committed file, one `it()` per corpus
+  workout modulo the `generated` stamp — the guard `interpretations.json` and
+  `vocabulary.json` had and this file did not. Suite **1817 → 2020 passing**
+  (+202 workouts, +1 envelope), 1 pending unchanged. No registry file was
+  rebuilt. See [../topics/known-debts.md](../topics/known-debts.md) and
+  [../topics/what-exists.md](../topics/what-exists.md).
 - **2026-08-29 — `Pec Deck` = `Butterfly` = `Machine chest fly`.** A curation
   task off [../topics/known-debts.md](../topics/known-debts.md), not a queue
   item. The three wger-only / wger-sharing records `find-duplicates.mjs`

@@ -686,7 +686,8 @@ when something looks odd before treating it as a discovery.
   worth fixing in the builder if the outline ever starts drawing from the AST.
   Found 2026-08-15 while verifying queue item 0b in the builder.
 
-- **`registry/workouts.canonical.json` is not rebuilt by anything that runs.**
+- ~~**`registry/workouts.canonical.json` is not rebuilt by anything that runs.**~~
+  **Closed 2026-08-29.**
   Found 2026-08-15 while regenerating it for item 0d: it was stamped
   `2026-08-13`, so it had sat through the parser swap and two rounds of defect
   fixes. Six workouts differed by **JSON key order only** (`buildTarget` before
@@ -698,8 +699,20 @@ when something looks odd before treating it as a discovery.
 
   Rebuilt 2026-08-16 while fixing the stamp's timezone, and all three generated
   registry files came back byte-identical apart from the stamp — so nothing had
-  drifted this time either. The debt is unchanged: nothing runs the rebuild and
-  nothing checks the result, so "it was fine twice" is still luck.
+  drifted this time either. The debt was unchanged then: nothing ran the rebuild
+  and nothing checked the result, so "it was fine twice" was still luck.
+
+  **Closed by approach A** — `scripts/build-workouts.mjs` now exports
+  `buildWorkoutsDoc()`, the pure core of its derivation, with the CLI (write +
+  summary, now behind a `import.meta.url` main guard) byte-identical.
+  `packages/core/test/workouts-canonical.test.ts` re-runs that in process and
+  asserts equality against the committed `registry/workouts.canonical.json`, one
+  `it()` per workout keyed by id plus an envelope check, ignoring the `generated`
+  stamp — the same shape as `golden.test.ts` and `vocabulary.test.ts`. Its
+  failure message points at `node scripts/build-canonical.ts`. Verified it bites
+  by reversing the movements sort in the deriver: the test failed and named each
+  drifted workout. *The separate `describe-corpora.mjs` prose-vs-table debt
+  lower in this file is untouched — different debt.*
 
 - ~~The builder's Indent allows a first-in-document top-level line to be
   indented, orphaning it and invalidating the file.~~ **Fixed 2026-08-24.**

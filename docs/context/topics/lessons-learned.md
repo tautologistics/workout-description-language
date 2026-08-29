@@ -436,6 +436,11 @@ the way to find out was a script that diffs the two parses field by field, becau
 `git diff` on a single-line 3MB JSON says "1 insertion, 1 deletion" and tells you
 nothing. `interpretations.json` and `vocabulary.json` cannot drift like this,
 because a test regenerates and compares them on every run. Recorded 2026-08-15.
+*Corrected 2026-08-29: `workouts.canonical.json` cannot drift like this either
+now — `packages/core/test/workouts-canonical.test.ts` re-runs its deriver and
+compares, the same way. The lesson stands: the reflex is to give a generated
+file a regenerate-and-compare test, and it took fourteen days and two "fine by
+luck" rebuilds to act on it here.*
 
 **A fixture can pin a loss, and a group of fixtures written the same way will
 agree with each other about it.** Four `structure` vocabulary forms were written
