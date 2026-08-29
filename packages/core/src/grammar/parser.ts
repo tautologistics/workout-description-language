@@ -37,6 +37,15 @@ export type { Origin };
 export type Attempt<T> = { ok: true; value: T } | { ok: false; message: string };
 
 export interface WdlParser {
+  /**
+   * The compiled grammar itself. Exposed so a caller can *read* the rules
+   * rather than only match against them — `block-affordances.ts` walks the
+   * `blockModifier_*` cases to learn what a header can take next, so the
+   * builder's affordance is derived from `spec/grammar-0.1.ohm` and cannot lag
+   * it. An `ohm.Grammar`; typed loosely because the vendored shim carries no
+   * types for this path.
+   */
+  grammar: { rules: Record<string, { body: { source: { contents: string } } }> };
   /** One step line — the text after the `- `. Throws if the grammar rejects it. */
   parseStep(text: string, o?: Origin): Step;
   /** One block header — the text before the `:`. Throws if the grammar rejects it. */
@@ -113,6 +122,7 @@ export function makeParser(grammarSource: string): WdlParser {
   const tryField = at<VariantField>('fieldLine', (n) => (n as { field(): VariantField }).field());
 
   return {
+    grammar,
     tryStep,
     tryHeader,
     tryRest,

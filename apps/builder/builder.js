@@ -25,6 +25,8 @@ import {
   duplicate as duplicateLines, insertAfter, logicalText, replaceLogical, logicalEnd,
 } from '../../build/web/core/edit.js';
 import { parse } from '../../build/web/core/parse.js';
+import { wdl } from '../../build/web/core/grammar/parser.js';
+import { blockModifierOptions, blockKindCompletions } from '../../build/web/core/block-affordances.js';
 import { format } from '../../build/web/core/format.js';
 import { compile } from '../../build/web/core/timeline.js';
 import { validate } from '../../build/web/core/validate.js';
@@ -68,6 +70,19 @@ let lines = START.replace(/\n$/, '').split('\n');
 let focused = null;
 /** The curated registry, for per-row movement suggestions. Empty until it loads. */
 let curatedMovements = [];
+
+/**
+ * What a block header can take next — the comma modifiers and the kind
+ * completions, both read straight off `spec/grammar-0.1.ohm` by
+ * `block-affordances.ts` so they cannot lag it. Computed once, lazily, because
+ * the grammar is provided just after this module's imports and `wdl()` throws
+ * before then.
+ */
+let blockAffordances = null;
+const headerAffordances = () => (blockAffordances ??= {
+  modifiers: blockModifierOptions(wdl().grammar),
+  completions: blockKindCompletions(wdl().grammar),
+});
 
 const text = () => `${lines.join('\n')}\n`;
 
@@ -221,10 +236,13 @@ function renderOutline() {
   // scheme step and its outline row do not always number the same way an
   // inline block does.
   const movementOf = new Map();
+  // The parsed block a header row stands for, keyed the same way — what the
+  // block-header affordance reads to know the kind and what it still needs.
+  const blockOf = new Map();
   const collect = (nodes) => {
     for (const n of nodes) {
       if (n.node === 'step') movementOf.set(n.line, n.movement);
-      else if (n.node === 'block') collect(n.children);
+      else if (n.node === 'block') { blockOf.set(n.line, n); collect(n.children); }
       else if (n.node === 'interrupt') collect(n.body);
     }
   };
@@ -453,7 +471,106 @@ function renderOutline() {
         modCaret.hidden = !hasAny;
       }
 
-      wrap.append(input, modCaret, caret, suggestions, modifiers);
+      // The block-header caret: the block-level counterpart of `modCaret`. On a
+      // row that parses to a block it opens a panel of what that header can take
+      // next — a duration to finish a bare `AMRAP:` or `EMOM:`, and the comma
+      // modifiers the grammar's `blockModifier` rule allows (`cap`, `for time`,
+      // `as …`, `wearing …`, overrun behaviour, an inherited `@` target) — each
+      // with an editable default spliced in at the grammatically valid spot.
+      // The list comes from `block-affordances.ts`, which reads the grammar, so
+      // it cannot drift from what the parser accepts. Sits where `modCaret`
+      // sits; the two never show on the same row (one needs a movement, the
+      // other a block).
+      const blockPanel = document.createElement('div');
+      blockPanel.className = 'suggestions modifiers';
+      blockPanel.hidden = true;
+      const closeBlockPanel = () => { blockPanel.hidden = true; blockPanel.innerHTML = ''; };
+
+      // Splice into the header — the text before the first `:`. A comma modifier
+      // goes after the existing header content; a kind completion goes right
+      // after the leading kind word (`AMRAP` -> `AMRAP 12min`). Everything after
+      // the colon (an inline block's body) is left untouched.
+      const applyHeaderMod = (addition, mode) => {
+        const value = input.value;
+        const colon = value.indexOf(':');
+        const head = colon === -1 ? value : value.slice(0, colon);
+        const tail = colon === -1 ? '' : value.slice(colon);
+        let newHead; let caretAt;
+        if (mode === 'kind') {
+          // After the kind word, before any comma modifiers already on the line.
+          const m = head.match(/^(\s*-?\s*[^\s,]+)(.*)$/);
+          if (m) { newHead = `${m[1]} ${addition}${m[2]}`; caretAt = m[1].length + 1 + addition.length; }
+          else { newHead = `${head.trim()} ${addition}`; caretAt = newHead.length; }
+        } else {
+          const base = head.replace(/\s+$/, '');
+          newHead = base.trim() ? `${base}, ${addition}` : addition;
+          caretAt = newHead.length;
+        }
+        const next = newHead + tail;
+        input.value = next;
+        closeBlockPanel();
+        lines = replaceLogical(lines, n.line, next);
+        el('text').value = text();
+        renderReading();
+        renderFindings();
+        renderBody();
+        input.focus();
+        input.setSelectionRange(caretAt, caretAt);
+      };
+
+      const openBlockPanel = () => {
+        const block = blockOf.get(n.line);
+        if (!block) return;
+        const { modifiers: mods, completions } = headerAffordances();
+        const header = input.value.split(':')[0];
+        const bareHead = header.replace(/^\s*-?\s*/, '').trim();
+        // The kind occupies the first comma segment; a completion applies only
+        // while that segment is just the kind word, with nothing after it —
+        // which is also what keeps `for time:` from being offered `for`'s
+        // duration, since its first segment is two words.
+        const firstSeg = bareHead.split(',')[0].trim();
+        const kindWord = firstSeg.split(/\s+/)[0];
+        const kindWordStandsAlone = firstSeg === kindWord;
+        const items = [];
+        for (const c of completions) {
+          if (kindWordStandsAlone && c.head.test(kindWord) && !block[c.filled]) {
+            items.push({ text: `${c.insert} — ${c.label}`, addition: c.insert, mode: 'kind' });
+          }
+        }
+        for (const o of mods) {
+          if (o.present && o.present(header)) continue;   // header already carries it
+          items.push({ text: `${o.insert} — ${o.label}`, addition: o.insert, mode: 'comma' });
+        }
+        if (!items.length) return;
+        blockPanel.innerHTML = '';
+        for (const it of items) {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'suggestion';
+          b.textContent = it.text;
+          b.onmousedown = (e) => e.preventDefault();
+          b.onclick = () => applyHeaderMod(it.addition, it.mode);
+          blockPanel.append(b);
+        }
+        blockPanel.hidden = false;
+      };
+
+      const blockCaret = document.createElement('button');
+      blockCaret.type = 'button';
+      blockCaret.className = 'caret modcaret';
+      blockCaret.title = 'What this block can take next';
+      blockCaret.tabIndex = -1;
+      blockCaret.textContent = '»';
+      blockCaret.hidden = !blockOf.has(n.line);
+      blockCaret.onmousedown = (e) => e.preventDefault();
+      blockCaret.onclick = () => (blockPanel.hidden ? (input.focus(), openBlockPanel()) : closeBlockPanel());
+      input.addEventListener('blur', closeBlockPanel);
+
+      // On a block row the movement-name caret has nothing to complete; hide it
+      // so only the one meaningful affordance shows.
+      if (blockOf.has(n.line)) caret.hidden = true;
+
+      wrap.append(input, modCaret, blockCaret, caret, suggestions, modifiers, blockPanel);
 
       const tools = document.createElement('span');
       tools.className = 'tools';

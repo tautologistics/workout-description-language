@@ -24,6 +24,7 @@ import './truth.test.ts';
 import './golden.test.ts';
 import './vocabulary.test.ts';
 import './grammar.test.ts';
+import './block-affordances.test.ts';
 import './interop.test.ts';
 import './export.test.ts';
 import './connect.test.ts';
