@@ -333,11 +333,31 @@ marks the ones worth a top-level pointer.
   became movement-named steps with the block (or overlay) dropped, no
   diagnostic. `parseNode` now strips the dash from these three the same way,
   since `format` already emits them dashless and `wdl fmt` was settling on the
-  loss. A *general* inline block body (`- AMRAP 3min: 10 Push-Up`) is still a
-  step: only `min`/`work`/`every` and the brace form carry a body on the header
-  line, so there is no rule to read it as a block. Found by driving the builder
+  loss. A *general* inline block body (`AMRAP 3min: 10 Push-Up`,
+  `for time: 50 Burpee`, `21-15-9: Thruster`, dashed or not) is still a step:
+  only `min`/`work`/`every` and the brace form carry a body on the header line,
+  so there is no rule to read it as a block. Found by driving the builder
   — the per-block `»` affordance now reaches the dashed rows. Tests in
   `packages/core/test/corpus2.test.ts`.
+
+  **Extended again 2026-08-28: that general one-liner is now *reported*, not
+  silent.** It was the one remaining silent mis-parse in this family — `tryStep`
+  took the whole string (`"AMRAP 3min: 10 Push-Up"`) as a movement name,
+  `quantity: open`, no error, so an AMRAP scored as one open-ended movement and
+  `wdl check` said nothing. `parseNode` now probes the text before the first
+  colon: if it parses as a recognized block *kind* (not the catch-all
+  `headerName`, so `- 1:30 Row` and a `note: "…"` modifier don't trip it) and
+  there is text after the colon, it emits *"`AMRAP 3min:` opens a block — put
+  its body on the next line, indented, or use the brace form"*. The line still
+  parses as the held step (the text survives, as an unresolvable name always
+  does) — only the silence is fixed. **Supporting the one-liner** (a real
+  `amrap` block with one step) was the other option and was declined: no corpus,
+  spec or template file writes it, and it needs a grammar change plus a
+  canonical-output / round-trip decision, for a form that only ever helps a
+  one-movement AMRAP — the same rarity that kept AMRAP out of the `min`/`work`
+  inline special-case in the first place. The probe also catches the bounded
+  interrupt overlay (`every 1min until failure: 5 Burpee`), which the overlay
+  regex could not read — see [known-debts.md](known-debts.md).
 
 - **A file that was never indented is read, and the four rules that read it.**
   Settled 2026-08-15 by queue item 0b; stated in spec §2, rules 1–3 in

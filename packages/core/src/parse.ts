@@ -154,6 +154,45 @@ class Parser {
       || /^(?:min(?:ute)?\s+\d+|work\s+\S+|every\s+\S+):\s*\S/i.test(undashed);
     const text = opensBlock ? undashed : raw;
 
+    // A *general* `<block header>: <inline body>` on one line — `AMRAP 3min: 10
+    // Push-Up`, `for time: 50 Burpee`, `21-15-9: Thruster`, dashed or not, top
+    // level or nested — is not a WDL form. Only `min`/`work`/`every` and the
+    // brace form `{ … }` carry a body after the colon (handled above and in
+    // `expandInline`); every other kind opens a block and takes its body on the
+    // next line, indented. With no rule to read it, `tryStep` swallows the whole
+    // string as a movement name and nothing is said — a silent mis-parse: an
+    // AMRAP scored as one open-ended movement, `wdl check` clean. It still parses
+    // as that held step (the text survives, as an unresolvable name always does),
+    // but loudly now. Supporting the one-liner instead is a grammar/spec change
+    // with round-trip and whiteboard-readability cost, for a form no corpus,
+    // spec or template file writes — left as a parser/spec question.
+    //
+    // This also catches the bounded interrupt overlay — `every 1min until
+    // failure: 5 Burpee`, `every 90s x 5: 3 Burpee` — which the overlay branch's
+    // `every <dur>: <body>` regex cannot read, so it too was becoming a garbage
+    // step. Reading those bounds is still a debt (the `Interrupt` node carries no
+    // bound); making the failure loud is the part that is in scope here.
+    if (!opensBlock) {
+      const stepText = text.replace(/^-\s+/, '');
+      const colon = stepText.indexOf(':');
+      if (colon > 0 && !/^rest\b/i.test(stepText)) {
+        const before = stepText.slice(0, colon);
+        const probe = wdl().tryHeader(before, line);
+        // A recognized kind — not the catch-all `headerName`, which sets a `name`
+        // on a plain `sequence` and matches any prose, so `- 1:30 Row` and
+        // `- 10 Thruster, note: "x"` never trip this.
+        if (probe.ok && !(probe.value.name && probe.value.type !== 'section')) {
+          this.errors.push({
+            line: line.line,
+            message: `\`${before.trim()}:\` opens a block — put its body on the next line, `
+              + 'indented, or use the brace form `{ … }`. Only `min`, `work` and `every` '
+              + 'carry a body after the colon.',
+            text: line.text,
+          });
+        }
+      }
+    }
+
     if (/^-\s+/.test(text)) return this.parseStep(text.replace(/^-\s+/, ''), line);
     if (/^rest\b/i.test(text)) return this.parseRest(text, line);
 

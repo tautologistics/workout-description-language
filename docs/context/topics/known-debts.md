@@ -599,8 +599,12 @@ when something looks odd before treating it as a discovery.
   `/^-\s+/` step branch first, and lost the block the same silent way. `parseNode`
   now strips the dash from those three forms too. See
   [settled-decisions.md](settled-decisions.md) "A line that is both a step and a
-  block header". A *general* inline block body (`- AMRAP 3min: 10 Push-Up`) has
-  no rule and is still a step, on purpose.
+  block header". A *general* inline block body (`AMRAP 3min: 10 Push-Up`,
+  `for time: 50 Burpee`, `21-15-9: Thruster`) has no rule and is still a step —
+  but as of 2026-08-28 it is **reported** rather than silent: `parseNode` probes
+  the text before the colon and, if it is a recognized block kind, says the
+  header opens a block whose body belongs on the next line or in braces. Same
+  file, "Extended again 2026-08-28".
 
   **It was pinned as correct, which is the part worth remembering.** Four
   `structure` vocabulary forms — `nested blocks`, `deep nesting`, `many top-level
@@ -611,6 +615,23 @@ when something looks odd before treating it as a discovery.
   ending in a colon, in the same family as the `)s` the rx-split defect wrote.
   Nothing in the corpus, the spec or any template writes the dashed form, so
   those four fixtures were the only witnesses and they had been taught to agree.
+
+- **The one-line interrupt overlay cannot state its grammatical bounds.**
+  `parseNode` reads the overlay (`every 1min: 5 Burpee` on one line, spec §5.8)
+  with a bespoke regex, `/^every\s+(\S+):\s*(.+)$/i` — one token before the
+  colon. The `every` grammar rule's bound tails — `every … for <dur>`,
+  `every … until failure`, `every … x <n>` — all fail that regex, so
+  `every 1min until failure: 5 Burpee` fell through to a garbage step with no
+  diagnostic. As of 2026-08-28 that falls into the general "`<header>:` opens a
+  block" diagnostic instead (the text before the colon parses as
+  `blockKind_every`), so the failure is **loud** — but the bounded overlay still
+  cannot be *expressed* on one line. Reading it means extending the overlay
+  parse to accept those tails *and* giving the `Interrupt` node somewhere to
+  carry the bound (today it holds `every` + `body` only). The block form
+  `every 90s x 5:` with indented children already works. This is why the
+  builder's per-block `»` caret is deliberately not offered on overlay rows —
+  see [builder-ux.md](builder-ux.md), the 2026-08-28 correction sub-list.
+  *Touches: `packages/core/src/parse.ts`, `packages/core/src/ast.ts`.*
 
 - **Open, and the one place the adoption rule is weaker than its argument.** The
   rule that an empty block adopts the next line rests on "an empty block is not

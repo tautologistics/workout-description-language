@@ -165,14 +165,24 @@ It split in two, and the halves were not equally ready — both are done now:
     reaches them — verified in both themes, splice valid, diagnostics clean.
     Tests: `packages/core/test/corpus2.test.ts` ("reads a dashed inline block
     as the block…", and a companion pinning the boundary below). 1809 → 1811.
-  - **`- AMRAP 3min: 10 Push-Up` stays a step, on purpose.** A *general*
-    `<blockHeader>: <inline body>` on one line is not a WDL form — only
-    `min`/`work`/`every` (and the brace form) carry a body after the colon.
-    So there is no `Block` for a caret to attach to, and the row shows only
-    the movement-suggestion `▾` (against an unresolvable name, the same as any
-    typo'd step). Making it a block is a grammar/spec change with round-trip
-    and whiteboard-readability implications — out of scope here, and left as a
-    parser/spec question rather than papered over in the builder.
+  - **`AMRAP 3min: 10 Push-Up` stays a step — now with a diagnostic
+    (landed 2026-08-28, follow-up).** A *general* `<blockHeader>: <inline body>`
+    on one line (`AMRAP 3min: 10 Push-Up`, `for time: 50 Burpee`,
+    `21-15-9: Thruster`, dashed or not) is not a WDL form — only
+    `min`/`work`/`every` and the brace form carry a body after the colon.
+    There is still no `Block` for the `»` caret to attach to, so the row shows
+    only the movement-suggestion `▾` against an unresolvable name. What changed
+    is the silence: `tryStep` used to swallow the whole line as a movement name
+    with `quantity: open` and no error — an AMRAP scored as one open-ended
+    movement, `wdl check` clean. `parseNode` now probes the text before the
+    first colon and, if it parses as a recognized block *kind*, emits
+    *"`AMRAP 3min:` opens a block — put its body on the next line, indented, or
+    use the brace form"*; the diagnostics pane shows it (parse errors map
+    straight to `severity: 'error'` there). **Supporting** the one-liner as a
+    real block was weighed and declined — no corpus/spec/template file writes
+    it, and it needs a grammar change plus a canonical-output decision for a
+    form that only ever helps a one-movement AMRAP. Full reasoning in
+    [settled-decisions.md](settled-decisions.md), "Extended again 2026-08-28".
   - **Interrupt overlay rows (`every 1min: 5 Burpee`) get no block caret,
     deliberately.** The overlay is parsed by a bespoke regex in `parseNode`
     that accepts only `every <dur>: <body>` — none of the `every` grammar
@@ -181,14 +191,18 @@ It split in two, and the halves were not equally ready — both are done now:
     rejects, which is exactly the drift the affordance exists to avoid. The
     row still exposes the movement `»`/`▾` for its inline body (a real step).
     The *block* form `every 90s x 5:` with indented children already gets the
-    caret via `blockKind_every`.
+    caret via `blockKind_every`. *Follow-up 2026-08-28: a bounded one-liner like
+    `every 1min until failure: 5 Burpee` no longer falls through to a garbage
+    step — the general "`<header>:` opens a block" diagnostic now catches it —
+    but it still cannot be expressed on one line. That is a
+    [known debt](known-debts.md), not part of the caret.*
 
 *Touches: `registry/movements.json` (first half), `packages/core/src/parse.ts:277-320`
 and `spec/spec-0.1.md` (second half), `apps/builder/builder.js:93-100` (TOOLS),
 `packages/core/src/block-affordances.ts` + `packages/core/src/grammar/parser.ts`
 + `apps/builder/builder.js` (second half); `packages/core/src/parse.ts` +
 `packages/core/test/corpus2.test.ts` (2026-08-28 correction — dashed inline
-blocks).*
+blocks, and follow-up — the general one-liner is now diagnosed).*
 
 **~~Third collision with a closed decision — flagged, not resolved.~~ Resolved
 2026-08-28, in favour of deriving.**

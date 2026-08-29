@@ -74,13 +74,47 @@ describe('corpus round two', () => {
     eq(canon('EMOM 10min:\n  - min 1: 12cal Row'), 'EMOM 10min:\n  min 1: 12cal Row');
   });
 
-  it('still reads `- AMRAP 3min: 10 Push-Up` as a step — a general inline block body is not a form', () => {
-    // Only min/work/every carry a body after the colon on one line. A bare
-    // AMRAP that does so has no rule, so it stays a (movement-named) step,
-    // exactly as before — recorded so the boundary is deliberate, not forgotten.
-    const s = (one('5 rounds:\n  - AMRAP 3min: 10 Push-Up').body[0] as Block).children[0] as Step;
-    eq(s.node, 'step');
-    eq(s.movement, 'AMRAP 3min: 10 Push-Up');
+  it('flags a general `<header>: <inline body>` one-liner — held as a step, but no longer silent', () => {
+    // Only min/work/every (and the brace form) carry a body after the colon on
+    // one line. Every other block header that does so has no rule: `tryStep`
+    // takes the whole string as a movement name and, before 2026-08-28, said
+    // nothing — an AMRAP scored as one open-ended movement, `wdl check` clean.
+    // It still parses as that held step (the text survives), but a diagnostic
+    // now names the problem.
+    for (const body of [
+      'AMRAP 3min: 10 Push-Up',
+      'for time: 50 Burpee',
+      '21-15-9: Thruster',
+      'complex: 3 Clean',
+      // The bounded interrupt overlay the `every <dur>: <body>` regex cannot
+      // read either — a garbage step before, a loud error now. Reading the
+      // bound stays a debt.
+      'every 1min until failure: 5 Burpee',
+    ]) {
+      const cases: Array<[string, boolean]> = [
+        [body, true],                       // top level, no dash
+        [`- ${body}`, true],                // top level, dashed
+        [`5 rounds:\n  - ${body}`, false],  // nested under a real block
+      ];
+      for (const [doc, topLevel] of cases) {
+        const { workout, errors } = parse(doc);
+        ok(errors.some((e) => /opens a block/.test(e.message)), `${doc} — diagnosed`);
+        const node = topLevel ? workout.body[0] : (workout.body[0] as Block).children[0];
+        eq(node.node, 'step', `${doc} — still held as a step`);
+      }
+    }
+  });
+
+  it('does not flag a step that merely contains a colon', () => {
+    // `1:30` is a duration spelling; `note: "…"` is a comma modifier. The head
+    // before the colon parses only as the catch-all `headerName`, not a kind.
+    for (const src of [
+      'sequence:\n  - 1:30 Row',
+      'sequence:\n  - 10 Thruster, note: "unbroken"',
+      'sequence:\n  - Row 1:00',
+    ]) {
+      eq(parse(src).errors, [], src);
+    }
   });
 
   it('supports a duration-bounded block that is not an AMRAP', () => {
