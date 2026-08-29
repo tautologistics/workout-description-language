@@ -10,6 +10,23 @@ so; where it is a reading that still needs a click to confirm, it says that too.
 
 ---
 
+## Layout
+
+**The Outline and Text panes sit side by side, each a full grid column, but a
+user edits in only one at a time.** Raised by Chris 2026-08-29, high priority —
+queued as item 10 in [../tasks/current.md](../tasks/current.md) with full scope.
+`<main>` is a four-column grid (palette | Outline | Text | "What it reads as");
+the ask is to collapse Outline + Text into **one cell** with a tab / toggle to
+switch which is shown. It is a pure display change: `lines` is the single source
+of truth and both views already repaint from it on every `render()`, so an edit
+in either mode is already reflected in the other — switching a tab is show/hide
+only. Default to Outline (the builder's whole pitch is that it is a GUI, not a
+text editor). *Touches: `apps/builder/index.html`, `apps/builder/builder.css`
+(4→3 columns, and the 1180px / 900px breakpoints), `apps/builder/builder.js`
+(toggle + `localStorage` persistence).*
+
+---
+
 ## Outline
 
 **~~Indent is allowed on a line with nothing above it, producing an orphan.~~
