@@ -33,6 +33,35 @@ If a file turns out not to answer the question, load the next one rather than
 guessing — but say which files you read, so a wrong split shows up as a wrong
 split rather than as a wrong answer.
 
+## "Launch next task" / "launch next prioritized task"
+
+When Chris says any of **"launch next task"**, **"launch the next task"**,
+**"start next task"**, **"launch next prioritized task"** or a close variant,
+it is shorthand for this whole sequence — do all of it, in order, without
+asking him to repeat the detail:
+
+1. **Land the current work.** Everything committed, merged, and pushed so the
+   outcome is live on `origin/main` (this remote routes `git push origin
+   <branch>:main` onto `main` directly — confirm the SHA moved with `git
+   ls-remote origin main`, don't assume). Regenerate whatever the change
+   requires, run the suite, update the owning file(s) in `docs/context/`.
+   Nothing half-done is left behind.
+2. **Pick the top-prioritized next task.** Read
+   [docs/context/tasks/current.md](docs/context/tasks/current.md) first and take
+   its highest-priority open item. If every numbered item is closed, fall back
+   to a self-contained defect from
+   [docs/context/topics/known-debts.md](docs/context/topics/known-debts.md) or
+   one found by driving the builder/board
+   ([docs/context/topics/builder-ux.md](docs/context/topics/builder-ux.md)).
+3. **Start a new session on it.** Spawn a background-task chip
+   (`mcp__ccd_session__spawn_task`) whose prompt is fully self-contained the way
+   these task prompts always are — context to read, the situation, the job, how
+   to land it, how to update `docs/context/`, and a closing "when done" step
+   that tells that session to do this same sequence again. The chain continues
+   on its own.
+
+This supersedes nothing else; it is the standing meaning of the phrase.
+
 ## Two things that are never in doubt
 
 - The at-rest format must read on a whiteboard. That is a hard constraint, not a
