@@ -2,6 +2,23 @@
 
 ## Changes
 
+- **2026-08-29 — The builder's Outline and Text are one tabbed editor pane.**
+  Queue item 10 (high priority, Chris). The `<main>` grid went 4 → 3 columns —
+  the Outline (structural GUI) and the raw Text `<textarea>`, previously two
+  side-by-side full columns a user only ever edits one of, are now two tabs of
+  a single `.editor-pane` cell. A tab strip stands in for the two `<h2>` bars;
+  the inactive view is `display: none`; `render()` still repaints both, so a
+  switch is show/hide only (`lines` is the single source of truth both repaint
+  from). The `#dirty` "edited" badge moved onto the Text tab so it stays
+  visible from the Outline tab; the `+ movement / + block / + rest` row stays
+  with the Outline. Choice persisted in `localStorage['wdl.editor-tab']`,
+  default Outline. `@media (max-width: 1180px)` now drops to 2 columns under a
+  full-width palette; the 900px stack is unchanged. **No core or test change**
+  (the suite does not touch the builder DOM; 2025 passing, 1 pending, before
+  and after); verified by driving the builder. See
+  [../tasks/completed.md](../tasks/completed.md),
+  [../topics/builder-ux.md](../topics/builder-ux.md) "## Layout" and
+  [../topics/what-exists.md](../topics/what-exists.md) Apps row.
 - **2026-08-29 — The one-line interrupt overlay can state its bound.** A
   defect task off [../topics/known-debts.md](../topics/known-debts.md), not a
   queue item. `every 1min: 5 Burpee` (spec §5.8) parsed as an `Interrupt`, but

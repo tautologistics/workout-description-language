@@ -1105,6 +1105,42 @@ of plumbed in.
 the clock and its `aside` that a section's window already used, so it needed no
 row of its own.*
 
+**10. ~~Collapse the builder's Outline and Text panes into one tabbed pane.~~
+DONE 2026-08-29.** The builder's `<main>` was a four-column grid — palette |
+Outline | Text | "What it reads as" — and the Outline (structural GUI) and
+Text (raw `<textarea>`) each took a full column though a user only ever edits
+in one mode at a time. They are now two tabs of a single `.editor-pane` cell:
+a tab strip stands in for the two `<h2>` bars, the inactive view is
+`display: none` so it reserves no height, and `render()` still repaints both
+every time — a switch is show/hide only, because `lines` is the single source
+of truth both views already repaint from, so an edit in either mode is in the
+other the instant you switch.
+
+**A pure display change — no data path moved.** No core change, no test change
+(the suite does not touch the builder DOM; 2025 passing, 1 pending, before and
+after). Verified by driving the builder in both themes: the two tabs switch
+and only one shows; a Text edit appears in the Outline after switching and
+vice versa; the layout holds at 1440, 1100 and 800px; the choice survives a
+reload.
+
+**What shipped:**
+- **Tab control** — two buttons (`role="tab"`) in a `.editor-tabs` strip in
+  the editor pane's header, `aria-selected` marking the active one, styled to
+  the existing `--panel` / `--rule` / `--accent` header idiom (an accent
+  underline on the active tab).
+- **The `#dirty` "edited" badge moved onto the Text tab**, so a hand edit that
+  has drifted the text from canonical stays visible while the Outline tab is
+  active. `renderReading()` still drives `el('dirty').hidden` unchanged.
+- **The `+ movement / + block / + rest` row stays with the Outline view.**
+- **Default and persistence:** `localStorage['wdl.editor-tab']`, read on load,
+  defaulting to **Outline** — the builder's pitch is that it is a GUI, not a
+  text editor.
+- **Grid:** `main` went 4 → 3 columns (palette | editor | reading). The
+  `@media (max-width: 1180px)` rule drops to 2 columns under a full-width
+  palette; the `900px` single-column stack is unchanged.
+*Touched: `apps/builder/index.html`, `apps/builder/builder.css`,
+`apps/builder/builder.js`.*
+
 *Ordering of 5, 6, 7 and 9 against 1-4 is not settled - they are appended
 rather than placed. 5, 6 and 7 were raised by writing and sending one workout
 rather than by a plan, and 9 by closing item 3. **0f was lettered rather than

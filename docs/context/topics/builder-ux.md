@@ -12,18 +12,23 @@ so; where it is a reading that still needs a click to confirm, it says that too.
 
 ## Layout
 
-**The Outline and Text panes sit side by side, each a full grid column, but a
-user edits in only one at a time.** Raised by Chris 2026-08-29, high priority —
-queued as item 10 in [../tasks/current.md](../tasks/current.md) with full scope.
-`<main>` is a four-column grid (palette | Outline | Text | "What it reads as");
-the ask is to collapse Outline + Text into **one cell** with a tab / toggle to
-switch which is shown. It is a pure display change: `lines` is the single source
-of truth and both views already repaint from it on every `render()`, so an edit
-in either mode is already reflected in the other — switching a tab is show/hide
-only. Default to Outline (the builder's whole pitch is that it is a GUI, not a
-text editor). *Touches: `apps/builder/index.html`, `apps/builder/builder.css`
-(4→3 columns, and the 1180px / 900px breakpoints), `apps/builder/builder.js`
-(toggle + `localStorage` persistence).*
+**~~The Outline and Text panes sit side by side, each a full grid column, but a
+user edits in only one at a time.~~ Fixed 2026-08-29** (queue item 10). `<main>`
+went from a four-column grid (palette | Outline | Text | "What it reads as") to
+three: the Outline and Text are now two tabs of one `.editor-pane` cell. A tab
+strip (`.editor-tabs`, two `role="tab"` buttons) stands in for the two `<h2>`
+bars; the inactive view is `display: none` so it reserves no height; `render()`
+still repaints both every time, so a switch is show/hide only (`lines` is the
+single source of truth both repaint from). The `#dirty` "edited" badge moved
+onto the **Text** tab so it stays visible from the Outline tab when hand edits
+have drifted the text from canonical; `renderReading()` drives its `.hidden`
+unchanged. The `+ movement / + block / + rest` row stays with the Outline view.
+The choice is persisted in `localStorage['wdl.editor-tab']`, read on load,
+**default Outline** (the builder's pitch is a GUI, not a text editor).
+`@media (max-width: 1180px)` now drops to 2 columns under a full-width palette;
+the 900px single-column stack is unchanged.
+*Touched: `apps/builder/index.html`, `apps/builder/builder.css`,
+`apps/builder/builder.js`. No core or test change.*
 
 ---
 
