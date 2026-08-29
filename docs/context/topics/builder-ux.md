@@ -408,3 +408,19 @@ propped against a water bottle", and nothing had checked.
 
 **A division picker is the board's, and the builder's absence from this is
 deliberate.** See the entry above under *the text pane*, and queue item 1a.
+
+**~~A team qualifier never reached the cue.~~ Fixed 2026-08-28.** `- 40 Burpee
+each` in a `team of 2:` block cued as `40 Burpees` on the board — `shared` /
+`each` / `synchronized` round-tripped through parse and `format` but
+`timeline.ts`'s `compileStep` never rendered `s.team` into the label. Spec
+§5.11 requires the qualifier stated *always*, because "40 burpees" in a team
+context is exactly what a reader guesses wrong about, and the board's cue is
+the one place a reader sees it. The label now appends `s.team` after the
+targets, matching `format`'s position. The bare `each` team word does not
+double up with per-side `each <limb>` laterality — the grammar takes
+`each arm` as laterality first, so `s.team` is set only by an explicit second
+word. Same shape as the `rx`-split cue fix: `stepCue` was building from a
+subset of the step. No corpus workout uses a team block, so it was driven
+with a hand-written one, both a dark board (the board has no light theme) and
+verified across all three qualifiers. See
+[known-debts.md](known-debts.md).

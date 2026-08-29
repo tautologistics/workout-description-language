@@ -643,14 +643,29 @@ when something looks odd before treating it as a discovery.
   exemption in `validate` is justified at all, which is a question about a warning
   and not about parsing. Nothing in the corpus writes a childless `any order:`.
 
-- **A team qualifier never reaches the board.** `shared`, `each` and
+- ~~**A team qualifier never reaches the board.** `shared`, `each` and
   `synchronized` survive parse and canonical output, and `timeline.ts` drops all
   three: `- 40 Burpee each` cues as `40 Burpees`. Spec §5.11 requires canonical
   output to state the qualifier *always*, for the stated reason that **"40
   burpees" in a team context is exactly the kind of thing a reader guesses wrong
   about** — and the board is where a reader actually reads it. Same shape as the
   `rx` entry above: `stepCue` builds from a subset of the step. Found 2026-08-15
-  while encoding a partner circuit; no corpus workout uses a team block.
+  while encoding a partner circuit; no corpus workout uses a team block.~~
+  **Closed 2026-08-28.** `compileStep` in `packages/core/src/timeline.ts` now
+  appends `s.team` after the targets — the position `format` puts it (§5.11: it
+  qualifies the whole prescription, so it trails the load). The bare `each` team
+  word does **not** collide with per-side `each <limb>` laterality: the grammar
+  consumes `each arm` as the `trailingQualifier_limb` production before
+  `_team` can see it, so `s.team` is only ever set by an explicit second word,
+  and `- 40 Dumbbell Snatch each arm` in a team block still cues as
+  `40 Dumbbell Snatches each arm` with no doubled `each`. Written explicitly
+  together (`each arm each`) both render, matching `format` line for line — the
+  two coexist rather than contradict. Verified by driving the board with a
+  hand-written `team of 2:` workout through all three qualifiers. Test:
+  `packages/core/test/timeline.test.ts` (`timeline: desugaring`) pins the cue
+  label for each of the three plus an unchanged non-team step and the
+  no-double-up case. `format` round-trip untouched — this was a timeline/cue
+  change only.
 
 - ~~**A distance range is not a form, and it fails the way `5x5` used to.**~~
   **Closed 2026-08-23** by queue item 5. `- 100-150ft Farmers Carry` no longer
