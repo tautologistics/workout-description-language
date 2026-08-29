@@ -326,6 +326,19 @@ marks the ones worth a top-level pointer.
   under it was dropped in silence. The dash is decoration on a nested block, as
   it is on a step, and `format` writes it back without one.
 
+  **Extended 2026-08-28 to the inline-body forms.** The 2026-08-15 fix only
+  covered a line *ending* in `:`. `- work 20s: Pull-Up`, `- min 1: 12cal Row`
+  and `- every 1min: 5 Burpee` — a dash on the one-line "header, then its single
+  child after the colon" form — still hit the `/^-\s+/` step branch first and
+  became movement-named steps with the block (or overlay) dropped, no
+  diagnostic. `parseNode` now strips the dash from these three the same way,
+  since `format` already emits them dashless and `wdl fmt` was settling on the
+  loss. A *general* inline block body (`- AMRAP 3min: 10 Push-Up`) is still a
+  step: only `min`/`work`/`every` and the brace form carry a body on the header
+  line, so there is no rule to read it as a block. Found by driving the builder
+  — the per-block `»` affordance now reaches the dashed rows. Tests in
+  `packages/core/test/corpus2.test.ts`.
+
 - **A file that was never indented is read, and the four rules that read it.**
   Settled 2026-08-15 by queue item 0b; stated in spec §2, rules 1–3 in
   `readLines` and rule 4 in `parse`. **An empty block adopts whatever comes next,

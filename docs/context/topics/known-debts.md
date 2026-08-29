@@ -593,6 +593,15 @@ when something looks odd before treating it as a discovery.
   produced formats back as `- AMRAP 3min:` with nothing under it, which phase 1
   then reads as an empty container, so each `wdl fmt` pass ate one more sibling.
 
+  **The inline-body twin was closed 2026-08-28.** That fix keyed on a line
+  *ending* in `:`; `- work 20s: Pull-Up` / `- min 1: 12cal Row` /
+  `- every 1min: 5 Burpee` carry their body on the same line, still hit the
+  `/^-\s+/` step branch first, and lost the block the same silent way. `parseNode`
+  now strips the dash from those three forms too. See
+  [settled-decisions.md](settled-decisions.md) "A line that is both a step and a
+  block header". A *general* inline block body (`- AMRAP 3min: 10 Push-Up`) has
+  no rule and is still a step, on purpose.
+
   **It was pinned as correct, which is the part worth remembering.** Four
   `structure` vocabulary forms — `nested blocks`, `deep nesting`, `many top-level
   blocks`, `block/section :: conditioning` — were written to pin nesting and were

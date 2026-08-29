@@ -45,7 +45,7 @@ score: time
 
 Nesting is by indentation (two spaces canonical). A line ending in `:` opens a block. A line beginning with `- ` is a step. `//` begins a comment, which survives round-tripping.
 
-**A line that is both wins on the colon.** `- AMRAP 3min:` opens a block, and the `- ` is decoration, exactly as it is on a step. *Stated 2026-08-15; the two rules above had collided since 0.1 was written and neither said which applied.* A step never ends in a colon, so the colon is the more specific signal — and reading the line as a step made a movement named `AMRAP 3min:` and dropped everything indented under it without a word.
+**A line that is both wins on the colon.** `- AMRAP 3min:` opens a block, and the `- ` is decoration, exactly as it is on a step. *Stated 2026-08-15; the two rules above had collided since 0.1 was written and neither said which applied.* A step never ends in a colon, so the colon is the more specific signal — and reading the line as a step made a movement named `AMRAP 3min:` and dropped everything indented under it without a word. *Extended 2026-08-28 to the one-line forms that carry a body after the colon — `- min 1: 12cal Row`, `- work 20s: Pull-Up`, `- every 1min: 5 Burpee`: the dash is decoration there too, and `wdl fmt` writes it back without one. A bare block header carrying an inline body (`- AMRAP 3min: 10 Push-Up`) has no rule and stays a step; only `min`/`work`/`every` and the brace form put a body on the header line.*
 
 ### Lines that were never indented
 

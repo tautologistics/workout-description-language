@@ -141,10 +141,54 @@ It split in two, and the halves were not equally ready — both are done now:
   completions offered, valid text spliced, diagnostics pane accepts every
   result.
 
+  **Correction/extension, 2026-08-28.** Driving the builder turned up rows the
+  caret was *said* to reach but did not, and the diagnosis was wrong twice over:
+
+  - **Inline `work:` / `min:` blocks already worked** — `work 20s: Pull-Up`,
+    `min 1: 12cal Row` on one line parse to real `block` nodes whose `.line`
+    equals the raw outline row, so `blockOf` maps them and the caret,
+    the panel and the splice-before-the-inline-`:` were all correct from the
+    parent cut. No change needed; the belief that "inline blocks get no caret"
+    was only ever true of the two rows below.
+  - **Dashed inline blocks did *not* — a parser bug, not an affordance gap.**
+    `- work 20s: Pull-Up` / `- min 1: 12cal Row` / `- every 1min: 5 Burpee`
+    (a leading dash on the inline-body form) were caught by `parseNode`'s
+    `/^-\s+/` step branch *before* the `min`/`work`/`every` inline forms were
+    tried, so the whole line became a movement name and the block — or, for
+    `every`, the overlay — was dropped with no diagnostic. This is the
+    inline-body twin of the closed `- AMRAP 3min:` debt
+    ([known-debts.md](known-debts.md)), which only handled a line *ending* in
+    `:`. Fixed in `packages/core/src/parse.ts`: `parseNode` now strips a
+    leading `- ` from these three forms too, since `format` already writes all
+    three back without the dash and `wdl fmt` was otherwise settling on the
+    loss. With the fix the dashed rows resolve to `Block`s and the `»` caret
+    reaches them — verified in both themes, splice valid, diagnostics clean.
+    Tests: `packages/core/test/corpus2.test.ts` ("reads a dashed inline block
+    as the block…", and a companion pinning the boundary below). 1809 → 1811.
+  - **`- AMRAP 3min: 10 Push-Up` stays a step, on purpose.** A *general*
+    `<blockHeader>: <inline body>` on one line is not a WDL form — only
+    `min`/`work`/`every` (and the brace form) carry a body after the colon.
+    So there is no `Block` for a caret to attach to, and the row shows only
+    the movement-suggestion `▾` (against an unresolvable name, the same as any
+    typo'd step). Making it a block is a grammar/spec change with round-trip
+    and whiteboard-readability implications — out of scope here, and left as a
+    parser/spec question rather than papered over in the builder.
+  - **Interrupt overlay rows (`every 1min: 5 Burpee`) get no block caret,
+    deliberately.** The overlay is parsed by a bespoke regex in `parseNode`
+    that accepts only `every <dur>: <body>` — none of the `every` grammar
+    rule's bound tails (`for <dur>`, `until failure`, `x <n>`) are readable
+    there, so a grammar-derived completion set would offer text the parser
+    rejects, which is exactly the drift the affordance exists to avoid. The
+    row still exposes the movement `»`/`▾` for its inline body (a real step).
+    The *block* form `every 90s x 5:` with indented children already gets the
+    caret via `blockKind_every`.
+
 *Touches: `registry/movements.json` (first half), `packages/core/src/parse.ts:277-320`
 and `spec/spec-0.1.md` (second half), `apps/builder/builder.js:93-100` (TOOLS),
 `packages/core/src/block-affordances.ts` + `packages/core/src/grammar/parser.ts`
-+ `apps/builder/builder.js` (second half).*
++ `apps/builder/builder.js` (second half); `packages/core/src/parse.ts` +
+`packages/core/test/corpus2.test.ts` (2026-08-28 correction — dashed inline
+blocks).*
 
 **~~Third collision with a closed decision — flagged, not resolved.~~ Resolved
 2026-08-28, in favour of deriving.**
