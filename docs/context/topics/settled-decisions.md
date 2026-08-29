@@ -355,9 +355,50 @@ marks the ones worth a top-level pointer.
   spec or template file writes it, and it needs a grammar change plus a
   canonical-output / round-trip decision, for a form that only ever helps a
   one-movement AMRAP — the same rarity that kept AMRAP out of the `min`/`work`
-  inline special-case in the first place. The probe also catches the bounded
-  interrupt overlay (`every 1min until failure: 5 Burpee`), which the overlay
-  regex could not read — see [known-debts.md](known-debts.md).
+  inline special-case in the first place. *Until 2026-08-29 the probe also
+  caught the bounded interrupt overlay (`every 1min until failure: 5 Burpee`),
+  which the overlay regex could not read; the next entry closes that — a bounded
+  overlay now parses, so it never reaches the probe.*
+
+- **The one-line interrupt overlay states its bound the way a clock header
+  does.** Settled 2026-08-29, closing the [known debt](known-debts.md) of the
+  same name. `every 1min: 5 Burpee` (spec §5.8) already parsed as an `Interrupt`,
+  but `parseNode` read it with a one-token regex (`/^every\s+(\S+):\s*(.+)$/i`)
+  that stopped at the interval, so the `every` grammar rule's bound tails —
+  `x <n>`, `for <dur>`, `until failure` (spec §5.5) — were unwritable on one
+  line and fell into the "`<header>:` opens a block" diagnostic instead.
+
+  **Two calls, both made toward one spelling.** (1) The bound lives on
+  `Interrupt` in the **same field names `Block` uses for a clock** — `count?`,
+  `duration?`, `untilFailure?` — not a parallel vocabulary. The overlay and the
+  block header state the *same* bound; giving it two shapes is the mistake the
+  project already refused for an rx split vs a `variants:` table and for
+  `sets x reps` vs spelled-out sets. (2) `parseNode` reads the head before the
+  colon by handing it to the grammar's own `every` production through
+  `tryHeader` — the block path's exact reader — and copies the bound off the
+  resulting block. No second hand-rolled bound parser: "the parser is the
+  grammar" means a new form is a new grammar rule, not a new regex chain, and
+  this form already had its rule. A colon with nothing after it stays the block
+  form and still goes to the header branch.
+
+  **Canonical spelling mirrors the clock header**, minus the `EMOM` sugar — the
+  overlay keeps the `every …` prefix it is parsed by, so `every 90s for 20min:`
+  does not normalise to `E…MOM`. `format` writes `until failure` before a
+  window before a count, the precedence `headerText`'s `clock` branch uses;
+  every form round-trips.
+
+  **The bound reaches the timeline but not the estimate.** `group.interrupt`
+  carries `count` / `window` / `untilFailure` and `outline` prints them, so a
+  display and a round trip see the bound. `estimate()` still ignores the
+  overlay: an overlay is bounded by the primary work beside it, and whether its
+  own bound ends the group first is a per-execution question the ordered
+  timeline does not answer — the block path leaves the same question open for a
+  bare `AMRAP:` under a cap. No corpus workout writes a bounded overlay, so
+  `interpretations.json` and `registry/workouts.canonical.json` did not move.
+  Tests: overlay twins of the `block/clock` vocabulary group in
+  `test/golden/vocabulary.ts`, an `Interrupt`-shape check in
+  `test/corpus2.test.ts`, a group/outline/estimate check in
+  `test/timeline.test.ts`.
 
 - **A file that was never indented is read, and the four rules that read it.**
   Settled 2026-08-15 by queue item 0b; stated in spec §2, rules 1–3 in

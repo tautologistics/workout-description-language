@@ -183,19 +183,21 @@ It split in two, and the halves were not equally ready — both are done now:
     it, and it needs a grammar change plus a canonical-output decision for a
     form that only ever helps a one-movement AMRAP. Full reasoning in
     [settled-decisions.md](settled-decisions.md), "Extended again 2026-08-28".
-  - **Interrupt overlay rows (`every 1min: 5 Burpee`) get no block caret,
-    deliberately.** The overlay is parsed by a bespoke regex in `parseNode`
-    that accepts only `every <dur>: <body>` — none of the `every` grammar
-    rule's bound tails (`for <dur>`, `until failure`, `x <n>`) are readable
-    there, so a grammar-derived completion set would offer text the parser
-    rejects, which is exactly the drift the affordance exists to avoid. The
-    row still exposes the movement `»`/`▾` for its inline body (a real step).
-    The *block* form `every 90s x 5:` with indented children already gets the
-    caret via `blockKind_every`. *Follow-up 2026-08-28: a bounded one-liner like
-    `every 1min until failure: 5 Burpee` no longer falls through to a garbage
-    step — the general "`<header>:` opens a block" diagnostic now catches it —
-    but it still cannot be expressed on one line. That is a
-    [known debt](known-debts.md), not part of the caret.*
+  - **Interrupt overlay rows (`every 1min: 5 Burpee`) get no block caret yet.**
+    *Was deliberate through 2026-08-28:* the overlay was parsed by a bespoke
+    regex accepting only `every <dur>: <body>`, so a grammar-derived completion
+    set would have offered bound tails (`for <dur>`, `until failure`, `x <n>`)
+    the parser rejected — the drift the affordance exists to avoid. **That
+    reason is gone as of 2026-08-29**: the overlay now reads its bound off the
+    grammar's own `every` production and carries it on `Interrupt`
+    ([known-debts.md](known-debts.md), closed), so a completion set derived
+    from `every`'s cases would match what the parser accepts. What is still
+    missing is the wiring: the caret attaches to a `Block`, and an overlay row
+    is an `Interrupt`, so offering it there means a new node-type path in the
+    caret logic and splice edits into a non-`Block` line — more than a
+    one-liner, hence left undone. The row still exposes the movement `»`/`▾`
+    for its inline body (a real step), and the *block* form `every 90s x 5:`
+    with indented children already gets the caret via `blockKind_every`.
 
 *Touches: `registry/movements.json` (first half), `packages/core/src/parse.ts:277-320`
 and `spec/spec-0.1.md` (second half), `apps/builder/builder.js:93-100` (TOOLS),

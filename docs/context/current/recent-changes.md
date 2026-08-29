@@ -2,6 +2,24 @@
 
 ## Changes
 
+- **2026-08-29 — The one-line interrupt overlay can state its bound.** A
+  defect task off [../topics/known-debts.md](../topics/known-debts.md), not a
+  queue item. `every 1min: 5 Burpee` (spec §5.8) parsed as an `Interrupt`, but
+  a one-token regex in `parseNode` could not see the `every` grammar rule's
+  bound tails, so `every 90s x 5: …`, `every 90s for 12min: …` and
+  `every 1min until failure: …` were unwritable on one line. `Interrupt` gains
+  `count?` / `duration?` / `untilFailure?` — the field names `Block` already
+  uses for a clock, one spelling — and `parseNode` reads the head via the
+  grammar's own `every` production (`tryHeader`) rather than a second bound
+  regex. `format` mirrors the clock header's spelling (no `EMOM` sugar);
+  `timeline` carries the bound onto `group.interrupt` and into the outline,
+  not into `estimate()`. Suite **2020 → 2025 passing** (+4 vocabulary overlay
+  twins, +1 timeline case), 1 pending unchanged. `interpretations.json` and
+  `registry/workouts.canonical.json` unchanged — no corpus file writes a
+  bounded overlay. Design decision in
+  [../topics/settled-decisions.md](../topics/settled-decisions.md); builder
+  `»`-caret follow-on left unwired, noted in
+  [../topics/builder-ux.md](../topics/builder-ux.md).
 - **2026-08-29 — `registry/workouts.canonical.json` is guarded against drift.**
   A test task off [../topics/known-debts.md](../topics/known-debts.md), not a
   queue item. `scripts/build-workouts.mjs` now exports `buildWorkoutsDoc()`,

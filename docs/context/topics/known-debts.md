@@ -616,22 +616,30 @@ when something looks odd before treating it as a discovery.
   Nothing in the corpus, the spec or any template writes the dashed form, so
   those four fixtures were the only witnesses and they had been taught to agree.
 
-- **The one-line interrupt overlay cannot state its grammatical bounds.**
+- ~~**The one-line interrupt overlay cannot state its grammatical bounds.**
   `parseNode` reads the overlay (`every 1min: 5 Burpee` on one line, spec §5.8)
   with a bespoke regex, `/^every\s+(\S+):\s*(.+)$/i` — one token before the
   colon. The `every` grammar rule's bound tails — `every … for <dur>`,
   `every … until failure`, `every … x <n>` — all fail that regex, so
   `every 1min until failure: 5 Burpee` fell through to a garbage step with no
   diagnostic. As of 2026-08-28 that falls into the general "`<header>:` opens a
-  block" diagnostic instead (the text before the colon parses as
-  `blockKind_every`), so the failure is **loud** — but the bounded overlay still
-  cannot be *expressed* on one line. Reading it means extending the overlay
-  parse to accept those tails *and* giving the `Interrupt` node somewhere to
-  carry the bound (today it holds `every` + `body` only). The block form
-  `every 90s x 5:` with indented children already works. This is why the
-  builder's per-block `»` caret is deliberately not offered on overlay rows —
-  see [builder-ux.md](builder-ux.md), the 2026-08-28 correction sub-list.
-  *Touches: `packages/core/src/parse.ts`, `packages/core/src/ast.ts`.*
+  block" diagnostic instead.~~ **Closed 2026-08-29.** The bound lives on
+  `Interrupt` in the field names `Block` already uses for a clock — `count?`,
+  `duration?`, `untilFailure?` — one spelling, not a parallel vocabulary. And
+  `parseNode` reads the head before the colon by handing it to the grammar's
+  own `every` production via `tryHeader` (the block path's reader) rather than
+  growing a second bound regex; the bound it lands on the block is copied onto
+  the `Interrupt`. `format` spells it the way a clock header does (minus `EMOM`
+  sugar), and `timeline` carries it onto `group.interrupt` and into the outline
+  though not into `estimate()` — an overlay is bounded by the work beside it.
+  Design decision recorded in [settled-decisions.md](settled-decisions.md),
+  "The one-line interrupt overlay states its bound the way a clock header does".
+  Tests: `test/golden/vocabulary.ts` (overlay twins of `block/clock`),
+  `test/corpus2.test.ts`, `test/timeline.test.ts`. The builder's per-block `»`
+  caret on overlay rows is now *unblocked* but not wired — see
+  [builder-ux.md](builder-ux.md).
+  *Touched: `packages/core/src/{parse,ast,format,timeline}.ts`,
+  `packages/core/test/golden/generate.ts`.*
 
 - **Open, and the one place the adoption rule is weaker than its argument.** The
   rule that an empty block adopts the next line rests on "an empty block is not

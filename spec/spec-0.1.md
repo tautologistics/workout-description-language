@@ -449,6 +449,16 @@ for time:
 
 The `every` line is a sibling of the work it interrupts, not a container around it.
 
+**The overlay's interval takes the same bound as a clock-driven header (§5.5)** — a count of cycles, a window, failure, or nothing:
+
+```
+for time:
+  - 100 Thruster @ 135lb
+  every 90s x 5: 3 Power Clean @ 185lb
+```
+
+Canonical output spells the bound the way §5.5 does, minus the `E…MOM` sugar — the overlay keeps its `every …` prefix. *Both the bound and the field it lands on (`Interrupt` reuses `Block`'s `count` / `duration` / `untilFailure`) arrived 2026-08-29; before then a one-token parser stopped at the interval and the bounded overlay was unwritable on one line.*
+
 ### 5.9 Unbounded repeat
 
 ```
