@@ -469,3 +469,61 @@ subset of the step. No corpus workout uses a team block, so it was driven
 with a hand-written one, both a dark board (the board has no light theme) and
 verified across all three qualifiers. See
 [known-debts.md](known-debts.md).
+
+---
+
+## Accounts, IDs and layout — raised 2026-08-30, thinking out loud, not scheduled
+
+Chris, right after queue item 20 (Google sign-in / saved workouts / sharing)
+went live. Captured verbatim-ish so the reasoning survives; none of it is on
+the queue yet, and the item-20 verification + close comes first. Each bullet is
+meant to be dispatchable on its own once the builder-UX chain (12 → 16 → 17 →
+15 → 13 → 11) is clear.
+
+- **`@id` and the record id do not correlate, and probably should.** A workout
+  can carry an `@id` directive in its text (spec preamble; `wdl result` already
+  uses it as the record head). When that workout is saved to an account it also
+  gets PocketBase's generated 15-char id, and the two are unrelated. There is a
+  **confluence of data** here: the `@id`, the `title`, and the generated id —
+  and `@id` is "almost a slugified version of the title". A scheme is wanted:
+  probably the `@id` (or a slug derived from the title) is the human-readable
+  handle and the generated id is the opaque one, with a **lookup that resolves
+  either** to the same record. Open: does saving reconcile `@id` ↔ record, warn
+  on a mismatch, or write `@id` back into the text on first save?
+
+- **Account namespacing.** When a user creates an account they should claim a
+  **username**, and that becomes a **workout-id prefix / namespace** — so a
+  workout is `chris:fran`, not a bare slug that two users could both want. The
+  `@id` namespace (`crossfit:fran`, spec §preamble) and the account namespace
+  need a story about how they relate. A workout that is not found, or not owned
+  by the viewer, resolves to "a new unsaved workout" that the viewer can then
+  save **into their own namespace** (see the board-Edit bullet).
+
+- **Board "Edit" should round-trip to the builder, not reset the board.**
+  Today `el('edit')` → `showEmpty()` drops the hash/query and reloads the board
+  to its own empty paste-box ("a default workout in this weird little editor —
+  it's not builder"). Wanted: **Edit opens the builder with this workout
+  loaded.** If the viewer owns it and it is found in the DB → open it as the
+  saved record (attached, so Save updates it). If it is not found or not owned →
+  open it as a **new unsaved workout** the viewer can edit and save to their
+  own namespace. This is the natural completion of item 20's `?w=<id>` board
+  link.
+
+- **Saved workouts need an "open on the board" action, not just "Copy link".**
+  The My-workouts panel copies a share URL; it should also have a button that
+  **launches the board** with that workout directly (`/apps/display/?w=<id>` in
+  a new tab), the way the builder header's *Open on the board ↗* already does
+  for the current buffer.
+
+- **Builder layout needs a rethink — the analysis panes fall off-screen.**
+  Concretely: the **Movements** column should become a **pop-out sidebar behind
+  a hamburger button**, not a permanent third of the width; the **Outline /
+  Text editor** should be the central focus; and *What it reads as* / *Body* /
+  *Against your goals* — all the workout-analysis output — should each have a
+  **max width/height with `overflow: auto`** so a long workout's analysis
+  scrolls within its box instead of pushing the rest of the page out of the
+  viewport. The current three-column CSS grid (`main { grid-template-columns:
+  … }` in `builder.css`, and the 1180px / 900px breakpoints) is what gets
+  rethought. Chris's framing: "all that stuff needs to be rethought" — a
+  layout pass, not a patch. He is separately exploring whether **Claude Design**
+  can be handed the current layout to iterate a better one.
