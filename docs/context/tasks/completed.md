@@ -1141,6 +1141,47 @@ reload.
 *Touched: `apps/builder/index.html`, `apps/builder/builder.css`,
 `apps/builder/builder.js`.*
 
+**14. ~~An unrecognized parenthetical after a movement is silently swallowed
+into the movement name.~~ DONE 2026-08-29.** Top priority (Chris, 2026-08-29) —
+the one open item that corrupted output silently rather than being UI polish.
+`- 12 Around The Worlds (each direction)` parsed with no error, no `note`,
+`validate` clean, and `step.movement === "Around The Worlds (each direction)"`:
+the movement resolved to no registry entry (muscle attribution, body map,
+generation-pool membership all went blank), and `format` ran `pluralize` over
+the whole string and emitted `... (each direction)s` — an `s` on the closing
+paren, a stable round trip of a mangling. `(both)` / `(split)` / `(per-side)` /
+`(total)` and the rx-split shapes read fine; anything else in parentheses
+matched no alternative, so PEG backtracked and the `(`, `)` and inner text fell
+into `movementName` one `nameChar` at a time.
+
+**The fix is queue item 5's `unreadableRange` pattern, one construct over.** A
+new grammar production `unreadableParen = "(" (~")" any)+ ")"`, added to
+`qualifiedPart` and `stepPart` **after** `laterality` and `rxSplit` so the
+recognised forms still win and this is strictly the fallback. Its semantics
+(`step-semantics.ts`) push the whole parenthetical — parens included — into
+`Step.unknown`; `validate.ts`'s existing `unread()` reports it as a `note`, and
+`format` writes it back after the modifiers it did read (`- 12 Around The
+Worlds, (each direction)`), so `pluralize` never sees it and the `(…)s` is gone.
+
+**Edges, stated in the spec.** The match runs to the *first* `)`, so a nested
+`(a (b) c)` is not caught and stays in the name — the simple non-throwing rule
+wins on a whiteboard format. And ~15 of ~970 registry titles (all raw imports —
+`Front Squat (Clean Grip)`, `Box Jump (Multiple Response)`) carry a
+parenthetical themselves; these now have it peeled to a `note` and resolve
+against the base name. **Corpus did not move:** no example file writes an unread
+parenthetical, so `node packages/core/test/golden/generate.ts` and `node
+scripts/build-workouts.mjs` regenerated `interpretations.json` and
+`registry/workouts.canonical.json` to no change at all. Suite **2027 → 2038**
+passing (+11 vocabulary/grammar cases — new `unread-parenthetical` group), 1
+pending unchanged. Verified by driving the builder in both themes: the movement
+resolves (body map lights chest), the diagnostics pane shows the `note`, and
+Canonicalise leaves the parenthetical intact.
+*Touched: `spec/grammar-0.1.ohm`, `packages/core/src/grammar/step-semantics.ts`,
+`spec/spec-0.1.md` (§4, §11.1), `packages/core/test/golden/vocabulary.ts` (+
+`vocabulary.json`), `packages/core/test/grammar.test.ts`. No app code — the
+builder and board read `Step.unknown` and the `note` through the paths they
+already use for comma-modifier unknowns.*
+
 *Ordering of 5, 6, 7 and 9 against 1-4 is not settled - they are appended
 rather than placed. 5, 6 and 7 were raised by writing and sending one workout
 rather than by a plan, and 9 by closing item 3. **0f was lettered rather than

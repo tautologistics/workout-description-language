@@ -886,6 +886,44 @@ marks the ones worth a top-level pointer.
   if it is raised again, with a real second caller wanting it.
   *Touched: `spec/grammar-0.1.ohm`, `packages/core/src/grammar/step-semantics.ts`,
   `spec/spec-0.1.md`, `packages/core/test/golden/vocabulary.ts`.*
+
+- **A parenthetical the language does not read is held, inert, and noted —
+  never swallowed into the movement name.** Settled 2026-08-29, closing queue
+  item 14. This is item 5's `unreadableRange` decision one construct over, and
+  it was taken the same way for the same reasons. `(both)` / `(split)` /
+  `(per-side)` / `(total)` are laterality; `(women 105lb / men 145lb)` and
+  `(105/145)` are an rx split. Anything else in parentheses after a movement —
+  `(each direction)`, a bare `(wibble)` — matched no alternative, so PEG
+  backtracked and the `(`, the `)` and the text between them fell into
+  `movementName` one `nameChar` at a time. `12 Around The Worlds (each
+  direction)` was a movement literally named `Around The Worlds (each
+  direction)`: it resolved to no registry entry, dropped out of muscle and
+  volume analysis, `wdl check` said nothing, and `wdl fmt` pluralized it to
+  `... (each direction)s` — a stable round trip of a mangling.
+
+  **The principle is Chris's, stated on the queue: putting anything in
+  parentheses must not stop a movement being recognized.** The fix is the same
+  as item 5's: a new production, `unreadableParen` (`"(" (~")" any)+ ")"`),
+  added to `qualifiedPart` and `stepPart` *after* `laterality` and `rxSplit` so
+  the recognised forms still win and this is strictly the fallback. Its
+  semantics push the whole parenthetical — parens included — into
+  `Step.unknown`, so `validate.ts`'s existing `unread()` reports it as a `note`
+  and `format` writes it back after the modifiers it did read (`- 12 Around The
+  Worlds, (each direction)`), which keeps `pluralize` away from it. Movement
+  attribution (name-keyed) resolves normally once the name is clean.
+
+  **Two edges drawn narrowly on purpose.** The match runs to the *first* `)`,
+  so a nested `(a (b) c)` is not caught and stays in the name — unbalanced and
+  nested parentheticals are rare enough on a whiteboard that the simple
+  non-throwing rule wins. And ~15 of the ~970 registry titles (all from raw
+  imports — `Front Squat (Clean Grip)`, `Box Jump (Multiple Response)`) carry a
+  parenthetical themselves; these now have it peeled to a `note` and resolve
+  against the base name. No corpus file writes either shape, so
+  `interpretations.json` and `registry/workouts.canonical.json` did not move.
+  *Touched: `spec/grammar-0.1.ohm`, `packages/core/src/grammar/step-semantics.ts`,
+  `spec/spec-0.1.md` (§4, §11.1), `packages/core/test/golden/vocabulary.ts`,
+  `packages/core/test/grammar.test.ts`.*
+
 - **A qualitative load (`@ heavy`) is a `Load` kind, not raw text — and it stays
   exactly as unresolvable as the numeric loads that already have no kilogram
   answer.** Settled 2026-08-23, closing queue item 6. The two candidates were a

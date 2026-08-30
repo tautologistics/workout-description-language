@@ -2,6 +2,29 @@
 
 ## Changes
 
+- **2026-08-29 — An unread parenthetical after a movement is held, not
+  swallowed into the name.** Queue item 14 (top priority, Chris) — the only
+  open item that corrupted output silently. `- 12 Around The Worlds (each
+  direction)` parsed clean with the parenthetical folded into the movement
+  name, so the movement resolved to no registry entry (muscle/volume analysis
+  went blank) and `wdl fmt` emitted `... (each direction)s`. Fix is queue item
+  5's `unreadableRange` pattern one construct over: a new `unreadableParen`
+  production (`"(" (~")" any)+ ")"`) in `qualifiedPart` and `stepPart` **after**
+  `laterality` and `rxSplit`, routing the whole parenthetical verbatim (parens
+  included) into `Step.unknown`. `validate`'s `unread()` reports it as a
+  `note`, `format` writes it back after the read modifiers, and the movement
+  name is left clean. Edges: match runs to the first `)` (nested `(a (b) c)`
+  not caught); ~15 raw-import registry titles that carry a parenthetical
+  (`Front Squat (Clean Grip)`) now peel it to a `note` and resolve against the
+  base name. No corpus file writes an unread parenthetical, so
+  `interpretations.json` and `registry/workouts.canonical.json` regenerate
+  unchanged. Suite **2027 → 2038** (+11 vocabulary/grammar cases), 1 pending
+  unchanged. Verified by driving the builder in both themes: movement resolves
+  (body map lights chest), diagnostics show the `note`, Canonicalise leaves the
+  parenthetical intact. `spec/spec-0.1.md` §4 and §11.1 state the rule and the
+  unbalanced-paren behaviour;
+  [../topics/settled-decisions.md](../topics/settled-decisions.md) records it
+  beside item 5's.
 - **2026-08-29 — `pluralize` no longer takes the `s` on a leading modifier.**
   A self-contained defect Chris caught in the builder's "what it reads as"
   pane: `- 12 Bent Over Barbell Row` read as `12 Bents Over Barbell Row`.
