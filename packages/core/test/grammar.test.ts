@@ -385,6 +385,28 @@ describe('the grammar is the spec', () => {
     eq(step.unknown, ['with a band']);
   });
 
+  /**
+   * A parenthetical the language does not read — neither a laterality word nor
+   * an rx split — held whole in `unknown` rather than swallowed into the name
+   * (queue item 14). The `s` `wdl fmt` used to staple onto `... (each direction)`
+   * goes with it: once the parenthetical is out of `movement`, `pluralize`
+   * never sees it.
+   */
+  it('holds an unread parenthetical rather than naming a movement after it', () => {
+    const step = g.parseStep('12 Around The Worlds (each direction)');
+    eq(step.movement, 'Around The Worlds');
+    eq(step.unknown, ['(each direction)']);
+    eq(step.notes, []);
+  });
+
+  it('still reads the recognised parenthetical forms ahead of the fallback', () => {
+    eq(g.parseStep('10 Pistol (split)').laterality, 'split');
+    eq(g.parseStep('10 Pistol (BOTH)').laterality, 'both');
+    const rx = g.parseStep('30 Clean & Jerk (women 105lb / men 145lb)');
+    eq(rx.movement, 'Clean & Jerk');
+    eq(rx.unknown, undefined);
+  });
+
   it('holds an unrecognized block header rather than failing on it', () => {
     const block = g.parseHeader('some shape nobody taught the parser');
     eq(block.type, 'sequence');

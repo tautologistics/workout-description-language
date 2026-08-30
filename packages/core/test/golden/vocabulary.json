@@ -6627,6 +6627,315 @@
   },
   "fixpoint": true
  },
+ "unread-parenthetical :: 12 Around The Worlds (each direction)": {
+  "canonical": "for time:\n  - 12 Around The Worlds, (each direction)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Around The Worlds",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 12
+       },
+       "unknown": [
+        "(each direction)"
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "unread-parenthetical :: 10 Row (wibble)": {
+  "canonical": "for time:\n  - 10 Rows, (wibble)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "unknown": [
+        "(wibble)"
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "unread-parenthetical :: 10 Row(each side)": {
+  "canonical": "for time:\n  - 10 Rows, (each side)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Row",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "unknown": [
+        "(each side)"
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "unread-parenthetical :: 10 Front Squat (Clean Grip)": {
+  "canonical": "for time:\n  - 10 Front Squats, (Clean Grip)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Front Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "unknown": [
+        "(Clean Grip)"
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "unread-parenthetical :: 10 Foo ((x)": {
+  "canonical": "for time:\n  - 10 Foos, ((x)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Foo",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "unknown": [
+        "((x)"
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "unread-parenthetical :: 10 Pistol (split)": {
+  "canonical": "for time:\n  - 10 Pistols (split)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "split",
+       "movement": "Pistol",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "unread-parenthetical :: 10 Pistol (BOTH)": {
+  "canonical": "for time:\n  - 10 Pistols (both)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "both",
+       "movement": "Pistol",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "unread-parenthetical :: 30 Clean & Jerk (women 105lb / men 145lb)": {
+  "canonical": "for time:\n  - 30 Clean & Jerks (women 105lb / men 145lb)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Clean & Jerk",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 30
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "unit": "lb",
+         "value": 105
+        }
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "unread-parenthetical :: 30 Deadlift (105/145)": {
+  "canonical": "for time:\n  - 30 Deadlifts (women 105 / men 145)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 30
+       },
+       "rx": {
+        "men": {
+         "kind": "absolute",
+         "value": 145
+        },
+        "women": {
+         "kind": "absolute",
+         "value": 105
+        }
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "was-wrong :: 10 Thruster @95lb": {
   "canonical": "for time:\n  - 10 Thrusters @ 95lb",
   "errors": [],

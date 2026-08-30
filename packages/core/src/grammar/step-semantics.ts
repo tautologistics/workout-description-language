@@ -134,6 +134,20 @@ export function installStep(semantics: Semantics): void {
 
     thresholdPart(t) { this.args.step.quantity = t.unit(); },
 
+    // `(each direction)`, `(wibble)` — a parenthetical the language has no
+    // reading for. `laterality` and `rxSplit` are tried first, so `(split)` and
+    // `(105/145)` still win; this is strictly the fallback. Held exactly the way
+    // an unrecognized comma modifier is: the whole parenthetical, parens
+    // included, goes verbatim into `unknown` so `validate.ts`'s `unread()`
+    // reports it as a `note`, and the movement name is left clean so the step
+    // still resolves against the registry. `format` writes it back after the
+    // modifiers it did read, so `pluralize` never sees it. See `unreadableParen`
+    // in the grammar for why the match stops at the first `)`.
+    unreadableParen(_open, _inner, _close) {
+      const step = this.args.step;
+      (step.unknown ??= []).push(this.sourceString.trim());
+    },
+
     trailingQualifier_limb(_each, _s, limb) {
       const step = this.args.step;
       step.laterality = 'per-side';

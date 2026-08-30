@@ -364,6 +364,37 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     '10min Bike, ramp 50% -> 75% FTP',
     '5 Back Squat @ 225lb, wearing a 20lb vest',
   ] },
+  { group: 'unread-parenthetical', lines: [
+    // **Read wrongly until 2026-08-29** (queue item 14). A parenthetical that is
+    // neither a laterality word nor an rx split matched no rule, so the `(`, the
+    // `)` and the text between them fell into the movement name one character at
+    // a time: `12 Around The Worlds (each direction)` was a movement literally
+    // named `Around The Worlds (each direction)` — resolving to no registry
+    // entry, out of muscle and volume analysis — and `wdl fmt` pluralized it to
+    // `... (each direction)s`, an `s` on the closing paren that round-trips. The
+    // `unreadableParen` production now holds the whole parenthetical, parens
+    // included, in `unknown`: `validate` reports it as a `note`, the movement
+    // name is clean, and canonical form writes it back after the modifiers it
+    // did read — the same held-and-reported treatment `100-150ft` gets under
+    // `fail-open` above, one construct over.
+    '12 Around The Worlds (each direction)',
+    // A bare word, and a form with no space before the paren — both held.
+    '10 Row (wibble)',
+    '10 Row(each side)',
+    // A registry title that itself carries a parenthetical (15 of ~970 do, all
+    // from raw imports). The parenthetical is peeled to a `note` and the step
+    // resolves against the base name — a deliberate trade stated in spec §4.
+    '10 Front Squat (Clean Grip)',
+    // Unbalanced: the match stops at the first `)`, so `((x)` is held whole.
+    '10 Foo ((x)',
+    // The recognised parenthetical forms still win — kept here so the fallback's
+    // boundary is visible beside it, not only under `laterality` /
+    // `rx-by-division` above.
+    '10 Pistol (split)',
+    '10 Pistol (BOTH)',
+    '30 Clean & Jerk (women 105lb / men 145lb)',
+    '30 Deadlift (105/145)',
+  ] },
   { group: 'was-wrong', lines: [
     // **Read wrongly until 2026-08-15, and read correctly since**, when queue
     // item 0a made `spec/grammar-0.1.ohm` the parser. The group is kept together

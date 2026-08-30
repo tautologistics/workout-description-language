@@ -95,7 +95,7 @@ WDL {
   // (Whether `3x10 Curl` *should* mean three sets of ten is a separate question,
   // and neither implementation reads it that way today — see known-debts.md.)
   stepPartStart = "@" | qualifiedPart
-  qualifiedPart = (laterality | rxSplit | trailingQualifier | threshold) partEnd
+  qualifiedPart = (laterality | rxSplit | unreadableParen | trailingQualifier | threshold) partEnd
 
   // What may follow a part: another part, a comma, an `@`, or the end of the line.
   partEnd = &spacedBoundary | &spacedPart | end
@@ -226,7 +226,7 @@ WDL {
 
   // ---------- what may trail a movement ----------
 
-  stepPart = targetGroup<never> | laterality | rxSplit | thresholdPart | trailingQualifier
+  stepPart = targetGroup<never> | laterality | rxSplit | unreadableParen | thresholdPart | trailingQualifier
 
   // A threshold trailing a movement becomes that step's completion condition.
   thresholdPart = threshold
@@ -281,6 +281,27 @@ WDL {
   loadUnit = caseInsensitive<"lbs"> | caseInsensitive<"lb">
            | caseInsensitive<"kgs"> | caseInsensitive<"kg">
            | "#" | caseInsensitive<"pood">
+
+  // `(each direction)`, `(wibble)` — a parenthetical that is neither a laterality
+  // word nor an rx split, so nothing above it claims it. Matched here, after
+  // those two and ahead of the name, for the same reason `unreadableRange` is
+  // matched ahead of `anyQuantity`: with no rule claiming it, the `(`, the `)`
+  // and the text between them fell through into `movementName` one `nameChar` at
+  // a time, so `12 Around The Worlds (each direction)` was a movement literally
+  // named `Around The Worlds (each direction)` — resolving to no registry entry,
+  // dropping the step out of muscle and volume analysis, and pluralized by
+  // `wdl fmt` into `... (each direction)s`, an `s` on the closing paren that
+  // round-trips. This does not teach the parenthetical a meaning; it only stops
+  // the silence. The whole parenthetical, parens included, is kept verbatim in
+  // `Step.unknown` — the same held-and-reported treatment an unrecognized comma
+  // modifier and `unreadableRange` already get (see `step-semantics.ts`), so
+  // `validate`'s `unread()` reports it and the movement name is left clean.
+  //
+  // `(~")" any)+` matches up to the **first** `)`, so `(a (b) c)` is caught only
+  // as far as `(a (b)` and the `partEnd` gate then fails it back into the name.
+  // Unbalanced and nested parentheticals are rare enough on a whiteboard that
+  // the simple rule wins; a fully general reading is not worth the grammar.
+  unreadableParen = "(" (~")" any)+ ")"
 
   // Order matters twice: `each arm` before bare `each`, limb before team.
   trailingQualifier = eachWord ~wordChar spaces limbWord ~wordChar     -- limb

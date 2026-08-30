@@ -167,6 +167,8 @@ A rep range (`8-12`) is a step quantity; the same shape with a trailing colon (`
 
 **A range does not carry a unit.** `8-12` is a rep range; `100-150ft` — a carry, or a rest, written as a band rather than a single figure — is not read at all. This is deliberate rather than an omission: reading it would mean every consumer of a rep range learning to handle a distance or duration range too, and that is a larger question than this line's parsing, left open in the roadmap. What is not deliberate is silence — `100-150ft Farmers Carry` is *reported*, at the `note` severity unrecognized text already carries (§12), rather than swallowed into the movement name the way it was before this was stated. `wdl check` names it; `wdl fmt` keeps it verbatim, after a comma, rather than folding it into a pluralized movement name.
 
+**A parenthetical the language does not read does not stop the movement being recognized.** `(both)`, `(split)`, `(per-side)`, `(total)` are laterality (§7); `(women 105lb / men 145lb)` and `(105/145)` are an rx split (§10.1). Anything else in parentheses after a movement — `(each direction)`, `(Clean Grip)`, a bare `(wibble)` — is *held*, exactly the way an unread comma modifier is: the whole parenthetical, parens included, is kept in the step's unrecognized text, `wdl check` reports it at the `note` severity (§11.1, §12), and the movement name is left clean so the step still resolves against the registry. Before this was stated the `(`, the `)` and the text between them fell into the movement name one character at a time — `12 Around The Worlds (each direction)` was a movement literally named `Around The Worlds (each direction)`, matching no registry entry and dropping out of muscle and volume analysis, and `wdl fmt` pluralized it to `... (each direction)s`. `wdl fmt` now writes the parenthetical back verbatim after a comma, with the modifiers it did read. Two edges are drawn narrowly on purpose: the match runs to the **first** `)`, so a nested `(a (b) c)` is not caught and stays in the name; and the ~15 raw-import registry titles that themselves contain a parenthetical (`Front Squat (Clean Grip)`) now have it peeled to a `note` and resolve against the base name.
+
 ```
 - 5+ Back Squat @ 85% TM       // 5/3/1 final set
 - max Pull-Up                   // remainder of enclosing clock
@@ -797,7 +799,7 @@ Everything else is a note. Resist building a constraint language:
 
 ### 11.1 Text the language does not read
 
-**Unknown is a first-class state: not an error, and not a guess.** A modifier after a comma that matches no rule is *held in the tree as unrecognized*. It is kept verbatim, it survives a round trip, and it carries no meaning — implicit or explicit — for execution, analysis or export.
+**Unknown is a first-class state: not an error, and not a guess.** A modifier after a comma that matches no rule is *held in the tree as unrecognized*. It is kept verbatim, it survives a round trip, and it carries no meaning — implicit or explicit — for execution, analysis or export. The same treatment reaches two things that are not written after a comma: a range wearing a unit (`100-150ft Farmers Carry`, §4) and a parenthetical that is neither laterality nor an rx split (`Around The Worlds (each direction)`, §4). Both used to be swallowed into the movement name; both are now held, inert, and noted, and the movement name is left clean.
 
 ```
 - 10 Thruster, note: "keep the elbows up", with a band
