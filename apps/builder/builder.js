@@ -36,6 +36,11 @@ import { defaultRegistry } from '../../build/web/core/registry.js';
 import { parseGoals, check } from '../../build/web/core/goals.js';
 import { exposures, muscleLoad, musclesFor } from '../../build/web/core/muscles.js';
 import { mountBody, paintBody, aggregateStates, highlightStates, heatStates, heatColor, attachZoom } from '../shared/body-map.js';
+import {
+  currentUser, beginGoogleSignIn, refreshAuth, signOut,
+  listMine, getById as pbGetById, create as pbCreate, update as pbUpdate,
+  remove as pbRemove, shareUrl,
+} from '../shared/pocketbase.js';
 
 const GRAMMAR = '../../spec/grammar-0.1.ohm';
 const REGISTRY = '../../registry/movements.json';
@@ -66,6 +71,19 @@ const START = `# New workout
 
 /** The document, as lines. Everything else is derived. */
 let lines = START.replace(/\n$/, '').split('\n');
+
+// A buffer stashed just before a sign-in redirect (see `startSignIn`) — the
+// page navigates to Google and back, so the in-memory document would otherwise
+// be lost. Restored once, here, before the first render; the key is written
+// nowhere else, so a normal reload never triggers this.
+try {
+  const draft = localStorage.getItem('wdl.pb-draft');
+  if (draft != null) {
+    localStorage.removeItem('wdl.pb-draft');
+    lines = draft.replace(/\n$/, '').split('\n');
+    if (!lines.length) lines = [''];
+  }
+} catch { /* private mode */ }
 /** Which line the caret was on, so a redraw does not steal focus back to the top. */
 let focused = null;
 /** The curated registry, for per-row movement suggestions. Empty until it loads. */
@@ -907,6 +925,7 @@ el('file').addEventListener('change', async () => {
   const file = el('file').files?.[0];
   if (!file) return;
   lines = (await file.text()).replace(/\n$/, '').split('\n');
+  detachServerWorkout();
   render();
 });
 
@@ -924,6 +943,7 @@ addEventListener('drop', async (e) => {
   const file = e.dataTransfer?.files?.[0];
   if (!file) return;
   lines = (await file.text()).replace(/\n$/, '').split('\n');
+  detachServerWorkout();
   render();
 });
 
@@ -1581,6 +1601,301 @@ el('goal-drop').onclick = () => {
   setGoalSource('');
 };
 
+// --- accounts: sign in, My workouts, sharing --------------------------------
+//
+// Additive on top of everything above. Signed out, the builder is exactly what
+// it was — Download .wdl / Open… a local file still the only persistence, and
+// none of this shown. Signed in (Google, via PocketBase — DEC-016), the current
+// buffer can be saved to an account, listed, reopened, renamed, deleted, and
+// given a share link. `packages/core` never hears about any of it: a stored
+// workout is just its `.wdl` text in a column.
+
+/**
+ * The server workout the buffer is currently attached to, or `null` for a
+ * local/new buffer. Set by opening one from the list or by the first Save;
+ * cleared by Open… a local file, a file drop, or Sign out. Editing the buffer
+ * keeps the attachment, so Save updates the same record rather than forking.
+ */
+let openWorkout = null;
+/** The signed-in user's workouts, newest edit first. Refreshed after each write. */
+let mineList = [];
+/** A one-line status shown in the panel — the outcome of the last action. */
+let mineNote = '';
+
+const detachServerWorkout = () => { openWorkout = null; renderMinePanel(); };
+
+/** The `#` title the parser reads off the current buffer, if any. */
+const currentTitle = () => parse(text()).workout.title ?? '';
+
+const flashMine = (message) => { mineNote = message; renderMinePanel(); };
+
+/** `updated` as a coarse "when" — PocketBase autodate is `YYYY-MM-DD HH:MM:SS.sssZ`. */
+function relTime(s) {
+  if (!s) return '';
+  const then = new Date(s.replace(' ', 'T'));
+  const secs = (Date.now() - then.getTime()) / 1000;
+  if (!Number.isFinite(secs)) return '';
+  if (secs < 60) return 'just now';
+  if (secs < 3600) return `${Math.floor(secs / 60)}m ago`;
+  if (secs < 86400) return `${Math.floor(secs / 3600)}h ago`;
+  if (secs < 604800) return `${Math.floor(secs / 86400)}d ago`;
+  return then.toLocaleDateString();
+}
+
+async function startSignIn() {
+  try {
+    // The redirect leaves and re-enters the page; keep the buffer across it.
+    localStorage.setItem('wdl.pb-draft', text());
+    await beginGoogleSignIn(location.href);
+  } catch (e) {
+    localStorage.removeItem('wdl.pb-draft');
+    flashMine(`Sign-in could not start: ${e.message}`);
+    alert(`Sign-in could not start: ${e.message}`);
+  }
+}
+
+function renderIdentity() {
+  const box = el('identity');
+  box.innerHTML = '';
+  const user = currentUser();
+  if (!user) {
+    el('mine').hidden = true;
+    el('mine').open = false;
+    const b = document.createElement('button');
+    b.id = 'signin';
+    b.textContent = 'Sign in with Google';
+    b.onclick = startSignIn;
+    box.append(b);
+    return;
+  }
+  el('mine').hidden = false;
+  if (user.avatarUrl) {
+    const img = document.createElement('img');
+    img.className = 'avatar';
+    img.src = user.avatarUrl;
+    img.alt = '';
+    img.referrerPolicy = 'no-referrer';
+    img.onerror = () => img.remove();
+    box.append(img);
+  }
+  const who = document.createElement('span');
+  who.className = 'who';
+  who.textContent = user.name || user.email || 'Signed in';
+  const out = document.createElement('button');
+  out.textContent = 'Sign out';
+  out.onclick = () => {
+    signOut();
+    openWorkout = null;
+    mineList = [];
+    mineNote = '';
+    renderIdentity();
+    renderMinePanel();
+  };
+  box.append(who, out);
+}
+
+async function refreshMineList() {
+  try {
+    mineList = await listMine();
+  } catch (e) {
+    mineList = [];
+    mineNote = `Could not load your workouts: ${e.message}`;
+  }
+}
+
+function hintP(text) {
+  const p = document.createElement('p');
+  p.className = 'menu-hint';
+  p.textContent = text;
+  return p;
+}
+
+function iconBtn(glyph, title, fn) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'menu-icon';
+  b.textContent = glyph;
+  b.title = title;
+  b.onclick = fn;
+  return b;
+}
+
+function renderMinePanel() {
+  const panel = el('mine-panel');
+  if (!panel) return;
+  panel.innerHTML = '';
+
+  if (!currentUser()) {
+    panel.append(hintP('Sign in to save workouts to your account.'));
+    return;
+  }
+
+  const actions = document.createElement('div');
+  actions.className = 'menu-row';
+  const save = document.createElement('button');
+  save.textContent = openWorkout ? 'Save' : 'Save to my workouts';
+  save.onclick = saveWorkout;
+  actions.append(save);
+  if (openWorkout) {
+    const copy = document.createElement('button');
+    copy.textContent = 'Save as copy';
+    copy.onclick = saveAsCopy;
+    actions.append(copy);
+  }
+  panel.append(actions);
+
+  if (mineNote) panel.append(hintP(mineNote));
+  if (openWorkout) panel.append(renderShareRow());
+
+  const list = document.createElement('div');
+  list.className = 'mine-list';
+  if (!mineList.length) {
+    list.append(hintP('No saved workouts yet.'));
+  } else {
+    for (const w of mineList) list.append(renderMineRow(w));
+  }
+  panel.append(list);
+}
+
+function renderShareRow() {
+  const row = document.createElement('div');
+  row.className = 'menu-row share-row';
+
+  const label = document.createElement('span');
+  label.className = 'share-label';
+  label.textContent = 'Sharing';
+
+  const sel = document.createElement('select');
+  for (const v of ['private', 'unlisted', 'public']) {
+    const o = document.createElement('option');
+    o.value = v;
+    o.textContent = v;
+    sel.append(o);
+  }
+  sel.value = openWorkout.visibility || 'private';
+  sel.onchange = async () => {
+    const want = sel.value;
+    try {
+      const rec = await pbUpdate(openWorkout.id, { visibility: want });
+      openWorkout.visibility = rec.visibility;
+      await refreshMineList();
+      flashMine(want === 'private'
+        ? 'Now private — the link resolves only for you.'
+        : want === 'unlisted'
+          ? 'Now unlisted — anyone with the link can open it.'
+          : 'Now public.');
+    } catch (e) {
+      sel.value = openWorkout.visibility || 'private';
+      flashMine(`Could not change sharing: ${e.message}`);
+    }
+  };
+
+  const copy = document.createElement('button');
+  copy.textContent = 'Copy link';
+  copy.onclick = async () => {
+    const url = shareUrl(openWorkout.id);
+    try {
+      await navigator.clipboard.writeText(url);
+      flashMine('Link copied to the clipboard.');
+    } catch {
+      flashMine(url);
+    }
+  };
+
+  row.append(label, sel, copy);
+  return row;
+}
+
+function renderMineRow(w) {
+  const row = document.createElement('div');
+  row.className = 'mine-row';
+  if (openWorkout?.id === w.id) row.classList.add('current');
+
+  const open = document.createElement('button');
+  open.type = 'button';
+  open.className = 'mine-open';
+  const title = document.createElement('span');
+  title.className = 'mine-title';
+  title.textContent = w.title || 'Untitled workout';
+  const when = document.createElement('span');
+  when.className = 'mine-when';
+  when.textContent = relTime(w.updated);
+  open.append(title, when);
+  open.onclick = () => openMine(w);
+
+  row.append(open, iconBtn('✎', 'Rename', () => renameMine(w)), iconBtn('✕', 'Delete', () => deleteMine(w)));
+  return row;
+}
+
+async function saveWorkout() {
+  if (!currentUser()) return;
+  const title = currentTitle() || openWorkout?.title || 'Untitled workout';
+  try {
+    const rec = openWorkout
+      ? await pbUpdate(openWorkout.id, { source: text(), title })
+      : await pbCreate({ title, source: text() });
+    openWorkout = { id: rec.id, title: rec.title, visibility: rec.visibility };
+    await refreshMineList();
+    flashMine('Saved.');
+  } catch (e) {
+    flashMine(`Could not save: ${e.message}`);
+  }
+}
+
+async function saveAsCopy() {
+  if (!currentUser()) return;
+  const base = currentTitle() || openWorkout?.title || 'Untitled workout';
+  try {
+    const rec = await pbCreate({ title: `${base} (copy)`, source: text() });
+    openWorkout = { id: rec.id, title: rec.title, visibility: rec.visibility };
+    await refreshMineList();
+    flashMine('Saved as a new copy.');
+  } catch (e) {
+    flashMine(`Could not save a copy: ${e.message}`);
+  }
+}
+
+async function openMine(w) {
+  try {
+    const rec = await pbGetById(w.id);
+    lines = (rec.source || '').replace(/\n$/, '').split('\n');
+    if (!lines.length) lines = [''];
+    openWorkout = { id: rec.id, title: rec.title, visibility: rec.visibility };
+    mineNote = '';
+    focused = null;
+    el('mine').open = false;
+    render();
+    renderMinePanel();
+  } catch (e) {
+    flashMine(`Could not open “${w.title || 'Untitled workout'}”: ${e.message}`);
+  }
+}
+
+async function renameMine(w) {
+  const next = (prompt('Rename workout', w.title || '') ?? '').trim();
+  if (!next || next === w.title) return;
+  try {
+    const rec = await pbUpdate(w.id, { title: next });
+    if (openWorkout?.id === w.id) openWorkout.title = rec.title;
+    await refreshMineList();
+    flashMine('Renamed.');
+  } catch (e) {
+    flashMine(`Could not rename: ${e.message}`);
+  }
+}
+
+async function deleteMine(w) {
+  if (!confirm(`Delete “${w.title || 'Untitled workout'}”? This cannot be undone.`)) return;
+  try {
+    await pbRemove(w.id);
+    if (openWorkout?.id === w.id) openWorkout = null;
+    await refreshMineList();
+    flashMine('Deleted.');
+  } catch (e) {
+    flashMine(`Could not delete: ${e.message}`);
+  }
+}
+
 // --- bootstrap ---------------------------------------------------------------
 // Last, because everything above declares what it needs and this hands it over.
 
@@ -1621,3 +1936,13 @@ renderSets();
 renderSetList();
 curated.finally(render);
 analysis.then(() => el('goal-pick').dispatchEvent(new Event('change')));
+
+// Accounts: paint the signed-out state immediately (a stored token, if any, is
+// still unverified), then revalidate it against the server and, if it holds,
+// pull the workout list.
+renderIdentity();
+renderMinePanel();
+refreshAuth().then((user) => {
+  renderIdentity();
+  if (user) refreshMineList().then(renderMinePanel);
+});

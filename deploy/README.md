@@ -13,7 +13,14 @@ were rejected, are in
   `pb_public/` (served at `/` for any non-`/api/`, non-`/_/` path) — not a
   separate nginx root. `scripts/deploy-web.mjs` builds the served subtree and
   rsyncs it there. See "## 10. Static apps" below.
-- **Item 20** (later): the frontend code that calls `/api/...`.
+- **Item 20** (code landed 2026-08-30, live verification pending a paired Google
+  sign-in): the frontend that calls `/api/...` — `apps/shared/pocketbase.js`
+  (hand-rolled `fetch` client, no SDK), the builder's **Sign in with Google** /
+  **My workouts** / share controls, `apps/builder/auth-callback.html` (the OAuth
+  redirect target), and the board resolving `/apps/display/?w=<id>`. All of it
+  ships inside the existing `apps/` wholesale copy — no `deploy-web.mjs` change.
+  **Before it works live:** register the second redirect URI in §8, then
+  `node scripts/deploy-web.mjs`.
 
 ## As-built (the live instance)
 
@@ -233,7 +240,14 @@ Cloud Console half (Chris's Google account):
 3. *APIs & Services → Credentials → Create credentials → OAuth client ID → Web
    application*:
    - **Authorized JavaScript origin:** `https://wex.androidempathy.com`
-   - **Authorized redirect URI:** `https://wex.androidempathy.com/api/oauth2-redirect`
+   - **Authorized redirect URIs** (both):
+     - `https://wex.androidempathy.com/api/oauth2-redirect` — PocketBase's own
+       handler (the admin UI "Test" button, the SDK popup flow).
+     - `https://wex.androidempathy.com/apps/builder/auth-callback.html` — the
+       builder's redirect flow (queue item 20). `apps/shared/pocketbase.js`
+       sends the browser to Google with this as `redirect_uri` and posts it
+       back to `auth-with-oauth2` as `redirectURL`; the two must match a
+       registered URI exactly or Google returns `redirect_uri_mismatch`.
 4. Copy the client ID + secret.
 
 PocketBase half: admin UI → *Collections → `users` → Options → OAuth2* → enable
@@ -247,10 +261,11 @@ curl -sS 'https://wex.androidempathy.com/api/collections/users/auth-methods'
 # -> the response should list an oauth2 provider "google"
 ```
 
-Then drive the flow with a test-user Google account (the admin UI's provider
-"Test" button, or wait for item 20's "Sign in with Google"): complete Google,
-confirm the redirect lands on `.../api/oauth2-redirect` with a `code` and a
-`users` record is created.
+Then drive the flow with a test-user Google account — the admin UI's provider
+"Test" button, or the builder's **Sign in with Google** (item 20): complete
+Google, confirm the redirect lands back on the app (`.../api/oauth2-redirect`
+for the Test button, `.../apps/builder/auth-callback.html` for the builder)
+with a `code`, and a `users` record is created.
 
 ---
 
@@ -327,6 +342,12 @@ Nothing else is shipped — no `packages/`, `node_modules`, `docs/`, `.git`,
 `test/`, and no other `spec/` / `registry/` / `examples/` files. The list of
 what to copy is `COPY` at the top of `scripts/deploy-web.mjs`; if an app grows a
 new relative fetch, add it there.
+
+Item 20's additions — `apps/shared/pocketbase.js` and
+`apps/builder/auth-callback.html` — need no `COPY` entry: `apps/` is copied
+wholesale. The apps talk to the co-located PocketBase at `/api/...` (same
+origin, no CORS); a `private`/missing workout id returns 404 and the board
+renders a "not found" line rather than failing.
 
 ### Deploy
 

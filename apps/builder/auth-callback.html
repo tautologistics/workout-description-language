@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signing in… — WDL</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font: 400 15px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+    margin: 4rem auto; max-width: 32rem; padding: 0 1.25rem;
+  }
+  a { color: inherit; }
+  .err { color: #c0392b; }
+  @media (prefers-color-scheme: dark) { .err { color: #ff7a68; } }
+</style>
+</head>
+<body>
+
+<!--
+  The Google OAuth2 redirect lands here. `completeSignInFromRedirect()` reads
+  the ?code, exchanges it for a PocketBase token, stores the identity, and
+  hands back where to go next (the builder, hash and all). This page has no UI
+  of its own beyond a line of status — it exists only because a redirect flow
+  needs a fixed URL to come back to, and that URL is what Google has on file.
+-->
+
+<p id="msg">Completing sign-in…</p>
+
+<script type="module">
+import { completeSignInFromRedirect } from '../shared/pocketbase.js';
+
+const msg = document.getElementById('msg');
+try {
+  const { returnTo } = await completeSignInFromRedirect();
+  location.replace(returnTo || '/apps/builder/');
+} catch (e) {
+  msg.textContent = `Sign-in failed: ${e.message}`;
+  msg.className = 'err';
+  const p = document.createElement('p');
+  const a = document.createElement('a');
+  a.href = '/apps/builder/';
+  a.textContent = '← Back to the builder';
+  p.append(a);
+  document.body.append(p);
+}
+</script>
+
+</body>
+</html>

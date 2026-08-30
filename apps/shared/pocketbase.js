@@ -1,0 +1,242 @@
+/**
+ * A hand-rolled PocketBase client — the ~8 calls the apps need, no SDK.
+ *
+ * **Why hand-rolled.** DEC-003 / DEC-008: the apps take no npm runtime
+ * dependency and add no build step — the same rule that vendors `ohm-js` by
+ * relative path rather than installing it. The official `pocketbase` JS SDK is
+ * tens of KB of machinery (realtime, file fields, auto-cancellation, the admin
+ * API, a batch builder) for what is, here, a handful of REST calls plus one
+ * OAuth2 redirect. So this is plain `fetch` against the documented endpoints.
+ *
+ * **Which PocketBase.** Targeted at the live instance — **v0.40.1**
+ * (`deploy/README.md`), served same-origin under `/api` (no CORS). Routes used:
+ *
+ *   GET    /api/collections/users/auth-methods       — the Google authURL + PKCE verifier
+ *   POST   /api/collections/users/auth-with-oauth2   — exchange the `?code` for a token
+ *   POST   /api/collections/users/auth-refresh       — revalidate a stored token
+ *   GET    /api/collections/workouts/records         — list (filter by owner)
+ *   GET    /api/collections/workouts/records/:id     — one record
+ *   POST   /api/collections/workouts/records         — create
+ *   PATCH  /api/collections/workouts/records/:id     — update
+ *   DELETE /api/collections/workouts/records/:id     — delete
+ *
+ * The auth route names have changed across versions (pre-0.23 it was
+ * `auth-via-oauth2`; the record CRUD path was `/api/collections/:c/records`
+ * throughout 0.2x–0.40). If a PocketBase upgrade breaks sign-in, re-check
+ * `GET /api/collections/users/auth-methods` and the admin UI's API preview,
+ * and adjust the three constants below.
+ *
+ * **The OAuth2 flow is the redirect flow**, not the SDK's popup+realtime dance:
+ *   1. GET auth-methods → `{ state, codeVerifier, authURL }` for Google.
+ *   2. Stash `state` + `codeVerifier` (localStorage, survives the round trip),
+ *      then full-page-navigate to `authURL` with our `redirect_uri` appended.
+ *   3. Google bounces back to `AUTH_CALLBACK` with `?code=&state=`.
+ *   4. That page calls `completeSignInFromRedirect()`: check `state`, POST the
+ *      code + verifier + the *same* `redirectURL` to `auth-with-oauth2`, store
+ *      `{ token, record }`.
+ * The `redirect_uri` (`AUTH_CALLBACK`) must be registered in the Google Cloud
+ * Console OAuth client as an authorised redirect URI — see `deploy/README.md`
+ * §8. PocketBase itself does not need it configured; it only echoes it back in
+ * the token exchange.
+ */
+
+const API = '/api';
+const USERS = '/collections/users';
+const RECORDS = '/collections/workouts/records';
+
+/** Where Google returns the browser after sign-in. Must be a registered URI. */
+export const AUTH_CALLBACK = `${location.origin}/apps/builder/auth-callback.html`;
+
+const AUTH_KEY = 'wdl.pb-auth';     // { token, record } — the signed-in identity
+const PENDING_KEY = 'wdl.pb-oauth'; // { state, codeVerifier, provider, returnTo }, mid-redirect only
+
+let auth = readAuth();
+
+function readAuth() {
+  try { return JSON.parse(localStorage.getItem(AUTH_KEY)) || null; }
+  catch { return null; }
+}
+
+function writeAuth(next) {
+  auth = next;
+  try {
+    if (next) localStorage.setItem(AUTH_KEY, JSON.stringify(next));
+    else localStorage.removeItem(AUTH_KEY);
+  } catch { /* private mode — the session just won't persist */ }
+}
+
+/** The signed-in `users` record, or `null`. Synchronous — reads the cached auth. */
+export function currentUser() {
+  return auth?.record ?? null;
+}
+
+/** The bare auth token, or `null`. */
+export function authToken() {
+  return auth?.token ?? null;
+}
+
+/**
+ * One `fetch` against `/api`. Adds the `Authorization` header when signed in
+ * (unless `auth: false`), JSON-encodes a body, and turns a non-2xx into an
+ * `Error` carrying `.status` and PocketBase's `.data` field errors.
+ */
+async function call(path, { method = 'GET', body, auth: useAuth = true } = {}) {
+  const headers = {};
+  if (body !== undefined) headers['Content-Type'] = 'application/json';
+  if (useAuth && auth?.token) headers.Authorization = auth.token;
+  const res = await fetch(`${API}${path}`, {
+    method,
+    headers,
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+  if (res.status === 204) return null;
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(data?.message || `${res.status} ${res.statusText}`);
+    err.status = res.status;
+    err.fields = data?.data ?? {};
+    throw err;
+  }
+  return data;
+}
+
+// --- auth ------------------------------------------------------------------
+
+/**
+ * Step 1–2 of the redirect flow: get Google's `authURL` + PKCE verifier, stash
+ * what step 3 will need, and navigate away. `returnTo` is where the callback
+ * page sends the browser once sign-in completes (defaults to the current URL,
+ * hash and all).
+ */
+export async function beginGoogleSignIn(returnTo = location.href) {
+  const methods = await call(`${USERS}/auth-methods`, { auth: false });
+  const providers = methods.oauth2?.providers ?? methods.authProviders ?? [];
+  const google = providers.find((p) => p.name === 'google');
+  if (!google) throw new Error('Google sign-in is not enabled on the server');
+
+  localStorage.setItem(PENDING_KEY, JSON.stringify({
+    state: google.state,
+    codeVerifier: google.codeVerifier,
+    provider: 'google',
+    returnTo,
+  }));
+
+  const url = new URL(google.authURL || google.authUrl);
+  url.searchParams.set('redirect_uri', AUTH_CALLBACK);
+  location.assign(url.toString());
+}
+
+/**
+ * Step 3–4, run by `auth-callback.html`. Reads `?code`/`?state` off the current
+ * URL, checks the state against what `beginGoogleSignIn` stashed, exchanges the
+ * code for a token, and stores the identity. Returns `{ record, returnTo }`.
+ * Throws (with a readable message) on a cancelled sign-in or a state mismatch.
+ */
+export async function completeSignInFromRedirect() {
+  const params = new URLSearchParams(location.search);
+  const code = params.get('code');
+  const returnedState = params.get('state');
+  const oauthError = params.get('error');
+
+  const pendingRaw = localStorage.getItem(PENDING_KEY);
+  localStorage.removeItem(PENDING_KEY);
+
+  if (oauthError) throw new Error(`sign-in did not complete (${oauthError})`);
+  if (!code || !pendingRaw) throw new Error('no sign-in is in progress');
+
+  const pending = JSON.parse(pendingRaw);
+  if (!returnedState || returnedState !== pending.state) {
+    throw new Error('sign-in state did not match — please try again');
+  }
+
+  const result = await call(`${USERS}/auth-with-oauth2`, {
+    method: 'POST',
+    auth: false,
+    body: {
+      provider: pending.provider,
+      code,
+      codeVerifier: pending.codeVerifier,
+      redirectURL: AUTH_CALLBACK,
+    },
+  });
+
+  // Google's picture URL comes back on `meta`, not on the record (PocketBase
+  // does not download it). Carry it on the stored record so the header can show
+  // an avatar without another request.
+  const record = {
+    ...result.record,
+    avatarUrl: result.meta?.avatarURL || result.meta?.avatarUrl || '',
+  };
+  writeAuth({ token: result.token, record });
+  return { record, returnTo: pending.returnTo || '/apps/builder/' };
+}
+
+/**
+ * Revalidate a stored token on startup. Refreshes the cached `{ token, record }`
+ * on success; clears it on a 401/403 (the token is stale — the server is the
+ * authority). Returns the current user or `null`. Never throws.
+ */
+export async function refreshAuth() {
+  if (!auth?.token) return null;
+  try {
+    const result = await call(`${USERS}/auth-refresh`, { method: 'POST' });
+    const record = { ...result.record, avatarUrl: auth?.record?.avatarUrl || '' };
+    writeAuth({ token: result.token, record });
+    return record;
+  } catch (e) {
+    if (e.status === 401 || e.status === 403) writeAuth(null);
+    return currentUser();
+  }
+}
+
+/** Forget the signed-in identity. Local only — PocketBase tokens are stateless. */
+export function signOut() {
+  writeAuth(null);
+}
+
+// --- workouts ------------------------------------------------------------------
+
+/** The signed-in user's workouts, newest edit first. */
+export async function listMine() {
+  const uid = currentUser()?.id;
+  if (!uid) throw new Error('not signed in');
+  const q = new URLSearchParams({
+    filter: `owner="${uid}"`,
+    sort: '-updated',
+    perPage: '200',
+  });
+  const data = await call(`${RECORDS}?${q}`);
+  return data.items ?? [];
+}
+
+/**
+ * One workout by id. Sends the auth header only when signed in — an anonymous
+ * board reading a shared link relies on the collection's list/view rule
+ * (`visibility != "private"`), and a `private` record then 404s, which the
+ * caller renders as "not found" rather than a crash.
+ */
+export function getById(id) {
+  return call(`${RECORDS}/${encodeURIComponent(id)}`, { auth: !!authToken() });
+}
+
+/** Create a workout. Always `private` on create (per the collection's contract). */
+export async function create({ title = '', source, visibility = 'private' }) {
+  const uid = currentUser()?.id;
+  if (!uid) throw new Error('not signed in');
+  return call(RECORDS, { method: 'POST', body: { owner: uid, title, source, visibility } });
+}
+
+/** Patch a workout — pass only the fields that change (`source`, `title`, `visibility`). */
+export function update(id, patch) {
+  return call(`${RECORDS}/${encodeURIComponent(id)}`, { method: 'PATCH', body: patch });
+}
+
+/** Delete a workout. */
+export function remove(id) {
+  return call(`${RECORDS}/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+/** The stable share URL for a workout id — a real file path, so no rewrite. */
+export function shareUrl(id) {
+  return `${location.origin}/apps/display/?w=${encodeURIComponent(id)}`;
+}

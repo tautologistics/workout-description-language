@@ -484,3 +484,88 @@ button:hover, .button:hover { border-color: var(--dim); }
 
 /* Notes stack; each is its own fact. */
 .notes div + div { margin-top: .2rem; }
+
+/* --- accounts: identity, My workouts, sharing --------------------------- */
+
+header .row { flex-wrap: wrap; }
+
+.identity { display: inline-flex; align-items: center; gap: .4rem; }
+.identity .who {
+  font-size: .82rem; color: var(--dim);
+  max-width: 14rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.identity .avatar { width: 1.4rem; height: 1.4rem; border-radius: 999px; object-fit: cover; }
+
+/* The "My workouts" dropdown: a <details> whose panel is absolutely positioned
+   so opening it never reflows the header or the panes below. Same visual
+   language as the outline's suggestion popups. */
+.menu { position: relative; }
+.menu > summary {
+  list-style: none;
+  padding: .35rem .7rem;
+  border: 1px solid var(--rule);
+  border-radius: .35rem;
+  background: var(--panel);
+  font-size: .82rem;
+  cursor: pointer;
+}
+.menu > summary::-webkit-details-marker { display: none; }
+.menu > summary::after { content: " ▾"; color: var(--dim); }
+.menu[open] > summary { border-color: var(--dim); }
+.menu > summary:hover { border-color: var(--dim); }
+
+.menu-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + .3rem);
+  z-index: 30;
+  width: 24rem;
+  max-width: 90vw;
+  max-height: 72vh;
+  overflow: auto;
+  padding: .5rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: .4rem;
+  box-shadow: 0 .5rem 1.4rem rgba(0, 0, 0, .3);
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+
+.menu-row { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.menu-row button, .menu-row select { font: inherit; font-size: .82rem; }
+.menu-row select { padding: .25rem .3rem; border: 1px solid var(--rule); border-radius: .3rem;
+  background: var(--panel); color: var(--ink); }
+
+.menu-hint { margin: 0; font-size: .78rem; color: var(--dim); line-height: 1.45; }
+
+.share-row { border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+  padding: .4rem 0; }
+.share-row .share-label {
+  font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--dim);
+}
+
+.mine-list { display: flex; flex-direction: column; gap: 1px; }
+
+.mine-row { display: flex; align-items: stretch; gap: .15rem; }
+.mine-row.current .mine-open { border-color: var(--accent); }
+
+.mine-open {
+  flex: 1; min-width: 0;
+  display: flex; justify-content: space-between; align-items: baseline; gap: .6rem;
+  text-align: left;
+  padding: .35rem .45rem;
+  border: 1px solid transparent; border-radius: .3rem;
+  background: transparent; color: inherit; font: inherit; cursor: pointer;
+}
+.mine-open:hover { border-color: var(--rule); background: var(--page); }
+.mine-open .mine-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mine-open .mine-when { flex: none; font-size: .74rem; color: var(--dim); font-variant-numeric: tabular-nums; }
+
+.menu-icon {
+  flex: none; width: 1.7rem;
+  border: 1px solid transparent; border-radius: .3rem;
+  background: transparent; color: var(--dim); font-size: .8rem; cursor: pointer;
+}
+.menu-icon:hover { border-color: var(--dim); color: var(--ink); }

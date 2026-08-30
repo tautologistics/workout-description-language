@@ -34,6 +34,7 @@ import { declaredScore } from '../../build/web/core/result.js';
 import { provide, has } from '../../build/web/core/env.js';
 import { exposures, musclesFor } from '../../build/web/core/muscles.js';
 import { mountBody, paintBody, aggregateStates, highlightStates, attachZoom } from '../shared/body-map.js';
+import { getById as pbGetById } from '../shared/pocketbase.js';
 
 // The core is handed its data; it reads no files itself. On Node that is
 // packages/core/node.ts, here it is a fetch.
@@ -692,6 +693,35 @@ const where = (d) => (d.line === undefined ? d.message : `line ${d.line}: ${d.me
  * that is exactly what the hash already carries. Sharing the link shares the
  * reading, which is a coherent thing to send someone: "today's HYROX, women's".
  */
+/**
+ * A saved workout the URL points at by id: `/apps/display/?w=<id>`.
+ *
+ * This is the share link for an account-saved workout (builder item 20). A
+ * pretty `/w/<id>` was the alternative and was dropped: PocketBase serves
+ * `pb_public/` with an index fallback, so an unknown path like `/w/abc` just
+ * returns the root `index.html` — a real `/w/<id>` route would need a
+ * `pb_hooks` handler, i.e. an infra change, for no gain over a query param on
+ * a file that actually exists. The `#<source>` hash mechanism is untouched and
+ * still authoritative when both are present is decided in the bootstrap below.
+ */
+const sharedId = () => new URLSearchParams(location.search).get('w') || '';
+
+/** Fetch a shared workout and run it, or show a "not found" line (never crash). */
+async function loadShared(id) {
+  try {
+    const rec = await pbGetById(id);
+    if (!rec?.source) throw new Error('empty');
+    load(rec.source, '', false);
+  } catch (e) {
+    // A `private` record 404s for a stranger; a bad id 404s too. Either way the
+    // board stays on its empty drop-zone with a line saying why.
+    problems.hidden = false;
+    problems.textContent = e.status === 404 || e.message === 'empty'
+      ? 'That workout could not be found — the link may be wrong, or it may be private.'
+      : `Could not load that workout: ${e.message}`;
+  }
+}
+
 const readHash = () => {
   const raw = location.hash.slice(1);
   const at = /&division=([^&]*)$/.exec(raw);
@@ -836,7 +866,14 @@ function recue() {
   problems.textContent = diagnostics.join('\n');
 }
 
-function load(source, division = '') {
+/**
+ * `toUrl: false` when the source came from `?w=<id>` — the id *is* the share
+ * link, so the board leaves the clean `?w=<id>` in the address bar rather than
+ * expanding the whole workout into the hash. Expanding it there would make the
+ * copied URL leak the source even after the owner set the record back to
+ * private, and a `#<source>` link is not what "unlisted" is for.
+ */
+function load(source, division = '', toUrl = true) {
   state.source = source;
   state.division = division;
   state.lines = source.replace(/\n$/, '').split('\n');
@@ -854,7 +891,7 @@ function load(source, division = '') {
   controls.hidden = false;
   draw();
   reset();
-  writeHash();
+  if (toUrl) writeHash();
 }
 
 /** Read the same workout as a different division, from where you stand. */
@@ -871,8 +908,10 @@ function showEmpty() {
   bar.hidden = true;
   controls.hidden = true;
   problems.hidden = true;
-  location.hash = '';
-  location.reload();
+  // Drop both the hash and a `?w=<id>` share param, so "Edit" lands on the
+  // real empty board rather than immediately reloading the shared workout.
+  if (location.search || location.hash) location.assign(location.pathname);
+  else location.reload();
 }
 
 // --- wiring -----------------------------------------------------------------
@@ -964,8 +1003,12 @@ fetch(new URL(REGISTRY, location.href))
   .then((data) => provide({ movements: () => data.movements }))
   .catch((e) => console.warn('no movement registry, validation hints are off:', e.message))
   .finally(() => {
+    // `#<source>` in the hash wins when present — it is a whole workout, needs
+    // no round trip, and is what every link written before today carries. Only
+    // with no hash does `?w=<id>` fetch a saved one.
     const { source, division } = readHash();
     if (source.trim()) load(source, division);
+    else if (sharedId()) loadShared(sharedId());
   });
 
 /**
