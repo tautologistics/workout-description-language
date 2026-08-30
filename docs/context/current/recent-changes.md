@@ -2,6 +2,35 @@
 
 ## Changes
 
+- **2026-08-30 — PocketBase is live on the VPS; the deployment epic (items
+  18–20) has its backend.** Queue item 18, the first of the epic Chris made top
+  priority the same day ([DEC-016](../topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage),
+  [goals.md](../goals.md) "## Pivots"). **PocketBase v0.40.1** runs on the
+  DreamHost managed VPS at **`https://wex.androidempathy.com`** as a per-user
+  systemd service — no root on that box, but `loginctl enable-linger` gives
+  boot-start + crash-restart, verified across a real reboot. TLS + routing are
+  the **DreamHost panel's Proxy Server** (whole domain → port 8090) and panel
+  Let's Encrypt, not nginx (panel-owned) — so `deploy/nginx/wdl.conf` is
+  reference-only and the committed process unit is `pocketbase.user.service`.
+  **Google OAuth2** is wired (Cloud Console client + PocketBase provider) and a
+  real sign-in was tested end to end — it creates a `users` record. One
+  collection, **`workouts`**: `owner` (relation→users, required), `title`,
+  `source` (the `.wdl` body), `visibility` (`private`|`unlisted`|`public`),
+  auto `created`/`updated`; write is owner-only, read is
+  `owner = @request.auth.id || visibility != "private"`. Applied as a
+  `deploy/pocketbase/pb_migrations/` JS migration, clean on v0.40.1. **Nothing
+  in `packages/core`, the grammar or the spec changed** — a stored workout is
+  its source text in a column. **Known issue, documented:** the panel proxy
+  connects over the VPS public IP, so PocketBase must bind `0.0.0.0` and port
+  8090 is internet-reachable in plaintext past the TLS proxy; mitigated (auth on
+  every route, collection rules, HTTPS `Application URL`), real fix is an open
+  DreamHost support ticket to firewall the port. `deploy/` (runbook + templates,
+  no secrets) is committed. Items 18–20 stay in
+  [tasks/current.md](../tasks/current.md) — they close together; 18 is marked
+  done inline. Next: **19** — deploy the static builder/board into
+  `pb_public/`. Touches: new `deploy/` tree; [what-exists.md](../topics/what-exists.md)
+  **Hosting** row; [running-it.md](../topics/running-it.md) "Hosting /
+  deployment"; [layout.md](../topics/layout.md).
 - **2026-08-29 — An unread parenthetical after a movement is held, not
   swallowed into the name.** Queue item 14 (top priority, Chris) — the only
   open item that corrupted output silently. `- 12 Around The Worlds (each

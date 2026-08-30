@@ -79,3 +79,24 @@ Anything that calls `parse` outside the CLI must be handed the grammar first —
 `import '../node.ts'` on Node, a fetch in a browser. The regenerators in
 `test/golden/` do this; `required('grammar')` throws by name if something new
 forgets.
+
+## Hosting / deployment
+
+*Since 2026-08-30 (queue item 18).* There is a public instance at
+**`https://wex.androidempathy.com`**, on the DreamHost VPS. **PocketBase**
+(v0.40.1) is the backend — Google sign-in and a `workouts` collection — and it
+runs as a **per-user systemd service** on that box (`systemctl --user … pocketbase`,
+linger enabled so it survives a reboot), fronted by the DreamHost panel's Proxy
+Server + panel Let's Encrypt. Nothing in this repo runs it; nothing here talks
+to it yet either — item 19 deploys the static apps (into PocketBase's
+`pb_public/`, since the panel proxy sends the whole domain to PocketBase) and
+item 20 adds the frontend that calls `/api/…`.
+
+- **Admin UI:** `https://wex.androidempathy.com/_/` (superuser `chris@winberry.net`,
+  password in Chris's password manager — not the repo).
+- **Runbook:** [`deploy/README.md`](../../../deploy/README.md) — install, the
+  panel proxy setup, PocketBase upgrade, SQLite backup/restore, and the
+  "port 8090 exposure" known issue (open DreamHost firewall ticket).
+- **Config templates** committed under `deploy/`; secrets are gitignored.
+- No new local commands. The apps' test/build/serve commands above are
+  unchanged; a production static deploy is item 19's `deploy/` script.

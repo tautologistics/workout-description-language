@@ -50,8 +50,25 @@ useful — Chris's call at the time.
 **The pending item-12 chip is superseded in priority, not cancelled** — it is
 still valid work, it just is not next. Whoever picks up the queue takes 18.
 
-- **18 — Stand up PocketBase on the DreamHost VPS.** *Top priority (Chris,
-  2026-08-30).* Infra, almost no repo code. Steps:
+- ~~**18 — Stand up PocketBase on the DreamHost VPS.**~~ **DONE 2026-08-30.**
+  Shipped: PocketBase v0.40.1 live at `https://wex.androidempathy.com`, running
+  as a per-user systemd service (no root on the managed VPS, but
+  `loginctl enable-linger` → boot-start + crash-restart, verified across a
+  reboot). TLS + routing via the **DreamHost panel Proxy Server** + panel
+  Let's Encrypt (nginx is panel-owned; `deploy/nginx/wdl.conf` is reference
+  only). Google OAuth2 wired and a real sign-in tested end to end (creates a
+  `users` record). `workouts` collection with the fields and rules below,
+  applied as a `deploy/pocketbase/pb_migrations/` JS migration. `deploy/`
+  (runbook + templates, no secrets) committed to `origin/main`. **Known issue
+  carried forward:** the panel proxy reaches the daemon over the VPS public IP,
+  forcing a `0.0.0.0` bind, so port 8090 is internet-reachable in plaintext past
+  the TLS proxy — mitigated, real fix is an open DreamHost firewall ticket (see
+  `deploy/README.md` "Known issue: port 8090 exposure"). Left in this file, not
+  moved to `completed.md`: 18–20 close together per the epic. Original checklist
+  kept below for 19/20's reference.
+
+  *(original)* **Stand up PocketBase on the DreamHost VPS.** *Top priority
+  (Chris, 2026-08-30).* Infra, almost no repo code. Steps:
   - **First, verify what the VPS actually allows.** DreamHost's managed VPS has
     historically given SSH but **not root / not systemd**, and restricts
     long-running custom daemons. Confirm over SSH: can you run a persistent

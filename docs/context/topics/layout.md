@@ -32,6 +32,12 @@ spec/                  spec-0.1.md (the format), goals-0.1.md (the rules),
                        and the file the parser runs, handed to src/ by a host).
 docs/context/          this directory: the project's memory. Start at README.md.
 docs/                  product_vision_and_roadmap.md, prior art, design notes.
+deploy/                hosting the public instance: the PocketBase process unit (user
+                       systemd — pocketbase.user.service — plus a system unit and a
+                       cron keepalive as alternatives), the workouts collection as a
+                       pb_migrations/ JS migration, nginx/wdl.conf (reference only —
+                       DreamHost's panel proxies instead), and README.md, the runbook.
+                       No secrets: *.env / pb_data / the binary are gitignored.
 ```
 
 That `src/` is portable and is handed its data is a settled decision enforced by
