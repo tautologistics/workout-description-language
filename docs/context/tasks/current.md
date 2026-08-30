@@ -113,6 +113,124 @@ task named. When one lands, move it into `completed.md` and update
   `grep -rn "unknown is a place\|unreadable\|parenthes" docs/` for stale
   mentions.
 
+- **15 — Directives (`@id`, `@tags`, …) are first-class metadata: surface them,
+  distinguish them, and complete them.** *High priority (Chris, 2026-08-29),
+  from driving the builder + board.* `parse` already collects every `@key value`
+  line into `workout.directives` (a `Record<string,string>` —
+  `packages/core/src/parse.ts:401`; `ast.ts:244`), values never interpreted. But
+  the builder does nothing with it: `renderReading`'s `rows` array
+  (`apps/builder/builder.js:697`) shows only `title / cues / duration / cap /
+  score`, so an `@id` the author adds is invisible in "what it reads as" — and
+  the board's "no @id" message at the end (`apps/display/board.js:606`) is the
+  first feedback that it was even read. Only `directives.id` is consumed
+  anywhere (the board, for the result record's `result:` head); `@date`,
+  `@tags`, `@wdl` are carried and unread.
+
+  Four parts, all app-level (no core/grammar/spec change — directives already
+  parse):
+
+  **(a) A metadata section in "what it reads as".** Above or beside the
+  `title / cues / …` rows, a small block listing the directives that are set —
+  `id`, `tags` (split on comma into chips), `date`, `wdl` version, and any
+  `@x-…` extension key verbatim. Only shown when at least one is present.
+  Presented as structured metadata, visually apart from the cue list — it
+  describes the workout, it is not part of it. Read straight off
+  `workout.directives`.
+
+  **(b) The board should pull directives into its chrome too — verify first.**
+  Chris reports that putting a workout with directives "through to the
+  dashboard… it just showed them all." The board only *consumes*
+  `directives.id`, and renders cues from the compiled timeline (directives are
+  preamble, stripped before the body), so this is most likely the **Edit**
+  view showing raw source (correct) rather than the cue list — **confirm by
+  driving the board** with a directive-laden workout before changing anything.
+  If directive lines really do leak into the header or cue list, pull `id` /
+  `tags` into the board header (it has room — title and division live there)
+  and drop the rest from view.
+
+  **(c) `@` lines are called out in the outline.** Once item 12 has the outline
+  rendering every line kind, a directive row gets its own class
+  (`.node.directive`) and styling, the way `.node.block` / `.node.comment`
+  already differ — see item 16, which is the general version of this.
+
+  **(d) Type-ahead for directive keys.** When an outline row's text starts with
+  `@` at zero indentation and the caret is still in the key, offer the
+  recognised keys — `@wdl`, `@id`, `@date`, `@tags`, `@author`, and `@x-` for
+  an extension attribute (roadmap §11's `@x-gym:` form). **This list is a
+  builder-held convention, not grammar-derived** — the grammar accepts any
+  `@key` (`directiveKey = nameChar+`), so unlike the block-modifier affordance
+  (item 13's cousin, derived from `blockModifier_*`) there is nothing to
+  enumerate; hand-list them with a one-line description each, the same shape as
+  the movement-suggestion dropdown. Picking one fills the key and leaves the
+  caret after it for the value. `@tiebreak` is **not** in this list — it is a
+  mid-line step marker (spec §9.6), not a preamble directive, and never starts
+  a zero-indent line of its own.
+
+  **Scope:** `apps/builder/builder.js` (`renderReading` metadata block;
+  the `@`-key dropdown, reusing the suggestion-dropdown machinery),
+  `apps/builder/builder.css` (metadata block + `.node.directive`),
+  `apps/builder/index.html` if the metadata block needs a container;
+  `apps/display/board.js` + `board.css` only if (b) finds a real leak.
+  No `packages/core` change. Verify by driving both apps: a workout with
+  `@wdl 0.1` / `@id crossfit:fran` / `@date …` / `@tags a, b` shows a metadata
+  block in the builder with id and tag chips; typing `@` on a fresh top line
+  opens the key list; the board shows the id (and no raw `@` lines in the cue
+  list); canonical round-trip unaffected.
+
+  **Land it / docs:** fresh branch off `origin/main` as the other items
+  describe; push `git push origin <branch>:main`, confirm via
+  `git ls-remote origin main`; commit body ends
+  `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`. When landed: move
+  to [completed.md](completed.md); update the **Apps** row in
+  [../topics/what-exists.md](../topics/what-exists.md); add a
+  [../topics/builder-ux.md](../topics/builder-ux.md) entry; dated line in
+  [../current/recent-changes.md](../current/recent-changes.md).
+
+- **16 — The outline should show what kind of line each row is.** *High
+  priority (Chris, 2026-08-29), from driving the builder.* Today
+  `renderOutline` (`apps/builder/builder.js:251`) marks a row `.block` (ends in
+  `:` or has children), `.comment` (starts `//` — and per item 12 those rows
+  are not even emitted), or `.bad` (a parse error on that line). Nothing tells
+  a **title** (`#`), a **directive** (`@`), a **rest** (`rest …`), or a plain
+  **step** apart, and there is no at-a-glance indicator of the kind — a reader
+  scanning the outline cannot see the shape of the file the way the raw text
+  shows it.
+
+  **The job.** Give every row a visible kind marker — a coloured left border on
+  the row's `.line-wrap` (or a small type badge), one colour/glyph per kind:
+  title, directive, section/container header, step, rest, comment. Keep it
+  legible in both themes and quiet enough not to fight the content (the rails
+  already carry nesting; this is orthogonal). Drive the kind off the parsed
+  node where possible (`n.node === 'step' | 'block' | 'rest'`, the
+  `movementOf` / `blockOf` maps `renderOutline` already builds) and off the raw
+  text only where the parse does not distinguish (title vs directive vs
+  comment, which are preamble). Extend the same treatment to `.bad` so an
+  error row reads as "step, and broken" rather than only "broken".
+
+  Depends on **item 12** landing first (comment rows have to exist before they
+  can be coloured) and dovetails with **item 15(c)** (the `@` directive class).
+  Do 12, then 16, then 15 — or 12 + 16 together.
+
+  **Scope:** `apps/builder/builder.js` (`renderOutline` classing),
+  `apps/builder/builder.css` (the per-kind styles). No core change. Verify by
+  driving the builder against a file with a title, two directives, a comment,
+  a `3 rounds:` header, three steps and a `rest 90s`: every row visibly typed,
+  both themes, and a broken step still readable as a step.
+
+  **Also worth a look while here** (Chris raised it as a related question, not a
+  requirement): whether the same per-kind colouring could go into the **Text**
+  tab as a syntax-highlight layer — a highlight `<div>` positioned behind a
+  transparent `<textarea>`, re-rendered on input. That is a well-trodden
+  vanilla-JS pattern and fits the zero-dependency rule; it delivers the
+  "call out the special lines" value in the raw view too. Completion in the
+  textarea (caret-tracking via a mirror div, line tokenisation, key handling)
+  is the harder, separable piece — note it, do not scope it here.
+
+  **Land it / docs:** as the other items. When landed: move to
+  [completed.md](completed.md); strike/update the relevant
+  [../topics/builder-ux.md](../topics/builder-ux.md) entries; dated line in
+  [../current/recent-changes.md](../current/recent-changes.md).
+
 - **12 — The outline shows no row for a comment; they exist only in the Text
   tab.** *High priority (Chris, 2026-08-29).* Full write-up (cause confirmed in
   source) is the first entry under "## Outline" in
