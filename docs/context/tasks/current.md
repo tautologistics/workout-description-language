@@ -137,16 +137,22 @@ task named. When one lands, move it into `completed.md` and update
   describes the workout, it is not part of it. Read straight off
   `workout.directives`.
 
-  **(b) The board should pull directives into its chrome too — verify first.**
-  Chris reports that putting a workout with directives "through to the
-  dashboard… it just showed them all." The board only *consumes*
-  `directives.id`, and renders cues from the compiled timeline (directives are
-  preamble, stripped before the body), so this is most likely the **Edit**
-  view showing raw source (correct) rather than the cue list — **confirm by
-  driving the board** with a directive-laden workout before changing anything.
-  If directive lines really do leak into the header or cue list, pull `id` /
-  `tags` into the board header (it has room — title and division live there)
-  and drop the rest from view.
+  **(b) The board renders every preamble line as a body row — confirmed, fix
+  it.** `draw()` (`apps/display/board.js:138`) builds one row per raw source
+  line — `state.lines = source.split('\n')` — and gives special handling only
+  to blank (`.blank`) and `//` (`.comment`) lines. So `@wdl 0.1`, `@id …`,
+  `@date …`, `@tags …` and the `# title` all render as plain rows sitting at
+  the top of what the athlete reads mid-workout; **`@id` is not stripped
+  either.** This is the "the board renders the source text, line for line"
+  principle (`board.js:9`) applied one step too literally — the preamble is
+  *metadata about* the workout, not the workout. Fix: `draw()` skips preamble
+  directive rows (a top-of-file run of `@key` lines — match `tryDirective` or
+  a `/^@/` test on the pre-body lines) and lifts `@id` and `@tags` into the
+  board's header chrome, where the title and division picker already live
+  (`apps/display/index.html` header, `board.css`). The `#` title can stay a
+  row or move to the header — Chris's call; the directives are the noise.
+  Keep "source line for line" for the workout body itself — this narrows it,
+  it does not reverse it.
 
   **(c) `@` lines are called out in the outline.** Once item 12 has the outline
   rendering every line kind, a directive row gets its own class
@@ -217,18 +223,73 @@ task named. When one lands, move it into `completed.md` and update
   a `3 rounds:` header, three steps and a `rest 90s`: every row visibly typed,
   both themes, and a broken step still readable as a step.
 
-  **Also worth a look while here** (Chris raised it as a related question, not a
-  requirement): whether the same per-kind colouring could go into the **Text**
-  tab as a syntax-highlight layer — a highlight `<div>` positioned behind a
-  transparent `<textarea>`, re-rendered on input. That is a well-trodden
-  vanilla-JS pattern and fits the zero-dependency rule; it delivers the
-  "call out the special lines" value in the raw view too. Completion in the
-  textarea (caret-tracking via a mirror div, line tokenisation, key handling)
-  is the harder, separable piece — note it, do not scope it here.
+  **Share the palette with item 17** — the Text-tab syntax highlighter uses the
+  same one colour per line kind, so the two views read as one visual language.
+  Whichever lands first defines the tokens (CSS custom properties, e.g.
+  `--kind-directive`); the other consumes them.
 
   **Land it / docs:** as the other items. When landed: move to
   [completed.md](completed.md); strike/update the relevant
   [../topics/builder-ux.md](../topics/builder-ux.md) entries; dated line in
+  [../current/recent-changes.md](../current/recent-changes.md).
+
+- **17 — The Text tab is a bare `<textarea>`: Tab escapes it, and nothing is
+  highlighted.** *High priority (Chris, 2026-08-29), from driving the builder.*
+  Two parts, both about making the raw editor usable; they share a branch.
+
+  **(a) Trap Tab.** `#text` is a plain `<textarea>` (`apps/builder/index.html`),
+  so pressing Tab moves focus out of it instead of indenting. It should insert
+  **two spaces** (canonical indent, spec §2) at the caret; **Shift-Tab**
+  removes up to two leading spaces from the line(s); with a multi-line
+  selection, Tab / Shift-Tab indent / dedent every selected line and preserve
+  the selection. Enter should carry the current line's leading indentation to
+  the new line, plus two more spaces when the line being left ends in `:`
+  (auto-indent into a block). All of this is `lines`-preserving — it edits the
+  textarea value and lets the existing `input` handler re-split `lines`
+  (`builder.js:855`); watch that programmatic `setRangeText` / value edits fire
+  or manually dispatch `input`, and that undo (`document.execCommand` vs direct
+  value set) still works acceptably.
+
+  **(b) Syntax highlighting.** A highlight layer behind a transparent
+  `<textarea>`: a `<pre>`/`<div>` positioned exactly under `#text`, same font,
+  padding, line-height and wrapping, holding the same text re-tokenised on
+  every `input`, with the textarea's own text set transparent
+  (`color: transparent; caret-color: var(--ink)`) so the layer shows through.
+  Colour one token per line kind — directive (`@…`), title (`#…`), comment
+  (`//…`), block header (ends `:`), rest (`rest …`), step (`- …`) — plus,
+  if cheap, the inline pieces (`@ load`, `, modifier`, `note: "…"`). **Use the
+  same palette as item 16** (shared CSS custom properties) so the outline
+  markers and the text colours are one language. Keep it a *layer*, not a
+  contenteditable — paste, undo, spellcheck and IME all keep working because
+  the real control is still a textarea. Re-tokenise is O(text) per keystroke;
+  the file is small, so a full re-render is fine (no incremental parsing).
+  This is the tractable half of "type hinting in the text editor"; **completion
+  in the textarea** (caret-tracking via a mirror div, line tokenisation, a
+  floating popup, key handling) is a bigger, separable piece — do **not** scope
+  it here; if it is wanted it gets its own item.
+
+  **Watch for:** the highlight layer and textarea must stay pixel-aligned under
+  every wrap and at every scroll offset (sync `scrollTop`/`scrollLeft` on
+  `scroll`); `tab-size: 2` is already set on `#text` (`builder.css:234`) —
+  keep the layer's in sync; the `#dirty` "edited" badge and the tab-switch
+  logic (item 10) are untouched.
+
+  **Scope:** `apps/builder/index.html` (wrap `#text` + the highlight layer in
+  a positioned container), `apps/builder/builder.css` (the layer, the
+  transparent-text trick, the kind palette if 17 lands before 16),
+  `apps/builder/builder.js` (the Tab/Enter key handler, the tokenise-and-paint
+  on `input`/`scroll`). No core change. Verify by driving the builder: Tab and
+  Shift-Tab indent/dedent a line and a selection; Enter auto-indents after a
+  `:` line; every line kind is visibly coloured; the caret and selection sit
+  exactly on the glyphs under wrapping and after scrolling; both themes;
+  switching to the Outline tab and back leaves the text and highlighting
+  correct.
+
+  **Land it / docs:** as the other items. When landed: move to
+  [completed.md](completed.md); add/adjust a
+  [../topics/builder-ux.md](../topics/builder-ux.md) entry (the Text tab now
+  traps Tab and highlights); update the **Apps** row in
+  [../topics/what-exists.md](../topics/what-exists.md); dated line in
   [../current/recent-changes.md](../current/recent-changes.md).
 
 - **12 — The outline shows no row for a comment; they exist only in the Text
