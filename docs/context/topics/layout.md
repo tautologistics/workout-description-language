@@ -17,6 +17,9 @@ packages/core/bin/     the `wdl` CLI.
 apps/builder/          write a workout: palette, outline, text, live goal feedback.
 apps/display/          the board: a workout as written, with a marker for where you are,
                        and the result it writes down when the session ends.
+apps/shared/           ES modules both apps import by relative path (no bundler): body-map.js
+                       (the SVG figure), pocketbase.js (hand-rolled ~8-call fetch client for
+                       Google sign-in + the workouts collection — item 20).
 registry/              movements, muscles, workouts. Rebuilt by scripts/build-canonical.ts,
                        which is the whole pipeline. movements.json is the curated layer and the
                        only file edited by hand; everything else there is generated.

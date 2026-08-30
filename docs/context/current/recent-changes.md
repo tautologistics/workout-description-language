@@ -2,6 +2,61 @@
 
 ## Changes
 
+- **2026-08-30 — Accounts, saved workouts and sharing in the apps (queue item
+  20 code, landed on `origin/main`; live verification + redeploy pending a
+  paired Google sign-in).** Final item of the deployment epic
+  ([DEC-016](../topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage)).
+  Additive on the static apps — signed out, nothing changed (`Download .wdl` /
+  `Open…` a local file untouched); `packages/core`, the grammar and the spec are
+  not touched, a stored workout is its `.wdl` text in a column.
+  - **`apps/shared/pocketbase.js`** — a **hand-rolled ~8-call `fetch` client**,
+    no SDK (DEC-003 / DEC-008: no npm runtime dep, no build step, same rule that
+    vendors `ohm-js`). Google OAuth2 by the **redirect flow**, not the SDK's
+    popup+realtime dance: `GET auth-methods` → navigate to Google's `authURL`
+    with our `redirect_uri` → `POST auth-with-oauth2` with
+    `code`/`codeVerifier`/`redirectURL` → `{ token, record }` into
+    `localStorage`; `refreshAuth()` revalidates on startup and clears a stale
+    token on 401/403. Records: `create` / `listMine` / `getById` / `update` /
+    `remove` against the `workouts` collection. Targeted at PocketBase
+    **v0.40.x** route names (checked against the live `/api`); the header
+    comment says which and why hand-rolled.
+  - **`apps/builder/auth-callback.html`** — the fixed URL Google returns to
+    (a redirect flow needs one). Runs `completeSignInFromRedirect()` and
+    bounces back to the builder, hash and all. **This URL
+    (`https://wex.androidempathy.com/apps/builder/auth-callback.html`) must be
+    registered as a second authorised redirect URI in the Google Cloud
+    Console** — see `deploy/README.md` §8; without it Google returns
+    `redirect_uri_mismatch`.
+  - **Builder** — a *Sign in with Google* control and the signed-in identity in
+    the header; a **My workouts** dropdown: **Save** (create if new, update if
+    opened from the server — explicit, never autosave), *Save as copy*, open a
+    saved workout into the editor, rename, delete, and a **visibility** select
+    (`private` / `unlisted` / `public`) + **Copy link**. The buffer is stashed
+    to `localStorage` across the sign-in redirect so it survives the round trip.
+  - **Board** — `/apps/display/?w=<id>` fetches the record and runs it; a
+    `#<source>` hash behaves **exactly as before** and wins when both are
+    present. A `private`/missing id 404s and the board shows a "not found" line
+    (no crash). A `?w=` load leaves the clean id in the address bar rather than
+    expanding the whole source into the hash — expanding it would leak the
+    source past a later `unlisted → private`.
+  - **Share URL is `/apps/display/?w=<id>`**, not a pretty `/w/<id>`: measured
+    against the live instance, PocketBase serves `pb_public/` with an index
+    fallback (an unknown path returns the root `index.html`), so `/w/<id>`
+    can't route without a `pb_hooks` handler — an infra change for no gain over
+    a query param on a file that exists. No `scripts/deploy-web.mjs` change:
+    both new files ride the wholesale `apps/` copy.
+  - **Verified headless** — against the live `auth-methods` endpoint and a
+    faithful local fake of the `workouts` collection: sign-in URL construction
+    (state + PKCE + `redirect_uri`), the callback token exchange, Save
+    create-vs-update (one record, not two), Save as copy, open-into-editor,
+    rename, delete, visibility changes, share links resolving for `unlisted`
+    and 404ing for `private` to a stranger, the signed-out builder and the
+    board's `#<source>` hash both unregressed, light + dark, zero console
+    errors. **Not yet done, needs Chris:** the real Google handshake
+    (redirect URI + a test-user login), `node scripts/deploy-web.mjs`, and the
+    live drive-through. Items 18–20 stay in
+    [tasks/current.md](../tasks/current.md) until that passes.
+
 - **2026-08-30 — The builder + board are live at
   `https://wex.androidempathy.com/`.** Queue item 19 of the deployment epic
   ([DEC-016](../topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage)).

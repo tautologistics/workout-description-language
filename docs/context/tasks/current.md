@@ -160,6 +160,36 @@ still valid work, it just is not next. Whoever picks up the queue takes 18.
 
 - **20 — Frontend: Google sign-in, saved workouts, sharing.** *Top priority
   (Chris, 2026-08-30).* App code in `apps/`, no `packages/core` change.
+
+  **Status 2026-08-30: code landed on `origin/main`, three things remain and all
+  need Chris.** Shipped: `apps/shared/pocketbase.js` (hand-rolled ~8-call
+  `fetch` client, no SDK — redirect-flow Google OAuth2, `create`/`listMine`/
+  `getById`/`update`/`remove` on the `workouts` collection),
+  `apps/builder/auth-callback.html` (the OAuth redirect target), the builder's
+  *Sign in with Google* + identity + **My workouts** dropdown (Save = create if
+  new / update if opened-from-server; Save as copy; open; rename; delete;
+  `visibility` select + Copy link), and the board resolving
+  `/apps/display/?w=<id>` (a `#<source>` hash is unchanged and wins when both
+  present; `private`/missing → "not found", no crash). **Share URL is
+  `/apps/display/?w=<id>`** — a pretty `/w/<id>` was rejected: PocketBase serves
+  `pb_public/` with an index fallback, so it can't route without a `pb_hooks`
+  handler (infra) for no gain. No `deploy-web.mjs` change (the files ride the
+  wholesale `apps/` copy). Verified headless against the live `auth-methods`
+  and a faithful local fake of the collection — sign-in URL, callback token
+  exchange, create-vs-update, copy, open, rename, delete, visibility, share
+  resolve/404, signed-out builder + board `#<source>` unregressed, both themes,
+  clean console. **Remaining (pair with Chris):**
+  1. Register the second redirect URI
+     `https://wex.androidempathy.com/apps/builder/auth-callback.html` in the
+     Google Cloud Console OAuth client (`deploy/README.md` §8).
+  2. `node scripts/deploy-web.mjs` (SSH: `WDL_DEPLOY_SSH=dreamhost.ae.wex`).
+  3. Drive both apps live against PocketBase with a real Google sign-in — the
+     "Verify by driving both apps" checklist below.
+  Once all three pass: move 18–20 to [completed.md](completed.md), restore
+  "## Open" to the builder-UX items only, update
+  [../topics/what-exists.md](../topics/what-exists.md) (Hosting + Apps rows are
+  already written for this — drop the "in code / pending deploy" hedge), and
+  spawn the item-12 chip (chain 12 → 16 → 17 → 15 → 13 → 11).
   - **PocketBase access layer:** a small module under `apps/shared/` — either a
     vendored PocketBase ES SDK by relative path, or a hand-rolled `fetch`
     wrapper (auth: start OAuth2 flow, handle the redirect, store/refresh the

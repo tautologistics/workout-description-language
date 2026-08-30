@@ -1064,6 +1064,26 @@ marks the ones worth a top-level pointer.
   module. Recorded here before the work so the next session does not re-litigate
   the host or the backend.*
 
+  **Item-20 implementation choices (2026-08-30), consistent with the above:**
+  - **The PocketBase client is hand-rolled `fetch`, not the SDK** —
+    `apps/shared/pocketbase.js`, ~8 calls. DEC-003 / DEC-008: no npm runtime
+    dep, no build step. Header comment pins the PocketBase **v0.40.x** route
+    names it targets.
+  - **Google OAuth2 is the redirect flow, not the SDK's popup + realtime
+    dance.** `auth-methods` → full-page navigate to Google's `authURL` with our
+    `redirect_uri` → `auth-with-oauth2` with `code` / `codeVerifier` /
+    `redirectURL`. Simpler to hand-roll (no SSE), no popup-blocker failure
+    mode, works on mobile. The cost is a second authorised redirect URI in the
+    Google console — `https://wex.androidempathy.com/apps/builder/auth-callback.html`
+    (`deploy/README.md` §8) — alongside PocketBase's own `/api/oauth2-redirect`.
+  - **The share URL is `/apps/display/?w=<id>`, not a pretty `/w/<id>`.**
+    Measured against the live instance: PocketBase serves `pb_public/` with an
+    index fallback, so an unknown path returns the root `index.html` — `/w/<id>`
+    can't route without a `pb_hooks` handler, which is an infra change for no
+    gain over a query param on a file that exists. The board reads `?w=<id>`,
+    fetches the record, and runs it; a `#<source>` hash is unchanged and wins
+    when both are present.
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).
