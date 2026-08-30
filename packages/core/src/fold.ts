@@ -82,7 +82,13 @@ function pluralizeWord(word: string): string {
  *
  * - A standalone preposition marks the head as the word before it, so
  *   `Lateral Burpee over Dumbbell` becomes `Lateral Burpees over Dumbbell`
- *   rather than pluralizing the dumbbell.
+ *   rather than pluralizing the dumbbell — *unless* that word is the first in
+ *   the name, in which case it is a leading modifier and not a noun:
+ *   `Bent Over Barbell Row` is `Bent Over Barbell Rows`, not
+ *   `Bents Over Barbell Row`. Every corpus name of the `[noun] [prep] [obj]`
+ *   shape (`Atlas Stone to Shoulder`, `Hang Clean to Overhead`) has a real
+ *   word before the noun, so requiring one costs nothing and stops `Bent Over`
+ *   / `Ground to` / `Elbow to` taking the `s`.
  * - A hyphenated compound with a preposition *inside* it is a name in its own
  *   right and is left alone: `Knees-to-Elbow`, `Toes-to-Bar`,
  *   `Ground-to-Overhead`. A trailing particle is not the same thing, so
@@ -103,7 +109,10 @@ export function pluralize(name: string): string {
   // would otherwise pluralize the dash.
   const letters = (w: string) => /[a-z]/i.test(w);
   const at = words.findIndex((w) => PREPOSITION.has(w.toLowerCase()));
-  let head = at > 0 ? at - 1 : words.length - 1;
+  // `at > 1`, not `at > 0`: the word before the preposition is only the head
+  // when it is not itself the first word. `Bent Over Barbell Row` leads with a
+  // participle, not a noun, so the head is the trailing `Row`.
+  let head = at > 1 ? at - 1 : words.length - 1;
   while (head > 0 && !letters(words[head])) head--;
   if (!letters(words[head])) return name;
 

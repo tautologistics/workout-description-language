@@ -301,6 +301,10 @@ describe('pluralize: how a name reads for more than one', () => {
     // The head noun is not always last.
     ['Lateral Burpee over Dumbbell', 'Lateral Burpees over Dumbbell'],
     ['Atlas Stone to Shoulder', 'Atlas Stones to Shoulder'],
+    // ...but a preposition right after the first word makes that word a leading
+    // modifier, not the head: pluralize the trailing noun instead.
+    ['Bent Over Barbell Row', 'Bent Over Barbell Rows'],
+    ['Bent Over Row', 'Bent Over Rows'],
     // A prepositional compound is a name in its own right.
     ['Knees-to-Elbow', 'Knees-to-Elbow'],
     ['Toes-to-Bar', 'Toes-to-Bar'],
