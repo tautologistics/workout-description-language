@@ -9,6 +9,110 @@ task named. When one lands, move it into `completed.md` and update
 
 ## Open
 
+- **14 — An unrecognized parenthetical after a movement is silently swallowed
+  into the movement name.** *Top priority (Chris, 2026-08-29) — this one
+  corrupts analysis silently, unlike 12/13 which are UI.* Measured:
+
+  ```
+  - 12 Around The Worlds (each direction)
+  ```
+  parses with **no error, no `note`, `validate` clean**, and
+  `step.movement === "Around The Worlds (each direction)"` — the parenthetical
+  is now part of the name. Consequences: the movement no longer resolves
+  against the registry, so muscle attribution, the body map, generation-pool
+  membership and everything else keyed on the movement silently go blank or
+  wrong; and `format` runs `pluralize` over the whole string and emits
+  `12 Around The Worlds (each direction)s` — an `s` stuck on the closing paren,
+  a stable round trip of a mangling. Same for any bare word:
+  `(wibble)`, `Dumbbell Snatch (each direction)`, etc.
+
+  **Contrast the comma path, which is already right.**
+  `- 12 Dumbbell Snatch, wibble` keeps `movement === "Dumbbell Snatch"`, holds
+  `wibble` in `step.unknown`, and `validate` reports
+  *"`wibble` is not something the language reads — it is kept as written, and
+  nothing acts on it"* (a `note`, the severity that claims nothing). Chris's
+  principle, stated on the queue: **putting anything in parentheses must not
+  stop a movement being recognized** — a parenthetical the language does not
+  read should be held exactly the way an unread comma modifier is.
+
+  **Cause.** In `spec/grammar-0.1.ohm`, a step part is
+  `qualifiedPart = (laterality | rxSplit | trailingQualifier | threshold) partEnd`
+  with `laterality = "(" lateralityWord ")"` and `lateralityWord` = the four
+  words `both | split | per-side | total`. A parenthetical that is neither a
+  laterality word nor an rx-split shape matches no alternative, so PEG
+  backtracks and the `(`, `)` and inner text fall through into `movementName`
+  as ordinary `nameChar`s. There is no "unrecognized parenthetical" production
+  the way there is an `unreadableRange` one.
+
+  **The fix, with a precedent.** This is the same shape as **queue item 5**
+  (`100-150ft Farmers Carry` — a range with a unit was landing whole in the
+  movement name; the fix added `unreadableRange` as its own production ahead of
+  `anyQuantity`, routed to `Step.unknown` + a `validate` `note`, movement name
+  left clean). Do the same here: a new production — call it
+  `unreadableParen` / `unknownParen` — matching `"(" (~")" any)+ ")"` as a step
+  part, ordered **after** `laterality` and `rxSplit` so the recognized forms
+  still win, mapping the whole parenthetical **verbatim (parens included)**
+  into `Step.unknown`. `validate.ts` already turns `Step.unknown` entries into
+  the `unrecognized-text` `note` (`unread()` around `validate.ts:60`), so the
+  reporting is free once the text lands there. `format` writes `unknown` back
+  after the modifiers it did read (spec §11.1), so `pluralize` never sees it
+  and the `(…)s` mangling disappears with the same change.
+
+  **Watch for:**
+  - **rx-split must still win.** `(women 105lb / men 145lb)` and `(105/145)`
+    are `rxSplit`; the new production is strictly a fallback after it. Test
+    both still parse as splits.
+  - **The four laterality words must still win**, in any case
+    (`(Split)`, `(BOTH)`).
+  - **A movement whose real registry title contains parentheses** — check
+    whether any exist (`grep '(' registry/movements*.json` on titles/aliases);
+    if some do, the fallback would hold the paren as unknown and break that
+    name. Likely none (titles are clean), but confirm and note it.
+  - **Nested/unbalanced parens** — `((x)` , `(a (b) c)`: pick the simplest
+    rule that does not throw (match to the first `)` is fine; say so in the
+    spec).
+  - **Whitespace before the paren** — `Row (each side)` vs `Row(each side)`;
+    the grammar's `partEnd` / spacing handling around `laterality` is the
+    reference.
+
+  **Scope:** `spec/grammar-0.1.ohm` (the production), the step semantics module
+  under `packages/core/src/grammar/` (route it to `unknown`, same handler shape
+  as the unread comma modifier and `unreadableRange`), `spec/spec-0.1.md` §4
+  and §11.1 (state that an unread parenthetical is held, inert, noted — the
+  parens-analogue of the comma rule), `packages/core/test/grammar.test.ts` (the
+  block-headers / step-lines counts move; add cases), `test/golden/vocabulary.ts`
+  (pin `Around The Worlds (each direction)` → held, noted, movement resolves;
+  and the round trip). **Corpus:** no example file writes an unread
+  parenthetical, so `interpretations.json` and
+  `registry/workouts.canonical.json` should regenerate to nothing but the date
+  stamp — confirm with `node packages/core/test/golden/generate.ts` and
+  `node scripts/build-workouts.mjs`, don't assume. Drive the builder once:
+  `- 12 Around The Worlds (each direction)` shows the movement resolving (body
+  map lights, "what it reads as" cues it), with a `note` in the diagnostics
+  pane, and canonicalise leaves the parenthetical intact (no `s` on the paren).
+
+  **Relationship to item 13.** 13(a) is "the `»` panel offers no laterality
+  option for `Around The Worlds` because the registry entry has none, and is
+  `each direction` even a laterality mode WDL should model" — still a curation
+  + language question, unchanged. This item is narrower and blocks nothing:
+  whatever 13 decides, an unread parenthetical should fail open rather than
+  corrupt the name. Do this one first.
+
+  **Land it / docs:** fresh branch off `origin/main` (`git fetch origin`,
+  `git checkout -b <name> origin/main`; `main` is checked out elsewhere).
+  Push `git push origin <branch>:main`; confirm the SHA moved via
+  `git ls-remote origin main`. Commit body ends
+  `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`. When it lands:
+  move to [completed.md](completed.md); update the **Format** row (or the
+  "Unknown is a place, not a gap" row) in
+  [../topics/what-exists.md](../topics/what-exists.md) to say the fail-open now
+  covers parentheticals; record the spec decision in
+  [../topics/settled-decisions.md](../topics/settled-decisions.md) beside item
+  5's (same pattern); dated line in
+  [../current/recent-changes.md](../current/recent-changes.md);
+  `grep -rn "unknown is a place\|unreadable\|parenthes" docs/` for stale
+  mentions.
+
 - **12 — The outline shows no row for a comment; they exist only in the Text
   tab.** *High priority (Chris, 2026-08-29).* Full write-up (cause confirmed in
   source) is the first entry under "## Outline" in
