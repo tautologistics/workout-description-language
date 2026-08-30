@@ -1,0 +1,8 @@
+# Nothing that carries a secret or is machine-state belongs in git.
+*.env
+!env.example
+pb_data/
+pb_backups/
+pocketbase        # the downloaded binary
+*.log
+*.pid

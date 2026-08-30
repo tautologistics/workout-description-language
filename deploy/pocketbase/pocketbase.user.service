@@ -1,0 +1,36 @@
+# The unit actually running the WDL instance — a per-user systemd service, no
+# root. This is the DreamHost managed-VPS path: no sudo, but `loginctl
+# enable-linger $USER` succeeds, so a user unit gets boot-start + crash-restart.
+#
+# Install:
+#   loginctl enable-linger "$USER"
+#   mkdir -p ~/.config/systemd/user
+#   cp deploy/pocketbase/pocketbase.user.service ~/.config/systemd/user/pocketbase.service
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now pocketbase
+#   systemctl --user status pocketbase
+#
+# Bind address: 0.0.0.0, NOT 127.0.0.1 — DreamHost's panel Proxy Server connects
+# to the daemon over the VPS's *public* IP, so a loopback or private-IP bind
+# gets a 503 from the proxy (both tested 2026-08-30). The consequence is that
+# the raw port is reachable from the internet past the TLS proxy; see
+# deploy/README.md "Known issue: port 8090 exposure".
+#
+# %h expands to the user's home directory.
+
+[Unit]
+Description=PocketBase for WDL
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/pb
+ExecStart=%h/pb/pocketbase serve \
+  --http 0.0.0.0:8090 \
+  --dir %h/pb/pb_data \
+  --migrationsDir %h/pb/pb_migrations
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

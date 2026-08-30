@@ -1,0 +1,7 @@
+# Add to `crontab -e` on the PocketBase account (user-level supervision path).
+# The every-minute line is the crash-restart; @reboot is the boot-start.
+# run-pocketbase.sh is a no-op when the process is already alive, so the
+# every-minute tick is cheap.
+
+* * * * * $HOME/pb/run-pocketbase.sh >> $HOME/pb/cron.log 2>&1
+@reboot   $HOME/pb/run-pocketbase.sh >> $HOME/pb/cron.log 2>&1

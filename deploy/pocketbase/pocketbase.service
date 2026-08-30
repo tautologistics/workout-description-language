@@ -1,0 +1,41 @@
+# SYSTEM systemd unit for PocketBase — reference only. The live WDL instance
+# does NOT use this: the DreamHost managed VPS gives no root, so it runs as a
+# per-user unit instead — see deploy/pocketbase/pocketbase.user.service, which
+# is what is actually deployed. Use this file only on a host where you have root
+# and want a system service. The cron keepalive
+# (deploy/pocketbase/run-pocketbase.sh + crontab.fragment) is the third option,
+# for a host with neither root nor user-linger.
+#
+# Install (system):
+#   sudo cp deploy/pocketbase/pocketbase.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now pocketbase
+#   systemctl status pocketbase
+#
+# Substitute: replace `pbuser` and the /home/pbuser paths with the real account.
+
+[Unit]
+Description=PocketBase for WDL
+After=network.target
+
+[Service]
+Type=simple
+User=pbuser
+Group=pbuser
+WorkingDirectory=/home/pbuser/pb
+ExecStart=/home/pbuser/pb/pocketbase serve \
+  --http 127.0.0.1:8090 \
+  --dir /home/pbuser/pb/pb_data \
+  --migrationsDir /home/pbuser/pb/pb_migrations
+Restart=always
+RestartSec=5
+LimitNOFILE=4096
+
+# Hardening — safe defaults; loosen only if the box complains.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/home/pbuser/pb
+
+[Install]
+WantedBy=multi-user.target
