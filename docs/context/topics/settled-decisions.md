@@ -4,7 +4,7 @@ Closed questions, and what each answer buys. Read this before changing how
 something is structured: reopening one of these needs a reason better than "it
 would be tidier".
 
-The fifteen structurally significant decisions carry a `DEC-NNN` heading and
+The sixteen structurally significant decisions carry a `DEC-NNN` heading and
 are indexed with a one-line summary in [../decisions.md](../decisions.md);
 every decision below — headed or not — is equally settled, the heading only
 marks the ones worth a top-level pointer.
@@ -999,6 +999,70 @@ marks the ones worth a top-level pointer.
   wearing a number's clothes. *Touched: `apps/shared/body-map.js`
   (`heatStates`), no core change — the split is entirely a read of
   `MuscleLoad`'s existing fields, not a new one.*
+
+### DEC-016 A hosted instance with PocketBase for auth and storage
+*Status: active. Settled 2026-08-30, opening queue items 18–20.*
+
+- **The apps get a public URL on Chris's DreamHost VPS, with PocketBase beside
+  them for Google sign-in and saved/shared workouts.** Settled 2026-08-30. This
+  reverses the *"Sharing, accounts, a platform"* Non-Goal, which
+  [goals.md](../goals.md) had gated on "the goal itself changes" — it now has
+  (see that file's "## Pivots"). The trigger was practical: the apps only run
+  behind a dev server that changes under whoever is testing, so there is no way
+  for Chris or a training partner to sit with the real UX and report back.
+  *"That will help steer and discover things for this work."*
+
+  **What is and is not changing.** The two project goals — whiteboard-readable
+  text, check/generate against intent — are untouched, and *"not competing for
+  adoption"* still holds: this is a handful of known users on one small
+  instance, not a platform. Crucially **nothing here touches `packages/core`,
+  the grammar or the spec**. A stored workout is its `.wdl` source text in a
+  database column; PocketBase stores and returns a string, and every existing
+  consumer (the apps, `wdl` CLI, the tests) is unaffected. The signed-out
+  experience — build, `Download .wdl`, `Open…` a local file, share via the
+  board's `#<source>` hash — keeps working unchanged; accounts are purely
+  additive.
+
+  **Why the DreamHost VPS.** Chris already pays for it, so the marginal cost is
+  $0, and it is **always-on with no idle-pause and no cold-start** — the two
+  things that ruled out the free tiers considered beside it. Supabase free
+  pauses a project after 7 days idle; Render's free services spin down at 15
+  min idle with a ~50s cold start; the old Heroku hobby dyno (the thing Chris
+  remembered wanting) was killed in 2022 and its successors all sleep or meter.
+  A box that is already running and already paid for beats all of them for a
+  low-traffic instance that must just *be there* when someone opens the link.
+  The price paid instead is that Chris runs the process and owns backups —
+  which for PocketBase is one SQLite file.
+
+  **Why PocketBase for the backend.** One Go binary: SQLite, built-in auth
+  including Google OAuth2, an admin UI, and a plain REST API. It gives the
+  whole "users + save + share" surface as configuration rather than code, with
+  no SaaS account and no ORM. Rejected alternatives: **Supabase / Firebase** —
+  managed, fastest to a prototype, but a SaaS dependency and (free tier) the
+  idle-pause above; **a hand-rolled Express + Passport backend** — exactly the
+  wheel Chris said he did not want to reinvent, and the maintenance surface
+  (TLS, process, session store, patching) is all downside here; **hosted auth
+  (Auth0 / Clerk / WorkOS)** — still needs a database behind it for the
+  workouts, so it removes no step; **a standalone OAuth server (OpenAuth,
+  Auth.js)** — Auth.js is framework-coupled and the apps are a plain static
+  SPA, and a separate identity server is more moving parts than one binary.
+
+  **Why Google OIDC and nothing else at first.** No passwords to store or
+  reset, and it is one provider toggle in PocketBase. More providers, or
+  email-link auth, only if someone actually needs them.
+
+  **Constraints carried in from the existing architecture.** No bundler and no
+  npm runtime dependency is added ([DEC-003](#dec-003-src-is-portable-and-is-handed-its-data),
+  [DEC-008](#dec-008-ohm-js-is-vendored-imported-by-relative-path)): the
+  PocketBase client is either a vendored ES module by relative path or — more
+  likely, since only ~6 calls are needed — a hand-rolled `fetch` wrapper. The
+  static apps already use only relative paths, so the deploy is `scripts/serve.mjs`'s
+  behaviour reproduced by nginx over a copy of the served subtree; PocketBase
+  is reverse-proxied **same-origin** under `/api/` so there is no CORS surface.
+  *Touched (planned): a new `deploy/` directory (nginx vhost, process unit,
+  runbook), a deploy script under `scripts/`, and an `apps/shared/` access
+  module. Recorded here before the work so the next session does not re-litigate
+  the host or the backend.*
 
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in

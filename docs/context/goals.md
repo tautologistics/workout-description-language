@@ -35,9 +35,23 @@ because nobody outside was asking for better. That inference was wrong.*
 
 ## Pivots
 
-- None recorded. The two things the project is for (whiteboard-readable text;
-  checkable and generatable against a stated intent) have held since the
-  project's founding documents; see
+- **2026-08-30 — a hosted instance with lightweight accounts is now in scope.**
+  Chris asked to deploy the apps to a public URL on his DreamHost VPS, backed by
+  PocketBase for Google sign-in and saved/shared workouts, "as soon as possible"
+  because *"that will help steer and discover things for this work"* — real UX
+  feedback from himself and a few training partners, which the dev-server-only
+  setup cannot give. This reverses the *"Sharing, accounts, a platform"*
+  Non-Goal below, which had been gated on "the goal itself changes". **The two
+  things the project is for are unchanged** (whiteboard-readable text;
+  check/generate against intent), and *"not competing for adoption"* still
+  holds — this is a handful of known users on one small instance, not a
+  platform play. Nothing about it touches `packages/core`, the grammar or the
+  spec: a stored workout is its `.wdl` source text in a column. Queue items
+  18–20 in [tasks/current.md](tasks/current.md);
+  [DEC-016](topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage) for the host/auth choice.
+- The two things the project is for (whiteboard-readable text; checkable and
+  generatable against a stated intent) have held since the project's founding
+  documents; see
   [../product_vision_and_roadmap.md](../product_vision_and_roadmap.md) for the
   original framing.
 
@@ -57,8 +71,12 @@ because nobody outside was asking for better. That inference was wrong.*
   [topics/deliberately-not-done.md](topics/deliberately-not-done.md).*
 - **Strength Level as a sixth registry source.** Its terms of use forbid the
   automated access this would need.
-- **Sharing, accounts, a platform.** Deliberately far off — see
-  [tasks/deferred.md](tasks/deferred.md).
+- ~~**Sharing, accounts, a platform.**~~ *Reversed 2026-08-30 — see "## Pivots"
+  above and [DEC-016](topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage). A hosted instance
+  with Google sign-in and saved/shared workouts is now queue items 18–20. What
+  stays declined is a *platform* — public signup at scale, discovery, anything
+  justified by adoption; the hosted instance is for the author and a few
+  training partners.*
 
 Full reasoning for each, including the measurements taken before declining
 Strength Level, is in [topics/deliberately-not-done.md](topics/deliberately-not-done.md).

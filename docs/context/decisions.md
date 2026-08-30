@@ -109,3 +109,17 @@ Status: active. Settled 2026-08-23, closing queue item 8's residue.
 existing alias as a merge signal was rejected because an alias is a much
 weaker claim.
 -> [topics/settled-decisions.md](topics/settled-decisions.md#dec-015-two-records-are-one-movement-only-when-a-curator-says-so-sameas)
+
+## DEC-016 — A hosted instance on the DreamHost VPS, with PocketBase for auth and storage
+Status: active. Settled 2026-08-30, opening queue items 18-20; reverses the
+"Sharing, accounts, a platform" Non-Goal (see [goals.md](goals.md) "## Pivots").
+Deploy the static apps to a public URL on the VPS Chris already pays for; run
+PocketBase (one Go binary: SQLite, built-in Google OAuth2, REST API) beside
+them for accounts and saved/shared workouts. Managed backends (Supabase,
+Firebase) rejected on idle-pause / cold-start and a SaaS dependency; a
+hand-rolled Express + Passport backend rejected as the wheel not worth
+reinventing; hosted auth (Auth0/Clerk) rejected because it still needs a
+database behind it. No bundler and no npm runtime dep is added. `packages/core`,
+the grammar and the spec are untouched -- a stored workout is its `.wdl` source
+text in a column.
+-> [topics/settled-decisions.md](topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage)

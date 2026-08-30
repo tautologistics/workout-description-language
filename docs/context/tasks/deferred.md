@@ -17,7 +17,12 @@ ready to start, with what it touches, is in [current.md](current.md).
   answers "did the load go up"; nothing answers "show me this workout over the
   last three months", and neither app knows a `.wdlr` exists once it has been
   downloaded.
-- **Sharing, accounts, a platform.** Deliberately far off.
+- ~~**Sharing, accounts, a platform.**~~ **Reactivated 2026-08-30** as queue
+  items 18–20 (a hosted instance on Chris's DreamHost VPS with PocketBase for
+  Google sign-in and saved/shared workouts). This was a Non-Goal gated on "the
+  goal itself changes"; it did — see [../goals.md](../goals.md) "## Pivots" and
+  [DEC-016](../topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage).
+  What stays off the roadmap is a *platform* — public signup, discovery, scale.
 - **Whiteboard photo → WDL.** Interesting, separate project.
 
 ## Reconsider when
@@ -25,5 +30,7 @@ ready to start, with what it touches, is in [current.md](current.md).
 - **A history view** becomes worth building once results accumulate enough
   that "did the load go up" from `wdl result --goals` stops being enough — i.e.
   once someone actually wants to look back over more than one series at a time.
-- **Sharing, accounts, a platform** are not on this project's roadmap; revisit
-  only if the goal itself changes (see [goals.md](../goals.md)).
+- **Sharing, accounts, a platform** — the goal changed 2026-08-30 and the
+  hosted-instance slice (items 18–20) is now active; a *platform* beyond that
+  (public signup, discovery, scale) is still not on the roadmap and would need
+  another goal change.
