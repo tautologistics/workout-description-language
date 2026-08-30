@@ -2,6 +2,22 @@
 
 ## Changes
 
+- **2026-08-29 — `pluralize` no longer takes the `s` on a leading modifier.**
+  A self-contained defect Chris caught in the builder's "what it reads as"
+  pane: `- 12 Bent Over Barbell Row` read as `12 Bents Over Barbell Row`.
+  `pluralize` (`packages/core/src/fold.ts`) treats the word before a standalone
+  preposition as the head noun — right for `Lateral Burpee over Dumbbell` /
+  `Atlas Stone to Shoulder`, wrong when that word is the *first* in the name
+  and so a participle, not a noun. Now requires a real word before the head
+  (`at > 1`, not `at > 0`); the trailing noun takes the plural instead
+  (`Bent Over Barbell Rows`). Every corpus name of the `[noun] [prep] [obj]`
+  shape has a word before the noun, so nothing that read correctly moved —
+  goldens and `registry/workouts.canonical.json` regenerate unchanged. Suite
+  **2025 → 2027** (+2 `fold.test.ts` cases), 1 pending unchanged. Also filed
+  from the same session: a `builder-ux.md` "## Outline" note that the outline
+  shows no row for a `//` comment (they live only in the Text tab), and queue
+  item 11 (a bare-word block header should read as an inert section, not an
+  "unrecognized header" error).
 - **2026-08-29 — `registry/duplicate-candidates.json` retired; `find-duplicates.mjs`
   is a run-on-demand report.** A defect task off
   [../topics/known-debts.md](../topics/known-debts.md), not a queue item (all

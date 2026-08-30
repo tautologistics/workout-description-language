@@ -34,6 +34,27 @@ the 900px single-column stack is unchanged.
 
 ## Outline
 
+**The outline shows no row for a comment — they exist only in the Text tab.**
+Raised by Chris 2026-08-29, driving the builder. `renderOutline` walks
+`readLines(text())` (`apps/builder/builder.js:631`), and `readLines`
+(`packages/core/src/lines.ts`) strips every comment off its own line and folds
+it into the `comments: string[]` of the next real line — an own-line comment is
+never a node in the line tree, so the outline never draws a row for it. The
+`n.text.startsWith('//')` branch at `builder.js:256` is effectively dead for
+own-line comments. Consequences: you cannot see, add, edit or reorder a `//`
+line in the GUI; the outline silently misrepresents a file that has them
+(rows present, comments gone); and it undercuts the answer given the same day
+that `//` comments are the way to write an arbitrary-label visual grouping
+(a section only reads the fixed eight words — [../tasks/current.md](../tasks/current.md)
+item 11). Fixing it means either synthesising comment rows in the outline walk
+(from each line's `comments[]` plus the file-level trailing pseudo-node
+`readLines` already emits) and writing edits back through `edit.ts`, or
+surfacing each row's attached comments as an editable affordance on that row.
+The first keeps "the outline is the file"; the second is smaller but leaves
+own-line comments between two blocks with nowhere to attach. *Touches:
+`apps/builder/builder.js` (`renderOutline`), possibly
+`packages/core/src/edit.ts` for the write-back.*
+
 **~~Indent is allowed on a line with nothing above it, producing an orphan.~~
 Fixed 2026-08-24.** A top-level line that is first in the document could still be
 indented, leaving a child with no parent and making the whole file invalid.
