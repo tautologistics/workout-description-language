@@ -82,15 +82,35 @@ forgets.
 
 ## Hosting / deployment
 
-*Since 2026-08-30 (queue item 18).* There is a public instance at
+*Since 2026-08-30 (queue items 18–19).* There is a public instance at
 **`https://wex.androidempathy.com`**, on the DreamHost VPS. **PocketBase**
 (v0.40.1) is the backend — Google sign-in and a `workouts` collection — and it
 runs as a **per-user systemd service** on that box (`systemctl --user … pocketbase`,
 linger enabled so it survives a reboot), fronted by the DreamHost panel's Proxy
-Server + panel Let's Encrypt. Nothing in this repo runs it; nothing here talks
-to it yet either — item 19 deploys the static apps (into PocketBase's
-`pb_public/`, since the panel proxy sends the whole domain to PocketBase) and
-item 20 adds the frontend that calls `/api/…`.
+Server + panel Let's Encrypt. The panel proxy sends the **whole domain** to
+PocketBase, so **the static builder + board are served from PocketBase's own
+`pb_public/` directory** (`~/pb/pb_public/` on the VPS) — `apis.Static` serves
+that tree at `/` for every path that is not `/api/…` or `/_/…`. `/` redirects
+to `/apps/builder/`. Item 20 adds the frontend that calls `/api/…`.
+
+Deploy the static apps (needs SSH to the VPS):
+
+```bash
+WDL_DEPLOY_SSH=androidempathy_wex@wex.androidempathy.com node scripts/deploy-web.mjs
+# (Chris's box: `WDL_DEPLOY_SSH=dreamhost.ae.wex` — his ~/.ssh/config alias)
+```
+
+`scripts/deploy-web.mjs` runs the core suite (bails on red), runs
+`build-web.mjs`, assembles a repo-shaped tree under `build/deploy/pb_public/`
+(the apps fetch by relative path, so the served tree mirrors the repo — `apps/`,
+`build/web/core/`, `spec/grammar-0.1.ohm`, `registry/{movements,movements.canonical,muscles}.json`,
+`examples/goals/`, plus a generated `index.html`), then `rsync -az --delete` it
+to `~/pb/pb_public/`. No PocketBase restart needed. Flags: `--dry-run`,
+`--stage-only`, `--ssh`/`WDL_DEPLOY_SSH`, `--remote-dir`/`WDL_DEPLOY_DIR`. Full
+detail — the MIME finding (`.ohm`/`.wdlg` land as `text/plain`, and are
+`fetch().text()`d anyway) and the cache decision (PocketBase sends
+`Last-Modified` only; accepted as-is) — is in
+[`deploy/README.md`](../../../deploy/README.md) "## 10. Static apps".
 
 - **Admin UI:** `https://wex.androidempathy.com/_/` (superuser `chris@winberry.net`,
   password in Chris's password manager — not the repo).

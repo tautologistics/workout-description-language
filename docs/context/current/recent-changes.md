@@ -2,6 +2,41 @@
 
 ## Changes
 
+- **2026-08-30 — The builder + board are live at
+  `https://wex.androidempathy.com/`.** Queue item 19 of the deployment epic
+  ([DEC-016](../topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage)).
+  Item 19's original plan assumed an editable nginx vhost with its own `root`;
+  item 18 voided that — the DreamHost managed VPS gives no root and the panel
+  proxy sends the **whole domain** to PocketBase — so the static apps ship into
+  **PocketBase's own `pb_public/`** (`~/pb/pb_public/` on the box), which
+  `apis.Static` serves at `/` for any non-`/api/`, non-`/_/` path. New
+  **`scripts/deploy-web.mjs`**: runs `npm --prefix packages/core test` (bails on
+  red), runs `build-web.mjs`, assembles `build/deploy/pb_public/` **repo-shaped**
+  (the apps fetch by relative path — `apps/`, `build/web/core/`,
+  `spec/grammar-0.1.ohm`, `registry/{movements,movements.canonical,muscles}.json`,
+  `examples/goals/`, plus a generated `index.html`), then `rsync -az --delete`
+  to the box. SSH target via `--ssh` / `WDL_DEPLOY_SSH`, never baked in. `/`
+  redirects to `/apps/builder/` (generated, so `--delete` can't orphan a
+  hand-placed file). **MIME:** PocketBase serves `.ohm` / `.wdlg` as
+  `text/plain` (Go's content sniffer) and both apps `fetch().text()` them
+  anyway, so no rename / `pb_hooks` / config was needed — `.js` is
+  `text/javascript`, `.json` is `application/json`. **Cache:** `pb_public` gets
+  `Last-Modified` only — no `Cache-Control`, no `ETag` (the `max-age` line in
+  PocketBase is `/_/`-only). Accepted as-is: one `rsync` rewrites
+  grammar + registry + core together so they can't drift, and nothing is
+  content-hash-pinned; the escalation (a `pb_hooks` `Cache-Control` middleware)
+  is documented in `deploy/README.md` "## 10. Static apps", not shipped.
+  **Deployed and verified live** — drove both apps against
+  `https://wex.androidempathy.com/`: builder (129-movement registry, grammar
+  parse, body map, goal picker all load), board (`#<encoded-source>` share link
+  resolves, Start advances the clock through the 21-15-9 tiers), both light and
+  dark themes, zero console errors; `/api/health` and `/_/` unaffected. Items
+  18–20 stay in [tasks/current.md](../tasks/current.md); 19 marked done inline.
+  Next: **20** — frontend Google sign-in, saved workouts, sharing. Touches:
+  new `scripts/deploy-web.mjs`; `deploy/README.md` "## 10"; this file;
+  [what-exists.md](../topics/what-exists.md) **Hosting** row;
+  [running-it.md](../topics/running-it.md) "Hosting / deployment";
+  [layout.md](../topics/layout.md).
 - **2026-08-30 — PocketBase is live on the VPS; the deployment epic (items
   18–20) has its backend.** Queue item 18, the first of the epic Chris made top
   priority the same day ([DEC-016](../topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage),

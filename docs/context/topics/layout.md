@@ -21,10 +21,11 @@ registry/              movements, muscles, workouts. Rebuilt by scripts/build-ca
                        which is the whole pipeline. movements.json is the curated layer and the
                        only file edited by hand; everything else there is generated.
 scripts/               the registry pipeline (build-canonical.ts runs all of it, in order),
-                       the web build, the server. check-aliases.mjs and
-                       find-duplicates.mjs are run-on-demand reports, not build steps,
-                       and write no committed file: contended names / who wins, and
-                       likely cross-source duplicate pairs to triage.
+                       the web build, the server, and deploy-web.mjs (builds + rsyncs
+                       the static apps into the VPS PocketBase's pb_public/ — item 19).
+                       check-aliases.mjs and find-duplicates.mjs are run-on-demand
+                       reports, not build steps, and write no committed file: contended
+                       names / who wins, and likely cross-source duplicate pairs to triage.
 examples/              corpus (190 workouts), goals, programs, templates, results.
 spec/                  spec-0.1.md (the format), goals-0.1.md (the rules),
                        results-0.1.md (what was done),
@@ -36,7 +37,8 @@ deploy/                hosting the public instance: the PocketBase process unit 
                        systemd — pocketbase.user.service — plus a system unit and a
                        cron keepalive as alternatives), the workouts collection as a
                        pb_migrations/ JS migration, nginx/wdl.conf (reference only —
-                       DreamHost's panel proxies instead), and README.md, the runbook.
+                       DreamHost's panel proxies instead), and README.md, the runbook
+                       (its "## 10. Static apps" covers item 19's pb_public/ deploy).
                        No secrets: *.env / pb_data / the binary are gitignored.
 ```
 

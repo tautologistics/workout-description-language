@@ -108,8 +108,29 @@ still valid work, it just is not next. Whoever picks up the queue takes 18.
     "Sign in with Google" from a throwaway account succeeds, the `workouts`
     collection exists with the rules above, and the process survives a reboot.
 
-- **19 — Deploy the builder + board behind the stable URL (static).** *Top
-  priority (Chris, 2026-08-30).* No dev server in production. The apps already
+- ~~**19 — Deploy the builder + board behind the stable URL (static).**~~
+  **DONE 2026-08-30.** Shipped: **`https://wex.androidempathy.com/`** now serves
+  the builder (redirect from `/`) and `/apps/display/` the board, with no Node
+  process — served from **PocketBase's `pb_public/`** (`~/pb/pb_public/` on the
+  VPS), since the panel proxy sends the whole domain to PocketBase and there is
+  no separate nginx root (item 18's constraint; item 19's original nginx-vhost
+  plan below is void). Repeatable deploy is **`scripts/deploy-web.mjs`**: core
+  suite → `build-web.mjs` → assemble a repo-shaped `build/deploy/pb_public/`
+  (`apps/`, `build/web/core/`, `spec/grammar-0.1.ohm`,
+  `registry/{movements,movements.canonical,muscles}.json`, `examples/goals/`,
+  generated `index.html`) → `rsync -az --delete` to `~/pb/pb_public/`; SSH
+  target via `--ssh` / `WDL_DEPLOY_SSH`. **MIME:** PocketBase serves `.ohm` /
+  `.wdlg` as `text/plain` and the apps `fetch().text()` them, so nothing was
+  needed. **Cache:** `pb_public` sends `Last-Modified` only; accepted as-is (a
+  deploy rewrites grammar + registry + core in one `rsync`, nothing is
+  hash-pinned) — escalation path (`pb_hooks` `Cache-Control`) documented in
+  `deploy/README.md` "## 10", not shipped. Verified live in the browser —
+  both apps, `#<source>` share link, both themes, no console errors,
+  `/api/health` + `/_/` unaffected. Left in this file, not moved to
+  `completed.md`: 18–20 close together. Original checklist kept below for 20's
+  reference (but the nginx parts do not apply).
+
+  *(original)* No dev server in production. The apps already
   use only relative paths (`../../build/web/core/…`, `../../spec/grammar-0.1.ohm`,
   `../../registry/*.json`, `../../examples/…`, `../shared/…`), so a static host
   just needs the served subtree laid out the way the repo is —
