@@ -322,6 +322,32 @@ const movementModifiers = (entry) => {
   return { laterality, measures, load, equipment };
 };
 
+// Laterality modes are mutually exclusive (spec §4): a title line carries at
+// most one, written either parenthesised (`(both)` / `(split)` / `(per-side)` /
+// `(total)`, the grammar's `lateralityWord`) or inline as `each|per <limb>`
+// (the grammar's `trailingQualifier -- limb`; `limbWord = arm|leg|side|hand`,
+// one-or-more spaces, no comma). The `»` panel is an editor, so applying a
+// laterality pick *replaces* whatever is already there rather than appending a
+// second, contradictory token — and re-picking the mode already on the line
+// clears it (toggle off).
+const LATERALITY_RE = /\s*(?:\((?:both|split|per-side|total)\)|\b(?:each|per)\s+(?:arm|leg|side|hand)\b)/i;
+// The measured-output comma modifier (`, count cal` / `, count distance`, and
+// the `calories` / `reps` spellings): `s.measures` holds exactly one value, so
+// a pick replaces any existing one the same way.
+const MEASURE_RE = /\s*,\s*count\s+(?:cal|calories|distance|reps)\b/i;
+
+/** The mutually-exclusive mode a laterality token (or a panel addition) denotes,
+ *  so a re-pick of the same mode toggles off. Every `each|per <limb>` form and
+ *  the `(per-side)` spelling fold to `per-side`. */
+const lateralityMode = (token) => {
+  const m = token.trim().toLowerCase().match(/^\((both|split|total)\)$/);
+  return m ? m[1] : 'per-side';
+};
+/** The measured-output mode a `, count <word>` token (or addition) denotes;
+ *  `calories` and `cal` are the same mode. */
+const measureMode = (token) =>
+  token.trim().toLowerCase().replace(/^,\s*count\s+/, '').replace(/^calories$/, 'cal');
+
 /**
  * The move/reorder drag wiring shared by every outline row — a real node or a
  * synthesised comment row. `followLine`, set only for a comment row, is the real
@@ -680,20 +706,45 @@ function renderOutline() {
       const applyModifier = (entryTitle, addition, position) => {
         const value = input.value;
         let next; let caretAt;
-        if (position === 'end') {
-          next = value + addition;
-          caretAt = next.length;
+        if (position === 'title' || position === 'end') {
+          // A mutually-exclusive class (laterality mode / measured output):
+          // clear whatever is already on the line, then insert the pick —
+          // unless it is the mode already there, which toggles it off. Strips
+          // every matching token, so a line left doubled by the old
+          // append-only behaviour cleans up in one pick.
+          const re = position === 'title' ? LATERALITY_RE : MEASURE_RE;
+          const modeOf = position === 'title' ? lateralityMode : measureMode;
+          const existing = value.match(re);
+          const base = value.replace(new RegExp(re.source, 'gi'), '').replace(/\s+$/, '');
+          if (existing && modeOf(existing[0]) === modeOf(addition)) {
+            next = base;                               // re-pick of the same mode: clear it
+            caretAt = next.length;
+          } else if (position === 'end') {
+            next = base + addition;                    // measured output trails as a comma modifier
+            caretAt = next.length;
+          } else {
+            // Laterality: the first inline word after the movement name (spec §4).
+            const fragment = movementFragment(base);
+            const prefixLen = base.length - fragment.length;
+            const matchLen = fragment.toLowerCase().startsWith(entryTitle.toLowerCase())
+              ? entryTitle.length : fragment.length;
+            const insertAt = prefixLen + matchLen;
+            const head = base.slice(0, insertAt);
+            const rest = base.slice(insertAt);
+            const lead = head && !head.endsWith(' ') ? ' ' : '';
+            const trail = rest && !rest.startsWith(' ') && !rest.startsWith(',') ? ' ' : '';
+            next = `${head}${lead}${addition}${trail}${rest}`;
+            caretAt = head.length + lead.length + addition.length;
+          }
         } else {
+          // position === 'load': after any laterality, before comma modifiers.
           const fragment = movementFragment(value);
           const prefixLen = value.length - fragment.length;
           const matchLen = fragment.toLowerCase().startsWith(entryTitle.toLowerCase())
             ? entryTitle.length : fragment.length;
           const titleEnd = prefixLen + matchLen;
-          let insertAt = titleEnd;
-          if (position === 'load') {
-            const commaIdx = value.slice(titleEnd).indexOf(',');
-            insertAt = commaIdx === -1 ? value.length : titleEnd + commaIdx;
-          }
+          const commaIdx = value.slice(titleEnd).indexOf(',');
+          const insertAt = commaIdx === -1 ? value.length : titleEnd + commaIdx;
           const head = value.slice(0, insertAt);
           const rest = value.slice(insertAt);
           const lead = head && !head.endsWith(' ') ? ' ' : '';
