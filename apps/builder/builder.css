@@ -659,6 +659,20 @@ body.drawer-open .drawer { transform: none; }
 .body-head select { font: inherit; font-size: .8rem; }
 #bodymap { margin-bottom: .2rem; }
 
+/* --- per-section muscle "adds" -------------------------------------------
+   One terse line per top-level named section, below the body map: what that
+   section brings in. Only present for workouts with named sections. */
+.block-adds:not(:empty) { margin: .1rem 0 .5rem; }
+.adds-line {
+  font-size: .8em;
+  line-height: 1.5;
+  color: var(--dim);
+  border-top: 1px solid var(--rule);
+  padding-top: .25rem;
+}
+.adds-line + .adds-line { border-top: 0; padding-top: 0; }
+.adds-label { color: var(--ink); font-weight: 600; }
+
 /* --- the goals block -------------------------------------------------------
    A titled unit in the Analysis panel: the set picker and the rule-management
    actions (Edit rules / Open… / Save as… / .wdlg / Delete) grouped as one

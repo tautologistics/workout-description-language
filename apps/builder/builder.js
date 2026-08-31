@@ -35,7 +35,7 @@ import { run, roundLabel } from '../../build/web/core/run.js';
 import { provide, has } from '../../build/web/core/env.js';
 import { defaultRegistry } from '../../build/web/core/registry.js';
 import { parseGoals, check } from '../../build/web/core/goals.js';
-import { exposures, muscleLoad, musclesFor } from '../../build/web/core/muscles.js';
+import { exposures, muscleLoad, musclesFor, muscles } from '../../build/web/core/muscles.js';
 import { mountBody, paintBody, aggregateStates, highlightStates, heatStates, heatColor, attachZoom } from '../shared/body-map.js';
 import {
   currentUser, beginGoogleSignIn, refreshAuth, signOut,
@@ -1108,6 +1108,7 @@ const HINTS = {
 };
 
 function renderBody() {
+  renderBlockAdds();
   const mode = el('body-mode').value;
   el('body-hint').textContent = HINTS[mode];
   const box = el('bodymap');
@@ -1126,6 +1127,64 @@ function renderBody() {
   }
   const report = muscleLoad(timeline);
   paintBody(box, heatStates(report.byMuscle, mode === 'heat-frequency' ? 'frequency' : 'volume', heatColor));
+}
+
+// --- per-section muscle "adds" ---------------------------------------------
+// Below the body map, one terse line per top-level named section naming the
+// distinct muscles that section brings in — its contribution, without splitting
+// the one whole-workout map. Named-section workouts only: a plain sectionless
+// workout renders nothing here (no container content, no heading). Shares
+// `renderBody`'s inputs — it is called from there, so it survives every
+// re-render path the same way — but re-derives from scratch to stay standalone.
+const ADDS_CAP = 6;
+
+function renderBlockAdds() {
+  const box = el('block-adds');
+  if (!box) return;
+  box.innerHTML = '';
+  if (!has('muscles') || !has('canonicalMovements')) return;
+
+  const { workout } = parse(text());
+  const sections = (workout.body ?? [])
+    .filter((n) => n.node === 'block' && n.type === 'section');
+  if (!sections.length) return;
+
+  let timeline;
+  try { timeline = compile(workout); } catch { return; }
+  const list = exposures(timeline).list;
+  const known = muscles();
+  const nameOf = (id) => known.get(id).name.toLowerCase();
+
+  for (const n of sections) {
+    // Match the compiled top-level item by source line, not by position: a
+    // top-level `xN` step or `every` interrupt can shift `root.items` out of
+    // step with `workout.body`, but a section always compiles to one item.
+    const ri = timeline.root.items.findIndex((it) => it.line === n.line);
+    if (ri < 0) continue;
+
+    const scoped = list.filter((e) => e.path[0] === ri && !e.unattributed);
+    const seen = new Set();
+    const primary = [];
+    const secondary = [];
+    for (const e of scoped) for (const id of e.primary)
+      if (known.has(id) && !seen.has(id)) { seen.add(id); primary.push(id); }
+    for (const e of scoped) for (const id of e.secondary)
+      if (known.has(id) && !seen.has(id)) { seen.add(id); secondary.push(id); }
+
+    let parts = [...primary.map(nameOf), ...secondary.map((id) => `${nameOf(id)} (light)`)];
+    const over = parts.length > ADDS_CAP;
+    if (over) parts = parts.slice(0, ADDS_CAP);
+    const body = parts.length ? parts.join(', ') + (over ? ', …' : '') : '—';
+
+    const label = (lines[n.line - 1] ?? '').trim().replace(/:.*/s, '') || n.name || 'section';
+    const row = document.createElement('div');
+    row.className = 'adds-line';
+    const strong = document.createElement('span');
+    strong.className = 'adds-label';
+    strong.textContent = label;
+    row.append(strong, document.createTextNode(` adds: ${body}`));
+    box.append(row);
+  }
 }
 
 const hoverBody = (attribution) => { hoverMovement = attribution; renderBody(); };
