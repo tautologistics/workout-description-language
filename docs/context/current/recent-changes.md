@@ -2,6 +2,30 @@
 
 ## Changes
 
+- **2026-08-31 — Builder layout redesign, R3 of 10: Outline as a document +
+  per-kind rails** (chain item 16, folding in 15c; `d8edde3`). The Outline row
+  rhythm loosened; the `#` title renders as a heading set apart with air beneath;
+  zero-indent `@` directives render as a dim, smaller preamble block a notch
+  under the title and above the workout body — presentation only, every
+  `input.line` / write-back path unchanged. New **`--rail`** token darker than
+  the `--rule` hairline (light ~2.3:1 against page and panel, up from the
+  design-critique's ~1.05:1; dark ~2.3:1), pointed at by `.node .rail`, which now
+  stretches to the row's full height so nesting levels read as continuous lines.
+  New shared **`--kind-*`** colour tokens (`title`, `directive`, `section`,
+  `header`, `step`, `rest`, `comment`), defined in both themes and named for the
+  line kind — **R9's Text-tab highlighter consumes these** — each driving a thin
+  coloured left edge on `.node .line-wrap`. `renderOutline` builds a `kindOf` map
+  off `parse().workout.body` (step / rest / `section` = block `type==='section'`
+  / `header` = every other block type + `interrupt`); the walk classes
+  `data-kind` from raw text for title + directive + the synthesised comment row,
+  from `kindOf` otherwise, falling back to colon-terminated → `header` else
+  `step` — so a broken step keeps the step marker under the `.bad` red border
+  ("a step, and broken"). No core or grammar change — suite still **2051
+  passing**, 1 pending. Verified by driving the builder light + dark with a
+  titled, directive'd, commented, multi-section workout including a `rest 90s`
+  and a deliberately broken step. *Touched: `apps/builder/builder.js`,
+  `apps/builder/builder.css`.*
+
 - **2026-08-30 — Builder layout redesign, R2 of 10: comment rows first-class in
   the Outline + a comment-aware splice in `edit.ts`** (chain item 12, `973d80a`).
   `spans()` now gives every own-line `//` comment its own single-line span, so

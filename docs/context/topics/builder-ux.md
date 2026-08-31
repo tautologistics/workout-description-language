@@ -351,17 +351,17 @@ a low but non-zero opacity always, brightening on hover/focus; consider a
 one-time hint the first time a row resolves to a movement or a block.
 *Scope: `apps/builder/builder.css`. No core change. Do this with the tools fix.*
 
-**The nesting rails are ~1.05:1 contrast — the block structure is invisible.**
-`.node .rail` uses `border-left: 1px solid var(--rule)` and `var(--rule)` is
-`#e3e4e8` in light (computed `rgb(236,238,242)` after inheritance) against a
-`#fbfbfa` page / `#ffffff` panel — a contrast ratio of about **1.05:1**, i.e.
-not perceptible to anyone, not only low-vision users. The rails are the only
-thing showing depth when a block header has scrolled out of view, and they do
-not do it. **Fix:** a dedicated `--rail` token darker than `--rule` (rails carry
-meaning; hairline dividers do not), and check it in both themes. Dovetails with
-items 12 / 16 (which add a coloured left border per line-kind on the same
-`.line-wrap`) — whichever lands first should define the rail/kind colour tokens.
-*Scope: `apps/builder/builder.css`. No core change.*
+**~~The nesting rails are ~1.05:1 contrast — the block structure is invisible.~~
+Fixed 2026-08-31** (R3, `d8edde3`). New **`--rail`** token — `#a3a8b4` light
+(~2.3:1 against both the `#fbfbfa` page and the `#ffffff` panel, up from the
+~1.05:1 `--rule` gave), `#565c6a` dark (~2.3:1 against the `#1a1d22` panel) —
+defined beside `--rule` in both theme blocks and pointed at by
+`.node .rail`'s `border-left-color`; the rail also now stretches to the row's
+full height (`.rails { align-self: stretch }`) so the levels read as continuous
+lines. R3 also defined the shared **`--kind-*`** row-kind colour tokens on the
+same pass (title / directive / section / header / step / rest / comment, both
+themes) — R9's Text-tab highlighter consumes them.
+*Touched: `apps/builder/builder.css`, `apps/builder/builder.js`.*
 
 ---
 

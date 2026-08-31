@@ -77,16 +77,24 @@ by **driving the builder** in both themes with a multi-section workout, and run
   *Touched:* `apps/builder/builder.js`, `apps/builder/index.html`,
   `packages/core/src/edit.ts` + `test/edit.test.ts`.
 
-- **R3 — Outline as a document + line-kind rails** *(= chain item 16 below,
-  folding in item 15c).* Restyle the outline to the document feel — generous
-  line-height, `#` title as a heading, `@`-directives as a dim preamble block —
-  and **raise the nesting-rail contrast** (the ~1.05:1 rails from the critique).
-  Then the per-kind marker: a coloured left border / badge per row kind — title,
-  directive, section header, step, rest, comment, and `.bad` reading as "step,
-  and broken". Drive off the parsed node where possible, raw text for the
-  preamble kinds. **Define the shared `--kind-*` colour tokens here** — R9's
-  highlighter consumes them. *Depends on R1 (+ R2 for the comment kind).*
-  *Touches:* `apps/builder/builder.js` (`renderOutline` classing), `builder.css`.
+- ~~**R3 — Outline as a document + line-kind rails** *(= chain item 16 below,
+  folding in item 15c).*~~ **Done 2026-08-31** (`d8edde3`). Outline row rhythm
+  loosened; `#` title renders as a heading set apart with air beneath; zero-indent
+  `@` directives render as a dim smaller preamble block a notch under the title
+  and above the body (presentation only — every `input.line` / write-back path
+  unchanged). New **`--rail`** token darker than `--rule` (light ~2.3:1 vs the
+  ~1.05:1 critique measurement, dark ~2.3:1), and `.node .rail` now stretches to
+  the row's full height so nesting levels read as continuous lines. New shared
+  **`--kind-*`** tokens (`title`, `directive`, `section`, `header`, `step`,
+  `rest`, `comment`) defined in both themes, named for the line kind (R9's
+  highlighter consumes them), each driving a thin coloured left edge on
+  `.node .line-wrap`. `renderOutline` builds a `kindOf` map off
+  `parse().workout.body` (step / rest / `section` = block `type==='section'` /
+  `header` = every other block type + `interrupt`); the walk classes `data-kind`
+  from raw text for title + directive + the comment row, from `kindOf` otherwise,
+  falling back to colon-terminated → `header` else `step` — so a broken step
+  keeps the step marker under the `.bad` red border. No core change — suite
+  2051 passing, 1 pending. *Touched:* `apps/builder/builder.js`, `builder.css`.
 
 - **R4 — Reads-as tab: the compressed run view.** Replace `renderReading`'s
   24-cue enumeration. In the **Reads as** tab: the run grouped by block —
@@ -227,10 +235,11 @@ and 15(c) folded into R3. **11** and **13** below are the independent items.
   Keep "source line for line" for the workout body itself — this narrows it,
   it does not reverse it.
 
-  **(c) `@` lines are called out in the outline.** Once item 12 has the outline
+  **(c) `@` lines are called out in the outline.** ~~Once item 12 has the outline
   rendering every line kind, a directive row gets its own class
-  (`.node.directive`) and styling, the way `.node.block` / `.node.comment`
-  already differ — see item 16, which is the general version of this.
+  (`.node.directive`) and styling~~ **Shipped with R3 2026-08-31** (`d8edde3`):
+  a zero-indent `@` row is classed `data-kind="directive"` and renders as a dim,
+  smaller preamble block with its own `--kind-directive` left marker.
 
   **(d) Type-ahead for directive keys.** When an outline row's text starts with
   `@` at zero indentation and the caret is still in the key, offer the
@@ -265,7 +274,14 @@ and 15(c) folded into R3. **11** and **13** below are the independent items.
   [../topics/builder-ux.md](../topics/builder-ux.md) entry; dated line in
   [../current/recent-changes.md](../current/recent-changes.md).
 
-- **16 — The outline should show what kind of line each row is.** *High
+- ~~**16 — The outline should show what kind of line each row is.**~~ **Done
+  2026-08-31 as R3** (`d8edde3`) — text kept for the reasoning. `renderOutline`
+  now sets `data-kind` on every row (title / directive / section / header / step
+  / rest / comment), driven off a `kindOf` map built from `parse().workout.body`
+  with raw text only for the preamble kinds; each kind gets a thin coloured left
+  edge from a shared `--kind-*` token set (defined in both themes for R9's Text
+  highlighter to consume), and `.bad` keeps its kind marker under the red border.
+  The `--rail` contrast fix rode along. *High
   priority (Chris, 2026-08-29), from driving the builder.* Today
   `renderOutline` (`apps/builder/builder.js:251`) marks a row `.block` (ends in
   `:` or has children), `.comment` (starts `//` — and per item 12 those rows
