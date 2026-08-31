@@ -294,10 +294,16 @@ const movementModifiers = (entry) => {
   // the parser has nothing to assume (movement_registry_design.md §6) — a
   // single-mode entry still needs the mode written, it just has no choice
   // among alternatives.
+  // `per-side` inserts the parenthesised form (`(each side)` / `(each arm)` /
+  // `(each direction)`), canonical since queue item 13b (DEC-019), and names the
+  // axis the count runs across from `entry.lateralityAxis` — `arm|leg|side|hand|
+  // direction`, a curated field (queue item 13a-curation) with a `side` fallback
+  // when the movement has not been vetted for it.
+  const axis = entry.lateralityAxis ?? 'side';
   const laterality = (entry.laterality ?? []).map((mode) => ({
-    text: mode === 'split' ? '(split)' : mode === 'per-side' ? 'each side' : '(both)',
+    text: mode === 'split' ? '(split)' : mode === 'per-side' ? `(each ${axis})` : '(both)',
     label: mode === 'split' ? 'count divided across sides'
-      : mode === 'per-side' ? 'full count per side'
+      : mode === 'per-side' ? (entry.lateralityAxis ? `full count each ${axis}` : 'full count per side')
       : 'both sides together',
     isDefault: mode === entry.defaultLaterality,
   }));
@@ -323,22 +329,24 @@ const movementModifiers = (entry) => {
 };
 
 // Laterality modes are mutually exclusive (spec §4): a title line carries at
-// most one, written either parenthesised (`(both)` / `(split)` / `(per-side)` /
-// `(total)`, the grammar's `lateralityWord`) or inline as `each|per <limb>`
-// (the grammar's `trailingQualifier -- limb`; `limbWord = arm|leg|side|hand`,
-// one-or-more spaces, no comma). The `»` panel is an editor, so applying a
-// laterality pick *replaces* whatever is already there rather than appending a
-// second, contradictory token — and re-picking the mode already on the line
-// clears it (toggle off).
-const LATERALITY_RE = /\s*(?:\((?:both|split|per-side|total)\)|\b(?:each|per)\s+(?:arm|leg|side|hand)\b)/i;
+// most one, written either parenthesised — `(both)` / `(split)` / `(per-side)` /
+// `(total)` (the grammar's `lateralityWord`) or `(each <limb>)` (the grammar's
+// `laterality -- perSide`; `limbWord = arm|leg|side|hand|direction`, the
+// canonical per-side form since queue item 13b) — or inline as the still-read
+// bare `each|per <limb>` (the grammar's `trailingQualifier -- limb`). The `»`
+// panel is an editor, so applying a laterality pick *replaces* whatever is
+// already there rather than appending a second, contradictory token — and
+// re-picking the mode already on the line clears it (toggle off).
+const LATERALITY_RE = /\s*(?:\((?:both|split|per-side|total)\)|\((?:each|per)\s+(?:arm|leg|side|hand|direction)\)|\b(?:each|per)\s+(?:arm|leg|side|hand|direction)\b)/i;
 // The measured-output comma modifier (`, count cal` / `, count distance`, and
 // the `calories` / `reps` spellings): `s.measures` holds exactly one value, so
 // a pick replaces any existing one the same way.
 const MEASURE_RE = /\s*,\s*count\s+(?:cal|calories|distance|reps)\b/i;
 
 /** The mutually-exclusive mode a laterality token (or a panel addition) denotes,
- *  so a re-pick of the same mode toggles off. Every `each|per <limb>` form and
- *  the `(per-side)` spelling fold to `per-side`. */
+ *  so a re-pick of the same mode toggles off. Every `each|per <limb>` form,
+ *  the parenthesised `(each <limb>)` form and the `(per-side)` spelling fold to
+ *  `per-side`. */
 const lateralityMode = (token) => {
   const m = token.trim().toLowerCase().match(/^\((both|split|total)\)$/);
   return m ? m[1] : 'per-side';
