@@ -1119,13 +1119,13 @@ function renderReading() {
   el('dirty').hidden = text() === format(workout);
 }
 
-// --- the Reads-as tab: the run, compressed --------------------------------
-// A block-grouped reading of the run, read straight off the parsed workout
-// tree — the headers carry their own rounds / scheme / window, so nothing is
-// enumerated round-by-round — plus an opt-in "show every cue" expansion to the
-// full per-cue list, uncapped. This is the only place the run is enumerated;
-// `renderReading` owns the summary band and the diagnostics on the Analysis
-// tab. Separate function over `#view-reads`, touches neither.
+// --- the Reads-as tab: the run, two ways --------------------------------
+// Two subsections, both always shown: a block-grouped reading off the parsed
+// workout tree (headers carry their own rounds / scheme / window, so nothing is
+// enumerated round-by-round), then the full uncapped per-cue list under it.
+// This is the only place the run is enumerated; `renderReading` owns the
+// summary band and the diagnostics on the Analysis tab. Separate function over
+// `#view-reads`, touches neither.
 
 /** A step as `Movement ×10`, `200m Run`, `20cal Row`, or a bare `Thruster`
  *  when the count is carried by an enclosing scheme. */
@@ -1225,30 +1225,24 @@ function renderReadsAs() {
     return;
   }
 
+  // Two subsections, both always shown: the terse block-grouped reading, then
+  // the full uncapped per-cue list under it. The cue list sits at the bottom of
+  // this panel and pushes nothing out of view, so there is nothing to gain by
+  // hiding it behind a toggle.
   const groups = document.createElement('div');
   groups.className = 'reads';
   for (const n of workout.body) groups.append(readsNode(n));
   box.append(groups);
 
-  // The opt-in escape hatch: the full, uncapped per-cue list. State survives a
-  // re-render and a reload, so it is read fresh from `localStorage` on every
-  // paint.
-  const expanded = localStorage.getItem('wdl.reads-expanded') === '1';
-  const toggle = document.createElement('button');
-  toggle.className = 'link reads-toggle';
-  toggle.textContent = expanded ? 'hide the cue-by-cue list' : `show every cue (${laid.cues.length})`;
-  toggle.onclick = () => {
-    try { localStorage.setItem('wdl.reads-expanded', expanded ? '0' : '1'); } catch { /* private mode */ }
-    renderReadsAs();
-  };
-  box.append(toggle);
+  const head = document.createElement('div');
+  head.className = 'reads-cues-head';
+  head.textContent = `every cue (${laid.cues.length})`;
+  box.append(head);
 
-  if (expanded) {
-    const full = document.createElement('div');
-    full.className = 'steps reads-cues';
-    for (const cue of laid.cues) full.append(cueRow(cue, laid));
-    box.append(full);
-  }
+  const full = document.createElement('div');
+  full.className = 'steps reads-cues';
+  for (const cue of laid.cues) full.append(cueRow(cue, laid));
+  box.append(full);
 }
 
 // --- the body map --------------------------------------------------------------

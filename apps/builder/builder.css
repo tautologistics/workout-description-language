@@ -513,7 +513,7 @@ body.col-resizing { cursor: col-resize; user-select: none; }
 .rpanel.active { display: block; }
 .placeholder { color: var(--dim); font-size: .85rem; }
 
-/* --- the run: cue list (Reads-as "show every cue" expansion) ----------- */
+/* --- the run: cue list (Reads-as tab, second subsection) -------------- */
 
 .steps .cue { display: flex; gap: .5rem; padding: .1rem 0; }
 .steps .cue .n { color: var(--dim); font-variant-numeric: tabular-nums; min-width: 1.6rem; text-align: right; }
@@ -555,8 +555,18 @@ body.col-resizing { cursor: col-resize; user-select: none; }
 .reads-body { color: var(--dim); margin-top: .1rem; }
 .reads-line { color: var(--ink); padding: .05rem 0; }
 .reads-line.rest { color: var(--dim); }
-.reads-toggle { margin-top: .5rem; }
-.reads-cues { margin-top: .6rem; border-top: 1px solid var(--rule); padding-top: .6rem; }
+/* The second subsection: a quiet label, then the full per-cue list under it. */
+.reads-cues-head {
+  margin-top: .8rem;
+  padding-top: .6rem;
+  border-top: 1px solid var(--rule);
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.reads-cues { margin-top: .3rem; }
 
 .diagnostics { margin: .4rem 0 0; padding: 0; list-style: none; font-size: .85rem; }
 .diagnostics li { padding: .35rem 0; border-top: 1px solid var(--rule); }

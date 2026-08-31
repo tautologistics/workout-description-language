@@ -2,6 +2,15 @@
 
 ## Changes
 
+- **2026-08-31 — Reads-as tab: the "show every cue" toggle is gone; both
+  subsections always show** (`<SHA1>`, Chris, from using it). The per-cue list
+  sits at the bottom of the panel and displaces nothing, so hiding it bought
+  nothing. `renderReadsAs()` now always renders the terse block-grouped reading
+  and then the full uncapped per-cue list under an `EVERY CUE (N)` label. The
+  toggle, the `expanded` branch and `localStorage['wdl.reads-expanded']` are
+  removed (stale key left harmless). `apps/builder/{builder.js, builder.css}`,
+  no core change; suite 2051 passing, 1 pending.
+
 - **2026-08-31 — Builder: the editor/analysis split is draggable, and the body
   map scales with the margin** (`83bfb78`, from Chris using it). The sheet was
   `minmax(0,1fr) 24rem` capped at 1120px, so a wide window added dead margin

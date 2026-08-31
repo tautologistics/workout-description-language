@@ -596,6 +596,17 @@ repeating block, no natural ceiling). `cueRow` / the `.steps` CSS stay — the
 2051 passing, 1 pending. Verified light + dark, wide + narrow, and the
 "show every cue" expansion still renders the full list with its cycle rails.*
 
+**~~The "show every cue" toggle on the Reads-as tab is a hide switch for
+nothing.~~ Removed 2026-08-31** (`<SHA1>`, Chris, from using it). The per-cue
+list sits at the bottom of that panel and pushes nothing out of view, so
+there was nothing to gain by hiding it. `renderReadsAs()` now always renders
+**two subsections**: the terse block-grouped reading, then — under an
+`EVERY CUE (N)` label with a `border-top` rule — the full uncapped per-cue
+list. The toggle button, the `expanded` branch and the
+`localStorage['wdl.reads-expanded']` read/write are gone (the stale key is
+left to rot harmlessly). *Touched: `apps/builder/{builder.js, builder.css}`.
+No core change; suite 2051 passing, 1 pending. Verified light + dark.*
+
 **Minor — the read pane stacks four `<h2>`s.** "What it reads as", "Body",
 "Against your goals" (each with an inline `<select>`) repeat the uppercase
 label treatment three times in a column that is already overfull. If that
