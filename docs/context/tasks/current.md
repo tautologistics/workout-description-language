@@ -37,17 +37,6 @@ separately.
   decision needed. **13a / 13b** need Chris (a curation gap; the parens-vs-bare
   spelling, a reopen-a-settled-decision). Full write-up below.
 
-- **15b — The board renders every preamble line as a body row.**
-  `apps/display/board.js` + `board.css` — board-side, nothing to do with the
-  builder layout. Item 15's parts (a) and (d) shipped with **R10**, part (c)
-  with **R3**; **(b) is the one open part**. `draw()` builds one row per raw
-  source line and only special-cases blank / `//` lines, so `@wdl`, `@id`,
-  `@date`, `@tags` and the `# title` all render as rows at the top of what the
-  athlete reads mid-workout, and `@id` is not stripped. Fix: `draw()` skips the
-  top-of-file `@key` run and lifts `@id` / `@tags` into the board's header
-  chrome; keep "source line for line" for the workout body. Full analysis is in
-  [completed.md](completed.md) beside item 15's closed parts. No core change.
-
 - **Post-redesign rethinks** (not scheduled; after R10 or in parallel) —
   `@id` ↔ record-id correlation, account **namespacing** (a username as a
   workout-id prefix; touches the `workouts` collection schema), the board's
@@ -62,8 +51,8 @@ separately.
 The entries below carry the full analysis for the still-open independent items
 **11** and **13**. The redesign's own write-ups (12 ↔ R2, 15 ↔ R3 + R10,
 16 ↔ R3, 17 ↔ R9) moved to [completed.md](completed.md) with the R1–R10
-section, and item 15's still-open part (b) is kept there beside its closed
-parts so item 15 reads whole.
+section; item 15 (including the board-side part (b), landed 2026-08-31
+`9bbda82`) is fully closed and its write-up lives there too.
 
 - **13 — Laterality in the builder's `»` panel: no data for some movements, a
   parity question, and a replace-not-append bug.** *High priority (Chris,
@@ -250,8 +239,9 @@ parts so item 15 reads whole.
   fix any now-stale mention.
 
 - Every earlier numbered item — the whole 0-series, 1, 1a, 2, 3, 4, 5, 6, 7, 8,
-  8a, 9, 10, 14, 21, the deployment epic 18, 19, 20 and the builder layout
-  redesign R1–R10 — is closed; see [completed.md](completed.md).
+  8a, 9, 10, 14, 15 (all parts — a/d ↔ R10, c ↔ R3, b ↔ `9bbda82`), 21, the
+  deployment epic 18, 19, 20 and the builder layout redesign R1–R10 — is closed;
+  see [completed.md](completed.md).
 
 Nobody has run a session off the board yet. Everything is verified by tests
 and by driving the UI — every defect Chris has caught by *looking* was

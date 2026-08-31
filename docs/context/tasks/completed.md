@@ -1351,8 +1351,8 @@ way the deployment epic 18–20 is grouped. The old builder-UX chain items it
 absorbed — 12 ↔ R2, 16 ↔ R3, 17 ↔ R9, 15(a/c/d) ↔ R3 + R10 — are closed with
 it; the detailed write-ups for 12, 15 and 16 follow the stage list. **15b**
 (the board rendering preamble lines as body rows) was always independent and
-stays open in [current.md](current.md) — its write-up (part (b)) is kept below
-too.*
+landed separately **2026-08-31** (`9bbda82`) — its write-up (part (b)) is kept
+below. **Item 15 is now fully closed** (a/d ↔ R10, c ↔ R3, b ↔ `9bbda82`).*
 
 - ~~**R1 — Layout shell.**~~ **Done 2026-08-30** (`758dff1`). The direction-C
   frame landed with no behaviour change — every feature re-housed, verified by
@@ -1547,9 +1547,9 @@ too.*
 ### Redesign detail write-ups (12, 15, 16)
 
 The full analysis behind the absorbed chain items, moved here with the stage
-list. **12** ↔ R2, **16** ↔ R3, **15** parts a/d ↔ R10 and part c ↔ R3.
-**15 part (b)** is the still-open board-side item — its analysis is kept here
-beside the closed parts so item 15 reads whole.
+list. **12** ↔ R2, **16** ↔ R3, **15** parts a/d ↔ R10, part c ↔ R3, and
+**part (b) ↔ `9bbda82` (2026-08-31)** — the board-side item, landed separately.
+Its analysis is kept here beside the other parts so item 15 reads whole.
 
 - ~~**12 — The outline shows no row for a comment; they exist only in the Text
   tab.**~~ **Done 2026-08-30 as R2** (`973d80a`) — synthesised comment rows +
@@ -1599,19 +1599,27 @@ beside the closed parts so item 15 reads whole.
   **Shipped with R10 2026-08-31** (`5f79ea3`): `#directives` at the top of the
   Analysis tab, `renderDirectives()` off `parse().workout.directives`.
 
-  **(b) The board renders every preamble line as a body row — confirmed, still
-  open.** `draw()` (`apps/display/board.js`) builds one row per raw source line
-  (`state.lines = source.split('\n')`) and gives special handling only to blank
-  and `//` lines. So `@wdl 0.1`, `@id …`, `@date …`, `@tags …` and the
-  `# title` all render as plain rows at the top of what the athlete reads
-  mid-workout; **`@id` is not stripped either.** Fix: `draw()` skips the
-  top-of-file run of `@key` lines (match `tryDirective` or a `/^@/` test on the
-  pre-body lines) and lifts `@id` and `@tags` into the board's header chrome,
-  where the title and division picker already live. The `#` title can stay a row
-  or move to the header — Chris's call. Keep "source line for line" for the
-  workout body itself. *Scope:* `apps/display/board.js` + `board.css`. No core
-  change. **This is the one open part of item 15** — tracked as an independent
-  item in [current.md](current.md).
+  **(b) ~~The board renders every preamble line as a body row.~~ Done
+  2026-08-31** (`9bbda82`). Was: `draw()` built one row per raw source line and
+  special-cased only blank / `//` lines, so `@wdl` / `@id` / `@date` / `@tags`
+  and the `# title` all rendered as rows at the top of what the athlete reads
+  mid-set, and `@id` was never stripped. **Shipped:** `preambleEnd()` finds the
+  leading run of blank / `//` / `@key` / `# title` lines; within that run only,
+  a zero-indent `@key` line (matched as core's `tryDirective` does,
+  `/^@[A-Za-z][\w-]*(?:\s|$)/`) gets a `.preamble` class and is hidden in CSS
+  (`display: none`). The **preferred shape from the write-up** — the row is
+  still built, so `dataset.line` stays 1:1 with the source and `paint()`'s
+  cue-line matching + scroll are untouched; a mid-body `@ 40kg` fragment is
+  indented and past the preamble, so never in scope. `renderMeta()` lifts
+  `@id` (verbatim) and `@tags` (comma-split → chips, lighter than the
+  builder's block) into a new `#meta` strip under the bar, shown only when the
+  workout sets one of them. The workout body renders byte-for-byte as before.
+  *Touched:* `apps/display/board.js`, `board.css`, `index.html`. No core change
+  (suite 2051 passing, 1 pending). **Open question for Chris:** the `# title`
+  was kept as the first board row (readable whiteboard content, not metadata
+  noise — the reversible default the write-up allowed). If Chris would rather
+  it move into the `#meta` strip / bar too, that is a small follow-up on
+  `apps/display/*`.
 
   **(c) `@` lines are called out in the outline.** **Shipped with R3
   2026-08-31** (`d8edde3`): a zero-indent `@` row is classed

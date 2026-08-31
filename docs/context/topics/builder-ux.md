@@ -609,6 +609,20 @@ with a hand-written one, both a dark board (the board has no light theme) and
 verified across all three qualifiers. See
 [known-debts.md](known-debts.md).
 
+**~~The board renders the `@`-directive preamble as body rows.~~ Fixed
+2026-08-31** by queue item 15b (`9bbda82`). `draw()` built one row per raw
+source line and special-cased only blank / `//` lines, so `@wdl` / `@id` /
+`@date` / `@tags` sat at the top of what the athlete reads mid-set and `@id`
+was never stripped. Now `preambleEnd()` finds the leading run of blank / `//` /
+`@key` / `# title` lines and, within that run only, a zero-indent `@key` line
+gets a `.preamble` class hidden in CSS — the row is still built so
+`dataset.line` stays 1:1 with the source and `paint()`'s physical-line cue
+matching is untouched. `@id` / `@tags` moved into a `#meta` strip under the bar
+(id verbatim, tags as chips), shown only when the workout sets one. The
+workout **body renders line-for-line, unchanged**; the `# title` stays the
+first board row (a reversible default — open whether it moves into the strip
+too). *Touched: `apps/display/board.js`, `board.css`, `index.html`.*
+
 ---
 
 ## Accounts, IDs and layout — raised 2026-08-30, thinking out loud, not scheduled
@@ -733,9 +747,10 @@ it rather than landing on the old three-column grid.
   **directive-key type-ahead** (`@wdl` / `@id` / `@date` / `@tags` / `@author`
   / `@x-`, a hand-held convention list — the grammar accepts any `@key`) reusing
   the movement suggestion dropdown. This is item 15 parts (a) and (d); part (c)
-  — the `@` row's dim marker in the outline — shipped with R3. **Part (b), the
-  board still rendering `@` preamble lines as body rows, is the one open part**
-  of item 15 and is independent of the layout.
+  — the `@` row's dim marker in the outline — shipped with R3. **Part (b) —
+  the board rendering `@` preamble lines as body rows — landed separately
+  2026-08-31 (`9bbda82`): the board now hides the leading `@key` run and shows
+  `@id` / `@tags` in a header strip, body untouched. Item 15 is fully closed.**
 - The unchosen sketches (A, B) and the current-layout baseline are kept on a
   second page of the canvas for reference.
 

@@ -2,6 +2,25 @@
 
 ## Changes
 
+- **2026-08-31 — The board no longer renders the `@`-directive preamble as body
+  rows; `@id` / `@tags` lifted into the header chrome — item 15 is now fully
+  closed** (`9bbda82`, queue item 15b). `draw()` in `apps/display/board.js`
+  built one row per raw source line and special-cased only blank / `//` lines,
+  so `@wdl` / `@id` / `@date` / `@tags` sat at the top of what the athlete reads
+  mid-set and `@id` was never stripped. Now `preambleEnd()` finds the leading
+  run of blank / `//` / `@key` / `# title` lines and, within that run only, a
+  zero-indent `@key` line (matched as core's `tryDirective` does) gets a
+  `.preamble` class hidden in CSS. The row is still built, so `dataset.line`
+  stays 1:1 with the source and `paint()`'s physical-line cue matching + scroll
+  are untouched (the write-up's preferred shape). A new `#meta` strip under the
+  bar shows `@id` verbatim and `@tags` as chips, only when the workout sets one
+  of them. The workout **body renders byte-for-byte as before** — same rows,
+  same blank/comment handling, same marker / `done` / scroll, division picker
+  unaffected. The `# title` was kept as the first board row (a reversible
+  default — an open question for Chris whether it moves into the strip too). No
+  core change (suite 2051 passing, 1 pending). *Touched:*
+  `apps/display/board.js`, `board.css`, `index.html`.
+
 - **2026-08-31 — A root `Makefile` is now the single task surface for the dev
   lifecycle** (queue item 21, [DEC-017](../topics/settled-decisions.md#dec-017-a-root-makefile-is-the-task-surface-not-a-root-packagejson)).
   `make` (or `make help`) lists the targets: `test`, `build`, `serve`
