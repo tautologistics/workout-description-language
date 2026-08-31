@@ -1,5 +1,5 @@
 import { describe, it, eq } from './lib.ts';
-import { parseDuration, parseQuantity, parseTarget, formatDuration, formatTarget } from '../src/units.ts';
+import { parseDuration, parseQuantity, parseTarget, formatDuration, formatTarget, loadKilograms } from '../src/units.ts';
 
 describe('units', () => {
   it('parses compound durations', () => {
@@ -56,6 +56,18 @@ describe('units', () => {
     eq(parseTarget('2x24kg'), { kind: 'load', load: { kind: 'absolute', value: 24, unit: 'kg', implements: 2 } });
     eq(parseTarget('24kg'), { kind: 'load', load: { kind: 'absolute', value: 24, unit: 'kg' } });
     eq(formatTarget(parseTarget('2x24kg')), '2x24kg');
+  });
+
+  it('a paired load moves twice the weight the same number single would', () => {
+    // `2x24kg` is 24kg in each hand — 48kg carried — and `24kg` is one
+    // implement or a barbell (spec §3). The `implements` count is the whole
+    // difference in the arithmetic downstream (muscle load, `measure: load`).
+    const kg = (s: string) => loadKilograms((parseTarget(s) as { load: any }).load);
+    eq(kg('2x24kg'), 48);
+    eq(kg('24kg'), 24);
+    // The count multiplies after the unit conversion, not before.
+    eq(kg('2x35lb'), 31.75);
+    eq(kg('35lb'), 15.88);
   });
 
   it('accepts load shorthand', () => {
