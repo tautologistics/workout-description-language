@@ -3,7 +3,7 @@
 ## Changes
 
 - **2026-08-31 — Builder: the editor/analysis split is draggable, and the body
-  map scales with the margin** (`<SHA1>`, from Chris using it). The sheet was
+  map scales with the margin** (`83bfb78`, from Chris using it). The sheet was
   `minmax(0,1fr) 24rem` capped at 1120px, so a wide window added dead margin
   and the analysis column was stuck at 24rem. Now: sheet cap 1600px; the
   margin width is `--right-col-w` on `.sheet` with a `<div class="col-resize">`

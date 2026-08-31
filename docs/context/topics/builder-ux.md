@@ -84,7 +84,7 @@ the Outline/Text tab strip or the `+ movement` row), not in the top-level nav.
 change beyond moving a listener. No core change.*
 
 **~~The editor/margin split is fixed, and on a wide display the editor hoards
-space the analysis could use.~~ Fixed 2026-08-31** (`<SHA1>`, from Chris using
+space the analysis could use.~~ Fixed 2026-08-31** (`83bfb78`, from Chris using
 it). The post-redesign sheet was `minmax(0,1fr) 24rem` capped at 1120px — a
 wide window just added dead margin either side, and the analysis (body map,
 goals) was stuck at 24rem however much room there was. **Shipped:** the sheet
