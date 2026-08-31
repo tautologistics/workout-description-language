@@ -135,3 +135,19 @@ lockfile, `ohm-js` vendored) and a root `package.json` invites `npm install`
 and a `package-lock.json`. `make` adds nothing to install. Targets may not add
 a dependency; the registry pipeline stays one atomic target.
 -> [topics/settled-decisions.md](topics/settled-decisions.md#dec-017-a-root-makefile-is-the-task-surface-not-a-root-packagejson)
+
+## DEC-018 — A bare-label block header is a section, not an error
+Status: active. Settled 2026-08-31, closing queue item 11; makes spec §2's "or
+any custom label" true. A header whose label (before the first `,` or `@`) is
+all letters, spaces and hyphens, with no digit and not opening with a kind-word,
+parses as `type: 'section'` — the inert labelled container the fixed eight
+section words produce — for any label. It is read **and** reported at the `note`
+severity (`validate.ts` `custom-section`, per DEC-010): a coined heading could be
+a typo, where the fixed eight are silent because they are a closed vocabulary.
+Case is preserved verbatim (the fixed eight stay lower-cased). A digit anywhere,
+or a leading kind-word missing its parameter (`RFT:`, `every:`, `build:`), keeps
+it the reported error spec §5.2 / §11.1 make it — the miss loses how the block
+executes, which is the line DEC-010 draws. Implemented as a grammar production
+(`customSection` + `kindLead`), not a `parse.ts` reclassification, so the grammar
+still owns what exists (DEC-006 / DEC-007).
+-> [topics/settled-decisions.md](topics/settled-decisions.md#dec-018-a-bare-label-block-header-is-a-section)

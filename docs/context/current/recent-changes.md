@@ -2,6 +2,29 @@
 
 ## Changes
 
+- **2026-08-31 — A bare-label block header is an inert section, not an
+  "unrecognized header" error** (`70a1852`, queue item **11**,
+  [DEC-018](../topics/settled-decisions.md#dec-018-a-bare-label-block-header-is-a-section)).
+  A head that is entirely a bare label — letters, spaces and hyphens, no digit
+  anywhere, and not opening with a kind-word — now parses as `type: 'section'`
+  (the inert labelled container the fixed eight section words produce, spec §2's
+  "any custom label") instead of a `type: 'sequence'` carrying an `unrecognized
+  block header` error. `Barbell movements:` inside `3 rounds for time:` is a
+  clean visual layer; the rounds still cycle every descendant. Four Chris calls:
+  read it **and** emit a `note` (`validate.ts` `custom-section`, per DEC-010 —
+  a coined heading could be a typo); preserve the label's case verbatim; a digit
+  anywhere or a leading kind-word missing its parameter (`RFT:`, `every:`)
+  stays the error (narrow `kindLead` exclusion, ruled on when the first
+  `make test` showed the conflict with spec §5.2); a new grammar production
+  (`customSection`), not a `parse.ts` reclassification (DEC-006 / DEC-007).
+  Must-not-break preserved: `Barbell movements, 3 rounds:` still takes the kind
+  after the comma and reports the leftover label. `spec/grammar-0.1.ohm`,
+  `block-semantics.ts`, `parse.ts` (comments only), `validate.ts`,
+  `spec-0.1.md` §2/§5.1/§5.2/§11.1, tests. Suite 2049 → 2060 passing (1
+  pending); block-headers harvest 250 → 254; corpus unchanged
+  (`interpretations.json` byte-identical, `workouts.canonical.json` date-only).
+  Builder driven both themes.
+
 - **2026-08-31 — Builder `»` panel: laterality and measured-output picks
   replace instead of appending** (`02d819d`, queue item **13c** — one strand of
   item 13, shipped alone; **13a / 13b stay open** and item 13 is not closed).

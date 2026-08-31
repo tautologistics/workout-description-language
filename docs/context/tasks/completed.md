@@ -1689,6 +1689,78 @@ directions, re-pick toggles off, diagnostics clean after each. *Touched:
 
 ---
 
+**11. ~~A bare-word block header is an inert section, not an "unrecognized
+header" error.~~ DONE 2026-08-31** (`70a1852`). *High priority (Chris,
+2026-08-29). Grammar + `packages/core`, not builder/layout.* Spec §2 always said
+a section could be *"any custom label"*, but the grammar read only the fixed
+eight in `sectionWord`; anything else — `Barbell movements:` — fell through
+`headerName` to `headerKind_unknown`, a `type: 'sequence'` with a name, and
+`parseHeader` pushed `unrecognized block header "…"`, an **error** in `wdl check`
+and a red line in the builder. Execution was already identical to a section
+(`format.ts` writes the name back, `timeline.ts` defaults to `sequence`); only
+the diagnostic was wrong.
+
+**Shipped:** a head that is entirely a bare label — letters, spaces and hyphens,
+no digit anywhere, and not opening with a kind-word — parses as
+`type: 'section'`, the inert labelled container the fixed eight already produce.
+`Barbell movements:` inside `3 rounds for time:` is now a clean visual layer with
+no complaint, and the rounds still cycle every descendant regardless of the
+section.
+
+*Four decisions Chris made (the fourth mid-implementation):*
+- **Diagnostic, not silent.** Read as a section **and** emit a `note`
+  (claims-nothing severity, [DEC-010](../topics/settled-decisions.md#dec-010-unknown-text-is-held-inert-and-said-out-loud-as-a-note))
+  — *"read `Barbell movements` as a section label"*. A coined heading is one typo
+  from a kind-word; the fixed eight are silent only because they are a closed
+  vocabulary. Lives in `validate.ts` (`code: 'custom-section'`), beside
+  `adopted-block` — the same place every other `note` lives — not in `parse.ts`,
+  which has no note channel.
+- **Case preserved verbatim.** `blockKind_section` still lower-cases the fixed
+  vocabulary; `Barbell Movements:` keeps its capitals.
+- **Digit anywhere keeps it an error** (`3 rounds of madness:` stays an error),
+  **plus a narrow exclusion** ruled on when the first `make test` showed the
+  conflict: a head that *opens* with a kind-word missing its parameter — `RFT:`,
+  `rounds:`, `every:`, `build:` — stays the reported error spec §5.2 makes it.
+  The miss loses how the block executes, which is the line DEC-010 already drew;
+  the alternative was overriding spec §5.2 and its pinned `rft with no count`
+  case, which Chris declined.
+- **A new grammar production** (`customSection`, tried after `sectionWord` fails,
+  with a `kindLead` guard), so the grammar still owns what exists
+  ([DEC-006](../topics/settled-decisions.md#dec-006-the-grammar-is-written-in-peg-notation-carries-no-actions) /
+  [DEC-007](../topics/settled-decisions.md#dec-007-the-grammar-is-an-ohm-grammar-semantics-in-a-separate-file)).
+  `headerKind` gains a `-- section` case between `-- known` and `-- unknown`.
+
+**Must-not-break, preserved:** `Barbell movements, 3 rounds:` still takes the
+`3 rounds` after the comma and reports the leftover label — the same "three
+rounds *and* an error" as `cap 12min, 3 rounds:` (spec §11.1). `headStatesKind`
+is unchanged, so a `section` head leaves the kind slot open for a comma to fill;
+once a kind fills it the block is a real `repeat` with `type !== 'section'`, and
+`parse.ts`'s existing guard reports the name. No `&& !isBareLabel` needed — the
+grammar production sets the type, so the guard already gates it.
+
+*Touched:* `spec/grammar-0.1.ohm` (`customSection` + `kindLead` + `emomWord`,
+`headerKind`), `packages/core/src/grammar/block-semantics.ts`
+(`headerKind_section`), `packages/core/src/parse.ts` (comments only — no
+condition change), `packages/core/src/validate.ts` (`custom-section` note,
+`FIXED_SECTIONS` set), `spec/spec-0.1.md` §2 / §5.1 / §5.2 / §11.1,
+`packages/core/test/{grammar,validate,errors}.test.ts`,
+`packages/core/test/golden/vocabulary.{ts,json}`.
+
+**Verification:** suite **2049 → 2060 passing** (1 pending, pre-existing `10x
+Curl`). Delta: the two pinned cases that were failing on the widened reading now
+pass; +2 grammar tests (a digit-bearing unread header, a kind-word-with-no-param
+header), +2 validate tests (the note fires / is not an error), +5 vocabulary
+cases (`block/section` custom-label forms + `block/other` kind-word-no-param).
+`errors.test.ts` switched two `frobnicate:` cases to `frobnicate 5:` to keep
+exercising the error path. Block-headers harvest **250 → 254**. Corpus
+unchanged: `interpretations.json` regenerates byte-identical,
+`workouts.canonical.json` only its date stamp (not committed — date-only).
+Builder driven both themes: diagnostics pane shows only the note, the outline
+nests the section with the section accent, "reads as" cycles every descendant
+across both sections three times, `Canonicalise` round-trips the label verbatim.
+
+---
+
 *Ordering of 5, 6, 7 and 9 against 1-4 is not settled - they are appended
 rather than placed. 5, 6 and 7 were raised by writing and sending one workout
 rather than by a plan, and 9 by closing item 3. **0f was lettered rather than

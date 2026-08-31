@@ -1120,6 +1120,55 @@ marks the ones worth a top-level pointer.
   secret — so it is safe checked in. The raw `node scripts/deploy-web.mjs`
   form does not inherit the default (pass `--ssh` or the env var).
 
+### DEC-018 A bare-label block header is a section
+*Status: active. Settled 2026-08-31, closing queue item 11.*
+
+- **A header whose label is a bare phrase — everything before the first `,` or
+  `@` is letters, spaces and hyphens, with no digit anywhere and not opening with
+  a word that names a kind — parses as `type: 'section'`**, the inert labelled
+  container the fixed eight `sectionWord` values already produce, now for any
+  label. This makes spec §2's *"or any custom label"* true; before it, only the
+  fixed eight were read and everything else fell through `headerName` to a
+  `type: 'sequence'` carrying an `unrecognized block header` **error**. Execution
+  was already identical to a section — `format.ts` writes the name back,
+  `timeline.ts` defaults an unknown container to `sequence` — so only the
+  diagnostic was wrong.
+
+- **Read *and* said out loud, at the `note` severity.** `validate.ts` emits
+  `custom-section` — *"read `Barbell movements` as a section label"* — beside
+  `adopted-block`, the same place every other `note` lives. The fixed eight are
+  silent because they are a closed vocabulary; a word the author just coined is
+  one keystroke from a kind-word, so held-and-inert must not also be silent
+  ([DEC-010](#dec-010-unknown-text-is-held-inert-and-said-out-loud-as-a-note)).
+  Fully-silent (like the fixed eight) was the alternative and was declined.
+
+- **Case preserved verbatim.** `blockKind_section` still folds the fixed
+  vocabulary to lower case — those are canonical spellings — but a coined label
+  keeps the capitals it was written with (`Barbell Movements:` stays).
+
+- **Where the boundary falls, and the exclusion added mid-implementation.** A
+  digit anywhere keeps the head an error (`3 rounds of madness:`). And a head
+  that *opens* with a kind-word missing its parameter — `RFT:`, `rounds:`,
+  `every:`, `build:` — stays the reported error, because the miss loses *how the
+  block executes*, which is exactly the line
+  [DEC-010](#dec-010-unknown-text-is-held-inert-and-said-out-loud-as-a-note)
+  already drew between a modifier nobody taught the language (held) and a kind
+  nobody taught it (error). The first `make test` surfaced the conflict —
+  `RFT:` becoming a silent section contradicts spec §5.2's pinned reading — and
+  Chris chose the narrow `kindLead` exclusion over rewriting §5.2. Bare phrases
+  with no kind-word at all (`some shape nobody taught the parser:`) are sections.
+
+- **A grammar production, not a `parse.ts` reclassification.** `customSection`
+  (with a `kindLead` guard and an `emomWord` helper) is tried in `headerKind`
+  after `blockKind` and before `headerName`, so the grammar still *owns what
+  exists* ([DEC-006](#dec-006-the-grammar-is-written-in-peg-notation-carries-no-actions)
+  / [DEC-007](#dec-007-the-grammar-is-an-ohm-grammar-semantics-in-a-separate-file)).
+  `parse.ts`'s report condition (`block.name && block.type !== 'section'`) needed
+  no change — the production sets the type, so a clean bare label is already
+  gated out, while `Barbell movements, 3 rounds:` (a kind after the comma) turns
+  the block into a real `repeat` and the leftover label is reported, the same
+  "three rounds *and* an error" as `cap 12min, 3 rounds:`.
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).
