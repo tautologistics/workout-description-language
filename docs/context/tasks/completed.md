@@ -1667,8 +1667,9 @@ No code change.
 **13c. ~~The builder's `»` panel appends a laterality mode instead of replacing
 one, and doubles it on re-pick.~~ DONE 2026-08-31** (`02d819d`). *One strand of
 item 13, shipped alone — no decision needed. **13b** landed 2026-08-31
-(`cf3c47f`, below); **13a-curation** landed 2026-08-31 (`71f9469`); only **13a** (the `»` panel rendering it) stays open in
-[current.md](current.md); item 13 as a whole is **not** closed.* `applyModifier`
+(`cf3c47f`, below); **13a-curation** landed 2026-08-31 (`71f9469`); **13a** (the
+`»` panel rendering the axis) landed 2026-08-31 (`1ffc8d0`, above), which
+**closed item 13 entirely**.* `applyModifier`
 with `position: 'title'` spliced the chosen laterality text in after the
 movement title without checking the line, so picking `(split)` when `each side`
 was present produced `Dumbbell Snatch (split) each side` (two contradictory
@@ -1765,7 +1766,8 @@ across both sections three times, `Canonicalise` round-trips the label verbatim.
 parenthesised — Chris wants parity.~~ DONE 2026-08-31** (`cf3c47f`,
 [DEC-019](../topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised)).
 *One strand of item 13; **13a-curation** (the `lateralityAxis` field) landed
-`71f9469` (below), and **13a** (the `»` panel rendering it) is the last strand.*
+`71f9469` (below), and **13a** (the `»` panel rendering it) landed `1ffc8d0`
+(above) — item 13 is now closed entirely.*
 `format.ts` wrote `both`/`split` as ` (both)` / ` (split)` but
 `per-side` as a bare ` each side` — the asymmetry was just the two grammar forms
 (`laterality = "(" lateralityWord ")"` vs `trailingQualifier -- limb`), and spec
@@ -1795,15 +1797,15 @@ fields** (+ its date stamp) — **0 AST changes, 0 summary changes**, so nothing
 about how any workout is *understood* moved; `interpretations.json` regenerates
 byte-identical; `movements.canonical.json` / `dedupe-audit.json` were date-only
 churn and reverted. All 190 corpus files remain their own canonical fixpoint.
-Builder not driven — no app code changed (that is 13a).
+Builder not driven — no app code changed (that was 13a, `1ffc8d0`).
 
 ---
 
 **13a-curation. ~~`around-worlds` and its neighbours have no laterality data, so
 the `»` panel offers nothing.~~ `lateralityAxis` field + one vetting entry —
 DONE 2026-08-31** (`71f9469`). *The last data/schema strand of item 13; the
-builder `»` panel that renders it is the still-open **13a**. A full laterality
-curation sweep is unscheduled — Chris will scope it.* Chris's calls, from the
+builder `»` panel that renders it landed as **13a** (`1ffc8d0`), closing
+item 13. A full laterality curation sweep is unscheduled — Chris will scope it.* Chris's calls, from the
 conversation: the axis a per-side count runs across is **a curated
 movement-registry field** at the root of an entry, named **`lateralityAxis`**
 (camelCase, matching `defaultLaterality`), an enum over `arm | leg | side | hand
@@ -1813,7 +1815,7 @@ via `import-movement-curation.mjs`. For now, apply it to **`around-worlds` only*
 
 *Shipped:*
 - `packages/core/src/fold.ts` — `MovementEntry.lateralityAxis?`. Advisory,
-  nothing in core consumes it yet (the builder does — that is 13a).
+  nothing in core consumes it (the builder does, as of 13a `1ffc8d0`).
 - `scripts/import-movement-curation.mjs` — a "Laterality axis" CURATE column
   (position 31), validated against the enum and refused unless the row's
   laterality modes include `per-side`. An export from an older workbook now
@@ -1841,6 +1843,61 @@ laterality data), and `fetch('/registry/movements.json')` in the page carries
 **Interim effect:** the panel offers the generic bare ` each side` for Around
 The Worlds until 13a wires `movementModifiers` to the axis — noted in
 `current.md`.
+
+---
+
+**13a. ~~The builder's `»` panel renders `lateralityAxis`.~~ DONE 2026-08-31**
+(`1ffc8d0`). *The last open strand of item 13 — builder-only, no decision
+pending (the field name/shape landed with 13a-curation `71f9469`, the
+parenthesised per-side form and its parser read with 13b `cf3c47f`). **This
+closes item 13 entirely** — 13c `02d819d`, 13b `cf3c47f`, 13a-curation
+`71f9469`, 13a `1ffc8d0`.* `movementModifiers(entry)` in
+`apps/builder/builder.js` built the `»` panel's `per-side` option as the pre-13b
+bare ` each side` and never looked at `entry.lateralityAxis`, so every per-side
+movement showed a generic "each side" even where the axis is `arm` or
+`direction`.
+
+**Shipped:**
+- `movementModifiers` — the `per-side` option's inserted text is now
+  `` `(each ${entry.lateralityAxis ?? 'side'})` `` (parenthesised per DEC-019,
+  axis-aware with a `side` fallback). Its label is `full count each <axis>` when
+  the axis is curated, `full count per side` otherwise. `(split)` / `(both)`
+  unchanged.
+- `LATERALITY_RE` (the exclusive-class strip `applyModifier` runs before a
+  laterality pick) gained the parenthesised per-side form
+  `\((?:each|per)\s+(?:arm|leg|side|hand|direction)\)` and `direction` in its
+  bare `each|per <limb>` branch — so a previously-inserted `(each arm)` /
+  `(each direction)` is recognised as the same exclusive class and a re-pick
+  toggles it off / a different pick replaces it cleanly, no doubling.
+  `lateralityMode` already folded every `(each …)` spelling to `per-side`; only
+  its doc comment changed.
+
+Builder-only; no `packages/core` change; suite **2063/2063** (1 pending,
+pre-existing `10x Curl`) — unchanged, nothing in the core suite covers
+`movementModifiers`.
+
+**Verification — drove the builder, both themes:** `12 Around The Worlds`
+(`lateralityAxis: "direction"`) → `»` offers `(each direction) (default) — full
+count each direction` + `Equipment: dumbbell`; clicking inserts
+`12 Around The Worlds (each direction)`; diagnostics clean; `Canonicalise`
+round-trips it verbatim (not pluralised into `(each direction)s`). Re-pick →
+toggles off. Pick after `(split)` on a `split`+`per-side` movement
+(`Dumbbell Snatch`) → replaces, no doubling. `bulgarian-split-squat` (per-side,
+no axis) → panel falls back to `(each side)`, inserts cleanly on a singular
+name. Both `prefers-color-scheme` themes checked.
+
+*Noted, out of scope — pre-existing `applyModifier` plural bug (`02d819d`, 13c):*
+picking a laterality option on a row whose movement name is typed **plural**
+(`Dumbbell Snatches`) while the registry title is singular strands the plural
+suffix after the inserted token — `Dumbbell Snatch (each side) es`. The
+`matchLen` truncates to `entryTitle.length` in the title-insert branch. Affects
+the bare form identically; independent of 13a. Recorded in
+[../topics/builder-ux.md](../topics/builder-ux.md).
+
+*Touched:* `apps/builder/builder.js` only; docs:
+`docs/context/tasks/{completed,current}.md`,
+`docs/context/topics/{builder-ux,settled-decisions}.md`,
+`docs/context/current/recent-changes.md`.
 
 ---
 

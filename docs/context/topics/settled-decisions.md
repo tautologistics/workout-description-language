@@ -1191,9 +1191,13 @@ marks the ones worth a top-level pointer.
   `MovementEntry.lateralityAxis?: 'arm'|'leg'|'side'|'hand'|'direction'`, a
   curated root field (via `import-movement-curation.mjs`) naming the axis a
   per-side count runs across, so a tool renders `(each direction)` rather than a
-  generic `(each side)`. Advisory; nothing in `packages/core` reads it — the
-  builder's `»` panel will (still-open item 13a). `around-worlds` is the only
-  entry carrying it so far; a full curation sweep is unscheduled.
+  generic `(each side)`. Advisory; nothing in `packages/core` reads it. The
+  builder's `»` panel **does** read it, as of queue item 13a (`1ffc8d0`) —
+  `movementModifiers` builds the per-side option as
+  `` `(each ${entry.lateralityAxis ?? 'side'})` ``, and `applyModifier`'s
+  exclusive-class strip recognises the parenthesised per-side form so a re-pick
+  toggles / replaces cleanly. `around-worlds` is the only entry carrying the
+  field so far; a full curation sweep is unscheduled.
 
 - **What did not change.** Bare `each arm` / `per leg` still parse (input
   tolerance); `total` still maps to `(split)` on output; `(both)` stays distinct

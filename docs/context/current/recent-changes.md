@@ -2,6 +2,25 @@
 
 ## Changes
 
+- **2026-08-31 — The builder `»` panel renders `lateralityAxis`** (`1ffc8d0`,
+  queue item **13a** — **this closes item 13 entirely**). `movementModifiers()`
+  in `apps/builder/builder.js` built the per-side laterality option as the
+  pre-13b bare ` each side` and ignored `entry.lateralityAxis`. It now inserts
+  `` `(each ${entry.lateralityAxis ?? 'side'})` `` — parenthesised per DEC-019,
+  axis-aware with a `side` fallback — so `12 Around The Worlds` offers
+  `(each direction)` and a per-side movement with no curated axis
+  (`bulgarian-split-squat`) falls back to `(each side)`. `LATERALITY_RE` (the
+  exclusive-class strip `applyModifier` runs before a laterality pick) gained
+  the parenthesised per-side form and `direction`, so a previously-inserted
+  `(each arm)` / `(each direction)` toggles off on re-pick and is replaced
+  cleanly by a different mode — no doubling. Builder-only; no `packages/core`
+  change; suite 2063/2063 (nothing in the core suite covers `movementModifiers`).
+  Drove the builder both themes: insert, toggle, replace, round-trip through
+  `Canonicalise` all verified. Uncovered but left alone — a pre-existing
+  `applyModifier` bug (13c `02d819d`) that strands a plural suffix when the
+  typed movement name is plural and the registry title singular; recorded in
+  [../topics/builder-ux.md](../topics/builder-ux.md).
+
 - **2026-08-31 — `lateralityAxis` — the axis a per-side count runs across**
   (`71f9469`, queue item **13a-curation**). A per-side count is "each
   *something*" — `side` usually, `arm` for a single-arm press, `direction` for

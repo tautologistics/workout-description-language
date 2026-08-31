@@ -176,7 +176,11 @@ It split in two, and the halves were not equally ready — both are done now:
 - **~~Per-movement modifiers are answerable from data today.~~ Fixed
   2026-08-25.** A second caret on a step row (`»`, beside the existing movement
   caret) opens a panel of what the row's *current* movement actually supports —
-  laterality modes (`(both)`, `(split)`, `each side`, marking which is the
+  laterality modes (`(both)`, `(split)`, and the per-side form
+  `(each <axis>)` — parenthesised per
+  [DEC-019](settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised),
+  the axis word taken from the registry's `lateralityAxis` (`arm` / `leg` /
+  `side` / `hand` / `direction`) with a `side` fallback — marking which is the
   registry's `defaultLaterality`), measured output (`, count cal` /
   `, count distance` from `measures`), and whether it takes a load (`@ ` or,
   for a `per-implement` movement, `@ Nx` seeded from `implements`) — plus
@@ -203,6 +207,22 @@ It split in two, and the halves were not equally ready — both are done now:
   (Bike) and a load-taking one (Back Squat, and Bulgarian Split Squat for
   per-implement), including applying laterality and load in either order and
   confirming both converge on spec order.
+
+  **The per-side option is axis-aware** (queue item 13a, `1ffc8d0`,
+  2026-08-31): `movementModifiers` builds it as
+  `` `(each ${entry.lateralityAxis ?? 'side'})` `` — so `around-worlds`
+  (`lateralityAxis: "direction"`) offers `(each direction)`, and a per-side
+  movement with no curated axis falls back to `(each side)`. `LATERALITY_RE`
+  (the exclusive-class strip) gained the parenthesised per-side form
+  `(each <limb>)` and `direction`, so a previously-inserted `(each arm)` /
+  `(each direction)` toggles / replaces like any other laterality token.
+  *Known pre-existing bug (from 13c `02d819d`, not 13a):* picking a laterality
+  option on a row whose movement name is typed **plural** while the registry
+  title is singular (`Dumbbell Snatches` → entry `Dumbbell Snatch`) strands the
+  plural suffix after the inserted token — `Dumbbell Snatch (each side) es` —
+  because `applyModifier`'s title-insert branch truncates the match to
+  `entryTitle.length`. Affects the bare form identically; a small self-contained
+  fix for a future session.
 
   Two decisions Chris made before this was built: the affordance is a second
   caret opening a panel (reusing the existing movement-suggestion caret's
@@ -374,8 +394,9 @@ replaces the always-rendered button strip. No core change.*
 **The `»` "what this line can take" caret is the most useful thing in the
 outline and it is `opacity: 0`.** Same rule as above, called out on its own
 because it is a capability, not a nicety — it surfaces the registry's per-movement
-modifiers and the grammar's per-header options (see the *Outline* item above and
-queue item 13). A first-time user never learns it exists. **Fix:** render it at
+modifiers and the grammar's per-header options (see the *Outline* item above;
+the panel's contents were queue item 13, closed 2026-08-31). A first-time user
+never learns it exists. **Fix:** render it at
 a low but non-zero opacity always, brightening on hover/focus; consider a
 one-time hint the first time a row resolves to a movement or a block.
 *Scope: `apps/builder/builder.css`. No core change. Do this with the tools fix.*
