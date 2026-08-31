@@ -2,6 +2,23 @@
 
 ## Changes
 
+- **2026-08-31 — The `»` panel splices laterality/load after the whole typed
+  movement word** (`e27339a`, a one-off follow-up, not a queue item). `applyModifier`
+  in `apps/builder/builder.js` derived the splice point from `entryTitle.length`
+  whenever the typed name started with the registry title, so a plural or inflected
+  name (`Dumbbell Snatches` for entry `Dumbbell Snatch`) spliced the token mid-word
+  and stranded the suffix: `- 8 Dumbbell Snatch (each side) es`. Pre-existing since
+  13c (`02d819d`), independent of 13a. The seam calc in both the title- and
+  load-insert branches is now `titleMatchLen(fragment, entryTitle)`, which extends
+  the match through the trailing letters/apostrophe of that same word when
+  `fragment` starts with `entryTitle`, and keeps the whole-fragment fallback for
+  names that don't (aliases like `DB Snatch`). Bare `each side` fixed identically.
+  Builder-only; suite 2063/2063 (nothing in the core suite covers
+  `movementModifiers`/`applyModifier`). Drove the builder both themes: the repro
+  now yields `- 8 Dumbbell Snatches (each side)`; plural + load lands `@ ` after
+  the whole name and before a comma modifier; singular, alias, and `around-worlds`
+  (`each direction`) still splice cleanly and `Canonicalise` round-trips.
+
 - **2026-08-31 — The builder `»` panel renders `lateralityAxis`** (`1ffc8d0`,
   queue item **13a** — **this closes item 13 entirely**). `movementModifiers()`
   in `apps/builder/builder.js` built the per-side laterality option as the

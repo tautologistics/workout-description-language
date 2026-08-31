@@ -216,13 +216,18 @@ It split in two, and the halves were not equally ready — both are done now:
   (the exclusive-class strip) gained the parenthesised per-side form
   `(each <limb>)` and `direction`, so a previously-inserted `(each arm)` /
   `(each direction)` toggles / replaces like any other laterality token.
-  *Known pre-existing bug (from 13c `02d819d`, not 13a):* picking a laterality
+  ~~*Known pre-existing bug (from 13c `02d819d`, not 13a):* picking a laterality
   option on a row whose movement name is typed **plural** while the registry
   title is singular (`Dumbbell Snatches` → entry `Dumbbell Snatch`) strands the
   plural suffix after the inserted token — `Dumbbell Snatch (each side) es` —
   because `applyModifier`'s title-insert branch truncates the match to
-  `entryTitle.length`. Affects the bare form identically; a small self-contained
-  fix for a future session.
+  `entryTitle.length`.~~ **Fixed 2026-08-31 (`e27339a`):** the `entryTitle.length`
+  seam calc in both the title- and load-insert branches is now
+  `titleMatchLen(fragment, entryTitle)`, which — when `fragment` starts with
+  `entryTitle` — extends the match through the trailing letters/apostrophe of
+  that same word (`Snatches`, `Deadlift's`), so the token lands after the whole
+  typed word. Names that don't start with the title (aliases like `DB Snatch`)
+  keep the whole-fragment fallback. Bare `each side` fixed identically.
 
   Two decisions Chris made before this was built: the affordance is a second
   caret opening a panel (reusing the existing movement-suggestion caret's
