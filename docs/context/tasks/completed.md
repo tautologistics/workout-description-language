@@ -1185,7 +1185,7 @@ already use for comma-modifier unknowns.*
 ---
 
 **17. ~~The Text tab is a bare `<textarea>`: Tab escapes it, and nothing is
-highlighted.~~ DONE 2026-08-31, as builder-redesign stage R9** (`<pending>`).
+highlighted.~~ DONE 2026-08-31, as builder-redesign stage R9** (`05efea0`).
 *Raised high-priority by Chris 2026-08-29 from driving the builder; folded into
 the layout redesign as R9 — the R-series stage list in [current.md](current.md)
 carries the one-line strike, this is the full close.* Both halves shipped.

@@ -3,7 +3,7 @@
 ## Changes
 
 - **2026-08-31 — Builder layout redesign, R9 of 10: the Text tab traps Tab and
-  carries a syntax-highlight layer** (`<pending>`). `#text` is wrapped with a
+  carries a syntax-highlight layer** (`05efea0`). `#text` is wrapped with a
   new `<pre id="text-hl">` in a positioned `.text-wrap`; the textarea paints
   `color: transparent; caret-color: var(--ink)` over the layer, which holds the
   same text re-tokenised on every `input` — one colour per line kind from the

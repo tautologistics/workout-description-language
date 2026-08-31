@@ -184,7 +184,7 @@ by **driving the builder** in both themes with a multi-section workout, and run
   `builder.css`, `builder.js`.
 
 - ~~**R9 — Text tab: trap Tab + syntax highlighting** *(= chain item 17).*~~
-  **Done 2026-08-31** (`<pending>`). `#text` is wrapped with `<pre id="text-hl">`
+  **Done 2026-08-31** (`05efea0`). `#text` is wrapped with `<pre id="text-hl">`
   in a positioned `.text-wrap`; the textarea paints `color: transparent;
   caret-color: var(--ink)` over the layer, which holds the same text re-tokenised
   on every `input` — one `--kind-*` colour per line kind (R3's shared palette),
