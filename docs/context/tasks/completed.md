@@ -1338,6 +1338,296 @@ smaller entries in that file's topic sections.*
 
 ---
 
+## The builder layout redesign — stages R1–R10
+
+*Chris chose direction **C (Document + margin)** off the Claude Design canvas
+(visual brief: [../topics/builder-ux.md](../topics/builder-ux.md) "### The
+layout redesign"). Broken into ten ordered stages **R1 → R10**, each a landable
+branch sized for its own session, each spawning the next when it landed. All
+app-level (`apps/builder/*`, plus `packages/core/src/edit.ts` for R2) — no
+grammar or spec change. Kept together in `current.md` while in flight, struck
+stage by stage; moved here as one section when R10 landed **2026-08-31**, the
+way the deployment epic 18–20 is grouped. The old builder-UX chain items it
+absorbed — 12 ↔ R2, 16 ↔ R3, 17 ↔ R9, 15(a/c/d) ↔ R3 + R10 — are closed with
+it; the detailed write-ups for 12, 15 and 16 follow the stage list. **15b**
+(the board rendering preamble lines as body rows) was always independent and
+stays open in [current.md](current.md) — its write-up (part (b)) is kept below
+too.*
+
+- ~~**R1 — Layout shell.**~~ **Done 2026-08-30** (`758dff1`). The direction-C
+  frame landed with no behaviour change — every feature re-housed, verified by
+  driving the builder light + dark at 1440/1280/1000/700px. Header: WDL mark ·
+  `☰ Movements` toggle · centred document title (from `parse(text()).workout.title`,
+  repainted in `renderReading`) · **Open…/Download/board grouped as a plain
+  bordered button cluster** (`.file-cluster` — three items didn't warrant a
+  popover) · item-20 identity + My workouts. `Canonicalise` moved onto the
+  editor's tab strip. `.stage` (scrolls) → centred `.sheet` grid: `.doc-col`
+  (Outline/Text tabs, unchanged) | `.right-col` = a **sticky `.band`** holding
+  the `title / cues / duration / cap / score` `<dl>` (`renderReading` paints
+  the `<dl>` into `#summary` and the cue list into a new `#steps` in the
+  Analysis panel) + a `[Analysis][Reads as]` strip. **Analysis** (`#view-analysis`,
+  default, `setAnalysisTab` ↔ `localStorage['wdl.analysis-tab']`) carries
+  `#steps` + `#diagnostics` + body map + the goals block and has its own
+  `overflow:auto` + bounded height — the read-pane scroll 🔴 is fixed.
+  **Reads as** is an empty placeholder for R4. Movements is a transitional
+  overlay `.drawer` + backdrop behind `☰` (`localStorage['wdl.palette-open']`,
+  default closed), all its DOM unchanged inside. Replaced the three-column grid
+  and the 1180/900 breakpoints (now 1100px narrowing, 820px stack). *Touched:*
+  `apps/builder/index.html`, `builder.css` (wholesale), `builder.js` (small:
+  doc-title, `#steps` split, `setAnalysisTab`, drawer toggle). No `packages/core`
+  change — suite 2038 passing, 1 pending, untouched.
+
+- ~~**R2 — Comment rows first-class in the Outline + `edit.ts`.**~~ **Done
+  2026-08-30** (`973d80a`). `spans()` in `packages/core/src/edit.ts` now gives
+  every own-line comment its own single-line span — `replaceLogical` / `remove` /
+  `insertAfter` / `moveTo` reach it unchanged; `move` and `shift` took a
+  dedicated comment path (the following node's span still swallows the comments
+  above it, so the two readings overlap by design and a shared splice would
+  double-cut). `move` on a comment steps it over the adjacent rendered row.
+  `renderOutline` synthesises a `.node.comment` row per own-line comment, above
+  the line it attaches forward to at that line's depth; trailing comments on a
+  content line stay in that row's input; trailing/orphan comments render at the
+  margin. `+ comment` joins the add-row buttons. Shared `attachRowDrag` for both
+  row kinds. Also fixed the stray `data-line="0"` row a trailing-comment file
+  drew. Suite 2038 → **2051 passing**, 1 pending (13 cases in `edit.test.ts`).
+  *Touched:* `apps/builder/builder.js`, `apps/builder/index.html`,
+  `packages/core/src/edit.ts` + `test/edit.test.ts`.
+
+- ~~**R3 — Outline as a document + line-kind rails** *(= chain item 16 below,
+  folding in item 15c).*~~ **Done 2026-08-31** (`d8edde3`). Outline row rhythm
+  loosened; `#` title renders as a heading set apart with air beneath; zero-indent
+  `@` directives render as a dim smaller preamble block a notch under the title
+  and above the body (presentation only — every `input.line` / write-back path
+  unchanged). New **`--rail`** token darker than `--rule` (light ~2.3:1 vs the
+  ~1.05:1 critique measurement, dark ~2.3:1), and `.node .rail` now stretches to
+  the row's full height so nesting levels read as continuous lines. New shared
+  **`--kind-*`** tokens (`title`, `directive`, `section`, `header`, `step`,
+  `rest`, `comment`) defined in both themes, named for the line kind (R9's
+  highlighter consumes them), each driving a thin coloured left edge on
+  `.node .line-wrap`. `renderOutline` builds a `kindOf` map off
+  `parse().workout.body` (step / rest / `section` = block `type==='section'` /
+  `header` = every other block type + `interrupt`); the walk classes `data-kind`
+  from raw text for title + directive + the comment row, from `kindOf` otherwise,
+  falling back to colon-terminated → `header` else `step` — so a broken step
+  keeps the step marker under the `.bad` red border. No core change — suite
+  2051 passing, 1 pending. *Touched:* `apps/builder/builder.js`, `builder.css`.
+
+- ~~**R4 — Reads-as tab: the compressed run view.**~~ **Done 2026-08-31**
+  (`f8cb0a8`). New `renderReadsAs()` over `#view-reads`: (a) the run grouped by
+  block, read off `parse().workout.body` (not cue-by-cue) — one titled group per
+  top-level block, header label = the raw source line as written (`:` and any
+  inline body dropped, so rounds / scheme / window are stated once by the
+  header), direct steps + rests collapsed onto one `·`-joined inline row
+  (`Air Squat ×10 · 200m Run · rest 1min`), nested blocks / `every` overlays
+  recursed with a left rule; synthesised label fallback when a header has no
+  physical line. (b) A **"show every cue (N)"** toggle to the full, uncapped
+  per-cue list — the same rows `#steps` builds, now via a shared `cueRow()`
+  helper; state in `localStorage['wdl.reads-expanded']`, read fresh each paint
+  (survives re-render / tab switch / reload). `renderReading` still owns
+  `#summary` / `#diagnostics` / `#steps` untouched; compile failure degrades to
+  a short message in `#view-reads`. Both themes; CSS is existing tokens only. No
+  core change — suite 2051 passing, 1 pending. *Touched:*
+  `apps/builder/builder.js`, `builder.css`.
+
+- ~~**R5 — Goals rule-management UI in the Analysis tab.**~~ **Done 2026-08-31**
+  (`47fd26b`). The goals controls are now a titled
+  `<section class="goals-block">`: heading, a `.goals-bar` holding `#goal-pick`
+  (now a bordered control) beside the `.goal-tools` toolbar (Edit rules / Open… /
+  Save as… / `.wdlg` / Delete), the `#goal-text` `.wdlg` editor revealing inline
+  beneath, and `#goal-errors` / `#goal-notes` / `#findings` grouped in a
+  `.goals-out` output region. **DOM move + CSS only** — every id stable, every
+  `builder.js` handler untouched (all bound by id, none container-scoped);
+  `.goal-tools` carries its own flex now the `.row.tight` wrapper is gone; hidden
+  `<input id="goal-file">` stays in the DOM. Both themes, existing tokens only —
+  no `--kind-*` / `--rail` touch. Verified light + dark: picker options, Edit
+  rules reveal/hide + live re-check, Save as… → picker, Delete shows for a saved
+  set and removes it; summary band / `#steps` / `#diagnostics` / body map /
+  Reads-as unchanged. No core change — suite 2051 passing, 1 pending. *Touched:*
+  `apps/builder/index.html`, `builder.css` (no `builder.js` needed).
+
+- ~~**R6 — Analysis tab: per-block muscle "adds".**~~ **Done 2026-08-31**
+  (`895404a`). Below the body map, one terse `.adds-line` per top-level named
+  section — *"warmup adds: glutes, quads, chest, triceps, …"* — naming the
+  distinct muscles that section brings in (primary first in workout order, then
+  secondary marked "(light)", capped at 6 with "…", "—" when a section has no
+  attributed movement). App-side derivation in a new `renderBlockAdds()` called
+  from the top of `renderBody()`: filters `workout.body` for
+  `n.node === 'block' && n.type === 'section'` and scopes
+  `exposures(timeline).list` by `e.path[0]` matched to the section's index in
+  `timeline.root.items` (found by source line, not position). Nothing renders
+  for a sectionless workout. New `#block-adds` container between `#body-hint`
+  and the goals block; `--ink` / `--dim` / `--rule` only, both themes. No core
+  change — suite 2051 passing, 1 pending. *Touched:* `apps/builder/builder.js`,
+  `builder.css`, `index.html`.
+
+- ~~**R7 — Movement palette modal: filters + insert.**~~ **Done 2026-08-31**
+  (`d1a89ce`). The palette is now a summoned `<dialog id="palette-modal">` —
+  opened by **⌘K / Ctrl-K** anywhere, by **+ movement**, and by **Enter on an
+  outline row** (replacing the row when it is blank, else inserting after it).
+  Picking a movement lands `lineFor(m)` at the focused row via the existing
+  write-back (`replaceLogical` when blank, else `insertAfter`) and closes;
+  Esc (`<dialog>` `cancel`) and backdrop click close through a `closePalette`
+  that hands focus back to the editor, and Esc while composing a set exits
+  compose mode first (the drawer's old Esc). All three filters still combine
+  inside it — text (`#search`), muscle chips (`chosenMuscles` / `worksAll`,
+  AND), saved set (`#set-pick`) — every id stable, so `renderPalette` /
+  `renderMuscleChips` were untouched. `#repertoire` set management still lives
+  inside the modal, unchanged pending **R8**. Retired: `#drawer` /
+  `#drawer-backdrop` / `.drawer*` CSS / `setDrawer` / the `#palette-toggle`
+  header button + `.ghost` CSS / the `wdl.palette-open` bootstrap. ⌘K is scoped
+  and only `preventDefault`s when it should open, and no-ops mid-IME. No core
+  change — suite **2051 passing, 1 pending**. *Touched:*
+  `apps/builder/index.html`, `builder.css`, `builder.js`.
+
+- ~~**R8 — Palette modal: set creation / the repertoire.**~~ **Done 2026-08-31**
+  (`356e84f`). The repertoire is folded into the palette modal as a first-class
+  **Sets** section, not a buried `<details>`: `<details id="repertoire">` /
+  `<summary>` retired for `<section id="repertoire"><h2>Sets …</h2>` — a
+  full-bleed bar in the same treatment as the "Movements" head, the New set /
+  Save showing / Export / Import strip, then a scrolling (`max-height`)
+  `#set-list`. Every bound id stable (`#set-new` / `#set-save` / `#set-export`
+  / `#set-import` / `#set-list` / `#set-pick` / `#set-file` /
+  `#repertoire-count`); the three now-meaningless `el('repertoire').open = true`
+  lines removed. New `shownMovements()` factored out of `renderPalette`; new
+  `addShowingToSet(name)` + a per-card `⊕` affordance that folds the movements
+  the palette is currently showing into that set — the "from the current
+  results" half of composing, alongside the checklist toggle.
+  `renderSets` / `renderSetList` / `renderSetCard` / `renameSet` /
+  `addSetToOutline` / `setsChanged` unchanged in behaviour;
+  `localStorage['wdl.sets']` store + the `{format:'wdl-movement-sets',
+  version:1, sets}` export/import envelope unchanged. No core change — suite
+  **2051 passing, 1 pending**. *Touched:* `apps/builder/index.html`,
+  `builder.css`, `builder.js`.
+
+- ~~**R9 — Text tab: trap Tab + syntax highlighting** *(= chain item 17).*~~
+  **Done 2026-08-31** (`05efea0`). `#text` is wrapped with `<pre id="text-hl">`
+  in a positioned `.text-wrap`; the textarea paints `color: transparent;
+  caret-color: var(--ink)` over the layer, which holds the same text re-tokenised
+  on every `input` — one `--kind-*` colour per line kind (R3's shared palette),
+  classified lexically by a new `textLineKind()` mirroring the Outline's
+  `data-kind` vocabulary (title / directive / comment / section / header / step /
+  rest). Every text-metric property is shared between `#text` and `#text-hl` in
+  one CSS rule with `scrollbar-gutter: stable` on both, so the caret sits on the
+  layer's glyphs under wrapping and at every scroll offset (a `scroll` listener
+  copies `scrollTop`/`scrollLeft`; verified `scrollHeight` parity with a forced
+  scrollbar). The layer repaints on the `render()` / outline-row write-back paths
+  via a new `paintText()` (each `el('text').value = text()` → `paintText()`) and
+  on user input via `paintTextHl()` in the `input` handler. A new `keydown`
+  handler on `#text` traps **Tab** (two spaces at caret), **Shift-Tab** (drop up
+  to two leading spaces), multi-line **Tab/Shift-Tab** (indent/dedent every
+  touched line, selection preserved) and **Enter** (carry leading indent, +2 when
+  the line ends `:`); every branch edits through
+  `document.execCommand('insertText')` (with a `setRangeText` fallback), so
+  native undo and the `#dirty` badge are untouched and the existing `input`
+  handler re-splits `lines`. `setEditorView` unchanged. No core change — suite
+  **2051 passing, 1 pending**. Item 17 is shipped. *Touched:*
+  `apps/builder/index.html`, `apps/builder/builder.css`, `apps/builder/builder.js`.
+
+- ~~**R10 — Directive metadata block + `@`-key type-ahead** *(= chain item 15
+  parts a/d).*~~ **Done 2026-08-31** (`5f79ea3`). **15a:** a read-only metadata
+  block at the top of the Analysis tab (`#directives` in `index.html`, painted
+  by a new `renderDirectives()` called from the top of `renderReading()`) lists
+  the `@key value` preamble off `parse().workout.directives` — `wdl` / `id` /
+  `date` / `author` and any `@x-…` extension as verbatim key/value rows, `tags`
+  split on comma into chips. Repaints on every edit path and survives a compile
+  failure below it (it is read off the parsed tree, not the run); hidden
+  entirely when the workout sets no directives — no empty block, no heading.
+  Bordered aside with the shared `--kind-directive` accent, both themes.
+  **15d:** on a zero-indent `@` outline row with the caret still in the key, the
+  movement suggestion dropdown offers the builder-held directive-key list
+  instead (`@wdl` / `@id` / `@date` / `@tags` / `@author` / `@x-`, one
+  description each) — a parallel branch in `openSuggestions()` +
+  `pickDirectiveKey()`, reusing the `.suggestions` widget and its
+  Arrow/Enter/Escape handling. Picking fills the key (`@id `, caret past the
+  space; `@x-`, caret past the dash). Guarded on raw-line indent so a `@ 40kg`
+  load fragment never triggers it; movement suggestions on step rows unchanged.
+  **15b** stays open (board-side). No core change — suite **2051 passing, 1
+  pending**. *Touched:* `apps/builder/index.html`, `builder.css`, `builder.js`.
+
+### Redesign detail write-ups (12, 15, 16)
+
+The full analysis behind the absorbed chain items, moved here with the stage
+list. **12** ↔ R2, **16** ↔ R3, **15** parts a/d ↔ R10 and part c ↔ R3.
+**15 part (b)** is the still-open board-side item — its analysis is kept here
+beside the closed parts so item 15 reads whole.
+
+- ~~**12 — The outline shows no row for a comment; they exist only in the Text
+  tab.**~~ **Done 2026-08-30 as R2** (`973d80a`) — synthesised comment rows +
+  comment-aware `spans()`/`move`/`shift` in `edit.ts`. Write-up kept for the
+  reasoning. *High priority (Chris, 2026-08-29).* `renderOutline` walks
+  `readLines(text())`, and `readLines` (`packages/core/src/lines.ts`) strips
+  every comment off its own line and folds it into the `comments: string[]` of
+  the next real line — an own-line comment is never a node in the line tree, so
+  the outline drew no row for it; `readLines` also emits a file-level trailing
+  pseudo-node (`{ text: '', line: 0, comments }`) for comments with no following
+  line. Consequences: a `//` line could not be seen, added, edited or reordered
+  in the GUI; the outline silently misrepresented a file that had them.
+  **Shipped:** synthesised comment rows (the preferred approach — keeps "the
+  outline *is* the file"), a `.node.comment` row for each `comments[]` entry
+  above its line's row and a trailing block for the pseudo-node, written back
+  through a comment-aware span model in `edit.ts` (`spans()` gives each own-line
+  comment its own single-line span; `move`/`shift` took a dedicated comment
+  path). Trailing comments on a content line stay in that row's input.
+  `DEC-005` ("the text is the document") honoured — structural edits splice
+  `lines` in place.
+
+- ~~**16 — The outline should show what kind of line each row is.**~~ **Done
+  2026-08-31 as R3** (`d8edde3`) — text kept for the reasoning. *High priority
+  (Chris, 2026-08-29), from driving the builder.* Before R3, `renderOutline`
+  marked a row `.block` (ends in `:` or has children), `.comment` (starts `//`),
+  or `.bad` (a parse error on that line) — nothing told a **title** (`#`), a
+  **directive** (`@`), a **rest** (`rest …`), or a plain **step** apart, and
+  there was no at-a-glance indicator of the kind. **Shipped:** every row gets a
+  `data-kind` and a thin coloured left border on `.line-wrap`, one `--kind-*`
+  colour per kind (title / directive / section / header / step / rest /
+  comment). Kind is driven off the parsed node (`kindOf` map from
+  `parse().workout.body`) where the parse distinguishes it, off raw text only
+  for the preamble kinds (title vs directive vs comment). `.bad` keeps its kind
+  marker under the red border, so a broken step reads as "step, and broken".
+  The `--kind-*` tokens are defined in both themes and are shared with R9's
+  Text-tab highlighter, so the two views read as one visual language.
+
+- **15 — Directives (`@id`, `@tags`, …) are first-class metadata.** *High
+  priority (Chris, 2026-08-29), from driving the builder + board.* `parse`
+  collects every `@key value` line into `workout.directives` (a
+  `Record<string,string>` — `packages/core/src/parse.ts`; values never
+  interpreted). Four parts, all app-level:
+
+  **(a) A metadata block in the builder** — ~~above or beside the `title / cues
+  / …` rows, a small block listing the directives that are set — `id`, `tags`
+  (chips), `date`, `wdl`, any `@x-…` verbatim; shown only when non-empty.~~
+  **Shipped with R10 2026-08-31** (`5f79ea3`): `#directives` at the top of the
+  Analysis tab, `renderDirectives()` off `parse().workout.directives`.
+
+  **(b) The board renders every preamble line as a body row — confirmed, still
+  open.** `draw()` (`apps/display/board.js`) builds one row per raw source line
+  (`state.lines = source.split('\n')`) and gives special handling only to blank
+  and `//` lines. So `@wdl 0.1`, `@id …`, `@date …`, `@tags …` and the
+  `# title` all render as plain rows at the top of what the athlete reads
+  mid-workout; **`@id` is not stripped either.** Fix: `draw()` skips the
+  top-of-file run of `@key` lines (match `tryDirective` or a `/^@/` test on the
+  pre-body lines) and lifts `@id` and `@tags` into the board's header chrome,
+  where the title and division picker already live. The `#` title can stay a row
+  or move to the header — Chris's call. Keep "source line for line" for the
+  workout body itself. *Scope:* `apps/display/board.js` + `board.css`. No core
+  change. **This is the one open part of item 15** — tracked as an independent
+  item in [current.md](current.md).
+
+  **(c) `@` lines are called out in the outline.** **Shipped with R3
+  2026-08-31** (`d8edde3`): a zero-indent `@` row is classed
+  `data-kind="directive"` and renders as a dim, smaller preamble block with its
+  own `--kind-directive` left marker.
+
+  **(d) Type-ahead for directive keys.** ~~When an outline row's text starts
+  with `@` at zero indentation and the caret is still in the key, offer the
+  recognised keys — `@wdl`, `@id`, `@date`, `@tags`, `@author`, and `@x-` for
+  an extension attribute; a builder-held convention, not grammar-derived.~~
+  **Shipped with R10 2026-08-31** (`5f79ea3`): a parallel branch in
+  `openSuggestions()` + `pickDirectiveKey()`, reusing the `.suggestions` widget.
+  `@tiebreak` is deliberately absent — it is a mid-line step marker (spec §9.6).
+
+---
+
 *Ordering of 5, 6, 7 and 9 against 1-4 is not settled - they are appended
 rather than placed. 5, 6 and 7 were raised by writing and sending one workout
 rather than by a plan, and 9 by closing item 3. **0f was lettered rather than

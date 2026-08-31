@@ -2,6 +2,31 @@
 
 ## Changes
 
+- **2026-08-31 — Builder layout redesign, R10 of 10: directive metadata block +
+  `@`-key type-ahead — the R1–R10 chain is complete** (`5f79ea3`). **15a:** a
+  read-only `#directives` block at the top of the Analysis tab, painted by a new
+  `renderDirectives()` off the top of `renderReading()`, lists the `@key value`
+  preamble read straight off `parse().workout.directives` — `wdl` / `id` /
+  `date` / `author` and any `@x-…` extension as verbatim key/value rows, `tags`
+  split on comma into chips. It repaints on every edit path, survives a compile
+  failure below it (read off the parsed tree, not the run), and is hidden
+  entirely when the workout sets no directives — no empty block, no heading.
+  Bordered aside with the shared `--kind-directive` accent, both themes.
+  **15d:** on a zero-indent `@` outline row with the caret still in the key, the
+  movement suggestion dropdown offers a builder-held directive-key list instead
+  (`@wdl` / `@id` / `@date` / `@tags` / `@author` / `@x-`, one description each)
+  — a parallel branch in `openSuggestions()` plus `pickDirectiveKey()`, reusing
+  the `.suggestions` widget and its Arrow/Enter/Escape handling; a pick fills
+  the key (`@id `, caret past the space; `@x-`, caret past the dash). Guarded on
+  raw-line indent so a `@ 40kg` load fragment never triggers it, and movement
+  suggestions on step rows are unchanged. **15b** (the board rendering preamble
+  lines as body rows) stays open as an independent item. With R10 the ten-stage
+  builder layout redesign (direction C, "Document + margin") is **complete** —
+  R1–R10 are grouped as one section in
+  [../tasks/completed.md](../tasks/completed.md). No core change — suite **2051
+  passing, 1 pending**. *Touched:* `apps/builder/index.html`,
+  `apps/builder/builder.css`, `apps/builder/builder.js`.
+
 - **2026-08-31 — Builder layout redesign, R9 of 10: the Text tab traps Tab and
   carries a syntax-highlight layer** (`05efea0`). `#text` is wrapped with a
   new `<pre id="text-hl">` in a positioned `.text-wrap`; the textarea paints

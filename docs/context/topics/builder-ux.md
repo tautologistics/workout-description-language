@@ -723,5 +723,25 @@ it rather than landing on the old three-column grid.
   export / import (`localStorage['wdl.sets']`, the repertoire feature from
   2026-08-28). The standalone Movements column and its `#repertoire` panel go
   away; that whole surface folds into the palette modal.
+- **Directives are surfaced as first-class metadata** — **done R10, 2026-08-31
+  (`5f79ea3`).** The Analysis tab carries a read-only `#directives` block
+  (`renderDirectives()` off `parse().workout.directives`) listing every
+  `@key value` preamble line a workout sets — `id` / `wdl` / `date` / `author`
+  and any `@x-…` extension verbatim, `@tags` as chips — set apart from the cue
+  list with the `--kind-directive` accent, hidden entirely when there are none.
+  And a zero-indent `@` outline row (caret still in the key) gets a
+  **directive-key type-ahead** (`@wdl` / `@id` / `@date` / `@tags` / `@author`
+  / `@x-`, a hand-held convention list — the grammar accepts any `@key`) reusing
+  the movement suggestion dropdown. This is item 15 parts (a) and (d); part (c)
+  — the `@` row's dim marker in the outline — shipped with R3. **Part (b), the
+  board still rendering `@` preamble lines as body rows, is the one open part**
+  of item 15 and is independent of the layout.
 - The unchosen sketches (A, B) and the current-layout baseline are kept on a
   second page of the canvas for reference.
+
+**Status: the R1–R10 chain is complete (landed 2026-08-31).** Every stage is
+struck and the whole block, with the detail write-ups for the absorbed chain
+items (12 / 15 / 16 / 17), lives as one section in
+[../tasks/completed.md](../tasks/completed.md). What remains open is genuinely
+independent of the layout — items **11**, **13**, **15b**, and the
+"post-redesign rethinks" in "## Accounts, IDs and layout" above.
