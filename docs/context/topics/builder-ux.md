@@ -597,7 +597,7 @@ repeating block, no natural ceiling). `cueRow` / the `.steps` CSS stay — the
 "show every cue" expansion still renders the full list with its cycle rails.*
 
 **~~The "show every cue" toggle on the Reads-as tab is a hide switch for
-nothing.~~ Removed 2026-08-31** (`<SHA1>`, Chris, from using it). The per-cue
+nothing.~~ Removed 2026-08-31** (`c876691`, Chris, from using it). The per-cue
 list sits at the bottom of that panel and pushes nothing out of view, so
 there was nothing to gain by hiding it. `renderReadsAs()` now always renders
 **two subsections**: the terse block-grouped reading, then — under an

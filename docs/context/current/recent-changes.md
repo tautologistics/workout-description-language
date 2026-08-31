@@ -3,7 +3,7 @@
 ## Changes
 
 - **2026-08-31 — Reads-as tab: the "show every cue" toggle is gone; both
-  subsections always show** (`<SHA1>`, Chris, from using it). The per-cue list
+  subsections always show** (`c876691`, Chris, from using it). The per-cue list
   sits at the bottom of the panel and displaces nothing, so hiding it bought
   nothing. `renderReadsAs()` now always renders the terse block-grouped reading
   and then the full uncapped per-cue list under an `EVERY CUE (N)` label. The
