@@ -9,27 +9,171 @@ task named. When one lands, move it into `completed.md` and update
 
 ## Open
 
-The deployment epic (items 18–20 — a hosted PocketBase instance, the static
-apps served from it, and Google sign-in / saved workouts / sharing in the
-builder + board) **landed 2026-08-30 and is in [completed.md](completed.md)**.
-What remains is the **builder-UX chain**, in priority order **12 → 16 → 17 →
-15 → 13 → 11** (12 first: comment rows and `edit.ts` are the load-bearing
-piece; 16 and 15(c) then have somewhere to hang line-kind styling). All are
-app-level — `apps/builder/*`, occasionally `apps/display/*` and `edit.ts` — no
-grammar or spec change.
+The deployment epic (items 18–20) **landed 2026-08-30 and is in
+[completed.md](completed.md)**. What is open now is the **builder layout
+redesign** — Chris chose direction **C (Document + margin)** off the Claude
+Design canvas (visual brief:
+[../topics/builder-ux.md](../topics/builder-ux.md) "### The layout redesign").
+It is broken into ten ordered stages **R1 → R10** below, each a landable branch
+sized for its own session. The old builder-UX chain items (12, 16, 17, 15) are
+**absorbed** into the stages that touch the same code; **11**, **13** and
+**15b** are genuinely independent of the layout and are listed separately after
+the stages. All redesign work is app-level (`apps/builder/*`, `apps/display/*`,
+and `packages/core/src/edit.ts` for R2) — no grammar or spec change.
 
-**The builder layout is being redesigned (Chris chose a direction 2026-08-30).**
-Direction **C — Document + margin** (centred workout document; a tabbed right
-column — Analysis default, compressed *Reads as* second; goals rule-management
-UI carried forward; the Movements column folds into a ⌘K / add-row palette modal
-that keeps text + muscle + set filters and set creation). Working brief in
-[../topics/builder-ux.md](../topics/builder-ux.md) "### The layout redesign".
-The chain items below (12 / 16 / 17 / 15 / 13 / 11) **fold into that work** — they
-land on the new layout, not the old three-column grid, so sequence them with the
-redesign rather than against `main` as it stands. Also open, same file: the
-design-critique low-hanging-fruit entries and the larger rethinks
-(`@id`/namespacing, board **Edit** round-trip, "open on the board" for saved
-workouts).
+### The builder layout redesign — stages R1–R10
+
+**How each stage lands** (stated once): fresh branch off `origin/main`
+(`git fetch origin`, `git checkout -b <name> origin/main`; `main` is checked out
+elsewhere so `git checkout main` will not work). Push `git push origin
+<branch>:main` and confirm the SHA moved with `git ls-remote origin main`.
+Commit message body ends `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`.
+When a stage lands, **strike it here with `Done <date>` and one line on what
+shipped** (do not move it yet — the R-series closes together, like the
+deployment epic did); a stage that maps to an old chain item also strikes that
+item's detailed entry below. When R10 lands, move R1–R10 to
+[completed.md](completed.md) and update
+[../topics/what-exists.md](../topics/what-exists.md)'s **Apps** row +
+[../current/recent-changes.md](../current/recent-changes.md). Verify every stage
+by **driving the builder** in both themes with a multi-section workout, and run
+`npm --prefix packages/core test` (only R2 can move it).
+
+- **R1 — Layout shell.** The new DOM + CSS with **no behaviour change** — every
+  existing feature re-housed, nothing removed. Header: WDL mark · document title
+  · `⌘K movements` · signed-in identity. A scrolling `.stage` holds a centred
+  `.sheet` = **document column** (the Outline / Text editor, unchanged
+  functionally) | **right column** = a sticky summary band (`title / cues /
+  duration / cap / score`) + a `[Analysis][Reads as]` tab strip. `#summary` /
+  `#diagnostics` / `#bodymap` / the goals block move under **Analysis**; add an
+  empty **Reads as** tabpanel. `render()` and every `renderX()` paint into the
+  new containers. **Movements stays transitionally** as a left drawer behind a
+  `☰` toggle — reuse the existing `#palette` / `#search` / `#muscle-filter` /
+  `#repertoire` DOM inside an overlay `<aside>`, `localStorage['wdl.palette-open']`
+  — and is retired by R7. Replaces the three-column grid and the 1180 / 900
+  breakpoints. *Done:* Outline/Text switch, goal checking, body map, palette
+  drawer, reload persistence all intact. *Touches:* `apps/builder/index.html`,
+  `builder.css` (wholesale), `builder.js` (container ids, `setEditorView`
+  neighbours, the `☰` handler).
+
+- **R2 — Comment rows first-class in the Outline + `edit.ts`** *(= chain item 12
+  below — its full write-up and the two approaches stand).* Before R3 so the
+  comment line-kind has a row to style. Synthesised comment rows in
+  `renderOutline` (one per `comments[]` entry, above its line; a trailing block
+  for the file-level pseudo-node), written back through a **new comment-aware
+  splice in `packages/core/src/edit.ts`** — the real work: `spans()` /
+  `replaceLogical` / `insertAfter` / `remove` must address a comment line.
+  `+ comment` joins the add-row buttons. DEC-005 (splice in place, never
+  regenerate from the AST) is the constraint. *Touches:* `apps/builder/builder.js`,
+  `packages/core/src/edit.ts` (+ its tests). *Verify:* item 12's checklist.
+
+- **R3 — Outline as a document + line-kind rails** *(= chain item 16 below,
+  folding in item 15c).* Restyle the outline to the document feel — generous
+  line-height, `#` title as a heading, `@`-directives as a dim preamble block —
+  and **raise the nesting-rail contrast** (the ~1.05:1 rails from the critique).
+  Then the per-kind marker: a coloured left border / badge per row kind — title,
+  directive, section header, step, rest, comment, and `.bad` reading as "step,
+  and broken". Drive off the parsed node where possible, raw text for the
+  preamble kinds. **Define the shared `--kind-*` colour tokens here** — R9's
+  highlighter consumes them. *Depends on R1 (+ R2 for the comment kind).*
+  *Touches:* `apps/builder/builder.js` (`renderOutline` classing), `builder.css`.
+
+- **R4 — Reads-as tab: the compressed run view.** Replace `renderReading`'s
+  24-cue enumeration. In the **Reads as** tab: the run grouped by block —
+  `warmup — 3 rounds: Air Squat ×10 · Push-Up ×10 · 200m Run`, `30-20-10 for
+  time: …`, `AMRAP 12:00: …`, rests inline — read off `laid.cues` /
+  `laid.cycles` / the workout tree, **not** cue-by-cue; plus a **"show every cue
+  (N)"** toggle to the current fully-expanded list. The `title / cues /
+  duration / cap / score` `<dl>` stays in the summary band. *Depends on R1.*
+  *Touches:* `apps/builder/builder.js` (a new `renderReadsAs`; `renderReading`
+  keeps the `<dl>` + diagnostics), `builder.css`.
+
+- **R5 — Goals rule-management UI in the Analysis tab.** Move `#goal-pick` /
+  `#goal-edit` / `#goal-open` / `#goal-save` / `#goal-download` / `#goal-drop` /
+  `#goal-text` and `#goal-errors` / `#goal-notes` / `#findings` into the
+  Analysis tab's Goals block and restyle. The **logic is unchanged** (all in
+  `builder.js` already) — this is a DOM move + CSS. The set picker (examples /
+  yours / unsaved), Edit rules, Open…, Save as…, Download `.wdlg`, Delete must
+  **all** be present — the first C sketch dropped them to findings only.
+  *Depends on R1.* Low risk. *Touches:* `apps/builder/index.html`, `builder.css`,
+  minor `builder.js`.
+
+- **R6 — Analysis tab: per-block muscle "adds".** Below the body map, one short
+  note per top-level section — *"warmup adds: quads, glutes, chest (light)"* —
+  from `exposures()` scoped to that block's cue range (a small new derivation;
+  filter the exposure list by cue index, or `muscleLoad` a sub-timeline). Shown
+  only when the workout has named sections. *Depends on R1.* No core change.
+  *Touches:* `apps/builder/builder.js`, `builder.css`.
+
+- **R7 — Movement palette modal: filters + insert.** The modal that replaces the
+  Movements column. Opens on **⌘K** and on **+ movement / Enter on a blank
+  outline row**; inserts `lineFor(m)` at the caret / focused row. Carries all
+  three current filters at once — **text** (`#search`), **muscle** chips
+  (`chosenMuscles` / `worksAll`, AND-combined), **saved-set**
+  (`sets` / `set-pick`). Absorbs `renderPalette` / `renderMuscleChips` and the
+  palette half of the bootstrap. **Retires the R1 transitional drawer.**
+  *Depends on R1.* *Touches:* `apps/builder/index.html` (a `<dialog>` / overlay),
+  `builder.css`, `builder.js`. *Verify:* ⌘K and add-row both open it; each
+  filter narrows; insert lands at the caret; Esc closes.
+
+- **R8 — Palette modal: set creation / the repertoire.** Fold `#repertoire` into
+  the modal — New set, compose (from the current results, or the checklist
+  toggle), rename, reorder, remove, export / import (`localStorage['wdl.sets']`
+  stays the store). `renderSets` / `renderSetList` / `renderSetCard` /
+  `renameSet` / `addSetToOutline` / `setsChanged` move in; the standalone
+  `#repertoire` / `#set-*` DOM is removed. *Depends on R7.* *Touches:*
+  `apps/builder/builder.js`, `builder.css`, `index.html`. *Verify:* create /
+  compose / rename / reorder / remove / add-set-to-outline / export / import.
+
+- **R9 — Text tab: trap Tab + syntax highlighting** *(= chain item 17 below —
+  its full write-up stands).* Needs R1 (the tab lives in the new editor cell)
+  and R3's `--kind-*` tokens. (a) Tab / Shift-Tab / Enter indent behaviour on
+  `#text`; (b) a highlight layer behind the transparent textarea, one colour per
+  line kind from the shared palette. *Touches:* `apps/builder/index.html`,
+  `builder.css`, `builder.js`.
+
+- **R10 — Directive metadata block + `@`-key type-ahead** *(= chain item 15
+  parts a/d below).* In the Analysis tab (or the summary band) a small metadata
+  block listing set directives — `id`, `tags` (chips), `date`, `wdl`, any
+  `@x-…` — off `workout.directives`, shown only when non-empty (15a). Plus
+  type-ahead for directive keys on a zero-indent `@` row (15d), reusing the
+  suggestion-dropdown machinery. **15b** (the *board* rendering preamble lines
+  as body rows) is board-side — see "Independent" below. **15c** lands with R3.
+  *Depends on R1.* *Touches:* `apps/builder/builder.js`, `builder.css`,
+  `index.html`.
+
+### Independent of the redesign — sequence separately
+
+- **11 — A bare-word block header is an inert section, not an error.** Grammar +
+  `packages/core`, **not** builder/layout: `spec/grammar-0.1.ohm`,
+  `block-semantics.ts`, `parse.ts`, spec, goldens. Needs Chris decisions
+  (diagnostic-or-silent, canonical case, where the boundary is). Full write-up
+  below. Can land any time.
+
+- **13 — Laterality in the builder's `»` panel.** Builder-only, `applyModifier`;
+  the `»` panel survives into the new outline unchanged, so this is orthogonal
+  to R1–R10. **13c** (picking a laterality mode appends instead of replacing,
+  and doubles on re-pick) ships alone, no decision needed. **13a / 13b** need
+  Chris (a curation gap; the parens-vs-bare spelling, which is a
+  reopen-a-settled-decision). Full write-up below.
+
+- **15b — The board renders every preamble line as a body row.**
+  `apps/display/board.js` + `board.css` — board-side, nothing to do with the
+  builder layout. See item 15's part (b) below.
+
+- **Post-redesign rethinks** (not scheduled; after R10 or in parallel) —
+  `@id` ↔ record-id correlation, account **namespacing** (a username as a
+  workout-id prefix; touches the `workouts` collection schema), the board's
+  **Edit** button round-tripping into the builder, an **"open on the board"**
+  action for saved workouts. In [../topics/builder-ux.md](../topics/builder-ux.md)
+  "Accounts, IDs and layout".
+
+---
+
+### Detailed write-ups (referenced by the stages above)
+
+The four entries below predate the redesign and carry the full analysis each
+stage needs — R2 ↔ 12, R3 ↔ 16, R9 ↔ 17, R10 ↔ 15(a/d), with 15(b) independent
+and 15(c) folded into R3. **11** and **13** below are the independent items.
 
 - **15 — Directives (`@id`, `@tags`, …) are first-class metadata: surface them,
   distinguish them, and complete them.** *High priority (Chris, 2026-08-29),
