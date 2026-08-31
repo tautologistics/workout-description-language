@@ -17,7 +17,73 @@ each grouped as one section. The redesign's absorbed chain items (12 ↔ R2,
 moved there too.
 
 What is left open is genuinely independent of the layout — sequence it
-separately.
+separately. **Item 21 below is the current top priority** (Chris, 2026-08-31).
+
+### 21 — One clean command surface for the dev lifecycle *(top priority)*
+
+*Raised by Chris 2026-08-31.* The common development-lifecycle actions work but
+are **not easy to reach** — they are spread across `npm --prefix packages/core
+test`, a dozen `node scripts/*.mjs` invocations, a deploy that needs an env var
+(`WDL_DEPLOY_SSH=… node scripts/deploy-web.mjs`), the golden regen
+(`node packages/core/test/golden/generate.ts`), the canonical rebuild
+(`node scripts/build-canonical.ts`), `build-web.mjs`, `serve.mjs`, and so on.
+They are documented in [../topics/running-it.md](../topics/running-it.md) but
+there is no single memorable entrypoint. Chris wants **`make test` / `make
+deploy` / `make serve`-style single-command access** to every routine action —
+one command, one word, does the thing.
+
+**The job.** Give the repo a single task surface covering at least: run the
+test suite; build the web bundle; serve locally; canonicalise / rebuild the
+registry pipeline (`build-canonical.ts`, the whole thing — never a step alone,
+per [../topics/lessons-learned.md](../topics/lessons-learned.md)); regenerate
+goldens and show the diff; lint/format via the `wdl` CLI where that applies;
+deploy the static apps; and a `help`/default target that lists them. Each
+target is a thin wrapper over the command that already exists — this is
+**discoverability and ergonomics, not new build logic**. Keep the underlying
+`node scripts/*` runnable directly; the task surface calls them, it does not
+replace them.
+
+**The decision for Chris — where it lives:**
+- **A root `Makefile`** (`make test`, `make deploy`, …). Zero dependencies —
+  `make` is already present on macOS/Linux — and it fits a repo that already
+  leans on plain `node scripts/*`. No npm ceremony reintroduced. Downside: tab
+  indentation, and `.PHONY` upkeep.
+- **A root `package.json` with a `scripts` block** (`npm run test`, …). More
+  idiomatic for Node devs and what most contributors expect. **But** the repo
+  is deliberately **install-free** — no `node_modules`, no lockfile, `ohm-js`
+  vendored ([../topics/settled-decisions.md](../topics/settled-decisions.md),
+  and the "Nothing to install" note in `running-it.md`). A root `package.json`
+  is fine as a *script registry only* (npm runs scripts without installing
+  anything), but it invites a future `npm install` and a lockfile; guard
+  against that explicitly (a comment, an empty/served `dependencies`, or a
+  `preinstall` guard).
+- **Or both** — a `Makefile` as the real surface and a tiny `package.json`
+  `scripts` block that just shells out to `make` for muscle-memory parity.
+- Recommendation: **Makefile as the single source of truth** — it matches the
+  install-free stance with no risk of dependency creep, and `make <tab>`
+  completion plus a `help` default covers discoverability. Add the `package.json`
+  shim only if Chris wants `npm run` to work too.
+
+**Watch for.** The install-free invariant (do not add a dependency or a
+lockfile). The registry pipeline must stay one atomic target — no per-step
+targets that could be run alone. `deploy` needs `WDL_DEPLOY_SSH` (or the
+`--ssh` flag); the target should surface that requirement clearly (fail with a
+helpful message when unset), and Chris's box has the `dreamhost.ae.wex` ssh
+alias. Verify from a **clean checkout in another worktree** that every target
+runs from the repo root with nothing installed.
+
+**Land it / docs:** fresh branch off `origin/main` (`git fetch origin`,
+`git checkout -b <name> origin/main`; push `git push origin <branch>:main`,
+confirm via `git ls-remote origin main`). Commit body ends
+`Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`. When it lands: move
+this item to [completed.md](completed.md); **rewrite the command list at the
+top of [../topics/running-it.md](../topics/running-it.md)** to lead with the
+new `make …` targets (keeping the raw `node scripts/*` forms noted as the
+underlying commands); add a dated entry to
+[../current/recent-changes.md](../current/recent-changes.md); note the task
+surface in [../topics/what-exists.md](../topics/what-exists.md) if it warrants a
+line; record the Makefile-vs-package.json choice in
+[../topics/settled-decisions.md](../topics/settled-decisions.md).
 
 ### Independent
 
