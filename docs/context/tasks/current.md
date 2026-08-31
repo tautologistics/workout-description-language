@@ -38,22 +38,28 @@ item's detailed entry below. When R10 lands, move R1–R10 to
 by **driving the builder** in both themes with a multi-section workout, and run
 `npm --prefix packages/core test` (only R2 can move it).
 
-- **R1 — Layout shell.** The new DOM + CSS with **no behaviour change** — every
-  existing feature re-housed, nothing removed. Header: WDL mark · document title
-  · `⌘K movements` · signed-in identity. A scrolling `.stage` holds a centred
-  `.sheet` = **document column** (the Outline / Text editor, unchanged
-  functionally) | **right column** = a sticky summary band (`title / cues /
-  duration / cap / score`) + a `[Analysis][Reads as]` tab strip. `#summary` /
-  `#diagnostics` / `#bodymap` / the goals block move under **Analysis**; add an
-  empty **Reads as** tabpanel. `render()` and every `renderX()` paint into the
-  new containers. **Movements stays transitionally** as a left drawer behind a
-  `☰` toggle — reuse the existing `#palette` / `#search` / `#muscle-filter` /
-  `#repertoire` DOM inside an overlay `<aside>`, `localStorage['wdl.palette-open']`
-  — and is retired by R7. Replaces the three-column grid and the 1180 / 900
-  breakpoints. *Done:* Outline/Text switch, goal checking, body map, palette
-  drawer, reload persistence all intact. *Touches:* `apps/builder/index.html`,
-  `builder.css` (wholesale), `builder.js` (container ids, `setEditorView`
-  neighbours, the `☰` handler).
+- ~~**R1 — Layout shell.**~~ **Done 2026-08-30** (`758dff1`). The direction-C
+  frame landed with no behaviour change — every feature re-housed, verified by
+  driving the builder light + dark at 1440/1280/1000/700px. Header: WDL mark ·
+  `☰ Movements` toggle · centred document title (from `parse(text()).workout.title`,
+  repainted in `renderReading`) · **Open…/Download/board grouped as a plain
+  bordered button cluster** (`.file-cluster` — three items didn't warrant a
+  popover) · item-20 identity + My workouts. `Canonicalise` moved onto the
+  editor's tab strip. `.stage` (scrolls) → centred `.sheet` grid: `.doc-col`
+  (Outline/Text tabs, unchanged) | `.right-col` = a **sticky `.band`** holding
+  the `title / cues / duration / cap / score` `<dl>` (`renderReading` paints
+  the `<dl>` into `#summary` and the cue list into a new `#steps` in the
+  Analysis panel) + a `[Analysis][Reads as]` strip. **Analysis** (`#view-analysis`,
+  default, `setAnalysisTab` ↔ `localStorage['wdl.analysis-tab']`) carries
+  `#steps` + `#diagnostics` + body map + the goals block and has its own
+  `overflow:auto` + bounded height — the read-pane scroll 🔴 is fixed.
+  **Reads as** is an empty placeholder for R4. Movements is a transitional
+  overlay `.drawer` + backdrop behind `☰` (`localStorage['wdl.palette-open']`,
+  default closed), all its DOM unchanged inside. Replaced the three-column grid
+  and the 1180/900 breakpoints (now 1100px narrowing, 820px stack). *Touched:*
+  `apps/builder/index.html`, `builder.css` (wholesale), `builder.js` (small:
+  doc-title, `#steps` split, `setAnalysisTab`, drawer toggle). No `packages/core`
+  change — suite 2038 passing, 1 pending, untouched.
 
 - **R2 — Comment rows first-class in the Outline + `edit.ts`** *(= chain item 12
   below — its full write-up and the two approaches stand).* Before R3 so the

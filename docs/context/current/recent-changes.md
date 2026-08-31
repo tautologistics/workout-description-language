@@ -2,6 +2,33 @@
 
 ## Changes
 
+- **2026-08-30 — Builder layout redesign, R1 of 10: the layout shell landed.**
+  Direction **C (Document + margin)** — a fixed header (WDL mark · `☰ Movements`
+  toggle · centred document title read off `parse(text()).workout.title` ·
+  Open…/Download/board file cluster · item-20 identity + My workouts), a
+  scrolling `.stage` holding a centred `.sheet` grid: the editor (Outline/Text
+  tabs, unchanged) beside a right column = a **sticky summary band** (the
+  `title / cues / duration / cap / score` `<dl>`, split out of `renderReading`)
+  + an **[Analysis][Reads as]** tab strip. Analysis (default) carries the cue
+  `#steps` list, `#diagnostics`, the body map, and the whole goals block, and
+  **has its own `overflow:auto` + bounded height** — a long analysis scrolls
+  inside it instead of pushing the page, the read-pane scroll bug the
+  design-critique flagged 🔴. Reads-as is an empty placeholder for R4.
+  `Canonicalise` moved from the header onto the editor's tab strip (it acts on
+  the buffer). Movements is now a transitional overlay **`.drawer`** behind the
+  `☰` toggle (`localStorage['wdl.palette-open']`, default closed) with all its
+  `#palette` / `#search` / `#set-pick` / `#repertoire` / `#muscle-filter` DOM
+  unchanged inside it — R7 retires it. The three-column `main` grid and the
+  1180/900 breakpoints are replaced by the sheet layout (1100px narrowing,
+  820px single-column stack). **No behaviour change** — every feature
+  re-housed, verified by driving the builder light + dark at 1440/1280/1000/
+  700px. `setAnalysisTab` persists to `localStorage['wdl.analysis-tab']`
+  (default `analysis`). No `packages/core` change — suite still 2038 passing,
+  1 pending. *Touched: `apps/builder/index.html`, `builder.css` (wholesale),
+  `builder.js` (doc-title in `renderReading`, `#steps` split out of the
+  summary, `setAnalysisTab`, the drawer toggle).* The R-series (R1–R10) closes
+  together — see [../tasks/current.md](../tasks/current.md).
+
 - **2026-08-30 — Accounts, saved workouts and sharing in the apps (queue item
   20 — live).** Final item of the deployment epic
   ([DEC-016](../topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage));
