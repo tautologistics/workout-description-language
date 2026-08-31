@@ -1628,6 +1628,34 @@ beside the closed parts so item 15 reads whole.
 
 ---
 
+**21. ~~One clean command surface for the dev lifecycle.~~ DONE 2026-08-31**
+([DEC-017](../topics/settled-decisions.md#dec-017-a-root-makefile-is-the-task-surface-not-a-root-packagejson)).
+*Raised by Chris the same day.* The routine actions worked but were scattered
+across `npm --prefix packages/core test`, a dozen `node scripts/*`, a deploy
+needing an env var, the golden regen and the canonical rebuild — documented in
+[../topics/running-it.md](../topics/running-it.md) but with no memorable
+entrypoint. **Shipped:** a root **`Makefile`**. `make` (or `make help`,
+auto-listed from `##` comments) shows the targets — `test`, `build`, `serve`
+(`PORT` overridable, depends on `build`), `registry` (the whole
+`build-canonical.ts` pipeline — one atomic target, never a step alone),
+`goldens` (regenerate + `git diff --stat`), `aliases`, `corpora`, `deploy` /
+`deploy-dry`, `clean`, and `install` (prints "nothing to install"). Every
+target is a thin wrapper over the command that already existed; the raw `node
+scripts/*` forms still run directly, and the situational ones that take
+arguments (`find-duplicates`, `import-movement-curation`, the `wdl` CLI) are
+left out of it by design. **A root `package.json` `scripts` block was the
+alternative and was rejected** — the repo is install-free on purpose
+([DEC-003](../topics/settled-decisions.md#dec-003-src-is-portable-and-is-handed-its-data)
+/ [DEC-008](../topics/settled-decisions.md#dec-008-ohm-js-is-vendored-imported-by-relative-path):
+no `node_modules`, no lockfile, `ohm-js` vendored) and a root `package.json`
+invites `npm install` + a `package-lock.json`; `make` adds nothing to install.
+Verified every target from the worktree root with nothing installed. *Touched:*
+new `Makefile`; `docs/context/topics/running-it.md` (command list now leads
+with the `make` targets), `settled-decisions.md` (DEC-017), `decisions.md`.
+No code change.
+
+---
+
 *Ordering of 5, 6, 7 and 9 against 1-4 is not settled - they are appended
 rather than placed. 5, 6 and 7 were raised by writing and sending one workout
 rather than by a plan, and 9 by closing item 3. **0f was lettered rather than

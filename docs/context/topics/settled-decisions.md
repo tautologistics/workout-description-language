@@ -1084,6 +1084,36 @@ marks the ones worth a top-level pointer.
     fetches the record, and runs it; a `#<source>` hash is unchanged and wins
     when both are present.
 
+### DEC-017 A root Makefile is the task surface, not a root `package.json`
+*Status: active. Settled 2026-08-31, closing queue item 21.*
+
+- **The routine dev-lifecycle actions get one memorable command each through a
+  root `Makefile`** — `make test` / `make build` / `make serve` / `make
+  registry` / `make goldens` / `make deploy` / … — each a thin wrapper over the
+  `node scripts/*` (or `npm --prefix packages/core test`) command that already
+  exists. The Makefile is discoverability and muscle memory, not new build
+  logic; every underlying command still runs directly, and the situational ones
+  that take arguments (`find-duplicates`, `import-movement-curation`, the `wdl`
+  CLI) are deliberately left out of it. `make` with no target prints the list.
+
+- **Why a Makefile and not a root `package.json` `scripts` block.** `make` is
+  already present on every dev machine and adds nothing to install. A root
+  `package.json` is the more idiomatic Node choice and was the obvious
+  alternative, but this repo is **install-free on purpose**
+  ([DEC-003](#dec-003-src-is-portable-and-is-handed-its-data),
+  [DEC-008](#dec-008-ohm-js-is-vendored-imported-by-relative-path): no
+  `node_modules`, no lockfile, `ohm-js` vendored) — a root `package.json`
+  invites a future `npm install` and a `package-lock.json`, which is exactly
+  the state the vendoring work removed. The Makefile has no such gravity. A
+  `package.json` shim that only shells out to `make` was considered and skipped
+  as unearned until someone actually wants `npm run`.
+
+- **Invariant the targets protect:** no target may add a dependency or a
+  package-manager step; the registry pipeline stays one atomic `registry`
+  target (never a per-step target — a step run alone is erased by the next
+  rebuild, see [lessons-learned.md](lessons-learned.md)); `deploy` surfaces the
+  `WDL_DEPLOY_SSH` requirement rather than failing opaquely.
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).

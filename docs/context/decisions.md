@@ -123,3 +123,15 @@ database behind it. No bundler and no npm runtime dep is added. `packages/core`,
 the grammar and the spec are untouched -- a stored workout is its `.wdl` source
 text in a column.
 -> [topics/settled-decisions.md](topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage)
+
+## DEC-017 — A root Makefile is the task surface, not a root `package.json`
+Status: active. Settled 2026-08-31, closing queue item 21. The routine
+dev-lifecycle actions (test, build, serve, registry rebuild, golden regen,
+deploy, …) get one `make <target>` each — thin wrappers over the existing
+`node scripts/*` commands, with `make` alone printing the list. A root
+`package.json` `scripts` block was the idiomatic alternative but rejected: this
+repo is install-free on purpose (DEC-003 / DEC-008 — no `node_modules`, no
+lockfile, `ohm-js` vendored) and a root `package.json` invites `npm install`
+and a `package-lock.json`. `make` adds nothing to install. Targets may not add
+a dependency; the registry pipeline stays one atomic target.
+-> [topics/settled-decisions.md](topics/settled-decisions.md#dec-017-a-root-makefile-is-the-task-surface-not-a-root-packagejson)

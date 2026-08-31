@@ -2,6 +2,23 @@
 
 ## Changes
 
+- **2026-08-31 — A root `Makefile` is now the single task surface for the dev
+  lifecycle** (queue item 21, [DEC-017](../topics/settled-decisions.md#dec-017-a-root-makefile-is-the-task-surface-not-a-root-packagejson)).
+  `make` (or `make help`) lists the targets: `test`, `build`, `serve`
+  (`PORT=NNNN` overridable), `registry` (the whole `build-canonical.ts`
+  pipeline), `goldens` (regenerate + `git diff --stat`), `aliases`, `corpora`,
+  `deploy` / `deploy-dry`, `clean`, and `install` (which just says "nothing to
+  install"). Every target is a thin wrapper over the `node scripts/*` /
+  `npm --prefix` command that already existed — discoverability, not new build
+  logic — and those raw forms still run directly. A root `package.json`
+  `scripts` block was the alternative and was rejected: the repo is
+  install-free on purpose (no `node_modules`, no lockfile, `ohm-js` vendored)
+  and a `package.json` invites `npm install` + a lockfile; `make` adds nothing.
+  The command list at the top of
+  [../topics/running-it.md](../topics/running-it.md) now leads with the `make`
+  targets. *Touched:* new `Makefile`; `docs/context/topics/running-it.md`,
+  `settled-decisions.md`, `decisions.md`. No code change.
+
 - **2026-08-31 — Builder layout redesign, R10 of 10: directive metadata block +
   `@`-key type-ahead — the R1–R10 chain is complete** (`5f79ea3`). **15a:** a
   read-only `#directives` block at the top of the Analysis tab, painted by a new

@@ -1,15 +1,31 @@
 # Running it
 
+The routine actions have a **root `Makefile`** as their single surface — run
+`make` (or `make help`) for the list. It is thin wrappers over the `node
+scripts/*` commands below, which still run directly; the Makefile is
+discoverability, not new build logic. Choice recorded in
+[settled-decisions.md](settled-decisions.md); a Makefile (not a root
+`package.json`) because the repo is install-free and a `package.json` invites a
+lockfile.
+
 ```bash
-npm --prefix packages/core test     # 2020 tests, 1 pending, ~10s
-node scripts/build-canonical.ts     # rebuild registry/ from its sources
-node scripts/describe-corpora.mjs   # report whether SOURCES.json/.md still count the corpora right
-node scripts/check-aliases.mjs      # every name two records answer to, and who wins
-node scripts/find-duplicates.mjs > pairs.json  # run-on-demand: likely cross-source dup pairs to triage
-node scripts/import-movement-curation.mjs <curated.csv> [--apply]  # land curated modifier data
-node scripts/build-web.mjs          # emit the core as browser modules
-node scripts/serve.mjs 8081         # then open http://localhost:8081/
+make test        # npm --prefix packages/core test — ~2050 tests, 1 pending, ~10s
+make build       # node scripts/build-web.mjs — emit the core as browser modules
+make serve       # build, then node scripts/serve.mjs 8081  (override PORT=NNNN)
+make registry    # node scripts/build-canonical.ts — rebuild registry/ from its sources
+make goldens     # regenerate the golden files, then show what moved
+make aliases     # node scripts/check-aliases.mjs — names two records answer to, and who wins
+make corpora     # node scripts/describe-corpora.mjs — are SOURCES.json/.md still right
+make deploy      # node scripts/deploy-web.mjs   (needs WDL_DEPLOY_SSH — see "## Hosting")
+make deploy-dry  # same, rsync with -n
+make clean       # rm -rf build pairs.json
+make install     # prints "nothing to install" — the repo is install-free, on purpose
 ```
+
+Not wrapped (situational, take arguments): `node scripts/find-duplicates.mjs >
+pairs.json` (cross-source dup pairs to triage), `node
+scripts/import-movement-curation.mjs <curated.csv> [--apply]` (land curated
+modifier data), and the `wdl` CLI itself (below).
 
 `build-canonical.ts` is the whole registry pipeline and the only way to run any
 step of it — `mark-core.mjs` last, because it scores from what the earlier steps
@@ -96,8 +112,10 @@ to `/apps/builder/`. Item 20 adds the frontend that calls `/api/…`.
 Deploy the static apps (needs SSH to the VPS):
 
 ```bash
-WDL_DEPLOY_SSH=androidempathy_wex@wex.androidempathy.com node scripts/deploy-web.mjs
+WDL_DEPLOY_SSH=androidempathy_wex@wex.androidempathy.com make deploy
 # (Chris's box: `WDL_DEPLOY_SSH=dreamhost.ae.wex` — his ~/.ssh/config alias)
+# `make deploy-dry` for a no-write rsync -n; the raw form is
+# `node scripts/deploy-web.mjs [--ssh …] [--dry-run] [--stage-only] [--skip-tests]`
 ```
 
 `scripts/deploy-web.mjs` runs the core suite (bails on red), runs
