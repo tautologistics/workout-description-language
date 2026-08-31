@@ -283,6 +283,23 @@ const movementEntry = (title) => {
 };
 
 /**
+ * How many characters at the start of `fragment` the movement name occupies —
+ * the seam a `»`-panel modifier splices in right after. When the typed name is
+ * `entryTitle` verbatim that is `entryTitle.length`; when it is a plural or
+ * other inflected form of it (`Dumbbell Snatches` for entry `Dumbbell Snatch`,
+ * `Deadlift's` …) the match extends through the trailing letters/apostrophe of
+ * that same word, so the token lands after the whole typed word rather than
+ * mid-word (`Dumbbell Snatch (each side) es`). A name that does not start with
+ * the title at all (an alias like `DB Snatch`) has no reliable seam, so the
+ * caller's fallback of the whole fragment stands.
+ */
+const titleMatchLen = (fragment, entryTitle) => {
+  if (!fragment.toLowerCase().startsWith(entryTitle.toLowerCase())) return fragment.length;
+  const [tail] = fragment.slice(entryTitle.length).match(/^[a-z']*/i);
+  return entryTitle.length + tail.length;
+};
+
+/**
  * What one curated movement supports, as insertable defaults — derived from
  * the registry so this can never lag the grammar the way a hand-maintained
  * field per property would (see the file header). Canonical text per
@@ -734,9 +751,7 @@ function renderOutline() {
             // Laterality: the first inline word after the movement name (spec §4).
             const fragment = movementFragment(base);
             const prefixLen = base.length - fragment.length;
-            const matchLen = fragment.toLowerCase().startsWith(entryTitle.toLowerCase())
-              ? entryTitle.length : fragment.length;
-            const insertAt = prefixLen + matchLen;
+            const insertAt = prefixLen + titleMatchLen(fragment, entryTitle);
             const head = base.slice(0, insertAt);
             const rest = base.slice(insertAt);
             const lead = head && !head.endsWith(' ') ? ' ' : '';
@@ -748,9 +763,7 @@ function renderOutline() {
           // position === 'load': after any laterality, before comma modifiers.
           const fragment = movementFragment(value);
           const prefixLen = value.length - fragment.length;
-          const matchLen = fragment.toLowerCase().startsWith(entryTitle.toLowerCase())
-            ? entryTitle.length : fragment.length;
-          const titleEnd = prefixLen + matchLen;
+          const titleEnd = prefixLen + titleMatchLen(fragment, entryTitle);
           const commaIdx = value.slice(titleEnd).indexOf(',');
           const insertAt = commaIdx === -1 ? value.length : titleEnd + commaIdx;
           const head = value.slice(0, insertAt);
