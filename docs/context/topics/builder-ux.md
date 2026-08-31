@@ -680,3 +680,45 @@ below are the larger rethinks.
   rethought. Chris's framing: "all that stuff needs to be rethought" — a
   layout pass, not a patch. He is separately exploring whether **Claude Design**
   can be handed the current layout to iterate a better one.
+
+### The layout redesign — direction chosen 2026-08-30
+
+Explored on a Claude Design canvas: three directions (A Focus + Inspector, B
+Panels on demand, C Document + margin) beside the current layout. **Chris chose
+**C — Document + margin**, with the refinements below.** This is the working
+brief for the layout work; the chain items 12 / 16 / 17 / 15 / 13 / 11 fold into
+it rather than landing on the old three-column grid.
+
+- **The workout is a centred document**, not one column of an IDE. The Outline
+  is the primary surface — kind-coloured left rails prominent (items 12 / 16 /
+  15c), generous line-height, `#` title as a heading, `@`-directives as a dim
+  metadata block at the top. The Text tab stays as the raw view.
+- **The right side is a TABBED column**, sticky summary band (cues / cap /
+  score) across both tabs:
+  - **Analysis (default tab).** The front/back **vector body map**
+    (`apps/shared/body-map.js`) with its mode picker (Aggregate / Heat — how
+    often / Heat — reps) and click-to-enlarge; per-block "adds" notes (what each
+    section contributes, drawn from `exposures()`); then the **Goals** block.
+  - **Reads as (second tab, not default).** The run, **compressed** — rounds
+    shown as `×N` / `30-20-10 …` rather than every cue enumerated — with a
+    "show every cue (N)" link to the current fully-expanded list for anyone who
+    wants it. `renderReading`'s 24-cue dump becomes this compressed form plus
+    the opt-in expansion.
+- **Goals gets real rule-management UI** — this is a gap in the *current*
+  builder's C sketch AND worth stating plainly: there must be a goal-set
+  **picker** (none / examples / yours / unsaved), **Edit rules** (the editable
+  `.wdlg` textarea), **Open…**, **Save as…**, **Download .wdlg**, **Delete** —
+  the builder already has all of this (`#goal-edit` / `#goal-open` /
+  `#goal-save` / `#goal-download` / `#goal-pick` / `#goal-text`); the redesign
+  must carry it forward, not drop it to just findings.
+- **The movement palette is a modal**, opened by **⌘K** *and* contextually when
+  you add / press Enter on a blank editor row — it inserts at the caret. It
+  **must keep all three of today's filters**: text search, **muscle** filter
+  (the chips, AND-combined — `chosenMuscles` / `worksAll`), and **saved-set**
+  filter (`set-pick`). And it **must keep set creation** — New set, compose
+  (from the current results, or the checklist toggle), rename, reorder, remove,
+  export / import (`localStorage['wdl.sets']`, the repertoire feature from
+  2026-08-28). The standalone Movements column and its `#repertoire` panel go
+  away; that whole surface folds into the palette modal.
+- The unchosen sketches (A, B) and the current-layout baseline are kept on a
+  second page of the canvas for reference.

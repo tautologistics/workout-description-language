@@ -18,14 +18,18 @@ piece; 16 and 15(c) then have somewhere to hang line-kind styling). All are
 app-level — `apps/builder/*`, occasionally `apps/display/*` and `edit.ts` — no
 grammar or spec change.
 
-**Held pending a decision (Chris, 2026-08-30):** a builder **layout redesign**
-is being explored on a design canvas (three directions + the current layout as
-baseline). The chain items and the redesign both rewrite `builder.js` /
-`builder.css`, so whether to run the chain now or hold it until a direction is
-picked is Chris's call. The design-critique low-hanging-fruit list and the
-larger rethinks (`@id`/namespacing, board **Edit** round-trip, "open on the
-board" for saved workouts) are captured in
-[../topics/builder-ux.md](../topics/builder-ux.md).
+**The builder layout is being redesigned (Chris chose a direction 2026-08-30).**
+Direction **C — Document + margin** (centred workout document; a tabbed right
+column — Analysis default, compressed *Reads as* second; goals rule-management
+UI carried forward; the Movements column folds into a ⌘K / add-row palette modal
+that keeps text + muscle + set filters and set creation). Working brief in
+[../topics/builder-ux.md](../topics/builder-ux.md) "### The layout redesign".
+The chain items below (12 / 16 / 17 / 15 / 13 / 11) **fold into that work** — they
+land on the new layout, not the old three-column grid, so sequence them with the
+redesign rather than against `main` as it stands. Also open, same file: the
+design-critique low-hanging-fruit entries and the larger rethinks
+(`@id`/namespacing, board **Edit** round-trip, "open on the board" for saved
+workouts).
 
 - **15 — Directives (`@id`, `@tags`, …) are first-class metadata: surface them,
   distinguish them, and complete them.** *High priority (Chris, 2026-08-29),
