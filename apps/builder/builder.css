@@ -518,6 +518,8 @@ body.col-resizing { cursor: col-resize; user-select: none; }
 .steps .cue { display: flex; gap: .5rem; padding: .1rem 0; }
 .steps .cue .n { color: var(--dim); font-variant-numeric: tabular-nums; min-width: 1.6rem; text-align: right; }
 .steps .cue.rest { color: var(--dim); }
+/* A half-line between rounds, set in JS on the first cue of each new round. */
+.steps .cue.round-start { margin-top: .5rem; }
 
 /* Cues inside a cycle are marked by a rail down their left, closed at both
    ends: the shape says "these come round again" without a word per row.

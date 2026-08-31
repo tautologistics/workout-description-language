@@ -1241,7 +1241,17 @@ function renderReadsAs() {
 
   const full = document.createElement('div');
   full.className = 'steps reads-cues';
-  for (const cue of laid.cues) full.append(cueRow(cue, laid));
+  let prevRound;
+  laid.cues.forEach((cue, i) => {
+    const row = cueRow(cue, laid);
+    // A half-line gap where the round ticks over, so `5 rounds` reads as five
+    // groups rather than one long column. The `round N/5` suffix and the rail
+    // colour already say it; this just makes it scannable at speed.
+    const round = roundLabel(cue.rounds);
+    if (i > 0 && round && round !== prevRound) row.classList.add('round-start');
+    prevRound = round;
+    full.append(row);
+  });
   box.append(full);
 }
 
