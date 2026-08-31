@@ -468,6 +468,22 @@ header button, header .button { white-space: nowrap; }
 .steps .cue.cycle-start::after { top: .35rem; }
 .steps .cue.cycle-end::after { bottom: .35rem; }
 
+/* --- the run: compressed reading (Reads-as tab) ----------------------- */
+
+.reads { font-size: .9rem; line-height: 1.5; }
+.reads-group { margin: 0 0 .7rem; }
+.reads-group .reads-group {
+  margin: .35rem 0 .35rem .9rem;
+  padding-left: .7rem;
+  border-left: 2px solid var(--rule);
+}
+.reads-head { font-weight: 600; color: var(--ink); }
+.reads-body { color: var(--dim); margin-top: .1rem; }
+.reads-line { color: var(--ink); padding: .05rem 0; }
+.reads-line.rest { color: var(--dim); }
+.reads-toggle { margin-top: .5rem; }
+.reads-cues { margin-top: .6rem; border-top: 1px solid var(--rule); padding-top: .6rem; }
+
 .diagnostics { margin: .4rem 0 0; padding: 0; list-style: none; font-size: .85rem; }
 .diagnostics li { padding: .35rem 0; border-top: 1px solid var(--rule); }
 .diagnostics .where { color: var(--dim); font-variant-numeric: tabular-nums; }

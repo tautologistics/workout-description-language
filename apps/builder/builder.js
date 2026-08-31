@@ -29,6 +29,7 @@ import { wdl } from '../../build/web/core/grammar/parser.js';
 import { blockModifierOptions, blockKindCompletions } from '../../build/web/core/block-affordances.js';
 import { format } from '../../build/web/core/format.js';
 import { compile } from '../../build/web/core/timeline.js';
+import { formatQuantity } from '../../build/web/core/units.js';
 import { validate } from '../../build/web/core/validate.js';
 import { run, roundLabel } from '../../build/web/core/run.js';
 import { provide, has } from '../../build/web/core/env.js';
@@ -157,6 +158,7 @@ function render(focusLine) {
   el('text').value = text();
   renderOutline();
   renderReading();
+  renderReadsAs();
   renderFindings();
   renderBody();
   const link = el('board');
@@ -355,6 +357,7 @@ function renderOutline() {
       lines = replaceLogical(lines, k, input.value);
       el('text').value = text();
       renderReading();
+      renderReadsAs();
       renderFindings();
       renderBody();
     });
@@ -459,6 +462,7 @@ function renderOutline() {
         lines = replaceLogical(lines, n.line, input.value);
         el('text').value = text();
         renderReading();
+        renderReadsAs();
         renderFindings();
         renderBody();
         const at = prefixLen + m.title.length;
@@ -496,6 +500,7 @@ function renderOutline() {
         lines = replaceLogical(lines, n.line, input.value);
         el('text').value = text();
         renderReading();
+        renderReadsAs();
         renderFindings();
         renderBody();
         openSuggestions();
@@ -575,6 +580,7 @@ function renderOutline() {
         lines = replaceLogical(lines, n.line, next);
         el('text').value = text();
         renderReading();
+        renderReadsAs();
         renderFindings();
         renderBody();
         input.focus();
@@ -671,6 +677,7 @@ function renderOutline() {
         lines = replaceLogical(lines, n.line, next);
         el('text').value = text();
         renderReading();
+        renderReadsAs();
         renderFindings();
         renderBody();
         input.focus();
@@ -771,6 +778,34 @@ function renderOutline() {
     restore.focus();
     restore.setSelectionRange(restore.value.length, restore.value.length);
   }
+}
+
+/**
+ * One cue as a row in a `.steps` list — shared by the Analysis tab's capped
+ * `#steps` list and the Reads-as tab's uncapped "show every cue" expansion.
+ * The cycle-rail classes match the CSS in `.steps .cue.looping`; the palette
+ * cycles through four hues so two repeating blocks back to back do not read
+ * as one continuous cycle.
+ */
+function cueRow(cue, laid) {
+  const end = (c) => c.to ?? laid.cues.length;
+  const cycle = laid.cycles.find((c) => cue.index >= c.from && cue.index < end(c));
+  const row = document.createElement('div');
+  row.className = `cue ${cue.kind}${cycle ? ' looping' : ''}`;
+  if (cycle) {
+    const hue = laid.cycles.indexOf(cycle) % 4;
+    if (hue > 0) row.classList.add(`cycle-hue-${hue}`);
+    if (cue.index === cycle.from) row.classList.add('cycle-start');
+    if (cue.index === end(cycle) - 1) row.classList.add('cycle-end');
+  }
+  const n = document.createElement('span');
+  n.className = 'n';
+  n.textContent = String(cue.index + 1);
+  const label = document.createElement('span');
+  const round = roundLabel(cue.rounds);
+  label.textContent = round ? `${cue.label}  ·  ${round}` : cue.label;
+  row.append(n, label);
+  return row;
 }
 
 /**
@@ -876,40 +911,15 @@ function renderReading() {
 
   // The <dl> above is the summary band; the cue list below is a detail view and
   // lives in the (bounded, scrolling) Analysis panel — see `#steps` / `#view-analysis`.
-  const steps = stepsBox;
-  // A cue inside a cycle comes round again, and the list is the only place that
-  // is visible at a glance — the summary line says which cues repeat, but
-  // counting to them is work the reader should not have to do.
-  const cycleOf = (i) => laid.cycles.find((c) => i >= c.from && i < (c.to ?? laid.cues.length));
-  // Cycles cycle through a small palette rather than each getting its own
-  // fixed colour — the count in one workout is unbounded, the palette is
-  // not. `indexOf` on the (small, per-render) cycle list is cheap enough
-  // not to bother precomputing.
-  const CYCLE_HUES = 4;
-  for (const cue of laid.cues.slice(0, 24)) {
-    const cycle = cycleOf(cue.index);
-    const row = document.createElement('div');
-    row.className = `cue ${cue.kind}${cycle ? ' looping' : ''}`;
-    if (cycle) {
-      const hue = laid.cycles.indexOf(cycle) % CYCLE_HUES;
-      if (hue > 0) row.classList.add(`cycle-hue-${hue}`);
-      if (cue.index === cycle.from) row.classList.add('cycle-start');
-      if (cue.index === (cycle.to ?? laid.cues.length) - 1) row.classList.add('cycle-end');
-    }
-    const n = document.createElement('span');
-    n.className = 'n';
-    n.textContent = String(cue.index + 1);
-    const label = document.createElement('span');
-    const round = roundLabel(cue.rounds);
-    label.textContent = round ? `${cue.label}  ·  ${round}` : cue.label;
-    row.append(n, label);
-    steps.append(row);
-  }
+  // `cueRow` (shared with the Reads-as tab's "show every cue" list) carries the
+  // cycle-rail marking: a cue inside a cycle comes round again, and this list is
+  // the only place that is visible at a glance.
+  for (const cue of laid.cues.slice(0, 24)) stepsBox.append(cueRow(cue, laid));
   if (laid.cues.length > 24) {
     const more = document.createElement('div');
     more.className = 'more';
     more.textContent = `…and ${laid.cues.length - 24} more`;
-    steps.append(more);
+    stepsBox.append(more);
   }
 
   // Registry-backed checks need the registry. Without it the parse errors still
@@ -940,6 +950,138 @@ function renderReading() {
     list.append(li);
   }
   el('dirty').hidden = text() === format(workout);
+}
+
+// --- the Reads-as tab: the run, compressed --------------------------------
+// A block-grouped reading of the run, read straight off the parsed workout
+// tree — the headers carry their own rounds / scheme / window, so nothing is
+// enumerated round-by-round the way `#steps` is — plus an opt-in "show every
+// cue" expansion to the same per-cue list, uncapped. `renderReading` still
+// owns the summary band, the diagnostics and the capped `#steps` list; this
+// is a separate function over `#view-reads` and touches none of them.
+
+/** A step as `Movement ×10`, `200m Run`, `20cal Row`, or a bare `Thruster`
+ *  when the count is carried by an enclosing scheme. */
+function stepRead(s) {
+  const q = formatQuantity(s.quantity);
+  const k = s.quantity.kind;
+  if (k === 'reps' || k === 'range' || k === 'floor') return `${s.movement} ×${q}`;
+  if (!q) return s.movement;                        // open / scheme-driven / max
+  return `${q} ${s.movement}`;                      // distance, calories, duration
+}
+
+/** A rest as `rest 1:00` / `rest as needed` / `rest = work` / `rest 200m Jog`. */
+function restRead(r) {
+  if (r.active) return `rest ${formatQuantity(r.active.quantity)} ${r.active.movement}`;
+  if (r.dynamic === 'as-needed') return 'rest as needed';
+  if (r.dynamic === 'equal-to-work') return 'rest = work';
+  return r.duration ? `rest ${formatQuantity(r.duration)}` : 'rest';
+}
+
+/** A block / interrupt header as its group label: the raw source line as
+ *  written (the whiteboard reading), trailing `:` and any inline body dropped.
+ *  Falls back to the kind + count / scheme / window when the node has no
+ *  physical line of its own (an adopted or synthesised header). */
+function headerRead(b) {
+  const raw = (lines[b.line - 1] ?? '').trim().replace(/:.*/s, '');
+  if (raw) return raw;
+  if (b.node === 'interrupt') return `every ${formatQuantity(b.every)}`;
+  if (b.scheme) return b.scheme.join('-');
+  if (b.count) return `${b.count} rounds`;
+  if (b.type === 'amrap' && b.duration) return `AMRAP ${formatQuantity(b.duration)}`;
+  return b.name || b.type;
+}
+
+/** One node of the grouped reading: a line for a step / rest, or a titled
+ *  group for a block / interrupt whose direct steps and rests collapse onto
+ *  one inline row and whose nested blocks recurse. */
+function readsNode(node) {
+  if (node.node === 'step') {
+    const d = document.createElement('div');
+    d.className = 'reads-line';
+    d.textContent = stepRead(node);
+    return d;
+  }
+  if (node.node === 'rest') {
+    const d = document.createElement('div');
+    d.className = 'reads-line rest';
+    d.textContent = restRead(node);
+    return d;
+  }
+  const group = document.createElement('div');
+  group.className = 'reads-group';
+  const head = document.createElement('div');
+  head.className = 'reads-head';
+  head.textContent = headerRead(node);
+  group.append(head);
+
+  const kids = node.node === 'interrupt' ? node.body : node.children;
+  let inline = [];
+  const flush = () => {
+    if (!inline.length) return;
+    const row = document.createElement('div');
+    row.className = 'reads-body';
+    row.textContent = inline.join('  ·  ');
+    group.append(row);
+    inline = [];
+  };
+  for (const c of kids) {
+    if (c.node === 'step') inline.push(stepRead(c));
+    else if (c.node === 'rest') inline.push(restRead(c));
+    else { flush(); group.append(readsNode(c)); }
+  }
+  flush();
+  return group;
+}
+
+function renderReadsAs() {
+  const box = el('view-reads');
+  box.innerHTML = '';
+  const { workout } = parse(text());
+
+  let laid;
+  try {
+    laid = run(compile(workout));
+  } catch (e) {
+    const p = document.createElement('p');
+    p.className = 'placeholder';
+    p.textContent = `cannot compile: ${e.message}`;
+    box.append(p);
+    return;
+  }
+
+  if (!workout.body.length) {
+    const p = document.createElement('p');
+    p.className = 'placeholder';
+    p.textContent = 'Nothing to read yet.';
+    box.append(p);
+    return;
+  }
+
+  const groups = document.createElement('div');
+  groups.className = 'reads';
+  for (const n of workout.body) groups.append(readsNode(n));
+  box.append(groups);
+
+  // The opt-in escape hatch: the full, uncapped per-cue list — the same rows
+  // `#steps` builds. State survives a re-render and a reload, so it is read
+  // fresh from `localStorage` on every paint.
+  const expanded = localStorage.getItem('wdl.reads-expanded') === '1';
+  const toggle = document.createElement('button');
+  toggle.className = 'link reads-toggle';
+  toggle.textContent = expanded ? 'hide the cue-by-cue list' : `show every cue (${laid.cues.length})`;
+  toggle.onclick = () => {
+    try { localStorage.setItem('wdl.reads-expanded', expanded ? '0' : '1'); } catch { /* private mode */ }
+    renderReadsAs();
+  };
+  box.append(toggle);
+
+  if (expanded) {
+    const full = document.createElement('div');
+    full.className = 'steps reads-cues';
+    for (const cue of laid.cues) full.append(cueRow(cue, laid));
+    box.append(full);
+  }
 }
 
 // --- the body map --------------------------------------------------------------
@@ -1057,6 +1199,7 @@ el('text').addEventListener('input', () => {
   focused = null;
   renderOutline();
   renderReading();
+  renderReadsAs();
   renderFindings();
   renderBody();
   el('board').href = `../display/#${encodeURIComponent(text())}`;
