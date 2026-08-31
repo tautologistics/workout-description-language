@@ -84,21 +84,26 @@
         <div id="bodymap"></div>
         <p class="hint" id="body-hint"></p>
 
-        <h2 class="goals-head">Against your goals
-          <select id="goal-pick" title="Which goals to check against"></select>
-        </h2>
-        <div class="row tight goal-tools">
-          <button id="goal-edit" title="Write or change the rules">Edit rules</button>
-          <button id="goal-open" title="Open a .wdlg file">Open…</button>
-          <button id="goal-save" title="Save these rules under a name">Save as…</button>
-          <button id="goal-download" title="Write them out as a .wdlg file">.wdlg</button>
-          <button id="goal-drop" title="Delete the selected rules" hidden>Delete</button>
-        </div>
-        <textarea id="goal-text" class="goal-text" spellcheck="false"
-                  autocapitalize="off" autocorrect="off" hidden></textarea>
-        <ul id="goal-errors" class="diagnostics"></ul>
-        <p id="goal-notes" class="notes" hidden></p>
-        <ul id="findings" class="diagnostics findings"></ul>
+        <section class="goals-block">
+          <h2 class="goals-head">Against your goals</h2>
+          <div class="goals-bar">
+            <select id="goal-pick" title="Which goals to check against"></select>
+            <div class="goal-tools" role="group" aria-label="Goal rule actions">
+              <button id="goal-edit" title="Write or change the rules">Edit rules</button>
+              <button id="goal-open" title="Open a .wdlg file">Open…</button>
+              <button id="goal-save" title="Save these rules under a name">Save as…</button>
+              <button id="goal-download" title="Write them out as a .wdlg file">.wdlg</button>
+              <button id="goal-drop" title="Delete the selected rules" hidden>Delete</button>
+            </div>
+          </div>
+          <textarea id="goal-text" class="goal-text" spellcheck="false"
+                    autocapitalize="off" autocorrect="off" hidden></textarea>
+          <div class="goals-out">
+            <ul id="goal-errors" class="diagnostics"></ul>
+            <p id="goal-notes" class="notes" hidden></p>
+            <ul id="findings" class="diagnostics findings"></ul>
+          </div>
+        </section>
       </div>
 
       <div id="view-reads" class="rpanel" role="tabpanel">
