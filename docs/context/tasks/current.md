@@ -163,14 +163,25 @@ by **driving the builder** in both themes with a multi-section workout, and run
   change — suite **2051 passing, 1 pending**. *Touched:*
   `apps/builder/index.html`, `builder.css`, `builder.js`.
 
-- **R8 — Palette modal: set creation / the repertoire.** Fold `#repertoire` into
-  the modal — New set, compose (from the current results, or the checklist
-  toggle), rename, reorder, remove, export / import (`localStorage['wdl.sets']`
-  stays the store). `renderSets` / `renderSetList` / `renderSetCard` /
-  `renameSet` / `addSetToOutline` / `setsChanged` move in; the standalone
-  `#repertoire` / `#set-*` DOM is removed. *Depends on R7.* *Touches:*
-  `apps/builder/builder.js`, `builder.css`, `index.html`. *Verify:* create /
-  compose / rename / reorder / remove / add-set-to-outline / export / import.
+- ~~**R8 — Palette modal: set creation / the repertoire.**~~ **Done 2026-08-31**
+  (`356e84f`). The repertoire is folded into the palette modal as a first-class
+  **Sets** section, not a buried `<details>`: `<details id="repertoire">` /
+  `<summary>` retired for `<section id="repertoire"><h2>Sets …</h2>` — a
+  full-bleed bar in the same treatment as the "Movements" head, the New set /
+  Save showing / Export / Import strip, then a scrolling (`max-height`)
+  `#set-list`. Every bound id stable (`#set-new` / `#set-save` / `#set-export`
+  / `#set-import` / `#set-list` / `#set-pick` / `#set-file` /
+  `#repertoire-count`); the three now-meaningless `el('repertoire').open = true`
+  lines removed. New `shownMovements()` factored out of `renderPalette`; new
+  `addShowingToSet(name)` + a per-card `⊕` affordance that folds the movements
+  the palette is currently showing into that set — the "from the current
+  results" half of composing, alongside the checklist toggle.
+  `renderSets` / `renderSetList` / `renderSetCard` / `renameSet` /
+  `addSetToOutline` / `setsChanged` unchanged in behaviour;
+  `localStorage['wdl.sets']` store + the `{format:'wdl-movement-sets',
+  version:1, sets}` export/import envelope unchanged. No core change — suite
+  **2051 passing, 1 pending**. *Touched:* `apps/builder/index.html`,
+  `builder.css`, `builder.js`.
 
 - **R9 — Text tab: trap Tab + syntax highlighting** *(= chain item 17 below —
   its full write-up stands).* Needs R1 (the tab lives in the new editor cell)

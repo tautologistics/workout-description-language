@@ -2,6 +2,26 @@
 
 ## Changes
 
+- **2026-08-31 — Builder layout redesign, R8 of 10: the set repertoire is a
+  first-class Sets section of the palette modal** (`356e84f`). R7 physically
+  moved `#repertoire` inside the modal but left it a tucked-away
+  `<details><summary>Sets</summary>`. R8 makes it visible and titled:
+  `<section id="repertoire">` with an `<h2>Sets <span
+  id="repertoire-count"></span></h2>` bar in the same treatment as the
+  "Movements" head, the New set / Save showing / Export / Import strip, then a
+  scrolling (`max-height`) `#set-list`. Every id `builder.js` binds stays
+  stable; the three now-meaningless `el('repertoire').open = true` lines
+  (set-new / set-save / set-import) are gone. New `shownMovements()` factored
+  out of `renderPalette`, and a new `addShowingToSet(name)` behind a per-card
+  `⊕` button that folds the currently-shown palette list into that set — the
+  "compose from the current results" half of the brief, next to the existing
+  checklist toggle. `renderSets` / `renderSetList` / `renderSetCard` /
+  `renameSet` / `addSetToOutline` / `setsChanged` unchanged in behaviour;
+  `localStorage['wdl.sets']` and the `{format:'wdl-movement-sets', version:1,
+  sets}` export/import envelope unchanged. No core change — suite **2051
+  passing, 1 pending**. *Touched:* `apps/builder/index.html`,
+  `apps/builder/builder.css`, `apps/builder/builder.js`.
+
 - **2026-08-31 — Builder layout redesign, R7 of 10: the movement palette is a
   ⌘K / add-row modal; the transitional drawer is retired** (`d1a89ce`). The R1
   overlay drawer behind the header `☰ Movements` toggle is gone. The palette is
