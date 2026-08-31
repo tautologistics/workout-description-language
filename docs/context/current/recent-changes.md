@@ -2,6 +2,29 @@
 
 ## Changes
 
+- **2026-08-31 — Builder layout redesign, R7 of 10: the movement palette is a
+  ⌘K / add-row modal; the transitional drawer is retired** (`d1a89ce`). The R1
+  overlay drawer behind the header `☰ Movements` toggle is gone. The palette is
+  now a summoned `<dialog id="palette-modal">` holding the same inner DOM —
+  `#search`, `#set-pick`, `#muscle-filter` chips, `#palette`, and `#repertoire`
+  (set management untouched; R8 folds it in). It opens on **⌘K / Ctrl-K**
+  anywhere, on **+ movement**, and on **Enter on an outline row**; picking a
+  movement inserts `lineFor(m)` at the focused row via the existing write-back
+  (`replaceLogical` when that row is blank, else `insertAfter`) and closes.
+  Esc (the `<dialog>` `cancel` event) and a backdrop click both close through a
+  `closePalette` that hands focus back to the editor; Esc while composing a set
+  exits compose mode first, as the drawer's Esc did. All three filters still
+  combine inside the modal — text, muscle chips (AND), saved set — with every
+  filter id stable, so `renderPalette` / `renderMuscleChips` needed no change;
+  they now render on open and re-render on filter input, as before. ⌘K is scoped
+  and only `preventDefault`s when it should open, and is a no-op mid-IME.
+  Removed: `#drawer` / `#drawer-backdrop` / `.drawer*` CSS / `setDrawer` / the
+  `#palette-toggle` header button and its handlers / `.ghost` CSS / the
+  `wdl.palette-open` bootstrap (the modal has no persistent open state). No core
+  change — suite still **2051 passing**, 1 pending. *Touched:*
+  `apps/builder/index.html`, `apps/builder/builder.css`,
+  `apps/builder/builder.js`.
+
 - **2026-08-31 — Builder layout redesign, R6 of 10: per-section muscle "adds"
   below the body map** (`895404a`). The Analysis tab shows one whole-workout
   body map; for a workout with named sections there was no read of what each

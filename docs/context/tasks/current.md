@@ -144,16 +144,24 @@ by **driving the builder** in both themes with a multi-section workout, and run
   change — suite 2051 passing, 1 pending. *Touched:* `apps/builder/builder.js`,
   `builder.css`, `index.html`.
 
-- **R7 — Movement palette modal: filters + insert.** The modal that replaces the
-  Movements column. Opens on **⌘K** and on **+ movement / Enter on a blank
-  outline row**; inserts `lineFor(m)` at the caret / focused row. Carries all
-  three current filters at once — **text** (`#search`), **muscle** chips
-  (`chosenMuscles` / `worksAll`, AND-combined), **saved-set**
-  (`sets` / `set-pick`). Absorbs `renderPalette` / `renderMuscleChips` and the
-  palette half of the bootstrap. **Retires the R1 transitional drawer.**
-  *Depends on R1.* *Touches:* `apps/builder/index.html` (a `<dialog>` / overlay),
-  `builder.css`, `builder.js`. *Verify:* ⌘K and add-row both open it; each
-  filter narrows; insert lands at the caret; Esc closes.
+- ~~**R7 — Movement palette modal: filters + insert.**~~ **Done 2026-08-31**
+  (`d1a89ce`). The palette is now a summoned `<dialog id="palette-modal">` —
+  opened by **⌘K / Ctrl-K** anywhere, by **+ movement**, and by **Enter on an
+  outline row** (replacing the row when it is blank, else inserting after it).
+  Picking a movement lands `lineFor(m)` at the focused row via the existing
+  write-back (`replaceLogical` when blank, else `insertAfter`) and closes;
+  Esc (`<dialog>` `cancel`) and backdrop click close through a `closePalette`
+  that hands focus back to the editor, and Esc while composing a set exits
+  compose mode first (the drawer's old Esc). All three filters still combine
+  inside it — text (`#search`), muscle chips (`chosenMuscles` / `worksAll`,
+  AND), saved set (`#set-pick`) — every id stable, so `renderPalette` /
+  `renderMuscleChips` were untouched. `#repertoire` set management still lives
+  inside the modal, unchanged pending **R8**. Retired: `#drawer` /
+  `#drawer-backdrop` / `.drawer*` CSS / `setDrawer` / the `#palette-toggle`
+  header button + `.ghost` CSS / the `wdl.palette-open` bootstrap. ⌘K is scoped
+  and only `preventDefault`s when it should open, and no-ops mid-IME. No core
+  change — suite **2051 passing, 1 pending**. *Touched:*
+  `apps/builder/index.html`, `builder.css`, `builder.js`.
 
 - **R8 — Palette modal: set creation / the repertoire.** Fold `#repertoire` into
   the modal — New set, compose (from the current results, or the checklist
