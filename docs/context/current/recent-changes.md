@@ -2,6 +2,30 @@
 
 ## Changes
 
+- **2026-08-31 — Builder layout redesign, R4 of 10: Reads-as tab is a
+  block-grouped run reading + a show-every-cue toggle** (`f8cb0a8`). The
+  **Reads as** margin tab, an empty placeholder since R1, now carries
+  `renderReadsAs()`: (a) the run grouped by block, read off
+  `parse().workout.body` rather than cue-by-cue — one titled group per
+  top-level block, header label taken from the raw source line as written (`:`
+  and any inline body dropped, so rounds / scheme / window are stated once by
+  the header, not repeated per rep), direct steps + rests collapsed onto one
+  `·`-joined inline row (`Air Squat ×10 · 200m Run · rest 1min`), nested blocks
+  and `every` overlays recursed with a left rule; synthesised label fallback
+  when a header node has no physical line. (b) A **"show every cue (N)"** toggle
+  to the full, uncapped per-cue list — the same rows `#steps` builds, factored
+  into a shared `cueRow()` helper so the Analysis tab's capped list and this one
+  cannot drift; state in `localStorage['wdl.reads-expanded']`, read fresh each
+  paint so it survives a re-render, a tab switch and a reload. `renderReading`
+  still owns `#summary` / `#diagnostics` / `#steps` untouched — the summary band
+  `<dl>` and the Analysis cue list are unchanged. Compile failure degrades to a
+  short message in `#view-reads`, no exception. Both themes; new CSS is existing
+  `--ink` / `--dim` / `--rule` tokens only. No core change — suite still **2051
+  passing**, 1 pending. Verified by driving the builder light + dark with a
+  named `warmup:` section, a `21-15-9 for time:` ladder, an `AMRAP 12min:` with
+  an inline `rest`, and a top-level `rest`. *Touched: `apps/builder/builder.js`,
+  `apps/builder/builder.css`.*
+
 - **2026-08-31 — Builder layout redesign, R3 of 10: Outline as a document +
   per-kind rails** (chain item 16, folding in 15c; `d8edde3`). The Outline row
   rhythm loosened; the `#` title renders as a heading set apart with air beneath;

@@ -96,15 +96,22 @@ by **driving the builder** in both themes with a multi-section workout, and run
   keeps the step marker under the `.bad` red border. No core change — suite
   2051 passing, 1 pending. *Touched:* `apps/builder/builder.js`, `builder.css`.
 
-- **R4 — Reads-as tab: the compressed run view.** Replace `renderReading`'s
-  24-cue enumeration. In the **Reads as** tab: the run grouped by block —
-  `warmup — 3 rounds: Air Squat ×10 · Push-Up ×10 · 200m Run`, `30-20-10 for
-  time: …`, `AMRAP 12:00: …`, rests inline — read off `laid.cues` /
-  `laid.cycles` / the workout tree, **not** cue-by-cue; plus a **"show every cue
-  (N)"** toggle to the current fully-expanded list. The `title / cues /
-  duration / cap / score` `<dl>` stays in the summary band. *Depends on R1.*
-  *Touches:* `apps/builder/builder.js` (a new `renderReadsAs`; `renderReading`
-  keeps the `<dl>` + diagnostics), `builder.css`.
+- ~~**R4 — Reads-as tab: the compressed run view.**~~ **Done 2026-08-31**
+  (`f8cb0a8`). New `renderReadsAs()` over `#view-reads`: (a) the run grouped by
+  block, read off `parse().workout.body` (not cue-by-cue) — one titled group per
+  top-level block, header label = the raw source line as written (`:` and any
+  inline body dropped, so rounds / scheme / window are stated once by the
+  header), direct steps + rests collapsed onto one `·`-joined inline row
+  (`Air Squat ×10 · 200m Run · rest 1min`), nested blocks / `every` overlays
+  recursed with a left rule; synthesised label fallback when a header has no
+  physical line. (b) A **"show every cue (N)"** toggle to the full, uncapped
+  per-cue list — the same rows `#steps` builds, now via a shared `cueRow()`
+  helper; state in `localStorage['wdl.reads-expanded']`, read fresh each paint
+  (survives re-render / tab switch / reload). `renderReading` still owns
+  `#summary` / `#diagnostics` / `#steps` untouched; compile failure degrades to
+  a short message in `#view-reads`. Both themes; CSS is existing tokens only. No
+  core change — suite 2051 passing, 1 pending. *Touched:*
+  `apps/builder/builder.js`, `builder.css`.
 
 - **R5 — Goals rule-management UI in the Analysis tab.** Move `#goal-pick` /
   `#goal-edit` / `#goal-open` / `#goal-save` / `#goal-download` / `#goal-drop` /

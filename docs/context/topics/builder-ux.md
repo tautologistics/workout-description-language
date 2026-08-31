@@ -542,20 +542,18 @@ is the part that is missing.
 
 From the **design-critique pass, 2026-08-30.**
 
-**The cue-by-cue expansion is the largest thing in the feedback column and it
-sits above the body map and the goal check.** `renderReading` lists up to 24
-cues (`laid.cues.slice(0, 24)` in `builder.js`, then "…and N more"). On the
-35-cue test workout that block is ~half the pane's height — a flat scroll of
-`10 Air Squats · round 1/3`, `10 Push-Ups · round 1/3`, … — and it pushes the
-two things you actually build *against* (muscle coverage, "Against your goals")
-off the screen (see the read-pane scroll entry under *Layout*). The glanceable
-part is the `title / cues / duration / cap / score` `<dl>` above it; the
-enumeration is a detail view. **Fix:** collapse the cue list by default — show
-the count and the first ~4, with a "show all 35 cues" toggle — and keep the
-`<dl>` and the cycle summary pinned. Pairs naturally with splitting the read
-pane into collapsible sub-panels. *Scope: `apps/builder/builder.js`
-(`renderReading` — a collapsed default + toggle), `apps/builder/builder.css`.
-No core change.*
+**~~The cue-by-cue expansion is the largest thing in the feedback column and it
+sits above the body map and the goal check.~~ Fixed 2026-08-31** (R4, `f8cb0a8`).
+The split R1 made — Analysis tab keeps the (bounded, scrolling) capped `#steps`
+list; **Reads as** now carries `renderReadsAs()`, a block-grouped reading off
+`parse().workout.body`: one titled group per top-level block, header label = the
+raw source line, steps + rests on one `·`-joined inline row, nested blocks
+recursed — so a multi-section run reads in a screen instead of a flat scroll of
+near-identical cue lines. A **"show every cue (N)"** toggle drops to the full,
+uncapped per-cue list (`localStorage['wdl.reads-expanded']`, read fresh each
+paint). The `title / cues / duration / cap / score` `<dl>` stays pinned in the
+summary band. *Was: `renderReading` listed `laid.cues.slice(0, 24)` then
+"…and N more", ~half the pane on a 35-cue workout.*
 
 **Minor — the read pane stacks four `<h2>`s.** "What it reads as", "Body",
 "Against your goals" (each with an inline `<select>`) repeat the uppercase
