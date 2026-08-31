@@ -237,6 +237,35 @@ const movementSuggestions = (fragment) => {
 };
 
 /**
+ * The directive keys the builder recognises on a zero-indent `@` line. This is
+ * a *convention*, not grammar — `directiveKey = nameChar+` accepts anything —
+ * so there is nothing to enumerate and the list is hand-held, one description
+ * each. `fill` is what a pick lands (caret goes to its end): `@id ` leaves the
+ * caret past the space ready for the value; `@x-` leaves it right after the
+ * dash to finish the extension key. `@tiebreak` is deliberately absent — it is
+ * a mid-line step marker (spec §9.6), never a preamble line.
+ */
+const DIRECTIVE_KEYS = [
+  { key: '@wdl', fill: '@wdl ', desc: 'spec version (e.g. @wdl 0.1)' },
+  { key: '@id', fill: '@id ', desc: 'stable workout id, often namespace:slug' },
+  { key: '@date', fill: '@date ', desc: 'when it was performed / written' },
+  { key: '@tags', fill: '@tags ', desc: 'comma-separated labels' },
+  { key: '@author', fill: '@author ', desc: 'who wrote it' },
+  { key: '@x-', fill: '@x-', desc: 'an extension attribute (e.g. @x-gym:…)' },
+];
+
+/** Recognised directive keys matching the key fragment typed so far (the text
+ *  up to the first space). `@` alone offers all of them; `@x-anything` keeps
+ *  matching the `@x-` entry. */
+const directiveKeySuggestions = (value) => {
+  const frag = (value.split(' ', 1)[0] || '').toLowerCase();
+  return DIRECTIVE_KEYS.filter(({ key }) => {
+    const k = key.toLowerCase();
+    return k.startsWith(frag) || frag.startsWith(k);
+  });
+};
+
+/**
  * The curated entry a movement name actually resolves to — what a row's
  * modifier affordance reads, as opposed to `movementSuggestions`' fuzzy match
  * while typing a name. Goes through `Registry.resolve()`, the same
@@ -518,7 +547,49 @@ function renderOutline() {
         input.setSelectionRange(at, at);
       };
 
+      // A zero-indent `@` row with the caret still in the key (before the first
+      // space) gets the directive-key list instead of movement names — a `@ 40kg`
+      // load fragment is never at zero indent, but the indent is checked off the
+      // raw source line anyway, not just `depth`.
+      const inDirectiveKey = () => {
+        if (depth !== 0 || /^\s/.test(lines[n.line - 1] ?? '')) return false;
+        const v = input.value;
+        if (!v.startsWith('@')) return false;
+        const space = v.indexOf(' ');
+        return space === -1 || (input.selectionStart ?? v.length) <= space;
+      };
+
+      const pickDirectiveKey = ({ fill }) => {
+        input.value = fill;
+        closeSuggestions();
+        lines = replaceLogical(lines, n.line, input.value);
+        paintText();
+        renderReading();
+        renderReadsAs();
+        renderFindings();
+        renderBody();
+        input.focus();
+        input.setSelectionRange(fill.length, fill.length);
+      };
+
       const openSuggestions = () => {
+        if (inDirectiveKey()) {
+          const keys = directiveKeySuggestions(input.value);
+          if (!keys.length) return closeSuggestions();
+          suggestions.innerHTML = '';
+          for (const d of keys) {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'suggestion';
+            item.textContent = `${d.key} — ${d.desc}`;
+            item.onmousedown = (e) => e.preventDefault();   // keep focus in the input
+            item.onclick = () => pickDirectiveKey(d);
+            suggestions.append(item);
+          }
+          highlighted = -1;
+          suggestions.hidden = false;
+          return;
+        }
         const matches = movementSuggestions(movementFragment(input.value));
         if (!matches.length) return closeSuggestions();
         suggestions.innerHTML = '';
@@ -864,6 +935,51 @@ function cueRow(cue, laid) {
 }
 
 /**
+ * The `@key value` preamble as a small metadata block — read straight off
+ * `parse().workout.directives` (an insertion-ordered `Record<string,string>`;
+ * core never interprets the values). It *describes* the workout, so it renders
+ * apart from the cue list, and only when at least one directive is set — no
+ * empty block, no heading. Read-only: the outline row inputs and the Text tab
+ * stay the way to edit a directive. `@tags` splits to chips; every other key —
+ * including any `@x-…` extension — is a verbatim key/value row.
+ */
+const DIRECTIVE_LABELS = { id: 'id', wdl: 'wdl', date: 'date', tags: 'tags', author: 'author' };
+
+function renderDirectives(directives) {
+  const box = el('directives');
+  box.innerHTML = '';
+  const keys = directives ? Object.keys(directives) : [];
+  if (!keys.length) { box.hidden = true; return; }
+  box.hidden = false;
+
+  const dl = document.createElement('dl');
+  for (const key of keys) {
+    const dt = document.createElement('dt');
+    dt.textContent = DIRECTIVE_LABELS[key] ?? key;   // `@x-gym` etc. shown as written
+    const dd = document.createElement('dd');
+    const value = directives[key];
+    const tags = key === 'tags'
+      ? value.split(',').map((t) => t.trim()).filter(Boolean)
+      : [];
+    if (tags.length) {
+      const chips = document.createElement('span');
+      chips.className = 'chips';
+      for (const tag of tags) {
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.textContent = tag;
+        chips.append(chip);
+      }
+      dd.append(chips);
+    } else {
+      dd.textContent = value;
+    }
+    dl.append(dt, dd);
+  }
+  box.append(dl);
+}
+
+/**
  * What the parser understood — the honest half of the round trip.
  *
  * A builder that only shows you what you typed is a text editor. The value is in
@@ -875,6 +991,12 @@ function renderReading() {
   // The document title lives in the header now; `render()` repaints this pane
   // on every edit, so this is where it stays current.
   el('doc-title').textContent = workout.title ?? '';
+  // The directive metadata block repaints on the same path as the summary and
+  // the cue list, so it survives outline edits, text edits, Canonicalise, file
+  // open and tab switches. A parse that throws never reaches here (`parse`
+  // returns errors rather than throwing), and a compile failure below still
+  // leaves this painted — it is read off the parsed tree, not the run.
+  renderDirectives(workout.directives);
   const summary = el('summary');
   const list = el('diagnostics');
   const stepsBox = el('steps');

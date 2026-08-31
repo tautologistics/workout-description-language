@@ -450,6 +450,26 @@ header button, header .button { white-space: nowrap; }
 .summary dd { margin: 0; font-variant-numeric: tabular-nums; }
 .summary:empty { display: none; }
 
+/* --- the directive metadata block ---------------------------------------------
+   The `@key value` preamble read off `workout.directives`. It *describes* the
+   workout, so it reads as a bordered aside above the cue list, with the shared
+   `--kind-directive` accent the Outline and Text tabs give a directive line.
+   Read-only; hidden entirely for a workout that sets no directives. */
+.directives {
+  margin-bottom: .7rem;
+  padding: .45rem .6rem;
+  font-size: .8rem;
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--kind-directive);
+  border-radius: .3rem;
+  background: var(--page);
+}
+.directives dl { display: grid; grid-template-columns: auto 1fr; gap: .15rem .7rem; margin: 0; }
+.directives dt { color: var(--dim); }
+.directives dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
+.directives .chips { margin: 0; }
+.directives .chip { cursor: default; }
+
 .right-tabs { display: flex; gap: .25rem; padding: .4rem .75rem 0; border-bottom: 1px solid var(--rule); flex: none; }
 .right-tab {
   border: 1px solid var(--rule);

@@ -75,6 +75,10 @@
       </div>
 
       <div id="view-analysis" class="rpanel" role="tabpanel">
+        <!-- The `@key value` preamble, read off `workout.directives` — metadata
+             *about* the workout, set apart from the cue list. Read-only; shown
+             only when the workout sets at least one directive. -->
+        <div id="directives" class="directives" hidden></div>
         <div id="steps" class="steps"></div>
         <ul id="diagnostics" class="diagnostics"></ul>
 
