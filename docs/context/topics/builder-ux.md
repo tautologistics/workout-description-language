@@ -606,6 +606,10 @@ list. The toggle button, the `expanded` branch and the
 `localStorage['wdl.reads-expanded']` read/write are gone (the stale key is
 left to rot harmlessly). *Touched: `apps/builder/{builder.js, builder.css}`.
 No core change; suite 2051 passing, 1 pending. Verified light + dark.*
+**Follow-up (`a8e5d6f`, same day):** a `.round-start` class on the first cue
+of each new round (a `roundLabel()` change vs the previous cue) opens a
+`margin-top: .5rem` half-line, so the every-cue list reads as N groups rather
+than one column.
 
 **Minor — the read pane stacks four `<h2>`s.** "What it reads as", "Body",
 "Against your goals" (each with an inline `<select>`) repeat the uppercase

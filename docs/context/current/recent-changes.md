@@ -9,7 +9,9 @@
   and then the full uncapped per-cue list under an `EVERY CUE (N)` label. The
   toggle, the `expanded` branch and `localStorage['wdl.reads-expanded']` are
   removed (stale key left harmless). `apps/builder/{builder.js, builder.css}`,
-  no core change; suite 2051 passing, 1 pending.
+  no core change; suite 2051 passing, 1 pending. **Follow-up (`a8e5d6f`):** a
+  `.round-start` class on the first cue of each new round opens a half-line
+  (`margin-top: .5rem`), so the every-cue list reads as N groups.
 
 - **2026-08-31 — Builder: the editor/analysis split is draggable, and the body
   map scales with the margin** (`83bfb78`, from Chris using it). The sheet was
