@@ -243,6 +243,48 @@ const movementModifiers = (entry) => {
   return { laterality, measures, load, equipment };
 };
 
+/**
+ * The move/reorder drag wiring shared by every outline row — a real node or a
+ * synthesised comment row. `followLine`, set only for a comment row, is the real
+ * line the comment attaches forward to: a palette drop "before" the comment
+ * lands before *that* line, since the comment has no span of its own to sit
+ * beside.
+ */
+function attachRowDrag(node, lineNo, followLine) {
+  node.draggable = true;
+  node.dataset.line = String(lineNo);
+  node.addEventListener('dragstart', (e) => {
+    if (e.target.tagName === 'INPUT') return e.preventDefault();   // let text select
+    e.dataTransfer.setData('text/wdl-line', String(lineNo));
+    e.dataTransfer.effectAllowed = 'move';
+    node.classList.add('dragging');
+  });
+  node.addEventListener('dragend', () => node.classList.remove('dragging'));
+  node.addEventListener('dragover', (e) => {
+    if (!dragKind(e)) return;
+    e.preventDefault();
+    node.dataset.drop = e.offsetY < node.offsetHeight / 2 ? 'before' : 'after';
+  });
+  node.addEventListener('dragleave', () => delete node.dataset.drop);
+  node.addEventListener('drop', (e) => {
+    const where = node.dataset.drop === 'before' ? 'before' : 'after';
+    delete node.dataset.drop;
+    const kind = dragKind(e);
+    if (!kind) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (kind === 'move') {
+      moveTo(Number(e.dataTransfer.getData('text/wdl-line')), lineNo, where);
+    } else {
+      // A palette drop lands beside what it was dropped on, not inside it.
+      const anchor = where === 'before'
+        ? previousSibling(followLine ?? lineNo)
+        : lineNo;
+      insert(anchor, e.dataTransfer.getData('text/wdl-movement'));
+    }
+  });
+}
+
 function renderOutline() {
   const outline = el('outline');
   outline.innerHTML = '';
@@ -266,8 +308,83 @@ function renderOutline() {
   };
   collect(parsed.workout.body);
 
+  // `readLines` folds an own-line comment into the `comments[]` of the next real
+  // line and never emits a node for it, so the outline would otherwise show no
+  // row for a `//` line. Synthesise one: a `.node.comment` row for each own-line
+  // comment, at the depth of the line it attaches forward to, written back
+  // through the comment-aware splice in @wdl/core's edit.ts. A *trailing*
+  // comment on a content line stays in that line's own input (it is already in
+  // the row text), so only lines that are entirely `//` get a row here.
+  const isCommentLine = (i) => /^\s*\/\//.test(lines[i - 1] ?? '');
+  const emitted = new Set();
+
+  const emitCommentRow = (k, depth, followLine) => {
+    emitted.add(k);
+    const node = document.createElement('div');
+    node.className = 'node comment';
+    if (badLines.has(k)) node.classList.add('bad');
+
+    const rails = document.createElement('span');
+    rails.className = 'rails';
+    for (let d = 0; d <= depth; d++) {
+      const rail = document.createElement('span');
+      rail.className = 'rail';
+      rails.append(rail);
+    }
+
+    const wrap = document.createElement('span');
+    wrap.className = 'line-wrap';
+    const input = document.createElement('input');
+    input.className = 'line';
+    input.value = lines[k - 1].trim();
+    input.dataset.line = String(k);
+    input.addEventListener('input', () => {
+      lines = replaceLogical(lines, k, input.value);
+      el('text').value = text();
+      renderReading();
+      renderFindings();
+      renderBody();
+    });
+    input.addEventListener('change', () => render(k));
+    input.addEventListener('focus', () => { focused = k; });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); insert(k, '// '); }
+      if (e.key === 'Tab' && !e.shiftKey && input.selectionStart === input.value.length) {
+        e.preventDefault(); shift(k, 2);
+      }
+    });
+    wrap.append(input);
+
+    const tools = document.createElement('span');
+    tools.className = 'tools';
+    for (const [glyph, title, fn] of TOOLS) {
+      const b = document.createElement('button');
+      b.textContent = glyph;
+      b.title = title;
+      b.onclick = () => fn(k);
+      tools.append(b);
+    }
+
+    attachRowDrag(node, k, followLine);
+    node.append(rails, wrap, tools);
+    outline.append(node);
+  };
+
   const walk = (nodes, depth) => {
     for (const n of nodes) {
+      if (!n.line) continue;   // the synthetic node trailing comments produce
+
+      // Own-line comments written above this row — physical `//` lines between
+      // the previous real content and here, blanks skipped. They attach forward
+      // (per `lines.ts`), so the row sits at this node's depth, above it.
+      const leading = [];
+      for (let k = n.line - 1; k >= 1; k--) {
+        if (!lines[k - 1].trim()) continue;
+        if (isCommentLine(k)) { if (!emitted.has(k)) leading.unshift(k); continue; }
+        break;
+      }
+      for (const k of leading) emitCommentRow(k, depth, n.line);
+
       const node = document.createElement('div');
       node.className = 'node';
       if (/:$/.test(n.text) || n.children.length) node.classList.add('block');
@@ -602,37 +719,7 @@ function renderOutline() {
 
       // Dragging is for where things go; the buttons stay for one step at a
       // time, which is easier to aim than a drag when that is all you want.
-      node.draggable = true;
-      node.dataset.line = String(n.line);
-      node.addEventListener('dragstart', (e) => {
-        if (e.target.tagName === 'INPUT') return e.preventDefault();   // let text select
-        e.dataTransfer.setData('text/wdl-line', String(n.line));
-        e.dataTransfer.effectAllowed = 'move';
-        node.classList.add('dragging');
-      });
-      node.addEventListener('dragend', () => node.classList.remove('dragging'));
-      node.addEventListener('dragover', (e) => {
-        if (!dragKind(e)) return;
-        e.preventDefault();
-        const half = e.offsetY < node.offsetHeight / 2 ? 'before' : 'after';
-        node.dataset.drop = half;
-      });
-      node.addEventListener('dragleave', () => delete node.dataset.drop);
-      node.addEventListener('drop', (e) => {
-        const where = node.dataset.drop === 'before' ? 'before' : 'after';
-        delete node.dataset.drop;
-        const kind = dragKind(e);
-        if (!kind) return;
-        e.preventDefault();
-        e.stopPropagation();
-        if (kind === 'move') {
-          moveTo(Number(e.dataTransfer.getData('text/wdl-line')), n.line, where);
-        } else {
-          // A palette drop lands beside what it was dropped on, not inside it.
-          const anchor = where === 'before' ? previousSibling(n.line) : n.line;
-          insert(anchor, e.dataTransfer.getData('text/wdl-movement'));
-        }
-      });
+      attachRowDrag(node, n.line);
 
       const movement = movementOf.get(n.line);
       if (movement) {
@@ -647,6 +734,13 @@ function renderOutline() {
   };
 
   walk(readLines(text()), 0);
+
+  // Comments with no following real line — a trailing block at end of file, or
+  // after the last child of a block — have no row to hang under. Emit them at
+  // the margin, in source order, after everything else.
+  for (let k = 1; k <= lines.length; k++) {
+    if (isCommentLine(k) && !emitted.has(k)) emitCommentRow(k, 0);
+  }
 
   const restore = outline.querySelector(`input[data-line="${focused}"]`);
   if (restore && document.activeElement?.tagName !== 'TEXTAREA') {
@@ -978,6 +1072,7 @@ for (const b of document.querySelectorAll('[data-add]')) {
     step: '- 10 Movement',
     rest: 'rest 60s',
     block: '5 rounds:',
+    comment: '// ',
   }[b.dataset.add]);
 }
 

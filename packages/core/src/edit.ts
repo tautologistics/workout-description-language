@@ -93,7 +93,20 @@ function blanksBelow(lines: string[], line: number): number {
 const deepest = (lines: string[], n: Line): number =>
   (n.children.length ? deepest(lines, n.children[n.children.length - 1]) : logicalEnd(lines, n.line));
 
-/** Every line's span, keyed by the line it starts on. */
+/**
+ * Every line's span, keyed by the line it starts on.
+ *
+ * A real node's span still *swallows* the own-line comments written above it
+ * (`from` runs up over them) — moving a block has to carry `// the buy-in` with
+ * it or the comment ends up describing whatever lands there instead. But an
+ * own-line comment is *also* a line an editor wants to address on its own — the
+ * outline renders a row for each one — so every own-line comment additionally
+ * gets its own single-line span here. The two readings overlap on purpose: the
+ * comment's physical line is inside the following node's span *and* is its own
+ * span. Operations that move a comment as their subject (`move`, `shift`) take a
+ * dedicated path so the overlap does not double-splice; the rest (`remove`,
+ * `duplicate`, `insertAfter`, `moveTo`) only need the map entry.
+ */
 export function spans(lines: string[]): Map<number, Span> {
   const out = new Map<number, Span>();
   const walk = (nodes: Line[]) => {
@@ -112,11 +125,65 @@ export function spans(lines: string[]): Map<number, Span> {
     });
   };
   walk(readLines(`${lines.join('\n')}\n`));
+
+  // Own-line comments as their own addressable, single-line spans. Added after
+  // the walk so `[...out.values()][0]` stays the first real node.
+  for (let k = 1; k <= lines.length; k++) {
+    if (!COMMENT.test(lines[k - 1] ?? '') || out.has(k)) continue;
+    out.set(k, {
+      node: { text: lines[k - 1].trim(), indent: indentOf(lines[k - 1]), line: k, comments: [], children: [] },
+      from: k,
+      to: k,
+      contentEnd: k,
+      index: 0,
+      siblings: [],
+    });
+  }
   return out;
+}
+
+/** Whether a line is an own-line comment — the whole (trimmed) line is a `//`. */
+const isComment = (lines: string[], line: number) => COMMENT.test(lines[line - 1] ?? '');
+
+/**
+ * Move an own-line comment up or down by one outline row.
+ *
+ * A comment is not in the line tree, so it has no siblings to swap with the way
+ * `move` does for a real node. Instead it steps over the adjacent *rendered*
+ * row: another comment (a plain line swap) or a real node (the comment jumps to
+ * the far side of that node's contents). Blank lines between are stepped over,
+ * not disturbed.
+ */
+function moveComment(lines: string[], k: number, dir: -1 | 1): string[] {
+  const comment = lines[k - 1];
+  if (dir > 0) {
+    let j = k + 1;
+    while (j <= lines.length && !lines[j - 1].trim()) j++;
+    if (j > lines.length) return lines;
+    if (isComment(lines, j)) {
+      return [...lines.slice(0, k - 1), ...lines.slice(k, j), comment, ...lines.slice(j)];
+    }
+    const node = spans(lines).get(j);
+    if (!node) return lines;
+    const body = [...lines.slice(0, k - 1), ...lines.slice(k)];
+    const at = node.contentEnd - 1;   // 1-based line to land after, once k is gone
+    return [...body.slice(0, at), comment, ...body.slice(at)];
+  }
+  let j = k - 1;
+  while (j >= 1 && !lines[j - 1].trim()) j--;
+  if (j < 1) return lines;
+  if (isComment(lines, j)) {
+    return [...lines.slice(0, j - 1), comment, ...lines.slice(j - 1, k - 1), ...lines.slice(k)];
+  }
+  const node = spans(lines).get(j);
+  if (!node) return lines;
+  const body = [...lines.slice(0, k - 1), ...lines.slice(k)];
+  return [...body.slice(0, j - 1), comment, ...body.slice(j - 1)];
 }
 
 /** Swap a thing with the sibling before or after it, contents and all. */
 export function move(lines: string[], line: number, dir: -1 | 1): string[] {
+  if (isComment(lines, line)) return moveComment(lines, line, dir);
   const map = spans(lines);
   const self = map.get(line);
   const other = self && map.get(self.siblings[self.index + dir]?.line);
@@ -181,6 +248,16 @@ export function moveTo(
  * claims otherwise. `self.index === 0` is that check: no sibling before it.
  */
 export function shift(lines: string[], line: number, by: number): string[] {
+  // A comment carries no structure — `readLines` strips it before the tree is
+  // built and re-attaches it to the next real line regardless — so its indent
+  // is cosmetic and it needs no preceding sibling to nest under. Re-indent the
+  // one physical line, refusing only to go past the margin.
+  if (isComment(lines, line)) {
+    if (indentOf(lines[line - 1]) + by < 0) return lines;
+    const out = lines.slice();
+    out[line - 1] = by > 0 ? ' '.repeat(by) + out[line - 1] : out[line - 1].slice(-by);
+    return out;
+  }
   const self = spans(lines).get(line);
   if (!self || indentOf(lines[line - 1]) + by < 0) return lines;
   if (by > 0 && self.index === 0) return lines;

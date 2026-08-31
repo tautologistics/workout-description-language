@@ -182,6 +182,89 @@ describe('edit: the round trip over the corpus', () => {
   });
 });
 
+describe('edit: comment lines are addressable', () => {
+  const DOC = L(`# Comments
+for time:
+  // the buy-in
+  - 800m Run
+  - 21 Thrusters
+  // a note on the thrusters, on its own line
+  - 21 Pull-Ups
+// trailing at end of file
+`);
+
+  it('gives every own-line comment its own single-line span', () => {
+    const s = spans(DOC).get(3)!;
+    eq([s.from, s.to, s.contentEnd], [3, 3, 3], 'just the one line');
+    eq(s.node.text, '// the buy-in');
+    ok(spans(DOC).has(6), 'a comment between two steps');
+    ok(spans(DOC).has(8), 'the end-of-file trailing comment');
+  });
+
+  it('still lets the following node swallow the comment written above it', () => {
+    // The dual reading: line 3 is its own span *and* inside line 4's span, so a
+    // move of the run still carries its buy-in comment.
+    eq(spans(DOC).get(4)!.from, 3, 'the run’s span starts at its comment');
+  });
+
+  it('edits a comment in place, keeping its indent', () => {
+    eq(replaceLogical(DOC, 3, '// the warm-up')[2], '  // the warm-up');
+  });
+
+  it('deletes exactly the comment line', () => {
+    const out = remove(DOC, 6);
+    ok(!T(out).includes('a note on the thrusters'), T(out));
+    ok(T(out).includes('21 Thrusters') && T(out).includes('21 Pull-Ups'), 'and nothing else');
+  });
+
+  it('inserts after a comment at the comment’s indent', () => {
+    eq(insertAfter(DOC, 3, '- 400m Row')[3], '  - 400m Row');
+  });
+
+  it('moves a comment down past the next step', () => {
+    const out = move(DOC, 6, 1);
+    eq(out.slice(4, 7), ['  - 21 Thrusters', '  - 21 Pull-Ups', '  // a note on the thrusters, on its own line']);
+  });
+
+  it('moves a comment up past the step above it', () => {
+    const out = move(DOC, 6, -1);
+    eq(out.slice(3, 6), ['  - 800m Run', '  // a note on the thrusters, on its own line', '  - 21 Thrusters']);
+  });
+
+  it('down and back again is the file it started with', () => {
+    const there = move(DOC, 6, 1);
+    const commentAt = there.findIndex((l) => l.includes('a note on the thrusters')) + 1;
+    eq(move(there, commentAt, -1), DOC);
+  });
+
+  it('swaps two adjacent comment lines', () => {
+    const two = L('// first\n// second\n- 10 Push-Up\n');
+    eq(move(two, 1, 1), ['// second', '// first', '- 10 Push-Up']);
+    eq(move(move(two, 1, 1), 2, -1), two, 'and back');
+  });
+
+  it('moves a comment past a whole block, contents and all', () => {
+    const src = L('// note\n5 rounds:\n  - 10 Push-Up\n  - 15 Air Squat\n- 400m Run\n');
+    eq(move(src, 1, 1), ['5 rounds:', '  - 10 Push-Up', '  - 15 Air Squat', '// note', '- 400m Run']);
+  });
+
+  it('re-indents a comment and refuses to outdent past the margin', () => {
+    eq(shift(DOC, 3, 2)[2], '    // the buy-in');
+    eq(shift(DOC, 8, -2), DOC, 'already at the margin');
+  });
+
+  it('drags a comment onto another row, re-indenting to match', () => {
+    const out = moveTo(DOC, 8, 4, 'after');   // the end-of-file comment, into the block
+    eq(out.slice(3, 5), ['  - 800m Run', '  // trailing at end of file']);
+    ok(!out[out.length - 1].includes('trailing'), 'no longer at the end');
+  });
+
+  it('drags a real step to sit after a comment row', () => {
+    const out = moveTo(DOC, 5, 3, 'after');
+    eq(out.slice(2, 4), ['  // the buy-in', '  - 21 Thrusters']);
+  });
+});
+
 describe('moveTo: dragging a thing somewhere else', () => {
   const doc = [
     'for time:',
