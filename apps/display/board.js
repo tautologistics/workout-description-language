@@ -58,6 +58,7 @@ try {
 
 const el = (id) => document.getElementById(id);
 const bar = el('bar');
+const meta = el('meta');
 const board = el('board');
 const controls = el('controls');
 const problems = el('problems');
@@ -129,6 +130,28 @@ const fmt = (s) => {
   return `${m}:${String(n % 60).padStart(2, '0')}`;
 };
 
+// A zero-indent `@key` line, matched the way core's `tryDirective` selects one.
+// Only consulted inside the top-of-file preamble run (`preambleEnd`), so a
+// `@ 40kg` load fragment deeper in an indented body is never in scope.
+const DIRECTIVE_LINE = /^@[A-Za-z][\w-]*(?:\s|$)/;
+
+/**
+ * One past the top-of-file metadata run: a leading stretch of blank, `//`,
+ * `@key …` and `# title` lines. The first line that is none of those opens the
+ * workout body, and everything from there down renders untouched — same rows,
+ * same blank/comment handling, same cue-line numbers. Confining the directive
+ * match to this run is what keeps a mid-body `@`-fragment safe.
+ */
+function preambleEnd(lines) {
+  let i = 0;
+  while (i < lines.length) {
+    const t = lines[i].trim();
+    if (t === '' || t.startsWith('//') || t.startsWith('#') || DIRECTIVE_LINE.test(t)) i++;
+    else break;
+  }
+  return i;
+}
+
 /**
  * Draw the source, one row per line.
  *
@@ -138,11 +161,17 @@ const fmt = (s) => {
  */
 function draw() {
   board.innerHTML = '';
+  const preEnd = preambleEnd(state.lines);
   state.rows = state.lines.map((text, i) => {
     const row = document.createElement('div');
     row.className = 'row';
     if (!text.trim()) row.classList.add('blank');
     else if (text.trimStart().startsWith('//')) row.classList.add('comment');
+    // A `@key` line in the top-of-file metadata run is not workout content. The
+    // row is still built — so `dataset.line` stays 1:1 with the source and
+    // `paint()`'s cue-line matching is untouched — but hidden via `.preamble`.
+    // `@id` / `@tags` resurface in the header strip; `# title` stays a real row.
+    else if (i < preEnd && DIRECTIVE_LINE.test(text.trim())) row.classList.add('preamble');
     row.dataset.line = String(i + 1);
     const mark = document.createElement('span');
     mark.className = 'mark';
@@ -154,6 +183,39 @@ function draw() {
     board.append(row);
     return row;
   });
+}
+
+/**
+ * `@id` and `@tags` in the header chrome — the two preamble directives worth
+ * seeing at a glance, lifted out of the board rows where `draw()` now hides
+ * them. `@id` verbatim; `@tags` split on comma into chips, mirroring the
+ * builder's metadata block in a lighter weight. Shown only when the workout
+ * sets one or the other — a file with neither gets no strip at all.
+ */
+function renderMeta() {
+  const d = state.workout?.directives ?? {};
+  const id = d.id;
+  const tags = d.tags ? d.tags.split(',').map((t) => t.trim()).filter(Boolean) : [];
+  meta.innerHTML = '';
+  if (!id && !tags.length) { meta.hidden = true; return; }
+  meta.hidden = false;
+  if (id) {
+    const span = document.createElement('span');
+    span.className = 'id';
+    span.textContent = id;
+    meta.append(span);
+  }
+  if (tags.length) {
+    const chips = document.createElement('span');
+    chips.className = 'chips';
+    for (const tag of tags) {
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.textContent = tag;
+      chips.append(chip);
+    }
+    meta.append(chips);
+  }
 }
 
 function paint() {
@@ -890,6 +952,7 @@ function load(source, division = '', toUrl = true) {
   bar.hidden = false;
   controls.hidden = false;
   draw();
+  renderMeta();
   reset();
   if (toUrl) writeHash();
 }
@@ -906,6 +969,7 @@ function chooseDivision(name) {
 
 function showEmpty() {
   bar.hidden = true;
+  meta.hidden = true;
   controls.hidden = true;
   problems.hidden = true;
   // Drop both the hash and a `?w=<id>` share param, so "Edit" lands on the

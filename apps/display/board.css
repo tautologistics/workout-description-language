@@ -105,6 +105,42 @@ header .time {
 header.waiting .time { color: var(--dim); }
 header.overrun .time { color: var(--warn); }
 
+/*
+ * The preamble strip: `@id` / `@tags` lifted out of the board.
+ *
+ * Metadata about the workout, kept off the rows the athlete reads mid-set. Sits
+ * under the bar, in the same chrome colour, and is hidden entirely when the
+ * file sets neither directive.
+ */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 1vmin 2.4vmin;
+  padding: 1vmin 3vmin;
+  border-bottom: 1px solid var(--rule);
+  background: #0f1114;
+  font-size: 1.9vmin;
+}
+
+.meta .id {
+  color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  letter-spacing: 0.02em;
+}
+
+.meta .chips { display: flex; flex-wrap: wrap; gap: .8vmin; }
+
+.meta .chip {
+  padding: .1em .7em;
+  border: 1px solid var(--rule);
+  border-radius: 2rem;
+  color: var(--dim);
+  font-size: 0.92em;
+  text-transform: lowercase;
+  letter-spacing: 0.03em;
+}
+
 /* --- the board: the workout, exactly as written --------------------------- */
 
 main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
@@ -140,6 +176,9 @@ main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .row .text { flex: 1; }
 
 .row.blank { height: 0.6em; padding: 0; }
+/* A `@key` line from the top-of-file preamble. The row still exists so the
+   marker's line-number maths is unchanged; it is just never shown. */
+.row.preamble { display: none; }
 .row.comment .text { color: var(--dim); }
 .row.done .text { color: var(--done); }
 
