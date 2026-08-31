@@ -48,7 +48,16 @@ self-contained and dispatchable now; the rest need Chris to scope or sequence:
   Chris to scope which movements. Note `around-worlds` itself looks mis-sourced
   (free-exercise-db's "Around The Worlds" is a lying dumbbell bench fly, not the
   kettlebell around-the-head movement its `lateralityAxis: "direction"` +
-  `per-side` describe) — the sweep should resolve what that entry is.
+  `per-side` describe) — the sweep should resolve what that entry is. The CSV is
+  now the **bulk** path; per the rethink below, one-at-a-time movement edits are
+  headed into an in-app GUI.
+
+- **An in-app GUI for creating/editing movements** (not scheduled) — the
+  spreadsheet is hard to organise and the need arises while building workouts.
+  Two scopes: **global** (admin-edit, needs an admin flag established) and
+  **user-scoped** (creator-edit, public-viewable, a later phase); admin/global
+  first. CSV curation stays for bulk. Detail in
+  [../topics/builder-ux.md](../topics/builder-ux.md) "Accounts, IDs and layout".
 
 - **Post-redesign rethinks** (not scheduled) — `@id` ↔ record-id correlation,
   account **namespacing** (a username as a workout-id prefix; touches the

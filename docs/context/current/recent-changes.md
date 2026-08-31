@@ -2,6 +2,17 @@
 
 ## Changes
 
+- **2026-08-31 — Direction: movement create/edit is headed into an in-app GUI**
+  (thinking out loud, not scheduled, no code). Chris, trying to run the first
+  laterality pass through `curation-sheet.csv`, found the spreadsheet hard to
+  organise and realised the need to fix/add a movement comes up *while building a
+  workout* — so it wants to be a builder GUI. Two scopes: **global**
+  (admin-edit, needs an admin flag established) and **user-scoped** (creator-edit,
+  public-viewable, a later phase); admin/global first. The CSV flow shipped below
+  is **kept for bulk** sweeps. Recorded in
+  [../topics/builder-ux.md](../topics/builder-ux.md) "Accounts, IDs and layout"
+  and [../tasks/current.md](../tasks/current.md).
+
 - **2026-08-31 — The movement-curation sheet has a committed generator, and
   `lateralityAxis` is in its CURRENT block** (a one-off, not a queue item, in
   prep for the unscheduled laterality sweep). `scripts/export-movement-curation.mjs`

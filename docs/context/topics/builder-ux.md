@@ -793,6 +793,32 @@ below are the larger rethinks.
   layout pass, not a patch. He is separately exploring whether **Claude Design**
   can be handed the current layout to iterate a better one.
 
+- **Movement create/edit belongs in the app, not a spreadsheet.** Raised
+  2026-08-31, trying to run the first laterality curation pass through
+  `curation-sheet.csv`: a 972-row × 32-column sheet is hard to look at, organise,
+  or reason about, and the need to fix or add a movement arises *naturally while
+  building a workout* — so it wants to be a GUI in the builder, reached as a step
+  in that flow ("I'll run the things that need editing, or find ones that need
+  creating"). Two scopes (Chris first said three, then corrected to two):
+
+  1. **Global movements** — today's `registry/movements.json` set. Everyone
+     views; only an **admin** may edit. Needs an **admin user / admin flag**
+     established — nothing like it exists yet (PocketBase per-user flag, or a
+     hardcoded allowlist to start). Creating a movement in-app offers the option
+     to **make it global** (admin only).
+  2. **User-scoped movements** — created by a user, living under their account
+     the way workouts do: **viewable by anyone** when published/public,
+     **editable only by the creator**. A **later phase**, after global editing
+     works.
+
+  Phasing Chris stated: **admin/global editing first**, user-scoped second. The
+  CSV flow (`make curation-sheet` / `curation-check` / `curation-apply`) is
+  **kept for bulk** — wide sweeps across many movements at once; the GUI is for
+  one-at-a-time work. Open: where user-scoped movements live (a collection
+  paralleling `workouts`?); how a workout referencing one resolves for a
+  different viewer (namespaced id, cf. the account-namespacing bullet above);
+  whether "make global" is a copy, a move, or a flag flip.
+
 ### The layout redesign — direction chosen 2026-08-30
 
 Explored on a Claude Design canvas: three directions (A Focus + Inspector, B

@@ -85,6 +85,11 @@ dry-run report (nothing written); `make curation-apply CSV=<chunk>.csv` writes.
 Run the check before and after each chunk the same way — the report before
 applying is the whole safety mechanism.
 
+This CSV flow is the **bulk** path — wide sweeps across many movements. For
+one-at-a-time create/edit while building a workout, an in-app movement GUI is
+the intended surface (unscheduled — see
+[builder-ux.md](builder-ux.md) "Accounts, IDs and layout").
+
 **A change to the registry is checked by regenerating the goldens, like every
 other change.** `node packages/core/test/golden/generate.ts`, then read the
 diff: the digest holds each file's muscle attribution as well as its shape,
