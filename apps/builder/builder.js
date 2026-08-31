@@ -1396,6 +1396,79 @@ for (const b of document.querySelectorAll('.right-tab'))
   b.addEventListener('click', () => setAnalysisTab(b.dataset.rview));
 setAnalysisTab(localStorage.getItem('wdl.analysis-tab'));
 
+// --- the column splitter -----------------------------------------------
+// A drag handle on the editor/margin border. The margin width is a CSS var on
+// `.sheet` (`--right-col-w`); this sets it — clamped so neither column starves
+// — and persists it. With nothing stored, the stylesheet's per-breakpoint
+// fallback stands. Below 820px the sheet is one column and the handle is
+// `display: none`, so this is inert there.
+{
+  const sheet = document.querySelector('.sheet');
+  const splitter = document.querySelector('.col-resize');
+  const RIGHT_MIN = 288;                        // 18rem — the summary <dl> + tabs
+  const EDITOR_MIN = 22 * 16;                   // matches the grid's 22rem floor
+  const clamp = (px) =>
+    Math.round(Math.min(Math.max(px, RIGHT_MIN), Math.max(RIGHT_MIN, sheet.clientWidth - EDITOR_MIN - 6)));
+
+  // `intended` is the user's chosen width, unclamped; it is re-clamped to the
+  // current sheet on every paint, so shrinking the window narrows the margin
+  // without losing the intent when the window grows back. `null` = no override,
+  // the stylesheet's per-breakpoint fallback stands.
+  let intended = Number(localStorage.getItem('wdl.right-col-w')) || null;
+  const paint = () => {
+    if (intended == null) sheet.style.removeProperty('--right-col-w');
+    else sheet.style.setProperty('--right-col-w', `${clamp(intended)}px`);
+  };
+  const set = (px, persist) => {
+    intended = px;
+    paint();
+    if (persist) { try { localStorage.setItem('wdl.right-col-w', String(clamp(px))); } catch { /* private mode */ } }
+  };
+  paint();
+
+  if (splitter) {
+    // Track the drag on `window`, not a captured pointer on the handle: the
+    // move then fires for a plain mouse drag too, and an add-on-press /
+    // remove-on-release listener pair needs no capture bookkeeping.
+    const onMove = (e) => set(sheet.getBoundingClientRect().right - e.clientX, false);
+    const end = () => {
+      removeEventListener('pointermove', onMove);
+      removeEventListener('mousemove', onMove);
+      removeEventListener('pointerup', end);
+      removeEventListener('mouseup', end);
+      splitter.classList.remove('dragging');
+      document.body.classList.remove('col-resizing');
+      if (intended != null) set(clamp(intended), true);   // persist the settled width
+    };
+    const start = (e) => {
+      if (e.button) return;                    // primary button / touch only
+      addEventListener('pointermove', onMove);
+      addEventListener('mousemove', onMove);
+      addEventListener('pointerup', end);
+      addEventListener('mouseup', end);
+      splitter.classList.add('dragging');
+      document.body.classList.add('col-resizing');
+      e.preventDefault();
+    };
+    splitter.addEventListener('pointerdown', start);
+    splitter.addEventListener('mousedown', start);
+    // Double-click clears the override — back to the stylesheet default.
+    splitter.addEventListener('dblclick', () => {
+      intended = null;
+      paint();
+      try { localStorage.removeItem('wdl.right-col-w'); } catch { /* private mode */ }
+    });
+    splitter.addEventListener('keydown', (e) => {
+      const base = intended != null ? clamp(intended) : splitter.nextElementSibling.getBoundingClientRect().width;
+      const step = e.shiftKey ? 48 : 16;
+      if (e.key === 'ArrowLeft') { set(base + step, true); e.preventDefault(); }
+      else if (e.key === 'ArrowRight') { set(base - step, true); e.preventDefault(); }
+    });
+    // Re-clamp the intent to the new sheet width; never widens past the intent.
+    addEventListener('resize', paint);
+  }
+}
+
 // --- the movement palette modal --------------------------------------------
 // Summoned, never docked: ⌘K / Ctrl-K anywhere, or "+ movement" / Enter on a
 // blank outline row. It carries the same three filters the drawer did — text

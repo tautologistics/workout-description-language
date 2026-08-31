@@ -83,6 +83,28 @@ the Outline/Text tab strip or the `+ movement` row), not in the top-level nav.
 *Scope: `apps/builder/index.html`, `apps/builder/builder.css`. No JS logic
 change beyond moving a listener. No core change.*
 
+**~~The editor/margin split is fixed, and on a wide display the editor hoards
+space the analysis could use.~~ Fixed 2026-08-31** (`<SHA1>`, from Chris using
+it). The post-redesign sheet was `minmax(0,1fr) 24rem` capped at 1120px — a
+wide window just added dead margin either side, and the analysis (body map,
+goals) was stuck at 24rem however much room there was. **Shipped:** the sheet
+cap is 1600px and the margin width is a CSS var (`--right-col-w` on `.sheet`,
+`grid-template-columns: minmax(22rem,1fr) 6px var(--right-col-w, 24rem)`) with
+a **drag handle** — `<div class="col-resize">` between the columns. `builder.js`
+tracks the drag on `window` (pointer + mouse, no capture), clamps so the editor
+keeps a 22rem floor and the margin an 18rem one, and persists the *intent*
+(unclamped) to `localStorage['wdl.right-col-w']`, re-clamping it to the sheet on
+every resize so a narrow window doesn't lose a wide setting. Double-click
+resets to the stylesheet default; ArrowLeft/Right nudge (Shift = bigger step).
+Below 820px the sheet is one column and the handle is `display:none`. The
+builder body map now **scales with the margin** — `#bodymap` overrides the
+shared 78px so the two figures split the panel width, each capped at 190px — so
+a wider margin buys a bigger diagram, which is what Chris asked for alongside
+the drag. *Touched: `apps/builder/{index.html, builder.css, builder.js}`. No
+core change; suite 2051 passing, 1 pending.* This partly answers the
+"give the margin more room" thread above (the *Movements* drawer and the
+collapsible sub-panels are still open).
+
 ---
 
 ## Outline

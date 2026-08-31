@@ -2,6 +2,21 @@
 
 ## Changes
 
+- **2026-08-31 — Builder: the editor/analysis split is draggable, and the body
+  map scales with the margin** (`<SHA1>`, from Chris using it). The sheet was
+  `minmax(0,1fr) 24rem` capped at 1120px, so a wide window added dead margin
+  and the analysis column was stuck at 24rem. Now: sheet cap 1600px; the
+  margin width is `--right-col-w` on `.sheet` with a `<div class="col-resize">`
+  drag handle between the columns. `builder.js` tracks the drag on `window`
+  (pointer + mouse, no capture), clamps to a 22rem editor floor / 18rem margin
+  floor, persists the unclamped *intent* to `localStorage['wdl.right-col-w']`
+  and re-clamps it to the sheet on resize. Double-click resets; arrows nudge.
+  Hidden below 820px (single column). The builder body map overrides the
+  shared 78px so its two figures split the panel width (each capped 190px) —
+  a wider margin → a bigger diagram. `apps/builder/*` only, no core change;
+  suite 2051 passing, 1 pending. Verified light + dark and at 1680 / 1024 /
+  900 / 760px (drag, keyboard, reset, persist-across-reload, resize re-clamp).
+
 - **2026-08-31 — `make deploy` defaults `WDL_DEPLOY_SSH` to `dreamhost.ae.wex`.**
   The Makefile now sets `export WDL_DEPLOY_SSH ?= dreamhost.ae.wex`, so a bare
   `make deploy` / `make deploy-dry` works on Chris's box without prefixing the
