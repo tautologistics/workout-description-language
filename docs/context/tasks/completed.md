@@ -1666,8 +1666,8 @@ No code change.
 
 **13c. ~~The builder's `»` panel appends a laterality mode instead of replacing
 one, and doubles it on re-pick.~~ DONE 2026-08-31** (`02d819d`). *One strand of
-item 13, shipped alone — no decision needed. Items **13a** (the laterality
-curation gap) and **13b** (the parens-vs-bare spelling) stay open in
+item 13, shipped alone — no decision needed. **13b** landed 2026-08-31
+(`cf3c47f`, below); **13a** and **13a-curation** stay open in
 [current.md](current.md); item 13 as a whole is **not** closed.* `applyModifier`
 with `position: 'title'` spliced the chosen laterality text in after the
 movement title without checking the line, so picking `(split)` when `each side`
@@ -1758,6 +1758,44 @@ unchanged: `interpretations.json` regenerates byte-identical,
 Builder driven both themes: diagnostics pane shows only the note, the outline
 nests the section with the section accent, "reads as" cycles every descendant
 across both sections three times, `Canonicalise` round-trips the label verbatim.
+
+---
+
+**13b. ~~The per-side laterality form is bare (`each arm`) where `(split)` is
+parenthesised — Chris wants parity.~~ DONE 2026-08-31** (`cf3c47f`,
+[DEC-019](../topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised)).
+*One strand of item 13; **13a** (the `»` panel offering the option) and
+**13a-curation** (filling `laterality` for `around-worlds` &c.) follow
+separately.* `format.ts` wrote `both`/`split` as ` (both)` / ` (split)` but
+`per-side` as a bare ` each side` — the asymmetry was just the two grammar forms
+(`laterality = "(" lateralityWord ")"` vs `trailingQualifier -- limb`), and spec
+§4 had made the bare form deliberate ("reads as part of the prescription").
+
+**Chris's call:** parenthesise the per-side form — `(each arm)` — and teach the
+parser to *read* the parenthesised spelling, which it could not before
+(`(each direction)` fell to `unreadableParen` and was held as unknown). Also
+**`direction` joins the axis vocabulary** (`limbWord`) — a rotation performed
+once each way, which is what `Around The Worlds (each direction)` means. `total`
+still maps to `(split)` on output; `(both)` stays distinct; bare `each arm` /
+`per leg` still parse (input tolerance), canonical output is the parens.
+
+*Touched:* `spec/grammar-0.1.ohm` (`laterality` → `-- word` / `-- perSide`
+cases, `limbWord += direction`), `packages/core/src/grammar/step-semantics.ts`
+(`laterality` splits into `laterality_word` + `laterality_perSide`),
+`packages/core/src/format.ts` (`per-side` → ` (each ${limb})`), `spec/spec-0.1.md`
+§4 / §7 / §11.1, `packages/core/test/{grammar,corpus2}.test.ts`,
+`packages/core/test/golden/vocabulary.{ts,json}`, and **9 corpus `.wdl` files
+reformatted `each X` → `(each X)` via `wdl fmt`**.
+
+**Verification:** suite **2060 → 2063 passing** (1 pending, pre-existing `10x
+Curl`). The pinned `12 Around The Worlds (each direction)` grammar case flips
+from held-unknown to `laterality: 'per-side', limb: 'direction'`. Corpus move
+measured precisely: `workouts.canonical.json` changed **only the 9 `text`
+fields** (+ its date stamp) — **0 AST changes, 0 summary changes**, so nothing
+about how any workout is *understood* moved; `interpretations.json` regenerates
+byte-identical; `movements.canonical.json` / `dedupe-audit.json` were date-only
+churn and reverted. All 190 corpus files remain their own canonical fixpoint.
+Builder not driven — no app code changed (that is 13a).
 
 ---
 

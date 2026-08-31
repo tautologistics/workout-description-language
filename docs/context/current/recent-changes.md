@@ -2,6 +2,24 @@
 
 ## Changes
 
+- **2026-08-31 — The per-side laterality form is parenthesised: `(each arm)`**
+  (`cf3c47f`, queue item **13b**,
+  [DEC-019](../topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised)).
+  `format.ts` wrote `(split)` / `(both)` parenthesised but `per-side` as a bare
+  ` each side`; Chris wanted parity. Now all four modes are parenthesised —
+  `(each <axis>)` names the count mode and the axis (`arm | leg | side | hand |
+  direction`). **`direction` is a new axis word** — a rotation once each way —
+  and the parser now *reads* the parenthesised per-side form, which it could
+  not: `(each direction)` used to fall to `unreadableParen` and be held as
+  unknown. `total` still maps to `(split)`, `(both)` stays distinct, bare
+  `each arm` still parses. `spec/grammar-0.1.ohm` (`laterality` → `-- word` /
+  `-- perSide`, `limbWord += direction`), `step-semantics.ts`, `format.ts`,
+  `spec-0.1.md` §4/§7/§11.1, tests, and **9 corpus files reformatted
+  `each X` → `(each X)`** — which moved only those 9 `text` fields in
+  `workouts.canonical.json` (0 AST / 0 summary changes; `interpretations.json`
+  byte-identical). Suite 2060 → 2063 passing. No app code — the builder `»`
+  panel piece is the still-open 13a.
+
 - **2026-08-31 — A bare-label block header is an inert section, not an
   "unrecognized header" error** (`70a1852`, queue item **11**,
   [DEC-018](../topics/settled-decisions.md#dec-018-a-bare-label-block-header-is-a-section)).

@@ -1169,6 +1169,40 @@ marks the ones worth a top-level pointer.
   the block into a real `repeat` and the leftover label is reported, the same
   "three rounds *and* an error" as `cap 12min, 3 rounds:`.
 
+### DEC-019 The per-side laterality form is parenthesised: `(each arm)`
+*Status: active. Settled 2026-08-31, closing queue item 13b.*
+
+- **All four laterality modes are parenthesised.** `(split)` / `(both)` /
+  `(total)` name *how* the count is performed; `(each <axis>)` names that plus
+  the **axis** — `arm | leg | side | hand | direction`. Until 2026-08-31 the
+  per-side form was written bare and without a comma (`14 DB Curl each arm`),
+  which spec §4 had made deliberate — "it reads as part of the prescription
+  rather than as a modifier of it". Chris reopened that: the asymmetry with
+  `(split)` was the thing a reader tripped on.
+
+- **`direction` is a new axis word** (`limbWord` in the grammar) — a rotation
+  performed once each way. `12 Around The Worlds (each direction)` had **no
+  reading at all** before: `(each direction)` fell to `unreadableParen` and was
+  held as unknown text. The parser now *reads* the parenthesised per-side form,
+  a `laterality = "(" lateralityWord ")" -- word | "(" eachWord ~wordChar spaces
+  limbWord ~wordChar ")" -- perSide` split tried ahead of `unreadableParen`.
+
+- **What did not change.** Bare `each arm` / `per leg` still parse (input
+  tolerance); `total` still maps to `(split)` on output; `(both)` stays distinct
+  from `(split)`. Side selectors (`first arm`, `trailingQualifier -- side`) and
+  team words (`shared`, `synchronized`) stay **bare** — this is a
+  laterality-only change. Canonical output writes the parenthesised form and
+  keeps the axis word the author wrote.
+
+- **Corpus cost, measured.** 9 `examples/corpus/*.wdl` files carried bare
+  `each X` and were reformatted with `wdl fmt`. That moved **only the `text`
+  field of those 9 records** in `registry/workouts.canonical.json` (plus its
+  date stamp) — **0 AST changes, 0 summary changes**, so nothing about how any
+  workout is *understood* moved; `interpretations.json` regenerated
+  byte-identical. All 190 corpus files remain their own canonical fixpoint.
+  *This is the norm the corpus is held to — every file equals `wdl fmt` of
+  itself — which is why the 9 were reformatted rather than left as authored.*
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).

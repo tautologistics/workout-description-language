@@ -151,3 +151,18 @@ executes, which is the line DEC-010 draws. Implemented as a grammar production
 (`customSection` + `kindLead`), not a `parse.ts` reclassification, so the grammar
 still owns what exists (DEC-006 / DEC-007).
 -> [topics/settled-decisions.md](topics/settled-decisions.md#dec-018-a-bare-label-block-header-is-a-section)
+
+## DEC-019 — The per-side laterality form is parenthesised: `(each arm)`
+Status: active. Settled 2026-08-31, closing queue item 13b; reverses spec §4's
+bare `each arm` spelling. All four laterality modes are now parenthesised —
+`(split)` / `(both)` / `(total)` name how the count is performed, `(each <axis>)`
+names that plus the axis it is performed across. `axis` is `arm | leg | side |
+hand | direction`; `direction` is new (a rotation performed once each way, e.g.
+`Around The Worlds (each direction)`). The parser also *reads* the parenthesised
+per-side form now — before, `(each direction)` fell to `unreadableParen` and was
+held as unknown text. Bare `each arm` / `per leg` still parse (input tolerance),
+`total` still maps to `(split)`, `(both)` stays distinct; canonical output is the
+parens. Cost: 9 corpus `.wdl` files reformatted, moving only the `text` field of
+those 9 in `workouts.canonical.json` — no AST or summary changed. Side selectors
+(`first arm`) and team words (`shared`) stay bare — a laterality-only change.
+-> [topics/settled-decisions.md](topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised)

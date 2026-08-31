@@ -301,7 +301,7 @@ split     → effective = prescribed
 per-side  → effective = prescribed × 2
 ```
 
-`both` and `split` both equal the prescribed count because in both cases the number already represents every rep performed — they differ in what a single rep *is*, not how many there are. Only per-side multiplies. The display should show `14 each arm` rather than `28`, so effective reps is an analysis-layer value, not a display one.
+`both` and `split` both equal the prescribed count because in both cases the number already represents every rep performed — they differ in what a single rep *is*, not how many there are. Only per-side multiplies. The display should show `14 (each arm)` rather than `28`, so effective reps is an analysis-layer value, not a display one. *(Canonical spelling of the per-side form is `(each <axis>)` as of 2026-08-31, queue item 13b / DEC-019 — parenthesised for parity with `(split)`, with `direction` added to the axis vocabulary for rotations. Bare `each arm` / `per leg` are still accepted input.)*
 
 ### Implement count is a separate axis
 
