@@ -907,9 +907,8 @@ function renderOutline() {
 }
 
 /**
- * One cue as a row in a `.steps` list — shared by the Analysis tab's capped
- * `#steps` list and the Reads-as tab's uncapped "show every cue" expansion.
- * The cycle-rail classes match the CSS in `.steps .cue.looping`; the palette
+ * One cue as a row in a `.steps` list — the Reads-as tab's uncapped "show
+ * every cue" expansion. The cycle-rail classes match `.steps .cue.looping`; the palette
  * cycles through four hues so two repeating blocks back to back do not read
  * as one continuous cycle.
  */
@@ -999,10 +998,8 @@ function renderReading() {
   renderDirectives(workout.directives);
   const summary = el('summary');
   const list = el('diagnostics');
-  const stepsBox = el('steps');
   summary.innerHTML = '';
   list.innerHTML = '';
-  stepsBox.innerHTML = '';
 
   let laid;
   try {
@@ -1086,18 +1083,11 @@ function renderReading() {
   }
   summary.append(dl);
 
-  // The <dl> above is the summary band; the cue list below is a detail view and
-  // lives in the (bounded, scrolling) Analysis panel — see `#steps` / `#view-analysis`.
-  // `cueRow` (shared with the Reads-as tab's "show every cue" list) carries the
-  // cycle-rail marking: a cue inside a cycle comes round again, and this list is
-  // the only place that is visible at a glance.
-  for (const cue of laid.cues.slice(0, 24)) stepsBox.append(cueRow(cue, laid));
-  if (laid.cues.length > 24) {
-    const more = document.createElement('div');
-    more.className = 'more';
-    more.textContent = `…and ${laid.cues.length - 24} more`;
-    stepsBox.append(more);
-  }
+  // No per-cue list on this tab: it was a capped duplicate of the "Reads as"
+  // tab's "show every cue" expansion (same `cueRow`), and it pushed the body
+  // map and the goals block — the point of this tab — off the screen. The run
+  // reads on "Reads as"; this tab is the summary band, the diagnostics, the
+  // body map and the goals check.
 
   // Registry-backed checks need the registry. Without it the parse errors still
   // show; say what is missing rather than looking clean because half the checks
@@ -1132,10 +1122,10 @@ function renderReading() {
 // --- the Reads-as tab: the run, compressed --------------------------------
 // A block-grouped reading of the run, read straight off the parsed workout
 // tree — the headers carry their own rounds / scheme / window, so nothing is
-// enumerated round-by-round the way `#steps` is — plus an opt-in "show every
-// cue" expansion to the same per-cue list, uncapped. `renderReading` still
-// owns the summary band, the diagnostics and the capped `#steps` list; this
-// is a separate function over `#view-reads` and touches none of them.
+// enumerated round-by-round — plus an opt-in "show every cue" expansion to the
+// full per-cue list, uncapped. This is the only place the run is enumerated;
+// `renderReading` owns the summary band and the diagnostics on the Analysis
+// tab. Separate function over `#view-reads`, touches neither.
 
 /** A step as `Movement ×10`, `200m Run`, `20cal Row`, or a bare `Thruster`
  *  when the count is carried by an enclosing scheme. */
@@ -1240,9 +1230,9 @@ function renderReadsAs() {
   for (const n of workout.body) groups.append(readsNode(n));
   box.append(groups);
 
-  // The opt-in escape hatch: the full, uncapped per-cue list — the same rows
-  // `#steps` builds. State survives a re-render and a reload, so it is read
-  // fresh from `localStorage` on every paint.
+  // The opt-in escape hatch: the full, uncapped per-cue list. State survives a
+  // re-render and a reload, so it is read fresh from `localStorage` on every
+  // paint.
   const expanded = localStorage.getItem('wdl.reads-expanded') === '1';
   const toggle = document.createElement('button');
   toggle.className = 'link reads-toggle';

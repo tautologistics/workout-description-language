@@ -76,10 +76,12 @@
 
       <div id="view-analysis" class="rpanel" role="tabpanel">
         <!-- The `@key value` preamble, read off `workout.directives` — metadata
-             *about* the workout, set apart from the cue list. Read-only; shown
-             only when the workout sets at least one directive. -->
+             *about* the workout. Read-only; shown only when the workout sets at
+             least one directive. -->
         <div id="directives" class="directives" hidden></div>
-        <div id="steps" class="steps"></div>
+        <!-- No per-cue list here: the run reads on the "Reads as" tab (grouped,
+             with a "show every cue" expansion to the full list). This tab is
+             the diagnostics + body map + goals. -->
         <ul id="diagnostics" class="diagnostics"></ul>
 
         <h2 class="body-head">Body

@@ -496,19 +496,11 @@ header button, header .button { white-space: nowrap; }
 .rpanel.active { display: block; }
 .placeholder { color: var(--dim); font-size: .85rem; }
 
-/* --- the run: cue list -------------------------------------------------- */
-
-/* The cue list is the one thing in this panel that has no natural bound — a
-   long workout unrolls into dozens of rows and, left alone, it pushes the body
-   map and the goals block right off the screen. Cap it and let it scroll
-   inside itself, so what sits below it stays reachable without scrolling the
-   whole panel. (`#steps` is already capped in JS; this bounds what remains.) */
-#steps { max-height: min(24rem, 45vh); overflow-y: auto; padding-right: .5rem; }
+/* --- the run: cue list (Reads-as "show every cue" expansion) ----------- */
 
 .steps .cue { display: flex; gap: .5rem; padding: .1rem 0; }
 .steps .cue .n { color: var(--dim); font-variant-numeric: tabular-nums; min-width: 1.6rem; text-align: right; }
 .steps .cue.rest { color: var(--dim); }
-.steps .more { color: var(--dim); padding-top: .3rem; }
 
 /* Cues inside a cycle are marked by a rail down their left, closed at both
    ends: the shape says "these come round again" without a word per row.

@@ -544,8 +544,9 @@ From the **design-critique pass, 2026-08-30.**
 
 **~~The cue-by-cue expansion is the largest thing in the feedback column and it
 sits above the body map and the goal check.~~ Fixed 2026-08-31** (R4, `f8cb0a8`).
-The split R1 made — Analysis tab keeps the (bounded, scrolling) capped `#steps`
-list; **Reads as** now carries `renderReadsAs()`, a block-grouped reading off
+The split R1 made — Analysis tab keeps a capped `#steps` list (*later removed
+entirely*, see below); **Reads as** now carries `renderReadsAs()`, a
+block-grouped reading off
 `parse().workout.body`: one titled group per top-level block, header label = the
 raw source line, steps + rests on one `·`-joined inline row, nested blocks
 recursed — so a multi-section run reads in a screen instead of a flat scroll of
@@ -555,19 +556,23 @@ paint). The `title / cues / duration / cap / score` `<dl>` stays pinned in the
 summary band. *Was: `renderReading` listed `laid.cues.slice(0, 24)` then
 "…and N more", ~half the pane on a 35-cue workout.*
 
-**~~"Bounded, scrolling" was only half true — the panel scrolled, not the cue
-list.~~ Fixed 2026-08-31** (`8720a62`). R4's split above said the Analysis tab
-keeps a "bounded, scrolling" `#steps` list, but nothing capped `#steps`'s own
-height: the only scroll container was `#view-analysis`, so a workout that
-unrolled into dozens of cues still pushed the body map and the goals block off
-the bottom, reachable only by scrolling the whole panel past the entire list.
-The sticky summary band had the same shape — a `cues N–M repeat` row per
-repeating block, no ceiling. **Fix (CSS only, `apps/builder/builder.css`):**
-`.summary` gets `max-height: 9rem; overflow-y: auto` and `#steps` gets
-`max-height: min(24rem, 45vh); overflow-y: auto`, so each scrolls inside itself
-and the Body / Goals sections below stay on screen without scrolling the panel.
-`#steps` is still JS-capped (`laid.cues.slice(0, 24)`); this bounds what's left.
-Verified light + dark, wide + narrow.
+**~~The Analysis tab still carried a per-cue list at all — a capped duplicate
+of "Reads as" → show every cue.~~ Removed 2026-08-31** (`8720a62` bounded it,
+then `<SHA2>` removed it — Chris's call, from driving it). R4 above left a
+capped `#steps` list on the Analysis tab; it rendered `laid.cues.slice(0, 24)`
+through the *same* `cueRow()` that the "Reads as" tab's **show every cue**
+expansion renders uncapped, so it was a strictly-inferior copy — and it was
+the thing pushing the body map and the goals block (the point of the tab) down
+the panel. `8720a62` first bounded it (`.summary` and `#steps` each capped +
+`overflow-y: auto`); then the `#steps` list was **deleted from the Analysis
+tab entirely** — `#view-analysis` is now directives → diagnostics → body map →
+goals, and the run is read only on "Reads as". The `.summary` band keeps its
+`max-height: 9rem; overflow-y: auto` cap (a `cues N–M repeat` row per
+repeating block, no natural ceiling). `cueRow` / the `.steps` CSS stay — the
+"show every cue" list still uses them (`.steps.reads-cues`). *Touched:
+`apps/builder/{builder.js, builder.css, index.html}`. No core change; suite
+2051 passing, 1 pending. Verified light + dark, wide + narrow, and the
+"show every cue" expansion still renders the full list with its cycle rails.*
 
 **Minor — the read pane stacks four `<h2>`s.** "What it reads as", "Body",
 "Against your goals" (each with an inline `<select>`) repeat the uppercase

@@ -2,18 +2,19 @@
 
 ## Changes
 
-- **2026-08-31 — Builder Analysis tab: the summary band and the cue list are
-  each height-bounded and scroll internally** (`8720a62`, caught by driving the
-  builder). A workout that unrolled into dozens of cues grew `#steps` unbounded
-  and pushed the body map + goals block off the bottom of the Analysis panel —
-  the only scroll container was `#view-analysis` as a whole, so reaching them
-  meant scrolling past the entire cue list. The sticky summary band had the
-  same shape (a `cues N–M repeat` row per repeating block, no ceiling). Fix is
-  CSS only (`apps/builder/builder.css`): `.summary` → `max-height: 9rem;
-  overflow-y: auto`; `#steps` → `max-height: min(24rem, 45vh); overflow-y:
-  auto`. Each scrolls within itself now, so Body / Goals stay on screen.
-  `#steps` is still JS-capped at 24 cues; this bounds the remainder. Verified
-  light + dark, wide + narrow. No core change.
+- **2026-08-31 — Builder Analysis tab: the per-cue list is gone; the summary
+  band is height-capped** (`8720a62` then `<SHA2>`, from driving the builder).
+  A workout that unrolled into dozens of cues grew the Analysis tab's `#steps`
+  list unbounded and pushed the body map + goals block off the bottom — the
+  only scroll container was `#view-analysis` as a whole. `8720a62` first
+  bounded `.summary` and `#steps` (each `max-height` + `overflow-y: auto`).
+  Then, on Chris's call, the `#steps` list was **removed from the Analysis tab
+  entirely**: it was a capped duplicate of the "Reads as" tab's *show every
+  cue* expansion (same `cueRow()`), and it was in the way of the two sections
+  that tab is for. `#view-analysis` is now directives → diagnostics → body map
+  → goals; the run reads only on "Reads as". `.summary` keeps its
+  `max-height: 9rem` cap. CSS + JS + HTML in `apps/builder/*`, no core change;
+  suite 2051 passing, 1 pending. Verified light + dark, wide + narrow.
 
 - **2026-08-31 — The board no longer renders the `@`-directive preamble as body
   rows; `@id` / `@tags` lifted into the header chrome — item 15 is now fully
