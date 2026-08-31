@@ -1472,16 +1472,27 @@ const lineFor = (m) => {
 /** A movement id as its title, or the raw id if the catalogue has not loaded it. */
 const titleOf = (id) => catalogue.find((m) => m.id === id)?.title ?? id;
 
+/**
+ * The movements the palette is currently showing — factored out of
+ * `renderPalette` so a set card's "add the movements now showing" affordance
+ * and the palette agree on what "showing" means. While composing, the set-pick
+ * filter is ignored, exactly as in `renderPalette`.
+ */
+function shownMovements() {
+  const q = el('search').value.trim();
+  const chosen = composing ? undefined : sets[el('set-pick').value];
+  return chosen
+    ? catalogue.filter((m) => chosen.includes(m.id))
+    : catalogue.filter((m) => matches(m, q));
+}
+
 function renderPalette() {
   const box = el('palette');
   const keepScroll = box.scrollTop;
-  const q = el('search').value.trim();
   // While composing, the palette is a place to pick movements *into* a set, so
   // it ignores the set-pick filter and searches the whole catalogue.
   const chosen = composing ? undefined : sets[el('set-pick').value];
-  const shown = chosen
-    ? catalogue.filter((m) => chosen.includes(m.id))
-    : catalogue.filter((m) => matches(m, q));
+  const shown = shownMovements();
 
   const inComposed = composing ? new Set(sets[composing] ?? []) : null;
 
@@ -1628,6 +1639,8 @@ function renderSetCard(name) {
       renderSetList();
       renderPalette();
     }, composing === name);
+  act('⊕', 'Add the movements now showing in the palette to this set',
+    () => addShowingToSet(name));
   act('↧', 'Add every movement in this set to the outline', () => addSetToOutline(name));
   act('✎', 'Rename this set', () => renameSet(name));
   act('✕', 'Delete this set', () => {
@@ -1701,6 +1714,22 @@ function renameSet(name) {
   setsChanged();
 }
 
+/**
+ * Fold the movements the palette is currently showing into a set — the
+ * "from the current results" half of composing, the counterpart to the
+ * checklist toggle. Order is preserved; movements already in the set are left
+ * where they are, new ones are appended.
+ */
+function addShowingToSet(name) {
+  const ids = shownMovements().map((m) => m.id);
+  if (!ids.length) return;
+  const merged = [...(sets[name] ?? [])];
+  for (const id of ids) if (!merged.includes(id)) merged.push(id);
+  sets[name] = merged;
+  openSets.add(name);
+  setsChanged();
+}
+
 /** Drop every movement in a set into the outline as its own line, in order. */
 function addSetToOutline(name) {
   const movs = (sets[name] ?? []).map((id) => catalogue.find((m) => m.id === id)).filter(Boolean);
@@ -1736,7 +1765,6 @@ el('set-new').onclick = () => {
   if (!name) return;
   if (sets[name] && !confirm(`Replace the existing set “${name}”?`)) return;
   sets[name] = sets[name] ?? [];
-  el('repertoire').open = true;
   openSets.add(name);
   composing = name;
   el('set-pick').value = '';
@@ -1749,7 +1777,6 @@ el('set-save').onclick = () => {
   if (!name) return;
   if (sets[name] && !confirm(`Replace the existing set “${name}”?`)) return;
   sets[name] = catalogue.filter((m) => matches(m, q)).map((m) => m.id);
-  el('repertoire').open = true;
   openSets.add(name);
   setsChanged();
 };
@@ -1792,7 +1819,6 @@ el('set-file').addEventListener('change', async () => {
     if (name in sets) replaced++; else added++;
     sets[name] = [...new Set(ids)];
   }
-  el('repertoire').open = true;
   setsChanged();
   alert(`Imported ${added} new, replaced ${replaced}${skipped ? `, skipped ${skipped} malformed` : ''}. `
     + `${Object.keys(sets).length} sets now; any not in the file were kept.`);

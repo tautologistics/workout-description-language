@@ -592,13 +592,24 @@ button:hover, .button:hover { border-color: var(--dim); }
 
 /* --- the repertoire of sets --------------------------------------------- */
 
-.repertoire { margin-bottom: .4rem; font-size: .85em; }
-.repertoire > summary { cursor: pointer; opacity: .75; }
-.repertoire > summary span { opacity: .8; }
-.repertoire-tools { margin: .35rem 0 .3rem; }
+/* A first-class section of the modal, not a buried <details>: a full-bleed
+   "Sets" bar in the same treatment as the "Movements" head, then an inset
+   tool strip and the (scrolling) list of set cards. */
+#palette-modal > #repertoire {
+  margin: 0;
+  border-top: 1px solid var(--rule);
+  font-size: .85em;
+}
+.repertoire h2 { margin: 0; }
+.repertoire h2 span { opacity: .6; font-weight: 400; letter-spacing: 0; }
+.repertoire-tools { margin: .5rem 1rem .35rem; }
 .repertoire-tools button { font: inherit; font-size: .9em; padding: .15rem .45rem; }
 
-.set-list { display: grid; gap: .25rem; }
+.set-list {
+  display: grid; gap: .25rem;
+  margin: 0 1rem .5rem;
+  max-height: 12rem; overflow-y: auto;
+}
 .set-card { border: 1px solid var(--rule); border-radius: 3px; }
 .set-card[data-drop] { outline: 2px solid var(--accent); outline-offset: -2px; }
 .set-card > summary {
