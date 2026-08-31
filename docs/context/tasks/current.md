@@ -183,12 +183,30 @@ by **driving the builder** in both themes with a multi-section workout, and run
   **2051 passing, 1 pending**. *Touched:* `apps/builder/index.html`,
   `builder.css`, `builder.js`.
 
-- **R9 — Text tab: trap Tab + syntax highlighting** *(= chain item 17 below —
-  its full write-up stands).* Needs R1 (the tab lives in the new editor cell)
-  and R3's `--kind-*` tokens. (a) Tab / Shift-Tab / Enter indent behaviour on
-  `#text`; (b) a highlight layer behind the transparent textarea, one colour per
-  line kind from the shared palette. *Touches:* `apps/builder/index.html`,
-  `builder.css`, `builder.js`.
+- ~~**R9 — Text tab: trap Tab + syntax highlighting** *(= chain item 17).*~~
+  **Done 2026-08-31** (`<pending>`). `#text` is wrapped with `<pre id="text-hl">`
+  in a positioned `.text-wrap`; the textarea paints `color: transparent;
+  caret-color: var(--ink)` over the layer, which holds the same text re-tokenised
+  on every `input` — one `--kind-*` colour per line kind (R3's shared palette),
+  classified lexically by a new `textLineKind()` mirroring the Outline's
+  `data-kind` vocabulary (title / directive / comment / section / header / step /
+  rest). Every text-metric property is shared between `#text` and `#text-hl` in
+  one CSS rule with `scrollbar-gutter: stable` on both, so the caret sits on the
+  layer's glyphs under wrapping and at every scroll offset (a `scroll` listener
+  copies `scrollTop`/`scrollLeft`; verified `scrollHeight` parity with a forced
+  scrollbar). The layer repaints on the `render()` / outline-row write-back paths
+  via a new `paintText()` (each `el('text').value = text()` → `paintText()`) and
+  on user input via `paintTextHl()` in the `input` handler. A new `keydown`
+  handler on `#text` traps **Tab** (two spaces at caret), **Shift-Tab** (drop up
+  to two leading spaces), multi-line **Tab/Shift-Tab** (indent/dedent every
+  touched line, selection preserved) and **Enter** (carry leading indent, +2 when
+  the line ends `:`); every branch edits through
+  `document.execCommand('insertText')` (with a `setRangeText` fallback), so
+  native undo and the `#dirty` badge are untouched and the existing `input`
+  handler re-splits `lines`. `setEditorView` unchanged. No core change — suite
+  **2051 passing, 1 pending**. Item 17 is shipped — moved to
+  [completed.md](completed.md). *Touched:* `apps/builder/index.html`,
+  `apps/builder/builder.css`, `apps/builder/builder.js`.
 
 - **R10 — Directive metadata block + `@`-key type-ahead** *(= chain item 15
   parts a/d below).* In the Analysis tab (or the summary band) a small metadata
@@ -230,9 +248,10 @@ by **driving the builder** in both themes with a multi-section workout, and run
 
 ### Detailed write-ups (referenced by the stages above)
 
-The four entries below predate the redesign and carry the full analysis each
-stage needs — R2 ↔ 12, R3 ↔ 16, R9 ↔ 17, R10 ↔ 15(a/d), with 15(b) independent
-and 15(c) folded into R3. **11** and **13** below are the independent items.
+The entries below predate the redesign and carry the full analysis each stage
+needs — R2 ↔ 12, R3 ↔ 16, R10 ↔ 15(a/d), with 15(b) independent and 15(c) folded
+into R3. **17** (↔ R9) shipped 2026-08-31 and is in [completed.md](completed.md).
+**11** and **13** below are the independent items.
 
 - **15 — Directives (`@id`, `@tags`, …) are first-class metadata: surface them,
   distinguish them, and complete them.** *High priority (Chris, 2026-08-29),
@@ -360,65 +379,6 @@ and 15(c) folded into R3. **11** and **13** below are the independent items.
   **Land it / docs:** as the other items. When landed: move to
   [completed.md](completed.md); strike/update the relevant
   [../topics/builder-ux.md](../topics/builder-ux.md) entries; dated line in
-  [../current/recent-changes.md](../current/recent-changes.md).
-
-- **17 — The Text tab is a bare `<textarea>`: Tab escapes it, and nothing is
-  highlighted.** *High priority (Chris, 2026-08-29), from driving the builder.*
-  Two parts, both about making the raw editor usable; they share a branch.
-
-  **(a) Trap Tab.** `#text` is a plain `<textarea>` (`apps/builder/index.html`),
-  so pressing Tab moves focus out of it instead of indenting. It should insert
-  **two spaces** (canonical indent, spec §2) at the caret; **Shift-Tab**
-  removes up to two leading spaces from the line(s); with a multi-line
-  selection, Tab / Shift-Tab indent / dedent every selected line and preserve
-  the selection. Enter should carry the current line's leading indentation to
-  the new line, plus two more spaces when the line being left ends in `:`
-  (auto-indent into a block). All of this is `lines`-preserving — it edits the
-  textarea value and lets the existing `input` handler re-split `lines`
-  (`builder.js:855`); watch that programmatic `setRangeText` / value edits fire
-  or manually dispatch `input`, and that undo (`document.execCommand` vs direct
-  value set) still works acceptably.
-
-  **(b) Syntax highlighting.** A highlight layer behind a transparent
-  `<textarea>`: a `<pre>`/`<div>` positioned exactly under `#text`, same font,
-  padding, line-height and wrapping, holding the same text re-tokenised on
-  every `input`, with the textarea's own text set transparent
-  (`color: transparent; caret-color: var(--ink)`) so the layer shows through.
-  Colour one token per line kind — directive (`@…`), title (`#…`), comment
-  (`//…`), block header (ends `:`), rest (`rest …`), step (`- …`) — plus,
-  if cheap, the inline pieces (`@ load`, `, modifier`, `note: "…"`). **Use the
-  same palette as item 16** (shared CSS custom properties) so the outline
-  markers and the text colours are one language. Keep it a *layer*, not a
-  contenteditable — paste, undo, spellcheck and IME all keep working because
-  the real control is still a textarea. Re-tokenise is O(text) per keystroke;
-  the file is small, so a full re-render is fine (no incremental parsing).
-  This is the tractable half of "type hinting in the text editor"; **completion
-  in the textarea** (caret-tracking via a mirror div, line tokenisation, a
-  floating popup, key handling) is a bigger, separable piece — do **not** scope
-  it here; if it is wanted it gets its own item.
-
-  **Watch for:** the highlight layer and textarea must stay pixel-aligned under
-  every wrap and at every scroll offset (sync `scrollTop`/`scrollLeft` on
-  `scroll`); `tab-size: 2` is already set on `#text` (`builder.css:234`) —
-  keep the layer's in sync; the `#dirty` "edited" badge and the tab-switch
-  logic (item 10) are untouched.
-
-  **Scope:** `apps/builder/index.html` (wrap `#text` + the highlight layer in
-  a positioned container), `apps/builder/builder.css` (the layer, the
-  transparent-text trick, the kind palette if 17 lands before 16),
-  `apps/builder/builder.js` (the Tab/Enter key handler, the tokenise-and-paint
-  on `input`/`scroll`). No core change. Verify by driving the builder: Tab and
-  Shift-Tab indent/dedent a line and a selection; Enter auto-indents after a
-  `:` line; every line kind is visibly coloured; the caret and selection sit
-  exactly on the glyphs under wrapping and after scrolling; both themes;
-  switching to the Outline tab and back leaves the text and highlighting
-  correct.
-
-  **Land it / docs:** as the other items. When landed: move to
-  [completed.md](completed.md); add/adjust a
-  [../topics/builder-ux.md](../topics/builder-ux.md) entry (the Text tab now
-  traps Tab and highlights); update the **Apps** row in
-  [../topics/what-exists.md](../topics/what-exists.md); dated line in
   [../current/recent-changes.md](../current/recent-changes.md).
 
 - ~~**12 — The outline shows no row for a comment; they exist only in the Text

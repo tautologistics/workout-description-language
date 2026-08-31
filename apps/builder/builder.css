@@ -376,19 +376,60 @@ header button, header .button { white-space: nowrap; }
 
 /* --- text ----------------------------------------------------------------- */
 
-#text {
+/* The Text tab is a transparent <textarea> over a syntax-highlight layer, so
+   paste / undo / spellcheck / IME all keep working — the real control is still
+   a textarea. The layer (#text-hl) holds the same text, re-tokenised on every
+   input, one --kind-* colour per line kind (shared with the Outline's rails, so
+   the two views read as one language). The two elements MUST agree on every
+   text-metric property or the caret drifts off the glyphs — hence the shared
+   rule below. `scrollbar-gutter` is reserved on both so a vertical scrollbar
+   does not rewrap one and not the other. */
+.text-wrap {
+  position: relative;
   flex: 1;
   min-height: 0;
-  padding: .75rem 1rem;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: 400 13.5px/1.65 ui-monospace, SFMono-Regular, Menlo, monospace;
-  resize: none;
-  tab-size: 2;
+  overflow: hidden;
 }
 
+#text, #text-hl {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: .75rem 1rem;
+  border: 0;
+  font: 400 13.5px/1.65 ui-monospace, SFMono-Regular, Menlo, monospace;
+  tab-size: 2;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  scrollbar-gutter: stable;
+}
+
+#text {
+  background: transparent;
+  color: transparent;
+  caret-color: var(--ink);
+  resize: none;
+  overflow: auto;
+}
+
+/* Transparent glyphs would take the selection colour with them; keep a visible
+   wash so a drag-select still reads. */
+#text::selection { background: color-mix(in srgb, var(--accent) 25%, transparent); }
 #text:focus { outline: none; }
+
+#text-hl {
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--ink);
+}
+
+#text-hl .k-title     { color: var(--kind-title); }
+#text-hl .k-directive { color: var(--kind-directive); }
+#text-hl .k-section   { color: var(--kind-section); }
+#text-hl .k-header    { color: var(--kind-header); }
+#text-hl .k-step      { color: var(--kind-step); }
+#text-hl .k-rest      { color: var(--kind-rest); }
+#text-hl .k-comment   { color: var(--kind-comment); font-style: italic; }
 
 /* --- the margin: summary band + tabbed panels --------------------------- */
 
@@ -522,7 +563,7 @@ button:hover, .button:hover { border-color: var(--dim); }
   .doc-col { border-right: 0; border-bottom: 1px solid var(--rule); }
   .doc-col, .right-col { overflow: visible; }
   .outline { max-height: 52vh; }
-  #text { min-height: 40vh; }
+  .text-wrap { min-height: 40vh; }
   .rpanel { max-height: 78vh; }
   .band { position: static; }
 }

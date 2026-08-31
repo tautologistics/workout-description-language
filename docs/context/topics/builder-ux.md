@@ -686,7 +686,17 @@ it rather than landing on the old three-column grid.
 - **The workout is a centred document**, not one column of an IDE. The Outline
   is the primary surface — kind-coloured left rails prominent (items 12 / 16 /
   15c), generous line-height, `#` title as a heading, `@`-directives as a dim
-  metadata block at the top. The Text tab stays as the raw view.
+  metadata block at the top. The Text tab stays as the raw view — but **since
+  R9 (2026-08-31) a usable one**: `#text` traps **Tab / Shift-Tab / Enter** for
+  canonical two-space indent (Tab → two spaces at the caret; Shift-Tab → drop up
+  to two leading spaces; a multi-line selection indents/dedents every touched
+  line, selection preserved; Enter carries the leading indent, +2 when the line
+  ends `:`), all through `execCommand('insertText')` so undo survives, and it
+  paints a **syntax-highlight layer** (`<pre id="text-hl">`) behind the now
+  transparent textarea — one colour per line kind from the same shared
+  `--kind-*` palette the Outline rails use, so the two views read as one
+  language. Completion in the textarea (a caret-tracking popup) is still out of
+  scope — its own future item.
 - **The right side is a TABBED column**, sticky summary band (cues / cap /
   score) across both tabs:
   - **Analysis (default tab).** The front/back **vector body map**

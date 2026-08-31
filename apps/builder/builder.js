@@ -153,9 +153,57 @@ const TOOLS = [
   ['✕', 'Delete', remove],
 ];
 
+// --- Text tab: the syntax-highlight layer ----------------------------------
+// A transparent `#text` <textarea> rides over `#text-hl`, a <pre> holding the
+// same text re-tokenised per keystroke. One colour per line kind, from the
+// shared `--kind-*` palette (R3) so the Outline rails and the raw text read as
+// one language. Purely lexical — the layer repaints on every `input` and cannot
+// wait for a parse — but it mirrors `renderOutline`'s `data-kind` vocabulary.
+
+const escapeHtml = (s) => s.replace(/[&<>]/g, (c) => (c === '&' ? '&amp;' : c === '<' ? '&lt;' : '&gt;'));
+
+const SECTION_LINE = /^(?:warm-?up|strength|skill|conditioning|accessory|cool-?down)\s*:$/i;
+
+/** The kind of a raw source line, '' for blank. Matches the Outline's markers:
+ *  title (`#`) / directive (`@`) only at zero indent (they are preamble), then
+ *  comment (`//`), rest (`rest …`), a recognised `section:` word, any other
+ *  colon-terminated `header:`, and everything else a `step`. */
+function textLineKind(raw) {
+  const t = raw.trim();
+  if (!t) return '';
+  if (t.startsWith('//')) return 'comment';
+  if (!/^\s/.test(raw)) {
+    if (t.startsWith('#')) return 'title';
+    if (t.startsWith('@')) return 'directive';
+  }
+  if (/^rest(?:\s|$)/i.test(t)) return 'rest';
+  if (t.endsWith(':')) return SECTION_LINE.test(t) ? 'section' : 'header';
+  return 'step';
+}
+
+/** Repaint the highlight layer from the textarea's current value and re-sync
+ *  its scroll. Cheap (O(text), full re-render) — the document is small. */
+function paintTextHl() {
+  const ta = el('text');
+  el('text-hl').innerHTML = ta.value.split('\n').map((line) => {
+    const kind = textLineKind(line);
+    return kind ? `<span class="k-${kind}">${escapeHtml(line)}</span>` : escapeHtml(line);
+  }).join('\n');
+  el('text-hl').scrollTop = ta.scrollTop;
+  el('text-hl').scrollLeft = ta.scrollLeft;
+}
+
+/** Set the textarea value from `lines` and repaint the layer with it — the two
+ *  always move together, on `render()` and on the outline-row write-back paths
+ *  that redraw without a full `render()`. */
+function paintText() {
+  el('text').value = text();
+  paintTextHl();
+}
+
 function render(focusLine) {
   if (focusLine !== undefined) focused = focusLine;
-  el('text').value = text();
+  paintText();
   renderOutline();
   renderReading();
   renderReadsAs();
@@ -355,7 +403,7 @@ function renderOutline() {
     input.dataset.line = String(k);
     input.addEventListener('input', () => {
       lines = replaceLogical(lines, k, input.value);
-      el('text').value = text();
+      paintText();
       renderReading();
       renderReadsAs();
       renderFindings();
@@ -460,7 +508,7 @@ function renderOutline() {
         input.value = value.slice(0, prefixLen) + m.title + rest;
         closeSuggestions();
         lines = replaceLogical(lines, n.line, input.value);
-        el('text').value = text();
+        paintText();
         renderReading();
         renderReadsAs();
         renderFindings();
@@ -498,7 +546,7 @@ function renderOutline() {
         // The indent is structure, and the outline is not where you change it —
         // that is what indent and outdent are for. `replaceLogical` keeps it.
         lines = replaceLogical(lines, n.line, input.value);
-        el('text').value = text();
+        paintText();
         renderReading();
         renderReadsAs();
         renderFindings();
@@ -585,7 +633,7 @@ function renderOutline() {
         input.value = next;
         closeModifiers();
         lines = replaceLogical(lines, n.line, next);
-        el('text').value = text();
+        paintText();
         renderReading();
         renderReadsAs();
         renderFindings();
@@ -682,7 +730,7 @@ function renderOutline() {
         input.value = next;
         closeBlockPanel();
         lines = replaceLogical(lines, n.line, next);
-        el('text').value = text();
+        paintText();
         renderReading();
         renderReadsAs();
         renderFindings();
@@ -1307,12 +1355,92 @@ addEventListener('keydown', (e) => {
 el('text').addEventListener('input', () => {
   lines = el('text').value.replace(/\n$/, '').split('\n');
   focused = null;
+  paintTextHl();
   renderOutline();
   renderReading();
   renderReadsAs();
   renderFindings();
   renderBody();
   el('board').href = `../display/#${encodeURIComponent(text())}`;
+});
+
+// Keep the highlight layer locked to the textarea at every scroll offset.
+el('text').addEventListener('scroll', () => {
+  el('text-hl').scrollTop = el('text').scrollTop;
+  el('text-hl').scrollLeft = el('text').scrollLeft;
+});
+
+// Replace the textarea's current selection (or insert at the caret) with `str`,
+// via `execCommand` where it exists so the edit joins the native undo stack and
+// fires `input` on its own; `setRangeText` is the fallback. Either way the
+// existing `input` handler re-splits `lines` and repaints the layer.
+function typeInText(ta, str) {
+  ta.focus();
+  let ok = false;
+  try { ok = document.execCommand('insertText', false, str); } catch { ok = false; }
+  if (!ok) {
+    const { selectionStart: s, selectionEnd: e } = ta;
+    ta.setRangeText(str, s, e, 'end');
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+}
+
+// Tab / Shift-Tab / Enter carry canonical two-space indent (spec §2) inside the
+// raw editor instead of escaping it, selection-aware, and `lines`-preserving —
+// every branch goes through `typeInText`, so the `#dirty` badge and undo keep
+// working.
+el('text').addEventListener('keydown', (e) => {
+  if (e.isComposing || e.metaKey || e.ctrlKey || e.altKey) return;
+  const ta = e.target;
+  const val = ta.value;
+  const a = ta.selectionStart;
+  const b = ta.selectionEnd;
+  const lineStart = val.lastIndexOf('\n', a - 1) + 1;
+
+  if (e.key === 'Tab' && a === b && !e.shiftKey) {
+    e.preventDefault();
+    typeInText(ta, '  ');
+    return;
+  }
+
+  if (e.key === 'Tab') {
+    // Selection or Shift-Tab: indent / dedent every touched line and hold the
+    // selection over the same text.
+    e.preventDefault();
+    const selEnd = b > a && val[b - 1] === '\n' ? b - 1 : b;   // a trailing newline is not its own line
+    let blockEnd = val.indexOf('\n', selEnd);
+    if (blockEnd === -1) blockEnd = val.length;
+    const block = val.slice(lineStart, blockEnd);   // whole lines, start of first to end of last
+    let headDelta = 0;
+    let totalDelta = 0;
+    const out = block.split('\n').map((row, i) => {
+      if (e.shiftKey) {
+        const drop = row.startsWith('  ') ? 2 : row.startsWith(' ') ? 1 : 0;
+        if (i === 0) headDelta = -drop;
+        totalDelta -= drop;
+        return row.slice(drop);
+      }
+      if (i === 0) headDelta = 2;
+      totalDelta += 2;
+      return '  ' + row;
+    }).join('\n');
+    if (out === block) return;   // Shift-Tab on already-flush lines — no edit, no undo entry
+    ta.setSelectionRange(lineStart, lineStart + block.length);
+    typeInText(ta, out);
+    ta.setSelectionRange(Math.max(lineStart, a + headDelta), Math.max(lineStart, b + totalDelta));
+    return;
+  }
+
+  if (e.key === 'Enter' && a === b) {
+    // Carry the current line's leading indent onto the new line, plus two more
+    // spaces when the line being left ends in `:` (indent into the block).
+    const before = val.slice(lineStart, a);
+    const indent = before.match(/^ */)[0];
+    const extra = before.trimEnd().endsWith(':') ? '  ' : '';
+    if (!indent && !extra) return;   // nothing to carry — leave Enter to the browser
+    e.preventDefault();
+    typeInText(ta, '\n' + indent + extra);
+  }
 });
 
 // Canonicalising is deliberately a button. Reformatting as a side effect of an

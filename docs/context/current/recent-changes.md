@@ -2,6 +2,29 @@
 
 ## Changes
 
+- **2026-08-31 — Builder layout redesign, R9 of 10: the Text tab traps Tab and
+  carries a syntax-highlight layer** (`<pending>`). `#text` is wrapped with a
+  new `<pre id="text-hl">` in a positioned `.text-wrap`; the textarea paints
+  `color: transparent; caret-color: var(--ink)` over the layer, which holds the
+  same text re-tokenised on every `input` — one colour per line kind from the
+  shared `--kind-*` palette (R3), lexically classified by a new `textLineKind()`
+  mirroring the Outline's `data-kind` vocabulary (title / directive / comment /
+  section / header / step / rest). Every text-metric property is shared between
+  the two in one CSS rule and `scrollbar-gutter: stable` is set on both, so the
+  caret sits on the layer's glyphs under wrapping and at every scroll offset (a
+  `scroll` listener copies `scrollTop`/`scrollLeft`). The layer repaints from
+  `render()` and the outline-row write-back paths via a new `paintText()` helper
+  (`el('text').value = text()` → `paintText()`), and from the `input` handler
+  via `paintTextHl()`. A new `keydown` handler on `#text` traps **Tab** (two
+  spaces at the caret), **Shift-Tab** (drop up to two leading spaces),
+  multi-line **Tab/Shift-Tab** (indent/dedent every touched line, selection
+  preserved) and **Enter** (carry the line's leading indent, plus two more when
+  it ends in `:`); every branch edits through `document.execCommand('insertText')`
+  (with a `setRangeText` fallback) so native undo and the `#dirty` badge keep
+  working and the existing `input` handler re-splits `lines`. No core change —
+  suite **2051 passing, 1 pending**. *Touched:* `apps/builder/index.html`,
+  `apps/builder/builder.css`, `apps/builder/builder.js`.
+
 - **2026-08-31 — Builder layout redesign, R8 of 10: the set repertoire is a
   first-class Sets section of the palette modal** (`356e84f`). R7 physically
   moved `#repertoire` inside the modal but left it a tucked-away

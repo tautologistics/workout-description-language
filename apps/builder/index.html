@@ -57,7 +57,13 @@
         </div>
       </div>
       <div id="view-text" class="editor-view" role="tabpanel">
-        <textarea id="text" spellcheck="false" autocapitalize="off" autocorrect="off"></textarea>
+        <!-- The raw editor is a transparent <textarea> riding over a syntax
+             highlight layer (#text-hl); every text metric is shared in CSS so
+             the caret sits on the layer's glyphs. -->
+        <div class="text-wrap">
+          <pre id="text-hl" aria-hidden="true"></pre>
+          <textarea id="text" spellcheck="false" autocapitalize="off" autocorrect="off"></textarea>
+        </div>
       </div>
     </section>
 

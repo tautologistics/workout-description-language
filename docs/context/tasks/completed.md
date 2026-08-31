@@ -1184,6 +1184,42 @@ already use for comma-modifier unknowns.*
 
 ---
 
+**17. ~~The Text tab is a bare `<textarea>`: Tab escapes it, and nothing is
+highlighted.~~ DONE 2026-08-31, as builder-redesign stage R9** (`<pending>`).
+*Raised high-priority by Chris 2026-08-29 from driving the builder; folded into
+the layout redesign as R9 — the R-series stage list in [current.md](current.md)
+carries the one-line strike, this is the full close.* Both halves shipped.
+**(a) Trap Tab.** A `keydown` handler on `#text`: **Tab** inserts two spaces at
+the caret (canonical indent, spec §2), **Shift-Tab** removes up to two leading
+spaces, a **multi-line selection** with Tab / Shift-Tab indents / dedents every
+touched line and keeps the selection over the same text, and **Enter** carries
+the current line's leading indent onto the new line plus two more spaces when the
+line being left ends in `:`. A plain zero-indent Enter is left to the browser.
+Every branch edits through `document.execCommand('insertText')` (a `setRangeText`
++ manual `input` dispatch fallback), so native undo survives and the existing
+`#text` `input` handler re-splits `lines` — `lines`-preserving, no new state.
+**(b) Syntax-highlight layer.** `#text` is wrapped with `<pre id="text-hl">` in a
+positioned `.text-wrap`; the textarea is `color: transparent; caret-color:
+var(--ink)` (with a `::selection` wash) over the layer, which holds the same text
+re-tokenised on every `input`. One colour per line kind from the **shared
+`--kind-*` palette** (R3 / former item 16), classified by a lexical
+`textLineKind()` that mirrors `renderOutline`'s `data-kind` vocabulary — title
+(`#`) / directive (`@`) at zero indent, comment (`//`), rest (`rest …`), a
+recognised `section:` word, any other colon-terminated `header:`, else `step`.
+The two elements share every text-metric property in one CSS rule with
+`scrollbar-gutter: stable` on both, so the caret sits on the layer's glyphs under
+wrapping and at every scroll offset; a `scroll` listener copies
+`scrollTop`/`scrollLeft`. The layer repaints on the `render()` and outline-row
+write-back paths via a new `paintText()` helper (each `el('text').value = text()`
+became `paintText()`), and on user input via `paintTextHl()` in the `input`
+handler. `setEditorView` (tab show/hide) and the `#dirty` badge are untouched.
+Completion-in-the-textarea (a caret-tracking popup) was explicitly out of scope —
+still is, its own future item if wanted. No `packages/core` change — suite
+**2051 passing, 1 pending**. *Touched: `apps/builder/index.html`,
+`apps/builder/builder.css`, `apps/builder/builder.js`.*
+
+---
+
 ## The deployment epic — items 18–20
 
 *Raised by Chris 2026-08-30, all three closed the same day. The apps only ran
