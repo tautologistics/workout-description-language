@@ -698,13 +698,12 @@ it rather than landing on the old three-column grid.
     "show every cue (N)" link to the current fully-expanded list for anyone who
     wants it. `renderReading`'s 24-cue dump becomes this compressed form plus
     the opt-in expansion.
-- **Goals gets real rule-management UI** — this is a gap in the *current*
-  builder's C sketch AND worth stating plainly: there must be a goal-set
-  **picker** (none / examples / yours / unsaved), **Edit rules** (the editable
-  `.wdlg` textarea), **Open…**, **Save as…**, **Download .wdlg**, **Delete** —
-  the builder already has all of this (`#goal-edit` / `#goal-open` /
-  `#goal-save` / `#goal-download` / `#goal-pick` / `#goal-text`); the redesign
-  must carry it forward, not drop it to just findings.
+- **Goals gets real rule-management UI** — **done R5, 2026-08-31 (`47fd26b`).**
+  The goal-set **picker** (none / examples / yours / unsaved), **Edit rules**
+  (the editable `.wdlg` textarea), **Open…**, **Save as…**, **Download .wdlg**
+  and **Delete** all carried forward into a styled Goals block in the Analysis
+  tab — DOM + CSS only, every handler unchanged. (The original gap: the first C
+  sketch dropped these to findings-only.)
 - **The movement palette is a modal**, opened by **⌘K** *and* contextually when
   you add / press Enter on a blank editor row — it inserts at the caret. It
   **must keep all three of today's filters**: text search, **muscle** filter

@@ -113,15 +113,21 @@ by **driving the builder** in both themes with a multi-section workout, and run
   core change — suite 2051 passing, 1 pending. *Touched:*
   `apps/builder/builder.js`, `builder.css`.
 
-- **R5 — Goals rule-management UI in the Analysis tab.** Move `#goal-pick` /
-  `#goal-edit` / `#goal-open` / `#goal-save` / `#goal-download` / `#goal-drop` /
-  `#goal-text` and `#goal-errors` / `#goal-notes` / `#findings` into the
-  Analysis tab's Goals block and restyle. The **logic is unchanged** (all in
-  `builder.js` already) — this is a DOM move + CSS. The set picker (examples /
-  yours / unsaved), Edit rules, Open…, Save as…, Download `.wdlg`, Delete must
-  **all** be present — the first C sketch dropped them to findings only.
-  *Depends on R1.* Low risk. *Touches:* `apps/builder/index.html`, `builder.css`,
-  minor `builder.js`.
+- ~~**R5 — Goals rule-management UI in the Analysis tab.**~~ **Done 2026-08-31**
+  (`47fd26b`). The goals controls are now a titled
+  `<section class="goals-block">`: heading, a `.goals-bar` holding `#goal-pick`
+  (now a bordered control) beside the `.goal-tools` toolbar (Edit rules / Open… /
+  Save as… / `.wdlg` / Delete), the `#goal-text` `.wdlg` editor revealing inline
+  beneath, and `#goal-errors` / `#goal-notes` / `#findings` grouped in a
+  `.goals-out` output region. **DOM move + CSS only** — every id stable, every
+  `builder.js` handler untouched (all bound by id, none container-scoped);
+  `.goal-tools` carries its own flex now the `.row.tight` wrapper is gone; hidden
+  `<input id="goal-file">` stays in the DOM. Both themes, existing tokens only —
+  no `--kind-*` / `--rail` touch. Verified light + dark: picker options, Edit
+  rules reveal/hide + live re-check, Save as… → picker, Delete shows for a saved
+  set and removes it; summary band / `#steps` / `#diagnostics` / body map /
+  Reads-as unchanged. No core change — suite 2051 passing, 1 pending. *Touched:*
+  `apps/builder/index.html`, `builder.css` (no `builder.js` needed).
 
 - **R6 — Analysis tab: per-block muscle "adds".** Below the body map, one short
   note per top-level section — *"warmup adds: quads, glutes, chest (light)"* —

@@ -2,6 +2,26 @@
 
 ## Changes
 
+- **2026-08-31 — Builder layout redesign, R5 of 10: Goals restyled into a
+  proper block in the Analysis tab** (`47fd26b`). The goals controls — an `<h2>`
+  with an inline `<select>`, a loose button row, then three stacked `<ul>`s —
+  are now a titled `<section class="goals-block">`: heading, a `.goals-bar`
+  holding the set picker (`#goal-pick`, now a bordered control) beside the
+  `.goal-tools` toolbar (Edit rules / Open… / Save as… / `.wdlg` / Delete), the
+  `#goal-text` `.wdlg` editor revealing inline beneath it, and `#goal-errors` /
+  `#goal-notes` / `#findings` grouped in a `.goals-out` output region. **DOM
+  reorganise + CSS only** — every id is stable and every handler in `builder.js`
+  is untouched (all bound by id, none container-scoped), so no `builder.js`
+  change was needed. `.goal-tools` carries its own flex now the `.row.tight`
+  wrapper is gone; the hidden `<input id="goal-file">` stays in the DOM. Both
+  themes, existing `--ink` / `--dim` / `--rule` / `--panel` tokens only — no
+  `--kind-*` / `--rail` touch. Verified light + dark: picker options, Edit rules
+  reveal/hide + live re-check, Save as… → set appears in the picker, Delete
+  shows for a saved set and removes it; the summary band `<dl>`, `#steps`,
+  `#diagnostics`, the body map and the Reads-as tab are all unchanged. No core
+  change — suite still **2051 passing**, 1 pending. *Touched:
+  `apps/builder/index.html`, `apps/builder/builder.css`.*
+
 - **2026-08-31 — Builder layout redesign, R4 of 10: Reads-as tab is a
   block-grouped run reading + a show-every-cue toggle** (`f8cb0a8`). The
   **Reads as** margin tab, an empty placeholder since R1, now carries
