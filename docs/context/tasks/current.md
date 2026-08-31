@@ -129,12 +129,20 @@ by **driving the builder** in both themes with a multi-section workout, and run
   Reads-as unchanged. No core change — suite 2051 passing, 1 pending. *Touched:*
   `apps/builder/index.html`, `builder.css` (no `builder.js` needed).
 
-- **R6 — Analysis tab: per-block muscle "adds".** Below the body map, one short
-  note per top-level section — *"warmup adds: quads, glutes, chest (light)"* —
-  from `exposures()` scoped to that block's cue range (a small new derivation;
-  filter the exposure list by cue index, or `muscleLoad` a sub-timeline). Shown
-  only when the workout has named sections. *Depends on R1.* No core change.
-  *Touches:* `apps/builder/builder.js`, `builder.css`.
+- ~~**R6 — Analysis tab: per-block muscle "adds".**~~ **Done 2026-08-31**
+  (`895404a`). Below the body map, one terse `.adds-line` per top-level named
+  section — *"warmup adds: glutes, quads, chest, triceps, …"* — naming the
+  distinct muscles that section brings in (primary first in workout order, then
+  secondary marked "(light)", capped at 6 with "…", "—" when a section has no
+  attributed movement). App-side derivation in a new `renderBlockAdds()` called
+  from the top of `renderBody()`: filters `workout.body` for
+  `n.node === 'block' && n.type === 'section'` and scopes
+  `exposures(timeline).list` by `e.path[0]` matched to the section's index in
+  `timeline.root.items` (found by source line, not position). Nothing renders
+  for a sectionless workout. New `#block-adds` container between `#body-hint`
+  and the goals block; `--ink` / `--dim` / `--rule` only, both themes. No core
+  change — suite 2051 passing, 1 pending. *Touched:* `apps/builder/builder.js`,
+  `builder.css`, `index.html`.
 
 - **R7 — Movement palette modal: filters + insert.** The modal that replaces the
   Movements column. Opens on **⌘K** and on **+ movement / Enter on a blank

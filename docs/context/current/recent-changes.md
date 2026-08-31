@@ -2,6 +2,30 @@
 
 ## Changes
 
+- **2026-08-31 — Builder layout redesign, R6 of 10: per-section muscle "adds"
+  below the body map** (`895404a`). The Analysis tab shows one whole-workout
+  body map; for a workout with named sections there was no read of what each
+  section contributes. R6 adds, between `#body-hint` and the goals block, one
+  terse `.adds-line` per top-level named section — *"warmup adds: glutes,
+  quads, chest, triceps, …"* — naming the distinct muscles that section brings
+  in (primary in workout order, then secondary marked "(light)", capped at 6
+  with "…"; "—" when a section has no attributed movement). Derivation is
+  entirely app-side, in a new `renderBlockAdds()` called from the top of
+  `renderBody()` so it survives every re-render path: it re-parses/compiles,
+  filters `workout.body` for `n.node === 'block' && n.type === 'section'` (the
+  same test R3's `kindOf` and R4 use), and scopes `exposures(timeline).list` to
+  each section by matching `e.path[0]` to the section's index in
+  `timeline.root.items` — found by source line, not position, so a top-level
+  `xN` step or `every` interrupt can't misalign it. Nothing renders for a
+  sectionless workout (no container content, no heading); the adds lines don't
+  change with the `#body-mode` picker. New `#block-adds` container;
+  `.block-adds` / `.adds-line` / `.adds-label` use `--ink` / `--dim` / `--rule`
+  only — no `--kind-*` / `--rail` touch. Verified light + dark with a
+  multi-section workout, mode-switch, and a sectionless workout. No core change
+  — suite still **2051 passing**, 1 pending. *Touched:*
+  `apps/builder/builder.js`, `apps/builder/builder.css`,
+  `apps/builder/index.html`.*
+
 - **2026-08-31 — Builder layout redesign, R5 of 10: Goals restyled into a
   proper block in the Analysis tab** (`47fd26b`). The goals controls — an `<h2>`
   with an inline `<select>`, a loose button row, then three stacked `<ul>`s —
