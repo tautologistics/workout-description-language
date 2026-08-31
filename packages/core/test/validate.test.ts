@@ -180,6 +180,27 @@ describe('validation: notes', () => {
   });
 
   /**
+   * A bare custom label read as a section (queue item 11). The eight fixed
+   * section words are silent — a closed vocabulary — but a word the author
+   * coined could be a typo, so held-and-inert must not be silent here either.
+   */
+  it('says it read a bare label as a section, and stays quiet on the fixed eight', () => {
+    const d = check('3 rounds for time:\n  - Barbell movements:\n      - 10 Deadlift @ 185lb')
+      .find((x) => x.code === 'custom-section')!;
+    eq(d.severity, 'note');
+    ok(d.message.includes('Barbell movements'), d.message);
+    eq(d.line, 2);
+    eq(codes('conditioning:\n  - 10 Push-Up').filter((c) => c === 'custom-section'), []);
+    eq(codes('Cool-Down:\n  - 5min Bike').filter((c) => c === 'custom-section'), [], 'case-folded match');
+  });
+
+  it('a custom-section note is not an error and does not gate a workout', () => {
+    const d = check('for time:\n  - my finisher:\n      - 20 Burpee');
+    eq(errorsOnly(d), []);
+    eq(d.filter((x) => x.severity === 'warning' || x.severity === 'question'), []);
+  });
+
+  /**
    * A note is not a defect, and nothing that gates on errors may start gating on
    * this. The board filters to errors and `wdl check` fails on errors; both would
    * be wrong to refuse a workout over a phrase somebody wrote in the margin.

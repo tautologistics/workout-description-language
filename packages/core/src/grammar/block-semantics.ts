@@ -47,10 +47,16 @@ const implied = (primary: string): Score => ({ primary, raw: primary, implied: t
 /**
  * Whether a header's head named a kind the language knows.
  *
- * `headerHead = headerKind? headerExtra*`, and `headerKind` is one of two cases:
- * `known`, wrapping the shared `blockKind`, or `unknown`, wrapping a name. Only
- * the first claims the block's one kind — a head nobody has a kind for leaves the
- * position open for a comma to fill, which is what reads `cap 12min, 3 rounds`.
+ * `headerHead = headerKind? headerExtra*`, and `headerKind` is one of three
+ * cases: `known`, wrapping the shared `blockKind`; `section`, a bare custom
+ * label; or `unknown`, wrapping a name. Only `known` claims the block's one kind.
+ * A plain `unknown` head leaves the position open for a comma to fill, which is
+ * what reads `cap 12min, 3 rounds`. A `section` head leaves it open too, and on
+ * purpose: a bare label is a section only while *no kind appears anywhere on the
+ * header*, so `Barbell movements, 3 rounds:` must still take the `3 rounds` after
+ * the comma — and once it does, `parse.ts` reports the leftover label, the same
+ * "three rounds and an error" the fixed vocabulary is spared but a coined label
+ * is not (spec §11.1).
  */
 function headStatesKind(head: Node): boolean {
   const opt = head.child(0);
@@ -173,6 +179,17 @@ export function installBlock(semantics: Semantics): void {
     blockKind_section(word, _end) {
       this.args.block.type = 'section';
       this.args.block.name = word.sourceString.toLowerCase();
+    },
+    // A bare custom label — no digit, no kind, no comma. The same inert labelled
+    // container `blockKind_section` builds for the fixed eight words, opened up to
+    // any label. Case is preserved verbatim where the fixed vocabulary is folded
+    // to lower case: the eight are canonical spellings, a coined label is the
+    // author's. `validate.ts` emits the `note` that keeps this from being silent
+    // (code `custom-section`), for the same reason `parse.ts` — not this file —
+    // reports `headerKind_unknown`: an error or a note is not part of the AST.
+    headerKind_section(label) {
+      this.args.block.type = 'section';
+      this.args.block.name = label.sourceString.trim();
     },
     // Unrecognized, and held rather than rejected: a named sequence, which keeps
     // every child and every modifier. It is also *reported*, and that is

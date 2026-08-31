@@ -558,16 +558,33 @@ export const SOURCES: { group: string; name: string; src: string }[] = [
   { group: 'block/other', name: 'complex', src: 'complex:\n  - 1 Power Clean\n  - 1 Front Squat\n  - 1 Push Jerk' },
   { group: 'block/other', name: 'build to', src: 'build to a heavy single in 15min as heavy-single:\n  - Snatch' },
   { group: 'block/other', name: 'build to without a label', src: 'build to a heavy single in 15min:\n  - Snatch' },
-  // Unrecognized, and held rather than rejected: a named sequence keeping every
-  // child, plus a report. Pinned because "fail open" is a property of the format
-  // and not an implementation detail — see queue item 0.
+  // Unrecognized *because a digit makes it a kind* — `3 rounds …` is a repeat
+  // whose head the parser cannot finish reading, so it is a named sequence
+  // keeping every child, plus a report. Pinned because "fail open" is a property
+  // of the format and not an implementation detail — see queue item 0. Contrast
+  // `block/section :: custom label`, one digit away, which is a clean section.
   { group: 'block/other', name: 'unrecognized header', src: '3 rounds of madness:\n  - 10 Push-Up' },
+  // A head that *opens* with a kind-word but never completes it — `RFT` with no
+  // count, `rounds` with no number — is a kind missing its parameter, not a
+  // section: still a reported sequence (spec §5.2, §11.1, grammar's `kindLead`).
+  { group: 'block/other', name: 'kind-word header with no parameter', src: 'rounds of madness:\n  - 10 Push-Up' },
   { group: 'block/section', name: 'warmup', src: 'warmup:\n  - 400m Run' },
   { group: 'block/section', name: 'strength', src: 'strength:\n  - 5 Back Squat @ 225lb' },
   { group: 'block/section', name: 'conditioning', src: 'conditioning:\n  - AMRAP 12min:\n      - 10 Burpee' },
   { group: 'block/section', name: 'cooldown', src: 'cooldown:\n  - 5min Bike' },
   { group: 'block/section', name: 'accessory', src: 'accessory:\n  - 3x10 Curl' },
   { group: 'block/section', name: 'skill', src: 'skill:\n  - 10min Handstand Practice' },
+  // Any bare label — letters, spaces and hyphens, no digit, not opening with a
+  // kind-word — is a section: the inert container the fixed words above produce,
+  // for a label the author coined (spec §2, §11.1). Case is preserved where the
+  // fixed vocabulary is folded to lower case. `validate` says it out loud as a
+  // `note` (see validate.test.ts); it is silent in the parse errors pinned here.
+  { group: 'block/section', name: 'custom label', src: '3 rounds for time:\n  - Barbell movements:\n      - 10 Deadlift @ 185lb\n      - 10 Hang Clean @ 95lb' },
+  { group: 'block/section', name: 'custom label keeps its case', src: 'Barbell Movements:\n  - 10 Deadlift @ 185lb' },
+  { group: 'block/section', name: 'custom label with a hyphen', src: 'single-arm work:\n  - 10 Dumbbell Press @ 40lb' },
+  // Opens with a section word but is not one — `strength` alone is the fixed
+  // section, `strength work` is a coined label, kept verbatim.
+  { group: 'block/section', name: 'custom label past a section word', src: 'strength work:\n  - 5 Back Squat @ 225lb' },
 
   // --- block modifiers ---
   { group: 'block/modifier', name: 'cap', src: 'for time, cap 12min:\n  - 100 Burpee' },

@@ -34,6 +34,17 @@ export interface ValidateOptions {
 
 const SEX_SPLIT = /^\d+(?:\.\d+)?\/\d+(?:\.\d+)?$/;
 
+/**
+ * The fixed section vocabulary (`sectionWord` in `spec/grammar-0.1.ohm`), lower-
+ * cased the way `blockKind_section` canonicalises it. A `type: 'section'` block
+ * whose name is outside this set came from the grammar's `customSection` — a bare
+ * label the author coined — and that reclassification is said out loud below.
+ */
+const FIXED_SECTIONS = new Set([
+  'warm-up', 'warmup', 'strength', 'skill',
+  'conditioning', 'accessory', 'cool-down', 'cooldown',
+]);
+
 export function validate(w: Workout, opts: ValidateOptions = {}): Diagnostic[] {
   const reg = opts.registry ?? defaultRegistry();
   const out: Diagnostic[] = [];
@@ -135,6 +146,21 @@ export function validate(w: Workout, opts: ValidateOptions = {}): Diagnostic[] {
         add({ severity: 'note', code: 'adopted-block', line: n.line,
               message: 'read as inside the block above it — it was never indented into one; '
                 + 'indent it to say so, or run `wdl fmt`' });
+      }
+
+      /**
+       * A bare custom label read as a section (spec §2, §11.1). It groups the
+       * blocks under it and does nothing else — every enclosing round still
+       * cycles its descendants. `note` rather than silence for the same reason
+       * unknown text is said out loud: a coined heading that nobody indented and
+       * a coined heading that is a typo look identical, and the fixed eight are
+       * silent only because they are a closed vocabulary. `note` rather than
+       * `warning` because nothing is wrong — spec §2 allows any custom label.
+       */
+      if (n.type === 'section' && n.name && !FIXED_SECTIONS.has(n.name.toLowerCase())) {
+        add({ severity: 'note', code: 'custom-section', line: n.line,
+              message: `read \`${n.name}\` as a section label — it groups the blocks under it `
+                + 'and nothing else' });
       }
 
       // `score: rounds + reps` only means something where rounds are open-ended.

@@ -9358,6 +9358,34 @@
   },
   "fixpoint": true
  },
+ "block/other :: kind-word header with no parameter": {
+  "canonical": "rounds of madness:\n  - 10 Push-Ups",
+  "errors": [
+   "L1 unrecognized block header \"rounds of madness\""
+  ],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Push-Up",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "name": "rounds of madness",
+     "node": "block",
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "block/section :: warmup": {
   "canonical": "warmup:\n  - 400m Run",
   "errors": [],
@@ -9532,6 +9560,183 @@
       }
      ],
      "name": "skill",
+     "node": "block",
+     "type": "section"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/section :: custom label": {
+  "canonical": "3 rounds for time:\n  Barbell movements:\n    - 10 Deadlifts @ 185lb\n    - 10 Hang Cleans @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "children": [
+        {
+         "movement": "Deadlift",
+         "node": "step",
+         "quantity": {
+          "kind": "reps",
+          "value": 10
+         },
+         "targets": [
+          {
+           "kind": "load",
+           "load": {
+            "kind": "absolute",
+            "unit": "lb",
+            "value": 185
+           }
+          }
+         ]
+        },
+        {
+         "movement": "Hang Clean",
+         "node": "step",
+         "quantity": {
+          "kind": "reps",
+          "value": 10
+         },
+         "targets": [
+          {
+           "kind": "load",
+           "load": {
+            "kind": "absolute",
+            "unit": "lb",
+            "value": 95
+           }
+          }
+         ]
+        }
+       ],
+       "name": "Barbell movements",
+       "node": "block",
+       "type": "section"
+      }
+     ],
+     "count": 3,
+     "flags": [
+      "rounds"
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "repeat"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/section :: custom label keeps its case": {
+  "canonical": "Barbell Movements:\n  - 10 Deadlifts @ 185lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Deadlift",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 185
+         }
+        }
+       ]
+      }
+     ],
+     "name": "Barbell Movements",
+     "node": "block",
+     "type": "section"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/section :: custom label with a hyphen": {
+  "canonical": "single-arm work:\n  - 10 Dumbbell Presses @ 40lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Dumbbell Press",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 40
+         }
+        }
+       ]
+      }
+     ],
+     "name": "single-arm work",
+     "node": "block",
+     "type": "section"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "block/section :: custom label past a section word": {
+  "canonical": "strength work:\n  - 5 Back Squats @ 225lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Back Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 5
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 225
+         }
+        }
+       ]
+      }
+     ],
+     "name": "strength work",
      "node": "block",
      "type": "section"
     }

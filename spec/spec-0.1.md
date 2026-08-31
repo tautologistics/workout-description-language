@@ -41,7 +41,7 @@ score: time
 - **Directives** (`@key value`) carry metadata and identity. All optional. `@id` is any unique string with an optional `namespace:` prefix; it must be unique within the repository holding the file, and is never derived from the file's contents (roadmap §3.2.1).
 - **Title** is a single `#` heading. Optional.
 - **Body** is one or more blocks, or a bare list of steps — a single-step workout (`- 1mi Run`) is a valid file.
-- **Sections** (optional) group blocks: `warmup:`, `strength:`, `conditioning:`, `accessory:`, `cooldown:`, or any custom label.
+- **Sections** (optional) group blocks: `warmup:`, `strength:`, `conditioning:`, `accessory:`, `cooldown:`, or any custom label (§5.1) — a bare heading with no digit and no kind-word, read literally and noted.
 
 Nesting is by indentation (two spaces canonical). A line ending in `:` opens a block. A line beginning with `- ` is a step. `//` begins a comment, which survives round-tripping.
 
@@ -254,6 +254,21 @@ Canonical output **preserves inheritance as authored** — it neither hoists a r
 
 The default. A block with no header runs its steps in order.
 
+**A section is a sequence with a name and no other effect.** The eight fixed
+section words (`warmup:`, `strength:`, `skill:`, `conditioning:`, `accessory:`,
+`cooldown:`, and the hyphen spellings, §2) group the blocks under them and do
+nothing else — every enclosing round still cycles their descendants. So does
+**any other bare label**: a head whose label — everything before the first `,`
+or `@` — is entirely letters, spaces and hyphens, carries no digit, and does not
+open with a word that names a kind, is read as a section for whatever label the
+author wrote. `Barbell movements:` inside `3 rounds for time:` is a clean visual
+layer, not a diagnostic. It still takes the comma modifiers and the inherited
+`@` target any header takes. The fixed eight are canonicalised to lower case; a
+coined label keeps the case it was written in. Because a new word could be a
+typo rather than a deliberate grouping, `wdl check` says so at the `note`
+severity — *read `Barbell movements` as a section label* — where the fixed
+vocabulary, a closed set, is silent (§11.1).
+
 ### 5.2 Repeat
 
 ```
@@ -278,7 +293,7 @@ The default. A block with no header runs its steps in order.
 
 Canonical output writes the long form. The abbreviation is *read*, not *preserved* — unlike `rounds` vs `sets`, which are two different words for the structure, `RFT` is the same words shortened, so keeping it would be a spelling to carry with nothing to say. *Reversible if it turns out the short form is what belongs at rest.*
 
-**A bare `RFT:` is not read, on purpose.** `RFT` names rounds without saying how many, and the language has no unbounded repeat — reading it as one round or quietly demoting it to `for time:` would both invent something the author did not write. So it stays an unrecognized header and is **reported**, which is loud rather than silent, and the author is one number away from a block that reads. This is the difference from `AMRAP:` with no window, which *is* accepted: an unbounded AMRAP is a real instruction — go until something else stops you — where an unbounded RFT is a missing count.
+**A bare `RFT:` is not read, on purpose.** `RFT` names rounds without saying how many, and the language has no unbounded repeat — reading it as one round or quietly demoting it to `for time:` would both invent something the author did not write. So it stays an unrecognized header and is **reported**, which is loud rather than silent, and the author is one number away from a block that reads. This is the difference from `AMRAP:` with no window, which *is* accepted: an unbounded AMRAP is a real instruction — go until something else stops you — where an unbounded RFT is a missing count. It is also the difference from a bare label with no kind-word at all (`Barbell movements:`, §5.1), which *is* read — as a section: a head that opens with `RFT`, `rounds`, `every`, `build` or any other kind-word is a kind missing its parameter, not a grouping label, and stays the reported error.
 
 **Trailing rest fires between rounds, not after the last one.** `5 sets: [5 Back Squat] rest 3min` is four rests, not five — you finish the fifth set and move on, which is the common case by a wide margin. To rest after the final round, say so:
 
@@ -814,6 +829,8 @@ Three consequences, all deliberate:
 - **Reported, at a severity that claims nothing.** `wdl check` says *note: `unbrokn` is not something the language reads*. Not an error — the rest of the line executes exactly as written — and not a question, because there is nothing to choose between. Held-and-inert must not also be silent: `unbrokn` is one keystroke from a constraint that decides whether a set counts.
 
 The same rule applies to a block header's modifiers (`3 rounds, wibble:` is three rounds). It does **not** apply to a header's *kind*: `3 rounds of madness:` is an error, because the kind decides how the block executes and failing to read it loses the three rounds, where a modifier nobody taught the language costs nothing that runs. That holds wherever the kind was written — `cap 12min, 3 rounds:` is three rounds *and* an error, because `cap 12min` is not a reading the language has for a header's opening segment (§5.0). Canonical output writes such a head back in front, since a name on a block that already has a kind is not the block's identity and nothing else would write it.
+
+Between the two sits the **bare label** — a head whose label (everything before the first `,` or `@`) is all letters, spaces and hyphens, carries no digit, and does not open with a kind-word. It names nothing the language must act on and loses nothing by being read literally, so it is a **section** (§5.1): a sequence with a name, which still takes the comma modifiers any header takes. `Barbell movements:` and `some shape nobody taught the parser:` are sections; `3 rounds of madness:` (a digit) and `RFT:` (opens with a kind-word missing its count) are not, and stay errors. The section still gets a `note`, because a coined word is one typo away from a kind-word — held-and-inert, not silent.
 
 A **second** kind is the one case that is held rather than reported as an error: `AMRAP 12min, 3 rounds:` is the AMRAP, with `3 rounds` kept verbatim and noted. Nothing is lost — the block executes as its first kind says — so the severity that claims nothing is the right one.
 

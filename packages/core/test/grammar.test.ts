@@ -407,10 +407,27 @@ describe('the grammar is the spec', () => {
     eq(rx.unknown, undefined);
   });
 
-  it('holds an unrecognized block header rather than failing on it', () => {
+  it('reads a bare-label header as a section', () => {
+    // No digit, no comma, no kind-word at the front: a custom grouping label,
+    // the inert container `conditioning:` produces, for any label (spec §2,
+    // §11.1). The `note` that keeps it from being silent is `validate.ts`'s.
     const block = g.parseHeader('some shape nobody taught the parser');
-    eq(block.type, 'sequence');
+    eq(block.type, 'section');
     eq(block.name, 'some shape nobody taught the parser');
+  });
+
+  it('holds a digit-bearing unrecognized block header rather than failing on it', () => {
+    const block = g.parseHeader('3 shapes nobody taught the parser');
+    eq(block.type, 'sequence');
+    eq(block.name, '3 shapes nobody taught the parser');
+  });
+
+  it('keeps a kind-word header with no parameter an unread sequence, not a section', () => {
+    // `RFT` names rounds without a count — a kind missing its parameter, which
+    // spec §5.2 keeps as a reported error rather than inventing a reading.
+    const block = g.parseHeader('RFT');
+    eq(block.type, 'sequence');
+    eq(block.name, 'RFT');
   });
 
   /**

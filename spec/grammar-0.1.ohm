@@ -388,13 +388,26 @@ WDL {
   headEnd = ~moreHead
   moreHead = spaces ~"," ~"@" ~forTime any
 
-  // `headerName` is last and matches anything: an unrecognized header is held as
-  // a named sequence rather than rejected. It is separated from the kinds proper
-  // because `blockModifier` needs the kinds *without* it — a fallback that
-  // matches everything, offered after a comma, would swallow every unrecognized
-  // modifier as a block name and leave `unknown` unreachable.
-  headerKind = blockKind   -- known
-             | headerName  -- unknown
+  // `customSection` sits between the kinds and the catch-all: a head whose whole
+  // label is a bare phrase — letters, spaces and hyphens, no digit anywhere, not
+  // opening with a kind-word — is a section, the inert labelled container the
+  // fixed `sectionWord` list produces, now for any label (spec §2, §11.1). The
+  // label runs to the first `,` or `@`, so a custom section still takes the comma
+  // modifiers every header takes. Tried after `blockKind` so
+  // a real kind and the fixed section vocabulary are never shadowed; tried before
+  // `headerName` so a clean label reads as a section rather than a held-and-
+  // reported unknown. A digit anywhere keeps the head unread — `3 rounds of
+  // madness:` stays an error — which is why it is checked for one before a
+  // character is consumed.
+  //
+  // `headerName` is last and matches anything else: an unrecognized header is
+  // held as a named sequence rather than rejected. Both are separated from the
+  // kinds proper because `blockModifier` needs the kinds *without* them — a
+  // fallback that matches everything, offered after a comma, would swallow every
+  // unrecognized modifier as a block name and leave `unknown` unreachable.
+  headerKind = blockKind      -- known
+             | customSection  -- section
+             | headerName     -- unknown
 
   // Ordered as the implementation orders them, so the two can be read side by
   // side.
@@ -496,6 +509,37 @@ WDL {
               | caseInsensitive<"strength"> | caseInsensitive<"skill">
               | caseInsensitive<"conditioning"> | caseInsensitive<"accessory">
               | caseInsensitive<"cool-down"> | caseInsensitive<"cooldown">
+
+  // A custom section label: the whole head is letters, spaces and hyphens, with
+  // no digit anywhere and not opening with a word that names a kind. The digit
+  // check is a lookahead over the whole run so that one digit anywhere on the
+  // head — `3 rounds of madness`, `week 1` — drops the whole thing to
+  // `headerName` and its reported-unknown reading, rather than matching the
+  // letters up to the digit and leaving the rest to choke. Case is *not* folded
+  // here: the fixed `sectionWord` list is canonicalised to lower case, a label
+  // the author coined is theirs to capitalise.
+  customSection = ~forTime ~kindLead ~(customLabelChar* digit) customLabelChar+
+  customLabelChar = ~"," ~"@" ~(space+ forTime) (letter | "-" | " ")
+
+  // The opening word of a header that names a kind — every literal `blockKind`
+  // and `headerExtra` key on, at a word boundary. A bare label may not start with
+  // one: `RFT:` with no count, `every:` with no cadence, `build:` with no goal
+  // are each a *kind missing its parameter*, not a section, and stay the reported
+  // error spec §5.2 and §11.1 make them — the miss loses how the block executes,
+  // which is the line DEC-010 draws. `sectionWord` is deliberately absent: a head
+  // that merely opens with `strength` or `accessory` (`strength work:`) is a fine
+  // custom label, and the fixed words themselves are already read by `blockKind`
+  // before this rule is reached.
+  kindLead = ( roundWord | attemptWord | minuteWord
+             | caseInsensitive<"rft"> | caseInsensitive<"team">
+             | caseInsensitive<"for"> | caseInsensitive<"amrap">
+             | emomWord
+             | caseInsensitive<"every"> | caseInsensitive<"work">
+             | caseInsensitive<"partner"> | caseInsensitive<"any">
+             | caseInsensitive<"superset"> | caseInsensitive<"complex">
+             | caseInsensitive<"sequence"> | caseInsensitive<"build">
+             ) ~wordChar
+  emomWord = caseInsensitive<"e"> digit* caseInsensitive<"mom">
 
   // Anything else. Held as the block's name, the same way `unknown` holds an
   // unrecognized step modifier: not an error and not a guess. It stops short of

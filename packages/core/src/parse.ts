@@ -111,11 +111,15 @@ class Parser {
     }
     const block = got.value;
     // A `name` is what the grammar makes of a head it has no kind for; `sequence:`
-    // itself sets no name, and a section sets one but sets `type: 'section'` with
-    // it. The test is the name rather than the type because a header may state its
-    // kind after a comma (`cap 12min, 3 rounds:`) — the block is then a real
-    // repeat *and* carries a head nobody could read, and reporting only untyped
-    // blocks would have let the second half of that header go quiet.
+    // itself sets no name, and a section — the fixed `sectionWord` list, or a
+    // bare custom label (grammar's `customSection`, spec §11.1) — sets one but
+    // sets `type: 'section'` with it. `type !== 'section'` is therefore the whole
+    // guard: a clean bare label is silent here (a `note` says it out loud from
+    // `validate.ts` instead), while a header that states a *kind* after a comma
+    // (`cap 12min, 3 rounds:`, and equally `Barbell movements, 3 rounds:`) has
+    // been turned into a real repeat by that kind, keeps its unreadable head as
+    // the `name`, and is reported — reporting only untyped blocks would have let
+    // the second half of that header go quiet.
     if (block.name && block.type !== 'section') {
       this.errors.push({
         line: line.line, message: `unrecognized block header "${block.name}"`, text: line.text,
@@ -178,8 +182,11 @@ class Parser {
         const probe = wdl().tryHeader(before, line);
         // A recognized kind — not the catch-all `headerName`, which sets a `name`
         // on a plain `sequence` and matches any prose, so `- 1:30 Row` and
-        // `- 10 Thruster, note: "x"` never trip this. An `every …:` head that
-        // reads as a clock is the overlay and is read below — no diagnostic.
+        // `- 10 Thruster, note: "x"` never trip this. A section *does* trip it,
+        // fixed word or bare custom label alike: `conditioning: 10 Push-Up` and
+        // `Barbell movements: 10 Push-Up` both want their body on the next line.
+        // An `every …:` head that reads as a clock is the overlay and is read
+        // below — no diagnostic.
         const isOverlay = /^every\s/i.test(before) && probe.ok && probe.value.type === 'clock';
         if (probe.ok && !isOverlay && !(probe.value.name && probe.value.type !== 'section')) {
           this.errors.push({

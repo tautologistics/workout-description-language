@@ -25,12 +25,14 @@ describe('errors', () => {
   });
 
   it('reports the source line for every error', () => {
-    const e = errs('# T\n\n\nfrobnicate:\n  - 1 Burpee');
+    // A digit on the head keeps it an unreadable kind rather than a bare section
+    // label — see `grammar.test.ts` "reads a bare-label header as a section".
+    const e = errs('# T\n\n\nfrobnicate 5:\n  - 1 Burpee');
     eq(e[0].line, 4);
   });
 
   it('still produces a usable AST alongside errors', () => {
-    const { workout, errors } = parse('frobnicate:\n  - 10 Burpee');
+    const { workout, errors } = parse('frobnicate 5:\n  - 10 Burpee');
     ok(errors.length, 'errored');
     ok(workout.body.length === 1, 'body survived');
   });
