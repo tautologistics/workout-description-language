@@ -61,16 +61,21 @@ by **driving the builder** in both themes with a multi-section workout, and run
   doc-title, `#steps` split, `setAnalysisTab`, drawer toggle). No `packages/core`
   change — suite 2038 passing, 1 pending, untouched.
 
-- **R2 — Comment rows first-class in the Outline + `edit.ts`** *(= chain item 12
-  below — its full write-up and the two approaches stand).* Before R3 so the
-  comment line-kind has a row to style. Synthesised comment rows in
-  `renderOutline` (one per `comments[]` entry, above its line; a trailing block
-  for the file-level pseudo-node), written back through a **new comment-aware
-  splice in `packages/core/src/edit.ts`** — the real work: `spans()` /
-  `replaceLogical` / `insertAfter` / `remove` must address a comment line.
-  `+ comment` joins the add-row buttons. DEC-005 (splice in place, never
-  regenerate from the AST) is the constraint. *Touches:* `apps/builder/builder.js`,
-  `packages/core/src/edit.ts` (+ its tests). *Verify:* item 12's checklist.
+- ~~**R2 — Comment rows first-class in the Outline + `edit.ts`.**~~ **Done
+  2026-08-30** (`973d80a`). `spans()` in `packages/core/src/edit.ts` now gives
+  every own-line comment its own single-line span — `replaceLogical` / `remove` /
+  `insertAfter` / `moveTo` reach it unchanged; `move` and `shift` took a
+  dedicated comment path (the following node's span still swallows the comments
+  above it, so the two readings overlap by design and a shared splice would
+  double-cut). `move` on a comment steps it over the adjacent rendered row.
+  `renderOutline` synthesises a `.node.comment` row per own-line comment, above
+  the line it attaches forward to at that line's depth; trailing comments on a
+  content line stay in that row's input; trailing/orphan comments render at the
+  margin. `+ comment` joins the add-row buttons. Shared `attachRowDrag` for both
+  row kinds. Also fixed the stray `data-line="0"` row a trailing-comment file
+  drew. Suite 2038 → **2051 passing**, 1 pending (13 cases in `edit.test.ts`).
+  *Touched:* `apps/builder/builder.js`, `apps/builder/index.html`,
+  `packages/core/src/edit.ts` + `test/edit.test.ts`.
 
 - **R3 — Outline as a document + line-kind rails** *(= chain item 16 below,
   folding in item 15c).* Restyle the outline to the document feel — generous
@@ -360,9 +365,11 @@ and 15(c) folded into R3. **11** and **13** below are the independent items.
   [../topics/what-exists.md](../topics/what-exists.md); dated line in
   [../current/recent-changes.md](../current/recent-changes.md).
 
-- **12 — The outline shows no row for a comment; they exist only in the Text
-  tab.** *High priority (Chris, 2026-08-29).* Full write-up (cause confirmed in
-  source) is the first entry under "## Outline" in
+- ~~**12 — The outline shows no row for a comment; they exist only in the Text
+  tab.**~~ **Done 2026-08-30 as R2** (`973d80a`) — synthesised comment rows +
+  comment-aware `spans()`/`move`/`shift` in `edit.ts`. Write-up kept below for
+  the reasoning. *High priority (Chris, 2026-08-29).* Full write-up (cause
+  confirmed in source) is the first entry under "## Outline" in
   [../topics/builder-ux.md](../topics/builder-ux.md).
 
   **The situation.** `renderOutline` walks `readLines(text())`

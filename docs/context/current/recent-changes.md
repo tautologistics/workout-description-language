@@ -2,6 +2,28 @@
 
 ## Changes
 
+- **2026-08-30 — Builder layout redesign, R2 of 10: comment rows first-class in
+  the Outline + a comment-aware splice in `edit.ts`** (chain item 12, `973d80a`).
+  `spans()` now gives every own-line `//` comment its own single-line span, so
+  `replaceLogical` / `remove` / `insertAfter` / `moveTo` address a comment line
+  unchanged; `move` and `shift` took a dedicated comment path because the
+  following node's span still swallows the comments written above it (moving a
+  block keeps carrying `// the buy-in`) and a shared splice would double-cut.
+  `move` on a comment steps it over the adjacent rendered row — another comment
+  (a line swap) or a real node (past that node's whole subtree). `renderOutline`
+  synthesises a `.node.comment` row per own-line comment, above the line it
+  attaches forward to and at that line's depth; a trailing comment on a content
+  line stays in that row's input; trailing/orphan comments render at the margin.
+  `+ comment` joins the add-row buttons (inserts `// ` at the focused row). The
+  move/reorder drag wiring is now a shared `attachRowDrag`. Also fixes the stray
+  empty `data-line="0"` row a trailing-comment file used to draw. Verified by
+  driving the builder light + dark (own-line comment above a block, trailing on
+  a step, trailing at EOF — all visible and editable; add/edit/delete/indent/
+  move/drag write back and survive a Text-tab switch; Canonicalise + diagnostics
+  unaffected). Suite 2038 → **2051 passing**, 1 pending (13 cases in
+  `test/edit.test.ts`). *Touched: `apps/builder/builder.js`,
+  `apps/builder/index.html`, `packages/core/src/edit.ts` + `test/edit.test.ts`.*
+
 - **2026-08-30 — Builder layout redesign, R1 of 10: the layout shell landed.**
   Direction **C (Document + margin)** — a fixed header (WDL mark · `☰ Movements`
   toggle · centred document title read off `parse(text()).workout.title` ·

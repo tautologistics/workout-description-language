@@ -87,26 +87,22 @@ change beyond moving a listener. No core change.*
 
 ## Outline
 
-**The outline shows no row for a comment — they exist only in the Text tab.**
-Raised by Chris 2026-08-29, driving the builder. `renderOutline` walks
-`readLines(text())` (`apps/builder/builder.js:631`), and `readLines`
-(`packages/core/src/lines.ts`) strips every comment off its own line and folds
-it into the `comments: string[]` of the next real line — an own-line comment is
-never a node in the line tree, so the outline never draws a row for it. The
-`n.text.startsWith('//')` branch at `builder.js:256` is effectively dead for
-own-line comments. Consequences: you cannot see, add, edit or reorder a `//`
-line in the GUI; the outline silently misrepresents a file that has them
-(rows present, comments gone); and it undercuts the answer given the same day
-that `//` comments are the way to write an arbitrary-label visual grouping
-(a section only reads the fixed eight words — [../tasks/current.md](../tasks/current.md)
-item 11). Fixing it means either synthesising comment rows in the outline walk
-(from each line's `comments[]` plus the file-level trailing pseudo-node
-`readLines` already emits) and writing edits back through `edit.ts`, or
-surfacing each row's attached comments as an editable affordance on that row.
-The first keeps "the outline is the file"; the second is smaller but leaves
-own-line comments between two blocks with nowhere to attach. *Touches:
-`apps/builder/builder.js` (`renderOutline`), possibly
-`packages/core/src/edit.ts` for the write-back.*
+**~~The outline shows no row for a comment — they exist only in the Text tab.~~
+Fixed 2026-08-30** (R2 / chain item 12, `973d80a`). `renderOutline` now
+synthesises a `.node.comment` row for each own-line `//` comment, above the
+line it attaches forward to and at that line's depth; a *trailing* comment on
+a content line stays in that row's own input; trailing/orphan comments (the
+file-level pseudo-node) render at the margin after everything. Edits, adds
+(`+ comment` joins the add-row buttons), deletes, indents, reorders and drags
+all write back through a **comment-aware splice added to
+`packages/core/src/edit.ts`**: `spans()` gives every own-line comment its own
+single-line span (so `replaceLogical` / `remove` / `insertAfter` / `moveTo`
+reach it unchanged), while the following node's span still swallows the
+comments above it — the two readings overlap by design, so `move` and `shift`
+take a dedicated comment path rather than the generic sibling splice. Suite
+2038 → 2051 passing (13 cases in `test/edit.test.ts`). *Touched:
+`apps/builder/builder.js`, `apps/builder/index.html`,
+`packages/core/src/edit.ts` + tests.*
 
 **~~Indent is allowed on a line with nothing above it, producing an orphan.~~
 Fixed 2026-08-24.** A top-level line that is first in the document could still be
