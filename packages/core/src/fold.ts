@@ -151,6 +151,10 @@ export interface MovementEntry {
   /** The mode to assume when the prescription is silent. Absent means there is
    *  no dominant convention, so the parser must ask rather than pick. */
   defaultLaterality?: 'both' | 'split' | 'per-side';
+  /** The axis a `per-side` count runs across, so a tool can label it
+   *  `(each direction)` rather than a generic `(each side)` (spec §7, the
+   *  vocabulary in `limbWord`). Advisory; curated per movement. */
+  lateralityAxis?: 'arm' | 'leg' | 'side' | 'hand' | 'direction';
   /** Classification, for balance analysis only. */
   pattern?: string[];
   muscles?: {

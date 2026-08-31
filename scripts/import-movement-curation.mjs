@@ -11,10 +11,13 @@
  * ## Input shape
  *
  * A CSV export of the "Movements" sheet from the audit workbook
- * (scripts/../ — built ad hoc for this pass, not checked in), all 30
+ * (scripts/../ — built ad hoc for this pass, not checked in), all 31
  * columns, in that script's exact column order. Two of those columns are
  * literally named "Laterality: both" — one in the CURRENT block, one in the
  * CURATE block — so this reads columns **by position**, not by header text.
+ * (The CURATE block gained a "Laterality axis" column on 2026-08-31 — queue
+ * item 13a-curation — so an export from an older workbook fails the header
+ * check until the column is added; that is the intended fail-loud behaviour.)
  * The header row is still checked, name-for-name, before anything else runs:
  * a spreadsheet re-saved with a column moved, deleted, or renamed fails loud
  * here rather than writing a value into the wrong field.
@@ -60,6 +63,7 @@ const CURRENT_HEADERS = [
 ];
 const CURATE_HEADERS = [
   'Laterality: both', 'Laterality: split', 'Laterality: per-side', 'Default laterality',
+  'Laterality axis',
   'Measures: distance', 'Measures: calories',
   'Load: total', 'Load: per-implement', 'Implements (count)',
   'Force', 'Mechanic', 'Equipment',
@@ -68,6 +72,10 @@ const EXPECTED_HEADER = ['id', 'title', 'aliases', ...CURRENT_HEADERS, ...CURATE
 const CURATE_START = 3 + CURRENT_HEADERS.length; // 0-indexed column of the first curate cell
 
 const LAT_MODES = ['both', 'split', 'per-side'];
+// The axis a `per-side` count runs across, so a tool can say `(each direction)`
+// rather than a generic `(each side)` (spec §7 / `limbWord`). A single value, not
+// a set — a movement has one axis. Blank leaves whatever the registry has.
+const LAT_AXES = ['arm', 'leg', 'side', 'hand', 'direction'];
 const MEASURE_MODES = ['distance', 'calories'];
 
 // --- a small RFC4180-ish CSV parser: quoted fields, "" escaping, CRLF/LF ---
@@ -157,7 +165,7 @@ for (const row of dataRows) {
   if (!entry) { report.unknownIds.push(`${id} (${title})`); continue; }
 
   const [
-    latBothC, latSplitC, latPerSideC, defaultLatC,
+    latBothC, latSplitC, latPerSideC, defaultLatC, latAxisC,
     measDistC, measCalC,
     loadTotalC, loadPerImplC, implementsC,
     forceC, mechanicC, equipmentC,
@@ -202,6 +210,21 @@ for (const row of dataRows) {
     } else if (entry.defaultLaterality !== defaultLatRaw) {
       changes.push({ field: 'defaultLaterality', from: entry.defaultLaterality, to: defaultLatRaw });
       entry.defaultLaterality = defaultLatRaw;
+    }
+  }
+
+  // --- laterality axis: a single value, re-validated against the known set ---
+  const latAxisRaw = (latAxisC ?? '').trim();
+  if (latAxisRaw) {
+    if (!LAT_AXES.includes(latAxisRaw)) {
+      errs.push(`Laterality axis "${latAxisRaw}" is not one of ${LAT_AXES.join('/')} — skipped`);
+    } else if (!(entry.laterality ?? []).includes('per-side')) {
+      errs.push(`Laterality axis "${latAxisRaw}" set on a movement whose laterality modes `
+        + `(${(entry.laterality ?? []).join(', ') || 'none'}) do not include per-side — an axis only `
+        + `means something for a per-side count. Skipped.`);
+    } else if (entry.lateralityAxis !== latAxisRaw) {
+      changes.push({ field: 'lateralityAxis', from: entry.lateralityAxis, to: latAxisRaw });
+      entry.lateralityAxis = latAxisRaw;
     }
   }
 

@@ -58,9 +58,11 @@ A change to the apps needs `build-web.mjs` before the browser sees it, and the
 board and builder are verified by driving them, not only by the suite — see
 *Tests do not read* in [lessons-learned.md](lessons-learned.md).
 
-**Curated modifier data (laterality, measures, load, force, mechanic,
-equipment) lands via `import-movement-curation.mjs`, from a CSV export of a
-one-off audit workbook, not by hand.** Chris reviews `registry/movements.json`
+**Curated modifier data (laterality — including `lateralityAxis`, the
+`arm|leg|side|hand|direction` a per-side count runs across, since queue item
+13a-curation — measures, load, force, mechanic, equipment) lands via
+`import-movement-curation.mjs`, from a CSV export of a one-off audit workbook,
+not by hand.** Chris reviews `registry/movements.json`
 in a spreadsheet (a CURRENT block for reference, a blank CURATE block to fill
 in) and exports it back to CSV in chunks; the script reads only the CURATE
 cells, per-cell rather than per-group — a blank cell means "not reviewed" and

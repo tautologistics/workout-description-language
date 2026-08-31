@@ -459,7 +459,12 @@
    },
    "force": "push",
    "mechanic": "compound",
-   "source": "free-exercise-db"
+   "source": "free-exercise-db",
+   "laterality": [
+    "per-side"
+   ],
+   "defaultLaterality": "per-side",
+   "lateralityAxis": "direction"
   },
   {
    "id": "atlas-stone-to-shoulder",

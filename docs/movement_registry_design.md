@@ -68,6 +68,9 @@ dumbbell-thruster:
   implements: 2                      # how many objects are held
   load: per-implement                # `@ 2x50lb` = 50lb each, 100lb moved
   laterality: [both]                 # counting modes admitted (§6)
+  defaultLaterality: both            # the mode to assume when the line is silent
+  lateralityAxis: direction          # what a per-side count runs across (§6):
+                                     # arm | leg | side | hand | direction
 
   # interop
   external:
@@ -286,6 +289,8 @@ dumbbell-curl:
 ```
 
 Like everything outside `title`, this is optional. **When an entry omits `laterality`, there is no default to apply**, so the prescription must state the mode or the parser asks (§12 of the spec, the never-guess rule). That's the correct degradation: a missing fact produces a question, never a silent assumption about how many reps someone did.
+
+**`lateralityAxis` — what a per-side count runs across.** *(Added 2026-08-31, queue item 13a-curation.)* A single value: `arm | leg | side | hand | direction`. A per-side count is always "each *something*", and the something is usually `side` — but a single-arm press is "each arm", a get-up "each side", and a dumbbell circle around the head is "each **direction**" (once clockwise, once counter). This is a fact about the movement, not the prescription, so it belongs on the registry entry; a tool that offers or renders the per-side option reads it to say `(each direction)` rather than a generic `(each side)`. Advisory, curated per movement (via `import-movement-curation.mjs`, a "Laterality axis" CURATE column), and only meaningful when `laterality` includes `per-side`. Absent, a tool falls back to `(each side)`. The vocabulary matches the grammar's `limbWord` (spec §7), which gained `direction` in queue item 13b.
 
 Accepted surface forms all map onto the three modes: `14 alternating DB Curl` and `14 alt DB Curl` → split; `14 DB Curl each arm`, `14 ea`, `14/side`, `14 per leg` → per-side; `14 DB Curl (both)` → both.
 

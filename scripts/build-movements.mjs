@@ -103,15 +103,24 @@ function add(key, title, source, f = {}) {
 // 1. curated core
 //
 // A record marked `source: free-exercise-db` is a snapshot of the import, so
-// its classification is re-read from the reference file rather than trusted
-// here. Its *aliases* are not part of that snapshot — nothing upstream carries
-// them — so they are hand-kept like any other and are applied below, after the
-// record exists. Skipping the whole record silently dropped them, which is the
+// its classification (muscles, force, mechanic, equipment) is re-read from the
+// reference file rather than trusted here. But a few fields are *not* part of
+// that snapshot — nothing upstream carries them — so they are hand-kept like
+// any other and applied below, after the record exists: `aliases` / `sameAs`,
+// and (since 2026-08-31, queue item 13a-curation) the curated laterality
+// fields, which the audit workbook can fill on any record regardless of its
+// import origin. Skipping the whole record silently dropped them, which is the
 // same shape of failure an unresolvable alias is: no error, just no effect.
 const handKept = new Map();
 for (const m of JSON.parse(readFileSync('registry/movements.json', 'utf8')).movements) {
   if (m.source === 'free-exercise-db') {
-    if (m.aliases?.length || m.sameAs?.length) handKept.set(fold(m.title), { aliases: m.aliases, sameAs: m.sameAs });
+    const kept = {};
+    if (m.aliases?.length) kept.aliases = m.aliases;
+    if (m.sameAs?.length) kept.sameAs = m.sameAs;
+    if (m.laterality?.length) kept.laterality = m.laterality;
+    if (m.defaultLaterality) kept.defaultLaterality = m.defaultLaterality;
+    if (m.lateralityAxis) kept.lateralityAxis = m.lateralityAxis;
+    if (Object.keys(kept).length) handKept.set(fold(m.title), kept);
     continue;
   }
   add(fold(m.title), m.title, 'wdl-curated', {
@@ -121,6 +130,7 @@ for (const m of JSON.parse(readFileSync('registry/movements.json', 'utf8')).move
     equipment: Array.isArray(m.equipment) ? m.equipment : m.equipment ? [m.equipment] : [],
     implements: m.implements, load: m.load, measures: m.measures,
     laterality: m.laterality, defaultLaterality: m.defaultLaterality,
+    lateralityAxis: m.lateralityAxis,
     // A build directive, not a fact about the movement: dedupe-movements.mjs
     // reads it, absorbs what it names, and deletes it. Carried through here
     // because it is written on the curated record and the merge is what acts
@@ -173,7 +183,7 @@ if (existsSync('docs/references/everkinetic.json')) {
   }
 }
 
-// The hand-kept aliases of records seeded from free-exercise-db, applied now
+// The hand-kept fields of records seeded from free-exercise-db, applied now
 // that every source has been read and the records they name exist.
 for (const [key, kept] of handKept) {
   const r = records.get(key);
@@ -183,6 +193,9 @@ for (const [key, kept] of handKept) {
   }
   for (const a of kept.aliases ?? []) r.aliases.add(a);
   if (kept.sameAs?.length) r.sameAs = [...new Set([...(r.sameAs ?? []), ...kept.sameAs])];
+  if (kept.laterality?.length) r.laterality = kept.laterality;
+  if (kept.defaultLaterality) r.defaultLaterality = kept.defaultLaterality;
+  if (kept.lateralityAxis) r.lateralityAxis = kept.lateralityAxis;
 }
 
 // A split that matches no entry does nothing at all, and the only symptom is
@@ -213,7 +226,7 @@ const out = [...records.values()].sort((a, b) => a.id.localeCompare(b.id)).map((
   const derived = deriveMuscles(r.muscleClaims);
   if (derived) rec.muscles = derived;
   for (const k of ['pattern', 'equipment']) if (r[k].size) rec[k] = [...r[k]].sort();
-  for (const k of ['implements', 'load', 'measures', 'laterality', 'defaultLaterality', 'force', 'mechanic'])
+  for (const k of ['implements', 'load', 'measures', 'laterality', 'defaultLaterality', 'lateralityAxis', 'force', 'mechanic'])
     if (r[k] !== undefined) rec[k] = r[k];
   // Written out so the next step in the pipeline can read it, and deleted
   // there. No record in the finished corpus carries it.
