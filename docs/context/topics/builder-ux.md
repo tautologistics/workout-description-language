@@ -558,7 +558,7 @@ summary band. *Was: `renderReading` listed `laid.cues.slice(0, 24)` then
 
 **~~The Analysis tab still carried a per-cue list at all — a capped duplicate
 of "Reads as" → show every cue.~~ Removed 2026-08-31** (`8720a62` bounded it,
-then `<SHA2>` removed it — Chris's call, from driving it). R4 above left a
+then `9537905` removed it — Chris's call, from driving it). R4 above left a
 capped `#steps` list on the Analysis tab; it rendered `laid.cues.slice(0, 24)`
 through the *same* `cueRow()` that the "Reads as" tab's **show every cue**
 expansion renders uncapped, so it was a strictly-inferior copy — and it was

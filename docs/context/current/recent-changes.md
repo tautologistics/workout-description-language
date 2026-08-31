@@ -3,7 +3,7 @@
 ## Changes
 
 - **2026-08-31 — Builder Analysis tab: the per-cue list is gone; the summary
-  band is height-capped** (`8720a62` then `<SHA2>`, from driving the builder).
+  band is height-capped** (`8720a62` then `9537905`, from driving the builder).
   A workout that unrolled into dozens of cues grew the Analysis tab's `#steps`
   list unbounded and pushed the body map + goals block off the bottom — the
   only scroll container was `#view-analysis` as a whole. `8720a62` first
