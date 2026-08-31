@@ -5,3 +5,4 @@ dist/
 
 # generated exports
 build/
+curation-sheet.csv

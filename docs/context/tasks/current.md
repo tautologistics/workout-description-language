@@ -28,14 +28,27 @@ axis — `(each direction)`). See [completed.md](completed.md).
 
 **Every numbered queue item is now closed** — the whole 0-series through 21, the
 deployment epic (18–20) and the redesign chain (R1–R10). There is **no
-self-contained next numbered item**. What is left is unscheduled and needs Chris
-to scope or sequence it:
+numbered next item**. What is left is unscheduled — the first bullet below is
+self-contained and dispatchable now; the rest need Chris to scope or sequence:
+
+- **The `»` panel's per-implement load token (`@ 2x`) is unclear mid-edit** —
+  not a numbered item; a self-contained builder-UX task. For a
+  `load: "per-implement"` movement the panel splices a bare `@ 2x` (seeded from
+  `implements`) that reads as cryptic before the weight is typed. Revisit the
+  formatting of the seeded `@ Nx` token and its clarity (hint / label / caret).
+  Detail in [../topics/builder-ux.md](../topics/builder-ux.md) under the
+  `»`-panel entry.
 
 - **A full laterality curation sweep** — not a numbered item. `around-worlds` is
-  the only movement carrying `lateralityAxis`; `import-movement-curation.mjs`
-  gained a "Laterality axis" CURATE column ready for a pass. A sweep is run via
-  the audit CSV per [../topics/running-it.md](../topics/running-it.md), not
-  hand-edits — needs Chris to scope which movements.
+  the only movement carrying `lateralityAxis`. The audit-CSV tooling is ready:
+  `export-movement-curation.mjs` (`make curation-sheet`) emits the sheet with a
+  `Laterality axis` column in both the CURRENT and CURATE blocks, and
+  `import-movement-curation.mjs` lands it back. A sweep is run via that CSV per
+  [../topics/running-it.md](../topics/running-it.md), not hand-edits — needs
+  Chris to scope which movements. Note `around-worlds` itself looks mis-sourced
+  (free-exercise-db's "Around The Worlds" is a lying dumbbell bench fly, not the
+  kettlebell around-the-head movement its `lateralityAxis: "direction"` +
+  `per-side` describe) — the sweep should resolve what that entry is.
 
 - **Post-redesign rethinks** (not scheduled) — `@id` ↔ record-id correlation,
   account **namespacing** (a username as a workout-id prefix; touches the

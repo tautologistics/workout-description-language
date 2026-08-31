@@ -16,9 +16,10 @@ make registry    # node scripts/build-canonical.ts — rebuild registry/ from it
 make goldens     # regenerate the golden files, then show what moved
 make aliases     # node scripts/check-aliases.mjs — names two records answer to, and who wins
 make corpora     # node scripts/describe-corpora.mjs — are SOURCES.json/.md still right
+make curation-sheet  # node scripts/export-movement-curation.mjs curation-sheet.csv — the modifier hand-pass sheet
 make deploy      # node scripts/deploy-web.mjs   (WDL_DEPLOY_SSH defaults to dreamhost.ae.wex — see "## Hosting")
 make deploy-dry  # same, rsync with -n
-make clean       # rm -rf build pairs.json
+make clean       # rm -rf build pairs.json curation-sheet.csv
 make install     # prints "nothing to install" — the repo is install-free, on purpose
 ```
 
@@ -61,17 +62,24 @@ board and builder are verified by driving them, not only by the suite — see
 **Curated modifier data (laterality — including `lateralityAxis`, the
 `arm|leg|side|hand|direction` a per-side count runs across, since queue item
 13a-curation — measures, load, force, mechanic, equipment) lands via
-`import-movement-curation.mjs`, from a CSV export of a one-off audit workbook,
-not by hand.** Chris reviews `registry/movements.json`
-in a spreadsheet (a CURRENT block for reference, a blank CURATE block to fill
-in) and exports it back to CSV in chunks; the script reads only the CURATE
-cells, per-cell rather than per-group — a blank cell means "not reviewed" and
-never touches the registry, a filled one is an assertion and does. Contradictory
-cells (both Load booleans TRUE, all three laterality modes FALSE, a
-`Default laterality` naming a mode not also marked TRUE) are reported and that
-one field is left untouched rather than guessed at; everything else in the same
-run still applies. Defaults to a dry-run report; `--apply` writes. Run it
-before and after chunks the same way — the report before applying is the
+`import-movement-curation.mjs`, from a CSV of the audit sheet, not by hand.**
+`make curation-sheet` (`export-movement-curation.mjs`) writes
+`curation-sheet.csv` at the repo root (git-ignored — a working artifact): 32
+columns in three blocks — IDENTITY, a CURRENT block showing what
+`registry/movements.json` holds today (reference only, never read back), and a
+blank CURATE block to fill in. `lateralityAxis` sits in *both* the CURRENT and
+CURATE blocks (added 2026-08-31), so a curator sees the current axis beside the
+blank. Chris reviews the sheet in a spreadsheet and exports it back to CSV in
+chunks; `import-movement-curation.mjs` reads only the CURATE cells, per-cell
+rather than per-group — a blank cell means "not reviewed" and never touches the
+registry, a filled one is an assertion and does. The two scripts share the
+column layout by position (two columns are named "Laterality: both"), so a
+sheet re-saved with a column moved/renamed/removed fails the header check
+loud. Contradictory cells (both Load booleans TRUE, all three laterality modes
+FALSE, a `Default laterality` naming a mode not also marked TRUE) are reported
+and that one field is left untouched rather than guessed at; everything else in
+the same run still applies. Defaults to a dry-run report; `--apply` writes. Run
+it before and after chunks the same way — the report before applying is the
 whole safety mechanism.
 
 **A change to the registry is checked by regenerating the goldens, like every

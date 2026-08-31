@@ -2,6 +2,29 @@
 
 ## Changes
 
+- **2026-08-31 — The movement-curation sheet has a committed generator, and
+  `lateralityAxis` is in its CURRENT block** (a one-off, not a queue item, in
+  prep for the unscheduled laterality sweep). `scripts/export-movement-curation.mjs`
+  (`make curation-sheet`) writes `curation-sheet.csv` at the repo root
+  (git-ignored) — the audit sheet that `import-movement-curation.mjs` reads back
+  was "built ad hoc, not checked in" before this. 32 columns: IDENTITY, a
+  reference-only CURRENT block, a blank CURATE block; the two scripts share the
+  layout by position. `Laterality axis` was added to the CURRENT block (it was
+  CURATE-only since 13a-curation), so `import-movement-curation.mjs`'s
+  `CURRENT_HEADERS` gained it too — `CURATE_START` is computed, so that one
+  string is the whole importer change; CURRENT cells are never read back.
+  Verified the round-trip: generate → import dry-run reports 972 rows, all
+  blank, 0 changes, 0 unknown ids (proves the header check agrees); a hand-filled
+  CURATE cell still applies. `docs/context/topics/running-it.md` updated.
+  Also this session: a `loadKilograms` test in `packages/core/test/units.test.ts`
+  pinning that a paired load (`2x24kg`) moves twice a single one (2064/2064,
+  was 2063); and two new **open** items in
+  [../tasks/current.md](../tasks/current.md) — the `»` panel's bare `@ 2x`
+  per-implement token reading as cryptic mid-edit (self-contained, dispatchable),
+  and a note that `around-worlds` itself looks mis-sourced (free-exercise-db's
+  entry is a dumbbell bench fly, not the kettlebell around-the-head movement its
+  curation describes) for the sweep to resolve.
+
 - **2026-08-31 — The `»` panel splices laterality/load after the whole typed
   movement word** (`e27339a`, a one-off follow-up, not a queue item). `applyModifier`
   in `apps/builder/builder.js` derived the splice point from `entryTitle.length`

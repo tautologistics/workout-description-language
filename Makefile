@@ -20,7 +20,7 @@ export WDL_DEPLOY_SSH ?= dreamhost.ae.wex
 .DEFAULT_GOAL := help
 
 .PHONY: help install test build serve registry goldens aliases corpora \
-        deploy deploy-dry clean
+        curation-sheet deploy deploy-dry clean
 
 help: ## List the targets
 	@grep -hE '^[a-z][a-z-]*:.*## ' $(MAKEFILE_LIST) \
@@ -50,6 +50,9 @@ goldens: ## Regenerate the golden files, then show what moved
 aliases: ## Report every name two records answer to, and who wins
 	node scripts/check-aliases.mjs
 
+curation-sheet: ## Emit curation-sheet.csv (the movement-modifier hand-pass sheet)
+	node scripts/export-movement-curation.mjs curation-sheet.csv
+
 corpora: ## Check SOURCES.json/.md still count the corpora right
 	node scripts/describe-corpora.mjs
 
@@ -60,4 +63,4 @@ deploy-dry: ## Same as deploy, but rsync runs with -n (no writes)
 	node scripts/deploy-web.mjs --dry-run
 
 clean: ## Remove build/ and scratch output
-	rm -rf build pairs.json
+	rm -rf build pairs.json curation-sheet.csv

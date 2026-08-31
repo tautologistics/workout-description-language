@@ -10,14 +10,15 @@
  *
  * ## Input shape
  *
- * A CSV export of the "Movements" sheet from the audit workbook
- * (scripts/../ — built ad hoc for this pass, not checked in), all 31
+ * A CSV export of the "Movements" sheet from the audit workbook that
+ * `scripts/export-movement-curation.mjs` (`make curation-sheet`) writes, all 32
  * columns, in that script's exact column order. Two of those columns are
  * literally named "Laterality: both" — one in the CURRENT block, one in the
  * CURATE block — so this reads columns **by position**, not by header text.
  * (The CURATE block gained a "Laterality axis" column on 2026-08-31 — queue
- * item 13a-curation — so an export from an older workbook fails the header
- * check until the column is added; that is the intended fail-loud behaviour.)
+ * item 13a-curation — and it was mirrored into the CURRENT block the same day,
+ * 31 → 32 columns, so an export from an older workbook fails the header check
+ * until the columns are added; that is the intended fail-loud behaviour.)
  * The header row is still checked, name-for-name, before anything else runs:
  * a spreadsheet re-saved with a column moved, deleted, or renamed fails loud
  * here rather than writing a value into the wrong field.
@@ -56,7 +57,7 @@ if (!csvPath) {
 
 const CURRENT_HEADERS = [
   'Has laterality data?', 'Laterality: both', 'Laterality: split', 'Laterality: per-side',
-  'Default laterality',
+  'Default laterality', 'Laterality axis',
   'Has measures data?', 'Measures: distance', 'Measures: calories',
   'Has load data?', 'Load: total', 'Load: per-implement', 'Implements (count)',
   'Force', 'Mechanic', 'Equipment',
