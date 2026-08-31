@@ -11,6 +11,12 @@
 
 PORT ?= 8081
 
+# Deploy target host.  `?=` defers to the environment when it is already set, so
+# `WDL_DEPLOY_SSH=other-host make deploy` still wins; `export` pushes the value
+# into the recipe so `scripts/deploy-web.mjs` sees it either way.  Safe to keep
+# in the repo — it is a `~/.ssh/config` alias, no host, user or secret in it.
+export WDL_DEPLOY_SSH ?= dreamhost.ae.wex
+
 .DEFAULT_GOAL := help
 
 .PHONY: help install test build serve registry goldens aliases corpora \
@@ -47,7 +53,7 @@ aliases: ## Report every name two records answer to, and who wins
 corpora: ## Check SOURCES.json/.md still count the corpora right
 	node scripts/describe-corpora.mjs
 
-deploy: ## Deploy the static apps  (needs WDL_DEPLOY_SSH, or --ssh in the script)
+deploy: ## Deploy the static apps  (WDL_DEPLOY_SSH defaults to dreamhost.ae.wex)
 	node scripts/deploy-web.mjs
 
 deploy-dry: ## Same as deploy, but rsync runs with -n (no writes)

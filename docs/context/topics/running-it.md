@@ -16,7 +16,7 @@ make registry    # node scripts/build-canonical.ts — rebuild registry/ from it
 make goldens     # regenerate the golden files, then show what moved
 make aliases     # node scripts/check-aliases.mjs — names two records answer to, and who wins
 make corpora     # node scripts/describe-corpora.mjs — are SOURCES.json/.md still right
-make deploy      # node scripts/deploy-web.mjs   (needs WDL_DEPLOY_SSH — see "## Hosting")
+make deploy      # node scripts/deploy-web.mjs   (WDL_DEPLOY_SSH defaults to dreamhost.ae.wex — see "## Hosting")
 make deploy-dry  # same, rsync with -n
 make clean       # rm -rf build pairs.json
 make install     # prints "nothing to install" — the repo is install-free, on purpose
@@ -112,11 +112,19 @@ to `/apps/builder/`. Item 20 adds the frontend that calls `/api/…`.
 Deploy the static apps (needs SSH to the VPS):
 
 ```bash
+make deploy       # WDL_DEPLOY_SSH defaults to dreamhost.ae.wex (Chris's ~/.ssh/config alias)
+make deploy-dry   # no-write rsync -n
+# From another box, override the alias:
 WDL_DEPLOY_SSH=androidempathy_wex@wex.androidempathy.com make deploy
-# (Chris's box: `WDL_DEPLOY_SSH=dreamhost.ae.wex` — his ~/.ssh/config alias)
-# `make deploy-dry` for a no-write rsync -n; the raw form is
-# `node scripts/deploy-web.mjs [--ssh …] [--dry-run] [--stage-only] [--skip-tests]`
+# Raw form (bypasses the Makefile default):
+# node scripts/deploy-web.mjs [--ssh …] [--dry-run] [--stage-only] [--skip-tests]
 ```
+
+The `Makefile` sets `export WDL_DEPLOY_SSH ?= dreamhost.ae.wex`, so a bare
+`make deploy` works on Chris's box; `?=` still defers to the environment when
+it is set, and the value is safe in the repo — it is an SSH-config alias, no
+host / user / secret in it. The raw `node scripts/deploy-web.mjs` form does
+**not** get the default; pass `--ssh` or set the env var yourself.
 
 `scripts/deploy-web.mjs` runs the core suite (bails on red), runs
 `build-web.mjs`, assembles a repo-shaped tree under `build/deploy/pb_public/`

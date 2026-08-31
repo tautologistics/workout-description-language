@@ -1111,8 +1111,14 @@ marks the ones worth a top-level pointer.
 - **Invariant the targets protect:** no target may add a dependency or a
   package-manager step; the registry pipeline stays one atomic `registry`
   target (never a per-step target — a step run alone is erased by the next
-  rebuild, see [lessons-learned.md](lessons-learned.md)); `deploy` surfaces the
-  `WDL_DEPLOY_SSH` requirement rather than failing opaquely.
+  rebuild, see [lessons-learned.md](lessons-learned.md)).
+
+- **`deploy` host default (2026-08-31):** the Makefile sets
+  `export WDL_DEPLOY_SSH ?= dreamhost.ae.wex`, so a bare `make deploy` /
+  `make deploy-dry` works on Chris's box. `?=` still defers to the environment
+  when it is set, and the value is a `~/.ssh/config` alias — no host, user or
+  secret — so it is safe checked in. The raw `node scripts/deploy-web.mjs`
+  form does not inherit the default (pass `--ssh` or the env var).
 
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in

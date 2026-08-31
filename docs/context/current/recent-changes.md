@@ -2,6 +2,17 @@
 
 ## Changes
 
+- **2026-08-31 — `make deploy` defaults `WDL_DEPLOY_SSH` to `dreamhost.ae.wex`.**
+  The Makefile now sets `export WDL_DEPLOY_SSH ?= dreamhost.ae.wex`, so a bare
+  `make deploy` / `make deploy-dry` works on Chris's box without prefixing the
+  env var. `?=` still defers to the environment when it is set (any other host
+  wins), and the value is a `~/.ssh/config` alias — no host, user or secret —
+  so it is safe in the repo. The raw `node scripts/deploy-web.mjs` form does
+  **not** inherit the default. Verified with GNU Make 3.81: unset → the
+  default reaches the recipe; env-set → the env value wins. *Touched:*
+  `Makefile`, `docs/context/topics/running-it.md`, `settled-decisions.md`
+  (DEC-017).
+
 - **2026-08-31 — Builder Analysis tab: the per-cue list is gone; the summary
   band is height-capped** (`8720a62` then `9537905`, from driving the builder).
   A workout that unrolled into dozens of cues grew the Analysis tab's `#steps`
