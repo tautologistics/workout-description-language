@@ -16,7 +16,9 @@ make registry    # node scripts/build-canonical.ts — rebuild registry/ from it
 make goldens     # regenerate the golden files, then show what moved
 make aliases     # node scripts/check-aliases.mjs — names two records answer to, and who wins
 make corpora     # node scripts/describe-corpora.mjs — are SOURCES.json/.md still right
-make curation-sheet  # node scripts/export-movement-curation.mjs curation-sheet.csv — the modifier hand-pass sheet
+make curation-sheet          # export-movement-curation.mjs curation-sheet.csv — the modifier hand-pass sheet
+make curation-check CSV=x.csv  # import-movement-curation.mjs x.csv — dry-run report, nothing written
+make curation-apply CSV=x.csv  # import-movement-curation.mjs x.csv --apply — land it into registry/movements.json
 make deploy      # node scripts/deploy-web.mjs   (WDL_DEPLOY_SSH defaults to dreamhost.ae.wex — see "## Hosting")
 make deploy-dry  # same, rsync with -n
 make clean       # rm -rf build pairs.json curation-sheet.csv
@@ -24,9 +26,9 @@ make install     # prints "nothing to install" — the repo is install-free, on 
 ```
 
 Not wrapped (situational, take arguments): `node scripts/find-duplicates.mjs >
-pairs.json` (cross-source dup pairs to triage), `node
-scripts/import-movement-curation.mjs <curated.csv> [--apply]` (land curated
-modifier data), and the `wdl` CLI itself (below).
+pairs.json` (cross-source dup pairs to triage) and the `wdl` CLI itself
+(below). `import-movement-curation.mjs` is wrapped as `make curation-check
+CSV=…` / `make curation-apply CSV=…` — both refuse to run without `CSV=`.
 
 `build-canonical.ts` is the whole registry pipeline and the only way to run any
 step of it — `mark-core.mjs` last, because it scores from what the earlier steps
@@ -78,9 +80,10 @@ sheet re-saved with a column moved/renamed/removed fails the header check
 loud. Contradictory cells (both Load booleans TRUE, all three laterality modes
 FALSE, a `Default laterality` naming a mode not also marked TRUE) are reported
 and that one field is left untouched rather than guessed at; everything else in
-the same run still applies. Defaults to a dry-run report; `--apply` writes. Run
-it before and after chunks the same way — the report before applying is the
-whole safety mechanism.
+the same run still applies. `make curation-check CSV=<chunk>.csv` is the
+dry-run report (nothing written); `make curation-apply CSV=<chunk>.csv` writes.
+Run the check before and after each chunk the same way — the report before
+applying is the whole safety mechanism.
 
 **A change to the registry is checked by regenerating the goldens, like every
 other change.** `node packages/core/test/golden/generate.ts`, then read the

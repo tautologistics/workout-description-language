@@ -20,12 +20,12 @@ export WDL_DEPLOY_SSH ?= dreamhost.ae.wex
 .DEFAULT_GOAL := help
 
 .PHONY: help install test build serve registry goldens aliases corpora \
-        curation-sheet deploy deploy-dry clean
+        curation-sheet curation-check curation-apply deploy deploy-dry clean
 
 help: ## List the targets
 	@grep -hE '^[a-z][a-z-]*:.*## ' $(MAKEFILE_LIST) \
 		| sort \
-		| awk 'BEGIN { FS = ":.*## " } { printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2 }'
+		| awk 'BEGIN { FS = ":.*## " } { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 }'
 
 install: ## Nothing to install — this repo is install-free by design
 	@echo "Nothing to install: no node_modules, no lockfile. ohm-js is vendored."
@@ -52,6 +52,14 @@ aliases: ## Report every name two records answer to, and who wins
 
 curation-sheet: ## Emit curation-sheet.csv (the movement-modifier hand-pass sheet)
 	node scripts/export-movement-curation.mjs curation-sheet.csv
+
+curation-check: ## Dry-run a curated CSV against the registry — report only  (CSV=path)
+	$(if $(CSV),,$(error set CSV=<curated.csv> — e.g. make curation-check CSV=chunk.csv))
+	node scripts/import-movement-curation.mjs $(CSV)
+
+curation-apply: ## Land a curated CSV into registry/movements.json  (CSV=path)
+	$(if $(CSV),,$(error set CSV=<curated.csv> — e.g. make curation-apply CSV=chunk.csv))
+	node scripts/import-movement-curation.mjs $(CSV) --apply
 
 corpora: ## Check SOURCES.json/.md still count the corpora right
 	node scripts/describe-corpora.mjs
