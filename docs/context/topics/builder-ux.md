@@ -32,6 +32,59 @@ the 900px single-column stack is unchanged.
 
 ---
 
+The three entries below are from a **design-critique pass, 2026-08-30** (drove
+the builder at 1440 and 1000px, light and dark, with a 35-cue five-section
+workout, and read the computed styles). They are the low-hanging-fruit list —
+each dispatchable on its own, none blocked on the others, and they slot beside
+the numbered builder-UX chain (12 → 16 → 17 → 15 → 13 → 11) rather than into it.
+
+**The "what it reads as" pane has no scroll container, so on a real workout the
+body map and goal check fall off the bottom of the page.** Confirmed in source:
+`.read-pane` is a `.pane` (`display:flex; flex-direction:column; min-height:0`)
+and **nothing under it sets `overflow`** — computed `overflow-y: visible`. Its
+children (`#summary`, `#diagnostics`, `#bodymap`, the goals block, `#findings`)
+just stack and grow. Measured on a 35-cue workout at 1440×900: the pane's
+content is **1692px tall**, `#bodymap` starts at y≈960 and *Against your goals*
+at y≈1230 — both below the fold, and the only way to reach them is to scroll the
+**whole document** (`documentElement.scrollHeight` 1748), which also scrolls the
+header, palette and editor away. The `.outline` and `.palette` panes each have
+their own `overflow:auto`; the read pane is the one that does not. **Fix:**
+`min-height:0; overflow:auto` on `.read-pane` at minimum; better, split it into
+bounded sub-panels — *Summary* always visible, *Body* and *Against your goals*
+as collapsible sections each with their own scroll — so a long analysis never
+pushes another part of it out of view. This is the single highest-value layout
+fix and the one Chris named first. *Scope: `apps/builder/builder.css`
+(`.read-pane` / a new `.analysis-panel` treatment), `apps/builder/index.html`
+(wrap the three blocks if they become collapsible), `apps/builder/builder.js`
+only if the collapse state wants persisting. No core change.*
+
+**Movements is a permanent ~24% column with no way to dismiss it.** At 1440px
+the three panes are 344 / 688 / 408px — the palette, which is *reference you dip
+into*, holds a quarter of the width while you are heads-down in the editor, and
+there is no toggle. The `@media (max-width:1180px)` rule already does the right
+thing structurally — palette goes full-width across the top, capped at 11rem
+with its own scroll, editor + reading share the row below — but it only fires by
+width, never by choice. **Fix:** a header (hamburger / rail) toggle that
+collapses Movements to a strip or an overlay drawer **at any width**, so editor
++ reading get the full canvas; reuse the existing collapsed-palette CSS as the
+drawer's closed state. *Scope: `apps/builder/index.html` (a toggle control),
+`apps/builder/builder.css` (a `body.palette-collapsed` / drawer state),
+`apps/builder/builder.js` (toggle handler, persist in `localStorage` like
+`wdl.editor-tab`). No core change.*
+
+**The header is one undifferentiated control row.** Six controls after item 20 —
+*My workouts*, *Open…*, *Canonicalise*, *Download .wdl*, *Open on the board ↗*,
+identity — all the same button weight, right-aligned in `header .row`
+(`flex-wrap: wrap`), with file I/O, a document transform, navigation and account
+reading as peers. Two concrete moves: **(a)** group them — account far right;
+*Open* / *Download* / a future *New* behind one file control; **(b)**
+*Canonicalise* rewrites the editor buffer, so it belongs *with the editor* (near
+the Outline/Text tab strip or the `+ movement` row), not in the top-level nav.
+*Scope: `apps/builder/index.html`, `apps/builder/builder.css`. No JS logic
+change beyond moving a listener. No core change.*
+
+---
+
 ## Outline
 
 **The outline shows no row for a comment — they exist only in the Text tab.**
@@ -271,6 +324,51 @@ exists*, the annotation owns *what to call it*.
 
 ---
 
+From the **design-critique pass, 2026-08-30.** These three are a single
+afternoon if done together — they are the same underlying problem (row-level
+affordances that only exist on `:hover`, at sub-minimum size, on near-invisible
+structure) seen three ways. They also touch the same CSS the numbered items
+12 / 15 / 16 (line-kind markers) will touch, so pairing them is sensible.
+
+**The per-row tools are 25.6px and invisible until you hover that exact row.**
+`.node .tools` and `.node .caret` / `.modcaret` are `opacity: 0` except under
+`.node:hover` / `.node:focus-within` (confirmed in `builder.css`). So the six
+tools (`↑ ↓ ⇥ ⇤ ⧉ ✕`) and the two carets (`▾` movement suggestions, `»` what
+this line takes) have **no discoverability** — you have to know they are there —
+and on a touchscreen (the ≤900px single-column layout invites phone use) they
+are unreachable: no hover, and `:focus-within` needs a focus a tap into a
+text-less part of the row does not give. Measured target size **25.6 × 25.6px**,
+below the 24px WCAG 2.2 / 44px iOS minimum, six of them clustered in a ~26px
+row. **Fix:** larger targets (≥32px); reveal on row **focus** as well as hover;
+and a persistent low-contrast handle (a `⋮` that opens the tool set, and a
+dim-but-present caret) so the affordance is visible before you touch the row.
+*Scope: `apps/builder/builder.css` (the `.tools` / `.caret` opacity + sizing
+rules), possibly `apps/builder/builder.js` if a `⋮`-opens-a-menu pattern
+replaces the always-rendered button strip. No core change.*
+
+**The `»` "what this line can take" caret is the most useful thing in the
+outline and it is `opacity: 0`.** Same rule as above, called out on its own
+because it is a capability, not a nicety — it surfaces the registry's per-movement
+modifiers and the grammar's per-header options (see the *Outline* item above and
+queue item 13). A first-time user never learns it exists. **Fix:** render it at
+a low but non-zero opacity always, brightening on hover/focus; consider a
+one-time hint the first time a row resolves to a movement or a block.
+*Scope: `apps/builder/builder.css`. No core change. Do this with the tools fix.*
+
+**The nesting rails are ~1.05:1 contrast — the block structure is invisible.**
+`.node .rail` uses `border-left: 1px solid var(--rule)` and `var(--rule)` is
+`#e3e4e8` in light (computed `rgb(236,238,242)` after inheritance) against a
+`#fbfbfa` page / `#ffffff` panel — a contrast ratio of about **1.05:1**, i.e.
+not perceptible to anyone, not only low-vision users. The rails are the only
+thing showing depth when a block header has scrolled out of view, and they do
+not do it. **Fix:** a dedicated `--rail` token darker than `--rule` (rails carry
+meaning; hairline dividers do not), and check it in both themes. Dovetails with
+items 12 / 16 (which add a coloured left border per line-kind on the same
+`.line-wrap`) — whichever lands first should define the rail/kind colour tokens.
+*Scope: `apps/builder/builder.css`. No core change.*
+
+---
+
 ## Movements
 
 **~~Movement sets cannot be composed by hand — a "set" is a saved search.~~
@@ -330,6 +428,29 @@ pattern as its other corrected entries.
 Worth keeping in view: a curated set is also an input to *generation* — the
 second of the two things the project is for — so a hand-composed repertoire is
 closer to that pillar than to a palette convenience.
+
+From the **design-critique pass, 2026-08-30.**
+
+**The movement-row muscle tags fail contrast and are too small to scan.**
+`.movement .meta` is **11.25px at `opacity: 0.5`** over the panel — the tag text
+(`glutes quads`, `erectors glutes hamstrings`) computes to roughly **1.9:1**
+against white, well under the 4.5:1 AA floor, and it is the thing you would
+actually scan the list by. `.hint` (`129 of the core set`, the compose hints) is
+**10.2px at `opacity: 0.6`** — same problem, smaller. This is a builder-wide
+type-and-contrast issue that shows up worst here: **floor body text at ~12px and
+bring `--dim`-on-panel to AA** (raise the token, or drop the `opacity`
+multipliers and let the token carry the dimming). Same pass can catch the
+outline rails above and any other `opacity`-dimmed text. *Scope:
+`apps/builder/builder.css`. No core change.*
+
+**Lower priority — the 129-row core list is one flat alphabetical scroll.** No
+grouping by pattern (`squat` / `hinge` / `press` / `pull` / `carry`) or region,
+so finding a movement without typing is a linear read. Search covers the "I know
+what I want" case; this is the "show me what I've got" case. Only worth doing if
+the palette becomes a drawer (Layout item above) and gets room to breathe —
+noted so it is not re-discovered, not because it is next. *Scope:
+`apps/builder/builder.js` (`renderPalette` grouping), `apps/builder/builder.css`.
+No core change.*
 
 ---
 
@@ -423,6 +544,30 @@ does not: `volume` and `muscleLoad` are identical across unresolved, `women` and
 the block out beyond what the rail already does. The rail is enough; the colour
 is the part that is missing.
 
+From the **design-critique pass, 2026-08-30.**
+
+**The cue-by-cue expansion is the largest thing in the feedback column and it
+sits above the body map and the goal check.** `renderReading` lists up to 24
+cues (`laid.cues.slice(0, 24)` in `builder.js`, then "…and N more"). On the
+35-cue test workout that block is ~half the pane's height — a flat scroll of
+`10 Air Squats · round 1/3`, `10 Push-Ups · round 1/3`, … — and it pushes the
+two things you actually build *against* (muscle coverage, "Against your goals")
+off the screen (see the read-pane scroll entry under *Layout*). The glanceable
+part is the `title / cues / duration / cap / score` `<dl>` above it; the
+enumeration is a detail view. **Fix:** collapse the cue list by default — show
+the count and the first ~4, with a "show all 35 cues" toggle — and keep the
+`<dl>` and the cycle summary pinned. Pairs naturally with splitting the read
+pane into collapsible sub-panels. *Scope: `apps/builder/builder.js`
+(`renderReading` — a collapsed default + toggle), `apps/builder/builder.css`.
+No core change.*
+
+**Minor — the read pane stacks four `<h2>`s.** "What it reads as", "Body",
+"Against your goals" (each with an inline `<select>`) repeat the uppercase
+label treatment three times in a column that is already overfull. If that
+column becomes collapsible sub-panels (Layout item), fold these into the panel
+headers rather than carrying them as standalone `<h2>`s. Not worth doing on
+its own. *Scope: `apps/builder/index.html`, `apps/builder/builder.css`.*
+
 ## The board
 
 **~~A workout-level diagnostic renders as `line undefined:`.~~ Fixed 2026-08-20**
@@ -479,6 +624,14 @@ went live. Captured verbatim-ish so the reasoning survives; none of it is on
 the queue yet, and the item-20 verification + close comes first. Each bullet is
 meant to be dispatchable on its own once the builder-UX chain (12 → 16 → 17 →
 15 → 13 → 11) is clear.
+
+A **companion design-critique pass the same day** distributed more, smaller,
+already-diagnosed entries into the topic sections above — `## Layout` (read-pane
+scroll container, dismissible Movements drawer, header grouping), `## Outline`
+(hover-only / sub-minimum row affordances, invisible `»` caret, near-invisible
+nesting rails), `## Movements` (tag contrast + size), `## What it reads`
+(collapse the cue list by default). Those are the low-hanging fruit; the bullets
+below are the larger rethinks.
 
 - **`@id` and the record id do not correlate, and probably should.** A workout
   can carry an `@id` directive in its text (spec preamble; `wdl result` already
