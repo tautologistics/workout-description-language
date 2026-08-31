@@ -664,10 +664,15 @@ function renderOutline() {
  */
 function renderReading() {
   const { workout, errors } = parse(text());
+  // The document title lives in the header now; `render()` repaints this pane
+  // on every edit, so this is where it stays current.
+  el('doc-title').textContent = workout.title ?? '';
   const summary = el('summary');
   const list = el('diagnostics');
+  const stepsBox = el('steps');
   summary.innerHTML = '';
   list.innerHTML = '';
+  stepsBox.innerHTML = '';
 
   let laid;
   try {
@@ -751,8 +756,9 @@ function renderReading() {
   }
   summary.append(dl);
 
-  const steps = document.createElement('div');
-  steps.className = 'steps';
+  // The <dl> above is the summary band; the cue list below is a detail view and
+  // lives in the (bounded, scrolling) Analysis panel — see `#steps` / `#view-analysis`.
+  const steps = stepsBox;
   // A cue inside a cycle comes round again, and the list is the only place that
   // is visible at a glance — the summary line says which cues repeat, but
   // counting to them is work the reader should not have to do.
@@ -787,7 +793,6 @@ function renderReading() {
     more.textContent = `…and ${laid.cues.length - 24} more`;
     steps.append(more);
   }
-  summary.append(steps);
 
   // Registry-backed checks need the registry. Without it the parse errors still
   // show; say what is missing rather than looking clean because half the checks
@@ -887,6 +892,45 @@ function setEditorView(view) {
 for (const b of document.querySelectorAll('.editor-tab'))
   b.addEventListener('click', () => setEditorView(b.dataset.view));
 setEditorView(localStorage.getItem('wdl.editor-tab'));
+
+// --- the margin tabs -----------------------------------------------------
+// Analysis / Reads as, the two panels of the right column. Same show/hide
+// nothing-else pattern as the editor tabs; the panels are always in the DOM
+// (the body map's `attachZoom` mounts `#bodymap` at load and expects it to
+// stay there). Remembered like the editor tab; default Analysis.
+function setAnalysisTab(view) {
+  if (view !== 'reads') view = 'analysis';
+  for (const b of document.querySelectorAll('.right-tab'))
+    b.setAttribute('aria-selected', String(b.dataset.rview === view));
+  el('view-analysis').classList.toggle('active', view === 'analysis');
+  el('view-reads').classList.toggle('active', view === 'reads');
+  localStorage.setItem('wdl.analysis-tab', view);
+}
+for (const b of document.querySelectorAll('.right-tab'))
+  b.addEventListener('click', () => setAnalysisTab(b.dataset.rview));
+setAnalysisTab(localStorage.getItem('wdl.analysis-tab'));
+
+// --- the movement drawer -----------------------------------------------------
+// The palette is an overlay drawer behind the header's `☰` toggle at every
+// width (R7 replaces it with the ⌘K / add-row modal). Open state persists so a
+// reload keeps it, like the editor tab.
+function setDrawer(open) {
+  document.body.classList.toggle('drawer-open', open);
+  el('palette-toggle').setAttribute('aria-expanded', String(open));
+  el('drawer-backdrop').hidden = !open;
+  try { localStorage.setItem('wdl.palette-open', open ? '1' : '0'); } catch { /* private mode */ }
+}
+el('palette-toggle').onclick = () => setDrawer(!document.body.classList.contains('drawer-open'));
+el('drawer-close').onclick = () => setDrawer(false);
+el('drawer-backdrop').onclick = () => setDrawer(false);
+addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.body.classList.contains('drawer-open') && !composing) setDrawer(false);
+});
+{
+  let open = false;
+  try { open = localStorage.getItem('wdl.palette-open') === '1'; } catch { /* private mode */ }
+  setDrawer(open);
+}
 
 // --- wiring ------------------------------------------------------------------
 

@@ -12,10 +12,11 @@
 <!--
   The builder.
 
-  Two panes over one document. The outline gives you the shape — order, nesting,
-  duplication — with buttons, because those are the operations that are fiddly to
-  do by hand in text. Everything else stays a line you type, because a form per
-  field would always lag the grammar, and the grammar is the interesting part.
+  Direction C — "Document + margin". The workout is a centred sheet: the editor
+  (Outline / Text as two tabs) is the document column, and a tabbed margin on the
+  right holds the analysis. A sticky summary band spans the top of the margin.
+  The movement palette is a transitional left drawer behind the `☰` toggle
+  (R7 replaces it with a ⌘K / add-row modal).
 
   The text is the document. The outline edits it in place rather than
   regenerating it, so comments, blank lines and your own spacing survive being
@@ -23,97 +24,116 @@
 -->
 
 <header>
-  <h1>Builder</h1>
-  <div class="row">
-    <details id="mine" class="menu" hidden>
-      <summary>My workouts</summary>
-      <div id="mine-panel" class="menu-panel"></div>
-    </details>
+  <span class="mark">WDL</span>
+  <button id="palette-toggle" class="ghost" aria-expanded="false" aria-controls="drawer"
+          title="Show the movement palette">☰ Movements</button>
+  <span id="doc-title" class="doc-title"></span>
+  <div class="file-cluster">
     <button id="open">Open…</button>
-    <button id="canon" title="Rewrite in canonical form">Canonicalise</button>
     <button id="download">Download .wdl</button>
     <a id="board" class="button" target="_blank" rel="noopener">Open on the board ↗</a>
-    <span id="identity" class="identity"></span>
   </div>
+  <details id="mine" class="menu" hidden>
+    <summary>My workouts</summary>
+    <div id="mine-panel" class="menu-panel"></div>
+  </details>
+  <span id="identity" class="identity"></span>
 </header>
 
-<main>
-  <section class="pane palette-pane">
-    <h2>Movements</h2>
-    <div class="palette-controls">
-      <input id="search" type="search" placeholder="Search movements" autocomplete="off">
-      <select id="set-pick" title="Show only the movements in a saved set"></select>
-    </div>
-    <details id="repertoire" class="repertoire">
-      <summary>Sets <span id="repertoire-count"></span></summary>
-      <div class="row tight repertoire-tools">
-        <button id="set-new" title="Start a new, empty set">New set</button>
-        <button id="set-save" title="Save the movements now showing as a new set">Save showing</button>
-        <button id="set-export" title="Download every set as a file">Export</button>
-        <button id="set-import" title="Load sets from a file, merging into these">Import</button>
+<main class="stage">
+  <div class="sheet">
+
+    <section class="doc-col">
+      <div class="editor-tabs" role="tablist">
+        <button id="tab-outline" class="editor-tab" role="tab" data-view="outline" aria-selected="true">Outline</button>
+        <button id="tab-text" class="editor-tab" role="tab" data-view="text" aria-selected="false">Text <span id="dirty" class="dirty" hidden>edited</span></button>
+        <button id="canon" class="toolbar-btn" title="Rewrite the editor buffer in canonical form">Canonicalise</button>
       </div>
-      <div id="set-list" class="set-list"></div>
-    </details>
-    <details id="muscle-filter" class="muscles">
-      <summary>Muscles <span id="muscle-chosen"></span></summary>
-      <div id="muscle-chips" class="chips"></div>
-      <button id="muscle-clear" class="link">Clear</button>
-    </details>
-    <p class="hint" id="palette-count"></p>
-    <p class="hint compose-hint" id="compose-hint" hidden></p>
-    <div id="palette" class="palette"></div>
-  </section>
-
-  <section class="pane editor-pane">
-    <div class="editor-tabs" role="tablist">
-      <button id="tab-outline" class="editor-tab" role="tab" data-view="outline" aria-selected="true">Outline</button>
-      <button id="tab-text" class="editor-tab" role="tab" data-view="text" aria-selected="false">Text <span id="dirty" class="dirty" hidden>edited</span></button>
-    </div>
-    <div id="view-outline" class="editor-view" role="tabpanel">
-      <div id="outline" class="outline"></div>
-      <div class="add-row">
-        <button data-add="step">+ movement</button>
-        <button data-add="block">+ block</button>
-        <button data-add="rest">+ rest</button>
+      <div id="view-outline" class="editor-view" role="tabpanel">
+        <div id="outline" class="outline"></div>
+        <div class="add-row">
+          <button data-add="step">+ movement</button>
+          <button data-add="block">+ block</button>
+          <button data-add="rest">+ rest</button>
+        </div>
       </div>
-    </div>
-    <div id="view-text" class="editor-view" role="tabpanel">
-      <textarea id="text" spellcheck="false" autocapitalize="off" autocorrect="off"></textarea>
-    </div>
-  </section>
+      <div id="view-text" class="editor-view" role="tabpanel">
+        <textarea id="text" spellcheck="false" autocapitalize="off" autocorrect="off"></textarea>
+      </div>
+    </section>
 
-  <section class="pane read-pane">
-    <h2>What it reads as</h2>
-    <div id="summary" class="summary"></div>
-    <ul id="diagnostics" class="diagnostics"></ul>
+    <section class="right-col">
+      <div id="summary" class="summary band"></div>
+      <div class="right-tabs" role="tablist">
+        <button id="rtab-analysis" class="right-tab" role="tab" data-rview="analysis" aria-selected="true">Analysis</button>
+        <button id="rtab-reads" class="right-tab" role="tab" data-rview="reads" aria-selected="false">Reads as</button>
+      </div>
 
-    <h2 class="body-head">Body
-      <select id="body-mode" title="What the map shows">
-        <option value="aggregate">Aggregate</option>
-        <option value="heat-frequency">Heat — how often</option>
-        <option value="heat-volume">Heat — reps</option>
-      </select>
-    </h2>
-    <div id="bodymap"></div>
-    <p class="hint" id="body-hint"></p>
+      <div id="view-analysis" class="rpanel" role="tabpanel">
+        <div id="steps" class="steps"></div>
+        <ul id="diagnostics" class="diagnostics"></ul>
 
-    <h2 class="goals-head">Against your goals
-      <select id="goal-pick" title="Which goals to check against"></select>
-    </h2>
-    <div class="row tight goal-tools">
-      <button id="goal-edit" title="Write or change the rules">Edit rules</button>
-      <button id="goal-open" title="Open a .wdlg file">Open…</button>
-      <button id="goal-save" title="Save these rules under a name">Save as…</button>
-      <button id="goal-download" title="Write them out as a .wdlg file">.wdlg</button>
-      <button id="goal-drop" title="Delete the selected rules" hidden>Delete</button>
-    </div>
-    <textarea id="goal-text" class="goal-text" spellcheck="false"
-              autocapitalize="off" autocorrect="off" hidden></textarea>
-    <ul id="goal-errors" class="diagnostics"></ul>
-    <p id="goal-notes" class="notes" hidden></p>
-    <ul id="findings" class="diagnostics findings"></ul>
-  </section>
+        <h2 class="body-head">Body
+          <select id="body-mode" title="What the map shows">
+            <option value="aggregate">Aggregate</option>
+            <option value="heat-frequency">Heat — how often</option>
+            <option value="heat-volume">Heat — reps</option>
+          </select>
+        </h2>
+        <div id="bodymap"></div>
+        <p class="hint" id="body-hint"></p>
+
+        <h2 class="goals-head">Against your goals
+          <select id="goal-pick" title="Which goals to check against"></select>
+        </h2>
+        <div class="row tight goal-tools">
+          <button id="goal-edit" title="Write or change the rules">Edit rules</button>
+          <button id="goal-open" title="Open a .wdlg file">Open…</button>
+          <button id="goal-save" title="Save these rules under a name">Save as…</button>
+          <button id="goal-download" title="Write them out as a .wdlg file">.wdlg</button>
+          <button id="goal-drop" title="Delete the selected rules" hidden>Delete</button>
+        </div>
+        <textarea id="goal-text" class="goal-text" spellcheck="false"
+                  autocapitalize="off" autocorrect="off" hidden></textarea>
+        <ul id="goal-errors" class="diagnostics"></ul>
+        <p id="goal-notes" class="notes" hidden></p>
+        <ul id="findings" class="diagnostics findings"></ul>
+      </div>
+
+      <div id="view-reads" class="rpanel" role="tabpanel">
+        <p class="placeholder">The run, compressed — R4.</p>
+      </div>
+    </section>
+
+  </div>
 </main>
+
+<div id="drawer-backdrop" class="drawer-backdrop" hidden></div>
+<aside id="drawer" class="drawer" aria-label="Movements">
+  <h2>Movements <button id="drawer-close" class="drawer-close" title="Close">✕</button></h2>
+  <div class="palette-controls">
+    <input id="search" type="search" placeholder="Search movements" autocomplete="off">
+    <select id="set-pick" title="Show only the movements in a saved set"></select>
+  </div>
+  <details id="repertoire" class="repertoire">
+    <summary>Sets <span id="repertoire-count"></span></summary>
+    <div class="row tight repertoire-tools">
+      <button id="set-new" title="Start a new, empty set">New set</button>
+      <button id="set-save" title="Save the movements now showing as a new set">Save showing</button>
+      <button id="set-export" title="Download every set as a file">Export</button>
+      <button id="set-import" title="Load sets from a file, merging into these">Import</button>
+    </div>
+    <div id="set-list" class="set-list"></div>
+  </details>
+  <details id="muscle-filter" class="muscles">
+    <summary>Muscles <span id="muscle-chosen"></span></summary>
+    <div id="muscle-chips" class="chips"></div>
+    <button id="muscle-clear" class="link">Clear</button>
+  </details>
+  <p class="hint" id="palette-count"></p>
+  <p class="hint compose-hint" id="compose-hint" hidden></p>
+  <div id="palette" class="palette"></div>
+</aside>
 
 <input type="file" id="file" accept=".wdl,.txt" hidden>
 <input type="file" id="goal-file" accept=".wdlg,.txt" hidden>
