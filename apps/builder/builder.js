@@ -519,7 +519,14 @@ function renderOutline() {
           e.preventDefault(); suggestions.children[highlighted].click(); return;
         }
         if (!suggestions.hidden && e.key === 'Escape') { closeSuggestions(); return; }
-        if (e.key === 'Enter') { e.preventDefault(); insert(n.line, ''); }
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          // Enter summons the palette to add the next movement: it replaces this
+          // row when the row is blank, otherwise inserts after it. (A bare blank
+          // line never rendered as an outline row anyway — add spacing in Text.)
+          openPalette(input.value.trim() ? {} : { replace: n.line });
+          return;
+        }
         if (e.key === 'Tab' && !e.shiftKey && input.selectionStart === input.value.length) {
           e.preventDefault(); shift(n.line, 2);
         }
@@ -1229,27 +1236,71 @@ for (const b of document.querySelectorAll('.right-tab'))
   b.addEventListener('click', () => setAnalysisTab(b.dataset.rview));
 setAnalysisTab(localStorage.getItem('wdl.analysis-tab'));
 
-// --- the movement drawer -----------------------------------------------------
-// The palette is an overlay drawer behind the header's `☰` toggle at every
-// width (R7 replaces it with the ⌘K / add-row modal). Open state persists so a
-// reload keeps it, like the editor tab.
-function setDrawer(open) {
-  document.body.classList.toggle('drawer-open', open);
-  el('palette-toggle').setAttribute('aria-expanded', String(open));
-  el('drawer-backdrop').hidden = !open;
-  try { localStorage.setItem('wdl.palette-open', open ? '1' : '0'); } catch { /* private mode */ }
+// --- the movement palette modal --------------------------------------------
+// Summoned, never docked: ⌘K / Ctrl-K anywhere, or "+ movement" / Enter on a
+// blank outline row. It carries the same three filters the drawer did — text
+// (`#search`), muscle chips (`chosenMuscles` / `worksAll`, AND-combined) and
+// saved set (`#set-pick`) — and `#repertoire` still lives inside it (R8 folds
+// the set management in properly). Picking a movement inserts `lineFor(m)` at
+// the focused row and closes.
+const paletteModal = el('palette-modal');
+/** A blank outline row that summoned the modal — replaced, not inserted after. */
+let paletteReplaceLine = null;
+/** The element to hand focus back to when the modal closes. */
+let paletteReturnFocus = null;
+
+function openPalette({ replace = null } = {}) {
+  if (paletteModal.open) return;
+  paletteReplaceLine = replace;
+  paletteReturnFocus = document.activeElement;
+  renderPalette();
+  paletteModal.showModal();
+  const search = el('search');
+  search.focus();
+  search.select();
 }
-el('palette-toggle').onclick = () => setDrawer(!document.body.classList.contains('drawer-open'));
-el('drawer-close').onclick = () => setDrawer(false);
-el('drawer-backdrop').onclick = () => setDrawer(false);
-addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && document.body.classList.contains('drawer-open') && !composing) setDrawer(false);
+
+function closePalette() {
+  if (!paletteModal.open) return;
+  paletteModal.close();
+  paletteReplaceLine = null;
+  const back = paletteReturnFocus;
+  paletteReturnFocus = null;
+  if (back && back.isConnected && typeof back.focus === 'function') back.focus();
+}
+
+/** A movement chosen in the modal: land it at the caret, then close. */
+function pickFromPalette(m) {
+  const replace = paletteReplaceLine;
+  closePalette();
+  if (replace != null && lines[replace - 1] !== undefined && !lines[replace - 1].trim()) {
+    lines = replaceLogical(lines, replace, lineFor(m));
+    render(replace);
+  } else {
+    insert(focused, lineFor(m));
+  }
+}
+
+// Every close routes through `closePalette` so focus is handed back. Esc while
+// composing a set exits compose mode first (the old drawer behaviour), leaving
+// the modal open.
+paletteModal.addEventListener('cancel', (e) => {
+  e.preventDefault();
+  if (composing) { composing = null; renderSetList(); renderPalette(); return; }
+  closePalette();
 });
-{
-  let open = false;
-  try { open = localStorage.getItem('wdl.palette-open') === '1'; } catch { /* private mode */ }
-  setDrawer(open);
-}
+paletteModal.addEventListener('click', (e) => {
+  if (e.target === paletteModal) closePalette();   // backdrop
+});
+el('palette-close').onclick = () => closePalette();
+
+addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && (e.key === 'k' || e.key === 'K')) {
+    if (e.isComposing) return;
+    e.preventDefault();
+    if (paletteModal.open) closePalette(); else openPalette();
+  }
+});
 
 // --- wiring ------------------------------------------------------------------
 
@@ -1294,12 +1345,11 @@ el('file').addEventListener('change', async () => {
 });
 
 for (const b of document.querySelectorAll('[data-add]')) {
-  b.onclick = () => insert(focused, {
-    step: '- 10 Movement',
-    rest: 'rest 60s',
-    block: '5 rounds:',
-    comment: '// ',
-  }[b.dataset.add]);
+  b.onclick = () => {
+    // "+ movement" is the palette now; the other three drop a stub line as before.
+    if (b.dataset.add === 'step') { openPalette(); return; }
+    insert(focused, { rest: 'rest 60s', block: '5 rounds:', comment: '// ' }[b.dataset.add]);
+  };
 }
 
 addEventListener('dragover', (e) => e.preventDefault());
@@ -1466,15 +1516,15 @@ function renderPalette() {
     item.append(name, meta);
 
     // Composing: a click toggles the movement in the set being built. Otherwise
-    // a click adds it where you were last working, which is what "add this"
-    // means when the caret is somewhere. Dragging always says where explicitly.
+    // a click lands it at the caret and closes the modal — "add this" where you
+    // were last working. Dragging still says where explicitly.
     item.onclick = composing
       ? () => {
           const cur = sets[composing] ?? [];
           sets[composing] = cur.includes(m.id) ? cur.filter((x) => x !== m.id) : [...cur, m.id];
           setsChanged();
         }
-      : () => insert(focused, lineFor(m));
+      : () => pickFromPalette(m);
     item.addEventListener('dragstart', (e) => {
       e.dataTransfer.setData('text/wdl-movement', lineFor(m));
       e.dataTransfer.setData('text/wdl-movement-id', m.id);
@@ -1672,7 +1722,9 @@ el('muscle-clear').onclick = () => {
 };
 
 addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && composing) {
+  // While the modal is open its own `cancel` handler owns Esc (exit compose,
+  // else close). This covers the edge case of compose mode outliving a close.
+  if (e.key === 'Escape' && composing && !paletteModal.open) {
     composing = null;
     renderSetList();
     renderPalette();

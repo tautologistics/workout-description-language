@@ -15,8 +15,8 @@
   Direction C — "Document + margin". The workout is a centred sheet: the editor
   (Outline / Text as two tabs) is the document column, and a tabbed margin on the
   right holds the analysis. A sticky summary band spans the top of the margin.
-  The movement palette is a transitional left drawer behind the `☰` toggle
-  (R7 replaces it with a ⌘K / add-row modal).
+  The movement palette is a summoned modal (`#palette-modal`) — ⌘K, or
+  "+ movement" / Enter on a blank outline row — that inserts at the caret.
 
   The text is the document. The outline edits it in place rather than
   regenerating it, so comments, blank lines and your own spacing survive being
@@ -25,8 +25,6 @@
 
 <header>
   <span class="mark">WDL</span>
-  <button id="palette-toggle" class="ghost" aria-expanded="false" aria-controls="drawer"
-          title="Show the movement palette">☰ Movements</button>
   <span id="doc-title" class="doc-title"></span>
   <div class="file-cluster">
     <button id="open">Open…</button>
@@ -115,9 +113,8 @@
   </div>
 </main>
 
-<div id="drawer-backdrop" class="drawer-backdrop" hidden></div>
-<aside id="drawer" class="drawer" aria-label="Movements">
-  <h2>Movements <button id="drawer-close" class="drawer-close" title="Close">✕</button></h2>
+<dialog id="palette-modal" class="palette-modal" aria-label="Movements">
+  <h2>Movements <button type="button" id="palette-close" class="palette-close" title="Close">✕</button></h2>
   <div class="palette-controls">
     <input id="search" type="search" placeholder="Search movements" autocomplete="off">
     <select id="set-pick" title="Show only the movements in a saved set"></select>
@@ -140,7 +137,7 @@
   <p class="hint" id="palette-count"></p>
   <p class="hint compose-hint" id="compose-hint" hidden></p>
   <div id="palette" class="palette"></div>
-</aside>
+</dialog>
 
 <input type="file" id="file" accept=".wdl,.txt" hidden>
 <input type="file" id="goal-file" accept=".wdlg,.txt" hidden>
