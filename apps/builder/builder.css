@@ -444,7 +444,10 @@ header button, header .button { white-space: nowrap; }
   background: var(--panel);
 }
 
-.summary { padding: .6rem 1rem; font-size: .82rem; }
+/* A workout with several repeating blocks grows a `cues N–M repeat` row per
+   cycle; past a few they should scroll inside the band rather than pushing the
+   tabs and the analysis panel down. */
+.summary { padding: .6rem 1rem; font-size: .82rem; max-height: 9rem; overflow-y: auto; }
 .summary dl { display: grid; grid-template-columns: auto 1fr; gap: .1rem .75rem; margin: 0; }
 .summary dt { color: var(--dim); }
 .summary dd { margin: 0; font-variant-numeric: tabular-nums; }
@@ -494,6 +497,13 @@ header button, header .button { white-space: nowrap; }
 .placeholder { color: var(--dim); font-size: .85rem; }
 
 /* --- the run: cue list -------------------------------------------------- */
+
+/* The cue list is the one thing in this panel that has no natural bound — a
+   long workout unrolls into dozens of rows and, left alone, it pushes the body
+   map and the goals block right off the screen. Cap it and let it scroll
+   inside itself, so what sits below it stays reachable without scrolling the
+   whole panel. (`#steps` is already capped in JS; this bounds what remains.) */
+#steps { max-height: min(24rem, 45vh); overflow-y: auto; padding-right: .5rem; }
 
 .steps .cue { display: flex; gap: .5rem; padding: .1rem 0; }
 .steps .cue .n { color: var(--dim); font-variant-numeric: tabular-nums; min-width: 1.6rem; text-align: right; }
