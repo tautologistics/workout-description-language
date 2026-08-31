@@ -36,8 +36,10 @@ describe('corpus round two', () => {
   });
 
   it('parses a bodybuilding rep range and keeps it through canonical form', () => {
+    // The bare `each arm` on input canonicalises to the parenthesised per-side
+    // form as of 2026-08-31 (queue item 13b); the rep range is what this pins.
     eq(canon('4 sets:\n  - 8-12 Dumbbell Curls each arm @ 2x35lb'),
-       '4 sets:\n  - 8-12 Dumbbell Curls each arm @ 2x35lb');
+       '4 sets:\n  - 8-12 Dumbbell Curls (each arm) @ 2x35lb');
   });
 
   it('peels a qualifier that sits before the target, not only after', () => {

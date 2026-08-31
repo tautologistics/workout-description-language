@@ -386,22 +386,36 @@ describe('the grammar is the spec', () => {
   });
 
   /**
-   * A parenthetical the language does not read — neither a laterality word nor
-   * an rx split — held whole in `unknown` rather than swallowed into the name
-   * (queue item 14). The `s` `wdl fmt` used to staple onto `... (each direction)`
-   * goes with it: once the parenthetical is out of `movement`, `pluralize`
-   * never sees it.
+   * `(each direction)` reads as a per-side laterality on a rotational axis
+   * (queue item 13b) — the parenthesised spelling of a bare `each direction`,
+   * with `direction` added to `limbWord`. Until 2026-08-31 it fell to
+   * `unreadableParen` and was held in `unknown`.
    */
-  it('holds an unread parenthetical rather than naming a movement after it', () => {
+  it('reads a parenthesised per-side laterality, axis and all', () => {
     const step = g.parseStep('12 Around The Worlds (each direction)');
     eq(step.movement, 'Around The Worlds');
-    eq(step.unknown, ['(each direction)']);
+    eq(step.laterality, 'per-side');
+    eq(step.limb, 'direction');
+    eq(step.unknown, undefined);
+  });
+
+  /**
+   * A parenthetical the language genuinely does not read — not a laterality word,
+   * not `(each <axis>)`, not an rx split — is still held whole in `unknown`
+   * rather than swallowed into the name (queue item 14).
+   */
+  it('holds an unread parenthetical rather than naming a movement after it', () => {
+    const step = g.parseStep('12 Around The Worlds (widdershins)');
+    eq(step.movement, 'Around The Worlds');
+    eq(step.unknown, ['(widdershins)']);
     eq(step.notes, []);
   });
 
   it('still reads the recognised parenthetical forms ahead of the fallback', () => {
     eq(g.parseStep('10 Pistol (split)').laterality, 'split');
     eq(g.parseStep('10 Pistol (BOTH)').laterality, 'both');
+    eq(g.parseStep('10 Pistol (each side)').laterality, 'per-side');
+    eq(g.parseStep('10 Pistol (each side)').limb, 'side');
     const rx = g.parseStep('30 Clean & Jerk (women 105lb / men 145lb)');
     eq(rx.movement, 'Clean & Jerk');
     eq(rx.unknown, undefined);

@@ -118,7 +118,7 @@ Units never convert silently. A file written in `kg` stays in `kg`; display conv
 - 15cal Row
 - 90s Plank
 - 8 Front Squat @ 135lb, tempo 31X1
-- 14 DB Curl each arm
+- 14 DB Curl (each arm)
 ```
 
 Shape: `- <quantity> <Movement> [<inline qualifier>]* [@ <target>]* [, <qualifier>]*`
@@ -140,12 +140,12 @@ A bare `Nx` — `10x Curl`, which §3's unit table lists as a rep spelling — i
 **Laterality and side attach to the movement and precede the target**; team words trail it, because they qualify the whole prescription:
 
 ```
-- 10 Dumbbell Curl each arm @ 2x35lb
+- 10 Dumbbell Curl (each arm) @ 2x35lb
 - 21 DB Snatch first arm @ 50lb
 - 40 Wall Ball @ 20lb shared
 ```
 
-**Laterality, side, and team words are written inline, without a comma.** They read as part of the prescription rather than as modifiers of it — `14 DB Curl each arm`, not `14 DB Curl, each side`. Everything else (tempo, `count cal`, `+3 each round`, notes) follows a comma. Both forms parse; canonical output uses the inline form for those three and commas for the rest, and preserves the limb noun the author wrote.
+**Laterality, side, and team words are written inline, without a comma.** They read as part of the prescription rather than as modifiers of it — `14 DB Curl (each arm)`, not `14 DB Curl, each side`. Everything else (tempo, `count cal`, `+3 each round`, notes) follows a comma. Both forms parse; canonical output uses the inline form for those three and commas for the rest, and preserves the axis word the author wrote. Laterality is parenthesised — `(split)`, `(both)`, `(total)`, `(each arm)` (§7); side selectors (`first arm`) and team words (`shared`) stay bare.
 
 **Completion conditions** (exactly one per step): reps, a rep range (`8-12`), distance, calories, duration, `open`, `max`, or `N+` meaning at least N then as many as possible.
 
@@ -167,7 +167,7 @@ A rep range (`8-12`) is a step quantity; the same shape with a trailing colon (`
 
 **A range does not carry a unit.** `8-12` is a rep range; `100-150ft` — a carry, or a rest, written as a band rather than a single figure — is not read at all. This is deliberate rather than an omission: reading it would mean every consumer of a rep range learning to handle a distance or duration range too, and that is a larger question than this line's parsing, left open in the roadmap. What is not deliberate is silence — `100-150ft Farmers Carry` is *reported*, at the `note` severity unrecognized text already carries (§12), rather than swallowed into the movement name the way it was before this was stated. `wdl check` names it; `wdl fmt` keeps it verbatim, after a comma, rather than folding it into a pluralized movement name.
 
-**A parenthetical the language does not read does not stop the movement being recognized.** `(both)`, `(split)`, `(per-side)`, `(total)` are laterality (§7); `(women 105lb / men 145lb)` and `(105/145)` are an rx split (§10.1). Anything else in parentheses after a movement — `(each direction)`, `(Clean Grip)`, a bare `(wibble)` — is *held*, exactly the way an unread comma modifier is: the whole parenthetical, parens included, is kept in the step's unrecognized text, `wdl check` reports it at the `note` severity (§11.1, §12), and the movement name is left clean so the step still resolves against the registry. Before this was stated the `(`, the `)` and the text between them fell into the movement name one character at a time — `12 Around The Worlds (each direction)` was a movement literally named `Around The Worlds (each direction)`, matching no registry entry and dropping out of muscle and volume analysis, and `wdl fmt` pluralized it to `... (each direction)s`. `wdl fmt` now writes the parenthetical back verbatim after a comma, with the modifiers it did read. Two edges are drawn narrowly on purpose: the match runs to the **first** `)`, so a nested `(a (b) c)` is not caught and stays in the name; and the ~15 raw-import registry titles that themselves contain a parenthetical (`Front Squat (Clean Grip)`) now have it peeled to a `note` and resolve against the base name.
+**A parenthetical the language does not read does not stop the movement being recognized.** `(both)`, `(split)`, `(per-side)`, `(total)`, and `(each arm)` / `(each direction)` are laterality (§7); `(women 105lb / men 145lb)` and `(105/145)` are an rx split (§10.1). Anything else in parentheses after a movement — `(Clean Grip)`, a bare `(wibble)` — is *held*, exactly the way an unread comma modifier is: the whole parenthetical, parens included, is kept in the step's unrecognized text, `wdl check` reports it at the `note` severity (§11.1, §12), and the movement name is left clean so the step still resolves against the registry. Before this was stated the `(`, the `)` and the text between them fell into the movement name one character at a time — `12 Around The Worlds (each direction)` was a movement literally named `Around The Worlds (each direction)`, matching no registry entry and dropping out of muscle and volume analysis, and `wdl fmt` pluralized it to `... (each direction)s` (that spelling now reads as a per-side laterality — §7 — but the holding rule is unchanged for everything still outside the vocabulary). `wdl fmt` writes a genuinely unread parenthetical back verbatim after a comma, with the modifiers it did read. Two edges are drawn narrowly on purpose: the match runs to the **first** `)`, so a nested `(a (b) c)` is not caught and stays in the name; and the ~15 raw-import registry titles that themselves contain a parenthetical (`Front Squat (Clean Grip)`) now have it peeled to a `note` and resolve against the base name.
 
 ```
 - 5+ Back Squat @ 85% TM       // 5/3/1 final set
@@ -197,10 +197,12 @@ The measured output defaults to reps for a rep-completed step, and to the step's
 **Laterality** follows [movement_registry_design.md](../docs/movement_registry_design.md) §6. Three modes, always explicit in canonical output when the movement admits more than one. A registry entry *may* declare a default; where it doesn't — including for unregistered movements — the prescription must say, or the parser asks (§12). A missing fact produces a question, never a silent assumption about how many reps someone did.
 
 ```
-- 14 DB Curl (split)       // 7 per arm — the count is divided across sides
-- 14 DB Curl each arm      // 14 per arm, 28 performed
-- 14 DB Curl (both)        // 14 reps, both arms simultaneously
+- 14 DB Curl (split)          // 7 per arm — the count is divided across sides
+- 14 DB Curl (each arm)       // 14 per arm, 28 performed
+- 14 DB Curl (both)           // 14 reps, both arms simultaneously
 ```
+
+**All four modes are parenthesised** — `(split)`, `(both)`, `(total)` name only *how* the count is performed; `(each arm)` names that and the **axis** it is performed across. The axis is one of `arm`, `leg`, `side`, `hand`, or `direction` — the last for a rotation performed once each way (`12 Around The Worlds (each direction)`). The bare forms `each arm` / `per leg` are still read on input (and `total` still reads, mapping to `(split)`); canonical output writes the parenthesised form and preserves the axis word the author wrote. *Parenthesising the per-side form is a 2026-08-31 change (queue item 13b): it was written bare and without a comma before, on the argument that `each arm` "reads as part of the prescription" — but the asymmetry with `(split)` was the thing a reader tripped on, and `(each direction)` had no reading at all until the axis vocabulary gained `direction`.*
 
 **`alternating` is not a counting mode.** It names a specific execution pattern — strict left-right-left — and `10 Pistol` more often means five on one leg then five on the other. Both distribute the same count across two sides, so they cannot be different counting modes; alternation is a pattern layered on top, and which pattern the athlete uses changes nothing about the score, the volume, or the display.
 
@@ -814,7 +816,7 @@ Everything else is a note. Resist building a constraint language:
 
 ### 11.1 Text the language does not read
 
-**Unknown is a first-class state: not an error, and not a guess.** A modifier after a comma that matches no rule is *held in the tree as unrecognized*. It is kept verbatim, it survives a round trip, and it carries no meaning — implicit or explicit — for execution, analysis or export. The same treatment reaches two things that are not written after a comma: a range wearing a unit (`100-150ft Farmers Carry`, §4) and a parenthetical that is neither laterality nor an rx split (`Around The Worlds (each direction)`, §4). Both used to be swallowed into the movement name; both are now held, inert, and noted, and the movement name is left clean.
+**Unknown is a first-class state: not an error, and not a guess.** A modifier after a comma that matches no rule is *held in the tree as unrecognized*. It is kept verbatim, it survives a round trip, and it carries no meaning — implicit or explicit — for execution, analysis or export. The same treatment reaches two things that are not written after a comma: a range wearing a unit (`100-150ft Farmers Carry`, §4) and a parenthetical that is neither laterality nor an rx split (`Deadlift (Clean Grip)`, §4). Both used to be swallowed into the movement name; both are now held, inert, and noted, and the movement name is left clean.
 
 ```
 - 10 Thruster, note: "keep the elbows up", with a band

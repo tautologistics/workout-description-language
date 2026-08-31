@@ -92,7 +92,10 @@ function stepText(s: Step, scheme?: Scheme): string {
   // `10 Dumbbell Curl each arm @ 2x35lb`, not `… @ 2x35lb each arm`. All three
   // counting modes emit in the same position (spec §4).
   if (s.laterality === 'both' || s.laterality === 'split') out += ` (${s.laterality})`;
-  if (s.laterality === 'per-side') out += ` each ${s.limb ?? 'side'}`;
+  // Parenthesised, for parity with `(split)` — the bare `each arm` is still read
+  // but no longer written (queue item 13b). `side` covers `arm`/`leg`/`side`/
+  // `hand`/`direction`, defaulting to `side` when the axis was left unstated.
+  if (s.laterality === 'per-side') out += ` (each ${s.limb ?? 'side'})`;
   if (s.side) out += ` ${s.side} ${s.limb ?? 'arm'}`;
 
   // Written back labelled, whichever way it came in. `(105/145)` is readable

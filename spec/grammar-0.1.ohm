@@ -268,7 +268,14 @@ WDL {
                      ~(space+ caseInsensitive<"to"> ~wordChar)
                      ~(space+ trailingQualifier partEnd) any
 
-  laterality = "(" lateralityWord ")"
+  // `(split)` / `(both)` / `(total)` name how the count is performed; `(each arm)`
+  // names it *and* the axis it is performed across — arm, leg, side, hand, or
+  // direction (a rotation reversed). The parenthesised per-side form is the
+  // canonical one as of 2026-08-31 (queue item 13b); the bare `each arm` below in
+  // `trailingQualifier` is still read, and `(each …)` is tried before
+  // `unreadableParen` so `(each direction)` reads rather than being held.
+  laterality = "(" lateralityWord ")"                              -- word
+             | "(" eachWord ~wordChar spaces limbWord ~wordChar ")" -- perSide
   lateralityWord = caseInsensitive<"both"> | caseInsensitive<"split">
                  | caseInsensitive<"per-side"> | caseInsensitive<"total">
 
@@ -314,6 +321,7 @@ WDL {
   eachWord = caseInsensitive<"each"> | caseInsensitive<"per">
   limbWord = caseInsensitive<"arm"> | caseInsensitive<"leg">
            | caseInsensitive<"side"> | caseInsensitive<"hand">
+           | caseInsensitive<"direction">
   sideWord = caseInsensitive<"first"> | caseInsensitive<"second">
            | caseInsensitive<"left"> | caseInsensitive<"right">
   sideLimb = caseInsensitive<"arm"> | caseInsensitive<"leg"> | caseInsensitive<"side">

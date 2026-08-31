@@ -114,9 +114,18 @@ export function installStep(semantics: Semantics): void {
       for (const tail of tails.children) step.targets.push(parseTarget(tail.child(3).sourceString));
     },
 
-    laterality(_open, word, _close) {
+    laterality_word(_open, word, _close) {
       const m = word.sourceString.toLowerCase();
       this.args.step.laterality = (m === 'total' ? 'split' : m) as Laterality;
+    },
+    // `(each arm)` — the parenthesised spelling of the bare `each arm` below, and
+    // the canonical one (queue item 13b). Same two fields it sets: `per-side`
+    // plus the axis the count is performed across (`arm` | `leg` | `side` |
+    // `hand` | `direction`).
+    laterality_perSide(_open, _each, _s, limb, _close) {
+      const step = this.args.step;
+      step.laterality = 'per-side';
+      step.limb = limb.sourceString.toLowerCase();
     },
 
     rxSplit(_o, _s1, a, _s2, _slash, _s3, b, _s4, _c) {
@@ -134,9 +143,9 @@ export function installStep(semantics: Semantics): void {
 
     thresholdPart(t) { this.args.step.quantity = t.unit(); },
 
-    // `(each direction)`, `(wibble)` — a parenthetical the language has no
-    // reading for. `laterality` and `rxSplit` are tried first, so `(split)` and
-    // `(105/145)` still win; this is strictly the fallback. Held exactly the way
+    // `(Clean Grip)`, `(wibble)` — a parenthetical the language has no reading
+    // for. `laterality` and `rxSplit` are tried first, so `(split)`, `(each arm)`
+    // and `(105/145)` still win; this is strictly the fallback. Held exactly the way
     // an unrecognized comma modifier is: the whole parenthetical, parens
     // included, goes verbatim into `unknown` so `validate.ts`'s `unread()`
     // reports it as a `note`, and the movement name is left clean so the step

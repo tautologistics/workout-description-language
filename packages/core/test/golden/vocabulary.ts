@@ -218,6 +218,13 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     '10 Pistol (both)',
     '10 Pistol (per-side)',
     '10 Pistol (total)',
+    // The parenthesised per-side form, canonical since 2026-08-31 (item 13b) —
+    // `(each <axis>)` names how the count is performed *and* the axis, `direction`
+    // being a rotation reversed. The bare `each arm` forms below still parse and
+    // pin the normalisation to the parens.
+    '14 DB Curl (each arm)',
+    '12 Around The Worlds (each direction)',
+    '10 Pistol (each side)',
     '14 DB Curl each arm',
     '12 Dumbbell Row each arm @ 60lb',
     '10 Lunge each leg',
@@ -368,19 +375,18 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     // **Read wrongly until 2026-08-29** (queue item 14). A parenthetical that is
     // neither a laterality word nor an rx split matched no rule, so the `(`, the
     // `)` and the text between them fell into the movement name one character at
-    // a time: `12 Around The Worlds (each direction)` was a movement literally
-    // named `Around The Worlds (each direction)` — resolving to no registry
-    // entry, out of muscle and volume analysis — and `wdl fmt` pluralized it to
-    // `... (each direction)s`, an `s` on the closing paren that round-trips. The
-    // `unreadableParen` production now holds the whole parenthetical, parens
-    // included, in `unknown`: `validate` reports it as a `note`, the movement
-    // name is clean, and canonical form writes it back after the modifiers it
-    // did read — the same held-and-reported treatment `100-150ft` gets under
-    // `fail-open` above, one construct over.
-    '12 Around The Worlds (each direction)',
+    // a time — resolving to no registry entry, out of muscle and volume analysis
+    // — and `wdl fmt` pluralized it, an `s` on the closing paren that
+    // round-trips. The `unreadableParen` production now holds the whole
+    // parenthetical, parens included, in `unknown`: `validate` reports it as a
+    // `note`, the movement name is clean, and canonical form writes it back after
+    // the modifiers it did read — the same held-and-reported treatment
+    // `100-150ft` gets under `fail-open` above, one construct over. *(As of
+    // 2026-08-31, item 13b, `(each direction)` is no longer here — it reads as a
+    // per-side laterality; see the `laterality` group.)*
     // A bare word, and a form with no space before the paren — both held.
     '10 Row (wibble)',
-    '10 Row(each side)',
+    '10 Row(wibble)',
     // A registry title that itself carries a parenthetical (15 of ~970 do, all
     // from raw imports). The parenthetical is peeled to a `note` and the step
     // resolves against the base name — a deliberate trade stated in spec §4.

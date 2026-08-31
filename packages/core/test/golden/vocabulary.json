@@ -3505,7 +3505,7 @@
   "fixpoint": true
  },
  "right-to-left :: 5 Squat (both) each leg": {
-  "canonical": "for time:\n  - 5 Squats each leg",
+  "canonical": "for time:\n  - 5 Squats (each leg)",
   "errors": [],
   "ast": {
    "body": [
@@ -3631,7 +3631,7 @@
   "fixpoint": true
  },
  "laterality :: 10 Pistol (per-side)": {
-  "canonical": "for time:\n  - 10 Pistols each side",
+  "canonical": "for time:\n  - 10 Pistols (each side)",
   "errors": [],
   "ast": {
    "body": [
@@ -3692,8 +3692,104 @@
   },
   "fixpoint": true
  },
+ "laterality :: 14 DB Curl (each arm)": {
+  "canonical": "for time:\n  - 14 DB Curls (each arm)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "arm",
+       "movement": "DB Curl",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 14
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "laterality :: 12 Around The Worlds (each direction)": {
+  "canonical": "for time:\n  - 12 Around The Worlds (each direction)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "direction",
+       "movement": "Around The Worlds",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 12
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "laterality :: 10 Pistol (each side)": {
+  "canonical": "for time:\n  - 10 Pistols (each side)",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "laterality": "per-side",
+       "limb": "side",
+       "movement": "Pistol",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "laterality :: 14 DB Curl each arm": {
-  "canonical": "for time:\n  - 14 DB Curls each arm",
+  "canonical": "for time:\n  - 14 DB Curls (each arm)",
   "errors": [],
   "ast": {
    "body": [
@@ -3725,7 +3821,7 @@
   "fixpoint": true
  },
  "laterality :: 12 Dumbbell Row each arm @ 60lb": {
-  "canonical": "for time:\n  - 12 Dumbbell Rows each arm @ 60lb",
+  "canonical": "for time:\n  - 12 Dumbbell Rows (each arm) @ 60lb",
   "errors": [],
   "ast": {
    "body": [
@@ -3767,7 +3863,7 @@
   "fixpoint": true
  },
  "laterality :: 10 Lunge each leg": {
-  "canonical": "for time:\n  - 10 Lunges each leg",
+  "canonical": "for time:\n  - 10 Lunges (each leg)",
   "errors": [],
   "ast": {
    "body": [
@@ -3799,7 +3895,7 @@
   "fixpoint": true
  },
  "laterality :: 20 Sledgehammer Strike each side": {
-  "canonical": "for time:\n  - 20 Sledgehammer Strikes each side",
+  "canonical": "for time:\n  - 20 Sledgehammer Strikes (each side)",
   "errors": [],
   "ast": {
    "body": [
@@ -3831,7 +3927,7 @@
   "fixpoint": true
  },
  "laterality :: 10 Farmers Carry each hand": {
-  "canonical": "for time:\n  - 10 Farmers Carries each hand",
+  "canonical": "for time:\n  - 10 Farmers Carries (each hand)",
   "errors": [],
   "ast": {
    "body": [
@@ -3863,7 +3959,7 @@
   "fixpoint": true
  },
  "laterality :: 10 Step-Up per leg": {
-  "canonical": "for time:\n  - 10 Step-Ups each leg",
+  "canonical": "for time:\n  - 10 Step-Ups (each leg)",
   "errors": [],
   "ast": {
    "body": [
@@ -5463,7 +5559,7 @@
   "fixpoint": true
  },
  "rx-by-division :: 10 Deadlift each arm (105/145)": {
-  "canonical": "for time:\n  - 10 Deadlifts each arm (women 105 / men 145)",
+  "canonical": "for time:\n  - 10 Deadlifts (each arm) (women 105 / men 145)",
   "errors": [],
   "ast": {
    "body": [
@@ -5637,7 +5733,7 @@
   "fixpoint": true
  },
  "combinations :: 10 DB Snatch each arm @ 45lb": {
-  "canonical": "for time:\n  - 10 DB Snatches each arm @ 45lb",
+  "canonical": "for time:\n  - 10 DB Snatches (each arm) @ 45lb",
   "errors": [],
   "ast": {
    "body": [
@@ -5679,7 +5775,7 @@
   "fixpoint": true
  },
  "combinations :: 10-12 Bulgarian Split Squat each leg @ 2x40lb": {
-  "canonical": "for time:\n  - 10-12 Bulgarian Split Squats each leg @ 2x40lb",
+  "canonical": "for time:\n  - 10-12 Bulgarian Split Squats (each leg) @ 2x40lb",
   "errors": [],
   "ast": {
    "body": [
@@ -5723,7 +5819,7 @@
   "fixpoint": true
  },
  "combinations :: 8-12 Dumbbell Curl each arm @ 2x35lb": {
-  "canonical": "for time:\n  - 8-12 Dumbbell Curls each arm @ 2x35lb",
+  "canonical": "for time:\n  - 8-12 Dumbbell Curls (each arm) @ 2x35lb",
   "errors": [],
   "ast": {
    "body": [
@@ -5767,7 +5863,7 @@
   "fixpoint": true
  },
  "combinations :: 5 Turkish Get-Up each side @ 1.5pood": {
-  "canonical": "for time:\n  - 5 Turkish Get-Ups each side @ 1.5pood",
+  "canonical": "for time:\n  - 5 Turkish Get-Ups (each side) @ 1.5pood",
   "errors": [],
   "ast": {
    "body": [
@@ -6627,39 +6723,6 @@
   },
   "fixpoint": true
  },
- "unread-parenthetical :: 12 Around The Worlds (each direction)": {
-  "canonical": "for time:\n  - 12 Around The Worlds, (each direction)",
-  "errors": [],
-  "ast": {
-   "body": [
-    {
-     "children": [
-      {
-       "movement": "Around The Worlds",
-       "node": "step",
-       "quantity": {
-        "kind": "reps",
-        "value": 12
-       },
-       "unknown": [
-        "(each direction)"
-       ]
-      }
-     ],
-     "node": "block",
-     "score": {
-      "implied": true,
-      "primary": "time",
-      "raw": "time"
-     },
-     "type": "sequence"
-    }
-   ],
-   "directives": {},
-   "node": "workout"
-  },
-  "fixpoint": true
- },
  "unread-parenthetical :: 10 Row (wibble)": {
   "canonical": "for time:\n  - 10 Rows, (wibble)",
   "errors": [],
@@ -6693,8 +6756,8 @@
   },
   "fixpoint": true
  },
- "unread-parenthetical :: 10 Row(each side)": {
-  "canonical": "for time:\n  - 10 Rows, (each side)",
+ "unread-parenthetical :: 10 Row(wibble)": {
+  "canonical": "for time:\n  - 10 Rows, (wibble)",
   "errors": [],
   "ast": {
    "body": [
@@ -6708,7 +6771,7 @@
         "value": 10
        },
        "unknown": [
-        "(each side)"
+        "(wibble)"
        ]
       }
      ],
@@ -7297,7 +7360,7 @@
   "fixpoint": true
  },
  "was-wrong :: 10 Deadlift (105/145) each arm": {
-  "canonical": "for time:\n  - 10 Deadlifts each arm (women 105 / men 145)",
+  "canonical": "for time:\n  - 10 Deadlifts (each arm) (women 105 / men 145)",
   "errors": [],
   "ast": {
    "body": [
@@ -7339,7 +7402,7 @@
   "fixpoint": true
  },
  "was-wrong :: 10 DB Snatch (50/35lb) each side": {
-  "canonical": "for time:\n  - 10 DB Snatches each side (women 35lb / men 50lb)",
+  "canonical": "for time:\n  - 10 DB Snatches (each side) (women 35lb / men 50lb)",
   "errors": [],
   "ast": {
    "body": [
@@ -7383,7 +7446,7 @@
   "fixpoint": true
  },
  "was-wrong :: 10 Deadlift (women 105lb / men 145lb) each arm": {
-  "canonical": "for time:\n  - 10 Deadlifts each arm (women 105lb / men 145lb)",
+  "canonical": "for time:\n  - 10 Deadlifts (each arm) (women 105lb / men 145lb)",
   "errors": [],
   "ast": {
    "body": [
@@ -7690,7 +7753,7 @@
   "fixpoint": true
  },
  "sets-by-reps :: 3x10 Curl each arm": {
-  "canonical": "for time:\n  - 10 Curls each arm x3",
+  "canonical": "for time:\n  - 10 Curls (each arm) x3",
   "errors": [],
   "ast": {
    "body": [
