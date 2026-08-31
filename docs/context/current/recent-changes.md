@@ -3,9 +3,10 @@
 ## Changes
 
 - **2026-08-30 — Accounts, saved workouts and sharing in the apps (queue item
-  20 code, landed on `origin/main`; live verification + redeploy pending a
-  paired Google sign-in).** Final item of the deployment epic
-  ([DEC-016](../topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage)).
+  20 — live).** Final item of the deployment epic
+  ([DEC-016](../topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage));
+  the epic (18–20) is now closed in
+  [../tasks/completed.md](../tasks/completed.md).
   Additive on the static apps — signed out, nothing changed (`Download .wdl` /
   `Open…` a local file untouched); `packages/core`, the grammar and the spec are
   not touched, a stored workout is its `.wdl` text in a column.
@@ -52,10 +53,13 @@
     rename, delete, visibility changes, share links resolving for `unlisted`
     and 404ing for `private` to a stranger, the signed-out builder and the
     board's `#<source>` hash both unregressed, light + dark, zero console
-    errors. **Not yet done, needs Chris:** the real Google handshake
-    (redirect URI + a test-user login), `node scripts/deploy-web.mjs`, and the
-    live drive-through. Items 18–20 stay in
-    [tasks/current.md](../tasks/current.md) until that passes.
+    errors.
+  - **Verified live** — Chris registered the second Google redirect URI,
+    redeployed, signed in with a real Google account, created workouts, saw
+    them persist and list, and inspected them in the SQLite DB. Epic 18–20
+    closed to [../tasks/completed.md](../tasks/completed.md); the builder-UX
+    chain (12 → 16 → 17 → 15 → 13 → 11) is next, held pending a decision on a
+    builder layout redesign now being explored on a design canvas.
 
 - **2026-08-30 — The builder + board are live at
   `https://wex.androidempathy.com/`.** Queue item 19 of the deployment epic

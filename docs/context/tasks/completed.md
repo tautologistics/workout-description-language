@@ -1182,6 +1182,126 @@ Canonicalise leaves the parenthetical intact.
 builder and board read `Step.unknown` and the `note` through the paths they
 already use for comma-modifier unknowns.*
 
+---
+
+## The deployment epic — items 18–20
+
+*Raised by Chris 2026-08-30, all three closed the same day. The apps only ran
+behind a dev server changing under whoever was testing; Chris wanted a stable
+public URL he and training partners could actually vet, plus accounts and saved
+workouts. This reversed the standing "Sharing, accounts, a platform" Non-Goal —
+[../goals.md](../goals.md) "## Pivots",
+[DEC-016](../topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage).
+It is **not** a turn toward competing for adoption; the two project goals are
+unchanged, and nothing here touched `packages/core`, the grammar or the spec — a
+stored workout is its `.wdl` source text in a DB column. Kept together in
+`current.md` on purpose while in flight; closed together here.*
+
+**18. ~~Stand up PocketBase on the DreamHost VPS.~~ DONE 2026-08-30.**
+PocketBase **v0.40.1** live at **`https://wex.androidempathy.com`**. The
+DreamHost *managed* VPS gives SSH but **no root / no systemd (system)** — so it
+runs as a **per-user** systemd service (`~/.config/systemd/user/pocketbase.service`),
+`loginctl enable-linger` giving boot-start + crash-restart (verified across a
+reboot). TLS + routing via the **DreamHost panel Proxy Server** + panel Let's
+Encrypt — the panel owns nginx, so `deploy/nginx/wdl.conf` is reference only.
+Google OAuth2 wired on the `users` collection; a real sign-in tested end to end.
+`workouts` collection created by a `deploy/pocketbase/pb_migrations/` JS
+migration: `owner` (relation→`users`, required, cascade), `title` (text,
+optional), `source` (text, required — the `.wdl` body), `visibility` (select:
+`private`|`unlisted`|`public`), `created`/`updated` (autodate). API rules —
+List/View `owner = @request.auth.id || visibility != "private"`, Create
+`@request.auth.id != "" && owner = @request.auth.id`, Update/Delete
+`owner = @request.auth.id`. **Known issue carried forward:** the panel proxy
+reaches the daemon over the VPS public IP, forcing a `0.0.0.0` bind, so port
+8090 is internet-reachable in plaintext past the TLS proxy — mitigated (auth on
+every route, strong superuser password, HTTPS `Application URL`); real fix is an
+open DreamHost firewall ticket. Full runbook: `deploy/README.md`.
+*Touched: a new `deploy/` directory (runbook, process units, the collection
+migration, config templates — no secrets). No `packages/` change.*
+
+**19. ~~Deploy the builder + board behind the stable URL (static).~~ DONE
+2026-08-30.** `https://wex.androidempathy.com/` serves the builder (`/`
+redirects to `/apps/builder/`) and `/apps/display/` the board, **with no Node
+process** — the panel proxy sends the *whole domain* to PocketBase, so the
+static apps ship into PocketBase's own **`pb_public/`** (`~/pb/pb_public/`),
+which `apis.Static` serves at `/` for any non-`/api/`, non-`/_/` path. Repeatable
+deploy is **`scripts/deploy-web.mjs`**: core suite → `build-web.mjs` → assemble a
+repo-shaped `build/deploy/pb_public/` (`apps/`, `build/web/core/`,
+`spec/grammar-0.1.ohm`, `registry/{movements,movements.canonical,muscles}.json`,
+`examples/goals/`, a generated `index.html`) → `rsync -az --delete` to the box;
+SSH target via `--ssh` / `WDL_DEPLOY_SSH`, never baked in. **MIME:** PocketBase
+serves `.ohm` / `.wdlg` as `text/plain` and the apps `fetch().text()` them, so
+nothing was needed. **Cache:** `pb_public` sends `Last-Modified` only; accepted
+as-is (one `rsync` rewrites grammar + registry + core together, nothing is
+hash-pinned) — the `pb_hooks` `Cache-Control` escalation is documented, not
+shipped. Verified live: both apps, `#<source>` share link, both themes, no
+console errors; `/api/health` + `/_/` unaffected. *Touched:
+`scripts/deploy-web.mjs`, `deploy/README.md` "## 10". No `packages/` change.*
+
+**20. ~~Frontend: Google sign-in, saved workouts, sharing.~~ DONE 2026-08-30.**
+Additive account layer on the static apps, talking to the co-located PocketBase
+at `/api` (same origin, no CORS). Signed out, the builder is unchanged —
+`Download .wdl` / `Open…` a local file untouched, none of the account UI shown.
+
+- **`apps/shared/pocketbase.js`** — a **hand-rolled ~8-call `fetch` client**,
+  no SDK ([DEC-003](../topics/settled-decisions.md#dec-003-src-is-portable-and-is-handed-its-data)
+  / [DEC-008](../topics/settled-decisions.md#dec-008-ohm-js-is-vendored-imported-by-relative-path):
+  no npm runtime dep, no build step — the rule that vendors `ohm-js`). Google
+  OAuth2 by the **redirect flow**, not the SDK's popup+realtime dance: GET
+  `auth-methods` → full-page navigate to Google's `authURL` with our
+  `redirect_uri` → POST `auth-with-oauth2` with `code`/`codeVerifier`/`redirectURL`
+  → `{ token, record }` into `localStorage`; `refreshAuth()` revalidates on
+  startup, clears a stale token on 401/403. Records: `create` / `listMine` /
+  `getById` / `update` / `remove` on the `workouts` collection. Header comment
+  pins the PocketBase **v0.40.x** routes and says why hand-rolled.
+- **`apps/builder/auth-callback.html`** — the fixed URL Google returns to (a
+  redirect flow needs one); runs `completeSignInFromRedirect()` and bounces
+  back to the builder. Registered as a **second** authorised redirect URI in the
+  Google Cloud Console alongside PocketBase's own `/api/oauth2-redirect` —
+  `deploy/README.md` §8.
+- **Builder** — a *Sign in with Google* control + signed-in identity in the
+  header; a **My workouts** dropdown: **Save** (create if new / update if
+  opened-from-server — explicit, never autosave), *Save as copy*, open a saved
+  workout into the editor, rename, delete, and a **visibility** select
+  (`private`/`unlisted`/`public`) + **Copy link**. The buffer is stashed to
+  `localStorage` across the sign-in redirect so it survives the round trip.
+- **Board** — `/apps/display/?w=<id>` fetches the record and runs it; a
+  `#<source>` hash behaves exactly as before and **wins when both are present**.
+  A `private`/missing id 404s and the board shows a "not found" line, no crash.
+  A `?w=` load leaves the clean id in the address bar rather than expanding the
+  source into the hash (which would leak it past a later `unlisted → private`).
+- **Share URL is `/apps/display/?w=<id>`**, not a pretty `/w/<id>`: measured
+  against the live instance, PocketBase serves `pb_public/` with an index
+  fallback (an unknown path returns the root `index.html`), so `/w/<id>` can't
+  route without a `pb_hooks` handler — an infra change for no gain over a query
+  param on a file that exists. Decisions recorded under
+  [DEC-016](../topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage).
+
+**Verified.** Chris drove the **live** instance with a real Google sign-in:
+signed in, created workouts, they persist, listed and reopened, inspected in the
+SQLite DB. The rest was verified headless against the live `auth-methods`
+endpoint and a faithful local fake of the `workouts` collection — the callback
+token exchange, Save create-vs-update (one record, not two), Save as copy,
+open-into-editor, rename, delete, visibility changes, share links resolving for
+`unlisted` and 404ing for `private` to a stranger, the signed-out builder and
+the board's `#<source>` hash both unregressed, both themes, clean console.
+No `deploy-web.mjs` change was needed — both new files ride the wholesale
+`apps/` copy.
+*Touched: `apps/shared/pocketbase.js` (new), `apps/builder/auth-callback.html`
+(new), `apps/builder/builder.js` / `builder.css` / `index.html`,
+`apps/display/board.js`, `deploy/README.md` §8 + "## 10". No `packages/core`,
+grammar or spec change.*
+
+*Post-epic, Chris thinking out loud the same day (not scheduled): `@id` ↔
+record-id correlation, account namespacing as a workout-id prefix, the board's
+**Edit** button round-tripping into the builder instead of resetting the board,
+an "open on the board" action for saved workouts, and a builder layout rethink.
+Captured in [../topics/builder-ux.md](../topics/builder-ux.md) "Accounts, IDs
+and layout", with a companion design-critique pass the same day feeding the
+smaller entries in that file's topic sections.*
+
+---
+
 *Ordering of 5, 6, 7 and 9 against 1-4 is not settled - they are appended
 rather than placed. 5, 6 and 7 were raised by writing and sending one workout
 rather than by a plan, and 9 by closing item 3. **0f was lettered rather than

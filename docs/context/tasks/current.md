@@ -9,222 +9,23 @@ task named. When one lands, move it into `completed.md` and update
 
 ## Open
 
-### Deployment epic (items 18–20) — new top priority, Chris 2026-08-30
+The deployment epic (items 18–20 — a hosted PocketBase instance, the static
+apps served from it, and Google sign-in / saved workouts / sharing in the
+builder + board) **landed 2026-08-30 and is in [completed.md](completed.md)**.
+What remains is the **builder-UX chain**, in priority order **12 → 16 → 17 →
+15 → 13 → 11** (12 first: comment rows and `edit.ts` are the load-bearing
+piece; 16 and 15(c) then have somewhere to hang line-kind styling). All are
+app-level — `apps/builder/*`, occasionally `apps/display/*` and `edit.ts` — no
+grammar or spec change.
 
-**Why now.** The apps only exist behind a dev server that is constantly
-changing under whoever is testing. Chris wants a **stable public URL** he and a
-few training partners can use to actually vet the UX and collect feedback,
-plus **accounts and saved workouts** so people can build, keep and share
-workouts. His words: *"that will help steer and discover things for this
-work."* This reverses the standing *"Sharing, accounts, a platform"* Non-Goal —
-see [goals.md](../goals.md) "## Pivots" (2026-08-30) and
-[DEC-016](../topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage). It is **not** a turn toward
-competing for adoption; the two project goals (whiteboard-readable text;
-check/generate against intent) are unchanged, and none of this touches
-`packages/core`, the grammar or the spec — a stored workout is just its `.wdl`
-source text in a database column.
-
-**Architecture, decided with Chris 2026-08-30** (full reasoning + rejected
-alternatives in [DEC-016](../topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage)):
-- **Host:** the DreamHost VPS Chris already pays for — $0 marginal cost,
-  always-on, no idle-pause / cold-start (the things that ruled out Supabase
-  free and the old Heroku hobby dyno).
-- **Backend:** **PocketBase** — one Go binary: SQLite, built-in auth incl.
-  Google OAuth2, admin UI, REST API. Chris owns the data (one SQLite file to
-  back up).
-- **Auth:** Google via PocketBase's OAuth2 provider. No passwords, no custom
-  auth server (OpenAuth / Auth.js / Auth0 all rejected — see DEC-016).
-- **Frontend:** the existing static apps, unchanged in nature. **No bundler,
-  no npm runtime deps** — the PocketBase client is either vendored as an ES
-  module by relative path (like `ohm-js` in `src/grammar/vendor/`, per
-  [DEC-003](../topics/settled-decisions.md) / [DEC-008](../topics/settled-decisions.md))
-  or, likely cleaner, a hand-rolled ~6-call `fetch` wrapper against PocketBase's
-  REST API. The session picks; do not add a build step.
-
-**Order:** 18 → 19 → 20. 19 can ship the moment the VPS has nginx + TLS even if
-18's collections/OAuth are not finished — a public read-only URL is worth
-having on its own. The builder-UX items (12 → 16 → 17 → 15, then 13, then 11)
-resume after 20, or interleave once the deploy is far enough along to be
-useful — Chris's call at the time.
-
-**The pending item-12 chip is superseded in priority, not cancelled** — it is
-still valid work, it just is not next. Whoever picks up the queue takes 18.
-
-- ~~**18 — Stand up PocketBase on the DreamHost VPS.**~~ **DONE 2026-08-30.**
-  Shipped: PocketBase v0.40.1 live at `https://wex.androidempathy.com`, running
-  as a per-user systemd service (no root on the managed VPS, but
-  `loginctl enable-linger` → boot-start + crash-restart, verified across a
-  reboot). TLS + routing via the **DreamHost panel Proxy Server** + panel
-  Let's Encrypt (nginx is panel-owned; `deploy/nginx/wdl.conf` is reference
-  only). Google OAuth2 wired and a real sign-in tested end to end (creates a
-  `users` record). `workouts` collection with the fields and rules below,
-  applied as a `deploy/pocketbase/pb_migrations/` JS migration. `deploy/`
-  (runbook + templates, no secrets) committed to `origin/main`. **Known issue
-  carried forward:** the panel proxy reaches the daemon over the VPS public IP,
-  forcing a `0.0.0.0` bind, so port 8090 is internet-reachable in plaintext past
-  the TLS proxy — mitigated, real fix is an open DreamHost firewall ticket (see
-  `deploy/README.md` "Known issue: port 8090 exposure"). Left in this file, not
-  moved to `completed.md`: 18–20 close together per the epic. Original checklist
-  kept below for 19/20's reference.
-
-  *(original)* **Stand up PocketBase on the DreamHost VPS.** *Top priority
-  (Chris, 2026-08-30).* Infra, almost no repo code. Steps:
-  - **First, verify what the VPS actually allows.** DreamHost's managed VPS has
-    historically given SSH but **not root / not systemd**, and restricts
-    long-running custom daemons. Confirm over SSH: can you run a persistent
-    process (systemd *or* a user-level supervisor — `pm2`, `supervisor`, or a
-    `@reboot` cron + `nohup`), open/([reverse-proxy to) a localhost port, and
-    install a static binary. If a persistent custom daemon is genuinely not
-    possible on the managed VPS, stop and put the fallback to Chris (DreamHost
-    "DreamCompute" OpenStack IaaS, or a $5 box elsewhere) rather than working
-    around it.
-  - **Install PocketBase** (latest stable release binary) under a dedicated
-    user, data dir outside the web root.
-  - **Process supervision** so it restarts on boot and on crash.
-  - **nginx reverse proxy + Let's Encrypt TLS.** Prefer serving PocketBase
-    **same-origin** under `https://<domain>/api/` (and `/_/` for its admin UI)
-    rather than a separate `api.` subdomain — same-origin means no CORS config
-    and the frontend just calls `/api/...`. If a subdomain is unavoidable, set
-    PocketBase's allowed origins explicitly.
-  - **Decide the domain / subdomain** with Chris (a subdomain of an existing
-    domain he controls is fine). This decision also feeds item 19.
-  - **Create the superuser**; keep credentials in Chris's password manager, not
-    in the repo.
-  - **Collections:** `workouts` — `owner` (relation → users, required),
-    `title` (text), `source` (text, the `.wdl` body), `visibility`
-    (select: `private` | `unlisted` | `public`, default `private`),
-    `updated`/`created` (auto). List/view/update/delete rules: owner-only for
-    write; read allowed when `owner = @request.auth.id || visibility != "private"`.
-    A `profiles`/settings collection only if item 20 finds it needs one — do
-    not build it speculatively.
-  - **Google OAuth2:** register an OAuth client in Google Cloud Console
-    (authorized redirect `https://<domain>/api/oauth2-redirect`), enable the
-    Google provider in PocketBase with the client id/secret.
-  - **Commit for reproducibility:** a `deploy/` directory in the repo holding
-    the nginx vhost, the systemd unit (or supervisor config), and a
-    `README.md` runbook — install, upgrade PocketBase, back up the SQLite
-    file, restore. No secrets in it.
-  - **Deliverable:** `https://<domain>/_/` (admin UI) loads over TLS, a test
-    "Sign in with Google" from a throwaway account succeeds, the `workouts`
-    collection exists with the rules above, and the process survives a reboot.
-
-- ~~**19 — Deploy the builder + board behind the stable URL (static).**~~
-  **DONE 2026-08-30.** Shipped: **`https://wex.androidempathy.com/`** now serves
-  the builder (redirect from `/`) and `/apps/display/` the board, with no Node
-  process — served from **PocketBase's `pb_public/`** (`~/pb/pb_public/` on the
-  VPS), since the panel proxy sends the whole domain to PocketBase and there is
-  no separate nginx root (item 18's constraint; item 19's original nginx-vhost
-  plan below is void). Repeatable deploy is **`scripts/deploy-web.mjs`**: core
-  suite → `build-web.mjs` → assemble a repo-shaped `build/deploy/pb_public/`
-  (`apps/`, `build/web/core/`, `spec/grammar-0.1.ohm`,
-  `registry/{movements,movements.canonical,muscles}.json`, `examples/goals/`,
-  generated `index.html`) → `rsync -az --delete` to `~/pb/pb_public/`; SSH
-  target via `--ssh` / `WDL_DEPLOY_SSH`. **MIME:** PocketBase serves `.ohm` /
-  `.wdlg` as `text/plain` and the apps `fetch().text()` them, so nothing was
-  needed. **Cache:** `pb_public` sends `Last-Modified` only; accepted as-is (a
-  deploy rewrites grammar + registry + core in one `rsync`, nothing is
-  hash-pinned) — escalation path (`pb_hooks` `Cache-Control`) documented in
-  `deploy/README.md` "## 10", not shipped. Verified live in the browser —
-  both apps, `#<source>` share link, both themes, no console errors,
-  `/api/health` + `/_/` unaffected. Left in this file, not moved to
-  `completed.md`: 18–20 close together. Original checklist kept below for 20's
-  reference (but the nginx parts do not apply).
-
-  *(original)* No dev server in production. The apps already
-  use only relative paths (`../../build/web/core/…`, `../../spec/grammar-0.1.ohm`,
-  `../../registry/*.json`, `../../examples/…`, `../shared/…`), so a static host
-  just needs the served subtree laid out the way the repo is —
-  `scripts/serve.mjs` is the exact behaviour to reproduce.
-  - **nginx vhost** with `root` at a deployed copy of: `apps/`, `build/web/`,
-    `spec/grammar-0.1.ohm` (and anything else under `spec/` the apps fetch —
-    check), `registry/*.json`, `examples/` (the builder fetches
-    `examples/goals/…`), plus correct MIME for `.ohm` / `.wdl` / `.wdlg` /
-    `.wdlp` (see `serve.mjs`'s `TYPES`). Do **not** deploy `packages/`,
-    `node_modules`, `docs/`, `.git`.
-  - **`/` routing:** land on the builder (a redirect to `/apps/builder/` or an
-    index page like `serve.mjs`'s listing — Chris's call).
-  - **Repeatable deploy:** a script (`scripts/deploy-web.mjs` or
-    `deploy/push.sh`) that runs `npm --prefix packages/core test` and
-    `node scripts/build-web.mjs`, then `rsync` the subtree over SSH. Committed.
-  - **Cache headers:** `serve.mjs` sends `no-store`; production wants real
-    caching, but `spec/grammar-0.1.ohm` and `registry/*.json` **must not go
-    stale silently** against a freshly built `build/web/core/`. Simplest safe
-    answer: short/again-revalidate on the data files and HTML, long-cache the
-    hashed-by-content… except nothing is content-hashed here — so likely
-    `must-revalidate` / short max-age across the board, and revisit if it
-    matters. State what you chose.
-  - **Deliverable:** `https://<domain>/` serves the builder with no Node
-    process running the apps; the board's `#<encoded-source>` share links
-    still work; both themes load; no console errors; the movement registry and
-    grammar load.
-
-- **20 — Frontend: Google sign-in, saved workouts, sharing.** *Top priority
-  (Chris, 2026-08-30).* App code in `apps/`, no `packages/core` change.
-
-  **Status 2026-08-30: code landed on `origin/main`, three things remain and all
-  need Chris.** Shipped: `apps/shared/pocketbase.js` (hand-rolled ~8-call
-  `fetch` client, no SDK — redirect-flow Google OAuth2, `create`/`listMine`/
-  `getById`/`update`/`remove` on the `workouts` collection),
-  `apps/builder/auth-callback.html` (the OAuth redirect target), the builder's
-  *Sign in with Google* + identity + **My workouts** dropdown (Save = create if
-  new / update if opened-from-server; Save as copy; open; rename; delete;
-  `visibility` select + Copy link), and the board resolving
-  `/apps/display/?w=<id>` (a `#<source>` hash is unchanged and wins when both
-  present; `private`/missing → "not found", no crash). **Share URL is
-  `/apps/display/?w=<id>`** — a pretty `/w/<id>` was rejected: PocketBase serves
-  `pb_public/` with an index fallback, so it can't route without a `pb_hooks`
-  handler (infra) for no gain. No `deploy-web.mjs` change (the files ride the
-  wholesale `apps/` copy). Verified headless against the live `auth-methods`
-  and a faithful local fake of the collection — sign-in URL, callback token
-  exchange, create-vs-update, copy, open, rename, delete, visibility, share
-  resolve/404, signed-out builder + board `#<source>` unregressed, both themes,
-  clean console. **Remaining (pair with Chris):**
-  1. Register the second redirect URI
-     `https://wex.androidempathy.com/apps/builder/auth-callback.html` in the
-     Google Cloud Console OAuth client (`deploy/README.md` §8).
-  2. `node scripts/deploy-web.mjs` (SSH: `WDL_DEPLOY_SSH=dreamhost.ae.wex`).
-  3. Drive both apps live against PocketBase with a real Google sign-in — the
-     "Verify by driving both apps" checklist below.
-  Once all three pass: move 18–20 to [completed.md](completed.md), restore
-  "## Open" to the builder-UX items only, update
-  [../topics/what-exists.md](../topics/what-exists.md) (Hosting + Apps rows are
-  already written for this — drop the "in code / pending deploy" hedge), and
-  spawn the item-12 chip (chain 12 → 16 → 17 → 15 → 13 → 11).
-  - **PocketBase access layer:** a small module under `apps/shared/` — either a
-    vendored PocketBase ES SDK by relative path, or a hand-rolled `fetch`
-    wrapper (auth: start OAuth2 flow, handle the redirect, store/refresh the
-    auth token in `localStorage`; records: create / list-mine / get-by-id /
-    update / delete). Given DEC-003/DEC-008 and that only ~6 calls are needed,
-    the hand-rolled wrapper is probably the right call — decide and note why.
-  - **Sign in:** a "Sign in with Google" control in the builder header; show
-    the signed-in identity; sign out. Board can stay read-only-anonymous for
-    now (it only needs to *resolve* a shared workout, item below).
-  - **My workouts:** a panel in the builder — list the signed-in user's
-    workouts (title + updated), open one into the editor, **Save** (create or
-    update the current buffer's `source` + `title`), rename, delete. Save is
-    explicit, not autosave. Keep the existing **Download .wdl** / **Open…**
-    (local file) paths working unchanged — accounts are additive, the
-    signed-out experience must not regress.
-  - **Sharing:** a control to set a workout's `visibility` and copy a short
-    stable URL — `https://<domain>/w/<id>` (or `/apps/display/?w=<id>`; pick
-    one and wire nginx if needed). The board, given `?w=<id>` / `/w/<id>`,
-    fetches the record from PocketBase and runs it; given a `#<source>` hash
-    (the current mechanism) it behaves exactly as today. An `unlisted` workout
-    opens for anyone with the link; `private` 404s for anyone but the owner.
-  - **Verify by driving both apps against the live PocketBase from item 18:**
-    sign in, create and save two workouts, reload and see them listed, open
-    one, edit and re-save, rename, delete; mark one `unlisted`, open its `/w/`
-    URL in a private window and confirm it runs; confirm a `private` one does
-    not; confirm signed-out builder still builds, downloads and opens local
-    files. Both themes. Diagnostics/console clean.
-  - **Land it / docs:** as the other items. When landed: move 18–20 to
-    [completed.md](completed.md); add an **Apps** / new **Hosting** row to
-    [../topics/what-exists.md](../topics/what-exists.md); dated entry in
-    [../current/recent-changes.md](../current/recent-changes.md); update
-    [../topics/running-it.md](../topics/running-it.md) with the deploy command
-    and the PocketBase runbook pointer; update
-    [../topics/layout.md](../topics/layout.md) for `deploy/` and any new
-    `apps/shared/` module.
+**Held pending a decision (Chris, 2026-08-30):** a builder **layout redesign**
+is being explored on a design canvas (three directions + the current layout as
+baseline). The chain items and the redesign both rewrite `builder.js` /
+`builder.css`, so whether to run the chain now or hold it until a direction is
+picked is Chris's call. The design-critique low-hanging-fruit list and the
+larger rethinks (`@id`/namespacing, board **Edit** round-trip, "open on the
+board" for saved workouts) are captured in
+[../topics/builder-ux.md](../topics/builder-ux.md).
 
 - **15 — Directives (`@id`, `@tags`, …) are first-class metadata: surface them,
   distinguish them, and complete them.** *High priority (Chris, 2026-08-29),
@@ -658,7 +459,8 @@ still valid work, it just is not next. Whoever picks up the queue takes 18.
   fix any now-stale mention.
 
 - Every earlier numbered item — the whole 0-series, 1, 1a, 2, 3, 4, 5, 6, 7, 8,
-  8a, 9, 10 and 14 — is closed; see [completed.md](completed.md).
+  8a, 9, 10, 14 and the deployment epic 18, 19, 20 — is closed; see
+  [completed.md](completed.md).
 
 Nobody has run a session off the board yet. Everything is verified by tests
 and by driving the UI — every defect Chris has caught by *looking* was

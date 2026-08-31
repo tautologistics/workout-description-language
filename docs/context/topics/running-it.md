@@ -120,10 +120,11 @@ detail — the MIME finding (`.ohm`/`.wdlg` land as `text/plain`, and are
 - **Config templates** committed under `deploy/`; secrets are gitignored.
 - No new local commands. The apps' test/build/serve commands above are
   unchanged; a production static deploy is item 19's `deploy/` script.
-- **Item 20 (accounts / sharing, code on `origin/main`, not yet deployed):**
-  the apps now also call the co-located PocketBase at **`/api/…`** (same origin,
-  no CORS) through `apps/shared/pocketbase.js` — a hand-rolled `fetch` client,
-  no SDK, no new dependency. Nothing to install or run locally; against a dev
-  server with no `/api` the sign-in and *My workouts* controls simply report
-  the call failed. Going live needs a second Google redirect URI and a
-  redeploy — see [`deploy/README.md`](../../../deploy/README.md) §8 and "## 10".
+- **Item 20 (accounts / sharing) — live since 2026-08-30.** The apps also call
+  the co-located PocketBase at **`/api/…`** (same origin, no CORS) through
+  `apps/shared/pocketbase.js` — a hand-rolled `fetch` client, no SDK, no new
+  dependency. Nothing to install or run locally; against a dev server with no
+  `/api` the sign-in and *My workouts* controls simply report the call failed.
+  Google sign-in uses a second redirect URI
+  (`…/apps/builder/auth-callback.html`) registered alongside PocketBase's own —
+  see [`deploy/README.md`](../../../deploy/README.md) §8 and "## 10".
