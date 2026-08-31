@@ -2,6 +2,19 @@
 
 ## Changes
 
+- **2026-08-31 — Builder Analysis tab: the summary band and the cue list are
+  each height-bounded and scroll internally** (`8720a62`, caught by driving the
+  builder). A workout that unrolled into dozens of cues grew `#steps` unbounded
+  and pushed the body map + goals block off the bottom of the Analysis panel —
+  the only scroll container was `#view-analysis` as a whole, so reaching them
+  meant scrolling past the entire cue list. The sticky summary band had the
+  same shape (a `cues N–M repeat` row per repeating block, no ceiling). Fix is
+  CSS only (`apps/builder/builder.css`): `.summary` → `max-height: 9rem;
+  overflow-y: auto`; `#steps` → `max-height: min(24rem, 45vh); overflow-y:
+  auto`. Each scrolls within itself now, so Body / Goals stay on screen.
+  `#steps` is still JS-capped at 24 cues; this bounds the remainder. Verified
+  light + dark, wide + narrow. No core change.
+
 - **2026-08-31 — The board no longer renders the `@`-directive preamble as body
   rows; `@id` / `@tags` lifted into the header chrome — item 15 is now fully
   closed** (`9bbda82`, queue item 15b). `draw()` in `apps/display/board.js`

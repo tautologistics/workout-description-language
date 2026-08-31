@@ -555,6 +555,20 @@ paint). The `title / cues / duration / cap / score` `<dl>` stays pinned in the
 summary band. *Was: `renderReading` listed `laid.cues.slice(0, 24)` then
 "…and N more", ~half the pane on a 35-cue workout.*
 
+**~~"Bounded, scrolling" was only half true — the panel scrolled, not the cue
+list.~~ Fixed 2026-08-31** (`8720a62`). R4's split above said the Analysis tab
+keeps a "bounded, scrolling" `#steps` list, but nothing capped `#steps`'s own
+height: the only scroll container was `#view-analysis`, so a workout that
+unrolled into dozens of cues still pushed the body map and the goals block off
+the bottom, reachable only by scrolling the whole panel past the entire list.
+The sticky summary band had the same shape — a `cues N–M repeat` row per
+repeating block, no ceiling. **Fix (CSS only, `apps/builder/builder.css`):**
+`.summary` gets `max-height: 9rem; overflow-y: auto` and `#steps` gets
+`max-height: min(24rem, 45vh); overflow-y: auto`, so each scrolls inside itself
+and the Body / Goals sections below stay on screen without scrolling the panel.
+`#steps` is still JS-capped (`laid.cues.slice(0, 24)`); this bounds what's left.
+Verified light + dark, wide + narrow.
+
 **Minor — the read pane stacks four `<h2>`s.** "What it reads as", "Body",
 "Against your goals" (each with an inline `<select>`) repeat the uppercase
 label treatment three times in a column that is already overfull. If that
