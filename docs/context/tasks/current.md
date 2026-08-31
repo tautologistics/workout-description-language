@@ -27,12 +27,17 @@ separately.
 2026-08-31** (`70a1852`) — [DEC-018](../topics/settled-decisions.md#dec-018-a-bare-label-block-header-is-a-section).
 **Item 13b (the per-side laterality form is parenthesised, `(each arm)`) landed
 2026-08-31** (`cf3c47f`) — [DEC-019](../topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised).
+**Item 13a-curation (the `lateralityAxis` registry field + one vetting entry on
+`around-worlds`) landed 2026-08-31** (`71f9469`) — see [completed.md](completed.md).
 
-The only open items are **13a** (the builder `»` panel offers the parenthesised
-per-side option, via a new laterality-axis registry field), **13a-curation** (a
-laterality curation pass for `around-worlds` and neighbours), and the unscheduled
-**post-redesign rethinks**. 13a and 13a-curation both need Chris's input — the
-chain does not self-spawn past here.
+The only open items are **13a** (the builder `»` panel *renders* the
+`lateralityAxis` — `movementModifiers` reads it to show `(each direction)` and
+inserts the 13b parenthesised form; the field and one movement now exist for it
+to read), a full **laterality curation sweep** (not yet queued as a numbered
+item — `around-worlds` is the only movement with `lateralityAxis` so far), and
+the unscheduled **post-redesign rethinks**. 13a needs Chris on nothing further —
+the field name (`lateralityAxis`) and shape are settled — but a full sweep needs
+him to scope it. The chain does not self-spawn past here.
 
 ### Independent
 
@@ -40,16 +45,22 @@ chain does not self-spawn past here.
   the `»` panel survived the redesign unchanged. **~~13c~~** (append/double bug)
   landed 2026-08-31 (`02d819d`); **~~13b~~** (parenthesise the per-side form,
   `(each arm)`, and read `(each direction)`) landed 2026-08-31 (`cf3c47f`,
-  [DEC-019](../topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised)).
-  **Still open — two follow-ups, both need Chris:**
-  - **13a — the `»` panel offers the parenthesised per-side option.** Builder +
-    a **new movement-registry field naming the laterality axis** (arm | leg |
-    side | hand | direction) that the panel reads to label `(each <axis>)`
-    contextually. Full write-up below.
-  - **13a-curation — a laterality curation pass.** `around-worlds` and
-    neighbours have no `laterality` at all, so the panel offers nothing. Fill it
-    (and the axis field) via the audit CSV + `import-movement-curation.mjs`
-    (`running-it.md`), not by hand. Sized as its own pass.
+  [DEC-019](../topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised));
+  **~~13a-curation~~** (the `lateralityAxis` field + `around-worlds`) landed
+  2026-08-31 (`71f9469`, see [completed.md](completed.md)).
+  **Still open:**
+  - **13a — the `»` panel renders `lateralityAxis`.** `movementModifiers`
+    (`apps/builder/builder.js` ~`:297`) still emits the pre-13b bare ` each side`
+    for every per-side movement, and ignores `entry.lateralityAxis`. Make it emit
+    ` (each ${entry.lateralityAxis ?? 'side'})` and `applyModifier` insert that
+    (the exclusive-class strip from 13c and the grammar read from 13b are both in
+    place). Test against `around-worlds` (`lateralityAxis: "direction"` → panel
+    shows `(each direction)`) and any `per-side` movement without the field
+    (falls back to `(each side)`). Full write-up below. **No Chris input needed.**
+  - **A full laterality curation sweep** — not yet a numbered item.
+    `around-worlds` is the only movement carrying `lateralityAxis`; the audit
+    workbook now has a "Laterality axis" CURATE column
+    (`import-movement-curation.mjs`) ready for a pass. Needs Chris to scope it.
 
 - **Post-redesign rethinks** (not scheduled; after R10 or in parallel) —
   `@id` ↔ record-id correlation, account **namespacing** (a username as a
@@ -63,8 +74,8 @@ chain does not self-spawn past here.
 ### Detailed write-ups (referenced by the items above)
 
 The entry below carries the full analysis for the still-open independent item
-**13** (strands **13a** and **13a-curation**; **13b** landed 2026-08-31
-`cf3c47f`, **13c** 2026-08-31 `02d819d`). **Item 11's write-up moved to
+**13** (strand **13a**; **13b** landed 2026-08-31 `cf3c47f`, **13a-curation**
+`71f9469`, **13c** `02d819d`). **Item 11's write-up moved to
 [completed.md](completed.md)** when it landed 2026-08-31 (`70a1852`). The redesign's own write-ups (12 ↔ R2, 15 ↔ R3 + R10, 16 ↔ R3,
 17 ↔ R9) moved to [completed.md](completed.md) with the R1–R10 section; item 15
 (including the board-side part (b), landed 2026-08-31 `9bbda82`) is fully closed
@@ -78,34 +89,37 @@ and its write-up lives there too.
   and [DEC-019](../topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised).
   **(a)** splits into the two follow-ups below.
 
-  **13a — the `»` panel offers the parenthesised per-side option.** Today
-  `movementModifiers` builds the laterality list from `entry.laterality`
-  (`builder.js` ~`:200`); a movement with `laterality: ["split","per-side"]`
-  offers `(split)` and — since 13b — needs to offer `(each <axis>)` with the
-  right axis word. Chris's call: **the axis comes from a new movement-registry
-  field** (an enum over `arm | leg | side | hand | direction`, the same set
-  `limbWord` now carries), curated, that the panel reads to label the option
-  `(each arm)` / `(each direction)` / … *contextually on the movement*; absent,
-  the panel falls back to `(each side)`. Scope: the field's name and shape
-  (touches the movement schema and `import-movement-curation.mjs` if it is
-  curated the usual way), `apps/builder/builder.js` (`movementModifiers` reads
-  it, `applyModifier` inserts the parenthesised form — `applyModifier` already
-  strips the exclusive class per 13c, and 13b's grammar reads `(each …)` back),
-  and a builder-driven check both themes. Needs Chris on the field name/shape.
+  **13a — the `»` panel renders `lateralityAxis`.** The field, its schema
+  (`MovementEntry.lateralityAxis?: 'arm'|'leg'|'side'|'hand'|'direction'` in
+  `packages/core/src/fold.ts`), its curation column, and one populated movement
+  (`around-worlds`, `lateralityAxis: "direction"`) all landed with 13a-curation
+  (`71f9469`). What remains is builder-only:
+  - `movementModifiers` (`apps/builder/builder.js` ~`:297`) still hard-codes the
+    per-side option's text as the pre-13b bare ` each side` and never looks at
+    `entry.lateralityAxis`. Change it to ` (each ${entry.lateralityAxis ?? 'side'})`
+    (parenthesised, per DEC-019; axis-aware).
+  - `applyModifier` inserts it — the exclusive-class strip (13c) and the grammar
+    read of `(each …)` (13b) are already in place, so a pick replaces cleanly.
+  - Verify: `around-worlds` → panel shows `(each direction)`; a `per-side`
+    movement with no axis (e.g. `bulgarian-split-squat`) → `(each side)`. Both
+    builder themes.
 
-  **13a-curation — a laterality curation pass.** `around-worlds` (and its
-  neighbours) carry no `laterality` and no default, so the `»` panel offers
-  nothing for them — the gap 13a's code lands *against*. Filling it (and the new
-  axis field) is a curation pass, run via the audit CSV +
-  `import-movement-curation.mjs` per [../topics/running-it.md](../topics/running-it.md),
-  not hand-edits to `registry/movements.json`. Sized on its own because a
-  laterality sweep is more than one entry. Needs Chris to scope which movements.
+  *Interim state since `71f9469`:* the `»` panel now **appears** for Around The
+  Worlds (it was hidden — no `laterality` data) and offers the stale bare
+  ` each side` until this lands. Not broken — bare still parses (13b kept input
+  tolerance) — just not yet axis-aware.
+
+  **A full laterality curation sweep** stays unscheduled. The curation path is
+  ready (`import-movement-curation.mjs` gained a "Laterality axis" CURATE
+  column); `around-worlds` is the only entry populated so far. A sweep is run
+  via the audit CSV per [../topics/running-it.md](../topics/running-it.md), not
+  hand-edits — needs Chris to scope which movements.
 
 - Every other numbered item — the whole 0-series, 1, 1a, 2, 3, 4, 5, 6, 7, 8,
-  8a, 9, 10, 11, 13b, 13c, 14, 15 (all parts — a/d ↔ R10, c ↔ R3, b ↔ `9bbda82`),
-  21, the deployment epic 18, 19, 20 and the builder layout redesign R1–R10 — is
-  closed; see [completed.md](completed.md). Only **13a** and **13a-curation**
-  stay open.
+  8a, 9, 10, 11, 13a-curation, 13b, 13c, 14, 15 (all parts — a/d ↔ R10, c ↔ R3,
+  b ↔ `9bbda82`), 21, the deployment epic 18, 19, 20 and the builder layout
+  redesign R1–R10 — is closed; see [completed.md](completed.md). Only **13a**
+  (builder-only, no decision pending) stays open.
 
 Nobody has run a session off the board yet. Everything is verified by tests
 and by driving the UI — every defect Chris has caught by *looking* was

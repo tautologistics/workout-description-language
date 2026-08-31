@@ -1667,7 +1667,7 @@ No code change.
 **13c. ~~The builder's `»` panel appends a laterality mode instead of replacing
 one, and doubles it on re-pick.~~ DONE 2026-08-31** (`02d819d`). *One strand of
 item 13, shipped alone — no decision needed. **13b** landed 2026-08-31
-(`cf3c47f`, below); **13a** and **13a-curation** stay open in
+(`cf3c47f`, below); **13a-curation** landed 2026-08-31 (`71f9469`); only **13a** (the `»` panel rendering it) stays open in
 [current.md](current.md); item 13 as a whole is **not** closed.* `applyModifier`
 with `position: 'title'` spliced the chosen laterality text in after the
 movement title without checking the line, so picking `(split)` when `each side`
@@ -1764,9 +1764,9 @@ across both sections three times, `Canonicalise` round-trips the label verbatim.
 **13b. ~~The per-side laterality form is bare (`each arm`) where `(split)` is
 parenthesised — Chris wants parity.~~ DONE 2026-08-31** (`cf3c47f`,
 [DEC-019](../topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised)).
-*One strand of item 13; **13a** (the `»` panel offering the option) and
-**13a-curation** (filling `laterality` for `around-worlds` &c.) follow
-separately.* `format.ts` wrote `both`/`split` as ` (both)` / ` (split)` but
+*One strand of item 13; **13a-curation** (the `lateralityAxis` field) landed
+`71f9469` (below), and **13a** (the `»` panel rendering it) is the last strand.*
+`format.ts` wrote `both`/`split` as ` (both)` / ` (split)` but
 `per-side` as a bare ` each side` — the asymmetry was just the two grammar forms
 (`laterality = "(" lateralityWord ")"` vs `trailingQualifier -- limb`), and spec
 §4 had made the bare form deliberate ("reads as part of the prescription").
@@ -1796,6 +1796,51 @@ about how any workout is *understood* moved; `interpretations.json` regenerates
 byte-identical; `movements.canonical.json` / `dedupe-audit.json` were date-only
 churn and reverted. All 190 corpus files remain their own canonical fixpoint.
 Builder not driven — no app code changed (that is 13a).
+
+---
+
+**13a-curation. ~~`around-worlds` and its neighbours have no laterality data, so
+the `»` panel offers nothing.~~ `lateralityAxis` field + one vetting entry —
+DONE 2026-08-31** (`71f9469`). *The last data/schema strand of item 13; the
+builder `»` panel that renders it is the still-open **13a**. A full laterality
+curation sweep is unscheduled — Chris will scope it.* Chris's calls, from the
+conversation: the axis a per-side count runs across is **a curated
+movement-registry field** at the root of an entry, named **`lateralityAxis`**
+(camelCase, matching `defaultLaterality`), an enum over `arm | leg | side | hand
+| direction` (the set `limbWord` carries since 13b), and it must be curatable
+via `import-movement-curation.mjs`. For now, apply it to **`around-worlds` only**
+— enough to vet the implementation; the sweep comes later.
+
+*Shipped:*
+- `packages/core/src/fold.ts` — `MovementEntry.lateralityAxis?`. Advisory,
+  nothing in core consumes it yet (the builder does — that is 13a).
+- `scripts/import-movement-curation.mjs` — a "Laterality axis" CURATE column
+  (position 31), validated against the enum and refused unless the row's
+  laterality modes include `per-side`. An export from an older workbook now
+  fails the header check, which is the script's intended fail-loud behaviour.
+- `scripts/build-movements.mjs` — `handKept` (which already carried
+  `aliases`/`sameAs` past the free-exercise-db classification re-read) now also
+  carries `laterality` / `defaultLaterality` / `lateralityAxis`, so a curated
+  laterality fact on a free-exercise-db-sourced record reaches the canonical
+  corpus instead of being silently dropped — the same silent-drop the
+  `handKept` comment was written to close. Field added to both allowlists.
+- `registry/movements.json` — `around-worlds`: `laterality: ["per-side"]`,
+  `defaultLaterality: "per-side"`, `lateralityAxis: "direction"`. Hand-applied
+  (the audit workbook is not checked in), but verified against the script:
+  running it on a synthetic CSV produced the identical edit.
+- `registry/movements.canonical.json` — only `around-worlds` changes (gains the
+  three fields). `workouts.canonical.json` / `dedupe-audit.json` were date-only
+  churn, reverted.
+- Docs: `movement_registry_design.md` §2.2 / §6, `running-it.md`.
+
+*Verification:* suite **2063/2063** (1 pending, pre-existing). `fold.test.ts`'s
+`canonicalRegistry().validate()` unaffected by the new field. Builder driven
+once: `12 Around The Worlds` — the `»` caret now shows (it was hidden, no
+laterality data), and `fetch('/registry/movements.json')` in the page carries
+`lateralityAxis: "direction"` on the record, so 13a has the data to render.
+**Interim effect:** the panel offers the generic bare ` each side` for Around
+The Worlds until 13a wires `movementModifiers` to the axis — noted in
+`current.md`.
 
 ---
 

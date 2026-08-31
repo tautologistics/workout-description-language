@@ -1187,6 +1187,14 @@ marks the ones worth a top-level pointer.
   a `laterality = "(" lateralityWord ")" -- word | "(" eachWord ~wordChar spaces
   limbWord ~wordChar ")" -- perSide` split tried ahead of `unreadableParen`.
 
+- **A registry field followed** (queue item 13a-curation, `71f9469`):
+  `MovementEntry.lateralityAxis?: 'arm'|'leg'|'side'|'hand'|'direction'`, a
+  curated root field (via `import-movement-curation.mjs`) naming the axis a
+  per-side count runs across, so a tool renders `(each direction)` rather than a
+  generic `(each side)`. Advisory; nothing in `packages/core` reads it — the
+  builder's `»` panel will (still-open item 13a). `around-worlds` is the only
+  entry carrying it so far; a full curation sweep is unscheduled.
+
 - **What did not change.** Bare `each arm` / `per leg` still parse (input
   tolerance); `total` still maps to `(split)` on output; `(both)` stays distinct
   from `(split)`. Side selectors (`first arm`, `trailingQualifier -- side`) and

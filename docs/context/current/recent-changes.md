@@ -2,6 +2,21 @@
 
 ## Changes
 
+- **2026-08-31 — `lateralityAxis` — the axis a per-side count runs across**
+  (`71f9469`, queue item **13a-curation**). A per-side count is "each
+  *something*" — `side` usually, `arm` for a single-arm press, `direction` for
+  a dumbbell circled around the head. A curated root field on a movement entry
+  (`MovementEntry.lateralityAxis?: 'arm'|'leg'|'side'|'hand'|'direction'`,
+  `fold.ts`), so a tool renders `(each direction)` instead of a generic
+  `(each side)`. `import-movement-curation.mjs` gained a "Laterality axis"
+  CURATE column; `build-movements.mjs`'s `handKept` now carries the laterality
+  fields onto free-exercise-db-sourced records (they were silently dropped).
+  `around-worlds` is the one vetting entry (`lateralityAxis: "direction"`, plus
+  `laterality: ["per-side"]` it lacked); a full sweep is unscheduled. Nothing in
+  `packages/core` reads the field yet — the builder `»` panel is the still-open
+  **13a**. The panel now *appears* for Around The Worlds (was hidden) offering
+  the generic `each side` until 13a. Suite 2063/2063.
+
 - **2026-08-31 — The per-side laterality form is parenthesised: `(each arm)`**
   (`cf3c47f`, queue item **13b**,
   [DEC-019](../topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised)).
