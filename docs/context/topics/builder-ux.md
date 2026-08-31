@@ -229,6 +229,21 @@ It split in two, and the halves were not equally ready — both are done now:
   typed word. Names that don't start with the title (aliases like `DB Snatch`)
   keep the whole-fragment fallback. Bare `each side` fixed identically.
 
+  **Open — the per-implement load token `@ Nx` reads as cryptic mid-edit.**
+  For a `load: "per-implement"` movement (Bulgarian Split Squat, `implements: 2`)
+  the panel splices `@ 2x`, seeded from `implements`, and leaves the caret after
+  it for the weight → `@ 2x35lb`. Before the weight is typed, the bare `@ 2x` is
+  unclear — Chris, who designed the panel, had to stop and work out what it
+  meant. The panel *label* is clear ("takes a load, per implement (holds 2)");
+  the inserted text is not. Revisit both the **formatting** of the seeded token
+  (`@ 2x` vs an `@ 2x⟨wt⟩` placeholder vs plain `@ ` vs nothing until a weight is
+  present — spec §3 governs the `Nx⟨weight⟩` notation) and the **clarity** (an
+  inline hint, a reworded label, a better caret position). The plain-load pick's
+  bare `@ ` is the same shape but less ambiguous. Token built in
+  `movementModifiers()`, `apps/builder/builder.js` — `` `@ ${entry.implements}x` ``
+  when `entry.load === 'per-implement'`, else `'@ '`. Self-contained; dispatchable
+  on its own.
+
   Two decisions Chris made before this was built: the affordance is a second
   caret opening a panel (reusing the existing movement-suggestion caret's
   interaction model), not always-visible chips or a merge into the one
