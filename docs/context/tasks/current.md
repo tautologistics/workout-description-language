@@ -32,10 +32,11 @@ separately.
   boundary is). Full write-up below. Can land any time.
 
 - **13 — Laterality in the builder's `»` panel.** Builder-only, `applyModifier`;
-  the `»` panel survived the redesign unchanged. **13c** (picking a laterality
-  mode appends instead of replacing, and doubles on re-pick) ships alone, no
-  decision needed. **13a / 13b** need Chris (a curation gap; the parens-vs-bare
-  spelling, a reopen-a-settled-decision). Full write-up below.
+  the `»` panel survived the redesign unchanged. **~~13c~~ (picking a laterality
+  mode appends instead of replacing, and doubles on re-pick) — DONE 2026-08-31
+  (`02d819d`), see [completed.md](completed.md).** **13a / 13b** stay open and
+  need Chris (a curation gap; the parens-vs-bare spelling, a
+  reopen-a-settled-decision). Item 13 as a whole stays open. Full write-up below.
 
 - **Post-redesign rethinks** (not scheduled; after R10 or in parallel) —
   `@id` ↔ record-id correlation, account **namespacing** (a username as a
@@ -96,24 +97,16 @@ section; item 15 (including the board-side part (b), landed 2026-08-31
   `registry/workouts.canonical.json` (corpus files use `(split)` and
   `each arm` — this one *will* move the corpus, so measure it).
 
-  **(c) Picking a laterality mode appends instead of replacing, and doubles on
-  re-pick.** `applyModifier` with `position: 'title'` (`builder.js:390-413`)
-  splices the chosen text in right after the movement title without checking
-  for a laterality word already on the line. So picking `split` when `each
-  side` is present yields `Around The Worlds (split) each side` (two
-  contradictory modes), and picking `split` twice yields `(split) (split)`.
-  Laterality modes are mutually exclusive: before inserting, detect and remove
-  any existing laterality token — the parenthesised forms
-  (`(both)` / `(split)` / `(per-side)` / `(total)`, matching
-  `lateralityWord`) and the inline forms (`each|per arm|leg|side|hand`,
-  matching `trailingQualifier`) — then insert the new one (or, if the same mode
-  is picked again, treat it as a toggle-off / no-op). Check the measured-output
-  picks (`, count cal` / `, count distance`) for the same double-append and fix
-  them too if present. The `»` panel is meant to be an editor, so replace is
-  the right default. Builder-only; no core change; verify by driving it against
-  a split movement — apply `each side`, then `(split)`, confirm one replaces
-  the other; apply the same twice, confirm no doubling; diagnostics pane clean
-  after each.
+  **~~(c) Picking a laterality mode appends instead of replacing, and doubles on
+  re-pick.~~ DONE 2026-08-31 (`02d819d`), see [completed.md](completed.md).**
+  `applyModifier` now strips every existing token of the exclusive class from
+  the line before inserting a pick — the parenthesised laterality forms
+  (`(both)` / `(split)` / `(per-side)` / `(total)`, matching `lateralityWord`),
+  the inline `each|per <limb>` forms (matching `trailingQualifier -- limb`), and
+  the `, count cal|calories|distance|reps` comma modifier (`position: 'end'`,
+  same double-append) — then inserts, or, when the mode already there is
+  re-picked, clears it (toggle off). `apps/builder/builder.js` only, no core
+  change.
 
   **Land it / docs:** fresh branch off `origin/main` as above; push
   `git push origin <branch>:main` and confirm. Commit body ends

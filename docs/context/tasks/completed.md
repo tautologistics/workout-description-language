@@ -1664,6 +1664,31 @@ No code change.
 
 ---
 
+**13c. ~~The builder's `»` panel appends a laterality mode instead of replacing
+one, and doubles it on re-pick.~~ DONE 2026-08-31** (`02d819d`). *One strand of
+item 13, shipped alone — no decision needed. Items **13a** (the laterality
+curation gap) and **13b** (the parens-vs-bare spelling) stay open in
+[current.md](current.md); item 13 as a whole is **not** closed.* `applyModifier`
+with `position: 'title'` spliced the chosen laterality text in after the
+movement title without checking the line, so picking `(split)` when `each side`
+was present produced `Dumbbell Snatch (split) each side` (two contradictory
+modes) and picking a mode twice produced `(split) (split)`; the measured-output
+picks (`position: 'end'`) had the same double-append. **Shipped:** laterality
+modes and measured output are each mutually exclusive, so a pick now strips
+every existing token of that class from the line first — the parenthesised
+laterality forms (`(both)` / `(split)` / `(per-side)` / `(total)`, matching the
+grammar's `lateralityWord`), the inline `each|per <limb>` forms (matching
+`trailingQualifier -- limb`), and the `, count cal|calories|distance|reps` comma
+modifier — then inserts the pick, or, when the mode already on the line is
+re-picked, clears it (toggle off). A line left doubled by the old behaviour
+cleans up in a single pick. Builder-only; no core change; suite 2051 passing, 1
+pending. Verified by driving the builder against `Dumbbell Snatch`
+(`laterality: ["split","per-side"]`) and `Row` (`measures`): replace in both
+directions, re-pick toggles off, diagnostics clean after each. *Touched:
+`apps/builder/builder.js` only.*
+
+---
+
 *Ordering of 5, 6, 7 and 9 against 1-4 is not settled - they are appended
 rather than placed. 5, 6 and 7 were raised by writing and sending one workout
 rather than by a plan, and 9 by closing item 3. **0f was lettered rather than

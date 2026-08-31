@@ -2,6 +2,22 @@
 
 ## Changes
 
+- **2026-08-31 — Builder `»` panel: laterality and measured-output picks
+  replace instead of appending** (`02d819d`, queue item **13c** — one strand of
+  item 13, shipped alone; **13a / 13b stay open** and item 13 is not closed).
+  `applyModifier` with `position: 'title'` spliced the chosen laterality text in
+  after the movement title without checking the line, so `(split)` on top of
+  `each side` gave `Dumbbell Snatch (split) each side` and picking a mode twice
+  gave `(split) (split)`; the measured-output picks (`position: 'end'`) had the
+  same double-append. Now each pick first strips every existing token of its
+  mutually-exclusive class — parenthesised laterality (`(both)` / `(split)` /
+  `(per-side)` / `(total)`), inline `each|per <limb>`, and
+  `, count cal|calories|distance|reps` — then inserts, or clears it (toggle off)
+  when the mode already on the line is re-picked. `apps/builder/builder.js`
+  only, no core change; suite 2051 passing, 1 pending. Verified driving the
+  builder against `Dumbbell Snatch` and `Row`: replace both directions, toggle
+  off, diagnostics clean.
+
 - **2026-08-31 — Reads-as tab: the "show every cue" toggle is gone; both
   subsections always show** (`c876691`, Chris, from using it). The per-cue list
   sits at the bottom of the panel and displaces nothing, so hiding it bought

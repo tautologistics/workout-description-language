@@ -191,7 +191,14 @@ It split in two, and the halves were not equally ready — both are done now:
   (`10 Dumbbell Curl each arm @ 2x35lb`), measured output at the end since it
   is itself a comma modifier — the same seam the movement-name caret already
   splices into, so quantity, existing modifiers and the rest of the line
-  survive untouched. Verified driving the builder in both themes against a
+  survive untouched. **The laterality and measured-output picks *replace*, not
+  append** (queue item 13c, `02d819d`, 2026-08-31): each is a mutually-exclusive
+  class, so applying one first strips any existing token of that class off the
+  line — the parenthesised laterality forms (`(both)` / `(split)` / `(per-side)`
+  / `(total)`), the inline `each|per <limb>` forms, and the
+  `, count cal|calories|distance|reps` comma modifier — and re-picking the mode
+  already there clears it (toggle off). Load still just inserts. Verified
+  driving the builder in both themes against a
   split-laterality movement (Dumbbell Curl), a calorie/distance-measured one
   (Bike) and a load-taking one (Back Squat, and Bulgarian Split Squat for
   per-implement), including applying laterality and load in either order and
