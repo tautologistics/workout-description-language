@@ -299,11 +299,23 @@ function renderOutline() {
   // The parsed block a header row stands for, keyed the same way — what the
   // block-header affordance reads to know the kind and what it still needs.
   const blockOf = new Map();
+  // The row kind, driven off the parse wherever the parse distinguishes it: a
+  // step, a rest, a `section` (the inert labelled container `conditioning:`
+  // produces) or a repeating/structured `header` (every other block kind). The
+  // preamble kinds the parser folds away — title (`#`), directive (`@`) — and
+  // the synthesised comment row are classed from raw text in `walk` instead.
+  // Drives the `.node[data-kind]` marker; R9's Text-tab highlighter shares the
+  // `--kind-*` tokens it maps to.
+  const kindOf = new Map();
   const collect = (nodes) => {
     for (const n of nodes) {
-      if (n.node === 'step') movementOf.set(n.line, n.movement);
-      else if (n.node === 'block') { blockOf.set(n.line, n); collect(n.children); }
-      else if (n.node === 'interrupt') collect(n.body);
+      if (n.node === 'step') { movementOf.set(n.line, n.movement); kindOf.set(n.line, 'step'); }
+      else if (n.node === 'rest') kindOf.set(n.line, 'rest');
+      else if (n.node === 'block') {
+        blockOf.set(n.line, n);
+        kindOf.set(n.line, n.type === 'section' ? 'section' : 'header');
+        collect(n.children);
+      } else if (n.node === 'interrupt') { kindOf.set(n.line, 'header'); collect(n.body); }
     }
   };
   collect(parsed.workout.body);
@@ -322,6 +334,7 @@ function renderOutline() {
     emitted.add(k);
     const node = document.createElement('div');
     node.className = 'node comment';
+    node.dataset.kind = 'comment';
     if (badLines.has(k)) node.classList.add('bad');
 
     const rails = document.createElement('span');
@@ -387,6 +400,17 @@ function renderOutline() {
 
       const node = document.createElement('div');
       node.className = 'node';
+      // The row kind: raw text for the preamble kinds the parser folds away
+      // (title, directive) and the own-line comment, the parsed node (`kindOf`)
+      // for step / rest / section / header, and failing both a colon-terminated
+      // line reads as a header while anything else reads as a step — so a broken
+      // step (`- 10 Nonsense @@@`, which does not parse) still reads as a step,
+      // and then `.bad` adds the error treatment on top.
+      const kind = (depth === 0 && n.text.startsWith('#')) ? 'title'
+        : (depth === 0 && n.text.startsWith('@')) ? 'directive'
+        : n.text.startsWith('//') ? 'comment'
+        : kindOf.get(n.line) ?? (/:$/.test(n.text) ? 'header' : 'step');
+      node.dataset.kind = kind;
       if (/:$/.test(n.text) || n.children.length) node.classList.add('block');
       if (n.text.startsWith('//')) node.classList.add('comment');
       if (badLines.has(n.line)) node.classList.add('bad');

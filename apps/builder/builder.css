@@ -19,6 +19,22 @@
   --warn: #b3541e;
   --error: #c0392b;
   --ask: #7d4bbd;
+  /* The nesting rail in the Outline carries block structure, so it has to be
+     perceptible against both --page and --panel — unlike --rule, a hairline
+     divider that is deliberately far fainter. Keep --rail clearly darker than
+     --rule here and clearly lighter than it in the dark block. */
+  --rail: #a3a8b4;
+  /* One colour per Outline row kind — a thin left marker on the row, and (R9)
+     the Text tab's syntax highlight, so the two views read as one language.
+     R9's highlighter consumes these exact tokens; name them for the line kind,
+     never the hue. Defined in both themes. */
+  --kind-title: #7048e8;
+  --kind-directive: #868e96;
+  --kind-section: #2f9e44;
+  --kind-header: #e8590c;
+  --kind-step: #1971c2;
+  --kind-rest: #0c8599;
+  --kind-comment: #adb5bd;
   /* A cycling palette for repeating blocks — distinct from --accent (which
      stays cycle 0's colour, so a single cycle looks unchanged) and from
      --warn/--error/--ask, which carry their own meaning and would be a false
@@ -40,6 +56,14 @@
     --warn: #e0a45e;
     --error: #ff7a68;
     --ask: #b79be8;
+    --rail: #565c6a;
+    --kind-title: #b197fc;
+    --kind-directive: #909aa8;
+    --kind-section: #69db7c;
+    --kind-header: #ffa94d;
+    --kind-step: #74c0fc;
+    --kind-rest: #66d9e8;
+    --kind-comment: #6c7686;
     --cycle-2: #4ddb9e;
     --cycle-3: #e8c34a;
     --cycle-4: #ff8fd0;
@@ -194,32 +218,59 @@ header button, header .button { white-space: nowrap; }
 
 /* --- outline -------------------------------------------------------------- */
 
-.outline { flex: 1; min-height: 0; overflow: auto; padding: .5rem 0; }
+.outline { flex: 1; min-height: 0; overflow: auto; padding: .75rem 0 1.5rem; }
 
+/* The Outline reads as a document, not an IDE gutter: a generous row rhythm,
+   the `#` title set as a heading, the `@` directives as a dim preamble block
+   above the workout body. The inputs stay exactly as editable as before — this
+   is presentation only, the write-back path is unchanged. */
 .node {
   display: flex;
   align-items: center;
   gap: .35rem;
-  padding: .1rem 1rem .1rem 0;
+  padding: .2rem 1rem .2rem 0;
 }
 
 /* Nesting is shown with a rule per level rather than blank space, so the shape
-   of a block is visible when its header has scrolled out of view. */
-.node .rails { display: flex; flex: none; }
-.node .rail { width: 1.1rem; border-left: 1px solid var(--rule); height: 1.9rem; }
+   of a block is visible when its header has scrolled out of view. The rail
+   carries meaning, so it takes --rail (perceptible against the sheet) rather
+   than the --rule hairline; stretched to the row's full height so the levels
+   read as continuous lines down the document. */
+.node .rails { display: flex; flex: none; align-self: stretch; }
+.node .rail { width: 1.1rem; border-left: 1px solid var(--rail); }
 .node .rail:first-child { border-left: 0; width: .9rem; }
 
-.node .line-wrap { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
+/* The per-kind marker: a thin coloured edge on the row's wrap, one --kind-*
+   colour per line kind (set from `.node[data-kind]`). Orthogonal to the rails —
+   they carry nesting, this carries what the line *is* — and quiet by design: an
+   edge, not a full-row wash. Survives `.node.bad`, so a broken step still reads
+   as a step (the marker) that is broken (the red input border). */
+.node .line-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  border-left: 3px solid transparent;
+  padding-left: .45rem;
+}
+.node[data-kind="title"]     .line-wrap { border-left-color: var(--kind-title); }
+.node[data-kind="directive"] .line-wrap { border-left-color: var(--kind-directive); }
+.node[data-kind="section"]   .line-wrap { border-left-color: var(--kind-section); }
+.node[data-kind="header"]    .line-wrap { border-left-color: var(--kind-header); }
+.node[data-kind="step"]      .line-wrap { border-left-color: var(--kind-step); }
+.node[data-kind="rest"]      .line-wrap { border-left-color: var(--kind-rest); }
+.node[data-kind="comment"]   .line-wrap { border-left-color: var(--kind-comment); }
 
 .node input.line {
   flex: 1;
   min-width: 0;
-  padding: .3rem 2.8rem .3rem .5rem;
+  padding: .35rem 2.8rem .35rem .5rem;
   border: 1px solid transparent;
   border-radius: .3rem;
   background: transparent;
   color: inherit;
-  font: 400 13.5px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font: 400 13.5px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 .node input.line:hover { border-color: var(--rule); }
@@ -228,6 +279,18 @@ header button, header .button { white-space: nowrap; }
 .node.block input.line { font-weight: 650; }
 .node.comment input.line { color: var(--dim); font-style: italic; }
 .node.bad input.line { border-color: var(--error); }
+
+/* The title row is the document's heading — larger and heavier, with air under
+   it before the preamble or the body begins. */
+.node[data-kind="title"] { padding-bottom: .4rem; }
+.node[data-kind="title"] input.line { font-size: 1.05rem; font-weight: 700; letter-spacing: .01em; }
+
+/* The `@` directives describe the workout rather than being part of it — a dim
+   preamble block, sitting a notch under the title and above the body. */
+.node[data-kind="directive"] { padding-top: .04rem; padding-bottom: .04rem; }
+.node[data-kind="directive"] input.line { color: var(--dim); font-size: .82rem; }
+.node[data-kind="title"] + .node[data-kind="directive"] { margin-top: .1rem; }
+.node[data-kind="directive"] + .node:not([data-kind="directive"]) { margin-top: .7rem; }
 
 /* The movement caret: hidden until the row is worth showing tools on, same as
    `.tools` — it opens a live-filtered list of curated movements matching
