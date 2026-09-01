@@ -219,7 +219,7 @@ Grounding facts, so an M-task can start cold:
   PocketBase after M1/M2 are applied and Chris's `users` row is `admin: true`.
 
 - **M4 — Egress: DB → `registry/movements.json`.** — **DONE 2026-09-01**
-  (`<M4-SHA>`). `scripts/movements-from-db.mjs` (`make movements-dump`, no deps —
+  (`e472cde`). `scripts/movements-from-db.mjs` (`make movements-dump`, no deps —
   `node:fs` + global `fetch` + `node:child_process` for the diff preview) reads
   every `scope = "global"` row over `/api/collections/movements/records`
   (`filter=scope="global"&perPage=500&sort=movementId`, paged) — **no auth**, the

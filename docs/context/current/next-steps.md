@@ -33,7 +33,7 @@ validating the registry vocabularies, writing a `scope: "global"` row via `/api`
 `apps/shared/pocketbase.js`; first hosted in the builder (`＋ new movement` in
 the palette modal, `✎` on palette cards, "Edit … its curated fields" in a step's
 `»` panel), a save folding the row into the in-memory registries so it shows with
-no reload. **M4 landed 2026-09-01** (`<M4-SHA>`): `scripts/movements-from-db.mjs`
+no reload. **M4 landed 2026-09-01** (`e472cde`): `scripts/movements-from-db.mjs`
 + `make movements-dump` — reads `scope = "global"` over `/api` (no auth) and
 rewrites `registry/movements.json` in its current key order + formatting, so the
 git diff is a shape-for-shape review; `--dry-run` / `--check` flags. The

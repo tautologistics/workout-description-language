@@ -1266,7 +1266,7 @@ Phase 1* epic (queue task M0).*
   round-trip is real. **The dump must round-trip:** dump → ingest (M3) → dump
   yields no diff; M3/M4 land with that check.
 
-  *Closed 2026-09-01 (`<M4-SHA>`, queue task M4): `make movements-dump`
+  *Closed 2026-09-01 (`e472cde`, queue task M4): `make movements-dump`
   (`scripts/movements-from-db.mjs`) reproduces `registry/movements.json`
   byte-for-byte from a fresh M3 ingest — `make movements-load` then
   `make movements-dump` leaves `git diff registry/movements.json` empty, and a

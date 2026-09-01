@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-01 — Movements epic M4 landed** (`<M4-SHA>`), sixth session of the
+- **2026-09-01 — Movements epic M4 landed** (`e472cde`), sixth session of the
   M-chain. **`scripts/movements-from-db.mjs`** (no deps — `node:fs` + global
   `fetch`, `node:child_process` only for the `--dry-run` diff preview) +
   **`make movements-dump`**: the egress half of the round-trip whose ingest half
