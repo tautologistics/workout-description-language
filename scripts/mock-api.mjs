@@ -23,16 +23,21 @@
  *   POST   /api/collections/workouts/records         — create (persists to fixtures/workouts.local.json)
  *   PATCH  /api/collections/workouts/records/:id     — update (persists)
  *   DELETE /api/collections/workouts/records/:id     — delete (persists), 204
- *   GET    /api/collections/movements/records        — list, read-only, from registry/movements.json in the PB record shape
+ *   GET    /api/collections/movements/records        — list, from registry/movements.json + local writes, in the PB record shape
  *   GET    /api/collections/movements/records/:id    — one movement (by synthetic id or movementId)
- *   *      /api/collections/movements/records[...]    — create/update/delete → 403 (mirrors the admin-only write rule)
+ *   POST   /api/collections/movements/records        — create, IF the request carries an Authorization header (else 403 — mirrors the admin-only rule)
+ *   PATCH  /api/collections/movements/records/:id     — update, same Authorization gate; 403 without it
+ *   DELETE /api/collections/movements/records/:id     — delete, same Authorization gate; 403 without it, 204 with
  *
  * Query params honoured on the two list routes, only as far as the client uses
  * them: `filter` (a minimal `field="value"` AND match — enough for
  * `owner="…"`), `sort` (`-updated` etc.), `page`, `perPage`. Not a query engine.
  *
- * Fixture write state (`fixtures/workouts.local.json`) is git-ignored — delete
- * it to reset to `fixtures/workouts.json`.
+ * Fixture write state (`fixtures/workouts.local.json`, `fixtures/movements.local.json`)
+ * is git-ignored — delete it to reset to the committed seed / `registry/movements.json`.
+ * Movement writes (task M3's `make movements-load`, and the M5 editor) land in
+ * `fixtures/movements.local.json` and are merged over the registry-derived list
+ * on read, keyed by `movementId`.
  */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -71,10 +76,45 @@ export function createMockApi(root) {
     }
   };
 
-  let movements = null; // mapped on first request
-  const loadMovements = () => {
-    if (!movements) movements = (readJson(P('registry/movements.json')).movements ?? []).map(toMovementRecord);
-    return movements;
+  let movementBase = null; // registry/movements.json mapped to records, on first request
+  const loadMovementBase = () => {
+    if (!movementBase) movementBase = (readJson(P('registry/movements.json')).movements ?? []).map(toMovementRecord);
+    return movementBase;
+  };
+
+  // Runtime movement writes — overlaid on the registry list, keyed by
+  // `movementId`. `overlay` holds created/updated records; `deleted` holds
+  // tombstoned `movementId`s. Persisted git-ignored, same as workouts.
+  const mvLocalPath = P('fixtures/movements.local.json');
+  const mvLocal = existsSync(mvLocalPath) ? readJson(mvLocalPath) : {};
+  let mvOverlay = Array.isArray(mvLocal.movements) ? mvLocal.movements : [];
+  let mvDeleted = Array.isArray(mvLocal.deleted) ? mvLocal.deleted : [];
+
+  const persistMovements = () => {
+    try {
+      writeFileSync(mvLocalPath, JSON.stringify({
+        $comment: 'Runtime movement write state for the local dev mock /api. Git-ignored. Delete to reset to registry/movements.json.',
+        movements: mvOverlay,
+        deleted: mvDeleted,
+      }, null, 2) + '\n');
+    } catch (e) {
+      console.error(`  mock /api: could not persist movements — ${e.message}`);
+    }
+  };
+
+  /** The registry list with runtime writes merged over it, keyed by movementId. */
+  const currentMovements = () => {
+    const byId = new Map(loadMovementBase().map((m) => [m.movementId, m]));
+    for (const rec of mvOverlay) byId.set(rec.movementId, rec);
+    for (const id of mvDeleted) byId.delete(id);
+    return [...byId.values()];
+  };
+
+  const upsertMovement = (rec) => {
+    const i = mvOverlay.findIndex((m) => m.movementId === rec.movementId);
+    if (i >= 0) mvOverlay[i] = rec; else mvOverlay.push(rec);
+    mvDeleted = mvDeleted.filter((id) => id !== rec.movementId);
+    persistMovements();
   };
 
   return async function handle(req, res, url) {
@@ -145,18 +185,50 @@ export function createMockApi(root) {
         }
       }
 
-      // -- movements (read-only) -------------------------------------------
+      // -- movements ------------------------------------------------------
+      // Reads are open (the collection's list/view rule is `scope = "global"`).
+      // Writes need admin in production; here any Authorization header stands in
+      // for that (the auth short-circuit above hands every signed-in caller an
+      // `admin: true` fixture user), so `make movements-load` and the M5 editor
+      // round-trip locally. Writes persist to fixtures/movements.local.json.
+      const mvWriteDenied = () => json(res, 403, err(403, 'Only admins can write global movements.'));
       if (pathname === '/api/collections/movements/records') {
-        if (method === 'GET') return json(res, 200, listEnvelope(applyQuery(loadMovements(), url), url));
-        return json(res, 403, err(403, 'Only admins can write global movements.'));
+        if (method === 'GET') return json(res, 200, listEnvelope(applyQuery(currentMovements(), url), url));
+        if (method === 'POST') {
+          if (!req.headers.authorization) return mvWriteDenied();
+          const body = await readBody(req);
+          const rec = mkMovementRecord(body);
+          if (!rec.movementId) return json(res, 400, err(400, 'movementId is required.', { movementId: { code: 'validation_required', message: 'Missing required value.' } }));
+          upsertMovement(rec);
+          return json(res, 200, rec);
+        }
+        return mvWriteDenied();
       }
       if (pathname.startsWith('/api/collections/movements/records/')) {
         const id = decodeURIComponent(pathname.slice('/api/collections/movements/records/'.length));
+        const rec = currentMovements().find((m) => m.id === id || m.movementId === id);
         if (method === 'GET') {
-          const rec = loadMovements().find((m) => m.id === id || m.movementId === id);
           return rec ? json(res, 200, rec) : json(res, 404, err(404, "The requested resource wasn't found."));
         }
-        return json(res, 403, err(403, 'Only admins can write global movements.'));
+        if (!req.headers.authorization) return mvWriteDenied();
+        if (method === 'PATCH') {
+          if (!rec) return json(res, 404, err(404, "The requested resource wasn't found."));
+          const body = await readBody(req);
+          const next = { ...rec, ...pickMovementFields(body), updated: pbNow() };
+          upsertMovement(next);
+          return json(res, 200, next);
+        }
+        if (method === 'DELETE') {
+          if (rec) {
+            mvOverlay = mvOverlay.filter((m) => m.movementId !== rec.movementId);
+            if (!mvDeleted.includes(rec.movementId)) mvDeleted.push(rec.movementId);
+            persistMovements();
+          }
+          res.writeHead(204);
+          res.end();
+          return true;
+        }
+        return mvWriteDenied();
       }
 
       return false; // some other /api path — not mocked; caller falls through
@@ -213,6 +285,34 @@ function toMovementRecord(e) {
   return rec;
 }
 
+/** A create body -> a full `movements` record (missing fields at their empty). */
+function mkMovementRecord(body) {
+  const now = pbNow();
+  const rec = {
+    id: mvId(body.movementId ?? ''),
+    collectionId: 'mock_movements',
+    collectionName: 'movements',
+    movementId: body.movementId ?? '',
+    title: body.title ?? '',
+  };
+  for (const k of M_JSON) rec[k] = k in body ? body[k] : null;
+  for (const k of M_SCALAR) rec[k] = k in body ? body[k] : '';
+  rec.scope = body.scope ?? 'global';
+  rec.user = body.user ?? '';
+  rec.created = now;
+  rec.updated = now;
+  return rec;
+}
+
+/** The subset of an update body that maps to `movements` columns. */
+function pickMovementFields(body) {
+  const out = {};
+  for (const k of ['movementId', 'title', 'scope', 'user', ...M_JSON, ...M_SCALAR]) {
+    if (k in body) out[k] = body[k];
+  }
+  return out;
+}
+
 // --- query + envelope -----------------------------------------------------
 
 function applyQuery(items, url) {
@@ -265,8 +365,8 @@ function json(res, status, obj) {
 }
 
 /** PocketBase's error body shape: `{ status, code, message, data }`. */
-function err(code, message) {
-  return { status: code, code, message, data: {} };
+function err(code, message, data = {}) {
+  return { status: code, code, message, data };
 }
 
 function readBody(req) {

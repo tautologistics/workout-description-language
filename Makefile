@@ -20,7 +20,8 @@ export WDL_DEPLOY_SSH ?= dreamhost.ae.wex
 .DEFAULT_GOAL := help
 
 .PHONY: help install test build serve registry goldens aliases corpora \
-        curation-sheet curation-check curation-apply deploy deploy-dry clean
+        curation-sheet curation-check curation-apply movements-load \
+        deploy deploy-dry clean
 
 help: ## List the targets
 	@grep -hE '^[a-z][a-z-]*:.*## ' $(MAKEFILE_LIST) \
@@ -63,6 +64,9 @@ curation-apply: ## Land a curated CSV into registry/movements.json  (CSV=path)
 
 corpora: ## Check SOURCES.json/.md still count the corpora right
 	node scripts/describe-corpora.mjs
+
+movements-load: ## Ingest registry/movements.json -> the movements collection over /api  (idempotent; WDL_PB_URL / admin creds for prod)
+	node scripts/movements-to-db.mjs
 
 deploy: ## Deploy the static apps  (WDL_DEPLOY_SSH defaults to dreamhost.ae.wex)
 	node scripts/deploy-web.mjs
