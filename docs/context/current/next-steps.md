@@ -42,8 +42,7 @@ from Chris, in [../tasks/current.md](../tasks/current.md)):
   parentheses after it.
 
 Still needing Chris to scope: a full **laterality curation sweep** (which
-movements), and the **residual rethinks** (board Edit → builder round-trip; `@id`
-write-back / warn-on-mismatch for personal accounts).
+movements), and the board's **Edit** button round-tripping into the builder.
 
 Phase 2 of the movements epic (user-scoped movements) is in
 [../tasks/deferred.md](../tasks/deferred.md).

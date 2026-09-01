@@ -197,8 +197,10 @@ when something looks odd before treating it as a discovery.
   vocabulary case, on the reasoning that a defaulted unit would be an invention
   (`@95` is 95lb in one gym and 95kg in another). **Chris has now settled it:
   the default is `lb`** — `@ 95` reads as `95lb`, pound being the default for
-  any movement that carries a load; and a unitless magnitude on a
-  machine/aerobic non-load movement reads as **calories**. The implementation
+  any movement that carries a load. (A unitless magnitude on a machine/aerobic
+  non-load movement is *not* silently defaulted — the **builder** shows a
+  suggesting diagnostic ("did you mean `15cal`?") and the **board stays
+  agnostic**; Chris's call, 2026-09-01.) The `@ 95` → `95lb` implementation
   (spec §3/§7, grammar, parser, `Load` handling, golden files, the six pinned
   `was-wrong` vocabulary forms) is the **"unit defaults" standalone task** in
   [../tasks/current.md](../tasks/current.md). Until it lands, `@ 95` is still

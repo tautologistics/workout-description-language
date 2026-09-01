@@ -61,9 +61,10 @@ Recently closed (kept here briefly for the trail):
 ## Standalone task — unit defaults: a unitless load target is pounds
 
 *Raised 2026-09-01 by Chris, answering the open question from the `»`-panel
-task's report. Closes two "Open" items in
-[../topics/known-debts.md](../topics/known-debts.md) ("what a target with no
-unit means", and the calorie half of the `Nx`/unit family).*
+task's report. Settles the "what a target with no unit means" Open item in
+[../topics/known-debts.md](../topics/known-debts.md). Two rules with very
+different blast radii — rule 1 is a real parser/spec change, rule 2 is a
+builder-only diagnostic — and they can land separately.*
 
 Chris's call, verbatim intent: **"A unitless `@ 95` should just be 95 pounds.
 Pound should be the default for any exercise that carries a load. Something like
@@ -90,26 +91,29 @@ Two rules, and the second is the bigger change:
    whether `wdl fmt` *rewrites* `@ 95` to `@ 95lb` or leaves it; likely
    rewrites, since the format's job is to make the reading explicit), volume,
    muscle analysis, every exporter, and the golden files.
-2. **A unitless magnitude on a non-load machine/aerobic movement → calories** —
-   `15 Row` reads as `15cal Row`. This one is registry-derived: it applies only
-   when the row's movement resolves to an entry with `measures` including
-   `calories` and `load` null/absent (Row, Bike, Ski, Assault Bike, Run only if
-   it also measures calories — Run is usually distance, so tread carefully).
-   Bigger blast radius than rule 1 — it changes what `quantity` means on a whole
-   class of steps — and it needs the movement resolved at parse time, which the
-   parser does not do today (resolution is a later pass). May need to land as
-   its own step after rule 1, or be scoped to "diagnose, suggest the unit" (a
-   `note`) rather than silently defaulting. **Open for Chris:** silent default
-   vs. a suggesting diagnostic for rule 2.
+2. **A unitless magnitude on a non-load machine/aerobic movement — a
+   *builder-only suggesting diagnostic*, not a parse-level default**
+   (Chris, 2026-09-01). `15 Row` on a machine that measures calories: the
+   **builder** shows a diagnostic suggesting the unit ("did you mean
+   `15cal Row`?"), registry-derived (the row's movement resolves to an entry
+   with `measures` including `calories` and no `load`). The **board stays
+   agnostic** — it renders exactly what was written, no defaulting, no
+   forced calories. So this rule is **not** a `parse.ts` / grammar / spec
+   semantics change: the parser keeps the magnitude as-is; only
+   `apps/builder/builder.js`'s diagnostics/findings gain the suggestion. A
+   `spec` *note* that a bare magnitude on a calorie-measured machine is
+   ambiguous is fine; the reading is not changed. Can land independently of
+   rule 1 (and is much smaller).
 
-Scope: `spec/spec-0.1.md` §3/§7, `spec/grammar-0.1.ohm`,
+Scope — **rule 1**: `spec/spec-0.1.md` §3/§7, `spec/grammar-0.1.ohm`,
 `packages/core/src/parse.ts` + the load/target semantics, `packages/core/src/`
 formatter and anything walking `targets` for `kind === 'load'`, the golden
 files (`node packages/core/test/golden/generate.ts`, read the diff — load-by-
 muscle moves), `test/grammar.test.ts` + `test/golden/vocabulary.ts` (six forms
 are pinned there as `was-wrong`; `@ 95` joins them). No app change strictly
-required, but the builder's `»`-panel plain-load pick could then seed `@ ` →
-still fine, and its diagnostics will show the rewrite.
+required. **Rule 2**: `apps/builder/builder.js` diagnostics/findings only —
+registry-derived suggestion, no core/spec-semantics change; the board is
+untouched.
 
 ---
 
@@ -193,17 +197,24 @@ anyone can pull down a whole org's set or open any single workout, plus
      two-word handle** (`brave-otter`, `quiet-harbor` — an adjective+noun
      generator, collision-checked) so a save always has a namespace; the user
      can change it later.
+   - **Saving always forces the `@id` namespace to the owner's handle**
+     (Chris, 2026-09-01): a user *cannot not* set the namespace. On every
+     save, the `@id` line is written/rewritten to `<owner-handle>:<slug>` — so
+     there is no "mismatch" state and no warn-on-mismatch UX to design.
+     Copying another user's workout (`crossfit:fran`) and saving it naturally
+     re-namespaces it to `<yourhandle>:<slug>`. This **fully closes** the
+     `@id`-write-back question the deferred rethink held open.
    - **Known debt, explicitly deferred (Chris: "we can revisit that"):** when a
-     user changes their handle, every existing `<oldhandle>:<slug>` `@id` and
-     every share link built on it goes stale. Phase 1 does **not** solve this —
-     record it in [../topics/known-debts.md](../topics/known-debts.md) and move
-     on. Options to weigh later: rewrite `wdlId` + the `@id` text on all their
-     workouts on rename; keep old handles as aliases; forbid rename once a
-     workout exists.
+     user changes their handle, every *already-saved* `<oldhandle>:<slug>` `@id`
+     and every share link built on it goes stale. Phase 1 does **not** solve
+     this — record it in [../topics/known-debts.md](../topics/known-debts.md)
+     and move on. Options to weigh later: on rename, rewrite `wdlId` + the `@id`
+     text across all the user's workouts (the natural extension of "save forces
+     the namespace"); keep old handles as resolvable aliases; forbid rename once
+     a workout exists.
 
-   The only thing left in the deferred rethink after this epic: whether saving
-   *rewrites* the `@id` line in a person's workout text to match their handle,
-   and warn-on-mismatch UX. Org workouts sidestep it (loaded, not hand-saved).
+   After this epic, **nothing about `@id` ↔ namespace is left in the deferred
+   rethink** — only the handle-rename debt above, and it is deferred on purpose.
 3. **Search-by-ID uses a new `workouts.wdlId` column**, parsed from the `@id`
    directive on every create/update and indexed. Search matches `title ~ q`,
    `wdlId = q` (or `~ q`), or the 15-char record id. This also advances the
@@ -240,17 +251,31 @@ Grounding facts (what the tasks are built against — cf. the M0–M7 section in
   the existing Fran fixture already uses exactly that value.
 
 **L0 — Design note / decision (DEC-021).** Write the contract the rest builds
-against, the way M0 → DEC-020 did: org accounts as flagged `users` rows;
-`users.handle` = the `@id` namespace **for every account**; how a new account
-gets a random two-word handle and how the user edits it; `workouts.wdlId`
-parsed from `@id` on save; how a lookup resolves *either* a record id or a
-`<handle>:<slug>` `@id`; what a save does when the `@id` in the text disagrees
-with `wdlId` (write-back? warn? Phase-1 need only cover org workouts, which are
-loaded not hand-saved); the **handle-rename debt** (stale `<oldhandle>:<slug>`
-ids — deferred, recorded in `known-debts.md`, not solved here); and the
-boundary with what is left in the deferred account-namespacing rethink. No
-code. `docs/context` + a `spec` note if the `@id`↔namespace rule needs stating
-there. Spawns L1.
+against, the way M0 → DEC-020 did. It must state, at minimum:
+
+- Org accounts are flagged `users` rows (`org: true`), no OAuth, fixed ids,
+  workouts owned by them at `visibility: "public"`.
+- `users.handle` (unique) is the `@id` namespace **for every account**. A new
+  account with no handle is assigned a random `adjective-noun` handle
+  (collision-checked); the user can edit it to any unused valid slug.
+- **Saving a workout always forces its `@id` to `<owner-handle>:<slug>`** —
+  written/rewritten into the text on every save. There is no un-namespaced
+  saved workout and no mismatch state. `<slug>` derives from the existing
+  `@id` slug if present, else the title; a collision within the owner's
+  namespace gets a suffix. Copying another user's workout and saving
+  re-namespaces it naturally.
+- `workouts.wdlId` mirrors the `@id` (`<handle>:<slug>`), set from the text on
+  save, indexed — the searchable/resolvable handle.
+- A lookup resolves *either* a 15-char record id *or* a `<handle>:<slug>`
+  `wdlId` to the same record.
+- The **handle-rename debt** is deferred (stale already-saved ids /
+  share-links) — recorded in [../topics/known-debts.md](../topics/known-debts.md),
+  not solved here.
+- What (if anything) `spec/spec-0.1.md` should say about the `@id` ↔ account
+  namespace rule.
+
+No code. `docs/context` (DEC-021 in `settled-decisions.md` + the index entry
+in `decisions.md`) + the `spec` note. Spawns L1.
 
 **L1 — `users` schema: `org` bool + `handle`, + a handle generator/editor.**
 Migration adds `org` (bool, default false) and `handle` (text, **unique**,
@@ -342,11 +367,10 @@ Closes the epic — move L0–L7 to [completed.md](completed.md) as one section.
   headed into an in-app GUI.
 
 - **Post-redesign rethinks** (not scheduled) — the board's **Edit** button
-  round-tripping into the builder, and the remaining **account-namespacing**
-  questions for *personal* accounts (claiming `chris:*`, whether saving writes
-  `@id` back into the text, warn-on-mismatch). *`@id` ↔ record-id correlation,
-  the org-account namespace, `users.handle`, `workouts.wdlId` and an
-  "open on the board" action are now absorbed into **The workout library
-  (L0–L7)** above.* In
+  round-tripping into the builder. *Everything else in that thread —
+  `@id` ↔ record-id correlation, the account namespace, `users.handle`,
+  `workouts.wdlId`, forcing the `@id` namespace on save, an "open on the board"
+  action — is now in **The workout library (L0–L7)** above; the handle-rename
+  debt is in [../topics/known-debts.md](../topics/known-debts.md).* In
   [../topics/builder-ux.md](../topics/builder-ux.md) "Accounts, IDs and layout".
 

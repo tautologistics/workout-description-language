@@ -791,11 +791,12 @@ Chris scoped it: non-interactive **org accounts** (`crossfit`, `hyrox`,
 (random `adjective-noun` default so onboarding never blocks; rename-strands-`@id`
 is recorded debt); a **`workouts.wdlId`** column parsed from `@id` on save;
 **search** over own + public by name / `@id` / record id; an
-**"open on the board"** action. What is *left* here after that epic: the board's
-**Edit** button round-tripping into the builder, and — for *personal* accounts —
-whether saving rewrites the `@id` line to match the handle and the
-warn-on-mismatch UX. The **Movement create/edit** bullet (below) already
-shipped as M5.
+**"open on the board"** action. **Saving always forces the `@id` to
+`<owner-handle>:<slug>`** (Chris: "users can't not set the ID namespace") — no
+mismatch state to warn about. What is *left* here after that epic: the board's
+**Edit** button round-tripping into the builder, and the deferred
+handle-rename debt (stale already-saved ids — [known-debts.md](known-debts.md)).
+The **Movement create/edit** bullet (below) already shipped as M5.
 
 - **`@id` and the record id do not correlate, and probably should.** A workout
   can carry an `@id` directive in its text (spec preamble; `wdl result` already
