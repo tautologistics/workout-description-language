@@ -70,8 +70,8 @@ movements only.** Phase 2 — user-scoped movements — is in
 [deferred.md](deferred.md).
 
 **Execution order (established 2026-08-31):** ~~M0+M2~~ → ~~M1~~ → ~~M7~~ →
-~~M3~~ → ~~M5~~ → **M4 (next / in progress)**, with **M6** landable at any point
-(it depends on nothing here). **M0+M2 landed 2026-08-31** (`ea2a64f`): DEC-020
+~~M3~~ → ~~M5~~ → ~~M4~~ → **M6 (the only one left)**. M6 depended on nothing
+here and could have landed at any point; with M4 done it closes the epic. **M0+M2 landed 2026-08-31** (`ea2a64f`): DEC-020
 recorded, `1756700000_add_users_admin.js` added (verified locally against a real
 PocketBase v0.40.1 binary). **M1 landed 2026-08-31** (`00c29a5`):
 `1756800000_create_movements.js` added (verified locally against a real
@@ -218,12 +218,39 @@ Grounding facts, so an M-task can start cold:
   pending**, unchanged). **Still to do on deploy:** run it once against prod
   PocketBase after M1/M2 are applied and Chris's `users` row is `admin: true`.
 
-- **M4 — Egress: DB → `registry/movements.json`.**
-  `scripts/movements-from-db.mjs` (`make movements-dump`) reads `scope =
-  "global"` and rewrites `registry/movements.json` in the current key order and
-  formatting, so the git diff is reviewable. This is "capture it back out and
-  persist it in the codebase". Round-trip check: dump → load → dump yields no
-  diff. Pairs with M3.
+- **M4 — Egress: DB → `registry/movements.json`.** — **DONE 2026-09-01**
+  (`<M4-SHA>`). `scripts/movements-from-db.mjs` (`make movements-dump`, no deps —
+  `node:fs` + global `fetch` + `node:child_process` for the diff preview) reads
+  every `scope = "global"` row over `/api/collections/movements/records`
+  (`filter=scope="global"&perPage=500&sort=movementId`, paged) — **no auth**, the
+  collection's list/view rule is `scope = "global"` — and rewrites
+  `registry/movements.json` in its **current formatting**:
+  `JSON.stringify(obj, null, 1) + "\n"`, each entry's keys kept in the order that
+  entry already uses on disk, empty columns (json→`null`/`[]`/`{}`, scalar→`""`)
+  omitted — the exact inverse of M3 clearing an absent field, so a dump of an
+  unmutated M3 ingest reproduces the file byte-for-byte. `$comment` / `version` /
+  `$sources` copied from disk untouched; `scope` / `user` / record `id` /
+  `created` / `updated` never written. Entries already in the file keep file
+  order; a DB row with no file entry is appended at the end sorted by `id` (keys
+  `id, title, <json present>, <scalar present>`); a file entry with no DB row is
+  dropped. Prints a tally (rows read, entries written, added / removed / changed);
+  `--dry-run` reports the tally + a `git diff --stat` preview and writes nothing;
+  `--check` writes then exits non-zero if the file moved (for the round-trip test
+  and a future pre-commit hook — DEC-020 leaves the cadence open, this ships no
+  hook). Target via `--api <base>` / `WDL_PB_URL` (default
+  `http://localhost:8081`). **Target** `--api` also lets a dump be taken from
+  prod. No `packages/core` / grammar / spec / canonical-pipeline change — suite
+  unchanged **2064/2064, 1 pending**. Verified against `make serve` (mock `/api`
+  on): `make movements-load` then `make movements-dump` leaves
+  `git diff registry/movements.json` **empty** (byte-for-byte — the check DEC-020
+  requires); a one-field PATCH of one row via `/api` then a dump moves **exactly
+  that one entry's one field** and nothing else; `--dry-run` writes nothing;
+  `--check` exits 1 dirty / 0 clean. **The dump → load → dump round-trip now
+  closes DEC-020's "still open" round-trip requirement.** Final commit is the
+  script + Makefile + docs — `registry/movements.json` is unchanged (the dump
+  reproduces it). **Still to do on deploy:** run it once against prod PocketBase
+  after M1/M2 are applied, to pull any admin edits back into the repo — same
+  "still to do on deploy" caveat M1/M2/M3 carry.
 
 - **M5 — Movement editor widget.** — **DONE 2026-09-01** (`b2bd7b5`).
   `apps/shared/movement-editor.js` — `createMovementEditor({ container, record,

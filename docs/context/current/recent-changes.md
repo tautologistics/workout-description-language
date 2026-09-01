@@ -2,6 +2,47 @@
 
 ## Changes
 
+- **2026-09-01 — Movements epic M4 landed** (`<M4-SHA>`), sixth session of the
+  M-chain. **`scripts/movements-from-db.mjs`** (no deps — `node:fs` + global
+  `fetch`, `node:child_process` only for the `--dry-run` diff preview) +
+  **`make movements-dump`**: the egress half of the round-trip whose ingest half
+  is M3. It reads every `scope = "global"` row over
+  `/api/collections/movements/records`
+  (`filter=scope="global"&perPage=500&sort=movementId`, paged) — **no auth step**,
+  the collection's list/view rule is `scope = "global"` — and rewrites
+  `registry/movements.json` in its **current formatting**:
+  `JSON.stringify(obj, null, 1) + "\n"`, each entry's keys walked in the order
+  that entry already uses on disk, a column that is empty on the row
+  (json→`null`/`[]`/`{}`, scalar→`""`) omitted — the exact inverse of M3 clearing
+  an absent field, so a dump of an unmutated M3 ingest reproduces the file
+  byte-for-byte and a real edit shows up as exactly the fields that changed.
+  `$comment` / `version` / `$sources` copied from disk untouched; `scope` /
+  `user` / the record `id` / `created` / `updated` never written. Existing
+  entries keep file order; a DB row with no file entry is appended at the end
+  sorted by `id` (keys `id, title, <json present>, <scalar present>`); a file
+  entry with no DB row is dropped (the diff shows the removal). Prints a tally
+  (rows read, entries written, added / removed / changed). **`--dry-run`** reports
+  the tally + a `git diff --stat` preview and writes nothing; **`--check`** writes
+  then exits non-zero if the file moved — for the round-trip test and a future
+  pre-commit hook (DEC-020 leaves the cadence open; this ships no hook, just the
+  building block). Target via `--api <base>` / `WDL_PB_URL` (default
+  `http://localhost:8081`), so a dump can also be taken from prod. No
+  `packages/core` / grammar / spec / canonical-pipeline change — suite unchanged
+  **2064/2064, 1 pending**. Verified against `make serve` (mock `/api` on):
+  `make movements-load` then `make movements-dump` leaves
+  `git diff registry/movements.json` **empty** (byte-for-byte — the check DEC-020
+  requires); a one-field PATCH of `3-4-sit-up` via `/api` then a dump moved
+  **exactly that one `force:` line** and nothing else; `--dry-run` wrote nothing;
+  `--check` exited 1 dirty / 0 clean. **The dump → load → dump round-trip now
+  closes DEC-020's "still open" round-trip requirement.** `registry/movements.json`
+  is unchanged in the commit (the dump reproduces it) — the commit is the script
+  + Makefile + docs. **Next: M6** — nightly VPS DB backup cron, the last link;
+  it closes the epic. *Touched:* new `scripts/movements-from-db.mjs`; `Makefile`,
+  `docs/context/tasks/current.md`, `docs/context/current/next-steps.md`,
+  `docs/context/current/recent-changes.md`, `docs/context/topics/what-exists.md`,
+  `docs/context/topics/running-it.md`, `docs/context/topics/settled-decisions.md`
+  (DEC-020).
+
 - **2026-09-01 — Movements epic M5 landed** (`b2bd7b5`), fifth session of the
   M-chain. **`apps/shared/movement-editor.js`** — `createMovementEditor({
   container, record, api, onSaved, onCancel })`, a reusable form over one

@@ -20,6 +20,7 @@ make curation-sheet          # export-movement-curation.mjs curation-sheet.csv �
 make curation-check CSV=x.csv  # import-movement-curation.mjs x.csv — dry-run report, nothing written
 make curation-apply CSV=x.csv  # import-movement-curation.mjs x.csv --apply — land it into registry/movements.json
 make movements-load  # movements-to-db.mjs — idempotent upsert of registry/movements.json into the movements collection over /api
+make movements-dump  # movements-from-db.mjs — dump the movements collection back to registry/movements.json (ARGS=--dry-run / --check)
 make deploy      # node scripts/deploy-web.mjs   (WDL_DEPLOY_SSH defaults to dreamhost.ae.wex — see "## Hosting")
 make deploy-dry  # same, rsync with -n
 make clean       # rm -rf build pairs.json curation-sheet.csv
@@ -104,8 +105,34 @@ row (json→`null`, scalar→`""`), so the M4 dump round-trips.
   applied on the box. Without creds against a real PocketBase the script exits
   with the list of what to set.
 
-The egress half — `make movements-dump` (DB → `registry/movements.json`) — is
-M4, not built yet.
+**Dumping the DB back to `registry/movements.json`** *(since 2026-09-01, queue
+task M4, DEC-020)*. `make movements-dump` (`scripts/movements-from-db.mjs`, no
+deps) is the egress half. It reads every `scope = "global"` row over
+`/api/collections/movements/records`
+(`filter=scope="global"&perPage=500&sort=movementId`, paged) — **no auth step**,
+the collection's list/view rule is `scope = "global"` — and rewrites
+`registry/movements.json` in its **current formatting**:
+`JSON.stringify(obj, null, 1) + "\n"`, each entry's keys walked in the order that
+entry already uses on disk, a column empty on the row (json→`null`/`[]`/`{}`,
+scalar→`""`) omitted — the inverse of M3 clearing an absent field. So a dump of
+an unmutated `make movements-load` reproduces the file byte-for-byte, and a real
+edit shows up as exactly the changed fields. `$comment` / `version` / `$sources`
+are copied from disk untouched; `scope` / `user` / the record `id` / `created` /
+`updated` are never written. Existing entries keep file order; a movement in the
+DB but not the file is appended at the end sorted by `id`; a movement gone from
+the DB is dropped (the diff shows the removal).
+
+- **Target** — `--api <base>` or `WDL_PB_URL`, default `http://localhost:8081`
+  (matches `make serve`); `--api` also lets a dump be taken from prod.
+- **Flags** — `make movements-dump ARGS=--dry-run` reports the tally + a
+  `git diff --stat` preview and writes nothing; `ARGS=--check` writes then exits
+  non-zero if the file moved — for the round-trip test and a future pre-commit
+  hook (DEC-020 leaves the cadence open; **no hook is shipped**, just the flag).
+- **Round-trip check** — from a clean `registry/movements.json` (and no
+  `fixtures/movements.local.json`), with `make serve` running:
+  `make movements-load` then `make movements-dump`, then
+  `git diff --stat registry/movements.json` — **must be empty**. This is the
+  check DEC-020 requires; it now passes.
 
 **Exercising the movement editor** *(since 2026-09-01, queue task M5)*. No `make`
 target — it is app code. Drive the builder against `make serve` (mock `/api` on

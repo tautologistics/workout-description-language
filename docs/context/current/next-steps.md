@@ -33,9 +33,13 @@ validating the registry vocabularies, writing a `scope: "global"` row via `/api`
 `apps/shared/pocketbase.js`; first hosted in the builder (`＋ new movement` in
 the palette modal, `✎` on palette cards, "Edit … its curated fields" in a step's
 `»` panel), a save folding the row into the in-memory registries so it shows with
-no reload. **In progress: M4** — egress, `scripts/movements-from-db.mjs` +
-`make movements-dump` (DB → `registry/movements.json`, reviewable diff,
-round-trip check dump → load → dump yields nothing). Phase 1 is global
+no reload. **M4 landed 2026-09-01** (`<M4-SHA>`): `scripts/movements-from-db.mjs`
++ `make movements-dump` — reads `scope = "global"` over `/api` (no auth) and
+rewrites `registry/movements.json` in its current key order + formatting, so the
+git diff is a shape-for-shape review; `--dry-run` / `--check` flags. The
+dump → load → dump round-trip yields no diff — this closes DEC-020's "still open"
+round-trip requirement. **Only M6 left** (nightly VPS DB backup cron — a
+pre-existing gap, independent of M1–M5); it closes the epic. Phase 1 is global
 (admin-edited) movements only; Phase 2 (user-scoped) is in
 [../tasks/deferred.md](../tasks/deferred.md). Full write-ups:
 [../tasks/current.md](../tasks/current.md) "Movements in the database".

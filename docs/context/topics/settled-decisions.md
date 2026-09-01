@@ -1266,6 +1266,15 @@ Phase 1* epic (queue task M0).*
   round-trip is real. **The dump must round-trip:** dump → ingest (M3) → dump
   yields no diff; M3/M4 land with that check.
 
+  *Closed 2026-09-01 (`<M4-SHA>`, queue task M4): `make movements-dump`
+  (`scripts/movements-from-db.mjs`) reproduces `registry/movements.json`
+  byte-for-byte from a fresh M3 ingest — `make movements-load` then
+  `make movements-dump` leaves `git diff registry/movements.json` empty, and a
+  one-field edit in the DB dumps back as exactly that one field. The
+  dump → load → dump round-trip requirement is met. Dump **cadence** is still
+  undecided — this ships no pre-commit hook, only a `--check` flag that a hook
+  or the deploy step could call.*
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).
