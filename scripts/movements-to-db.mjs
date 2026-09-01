@@ -39,7 +39,7 @@
  * `packages/core`.
  *
  *   node scripts/movements-to-db.mjs [--api <base>] [--dry-run]
- *   make movements-load                 # same, WDL_PB_URL to point elsewhere
+ *   make movements:load                 # same, WDL_PB_URL to point elsewhere
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -58,7 +58,7 @@ const BASE = (flag('--api') ?? process.env.WDL_PB_URL ?? 'http://localhost:8081'
 const COLL = `${BASE}/api/collections/movements/records`;
 
 main().catch((e) => {
-  console.error(`\nmovements-load: ${e.message}`);
+  console.error(`\nmovements:load: ${e.message}`);
   process.exit(1);
 });
 
@@ -67,7 +67,7 @@ async function main() {
   const entries = src.movements ?? [];
   if (!entries.length) throw new Error('registry/movements.json has no movements');
 
-  console.log(`movements-load: ${entries.length} entries -> ${BASE}${DRY_RUN ? '  (dry run — no writes)' : ''}`);
+  console.log(`movements:load: ${entries.length} entries -> ${BASE}${DRY_RUN ? '  (dry run — no writes)' : ''}`);
 
   const token = await authenticate();
   const existing = await fetchExisting(token);

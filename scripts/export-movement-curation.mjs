@@ -7,7 +7,7 @@
  *   node scripts/export-movement-curation.mjs [outfile]
  *
  * With no argument the CSV goes to stdout; with a path it is written there
- * and a one-line summary goes to stderr. `make curation-sheet` writes
+ * and a one-line summary goes to stderr. `make curation:sheet` writes
  * `curation-sheet.csv` at the repo root (git-ignored — it is a working
  * artifact, not a source file).
  *

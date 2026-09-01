@@ -812,7 +812,7 @@ below are the larger rethinks.
      works.
 
   Phasing Chris stated: **admin/global editing first**, user-scoped second. The
-  CSV flow (`make curation-sheet` / `curation-check` / `curation-apply`) is
+  CSV flow (`make curation:sheet` / `curation:check` / `curation:apply`) is
   **kept for bulk** — wide sweeps across many movements at once; the GUI is for
   one-at-a-time work. Open: where user-scoped movements live (a collection
   paralleling `workouts`?); how a workout referencing one resolves for a

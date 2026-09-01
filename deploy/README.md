@@ -116,11 +116,17 @@ unzip -o pb.zip pocketbase && rm pb.zip
 ./pocketbase --version
 ```
 
-Put the collection migration in place:
+Put the collection migrations in place:
 
 ```sh
 cp /path/to/repo/deploy/pocketbase/pb_migrations/*.js ~/pb/pb_migrations/
 ```
+
+From then on, from a repo checkout with SSH to the box, **`make deploy:db`** does
+this and restarts PocketBase to apply — `rsync` (no `--delete`, so admin-UI
+snapshot migrations on the box are left alone) of
+`deploy/pocketbase/pb_migrations/*.js` then `systemctl --user restart pocketbase`
++ a health check. Run it whenever a migration is added to the repo.
 
 ---
 
@@ -248,7 +254,7 @@ account that should curate global movements.
 Created by `pb_migrations/1756800000_create_movements.js` (queue task M1,
 DEC-020) on serve — applied cleanly on v0.40.1. The curated movement layer
 (~972 rows) that lived in `registry/movements.json` moves here; that file stays
-in the repo as the reviewable dump (`make movements-dump`, M4). One column per
+in the repo as the reviewable dump (`make movements:dump`, M4). One column per
 per-movement field, so a dump/ingest round-trip is shape-for-shape:
 
 | field               | type                | notes                                             |
@@ -365,7 +371,7 @@ sqlite3 pb_data/data.db ".backup '$HOME/pb/pb_backups/data-$(date -u +%Y%m%dT%H%
 **Automated nightly backup — task M6.** Once the curated movement layer lives in
 the DB (DEC-020), `~/pb/pb_data/data.db` is the primary copy of ~972 curated
 movements plus every saved workout; `registry/movements.json` in the repo is only
-as current as the last `make movements-dump`. So the box takes a dated snapshot
+as current as the last `make movements:dump`. So the box takes a dated snapshot
 every night and a second copy is pulled off the box.
 
 The mechanism is a **shell cron line**, not PocketBase's built-in scheduler: the
@@ -400,11 +406,10 @@ it next to the keepalive):
 
 **Off the box** — pull to Chris's machine over the same `~/.ssh/config` alias
 `make deploy` uses (so no new key material anywhere; the VPS never needs an
-outbound credential):
+outbound credential). From a repo checkout:
 
 ```sh
-# on Chris's machine, after a curation session or on a cron of his own
-rsync -az dreamhost.ae.wex:pb/pb_backups/ ~/wdl-pb-backups/
+make backups:pull   # rsync -av dreamhost.ae.wex:pb/pb_backups/ ~/wdl-pb-backups/  (WDL_BACKUP_DIR to override)
 ```
 
 No `--delete`: the local copy accumulates history past the VPS's 30-day prune.
@@ -415,7 +420,7 @@ For a hands-off copy, add a line to Chris's *own* crontab (not the fragment,
 which is the VPS's):
 
 ```
-0 6 * * * rsync -az dreamhost.ae.wex:pb/pb_backups/ $HOME/wdl-pb-backups/ >> $HOME/wdl-pb-backups/pull.log 2>&1
+0 6 * * * cd /path/to/repo && make backups:pull >> $HOME/wdl-pb-backups/pull.log 2>&1
 ```
 
 **Alternative mechanism — PocketBase built-in scheduled backups.** If `sqlite3`
@@ -450,8 +455,8 @@ curl -sS http://127.0.0.1:8090/api/health
 
 This restores app data (users, workouts, movements) — the `.backup` snapshot's
 scope. `auxiliary.db` (logs) is left as-is; `storage/` is unaffected (empty).
-After a restore that rolled movements back, re-run `make movements-dump` against
-prod to bring `registry/movements.json` into line, or `make movements-load` to
+After a restore that rolled movements back, re-run `make movements:dump` against
+prod to bring `registry/movements.json` into line, or `make movements:load` to
 push the repo's copy forward — whichever direction is correct.
 
 From a PocketBase backup zip: *Settings → Backups → Restore*, or unzip over a

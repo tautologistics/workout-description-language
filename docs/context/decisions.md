@@ -175,7 +175,7 @@ The ~972-entry curated movement layer (`laterality` / `defaultLaterality` /
 `equipment` / `aliases` / `muscles` / `pattern`) is edited in a PocketBase
 `movements` collection, not by hand-editing JSON. `registry/movements.json`
 stays in the repo as the reviewable dump of that collection (`make
-movements-dump`, M4) and remains the unchanged, offline, install-free file
+movements:dump`, M4) and remains the unchanged, offline, install-free file
 `packages/core`, its tests and `build-canonical.ts` read. Production apps read
 movements via `/api/collections/movements/records` (same-origin PocketBase);
 local `make serve` answers `/api` from a mock (M7) with `registry/movements.json`

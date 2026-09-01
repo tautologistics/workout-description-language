@@ -2,6 +2,40 @@
 
 ## Changes
 
+- **2026-09-01 — `make` task surface: `:` namespaces + `deploy:db` / `backups:pull`**
+  (`<RENAME-SHA>`), a follow-up to M6. Chris's call. **(1) Rename** — every
+  multi-word target now uses a `:` namespace separator instead of `-`:
+  `curation-sheet` → `curation:sheet`, `curation-check` → `curation:check`,
+  `curation-apply` → `curation:apply`, `movements-load` → `movements:load`,
+  `movements-dump` → `movements:dump`, `deploy-dry` → `deploy:dry`. Single-word
+  targets (`test`, `build`, `serve`, `deploy`, `registry`, `goldens`, `aliases`,
+  `corpora`, `clean`, `install`) are unchanged. GNU Make needs the `:` in a
+  target name backslash-escaped in the `Makefile` (`curation\:sheet:`), typed
+  plain on the command line (`make curation:sheet`); the `help` recipe's
+  grep/awk was widened to parse and print the escaped names. Verified with GNU
+  Make 3.81 — `make help` lists them, each renamed target runs, the `CSV=`
+  guard on `curation:check` / `curation:apply` still fires with the new name in
+  its hint. **(2) `make deploy:db`** — new: `rsync -av
+  deploy/pocketbase/pb_migrations/*.js $(WDL_DEPLOY_SSH):pb/pb_migrations/`
+  (**no `--delete`** — the box also holds admin-UI-generated snapshot
+  migrations not in the repo, e.g. `1788125462_updated_users.js`) then
+  `ssh … 'systemctl --user restart pocketbase && … curl … /api/health'` so a
+  new migration applies. `make deploy` stays web-only (`--delete` rsync into
+  `pb_public/`); the DB side is now its own target. Motivated by finding the
+  box was missing M1's `1756800000_create_movements.js` and M2's
+  `1756700000_add_users_admin.js` — the `movements` table doesn't exist in
+  prod yet. **(3) `make backups:pull`** — new: `rsync -av
+  $(WDL_DEPLOY_SSH):pb/pb_backups/ $(WDL_BACKUP_DIR)/` (default
+  `~/wdl-pb-backups`, **no `--delete`** so local history outlives the VPS's
+  30-day prune), the M6 off-box copy that was previously a documented raw
+  command. No app / core / grammar / spec change — suite unchanged
+  **2064/2064, 1 pending**. *Touched:* `Makefile`; `deploy/README.md`,
+  `docs/context/topics/{running-it,settled-decisions}.md`,
+  `docs/context/tasks/{completed,current}.md`,
+  `docs/context/current/recent-changes.md`, plus the `make …` references in
+  `docs/context/**` and `scripts/*.mjs` header comments updated to the new
+  names.
+
 - **2026-09-01 — Movements epic M6 landed** (`97f236f`), seventh and final
   session of the M-chain — **the *Movements in the database — Phase 1* epic
   (M0–M7) is now complete**; the whole M-section moved to
@@ -24,7 +58,8 @@
     `auxiliary.db` logs or `storage/`), 30-day prune on the box.
   - **Off-box copy — a pull** from Chris's machine over the same `~/.ssh/config`
     alias `make deploy` uses (`rsync -az dreamhost.ae.wex:pb/pb_backups/
-    ~/wdl-pb-backups/`, no `--delete` so local history outlives the VPS prune),
+    ~/wdl-pb-backups/`, no `--delete` so local history outlives the VPS prune;
+    wrapped as **`make backups:pull`** in the follow-up above),
     chosen over a VPS push cron (which would need an outbound keypair minted on
     the managed box and Chris's laptop reachable).
   - **Fallback documented:** PocketBase *Settings → Backups* (Auto backups cron +
@@ -33,7 +68,7 @@
   - `deploy/README.md` §9 "Back up (SQLite)" rewritten — the old "recommended,
     not done" note replaced with the cron lines + off-box pull + PB alternative;
     "Restore" aligned to the dated filename with the "app data only" scope noted,
-    and a pointer to re-run `make movements-dump` / `movements-load` after a
+    and a pointer to re-run `make movements:dump` / `movements:load` after a
     restore that rolled movements.
   - **Still to install on the box by Chris:** paste the backup line into
     `crontab -e` on the PocketBase account and verify the first backup + first
@@ -46,7 +81,7 @@
 - **2026-09-01 — Movements epic M4 landed** (`e472cde`), sixth session of the
   M-chain. **`scripts/movements-from-db.mjs`** (no deps — `node:fs` + global
   `fetch`, `node:child_process` only for the `--dry-run` diff preview) +
-  **`make movements-dump`**: the egress half of the round-trip whose ingest half
+  **`make movements:dump`**: the egress half of the round-trip whose ingest half
   is M3. It reads every `scope = "global"` row over
   `/api/collections/movements/records`
   (`filter=scope="global"&perPage=500&sort=movementId`, paged) — **no auth step**,
@@ -70,7 +105,7 @@
   `http://localhost:8081`), so a dump can also be taken from prod. No
   `packages/core` / grammar / spec / canonical-pipeline change — suite unchanged
   **2064/2064, 1 pending**. Verified against `make serve` (mock `/api` on):
-  `make movements-load` then `make movements-dump` leaves
+  `make movements:load` then `make movements:dump` leaves
   `git diff registry/movements.json` **empty** (byte-for-byte — the check DEC-020
   requires); a one-field PATCH of `3-4-sit-up` via `/api` then a dump moved
   **exactly that one `force:` line** and nothing else; `--dry-run` wrote nothing;
@@ -130,7 +165,7 @@
 
 - **2026-09-01 — Movements epic M3 landed** (`0917705`), fourth session of the
   M-chain. **`scripts/movements-to-db.mjs`** (no deps — `node:fs` + global
-  `fetch`) + **`make movements-load`**: an idempotent upsert of every
+  `fetch`) + **`make movements:load`**: an idempotent upsert of every
   `registry/movements.json` entry into the `movements` collection over
   `/api/collections/movements/records`. It bulk-fetches the collection once
   (`perPage=500`, paged), keys on the `movementId` unique index (M1), `POST`s the
@@ -146,7 +181,7 @@
   (+ optional `WDL_PB_ADMIN_COLLECTION`, default `users`) exchanged at
   `POST /api/collections/<c>/auth-with-password`; the token rides as the
   `Authorization` header on every write. With no creds set it falls back to the
-  dev-mock OAuth stub (so a bare `make movements-load` works against `make
+  dev-mock OAuth stub (so a bare `make movements:load` works against `make
   serve`) and against a real PocketBase errors with exactly what to set.
   **`scripts/mock-api.mjs` now accepts authorized `movements` writes** — any
   `Authorization` header stands in for admin (the mock's faked sign-in already
@@ -227,7 +262,7 @@
   of the M-chain. **M0:** [DEC-020](../topics/settled-decisions.md#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump)
   recorded — the curated movement layer is edited in a PocketBase `movements`
   collection; `registry/movements.json` stays as its reviewable committed dump
-  (`make movements-dump`, M4) and the unchanged offline file `packages/core` /
+  (`make movements:dump`, M4) and the unchanged offline file `packages/core` /
   tests / `build-canonical.ts` read; production reads
   `/api/collections/movements/records`, local `make serve` reads a mock (M7)
   with `registry/movements.json` as the fixture. Dump cadence + prod-edit dump
@@ -271,7 +306,7 @@
 - **2026-08-31 — The movement-curation sheet has a committed generator, and
   `lateralityAxis` is in its CURRENT block** (a one-off, not a queue item, in
   prep for the unscheduled laterality sweep). `scripts/export-movement-curation.mjs`
-  (`make curation-sheet`) writes `curation-sheet.csv` at the repo root
+  (`make curation:sheet`) writes `curation-sheet.csv` at the repo root
   (git-ignored) — the audit sheet that `import-movement-curation.mjs` reads back
   was "built ad hoc, not checked in" before this. 32 columns: IDENTITY, a
   reference-only CURRENT block, a blank CURATE block; the two scripts share the
@@ -427,7 +462,7 @@
 
 - **2026-08-31 — `make deploy` defaults `WDL_DEPLOY_SSH` to `dreamhost.ae.wex`.**
   The Makefile now sets `export WDL_DEPLOY_SSH ?= dreamhost.ae.wex`, so a bare
-  `make deploy` / `make deploy-dry` works on Chris's box without prefixing the
+  `make deploy` / `make deploy:dry` works on Chris's box without prefixing the
   env var. `?=` still defers to the environment when it is set (any other host
   wins), and the value is a `~/.ssh/config` alias — no host, user or secret —
   so it is safe in the repo. The raw `node scripts/deploy-web.mjs` form does
@@ -474,7 +509,7 @@
   `make` (or `make help`) lists the targets: `test`, `build`, `serve`
   (`PORT=NNNN` overridable), `registry` (the whole `build-canonical.ts`
   pipeline), `goldens` (regenerate + `git diff --stat`), `aliases`, `corpora`,
-  `deploy` / `deploy-dry`, `clean`, and `install` (which just says "nothing to
+  `deploy` / `deploy:dry`, `clean`, and `install` (which just says "nothing to
   install"). Every target is a thin wrapper over the `node scripts/*` /
   `npm --prefix` command that already existed — discoverability, not new build
   logic — and those raw forms still run directly. A root `package.json`

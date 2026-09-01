@@ -11,7 +11,7 @@
  * ## Input shape
  *
  * A CSV export of the "Movements" sheet from the audit workbook that
- * `scripts/export-movement-curation.mjs` (`make curation-sheet`) writes, all 32
+ * `scripts/export-movement-curation.mjs` (`make curation:sheet`) writes, all 32
  * columns, in that script's exact column order. Two of those columns are
  * literally named "Laterality: both" — one in the CURRENT block, one in the
  * CURATE block — so this reads columns **by position**, not by header text.

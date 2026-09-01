@@ -17,16 +17,21 @@ PORT ?= 8081
 # in the repo — it is a `~/.ssh/config` alias, no host, user or secret in it.
 export WDL_DEPLOY_SSH ?= dreamhost.ae.wex
 
+# Where `make backups:pull` drops the DB snapshots it fetches off the VPS.  No
+# `--delete` on that rsync, so this directory keeps history past the box's own
+# 30-day prune (deploy/README.md §9).  Override in the environment if you like.
+WDL_BACKUP_DIR ?= $(HOME)/wdl-pb-backups
+
 .DEFAULT_GOAL := help
 
 .PHONY: help install test build serve registry goldens aliases corpora \
-        curation-sheet curation-check curation-apply movements-load movements-dump \
-        deploy deploy-dry clean
+        curation\:sheet curation\:check curation\:apply movements\:load movements\:dump \
+        deploy deploy\:dry deploy\:db backups\:pull clean
 
 help: ## List the targets
-	@grep -hE '^[a-z][a-z-]*:.*## ' $(MAKEFILE_LIST) \
+	@grep -hE '^[a-z][a-z:\\-]*:.*## ' $(MAKEFILE_LIST) \
 		| sort \
-		| awk 'BEGIN { FS = ":.*## " } { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 }'
+		| awk 'BEGIN { FS = ":.*## " } { name = $$0; sub(/:[^:]*##.*/, "", name); gsub(/\\/, "", name); printf "  \033[36m%-15s\033[0m %s\n", name, $$2 }'
 
 install: ## Nothing to install — this repo is install-free by design
 	@echo "Nothing to install: no node_modules, no lockfile. ohm-js is vendored."
@@ -51,31 +56,39 @@ goldens: ## Regenerate the golden files, then show what moved
 aliases: ## Report every name two records answer to, and who wins
 	node scripts/check-aliases.mjs
 
-curation-sheet: ## Emit curation-sheet.csv (the movement-modifier hand-pass sheet)
+curation\:sheet: ## Emit curation-sheet.csv (the movement-modifier hand-pass sheet)
 	node scripts/export-movement-curation.mjs curation-sheet.csv
 
-curation-check: ## Dry-run a curated CSV against the registry — report only  (CSV=path)
-	$(if $(CSV),,$(error set CSV=<curated.csv> — e.g. make curation-check CSV=chunk.csv))
+curation\:check: ## Dry-run a curated CSV against the registry — report only  (CSV=path)
+	$(if $(CSV),,$(error set CSV=<curated.csv> — e.g. make curation:check CSV=chunk.csv))
 	node scripts/import-movement-curation.mjs $(CSV)
 
-curation-apply: ## Land a curated CSV into registry/movements.json  (CSV=path)
-	$(if $(CSV),,$(error set CSV=<curated.csv> — e.g. make curation-apply CSV=chunk.csv))
+curation\:apply: ## Land a curated CSV into registry/movements.json  (CSV=path)
+	$(if $(CSV),,$(error set CSV=<curated.csv> — e.g. make curation:apply CSV=chunk.csv))
 	node scripts/import-movement-curation.mjs $(CSV) --apply
 
 corpora: ## Check SOURCES.json/.md still count the corpora right
 	node scripts/describe-corpora.mjs
 
-movements-load: ## Ingest registry/movements.json -> the movements collection over /api  (idempotent; WDL_PB_URL / admin creds for prod)
+movements\:load: ## Ingest registry/movements.json -> the movements collection over /api  (idempotent; WDL_PB_URL / admin creds for prod)
 	node scripts/movements-to-db.mjs
 
-movements-dump: ## Dump the movements collection -> registry/movements.json over /api  (reviewable diff; --dry-run / --check via ARGS=)
+movements\:dump: ## Dump the movements collection -> registry/movements.json over /api  (reviewable diff; --dry-run / --check via ARGS=)
 	node scripts/movements-from-db.mjs $(ARGS)
 
 deploy: ## Deploy the static apps  (WDL_DEPLOY_SSH defaults to dreamhost.ae.wex)
 	node scripts/deploy-web.mjs
 
-deploy-dry: ## Same as deploy, but rsync runs with -n (no writes)
+deploy\:dry: ## Same as deploy, but rsync runs with -n (no writes)
 	node scripts/deploy-web.mjs --dry-run
+
+deploy\:db: ## Sync deploy/pocketbase/pb_migrations/ to the VPS and restart PocketBase to apply
+	rsync -av deploy/pocketbase/pb_migrations/*.js $(WDL_DEPLOY_SSH):pb/pb_migrations/
+	ssh $(WDL_DEPLOY_SSH) 'systemctl --user restart pocketbase && sleep 2 && curl -fsS http://127.0.0.1:8090/api/health && echo'
+
+backups\:pull: ## Pull the VPS DB backups off the box into ~/wdl-pb-backups (WDL_BACKUP_DIR)
+	mkdir -p $(WDL_BACKUP_DIR)
+	rsync -av $(WDL_DEPLOY_SSH):pb/pb_backups/ $(WDL_BACKUP_DIR)/
 
 clean: ## Remove build/ and scratch output
 	rm -rf build pairs.json curation-sheet.csv

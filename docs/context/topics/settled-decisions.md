@@ -1115,10 +1115,26 @@ marks the ones worth a top-level pointer.
 
 - **`deploy` host default (2026-08-31):** the Makefile sets
   `export WDL_DEPLOY_SSH ?= dreamhost.ae.wex`, so a bare `make deploy` /
-  `make deploy-dry` works on Chris's box. `?=` still defers to the environment
+  `make deploy:dry` works on Chris's box. `?=` still defers to the environment
   when it is set, and the value is a `~/.ssh/config` alias — no host, user or
   secret — so it is safe checked in. The raw `node scripts/deploy-web.mjs`
   form does not inherit the default (pass `--ssh` or the env var).
+
+- **`:` namespace separator + DB-side targets (2026-09-01, `<RENAME-SHA>`):**
+  multi-word targets use `:` not `-` — `curation:sheet` / `curation:check` /
+  `curation:apply`, `movements:load` / `movements:dump`, `deploy:dry`,
+  `deploy:db`, `backups:pull`; single-word targets unchanged. GNU Make needs
+  the `:` backslash-escaped in the target definition (`curation\:sheet:`) and
+  the `help` recipe's grep/awk parses the escaped form; verified on GNU Make
+  3.81. Two new targets split the deploy surface by side: **`make deploy`**
+  stays web-only (`--delete` rsync into `pb_public/`); **`make deploy:db`**
+  rsyncs `deploy/pocketbase/pb_migrations/*.js` to `~/pb/pb_migrations/`
+  (**no `--delete`** — the box also carries admin-UI snapshot migrations that
+  are not in the repo) and restarts PocketBase so a new migration applies;
+  **`make backups:pull`** is the M6 off-box backup copy (`rsync` of
+  `~/pb/pb_backups/` to `$(WDL_BACKUP_DIR)`, default `~/wdl-pb-backups`, no
+  `--delete`). Still no dependency or package-manager step — all three are thin
+  `rsync` / `ssh` wrappers.
 
 ### DEC-018 A bare-label block header is a section
 *Status: active. Settled 2026-08-31, closing queue item 11.*
@@ -1232,7 +1248,7 @@ Phase 1* epic (queue task M0).*
   Phase 2, deferred ([../tasks/deferred.md](../tasks/deferred.md)).
 
 - **`registry/movements.json` stays in the repo as the reviewable dump of that
-  collection.** `make movements-dump` (built in M4) reads `scope = "global"`
+  collection.** `make movements:dump` (built in M4) reads `scope = "global"`
   from the live DB and rewrites the file in its current key order and
   formatting, so the git diff is a shape-for-shape review of what an admin
   changed. It remains the exact file `packages/core` reads
@@ -1260,16 +1276,16 @@ Phase 1* epic (queue task M0).*
   collection through the `scope` / `user` fields M1 adds — no second store.
 
 - **Consequences / still open.** **Dump cadence is undecided** — a manual
-  `make movements-dump` a curator runs, a git pre-commit hook, or a step in the
+  `make movements:dump` a curator runs, a git pre-commit hook, or a step in the
   deploy script; likewise whether an admin edit in prod is expected to be
   dumped + committed promptly or batched. Left for a later call once the
   round-trip is real. **The dump must round-trip:** dump → ingest (M3) → dump
   yields no diff; M3/M4 land with that check.
 
-  *Closed 2026-09-01 (`e472cde`, queue task M4): `make movements-dump`
+  *Closed 2026-09-01 (`e472cde`, queue task M4): `make movements:dump`
   (`scripts/movements-from-db.mjs`) reproduces `registry/movements.json`
-  byte-for-byte from a fresh M3 ingest — `make movements-load` then
-  `make movements-dump` leaves `git diff registry/movements.json` empty, and a
+  byte-for-byte from a fresh M3 ingest — `make movements:load` then
+  `make movements:dump` leaves `git diff registry/movements.json` empty, and a
   one-field edit in the DB dumps back as exactly that one field. The
   dump → load → dump round-trip requirement is met. Dump **cadence** is still
   undecided — this ships no pre-commit hook, only a `--check` flag that a hook

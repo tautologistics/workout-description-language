@@ -16,21 +16,29 @@ make registry    # node scripts/build-canonical.ts — rebuild registry/ from it
 make goldens     # regenerate the golden files, then show what moved
 make aliases     # node scripts/check-aliases.mjs — names two records answer to, and who wins
 make corpora     # node scripts/describe-corpora.mjs — are SOURCES.json/.md still right
-make curation-sheet          # export-movement-curation.mjs curation-sheet.csv — the modifier hand-pass sheet
-make curation-check CSV=x.csv  # import-movement-curation.mjs x.csv — dry-run report, nothing written
-make curation-apply CSV=x.csv  # import-movement-curation.mjs x.csv --apply — land it into registry/movements.json
-make movements-load  # movements-to-db.mjs — idempotent upsert of registry/movements.json into the movements collection over /api
-make movements-dump  # movements-from-db.mjs — dump the movements collection back to registry/movements.json (ARGS=--dry-run / --check)
-make deploy      # node scripts/deploy-web.mjs   (WDL_DEPLOY_SSH defaults to dreamhost.ae.wex — see "## Hosting")
-make deploy-dry  # same, rsync with -n
+make curation:sheet          # export-movement-curation.mjs curation-sheet.csv — the modifier hand-pass sheet
+make curation:check CSV=x.csv  # import-movement-curation.mjs x.csv — dry-run report, nothing written
+make curation:apply CSV=x.csv  # import-movement-curation.mjs x.csv --apply — land it into registry/movements.json
+make movements:load  # movements-to-db.mjs — idempotent upsert of registry/movements.json into the movements collection over /api
+make movements:dump  # movements-from-db.mjs — dump the movements collection back to registry/movements.json (ARGS=--dry-run / --check)
+make deploy      # node scripts/deploy-web.mjs — static apps into pb_public/  (WDL_DEPLOY_SSH defaults to dreamhost.ae.wex — see "## Hosting")
+make deploy:dry  # same, rsync with -n
+make deploy:db   # rsync deploy/pocketbase/pb_migrations/*.js to the VPS + restart PocketBase to apply
+make backups:pull  # rsync the VPS DB backups off the box into ~/wdl-pb-backups (WDL_BACKUP_DIR; no --delete)
 make clean       # rm -rf build pairs.json curation-sheet.csv
 make install     # prints "nothing to install" — the repo is install-free, on purpose
 ```
 
+Multi-word targets use a `:` namespace separator (`curation:sheet`,
+`movements:load`, `deploy:dry`, `deploy:db`, `backups:pull`) — GNU Make needs it
+backslash-escaped in the `Makefile` (`curation\:sheet:`), typed plain on the
+command line (`make curation:sheet`). Single-word targets (`test`, `build`,
+`serve`, `deploy`, …) are unchanged.
+
 Not wrapped (situational, take arguments): `node scripts/find-duplicates.mjs >
 pairs.json` (cross-source dup pairs to triage) and the `wdl` CLI itself
-(below). `import-movement-curation.mjs` is wrapped as `make curation-check
-CSV=…` / `make curation-apply CSV=…` — both refuse to run without `CSV=`.
+(below). `import-movement-curation.mjs` is wrapped as `make curation:check
+CSV=…` / `make curation:apply CSV=…` — both refuse to run without `CSV=`.
 
 `build-canonical.ts` is the whole registry pipeline and the only way to run any
 step of it — `mark-core.mjs` last, because it scores from what the earlier steps
@@ -78,7 +86,7 @@ git-ignored). Nothing here touches `packages/core`, the grammar, the spec or the
 PocketBase migrations, and the mock never runs in production.
 
 **Ingesting `registry/movements.json` into the DB** *(since 2026-09-01, queue
-task M3, DEC-020)*. `make movements-load` (`scripts/movements-to-db.mjs`, no
+task M3, DEC-020)*. `make movements:load` (`scripts/movements-to-db.mjs`, no
 deps) upserts every entry into the `movements` collection over
 `/api/collections/movements/records` — **idempotent**, keyed on the `movementId`
 unique index: it `POST`s the absent, `PATCH`es only the columns that differ, and
@@ -89,14 +97,14 @@ row (json→`null`, scalar→`""`), so the M4 dump round-trips.
 - **Target** — `--api <base>` or `WDL_PB_URL`, default `http://localhost:8081`
   (matches `make serve`).
 - **Local round-trip** — with `make serve` running (mock `/api` on by default),
-  a bare `make movements-load` in another terminal works: the mock now accepts
+  a bare `make movements:load` in another terminal works: the mock now accepts
   authorized `movements` writes, and with no `WDL_PB_ADMIN_*` set the script
   authenticates through the mock's stubbed OAuth. Runtime writes land in
   git-ignored `fixtures/movements.local.json` — delete it to reset. Since the
   mock already serves all of `registry/movements.json` on read, a first
-  `movements-load` against a fresh mock reports *all unchanged* (the diff
+  `movements:load` against a fresh mock reports *all unchanged* (the diff
   matches); `curl -X DELETE .../records/<id> -H 'authorization: x'` then a
-  `movements-load` is how to see it create.
+  `movements:load` is how to see it create.
 - **Against prod PocketBase** — needs admin auth: `WDL_PB_ADMIN_TOKEN`, or
   `WDL_PB_ADMIN_EMAIL` + `WDL_PB_ADMIN_PASSWORD` (+ optional
   `WDL_PB_ADMIN_COLLECTION`, default `users` — the row needs `admin: true`,
@@ -106,7 +114,7 @@ row (json→`null`, scalar→`""`), so the M4 dump round-trips.
   with the list of what to set.
 
 **Dumping the DB back to `registry/movements.json`** *(since 2026-09-01, queue
-task M4, DEC-020)*. `make movements-dump` (`scripts/movements-from-db.mjs`, no
+task M4, DEC-020)*. `make movements:dump` (`scripts/movements-from-db.mjs`, no
 deps) is the egress half. It reads every `scope = "global"` row over
 `/api/collections/movements/records`
 (`filter=scope="global"&perPage=500&sort=movementId`, paged) — **no auth step**,
@@ -115,7 +123,7 @@ the collection's list/view rule is `scope = "global"` — and rewrites
 `JSON.stringify(obj, null, 1) + "\n"`, each entry's keys walked in the order that
 entry already uses on disk, a column empty on the row (json→`null`/`[]`/`{}`,
 scalar→`""`) omitted — the inverse of M3 clearing an absent field. So a dump of
-an unmutated `make movements-load` reproduces the file byte-for-byte, and a real
+an unmutated `make movements:load` reproduces the file byte-for-byte, and a real
 edit shows up as exactly the changed fields. `$comment` / `version` / `$sources`
 are copied from disk untouched; `scope` / `user` / the record `id` / `created` /
 `updated` are never written. Existing entries keep file order; a movement in the
@@ -124,13 +132,13 @@ the DB is dropped (the diff shows the removal).
 
 - **Target** — `--api <base>` or `WDL_PB_URL`, default `http://localhost:8081`
   (matches `make serve`); `--api` also lets a dump be taken from prod.
-- **Flags** — `make movements-dump ARGS=--dry-run` reports the tally + a
+- **Flags** — `make movements:dump ARGS=--dry-run` reports the tally + a
   `git diff --stat` preview and writes nothing; `ARGS=--check` writes then exits
   non-zero if the file moved — for the round-trip test and a future pre-commit
   hook (DEC-020 leaves the cadence open; **no hook is shipped**, just the flag).
 - **Round-trip check** — from a clean `registry/movements.json` (and no
   `fixtures/movements.local.json`), with `make serve` running:
-  `make movements-load` then `make movements-dump`, then
+  `make movements:load` then `make movements:dump`, then
   `git diff --stat registry/movements.json` — **must be empty**. This is the
   check DEC-020 requires; it now passes.
 
@@ -154,7 +162,7 @@ board and builder are verified by driving them, not only by the suite — see
 `arm|leg|side|hand|direction` a per-side count runs across, since queue item
 13a-curation — measures, load, force, mechanic, equipment) lands via
 `import-movement-curation.mjs`, from a CSV of the audit sheet, not by hand.**
-`make curation-sheet` (`export-movement-curation.mjs`) writes
+`make curation:sheet` (`export-movement-curation.mjs`) writes
 `curation-sheet.csv` at the repo root (git-ignored — a working artifact): 32
 columns in three blocks — IDENTITY, a CURRENT block showing what
 `registry/movements.json` holds today (reference only, never read back), and a
@@ -169,8 +177,8 @@ sheet re-saved with a column moved/renamed/removed fails the header check
 loud. Contradictory cells (both Load booleans TRUE, all three laterality modes
 FALSE, a `Default laterality` naming a mode not also marked TRUE) are reported
 and that one field is left untouched rather than guessed at; everything else in
-the same run still applies. `make curation-check CSV=<chunk>.csv` is the
-dry-run report (nothing written); `make curation-apply CSV=<chunk>.csv` writes.
+the same run still applies. `make curation:check CSV=<chunk>.csv` is the
+dry-run report (nothing written); `make curation:apply CSV=<chunk>.csv` writes.
 Run the check before and after each chunk the same way — the report before
 applying is the whole safety mechanism.
 
@@ -219,13 +227,21 @@ to `/apps/builder/`. Item 20 adds the frontend that calls `/api/…`.
 Deploy the static apps (needs SSH to the VPS):
 
 ```bash
-make deploy       # WDL_DEPLOY_SSH defaults to dreamhost.ae.wex (Chris's ~/.ssh/config alias)
-make deploy-dry   # no-write rsync -n
+make deploy       # static apps into pb_public/. WDL_DEPLOY_SSH defaults to dreamhost.ae.wex (Chris's ~/.ssh/config alias)
+make deploy:dry   # no-write rsync -n
+make deploy:db    # rsync deploy/pocketbase/pb_migrations/*.js to the VPS, then restart PocketBase to apply
+make backups:pull # rsync the VPS ~/pb/pb_backups/ off the box into ~/wdl-pb-backups (WDL_BACKUP_DIR; no --delete, so history accrues)
 # From another box, override the alias:
 WDL_DEPLOY_SSH=androidempathy_wex@wex.androidempathy.com make deploy
 # Raw form (bypasses the Makefile default):
 # node scripts/deploy-web.mjs [--ssh …] [--dry-run] [--stage-only] [--skip-tests]
 ```
+
+`make deploy` is web-only (`--delete` rsync into `pb_public/`); the DB side is
+separate — `make deploy:db` copies migrations **without** `--delete` (the box
+also holds admin-UI-generated snapshot migrations that are not in the repo) and
+restarts PocketBase so any new migration applies. A migration already applied is
+a harmless no-op on restart.
 
 The `Makefile` sets `export WDL_DEPLOY_SSH ?= dreamhost.ae.wex`, so a bare
 `make deploy` works on Chris's box; `?=` still defers to the environment when
@@ -250,14 +266,19 @@ detail — the MIME finding (`.ohm`/`.wdlg` land as `text/plain`, and are
 - **Runbook:** [`deploy/README.md`](../../../deploy/README.md) — install, the
   panel proxy setup, PocketBase upgrade, SQLite backup/restore, and the
   "port 8090 exposure" known issue (open DreamHost firewall ticket).
+- **Migrations onto the box:** `make deploy:db` — `rsync` of
+  `deploy/pocketbase/pb_migrations/*.js` to `~/pb/pb_migrations/` (no `--delete`)
+  then a PocketBase restart so any new migration applies. Run it whenever a
+  migration is added; `deploy/README.md` §3 / §7a–b.
 - **DB backup / restore:** [`deploy/README.md`](../../../deploy/README.md) §9
   "Back up (SQLite)" is the runbook — *since 2026-09-01 (task M6)* a nightly
   `sqlite3 .backup` cron line in
   [`deploy/pocketbase/crontab.fragment`](../../../deploy/pocketbase/crontab.fragment)
-  (03:17 UTC, 30-day prune) plus an off-box `rsync` **pull** to Chris's machine
-  over the `dreamhost.ae.wex` alias, with PocketBase's built-in
-  *Settings → Backups* as the fallback and aligned restore steps. **Not yet
-  installed on the box** — Chris pastes the line into `crontab -e` and verifies
+  (03:17 UTC, 30-day prune) plus **`make backups:pull`** — an off-box `rsync`
+  **pull** to Chris's machine (`~/wdl-pb-backups`, no `--delete`) over the
+  `dreamhost.ae.wex` alias, with PocketBase's built-in *Settings → Backups* as
+  the fallback and aligned restore steps. **Not yet installed on the box** —
+  Chris pastes the line into `crontab -e` and verifies
   the first run + first pull by hand.
 - **Config templates** committed under `deploy/`; secrets are gitignored.
 - No new local commands. The apps' test/build/serve commands above are

@@ -3,7 +3,7 @@
  * Dump the PocketBase `movements` collection back out to
  * `registry/movements.json` — queue task M4, DEC-020. The egress half of the
  * round-trip whose ingest half is `scripts/movements-to-db.mjs` (M3): an admin
- * edits the curated movement layer in the DB, `make movements-dump` writes it
+ * edits the curated movement layer in the DB, `make movements:dump` writes it
  * back into the repo as the reviewable committed file.
  *
  * **The git diff is the review.** The file is rewritten in its *current* key
@@ -13,8 +13,8 @@
  * edit shows up as exactly the fields that changed.
  *
  * **Round-trip guarantee** (DEC-020's "still open" item, closed by M3+M4):
- *   make movements-load   # registry/movements.json -> DB
- *   make movements-dump    # DB -> registry/movements.json
+ *   make movements:load   # registry/movements.json -> DB
+ *   make movements:dump    # DB -> registry/movements.json
  *   git diff registry/movements.json   # empty
  *
  * **Field mapping** is the reverse of M3's, one column per per-movement field:
@@ -50,7 +50,7 @@
  * `registry/movements.canonical.json`, never touches `packages/core`.
  *
  *   node scripts/movements-from-db.mjs [--api <base>] [--dry-run] [--check]
- *   make movements-dump                 # same, WDL_PB_URL to point elsewhere
+ *   make movements:dump                 # same, WDL_PB_URL to point elsewhere
  */
 import { readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
@@ -72,7 +72,7 @@ const COLL = `${BASE}/api/collections/movements/records`;
 const REGISTRY_PATH = join(process.cwd(), 'registry/movements.json');
 
 main().catch((e) => {
-  console.error(`\nmovements-dump: ${e.message}`);
+  console.error(`\nmovements:dump: ${e.message}`);
   process.exit(1);
 });
 
@@ -81,7 +81,7 @@ async function main() {
   const src = JSON.parse(oldRaw);
   const fileEntries = src.movements ?? [];
 
-  console.log(`movements-dump: ${BASE} -> registry/movements.json${DRY_RUN ? '  (dry run — no writes)' : ''}`);
+  console.log(`movements:dump: ${BASE} -> registry/movements.json${DRY_RUN ? '  (dry run — no writes)' : ''}`);
 
   const rows = await fetchGlobal();
   console.log(`  ${rows.length} scope="global" row(s) read`);
@@ -139,7 +139,7 @@ async function main() {
       return;
     }
     console.log('\n' + gitDiffStat(nextRaw));
-    console.error('movements-dump: --check failed — registry/movements.json changed (see diff above)');
+    console.error('movements:dump: --check failed — registry/movements.json changed (see diff above)');
     process.exit(1);
   }
 

@@ -1647,7 +1647,7 @@ auto-listed from `##` comments) shows the targets — `test`, `build`, `serve`
 (`PORT` overridable, depends on `build`), `registry` (the whole
 `build-canonical.ts` pipeline — one atomic target, never a step alone),
 `goldens` (regenerate + `git diff --stat`), `aliases`, `corpora`, `deploy` /
-`deploy-dry`, `clean`, and `install` (prints "nothing to install"). Every
+`deploy:dry`, `clean`, and `install` (prints "nothing to install"). Every
 target is a thin wrapper over the command that already existed; the raw `node
 scripts/*` forms still run directly, and the situational ones that take
 arguments (`find-duplicates`, `import-movement-curation`, the `wdl` CLI) are
@@ -1974,7 +1974,7 @@ binary (up + down clean). **Still to do on deploy:** set Chris's own `users` row
 (`deploy/README.md` §7a).
 
 **M3 — Ingestion: `registry/movements.json` → DB.** DONE 2026-09-01 (`0917705`).
-`scripts/movements-to-db.mjs` (`make movements-load`) upserts every entry over
+`scripts/movements-to-db.mjs` (`make movements:load`) upserts every entry over
 `/api/collections/movements/records`: bulk-fetches the collection once
 (`perPage=500`), keys on `movementId`, `POST`s the absent and `PATCH`es only the
 columns that differ — a field the entry lacks is omitted on create and cleared
@@ -1992,7 +1992,7 @@ delete-one-then-load creates exactly 1 / mutate-one-then-load updates exactly 1.
 Chris's `users` row is `admin: true`.
 
 **M4 — Egress: DB → `registry/movements.json`.** DONE 2026-09-01 (`e472cde`).
-`scripts/movements-from-db.mjs` (`make movements-dump`, no deps) reads every
+`scripts/movements-from-db.mjs` (`make movements:dump`, no deps) reads every
 `scope = "global"` row over `/api` (no auth — the list/view rule is
 `scope = "global"`) and rewrites `registry/movements.json` in its current
 formatting (`JSON.stringify(obj, null, 1) + "\n"`, each entry's keys in the order
@@ -2003,8 +2003,8 @@ untouched; `scope` / `user` / record `id` / `created` / `updated` never written.
 Prints a tally; `--dry-run` reports tally + `git diff --stat` and writes nothing;
 `--check` writes then exits non-zero if the file moved (for the round-trip test
 and a future pre-commit hook — DEC-020 leaves the cadence open, this ships no
-hook). Verified against `make serve`: `make movements-load` then
-`make movements-dump` leaves `git diff registry/movements.json` **empty**; a
+hook). Verified against `make serve`: `make movements:load` then
+`make movements:dump` leaves `git diff registry/movements.json` **empty**; a
 one-field PATCH then a dump moves exactly that one entry's one field. **The
 dump → load → dump round-trip closes DEC-020's "still open" round-trip
 requirement.** **Still to do on deploy:** run it once against prod to pull any
@@ -2048,10 +2048,14 @@ buried in PB's own DB that would still need a separate off-box cron anyway; the
 SQLite's online hot-copy (safe against the live DB; captures `pb_data/data.db`
 only — not `auxiliary.db` logs or `storage/`), 30-day prune on the box.
 **Off-box copy: a pull** from Chris's machine over the same `~/.ssh/config` alias
-`make deploy` uses (`rsync -az dreamhost.ae.wex:pb/pb_backups/ ~/wdl-pb-backups/`,
+`make deploy` uses (`rsync -av dreamhost.ae.wex:pb/pb_backups/ ~/wdl-pb-backups/`,
 no `--delete` so local history outlives the VPS prune) — chosen over a VPS push
 cron, which would need an outbound keypair minted on the managed box and Chris's
-laptop reachable. **Fallback documented:** PocketBase *Settings → Backups*
+laptop reachable. *(Follow-up 2026-09-01, `<RENAME-SHA>`: wrapped as
+**`make backups:pull`**, alongside a new **`make deploy:db`** that rsyncs
+`deploy/pocketbase/pb_migrations/*.js` to the box — no `--delete` — and restarts
+PocketBase; and every multi-word `make` target moved to a `:` namespace
+separator. See recent-changes.)* **Fallback documented:** PocketBase *Settings → Backups*
 (Auto backups cron + Max keep) for a box without `sqlite3` or when a
 whole-`pb_data/` zip is wanted. `deploy/README.md` §9 "Back up (SQLite)"
 rewritten (the old "recommended, not done" note replaced with the cron lines +

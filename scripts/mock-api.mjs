@@ -35,7 +35,7 @@
  *
  * Fixture write state (`fixtures/workouts.local.json`, `fixtures/movements.local.json`)
  * is git-ignored — delete it to reset to the committed seed / `registry/movements.json`.
- * Movement writes (task M3's `make movements-load`, and the M5 editor) land in
+ * Movement writes (task M3's `make movements:load`, and the M5 editor) land in
  * `fixtures/movements.local.json` and are merged over the registry-derived list
  * on read, keyed by `movementId`.
  */
@@ -189,7 +189,7 @@ export function createMockApi(root) {
       // Reads are open (the collection's list/view rule is `scope = "global"`).
       // Writes need admin in production; here any Authorization header stands in
       // for that (the auth short-circuit above hands every signed-in caller an
-      // `admin: true` fixture user), so `make movements-load` and the M5 editor
+      // `admin: true` fixture user), so `make movements:load` and the M5 editor
       // round-trip locally. Writes persist to fixtures/movements.local.json.
       const mvWriteDenied = () => json(res, 403, err(403, 'Only admins can write global movements.'));
       if (pathname === '/api/collections/movements/records') {

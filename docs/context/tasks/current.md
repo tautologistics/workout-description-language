@@ -45,7 +45,7 @@ dispatchable now; the rest need Chris to scope or sequence:
 
 - **A full laterality curation sweep** — not a numbered item. `around-worlds` is
   the only movement carrying `lateralityAxis`. The audit-CSV tooling is ready:
-  `export-movement-curation.mjs` (`make curation-sheet`) emits the sheet with a
+  `export-movement-curation.mjs` (`make curation:sheet`) emits the sheet with a
   `Laterality axis` column in both the CURRENT and CURATE blocks, and
   `import-movement-curation.mjs` lands it back. A sweep is run via that CSV per
   [../topics/running-it.md](../topics/running-it.md), not hand-edits — needs
