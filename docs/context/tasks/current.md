@@ -69,15 +69,20 @@ comes up *while building a workout*. **Phase 1 is global (admin-edited)
 movements only.** Phase 2 — user-scoped movements — is in
 [deferred.md](deferred.md).
 
-**Execution order (established 2026-08-31):** ~~M0+M2~~ → ~~M1~~ → **M7 (next /
-in progress)** → M3 → M5 → M4, with **M6** landable at any point (it depends
-on nothing here). **M0+M2 landed 2026-08-31** (`ea2a64f`): DEC-020
+**Execution order (established 2026-08-31):** ~~M0+M2~~ → ~~M1~~ → ~~M7~~ →
+**M3 (next / in progress)** → M5 → M4, with **M6** landable at any point (it
+depends on nothing here). **M0+M2 landed 2026-08-31** (`ea2a64f`): DEC-020
 recorded, `1756700000_add_users_admin.js` added (verified locally against a real
 PocketBase v0.40.1 binary). **M1 landed 2026-08-31** (`00c29a5`):
 `1756800000_create_movements.js` added (verified locally against a real
 PocketBase v0.40.1 binary — up + down clean, collection and both indexes land).
-Each session lands its task fully (committed, pushed to `origin/main`,
-`docs/context/` updated) and spawns the next.
+**M7 landed 2026-08-31** (`4431683`): `scripts/mock-api.mjs` + `fixtures/`,
+wired into `scripts/serve.mjs` before static handling (on by default,
+`WDL_MOCK_API=0` opts out); verified by curl over every endpoint and by driving
+the builder — Google sign-in completes the full redirect flow as the fixture
+user and *My workouts* populates from the mock. Each session lands its task
+fully (committed, pushed to `origin/main`, `docs/context/` updated) and spawns
+the next.
 
 Grounding facts, so an M-task can start cold:
 
@@ -181,8 +186,23 @@ Grounding facts, so an M-task can start cold:
   Chris's machine). Update `deploy/README.md` + `crontab.fragment`. Load-bearing
   once movement data lives only in the DB.
 
-- **M7 — Local dev mock `/api` + fixtures** *(on by default; opt out with
-  `WDL_MOCK_API=0` to hit a real local PocketBase)*. `scripts/serve.mjs`
+- **M7 — Local dev mock `/api` + fixtures** — **DONE 2026-08-31** (`4431683`).
+  `scripts/mock-api.mjs` (no deps) is wired into `scripts/serve.mjs` ahead of
+  static handling: on by default, `WDL_MOCK_API=0` opts out and `/api/*` falls
+  through to the old 404 / static behaviour. One startup log line when active.
+  New committed `fixtures/users.json` (one admin fixture user — sign-in "just
+  works" as it) and `fixtures/workouts.json` (3 seed rows); runtime
+  create/update/delete persist to git-ignored `fixtures/workouts.local.json`
+  (loaded on boot if present, else the seed). `registry/movements.json` doubles
+  as the movements fixture — mapped to the M1 collection shape (`movementId`,
+  json/scalar passthrough, synthetic stable `id`, `scope: "global"`) and wrapped
+  in the PB list envelope; `/records/:id` resolves by synthetic id *or*
+  `movementId`; writes return `403`. Minimal query support only as far as the
+  client needs: `filter=field="value"` (AND), `sort`, `page`/`perPage`. Suite
+  unchanged **2064/2064, 1 pending**. Verified by curl over every endpoint and
+  by driving the builder. Original spec below.
+
+  `scripts/serve.mjs`
   intercepts `/api/*` before static handling and routes to a small mock module
   (no deps — it is still a one-person dev server). Covers the endpoints
   `apps/shared/pocketbase.js` uses:

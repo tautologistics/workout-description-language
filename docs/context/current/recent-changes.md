@@ -2,6 +2,40 @@
 
 ## Changes
 
+- **2026-08-31 — Movements epic M7 landed** (`4431683`), third session of the
+  M-chain. `scripts/mock-api.mjs` — a no-deps mock of the PocketBase `/api`
+  surface `apps/shared/pocketbase.js` uses — is wired into `scripts/serve.mjs`
+  ahead of static handling. **On by default; `WDL_MOCK_API=0` opts out** and
+  `/api/*` falls through to the old 404 / static behaviour; one startup log line
+  when active. Covers: **auth** — `users/auth-methods` returns an `authURL`
+  pointing at a local `/api/_mock/oauth` stub that 302s straight back to the
+  client redirect URI with a canned `?code`; `auth-with-oauth2` / `auth-refresh`
+  accept any code and return the fixture user (`admin: true`, so the M5 editor
+  is exercisable) + a fake token in PB's `{ token, record }` shape — sign-in
+  just works as one fixture identity. **`workouts/records`** — full CRUD in PB's
+  list `{ page, perPage, totalItems, totalPages, items }` / record / `204`
+  shapes, seeded from a committed `fixtures/workouts.json`; runtime writes
+  persist to a git-ignored `fixtures/workouts.local.json` (loaded on boot if
+  present, else the seed), so a restart keeps them. **`movements/records`** —
+  read-only, from `registry/movements.json` mapped to the M1 collection shape
+  (`movementId`, json/scalar passthrough, synthetic stable `id`,
+  `scope: "global"`) and wrapped in the PB list envelope; `/records/:id` by
+  synthetic id or `movementId`; writes return `403` (mirrors the admin-only
+  rule). Minimal query support only as far as the client needs:
+  `filter=field="value"` (AND), `sort`, `page`/`perPage`. New committed
+  `fixtures/users.json` + `fixtures/workouts.json`; `fixtures/workouts.local.json`
+  git-ignored. Nothing touches `packages/core`, the grammar, the spec or the
+  migrations — production is unaffected (PocketBase serves real `/api` there).
+  Suite unchanged **2064/2064, 1 pending**. Verified by curl over every
+  endpoint and by driving the builder — Google sign-in completes the full
+  redirect flow as the fixture user and *My workouts* populates from the mock;
+  `WDL_MOCK_API=0 make serve` still starts and `/api` 404s. **Next: M3** —
+  ingest `registry/movements.json` → the `movements` collection. *Touched:* new
+  `scripts/mock-api.mjs`, `fixtures/users.json`, `fixtures/workouts.json`;
+  `scripts/serve.mjs`, `.gitignore`, `docs/context/tasks/current.md`,
+  `docs/context/current/next-steps.md`, `docs/context/topics/what-exists.md`,
+  `docs/context/topics/running-it.md`.
+
 - **2026-08-31 — Movements epic M1 landed** (`00c29a5`), second session of
   the M-chain. `deploy/pocketbase/pb_migrations/1756800000_create_movements.js`
   creates the `movements` PocketBase collection ([DEC-020](../topics/settled-decisions.md#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump)):

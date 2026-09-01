@@ -11,7 +11,7 @@ lockfile.
 ```bash
 make test        # npm --prefix packages/core test — ~2050 tests, 1 pending, ~10s
 make build       # node scripts/build-web.mjs — emit the core as browser modules
-make serve       # build, then node scripts/serve.mjs 8081  (override PORT=NNNN)
+make serve       # build, then node scripts/serve.mjs 8081  (override PORT=NNNN; WDL_MOCK_API=0 to disable the mock /api)
 make registry    # node scripts/build-canonical.ts — rebuild registry/ from its sources
 make goldens     # regenerate the golden files, then show what moved
 make aliases     # node scripts/check-aliases.mjs — names two records answer to, and who wins
@@ -56,6 +56,22 @@ session ends.
 
 The server must be rooted at the repository — the apps reach `build/` and
 `registry/` from there.
+
+**`make serve` answers `/api` from a mock** *(since 2026-08-31, queue task M7,
+DEC-020)*. There is no PocketBase behind the dev server, so `scripts/serve.mjs`
+intercepts `/api/*` before static handling and delegates to
+`scripts/mock-api.mjs` — a no-deps mock of the endpoints
+`apps/shared/pocketbase.js` calls: auth (short-circuits the Google redirect via
+a local `/api/_mock/oauth` stub — sign-in "just works" as one fixture user with
+`admin: true`), `workouts/records` CRUD (seeded from committed
+`fixtures/workouts.json`, runtime writes persisted to the git-ignored
+`fixtures/workouts.local.json` — delete that file to reset), and read-only
+`movements/records` straight from `registry/movements.json` in PocketBase's list
+envelope. **On by default**; **`WDL_MOCK_API=0 make serve`** opts out and
+`/api/*` falls through to the old behaviour (404 / static). Sample data lives in
+`fixtures/` (`users.json`, `workouts.json` committed; `workouts.local.json`
+git-ignored). Nothing here touches `packages/core`, the grammar, the spec or the
+PocketBase migrations, and the mock never runs in production.
 
 A change to the apps needs `build-web.mjs` before the browser sees it, and the
 board and builder are verified by driving them, not only by the suite — see

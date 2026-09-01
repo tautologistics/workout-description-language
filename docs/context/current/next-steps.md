@@ -14,8 +14,14 @@ can go anytime — a pre-existing gap never set up. **M0+M2 landed 2026-08-31** 
 PocketBase v0.40.1 binary). **M1 landed 2026-08-31** (`00c29a5`):
 `1756800000_create_movements.js` — the `movements` collection (one column per
 curated field, `scope`/`user` for Phase 2, admin-gated writes), verified locally
-against a real PocketBase v0.40.1 binary. **In progress: M7** — local dev mock
-`/api` + fixtures so `make serve` works without PocketBase. Phase 1 is global
+against a real PocketBase v0.40.1 binary. **M7 landed 2026-08-31** (`4431683`):
+`scripts/mock-api.mjs` + `fixtures/` — `make serve` now answers `/api` (auth
+short-circuit, `workouts/records` CRUD from committed fixtures with git-ignored
+runtime state, read-only `movements/records` from `registry/movements.json` in
+the PB envelope), on by default / `WDL_MOCK_API=0` opts out. **In progress: M3**
+— ingest `registry/movements.json` → the `movements` collection
+(`scripts/movements-to-db.mjs`, `make movements-load`; idempotent on
+`movementId`, every row `scope: "global"`). Phase 1 is global
 (admin-edited) movements only; Phase 2 (user-scoped) is in
 [../tasks/deferred.md](../tasks/deferred.md). Full
 write-ups: [../tasks/current.md](../tasks/current.md) "Movements in the
