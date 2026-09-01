@@ -14,7 +14,7 @@ editor in the builder header, and `updateHandle` / `currentHandle()` in
 `apps/shared/pocketbase.js`; mock `/api` + `fixtures/users.json` mirror;
 migration up+down verified against a real PocketBase v0.40.1 binary; `make
 test` unchanged (2064/2064, 1 pending). **L2 landed 2026-09-01
-(`<TASK-SHA>`)** — `deploy/pocketbase/pb_migrations/1757000000_add_workouts_wdlid.js`
+(`fc72881`)** — `deploy/pocketbase/pb_migrations/1757000000_add_workouts_wdlid.js`
 adds `wdlId` (text, `max: 260`, nullable) + a plain index
 `idx_workouts_wdl_id` to `workouts`; no rule change, no app/mock/fixture change
 (pure schema — existing rows stay `null` until L3 sets it on save / L6's loader

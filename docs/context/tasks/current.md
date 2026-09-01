@@ -40,7 +40,7 @@ sized like M0–M7 for sequential sessions. **L0 landed 2026-09-01
 [DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
 + a spec §2 note; **L1 landed 2026-09-01 (`88ab8b6`)** — the `users`
 `org`+`handle` migration + handle generator/editor; **L2 landed 2026-09-01
-(`<TASK-SHA>`)** — the `workouts.wdlId` column migration; **L3 (force `@id` on
+(`fc72881`)** — the `workouts.wdlId` column migration; **L3 (force `@id` on
 save + set `wdlId` + lookup resolver) is next**. Three standalone tasks are
 also queued, all dispatchable now:
 
@@ -353,7 +353,7 @@ deploy:** glance at the admin UI — the three org rows landed, `handle` shows
 the unique-index badge (`deploy/README.md` §7c) — same caveat as M1/M2/M3.
 Spawns L2.
 
-**L2 — `workouts` schema: `wdlId` column. DONE 2026-09-01 (`<TASK-SHA>`).**
+**L2 — `workouts` schema: `wdlId` column. DONE 2026-09-01 (`fc72881`).**
 `deploy/pocketbase/pb_migrations/1757000000_add_workouts_wdlid.js` adds `wdlId`
 (text, `max: 260`, `required: false`) to `workouts` plus a **plain** index
 `CREATE INDEX idx_workouts_wdl_id ON workouts (wdlId)` (non-unique — two owners

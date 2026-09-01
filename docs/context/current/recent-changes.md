@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-01 — L2 of *The workout library* epic landed (`<TASK-SHA>`)** — the
+- **2026-09-01 — L2 of *The workout library* epic landed (`fc72881`)** — the
   `workouts` side of the DEC-021 schema.
   `deploy/pocketbase/pb_migrations/1757000000_add_workouts_wdlid.js` adds
   `wdlId` (text, `max: 260`, nullable, no default) to the `workouts` collection
