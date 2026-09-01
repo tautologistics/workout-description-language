@@ -107,6 +107,18 @@ row (json→`null`, scalar→`""`), so the M4 dump round-trips.
 The egress half — `make movements-dump` (DB → `registry/movements.json`) — is
 M4, not built yet.
 
+**Exercising the movement editor** *(since 2026-09-01, queue task M5)*. No `make`
+target — it is app code. Drive the builder against `make serve` (mock `/api` on
+by default): sign in (the mock's faked Google sign-in hands every caller an
+`admin: true` fixture user, so writes are allowed), then open the movement editor
+from `＋ new movement` in the palette modal, the `✎` on a palette card, or "Edit
+… its curated fields" in a step row's `»` panel. Saves `POST` / `PATCH` a
+`scope: "global"` row over `/api`; the mock persists them to git-ignored
+`fixtures/movements.local.json` (an overlay merged over `registry/movements.json`
+on read) — delete that file to reset. Check a save with
+`curl 'http://localhost:8081/api/collections/movements/records?filter=movementId=%22<id>%22'`.
+Signed out, a write `403`s and the form shows the message.
+
 A change to the apps needs `build-web.mjs` before the browser sees it, and the
 board and builder are verified by driving them, not only by the suite — see
 *Tests do not read* in [lessons-learned.md](lessons-learned.md).

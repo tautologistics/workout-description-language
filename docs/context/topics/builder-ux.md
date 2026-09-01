@@ -832,6 +832,25 @@ below are the larger rethinks.
   untouched. Phase 2 (user-scoped) is in
   [../tasks/deferred.md](../tasks/deferred.md).
 
+  **The in-app GUI this bullet called for now exists for create *and* edit
+  (M5, 2026-09-01, `<M5-SHA>`).** `apps/shared/movement-editor.js`
+  (`createMovementEditor(...)`) is a reusable form over one curated movement's
+  fields — enum `<select>`s restricted to the registry vocabularies, checkbox
+  groups for `laterality` / `measures`, comma-separated inputs for the lists and
+  `muscles.primary` / `.secondary` — that `POST`s / `PATCH`es a `scope:
+  "global"` row over `/api` in the same shape `movements-to-db.mjs` writes.
+  Hosted in the builder from three places, all reached *while building a
+  workout*: `＋ new movement` beside the palette search, an `✎` on every palette
+  card, and "Edit … its curated fields" in a step row's `»` panel (that caret
+  now shows for any curated movement). A save folds the row into the in-memory
+  registries so the palette / `»` panel update with no reload. Signed-out /
+  non-admin sees the 403 in the form. The widget is deliberately host-agnostic
+  (it takes the `/api` functions + starting record as params and scopes its DOM
+  to a handed container) so a standalone admin page or the board can reuse it.
+  Still open from this bullet: user-scoped movements (Phase 2), the account
+  namespace ↔ `@id` namespace story, and whether "make global" is a copy / move
+  / flag.
+
 ### The layout redesign — direction chosen 2026-08-30
 
 Explored on a Claude Design canvas: three directions (A Focus + Inspector, B

@@ -25,10 +25,18 @@ over `/api`, keyed on `movementId`, every row `scope: "global"`; target via
 `--api` / `WDL_PB_URL` + admin auth (`WDL_PB_ADMIN_TOKEN` or
 `WDL_PB_ADMIN_EMAIL`/`_PASSWORD`) for prod; a re-run writes nothing. The M7 mock
 now accepts authorized `movements` writes with git-ignored local persistence
-(`fixtures/movements.local.json`), so the local round-trip is real. **In
-progress: M5** — the movement editor widget (`apps/shared/movement-editor.js`),
-first hosted in the builder, writing a `scope: "global"` row via `/api`. Phase 1
-is global (admin-edited) movements only; Phase 2 (user-scoped) is in
+(`fixtures/movements.local.json`), so the local round-trip is real. **M5 landed
+2026-09-01** (`<M5-SHA>`): `apps/shared/movement-editor.js` — a reusable,
+host-agnostic form over one movement's curated fields with enum `<select>`s
+validating the registry vocabularies, writing a `scope: "global"` row via `/api`
+(`POST`/`PATCH`, same record shape M3 writes); movement `/api` calls added to
+`apps/shared/pocketbase.js`; first hosted in the builder (`＋ new movement` in
+the palette modal, `✎` on palette cards, "Edit … its curated fields" in a step's
+`»` panel), a save folding the row into the in-memory registries so it shows with
+no reload. **In progress: M4** — egress, `scripts/movements-from-db.mjs` +
+`make movements-dump` (DB → `registry/movements.json`, reviewable diff,
+round-trip check dump → load → dump yields nothing). Phase 1 is global
+(admin-edited) movements only; Phase 2 (user-scoped) is in
 [../tasks/deferred.md](../tasks/deferred.md). Full write-ups:
 [../tasks/current.md](../tasks/current.md) "Movements in the database".
 

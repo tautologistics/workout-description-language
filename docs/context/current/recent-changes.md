@@ -2,6 +2,50 @@
 
 ## Changes
 
+- **2026-09-01 — Movements epic M5 landed** (`<M5-SHA>`), fifth session of the
+  M-chain. **`apps/shared/movement-editor.js`** — `createMovementEditor({
+  container, record, api, onSaved, onCancel })`, a reusable form over one
+  movement's curated fields with no builder-global dependency (it takes the
+  `/api` functions and its starting record as params and scopes its DOM to the
+  handed container — droppable into an admin page or the board later). The enum
+  fields (`force` / `mechanic` / `load` / `defaultLaterality` / `lateralityAxis`)
+  are `<select>`s whose options are exactly the registry vocabulary + "— unset
+  —", so an out-of-vocab value can't be sent; `laterality` / `measures` are
+  checkbox groups; the string-list fields and `muscles.primary` / `.secondary`
+  are comma-separated inputs (other `muscles` keys pass through). It `POST`s /
+  `PATCH`es a **`scope: "global"`** row over `/api` in the **same record shape
+  `scripts/movements-to-db.mjs` (M3) writes** — json fields shape-for-shape,
+  scalars straight, empties omitted on create / cleared (json→`null`,
+  scalar→`""`) on update; `source` / `user` / timestamps untouched. Cross-field
+  rules (an axis needs a per-side mode; a default must be ticked) and a kebab
+  `movementId` check gate the write; an `/api` error (the 403 for signed-out /
+  non-admin) surfaces in the form. **`apps/shared/pocketbase.js`** gained
+  `listMovements` / `getMovementByMovementId` / `createMovement` /
+  `updateMovement` in the same hand-rolled `fetch` style (no SDK — DEC-003 /
+  DEC-008). **First hosted in the builder:** a `＋ new movement` control in the
+  palette modal, an `✎` on every palette card, and an "Edit … its curated
+  fields" row in a step's `»` panel — the `»` caret now shows for *any* curated
+  movement, not only ones with a modifier to splice. On a save the row is folded
+  into the in-memory `curatedMovements` / `catalogue` via `provide(...)` (so
+  `defaultRegistry()` / `canonicalRegistry()` rebuild) and the palette / `»`
+  panel re-render, so the new/edited movement shows without a reload. Nothing
+  touches `packages/core`, the grammar, the spec, the migrations or the registry
+  files — suite unchanged **2064/2064, 1 pending**. Verified by driving the
+  builder against `make serve` (mock `/api` on, both themes): create a movement →
+  it appears in the palette and `GET …?filter=movementId="cossack-squat"` returns
+  it in the right shape (`scope: "global"`, json fields as arrays/objects,
+  scalars as strings); edit `burpee` (enum + alias) → persisted, and
+  `muscles.support` / `sources` kept; enum pickers offer exactly their
+  vocabulary; invalid input writes nothing; a server restart keeps the writes
+  (`fixtures/movements.local.json`); signed-out → the 403 message shows and
+  nothing is created; console clean. **Next: M4** — egress DB →
+  `registry/movements.json`. *Touched:* new `apps/shared/movement-editor.js`;
+  `apps/shared/pocketbase.js`, `apps/builder/index.html`,
+  `apps/builder/builder.js`, `apps/builder/builder.css`,
+  `docs/context/tasks/current.md`, `docs/context/current/next-steps.md`,
+  `docs/context/current/recent-changes.md`, `docs/context/topics/what-exists.md`,
+  `docs/context/topics/builder-ux.md`, `docs/context/topics/running-it.md`.
+
 - **2026-09-01 — Movements epic M3 landed** (`0917705`), fourth session of the
   M-chain. **`scripts/movements-to-db.mjs`** (no deps — `node:fs` + global
   `fetch`) + **`make movements-load`**: an idempotent upsert of every

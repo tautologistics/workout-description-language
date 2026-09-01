@@ -19,6 +19,9 @@
  *   POST   /api/collections/workouts/records         — create
  *   PATCH  /api/collections/workouts/records/:id     — update
  *   DELETE /api/collections/workouts/records/:id     — delete
+ *   GET    /api/collections/movements/records        — list / lookup by movementId (open)
+ *   POST   /api/collections/movements/records        — create a global movement (admin)
+ *   PATCH  /api/collections/movements/records/:id    — update a global movement (admin)
  *
  * The auth route names have changed across versions (pre-0.23 it was
  * `auth-via-oauth2`; the record CRUD path was `/api/collections/:c/records`
@@ -43,6 +46,7 @@
 const API = '/api';
 const USERS = '/collections/users';
 const RECORDS = '/collections/workouts/records';
+const MOVEMENTS = '/collections/movements/records';
 
 /** Where Google returns the browser after sign-in. Must be a registered URI. */
 export const AUTH_CALLBACK = `${location.origin}/apps/builder/auth-callback.html`;
@@ -239,4 +243,38 @@ export function remove(id) {
 /** The stable share URL for a workout id — a real file path, so no rewrite. */
 export function shareUrl(id) {
   return `${location.origin}/apps/display/?w=${encodeURIComponent(id)}`;
+}
+
+// --- movements (curated layer, DEC-020) --------------------------------------
+// The `movements` collection: list/view are open (`scope = "global"`), writes
+// are admin-only (`@request.auth.admin = true`). The M5 movement editor writes
+// through these; `scripts/movements-to-db.mjs` (M3) does the bulk ingest over
+// the same routes. All Phase-1 rows are `scope: "global"`.
+
+/** Every global movement, in `movementId` order. Reads need no auth. */
+export async function listMovements() {
+  const q = new URLSearchParams({ filter: 'scope="global"', sort: 'movementId', perPage: '1000' });
+  const data = await call(`${MOVEMENTS}?${q}`, { auth: !!authToken() });
+  return data.items ?? [];
+}
+
+/** One global movement by its registry id (`movementId`), or `null` if absent. */
+export async function getMovementByMovementId(movementId) {
+  const q = new URLSearchParams({ filter: `movementId="${movementId}"`, perPage: '1' });
+  const data = await call(`${MOVEMENTS}?${q}`, { auth: !!authToken() });
+  return data.items?.[0] ?? null;
+}
+
+/**
+ * Create a global movement. Always `scope: "global"` (Phase 1). The server
+ * enforces admin — a signed-out or non-admin caller gets a 403 whose message
+ * the caller surfaces.
+ */
+export function createMovement(fields) {
+  return call(MOVEMENTS, { method: 'POST', body: { ...fields, scope: 'global' } });
+}
+
+/** Patch a movement by its PocketBase record id. Admin-only, server-enforced. */
+export function updateMovement(id, patch) {
+  return call(`${MOVEMENTS}/${encodeURIComponent(id)}`, { method: 'PATCH', body: patch });
 }

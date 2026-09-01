@@ -41,7 +41,9 @@ import {
   currentUser, beginGoogleSignIn, refreshAuth, signOut,
   listMine, getById as pbGetById, create as pbCreate, update as pbUpdate,
   remove as pbRemove, shareUrl,
+  createMovement, updateMovement, getMovementByMovementId,
 } from '../shared/pocketbase.js';
+import { createMovementEditor } from '../shared/movement-editor.js';
 
 const GRAMMAR = '../../spec/grammar-0.1.ohm';
 const REGISTRY = '../../registry/movements.json';
@@ -795,7 +797,8 @@ function renderOutline() {
           ...mods.measures.map((m) => ({ ...m, addition: m.text, position: 'end' })),
           ...(mods.load ? [{ ...mods.load, addition: mods.load.text, position: 'load' }] : []),
         ];
-        if (!items.length) return;
+        // Even with no modifiers to offer, the panel still opens for the M5
+        // "edit this movement" control below.
         modifiers.innerHTML = '';
         for (const it of items) {
           const b = document.createElement('button');
@@ -812,6 +815,15 @@ function renderOutline() {
           info.textContent = `Equipment: ${mods.equipment.join(', ')}`;
           modifiers.append(info);
         }
+        // M5: edit the curated movement itself (its fields in the DB), not the
+        // line — opens the reusable movement editor for this entry.
+        const edit = document.createElement('button');
+        edit.type = 'button';
+        edit.className = 'suggestion modifier-edit';
+        edit.textContent = `Edit “${entry.title}” — its curated fields`;
+        edit.onmousedown = (e) => e.preventDefault();
+        edit.onclick = () => { closeModifiers(); openMovementEditor(entry); };
+        modifiers.append(edit);
         modifiers.hidden = false;
       };
 
@@ -827,11 +839,12 @@ function renderOutline() {
       input.addEventListener('blur', closeModifiers);
 
       {
+        // Shown for any row that names a curated movement: the panel offers the
+        // modifiers the movement supports (if any) and, since M5, an "edit this
+        // movement" control — so even a movement with nothing to splice is
+        // reachable for editing from its step row.
         const title = movementOf.get(n.line);
-        const entry = title && movementEntry(title);
-        const mods = entry && movementModifiers(entry);
-        const hasAny = mods && (mods.laterality.length || mods.measures.length || mods.load);
-        modCaret.hidden = !hasAny;
+        modCaret.hidden = !(title && movementEntry(title));
       }
 
       // The block-header caret: the block-level counterpart of `modCaret`. On a
@@ -1611,6 +1624,74 @@ addEventListener('keydown', (e) => {
   }
 });
 
+// --- the movement editor modal -------------------------------------------
+// M5: the reusable `apps/shared/movement-editor.js` form, hosted here first.
+// Reached from "＋ new movement" in the palette modal, an "edit" control on a
+// palette card, and "Edit this movement…" in the step row's `»` panel. It
+// writes a `scope: "global"` row via `/api` (`POST`/`PATCH`); signed out or
+// non-admin the write 403s and the form shows the message. On a successful save
+// `absorbMovement` folds the row into the in-memory registries so it shows in
+// the palette / the `»` panel without a reload.
+const movementEditorModal = el('movement-editor-modal');
+let movementEditorHandle = null;
+
+function openMovementEditor(record = null) {
+  if (movementEditorModal.open) return;
+  movementEditorHandle?.destroy();
+  movementEditorHandle = createMovementEditor({
+    container: el('movement-editor-host'),
+    record,
+    api: { createMovement, updateMovement, getMovementByMovementId },
+    onSaved: (entry) => { absorbMovement(entry); },
+    onCancel: () => closeMovementEditor(),
+  });
+  movementEditorModal.showModal();
+  movementEditorHandle.focus();
+}
+
+function closeMovementEditor() {
+  if (movementEditorModal.open) movementEditorModal.close();
+  movementEditorHandle?.destroy();
+  movementEditorHandle = null;
+}
+
+movementEditorModal.addEventListener('cancel', (e) => { e.preventDefault(); closeMovementEditor(); });
+movementEditorModal.addEventListener('click', (e) => {
+  if (e.target === movementEditorModal) closeMovementEditor();
+});
+
+/**
+ * Merge a just-saved movement (registry-entry shape) into the two in-memory
+ * movement lists and re-provide them, so `defaultRegistry()` /
+ * `canonicalRegistry()` rebuild and the palette / `»` panel see it at once. The
+ * search box is pointed at the new movement so it surfaces in the palette even
+ * though a fresh row carries no `core` flag.
+ */
+function absorbMovement(entry) {
+  const merge = (arr) => {
+    const i = arr.findIndex((m) => m.id === entry.id);
+    const next = arr.slice();
+    if (i >= 0) next[i] = { ...next[i], ...entry };
+    else next.push({ ...entry });
+    return next;
+  };
+  if (Array.isArray(curatedMovements)) {
+    curatedMovements = merge(curatedMovements);
+    provide({ movements: () => curatedMovements });
+  }
+  if (Array.isArray(catalogue) && catalogue.length) {
+    catalogue = merge(catalogue);
+    provide({ canonicalMovements: () => catalogue });
+  }
+  closeMovementEditor();
+  const search = el('search');
+  if (search && paletteModal.open) { search.value = entry.title; }
+  renderPalette();
+  render();
+}
+
+el('movement-new').onclick = () => openMovementEditor(null);
+
 // --- wiring ------------------------------------------------------------------
 
 el('text').addEventListener('input', () => {
@@ -1914,6 +1995,22 @@ function renderPalette() {
     meta.className = 'meta';
     meta.textContent = (m.muscles?.primary ?? []).slice(0, 3).join(' ');
     item.append(name, meta);
+
+    // M5: edit this movement's curated fields in the DB. Its own click stops the
+    // card's "insert at caret" from also firing. Not shown while composing a set.
+    if (!composing) {
+      const edit = document.createElement('span');
+      edit.className = 'movement-edit';
+      edit.setAttribute('role', 'button');
+      edit.tabIndex = 0;
+      edit.title = `Edit “${m.title}”`;
+      edit.textContent = '✎';
+      const openEdit = (e) => { e.stopPropagation(); e.preventDefault(); openMovementEditor(m); };
+      edit.addEventListener('click', openEdit);
+      edit.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') openEdit(e); });
+      edit.addEventListener('dragstart', (e) => { e.preventDefault(); e.stopPropagation(); });
+      item.append(edit);
+    }
 
     // Composing: a click toggles the movement in the set being built. Otherwise
     // a click lands it at the caret and closes the modal — "add this" where you

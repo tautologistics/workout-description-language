@@ -135,6 +135,7 @@
   <div class="palette-controls">
     <input id="search" type="search" placeholder="Search movements" autocomplete="off">
     <select id="set-pick" title="Show only the movements in a saved set"></select>
+    <button type="button" id="movement-new" title="Create a new global movement">＋ new movement</button>
   </div>
   <section id="repertoire" class="repertoire">
     <h2>Sets <span id="repertoire-count"></span></h2>
@@ -154,6 +155,10 @@
   <p class="hint" id="palette-count"></p>
   <p class="hint compose-hint" id="compose-hint" hidden></p>
   <div id="palette" class="palette"></div>
+</dialog>
+
+<dialog id="movement-editor-modal" class="movement-editor-modal" aria-label="Movement editor">
+  <div id="movement-editor-host"></div>
 </dialog>
 
 <input type="file" id="file" accept=".wdl,.txt" hidden>

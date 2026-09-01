@@ -930,3 +930,60 @@ button:hover, .button:hover { border-color: var(--dim); }
   background: transparent; color: var(--dim); font-size: .8rem; cursor: pointer;
 }
 .menu-icon:hover { border-color: var(--dim); color: var(--ink); }
+
+/* --- the movement editor modal (M5) ------------------------------------- */
+
+/* The reusable `apps/shared/movement-editor.js` form, hosted in a <dialog>.
+   A form over one movement's curated fields; writes a `scope: "global"` row via
+   /api. Styling stays on the shared --ink/--dim/--rule/--panel tokens so the
+   widget carries no host-specific look. */
+.movement-editor-modal {
+  width: min(40rem, 94vw);
+  max-height: 90vh;
+  padding: 0;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, .3);
+}
+.movement-editor-modal::backdrop { background: rgba(0, 0, 0, .3); }
+#movement-editor-host { overflow-y: auto; max-height: 90vh; }
+
+.movement-editor { display: flex; flex-direction: column; gap: .7rem; padding: 1rem 1.1rem 1.1rem; }
+.movement-editor .me-title { margin: 0; font-size: 1rem; }
+.movement-editor .me-row { display: flex; flex-wrap: wrap; gap: .7rem; }
+.movement-editor .me-row > .me-field { flex: 1 1 10rem; }
+
+.me-field { display: flex; flex-direction: column; gap: .2rem; }
+.me-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); }
+.me-hint { font-size: .74rem; color: var(--dim); }
+.me-input, .me-select {
+  font: inherit; font-size: .88rem; padding: .3rem .4rem;
+  border: 1px solid var(--rule); border-radius: .3rem;
+  background: var(--page); color: var(--ink);
+}
+.me-input:read-only { color: var(--dim); background: var(--panel); }
+.me-num { width: 6rem; }
+
+.me-checks { display: flex; flex-wrap: wrap; gap: .1rem .9rem; padding-top: .15rem; }
+.me-check { display: inline-flex; align-items: center; gap: .3rem; font-size: .85rem; text-transform: none; letter-spacing: 0; }
+.me-check input { margin: 0; }
+
+.me-errors { margin: 0; padding-left: 1.1rem; color: var(--error); font-size: .82rem; }
+.me-status { margin: 0; font-size: .85rem; }
+.me-status[data-kind="error"] { color: var(--error); }
+.me-status[data-kind="ok"] { color: var(--accent); }
+.me-status[data-kind="busy"] { color: var(--dim); }
+
+.me-actions { display: flex; gap: .5rem; margin-top: .2rem; }
+.me-save { border-color: var(--accent); color: var(--accent); }
+
+/* The per-card "edit this movement" affordance in the palette, and the
+   "edit its curated fields" row in the step `»` panel. */
+.movement-edit {
+  flex: none; margin-left: .35rem; padding: 0 .25rem;
+  color: var(--dim); font-size: .8em; cursor: pointer; border-radius: 3px;
+}
+.movement-edit:hover { color: var(--accent); }
+.suggestion.modifier-edit { border-top: 1px solid var(--rule); opacity: .85; }

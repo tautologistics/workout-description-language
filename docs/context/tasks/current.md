@@ -70,8 +70,8 @@ movements only.** Phase 2 — user-scoped movements — is in
 [deferred.md](deferred.md).
 
 **Execution order (established 2026-08-31):** ~~M0+M2~~ → ~~M1~~ → ~~M7~~ →
-~~M3~~ → **M5 (next / in progress)** → M4, with **M6** landable at any point (it
-depends on nothing here). **M0+M2 landed 2026-08-31** (`ea2a64f`): DEC-020
+~~M3~~ → ~~M5~~ → **M4 (next / in progress)**, with **M6** landable at any point
+(it depends on nothing here). **M0+M2 landed 2026-08-31** (`ea2a64f`): DEC-020
 recorded, `1756700000_add_users_admin.js` added (verified locally against a real
 PocketBase v0.40.1 binary). **M1 landed 2026-08-31** (`00c29a5`):
 `1756800000_create_movements.js` added (verified locally against a real
@@ -92,7 +92,34 @@ persisting them to git-ignored `fixtures/movements.local.json` merged over the
 registry-derived list on read — so the local round-trip is real. Verified: first
 run against `make serve` creates all 972 / a re-run reports all-unchanged /
 delete-one-then-load creates exactly 1 / mutate-one-then-load updates exactly 1;
-suite unchanged **2064/2064, 1 pending**. Each session lands its task fully
+suite unchanged **2064/2064, 1 pending**. **M5 landed 2026-09-01**
+(`<M5-SHA>`): `apps/shared/movement-editor.js` — a reusable, host-agnostic form
+over one movement's curated fields (`movementId` / `title` / string-list fields /
+`muscles.primary`+`.secondary` / `implements`, plus `force` `mechanic` `load`
+`defaultLaterality` `lateralityAxis` as `<select>`s whose options are exactly the
+registry vocabulary + "— unset —", and `laterality` / `measures` as checkbox
+groups) that `POST`s / `PATCH`es a `scope: "global"` row over `/api` in the same
+record shape M3 writes (json fields shape-for-shape, scalars straight, empties
+omitted on create / cleared on update; `source` / `user` / timestamps never
+touched). Enum controls can't emit an out-of-vocab value; cross-field rules
+(axis needs per-side, default must be a ticked mode) and a kebab `movementId`
+check run before any write; an `/api` error (403 not-admin) surfaces in the
+form. Movement `/api` calls added to `apps/shared/pocketbase.js`
+(`listMovements` / `getMovementByMovementId` / `createMovement` /
+`updateMovement`, hand-rolled `fetch`, no SDK). First host: the builder — a
+`＋ new movement` control in the palette modal, an `✎` on every palette card,
+and an "Edit … its curated fields" row in a step's `»` panel (the `»` caret now
+shows for any curated movement, not only ones with a modifier to splice). On
+save the row is folded into the in-memory `curatedMovements` / `catalogue` via
+`provide(...)` so it shows in the palette / `»` panel with no reload. No
+`packages/core` / grammar / spec / registry-file change — suite unchanged
+**2064/2064, 1 pending**. Verified by driving the builder against `make serve`
+(both themes): create round-trips at `GET …?filter=movementId="…"` in the right
+shape (`scope: "global"`, json as arrays/objects, scalars as strings); edit of
+`burpee` persisted an enum + alias change and kept `muscles.support`/`sources`;
+enum pickers offer only their vocabulary; invalid input writes nothing; a server
+restart keeps the writes (`fixtures/movements.local.json`); signed-out → the
+403 message shows and nothing is created. Each session lands its task fully
 (committed, pushed to `origin/main`, `docs/context/` updated) and spawns the
 next.
 
@@ -198,15 +225,40 @@ Grounding facts, so an M-task can start cold:
   persist it in the codebase". Round-trip check: dump → load → dump yields no
   diff. Pairs with M3.
 
-- **M5 — Movement editor widget.** A reusable form component
-  (`apps/shared/movement-editor.js`) over one movement's fields, validating
-  against the registry enums already spelled out in
-  `scripts/import-movement-curation.mjs` / `packages/core/src/fold.ts`
-  (laterality `both|split|per-side`, axis `arm|leg|side|hand|direction`, force
-  `push|pull|static`, mechanic `compound|isolation`, load `total|per-implement`,
-  measures `distance|calories`). First host: the builder — a "new / edit
-  movement" affordance (from the `»` panel or the Movements drawer) writing a
-  `scope: "global"` row. Built to drop into other hosts later.
+- **M5 — Movement editor widget.** — **DONE 2026-09-01** (`<M5-SHA>`).
+  `apps/shared/movement-editor.js` — `createMovementEditor({ container, record,
+  api, onSaved, onCancel })`, a form over one movement's curated fields, no
+  builder-global dependency (it takes the three `/api` functions and its
+  starting record as params, and scopes its DOM to the container it is handed —
+  droppable into an admin page or the board later). Enum controls
+  (`force` `push|pull|static`, `mechanic` `compound|isolation`, `load`
+  `total|per-implement`, `defaultLaterality` `both|split|per-side`,
+  `lateralityAxis` `arm|leg|side|hand|direction`) are `<select>`s whose options
+  are exactly that vocabulary + "— unset —"; `laterality` / `measures` are
+  checkbox groups over their vocabularies; `implements` is a small int; the
+  string-list fields (`aliases` `equipment` `pattern` `related` `sameAs`) and
+  `muscles.primary` / `.secondary` are comma-separated inputs (other `muscles`
+  keys like `support` / `sources` pass through untouched). `movementId` is
+  editable + kebab-validated on create, read-only on edit. It `POST`s a new /
+  `PATCH`es an existing `scope: "global"` row over `/api` in the same record
+  shape M3 writes — json fields shape-for-shape, scalars straight, empties
+  omitted on create and cleared (json→`null`, scalar→`""`) on update; `source`
+  / `user` / timestamps are never written. Cross-field validation (an axis
+  needs a per-side mode; a default must be a ticked mode) and the id check run
+  before any request; an `/api` failure (the 403 for signed-out / non-admin)
+  is shown in the form rather than silently swallowed. The movement `/api`
+  calls live in `apps/shared/pocketbase.js` (`listMovements` /
+  `getMovementByMovementId` / `createMovement` / `updateMovement`, same
+  hand-rolled `fetch` style, no SDK). **First host: the builder** — `＋ new
+  movement` in the palette modal, `✎` on every palette card, and "Edit … its
+  curated fields" in a step row's `»` panel (whose caret now shows for any
+  curated movement). A save folds the row into the in-memory `curatedMovements`
+  / `catalogue` (`provide(...)` so the registries rebuild) and re-renders, so
+  the new/edited movement shows without a reload. No `packages/core` / grammar
+  / spec / registry-file change; suite unchanged **2064/2064, 1 pending**.
+  **Still to do on deploy:** nothing collection-side (M1 already shipped the
+  schema) — the editor just needs an admin `users` row on the box to write
+  against prod PocketBase.
 
 - **M6 — Nightly DB backup cron on the VPS** *(pre-existing gap, independent of
   M1–M5, now higher priority — raised by Chris 2026-08-31; the answer to "did we
