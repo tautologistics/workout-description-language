@@ -13,9 +13,18 @@ plus a one-sentence hosting-convention note beside spec §2's `@id` bullet.
 editor in the builder header, and `updateHandle` / `currentHandle()` in
 `apps/shared/pocketbase.js`; mock `/api` + `fixtures/users.json` mirror;
 migration up+down verified against a real PocketBase v0.40.1 binary; `make
-test` unchanged (2064/2064, 1 pending). **Next is L2 — a migration adding
-`workouts.wdlId`** (text, nullable, indexed; no rule change; existing rows null
-until L3/L6 populate them). See [../tasks/current.md](../tasks/current.md)
+test` unchanged (2064/2064, 1 pending). **L2 landed 2026-09-01
+(`<TASK-SHA>`)** — `deploy/pocketbase/pb_migrations/1757000000_add_workouts_wdlid.js`
+adds `wdlId` (text, `max: 260`, nullable) + a plain index
+`idx_workouts_wdl_id` to `workouts`; no rule change, no app/mock/fixture change
+(pure schema — existing rows stay `null` until L3 sets it on save / L6's loader
+for the org rows); `make test` unchanged; migration up/down/up verified against
+a real PocketBase v0.40.1 binary. **Next is L3 — force `@id` on save + set
+`wdlId` + `getByAnyId` lookup resolver** (`apps/shared/pocketbase.js`
+`create`/`update` rewrite the `@id` line to `<owner-handle>:<slug>` and send
+`wdlId` set to the same string; `getByAnyId(x)` resolves a `:`-bearing value as
+a `wdlId` else a 15-char record id; point the board's `?w=` at it; mirror in
+`scripts/mock-api.mjs`). See [../tasks/current.md](../tasks/current.md)
 "## The workout library (L0–L7)".
 
 *Movements in the database — Phase 1 (M0–M7)* is
@@ -47,8 +56,9 @@ from Chris, in [../tasks/current.md](../tasks/current.md)):
   account gets an editable `handle` that namespaces its `@id`s; a
   `workouts.wdlId` column; search over own + public by name / `@id` / record
   id; authored `.wdl` library + a `make workouts:load` ingest that also
-  regenerates fixtures. **L0 (DEC-021) done 2026-09-01; L1 next.** This absorbs
-  most of the deferred account-namespacing rethink.
+  regenerates fixtures. **L0 (DEC-021), L1 (`users` `org`+`handle`) and L2
+  (`workouts.wdlId` column) done 2026-09-01; L3 next.** This absorbs most of
+  the deferred account-namespacing rethink.
 - **unit defaults** — `@ 95` reads as `95lb`; a unitless magnitude on a
   machine/aerobic movement reads as calories. Spec + grammar + parser + golden
   change.

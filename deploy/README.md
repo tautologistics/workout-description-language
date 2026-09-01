@@ -211,8 +211,12 @@ Created by `pb_migrations/1756600000_create_workouts.js` on first serve
 | `title`      | text                | optional                                |
 | `source`     | text                | required — the `.wdl` body              |
 | `visibility` | select (single)     | `private` / `unlisted` / `public`       |
+| `wdlId`      | text                | nullable — set on save from `@id` (`<handle>:<slug>`), tasks L2/L3, DEC-021; search key for L4 |
 | `created`    | autodate            | on create                               |
 | `updated`    | autodate            | on create + update                      |
+
+Indexes: plain on `owner`, on `visibility`, and on `wdlId` (`idx_workouts_wdl_id`
+— not unique; search/lookup key, tasks L2–L4).
 
 API rules:
 
@@ -338,6 +342,39 @@ grant — org rows never sign in, so there's no admin flag or password to set
 If a future PocketBase version rejects the migration, add the two fields and
 the index by hand to match the table above, insert the three rows with the
 fixed ids above, then snapshot the schema
+(`./pocketbase migrate collections`) and commit the generated file.
+
+---
+
+## 7d. `workouts.wdlId`
+
+Added by `pb_migrations/1757000000_add_workouts_wdlid.js` (queue task L2, the
+*workout library* epic,
+[DEC-021](../docs/context/topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it))
+on serve — verified against a real v0.40.1 binary (`migrate up` / `down 1` /
+`up` all clean; `wdlId` + `idx_workouts_wdl_id` land and revert together).
+
+| field   | type          | notes                                                                 |
+|---------|---------------|----------------------------------------------------------------------|
+| `wdlId` | text (max 260)| nullable, no default — mirrors the `@id` (`<handle>:<slug>`); `null` for every existing row until re-saved (L3) or loaded (L6) |
+
+Index: `CREATE INDEX idx_workouts_wdl_id ON workouts (wdlId)` — **plain, not
+unique** (two owners may hold the same slug; same-owner collisions get L3's
+`-2`/`-3` suffix). No API-rule change — the item-18 visibility rules are
+untouched.
+
+L2 is schema only: nothing sets `wdlId` yet. **L3** makes
+`apps/shared/pocketbase.js` write it on every create/update (from the forced
+`@id` line) and adds `getByAnyId`; **L4** searches on it; **L6**'s loader sets
+it for the org library rows.
+
+**After the migration applies, glance at the admin UI**: *Collections →
+`workouts`* — confirm the `wdlId` text column is present and that
+`idx_workouts_wdl_id` shows in the collection's index list. Nothing to
+backfill or grant.
+
+If a future PocketBase version rejects the migration, add the field and the
+index by hand to match the above, then snapshot the schema
 (`./pocketbase migrate collections`) and commit the generated file.
 
 ---

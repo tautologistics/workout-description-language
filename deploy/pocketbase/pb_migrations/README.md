@@ -77,3 +77,21 @@ supersedes it. From then on the collection schema is reproducible: a fresh
   rejected by the index (`UNIQUE constraint failed`), and `migrate down 1`
   removes the rows, the index and both fields cleanly. Glance at the admin UI
   on the box after deploy — [`../../README.md`](../../README.md) §7c.
+
+- `1757000000_add_workouts_wdlid.js` — adds a `wdlId` field (text, `max: 260`,
+  nullable) plus a **plain** index `idx_workouts_wdl_id ON workouts (wdlId)` to
+  the `workouts` collection (queue task L2, the *workout library* epic,
+  [DEC-021](../../../docs/context/topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)).
+  `wdlId` mirrors the workout's `@id` (`<owner-handle>:<slug>`) — L3 sets it on
+  every save, L4 searches on it, L6's loader sets it for the org rows; existing
+  rows stay `null` (no backfill, per DEC-021). No API-rule change. Edits an
+  *existing* collection the same way `1756700000_add_users_admin.js` and
+  `1756900000_add_users_handle_and_orgs.js` do — `findCollectionByNameOrId` →
+  `fields.add(new Field(...))` / `indexes.push(...)` → `app.save`; `down`
+  reverses with `indexes.filter(...)` + `fields.removeByName(...)`. Verified
+  against a real v0.40.1 (darwin_arm64) binary + throwaway `pb_data`: `migrate
+  up` applies all five migrations cleanly, `wdlId` + `idx_workouts_wdl_id` land
+  on `workouts` (checked via `sqlite3` against `_collections` / `sqlite_master`),
+  `migrate down 1` removes the field and the index together (owner / visibility
+  indexes intact), a re-`up` reapplies cleanly. Glance at the admin UI on the
+  box after deploy — [`../../README.md`](../../README.md) §7d.

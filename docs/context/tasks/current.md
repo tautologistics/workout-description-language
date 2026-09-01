@@ -39,9 +39,10 @@ sized like M0–M7 for sequential sessions. **L0 landed 2026-09-01
 (`b9c52f1`)** — the contract is
 [DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
 + a spec §2 note; **L1 landed 2026-09-01 (`88ab8b6`)** — the `users`
-`org`+`handle` migration + handle generator/editor; **L2 (`workouts.wdlId`
-column) is next**. Three standalone tasks are also queued, all
-dispatchable now:
+`org`+`handle` migration + handle generator/editor; **L2 landed 2026-09-01
+(`<TASK-SHA>`)** — the `workouts.wdlId` column migration; **L3 (force `@id` on
+save + set `wdlId` + lookup resolver) is next**. Three standalone tasks are
+also queued, all dispatchable now:
 
 - **unit defaults** — a unitless `@ 95` load target reads as `95lb` (pound is
   the default); a unitless magnitude on a machine/aerobic movement reads as
@@ -352,10 +353,32 @@ deploy:** glance at the admin UI — the three org rows landed, `handle` shows
 the unique-index badge (`deploy/README.md` §7c) — same caveat as M1/M2/M3.
 Spawns L2.
 
-**L2 — `workouts` schema: `wdlId` column.** Migration adds `wdlId` (text,
-nullable, indexed) to `workouts`. No rule change (visibility rules unchanged).
-Note that existing rows have it null until re-saved / backfilled (L3 covers new
-saves; L6's loader sets it for the library). Verify up+down. Spawns L3.
+**L2 — `workouts` schema: `wdlId` column. DONE 2026-09-01 (`<TASK-SHA>`).**
+`deploy/pocketbase/pb_migrations/1757000000_add_workouts_wdlid.js` adds `wdlId`
+(text, `max: 260`, `required: false`) to `workouts` plus a **plain** index
+`CREATE INDEX idx_workouts_wdl_id ON workouts (wdlId)` (non-unique — two owners
+can hold the same slug; same-owner collisions get L3's `-2`/`-3` suffix; a
+plain index is all L3's lookup and L4's search need). Edits an existing
+collection the same way `1756700000_add_users_admin.js` /
+`1756900000_add_users_handle_and_orgs.js` do — `findCollectionByNameOrId` →
+`fields.add(new Field(...))` / `indexes.push(...)` → `app.save`; `down`
+reverses field + index together. **No rule change** — the item-18
+`listRule`/`viewRule`/`createRule`/`updateRule`/`deleteRule` on `workouts` are
+untouched. **No app/mock/fixture change** — L2 is pure DB schema; nothing sets
+`wdlId` yet (L3 does, on save; L6's loader for the org rows), so existing rows
+stay `wdlId: null` — no backfill, per DEC-021. `deploy/README.md` §7 table +
+new §7d; `pb_migrations/README.md` entry. **Verified:** `make test` unchanged
+2064/2064, 1 pending (no `packages/core` touch). Migration up/down/up against a
+real PocketBase v0.40.1 (darwin_arm64) binary + throwaway `pb_data`, all five
+migration files present: `migrate up` applies all five cleanly; `sqlite3`
+against `_collections` shows `wdlId` (text, max 260, required false, system
+false) and against `sqlite_master` shows `idx_workouts_wdl_id` beside the
+existing `owner` / `visibility` indexes; `echo y | migrate down 1` reverts —
+`wdlId` and `idx_workouts_wdl_id` both gone, owner/visibility indexes intact;
+a re-`up` reapplies cleanly. **Still to do on deploy:** glance at the admin UI
+after the migration applies — confirm the `wdlId` column + `idx_workouts_wdl_id`
+landed on `workouts` (`deploy/README.md` §7d); nothing to backfill or grant,
+same style as the M1/M2/M3/L1 "still to do on deploy" notes. Spawns L3.
 
 **L3 — force `@id` on save + set `wdlId` + lookup resolver** (per
 [DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)).

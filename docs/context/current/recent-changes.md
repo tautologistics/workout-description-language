@@ -2,6 +2,58 @@
 
 ## Changes
 
+- **2026-09-01 — L2 of *The workout library* epic landed (`<TASK-SHA>`)** — the
+  `workouts` side of the DEC-021 schema.
+  `deploy/pocketbase/pb_migrations/1757000000_add_workouts_wdlid.js` adds
+  `wdlId` (text, `max: 260`, nullable, no default) to the `workouts` collection
+  plus a **plain** index `idx_workouts_wdl_id ON workouts (wdlId)` — non-unique
+  because two owners may hold the same `<slug>` and same-owner collisions get
+  L3's `-2`/`-3` suffix, and a plain index is all the L3 lookup and L4 search
+  need. Edits an existing collection the same way M2 / L1 do
+  (`findCollectionByNameOrId` → `fields.add(new Field(...))` / `indexes.push` →
+  `app.save`; `down` reverses field + index together). **No API-rule change**
+  (the item-18 visibility rules on `workouts` are untouched) and **no
+  app/mock/fixture change** — L2 is pure DB schema; `wdlId` is `null` on every
+  existing and new row until L3 sets it on save (and L6's loader for the org
+  rows), so there is no backfill (DEC-021). `make test` unchanged **2064/2064,
+  1 pending** — no `packages/core` touch. Migration up/down/up verified against
+  a real PocketBase v0.40.1 (darwin_arm64) binary + throwaway `pb_data` with
+  all five migration files present:
+
+  ```
+  $ ./pocketbase migrate up --dir <tmp>/pb_data --migrationsDir <tmp>/pb_migrations
+  Applied 1756600000_create_workouts.js
+  Applied 1756700000_add_users_admin.js
+  Applied 1756800000_create_movements.js
+  Applied 1756900000_add_users_handle_and_orgs.js
+  Applied 1757000000_add_workouts_wdlid.js
+
+  $ sqlite3 pb_data/data.db "SELECT fields FROM _collections WHERE name='workouts';"  # wdlId entry
+  ('wdlId', 'text', 260, False)      # (name, type, max, required)
+
+  $ sqlite3 pb_data/data.db "SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name='workouts' AND sql IS NOT NULL;"
+  CREATE INDEX `idx_workouts_owner` ON `workouts` (`owner`)
+  CREATE INDEX `idx_workouts_visibility` ON `workouts` (`visibility`)
+  CREATE INDEX `idx_workouts_wdl_id` ON `workouts` (`wdlId`)
+
+  $ echo y | ./pocketbase migrate down 1 --dir <tmp>/pb_data --migrationsDir <tmp>/pb_migrations
+  Reverted 1757000000_add_workouts_wdlid.js
+  # wdlId ABSENT; workouts indexes back to owner + visibility only
+
+  $ ./pocketbase migrate up --dir <tmp>/pb_data --migrationsDir <tmp>/pb_migrations
+  Applied 1757000000_add_workouts_wdlid.js
+  # wdlId + idx_workouts_wdl_id back
+  ```
+
+  *Touched:* new
+  `deploy/pocketbase/pb_migrations/1757000000_add_workouts_wdlid.js`;
+  `deploy/pocketbase/pb_migrations/README.md`; `deploy/README.md` (§7 table +
+  index line + new §7d); `docs/context/`. **Still to do on deploy:** glance at
+  the admin UI once the migration applies — confirm the `wdlId` column +
+  `idx_workouts_wdl_id` landed on `workouts` (`deploy/README.md` §7d); nothing
+  to backfill or grant. Spawns L3 (force `@id` on save + set `wdlId` +
+  `getByAnyId` resolver).
+
 - **2026-09-01 — L1 of *The workout library* epic landed (`88ab8b6`)** — the
   `users` schema + app-side handle machinery DEC-021 opened the epic against.
   `deploy/pocketbase/pb_migrations/1756900000_add_users_handle_and_orgs.js`
