@@ -943,6 +943,16 @@ button:hover, .button:hover { border-color: var(--dim); }
   font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--dim);
 }
 
+.mine-search {
+  width: 100%;
+  font: inherit; font-size: .82rem;
+  padding: .3rem .4rem;
+  border: 1px solid var(--rule); border-radius: .3rem;
+  background: var(--panel); color: var(--ink);
+}
+.mine-search::placeholder { color: var(--dim); }
+.mine-search:focus { outline: none; border-color: var(--accent); }
+
 .mine-list { display: flex; flex-direction: column; gap: 1px; }
 
 .mine-row { display: flex; align-items: stretch; gap: .15rem; }
@@ -959,6 +969,8 @@ button:hover, .button:hover { border-color: var(--dim); }
 .mine-open:hover { border-color: var(--rule); background: var(--page); }
 .mine-open .mine-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mine-open .mine-when { flex: none; font-size: .74rem; color: var(--dim); font-variant-numeric: tabular-nums; }
+.mine-open .mine-label { flex: none; font-size: .74rem; color: var(--dim); }
+.mine-open .mine-label.is-mine { color: var(--accent); }
 
 .menu-icon {
   flex: none; width: 1.7rem;

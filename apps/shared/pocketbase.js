@@ -290,6 +290,30 @@ export async function ensureHandle() {
   }
 }
 
+/** uid -> handle, memoised for the session (see `getHandle`). */
+const handleByUid = new Map();
+
+/**
+ * Best-effort: the handle for an arbitrary account id. Used to label a public
+ * search hit with whose set it is (L4). Against real PocketBase the `users`
+ * list/view rule is `id = @request.auth.id`, so only *your own* uid resolves
+ * and every other returns `null` — the caller then labels the row "public".
+ * The mock `/api` leaves the list open, so it resolves for everyone locally.
+ * Never throws; caches the answer (including `null`).
+ */
+export async function getHandle(uid) {
+  if (!uid) return null;
+  if (handleByUid.has(uid)) return handleByUid.get(uid);
+  let handle = null;
+  try {
+    const q = new URLSearchParams({ filter: `id="${uid}"`, perPage: '1' });
+    const data = await call(`${USER_RECORDS}?${q}`, { auth: !!authToken() });
+    handle = data.items?.[0]?.handle ?? null;
+  } catch { /* blocked by the list rule, or offline — the caller degrades */ }
+  handleByUid.set(uid, handle);
+  return handle;
+}
+
 /**
  * Change the signed-in user's handle. Validates client-side first (shape,
  * reserved words), pre-checks freeness (best-effort — see the section note),
@@ -482,6 +506,40 @@ export async function getByAnyId(x) {
     }
     throw e;
   }
+}
+
+/** Search hits pulled per page — a debounced dropdown, not a paged results view. */
+const SEARCH_PER_PAGE = 20;
+
+/**
+ * Search over *your own* workouts plus *every public* one, by title or `wdlId`
+ * substring (DEC-021). One `GET …/workouts/records` with the parenthesised
+ * filter PocketBase understands:
+ *
+ *   (visibility="public" || owner="<uid>") && (title~"<q>" || wdlId~"<q>")
+ *
+ * `~` is PocketBase's case-insensitive "contains". Signed out there is no
+ * `owner` clause and no auth header — just `visibility="public" && (…)`.
+ *
+ * `q` is trimmed; a `"` is stripped from it (it sits inside `"…"` in the filter
+ * and this is a single-instance tool, not a query builder). An empty/whitespace
+ * `q` returns `[]` with no request. Returns the matching records, newest edit
+ * first — the same row shape `listMine` / `getById` return, `wdlId` included.
+ */
+export async function searchWorkouts(q, { page = 1 } = {}) {
+  const term = String(q ?? '').trim().replace(/"/g, '');
+  if (!term) return [];
+  const uid = currentUser()?.id;
+  const scope = uid ? `(visibility="public" || owner="${uid}")` : 'visibility="public"';
+  const filter = `${scope} && (title~"${term}" || wdlId~"${term}")`;
+  const search = new URLSearchParams({
+    filter,
+    sort: '-updated',
+    page: String(page),
+    perPage: String(SEARCH_PER_PAGE),
+  });
+  const data = await call(`${RECORDS}?${search}`, { auth: !!authToken() });
+  return data.items ?? [];
 }
 
 /**

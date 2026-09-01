@@ -27,14 +27,23 @@ the `# title`, else `untitled`; re-save-stable `-2`/`-3` suffix on a same-owner
 clash); new `getByAnyId(x)` resolves a `:`-bearing value as a `wdlId` else a
 15-char record id with a `wdlId` fallback; `apps/display/board.js`'s `?w=` uses
 it; `scripts/mock-api.mjs` mirrors (`forceWdlId` port, `wdlId` on the record
-shape). `make test` unchanged (2064/2064, 1 pending); verified driving the
-builder + board against `make serve`. **Next is L4 — Search: API + builder UI**
-— `searchWorkouts(q, {page})` in `pocketbase.js`
+shape). **L4 landed 2026-09-01 (`<TASK-SHA>`)** — app + mock + one fixture row:
+`searchWorkouts(q, {page})` in `pocketbase.js`
 (`filter=(visibility="public" || owner="<uid>") && (title~"<q>" ||
-wdlId~"<q>")`, `sort=-updated`, paged), a builder search input in the
-*My workouts* / *Open…* area listing own + public matches each labelled which,
-click-to-open into the editor, and `scripts/mock-api.mjs` growing the `~`
-(substring) operator + that one parenthesised OR shape. See
+wdlId~"<q>")`, `sort=-updated`, `perPage: 20`; empty `q` → `[]`; `"` stripped)
+plus `getHandle(uid)` for owner labels; a debounced search box in the builder's
+**My workouts** panel listing own + public hits each labelled
+`mine`/`@handle`/`public`, click-to-open (own → attached, public → detached
+copy); `scripts/mock-api.mjs`'s `applyQuery` grew a `~` operator + the
+parenthesised OR (`matchesFilter`); `fixtures/workouts.json` gained one public
+`crossfit:helen` row. `make test` unchanged (2064/2064, 1 pending); verified
+driving the builder against `make serve` in both themes. **Next is L5 — author
+the benchmark `.wdl` library**: `examples/workouts/<org>/<slug>.wdl` for the
+CrossFit Girls + first Heroes + Fight Gone Bad + Filthy Fifty + CrossFit Total,
+the HYROX full race + 8 stations, and the Tabata protocol + variants — each with
+`@id <org>:<slug>` and a `# Title`. Pure content, no code; Chris reviews the
+diff; the hard constraints (whiteboard-readable at rest, a wrong prescription is
+a real error) bite hardest here. See
 [../tasks/current.md](../tasks/current.md) "## The workout library (L0–L7)".
 
 *Movements in the database — Phase 1 (M0–M7)* is
@@ -67,9 +76,10 @@ from Chris, in [../tasks/current.md](../tasks/current.md)):
   `workouts.wdlId` column; search over own + public by name / `@id` / record
   id; authored `.wdl` library + a `make workouts:load` ingest that also
   regenerates fixtures. **L0 (DEC-021), L1 (`users` `org`+`handle`), L2
-  (`workouts.wdlId` column) and L3 (force `@id`/`wdlId` on save + `getByAnyId`)
-  done 2026-09-01; L4 (search) next.** This absorbs most of the deferred
-  account-namespacing rethink.
+  (`workouts.wdlId` column), L3 (force `@id`/`wdlId` on save + `getByAnyId`) and
+  L4 (`searchWorkouts` + builder search box + the mock's `~`) done 2026-09-01;
+  L5 (author the benchmark `.wdl` library) next.** This absorbs most of the
+  deferred account-namespacing rethink.
 - **unit defaults** — `@ 95` reads as `95lb`; a unitless magnitude on a
   machine/aerobic movement reads as calories. Spec + grammar + parser + golden
   change.

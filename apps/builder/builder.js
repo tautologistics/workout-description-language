@@ -40,7 +40,7 @@ import { mountBody, paintBody, aggregateStates, highlightStates, heatStates, hea
 import {
   currentUser, beginGoogleSignIn, refreshAuth, signOut, updateHandle,
   listMine, getById as pbGetById, create as pbCreate, update as pbUpdate,
-  remove as pbRemove, shareUrl,
+  remove as pbRemove, shareUrl, searchWorkouts, getHandle,
   createMovement, updateMovement, getMovementByMovementId,
 } from '../shared/pocketbase.js';
 import { createMovementEditor } from '../shared/movement-editor.js';
@@ -2583,6 +2583,122 @@ let mineList = [];
 /** A one-line status shown in the panel — the outcome of the last action. */
 let mineNote = '';
 
+// --- search over own + public workouts (task L4, DEC-021) -------------------
+// A debounced search box in the My-workouts panel. Non-empty query → the panel
+// shows `searchWorkouts` hits (own + any public, each labelled whose) instead
+// of the plain list; cleared → the plain list is back.
+
+/** `null` while not searching; otherwise `[{ rec, label }]` for the last query. */
+let mineSearchResults = null;
+/** The live query string, kept so a panel re-render doesn't drop it. */
+let mineSearchQuery = '';
+/** Monotonic token — a slow search that resolves after a newer one is discarded. */
+let mineSearchSeq = 0;
+let mineSearchTimer = null;
+/** The one persistent <input> node — re-appended (not rebuilt) so focus survives. */
+let mineSearchInput = null;
+
+function getMineSearchInput() {
+  if (mineSearchInput) return mineSearchInput;
+  const input = document.createElement('input');
+  input.type = 'search';
+  input.className = 'mine-search';
+  input.placeholder = 'Search workouts by name or @id…';
+  input.spellcheck = false;
+  input.autocomplete = 'off';
+  input.value = mineSearchQuery;
+  input.oninput = () => onMineSearchInput(input.value);
+  mineSearchInput = input;
+  return input;
+}
+
+function onMineSearchInput(value) {
+  mineSearchQuery = value;
+  clearTimeout(mineSearchTimer);
+  const term = value.trim();
+  if (!term) {
+    mineSearchResults = null;
+    mineSearchSeq++; // cancel any in-flight resolve
+    if (mineNote.startsWith('Search')) mineNote = '';
+    renderMinePanel();
+    return;
+  }
+  mineSearchTimer = setTimeout(() => runMineSearch(term), 220);
+}
+
+async function runMineSearch(term) {
+  const seq = ++mineSearchSeq;
+  try {
+    const hits = await searchWorkouts(term);
+    if (seq !== mineSearchSeq) return;
+    const me = currentUser()?.id;
+    const labelled = await Promise.all(hits.map(async (rec) => {
+      if (rec.owner === me) return { rec, label: 'mine', mine: true };
+      const h = await getHandle(rec.owner);
+      return { rec, label: h ? `@${h}` : 'public', mine: false };
+    }));
+    if (seq !== mineSearchSeq) return;
+    mineSearchResults = labelled;
+    if (mineNote.startsWith('Search')) mineNote = '';
+  } catch (e) {
+    if (seq !== mineSearchSeq) return;
+    mineSearchResults = [];
+    mineNote = `Search failed: ${e.message}`;
+  }
+  renderMinePanel();
+}
+
+/**
+ * Open a search hit into the editor. Your own row attaches like `openMine` so
+ * Save updates it; someone else's public row opens detached, so the first Save
+ * creates *your* copy (re-namespaced to your handle by `pocketbase.js` — the
+ * DEC-021 copy flow, no fork concept).
+ */
+function openFoundWorkout(hit) {
+  const { rec, mine } = hit;
+  lines = (rec.source || '').replace(/\n$/, '').split('\n');
+  if (!lines.length) lines = [''];
+  openWorkout = mine ? { id: rec.id, title: rec.title, visibility: rec.visibility } : null;
+  focused = null;
+  mineNote = mine
+    ? ''
+    : `Opened ${rec.wdlId || rec.title || 'workout'} — a read-only copy; Save makes it yours.`;
+  el('mine').open = false;
+  render();
+  renderMinePanel();
+}
+
+function renderSearchResults() {
+  const list = document.createElement('div');
+  list.className = 'mine-list';
+  if (!mineSearchResults.length) {
+    list.append(hintP('No matches.'));
+    return list;
+  }
+  for (const hit of mineSearchResults) {
+    const row = document.createElement('div');
+    row.className = 'mine-row';
+    if (hit.mine && openWorkout?.id === hit.rec.id) row.classList.add('current');
+
+    const open = document.createElement('button');
+    open.type = 'button';
+    open.className = 'mine-open';
+    const title = document.createElement('span');
+    title.className = 'mine-title';
+    title.textContent = hit.rec.title || hit.rec.wdlId || 'Untitled workout';
+    const who = document.createElement('span');
+    who.className = 'mine-label';
+    if (hit.mine) who.classList.add('is-mine');
+    who.textContent = hit.label;
+    open.append(title, who);
+    open.onclick = () => openFoundWorkout(hit);
+
+    row.append(open);
+    list.append(row);
+  }
+  return list;
+}
+
 const detachServerWorkout = () => { openWorkout = null; renderMinePanel(); };
 
 /** The `#` title the parser reads off the current buffer, if any. */
@@ -2649,6 +2765,9 @@ function renderIdentity() {
     openWorkout = null;
     mineList = [];
     mineNote = '';
+    mineSearchResults = null;
+    mineSearchQuery = '';
+    mineSearchInput = null;
     renderIdentity();
     renderMinePanel();
   };
@@ -2753,6 +2872,8 @@ function iconBtn(glyph, title, fn) {
 function renderMinePanel() {
   const panel = el('mine-panel');
   if (!panel) return;
+  // `innerHTML = ''` blurs the search box; refocus it below if it was active.
+  const searchWasActive = mineSearchInput && document.activeElement === mineSearchInput;
   panel.innerHTML = '';
 
   if (!currentUser()) {
@@ -2774,8 +2895,20 @@ function renderMinePanel() {
   }
   panel.append(actions);
 
+  panel.append(getMineSearchInput());
+  if (searchWasActive) {
+    const n = mineSearchInput.value.length;
+    mineSearchInput.focus();
+    mineSearchInput.setSelectionRange(n, n);
+  }
+
   if (mineNote) panel.append(hintP(mineNote));
   if (openWorkout) panel.append(renderShareRow());
+
+  if (mineSearchResults !== null) {
+    panel.append(renderSearchResults());
+    return;
+  }
 
   const list = document.createElement('div');
   list.className = 'mine-list';

@@ -32,9 +32,11 @@
  *   DELETE /api/collections/movements/records/:id     — delete, same Authorization gate; 403 without it, 204 with
  *
  * Query params honoured on the two list routes, only as far as the client uses
- * them: `filter` (a minimal `field="value"` AND match — enough for `owner="…"`
- * and, since L3, `wdlId="<handle>:<slug>"` — the generic matcher already spans
- * the colon), `sort` (`-updated` etc.), `page`, `perPage`. Not a query engine.
+ * them: `filter` (a pattern-matcher for the exact strings the client emits —
+ * `field="value"` / `field~"value"` comparisons joined by `&&`, plus the one
+ * parenthesised `(A || B) && (C || D)` shape `searchWorkouts` sends, L4; see
+ * `matchesFilter` below), `sort` (`-updated` etc.), `page`, `perPage`. Not a
+ * query engine.
  *
  * **`wdlId` (task L3, DEC-021).** `workouts` create/update run the same
  * force-`@id` + set-`wdlId` logic as `apps/shared/pocketbase.js` (`forceWdlId`
@@ -399,12 +401,7 @@ function pickMovementFields(body) {
 function applyQuery(items, url) {
   let out = items.slice();
   const filter = url.searchParams.get('filter');
-  if (filter) {
-    for (const m of filter.matchAll(/([a-zA-Z_][\w.]*)\s*=\s*["']([^"']*)["']/g)) {
-      const [, field, value] = m;
-      out = out.filter((r) => String(r[field] ?? '') === value);
-    }
-  }
+  if (filter) out = out.filter((r) => matchesFilter(r, filter));
   const sort = url.searchParams.get('sort');
   if (sort) {
     for (const key of sort.split(',').map((s) => s.trim()).filter(Boolean).reverse()) {
@@ -414,6 +411,52 @@ function applyQuery(items, url) {
     }
   }
   return out;
+}
+
+// --- filter matcher -------------------------------------------------------
+// NOT a general expression engine — a pattern-matcher for exactly the filter
+// strings `apps/shared/pocketbase.js` emits:
+//   • one or more `field="value"` / `field~"value"` comparisons joined by `&&`
+//     (`owner="…"`, `wdlId="…"`, `handle="…"`, `id="…"`, `scope="global"`, …) —
+//     `=` is exact, `~` is a case-insensitive substring (task L4);
+//   • the single parenthesised search shape from `searchWorkouts` (L4):
+//       (visibility="public" || owner="<uid>") && (title~"<q>" || wdlId~"<q>")
+//     and its signed-out form with no `owner` clause.
+// An atom it doesn't recognise is treated as "no constraint" rather than an
+// error, so an unforeseen filter degrades to a wider result set, never a crash.
+
+/** Split `s` on a top-level `sep` (`&&` / `||`) — outside parens and quotes. */
+function splitTop(s, sep) {
+  const parts = [];
+  let depth = 0, quote = null, buf = '';
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (quote) { buf += c; if (c === quote) quote = null; continue; }
+    if (c === '"' || c === "'") { quote = c; buf += c; continue; }
+    if (c === '(') { depth++; buf += c; continue; }
+    if (c === ')') { depth--; buf += c; continue; }
+    if (depth === 0 && s.startsWith(sep, i)) { parts.push(buf); buf = ''; i += sep.length - 1; continue; }
+    buf += c;
+  }
+  parts.push(buf);
+  return parts;
+}
+
+/** One `field="v"` (exact) or `field~"v"` (case-insensitive substring) atom. */
+function matchesAtom(rec, atom) {
+  const m = atom.trim().match(/^([a-zA-Z_][\w.]*)\s*(=|~)\s*["']([^"']*)["']$/);
+  if (!m) return true; // unrecognised — don't let it exclude anything
+  const [, field, op, value] = m;
+  const have = String(rec[field] ?? '');
+  return op === '~' ? have.toLowerCase().includes(value.toLowerCase()) : have === value;
+}
+
+/** Every `&&` conjunct holds; a conjunct is an atom or a parenthesised `||` group. */
+function matchesFilter(rec, filter) {
+  return splitTop(filter, '&&').every((conj) => {
+    const inner = conj.trim().replace(/^\(([\s\S]*)\)$/, '$1');
+    return splitTop(inner, '||').some((d) => matchesAtom(rec, d));
+  });
 }
 
 function listEnvelope(items, url) {

@@ -2,6 +2,62 @@
 
 ## Changes
 
+- **2026-09-01 — L4 of *The workout library* epic landed (`<TASK-SHA>`)** —
+  search over your own + any public workout, by title or `@id`/`wdlId` (DEC-021).
+  **App + mock + one fixture row only** — no schema / `packages/core` / grammar /
+  spec touch; `make test` unchanged **2064/2064, 1 pending**.
+  - `apps/shared/pocketbase.js`: **`searchWorkouts(q, { page = 1 })`** — one
+    `GET …/workouts/records` with
+    `filter=(visibility="public" || owner="<uid>") && (title~"<q>" || wdlId~"<q>")`,
+    `sort=-updated`, `perPage: 20`. Signed out: no `owner` clause, no auth
+    header. `q` trimmed, `"` stripped (it sits inside `"…"` in the filter — a
+    one-instance tool, not a query builder); empty `q` → `[]` with no request;
+    returns the `items` array. **`getHandle(uid)`** — best-effort, session-
+    memoised uid→handle for labelling a public hit; real PocketBase resolves
+    only your own uid (`users` list rule `id = @request.auth.id`) → foreign
+    owners fall back to the label "public"; the mock resolves every uid. The
+    15-char-record-id case DEC-021 lists is left to the existing `Open…` /
+    `getByAnyId` path — a bare id matches neither `~` clause and a second
+    speculative request per keystroke wasn't worth it.
+  - `apps/builder/builder.js` + `builder.css`: a debounced (220 ms)
+    `<input type="search">` at the top of the **My workouts** panel. A non-empty
+    query swaps the plain list for `searchWorkouts` hits, each row labelled
+    `mine` (accent) / `@ownerhandle` / `public` (dim). Click-to-open
+    (`openFoundWorkout`): your own hit attaches like `openMine`; someone else's
+    public hit opens **detached** with a note, so the first Save writes your
+    re-namespaced copy (the DEC-021 copy flow). "No matches." line; clearing the
+    box restores the plain list. The `<input>` is one persistent node
+    re-appended across panel re-renders with focus/caret restored, so a landing
+    result doesn't interrupt typing. New CSS: `.mine-search`, `.mine-label`
+    (`.is-mine`) — all on existing `--ink`/`--dim`/`--accent`/`--panel`/`--rule`
+    tokens, checked in both themes.
+  - `scripts/mock-api.mjs`: `applyQuery`'s single-regex filter replaced by
+    **`matchesFilter`** — `splitTop` (paren/quote-aware `&&` / `||` split) +
+    `matchesAtom` (`field="v"` exact, `field~"v"` case-insensitive substring).
+    Header comment states it is a matcher for the exact strings the client
+    emits, not a general engine. `sort` / pagination unchanged.
+  - `fixtures/workouts.json`: **one** new row — `crossfit:helen`, owned by
+    `org0crossfit001`, `visibility: "public"`, `wdlId` set — so a fresh
+    `make serve` has a public workout to find. L6's loader regenerates this
+    file.
+  - **Verified** driving the builder against `make serve` (mock `/api`) in
+    **both** `prefers-color-scheme` themes, signed in as the mock user
+    (handle `@canny-clay` assigned on sign-in): search `helen` → the org public
+    hit, labelled `@crossfit`; search `fran` → own private seed hit, labelled
+    `mine` (accent); click `Fran` → opens attached (share row + "Save"); click
+    `Helen` → opens **detached** ("Save to my workouts" + the read-only-copy
+    note, no share row); search `zzznope` → "No matches.", no crash; clear the
+    box → the plain Pull-up/Cindy/Fran list is back. Dark theme: computed
+    colours are the dark tokens (input `#1a1d22`/`#eceef2`, `mine` label
+    `#6ea8ff`, `@crossfit` label `#939aa8`) — no un-themed colour; no console
+    errors. Direct `curl` against the mock confirmed the filter matcher: the
+    signed-in/signed-out shapes, `wdlId~"crossfit:hel"` (colon in the query),
+    case-insensitive `title~"HELEN"`, a zero-match query, and the pre-existing
+    `owner="…"` / `id="…"` filters all resolve correctly. *Touched:*
+    `apps/shared/pocketbase.js`, `apps/builder/builder.js`,
+    `apps/builder/builder.css`, `scripts/mock-api.mjs`, `fixtures/workouts.json`,
+    `docs/context/`. Spawns L5 (author the benchmark `.wdl` library).
+
 - **2026-09-01 — L3 of *The workout library* epic landed (`5be4a30`)** — the
   app-side write that makes `wdlId` mean something and `@id` deterministic
   (DEC-021). **App + mock only** — no schema / `packages/core` / grammar / spec

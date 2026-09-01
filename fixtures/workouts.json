@@ -1,5 +1,5 @@
 {
-  "$comment": "Seed rows for the local dev mock /api `workouts` collection (scripts/mock-api.mjs). Just something to work with — not a production mirror. Runtime create/update/delete are written to fixtures/workouts.local.json (git-ignored); delete that file to reset to this seed. `owner` matches fixtures/users.json users[0].id. Shape follows deploy/pocketbase/pb_migrations/1756600000_create_workouts.js.",
+  "$comment": "Seed rows for the local dev mock /api `workouts` collection (scripts/mock-api.mjs). Just something to work with — not a production mirror. Runtime create/update/delete are written to fixtures/workouts.local.json (git-ignored); delete that file to reset to this seed. Most `owner`s match fixtures/users.json users[0].id (the mock signed-in user); the last row is owned by the `crossfit` org row (org0crossfit001) at visibility:public with wdlId set, so task L4's own+public search has something public to find from a fresh `make serve`. L6's loader will regenerate this file from the authored library. Shape follows deploy/pocketbase/pb_migrations/1756600000_create_workouts.js.",
   "workouts": [
     {
       "id": "wk_mock_fran_00001",
@@ -33,6 +33,18 @@
       "visibility": "private",
       "created": "2026-08-30 12:00:00.000Z",
       "updated": "2026-08-30 12:00:00.000Z"
+    },
+    {
+      "id": "wk_mock_helen_0001",
+      "collectionId": "mock_workouts",
+      "collectionName": "workouts",
+      "owner": "org0crossfit001",
+      "title": "Helen",
+      "source": "@id crossfit:helen\n\n3 rounds for time:\n  400m Run\n  21 Kettlebell Swing @ 24kg\n  12 Pull-Up\n",
+      "wdlId": "crossfit:helen",
+      "visibility": "public",
+      "created": "2026-09-01 00:00:00.000Z",
+      "updated": "2026-09-01 00:00:00.000Z"
     }
   ]
 }

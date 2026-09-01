@@ -43,9 +43,10 @@ sized like M0–M7 for sequential sessions. **L0 landed 2026-09-01
 (`fc72881`)** — the `workouts.wdlId` column migration; **L3 landed 2026-09-01
 (`5be4a30`)** — every save now force-writes `@id` / `wdlId` to
 `<owner-handle>:<slug>` and the board resolves `?w=<handle>:<slug>` as well as
-`?w=<recordid>`; **L4 (search: `searchWorkouts` + builder search UI + the mock's
-`~` operator and parenthesised OR) is next**. Three standalone tasks are also
-queued, all dispatchable now:
+`?w=<recordid>`; **L4 landed 2026-09-01 (`<TASK-SHA>`)** — `searchWorkouts` +
+the builder's My-workouts search box + the mock's `~` operator and parenthesised
+OR; **L5 (author the benchmark `.wdl` library) is next**. Three standalone tasks
+are also queued, all dispatchable now:
 
 - **unit defaults** — a unitless `@ 95` load target reads as `95lb` (pound is
   the default); a unitless magnitude on a machine/aerobic movement reads as
@@ -423,14 +424,41 @@ recordid>` still resolves; `?w=nope:nope` shows the existing "could not be
 found" line, no crash. Theme is not exercised — L3 is logic-only, no CSS/render
 change, both `prefers-color-scheme` values run identical code. Spawns L4.
 
-**L4 — Search: API + builder UI.** `searchWorkouts(q, {page})` in
-`pocketbase.js` — `filter=(visibility="public" || owner="<uid>") && (title~"<q>"
-|| wdlId~"<q>")`, `sort=-updated`, paged. Builder: a search input in the
-*My workouts* / *Open…* area that lists matches (own + public, each labelled
-which), click-to-open into the editor. `scripts/mock-api.mjs` gains `~`
-(substring) operator support and the parenthesised OR for this exact filter
-shape. Verify driving the builder in both themes: own private hit, public hit
-from an org account, by title and by `@id`. Spawns L5.
+**L4 — Search: API + builder UI. DONE 2026-09-01 (`<TASK-SHA>`).** App + mock +
+one fixture row only, no schema/core/grammar/spec touch, `make test` unchanged
+2064/2064 (1 pending). `apps/shared/pocketbase.js` grew **`searchWorkouts(q,
+{page})`** — one `GET …/workouts/records` with
+`filter=(visibility="public" || owner="<uid>") && (title~"<q>" || wdlId~"<q>")`
+(signed out: no `owner` clause, no auth header), `sort=-updated`,
+`perPage: 20`; `q` is trimmed and has `"` stripped (it sits inside `"…"` in the
+filter — one-instance tool, not a query builder); empty `q` → `[]` with no
+request; returns the `items` array (same row shape as `listMine`). Also
+**`getHandle(uid)`** — best-effort uid→handle, session-memoised, for labelling a
+public hit; against real PocketBase only *your own* uid resolves (the `users`
+list rule is `id = @request.auth.id`) so a foreign owner degrades to the label
+"public", against the mock every uid resolves. The record-id search DEC-021
+lists is **left to the existing `Open…` path** — a bare 15-char id matches
+neither `title~` nor `wdlId~`, and the board's `?w=` / `getByAnyId` already
+resolve one; folding it into the box wasn't worth a second speculative request
+per keystroke. Builder (`apps/builder/builder.js` + `builder.css`): a debounced
+(220 ms) `<input type="search">` at the top of the **My workouts** panel; a
+non-empty query replaces the plain list with `searchWorkouts` hits, each row
+labelled **`mine`** (accent) or **`@ownerhandle`** / **`public`** (dim);
+click-to-open runs `openFoundWorkout` — your own hit attaches like `openMine`
+(Save updates it), someone else's public hit opens **detached** with a note
+("Opened `crossfit:helen` — a read-only copy; Save makes it yours.") so the
+first Save creates *your* re-namespaced copy (the DEC-021 copy flow). "No
+matches." line for an empty result; clearing the box restores the plain list.
+The search `<input>` is one persistent node re-appended (not rebuilt) across
+panel re-renders, with focus/caret restored, so typing isn't interrupted when
+results land. `scripts/mock-api.mjs`: `applyQuery`'s one-regex filter was
+replaced by `matchesFilter` — `splitTop` (paren/quote-aware `&&` / `||` split) +
+`matchesAtom` (`field="v"` exact / `field~"v"` case-insensitive substring); a
+header comment states it is a matcher for the exact strings the client emits,
+not a general engine. `fixtures/workouts.json` gained **one** row —
+`crossfit:helen`, owned by `org0crossfit001`, `visibility: "public"`, `wdlId`
+set — so a fresh `make serve` has something public to find (L6's loader will
+regenerate this file). Spawns L5.
 
 **L5 — Author the benchmark `.wdl` library.** `examples/workouts/<org>/<slug>.wdl`
 for the canonical lists, each with `@id <org>:<slug>` and a `# Title`:
