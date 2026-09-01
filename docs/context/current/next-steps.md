@@ -37,13 +37,23 @@ plus `getHandle(uid)` for owner labels; a debounced search box in the builder's
 copy); `scripts/mock-api.mjs`'s `applyQuery` grew a `~` operator + the
 parenthesised OR (`matchesFilter`); `fixtures/workouts.json` gained one public
 `crossfit:helen` row. `make test` unchanged (2064/2064, 1 pending); verified
-driving the builder against `make serve` in both themes. **Next is L5 — author
-the benchmark `.wdl` library**: `examples/workouts/<org>/<slug>.wdl` for the
-CrossFit Girls + first Heroes + Fight Gone Bad + Filthy Fifty + CrossFit Total,
-the HYROX full race + 8 stations, and the Tabata protocol + variants — each with
-`@id <org>:<slug>` and a `# Title`. Pure content, no code; Chris reviews the
-diff; the hard constraints (whiteboard-readable at rest, a wrong prescription is
-a real error) bite hardest here. See
+driving the builder against `make serve` in both themes. **L5 landed 2026-09-01
+(`<TASK-SHA>`)** — the authored benchmark `.wdl` library, **43 files** under
+`examples/workouts/<org>/<slug>.wdl`: **crossfit** (31 — the 19 Girls, 9 first
+Heroes, Fight Gone Bad / Filthy Fifty / the CrossFit Total), **hyrox** (9 — the
+full race + its 8 stations), **tabata** (3 — the protocol, Tabata This, Tabata
+Something Else). Each is `@id <org>:<slug>` + `# Title` + body, byte-identical to
+`wdl fmt` canonical output; all 43 pass `wdl check`; Fran / Murph / Fight Gone
+Bad / `hyrox:race` / `tabata:this` spot-checked on the board. **Content only** —
+no schema / `packages/core` / grammar / spec / test touch, `make test` unchanged
+(2064/2064, 1 pending); `examples/workouts/` deliberately **not** wired into
+`corpus.test.ts` (L6/L7's call). **Next is L6 — ingestion: library → DB +
+fixtures**: `scripts/workouts-to-db.mjs` / `make workouts:load`, twin of
+`movements-to-db.mjs` — reads `examples/workouts/**/*.wdl`, upserts each as a
+`workouts` row owned by the matching org handle at `visibility: "public"`,
+`wdlId` from `@id`, idempotent on `wdlId`, `--dry-run`; the same run regenerates
+`fixtures/workouts.json` + `fixtures/users.json` so a fresh `make serve` shows
+the whole library with no PocketBase; prod writes need `WDL_PB_ADMIN_*`. See
 [../tasks/current.md](../tasks/current.md) "## The workout library (L0–L7)".
 
 *Movements in the database — Phase 1 (M0–M7)* is
@@ -76,10 +86,12 @@ from Chris, in [../tasks/current.md](../tasks/current.md)):
   `workouts.wdlId` column; search over own + public by name / `@id` / record
   id; authored `.wdl` library + a `make workouts:load` ingest that also
   regenerates fixtures. **L0 (DEC-021), L1 (`users` `org`+`handle`), L2
-  (`workouts.wdlId` column), L3 (force `@id`/`wdlId` on save + `getByAnyId`) and
-  L4 (`searchWorkouts` + builder search box + the mock's `~`) done 2026-09-01;
-  L5 (author the benchmark `.wdl` library) next.** This absorbs most of the
-  deferred account-namespacing rethink.
+  (`workouts.wdlId` column), L3 (force `@id`/`wdlId` on save + `getByAnyId`),
+  L4 (`searchWorkouts` + builder search box + the mock's `~`) and L5 (the
+  authored `.wdl` library — 43 files under `examples/workouts/`) done
+  2026-09-01; L6 (ingestion: `scripts/workouts-to-db.mjs` / `make
+  workouts:load`) next.** This absorbs most of the deferred account-namespacing
+  rethink.
 - **unit defaults** — `@ 95` reads as `95lb`; a unitless magnitude on a
   machine/aerobic movement reads as calories. Spec + grammar + parser + golden
   change.

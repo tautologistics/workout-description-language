@@ -45,8 +45,10 @@ sized like M0–M7 for sequential sessions. **L0 landed 2026-09-01
 `<owner-handle>:<slug>` and the board resolves `?w=<handle>:<slug>` as well as
 `?w=<recordid>`; **L4 landed 2026-09-01 (`0de7f9a`)** — `searchWorkouts` +
 the builder's My-workouts search box + the mock's `~` operator and parenthesised
-OR; **L5 (author the benchmark `.wdl` library) is next**. Three standalone tasks
-are also queued, all dispatchable now:
+OR; **L5 landed 2026-09-01 (`<TASK-SHA>`)** — the authored benchmark `.wdl`
+library, 43 files under `examples/workouts/{crossfit,hyrox,tabata}/`, content
+only; **L6 (ingestion: `scripts/workouts-to-db.mjs` / `make workouts:load`) is
+next**. Three standalone tasks are also queued, all dispatchable now:
 
 - **unit defaults** — a unitless `@ 95` load target reads as `95lb` (pound is
   the default); a unitless magnitude on a machine/aerobic movement reads as
@@ -460,16 +462,29 @@ not a general engine. `fixtures/workouts.json` gained **one** row —
 set — so a fresh `make serve` has something public to find (L6's loader will
 regenerate this file). Spawns L5.
 
-**L5 — Author the benchmark `.wdl` library.** `examples/workouts/<org>/<slug>.wdl`
-for the canonical lists, each with `@id <org>:<slug>` and a `# Title`:
-**CrossFit** — the Girls (Fran, Cindy, Grace, Helen, Diane, Elizabeth, Isabel,
-Jackie, Karen, Linda, Nancy, Angie, Barbara, Chelsea, Mary, Annie, Eva, Kelly,
-Nicole) and a first set of Heroes (Murph, DT, Chad, JT, Michael, Randy, Daniel,
-Josh, Nate) plus Fight Gone Bad, Filthy Fifty, the CrossFit Total; **HYROX** —
-the full race and its eight stations; **Tabata** — the protocol and the common
-"Tabata This/That" variants. Chris reviews the diff. Hard constraints apply
-hardest here: the at-rest text must read on a whiteboard, and a wrong
-prescription is a real error. No schema/code — pure content. Spawns L6.
+**L5 — Author the benchmark `.wdl` library. DONE 2026-09-01 (`<TASK-SHA>`).**
+**43 files** under `examples/workouts/<org>/<slug>.wdl`, each first line
+`@id <org>:<slug>` (slug = filename stem), then `# Title`, then the body — every
+file byte-identical to `wdl fmt` canonical output (diffed each against `fmt`), so
+the at-rest text is already the whiteboard form. **crossfit/ (31)** — the 19
+Girls (Fran, Cindy, Grace, Helen, Diane, Elizabeth, Isabel, Jackie, Karen,
+Linda, Nancy, Angie, Barbara, Chelsea, Mary, Annie, Eva, Kelly, Nicole), 9 first
+Heroes (Murph, DT, Chad, JT, Michael, Randy, Daniel, Josh, Nate), Fight Gone Bad
+/ Filthy Fifty / the CrossFit Total. **hyrox/ (9)** — `hyrox:race` (the full
+8×(1km run + station) race, spec §13.39 shape, loads at the current
+standard-division numbers — Sled Push 152/102 kg, Sled Pull 103/78 kg, Farmers
+Carry 2×24/2×16 kg, Sandbag Lunge 20/10 kg, Wall Balls 6 kg→10ft / 4 kg→9ft;
+men's primary, women's in `variants: women:`) + its 8 stations as individual
+single-movement files. **tabata/ (3)** — `tabata:protocol`, `tabata:this`,
+`tabata:something-else`. Loads use corpus house style (single men's Rx
+`@ 95lb`); the bare `(95/65)` split form was rejected because `wdl fmt` expands
+it to the verbose `(women 95 / men 135)`. **Content only** — no schema / code /
+grammar / spec / test touch; `make test` unchanged 2064/2064, 1 pending;
+`examples/workouts/` deliberately **not** wired into `corpus.test.ts` (L6/L7's
+call). All 43 pass `wdl check` (`<file>: ok`, exit 0); Fran / Murph / Fight Gone
+Bad / `hyrox:race` / `tabata:this` spot-checked on the board (`<org>:<slug>` in
+the `#meta` strip, no error strip; Murph's `any order:` shows the expected
+tally-block timeline note; `hyrox:race` shows the Division selector). Spawns L6.
 
 **L6 — Ingestion: library → DB + fixtures.** `scripts/workouts-to-db.mjs`
 (`make workouts:load`), twin of `movements-to-db.mjs`: reads

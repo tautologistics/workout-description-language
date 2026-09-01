@@ -2,6 +2,50 @@
 
 ## Changes
 
+- **2026-09-01 — L5 of *The workout library* epic landed (`<TASK-SHA>`)** —
+  the authored benchmark `.wdl` library. **Content only** — everything new is
+  under `examples/workouts/`; no schema / `packages/core` / grammar / spec /
+  test-suite touch, `make test` unchanged **2064/2064, 1 pending**.
+  - **43 files**, `examples/workouts/<org>/<slug>.wdl`, `<org>` ∈ {`crossfit`,
+    `hyrox`, `tabata`}. Each: first line `@id <org>:<slug>` (slug = filename
+    stem), then `# Title`, then the body in canonical WDL. Every file is
+    **byte-identical to `wdl fmt`** output (verified by diffing each against
+    `fmt`), so the at-rest text is already the whiteboard-canonical form.
+  - **crossfit/ (31)** — the 19 Girls (Fran, Cindy, Grace, Helen, Diane,
+    Elizabeth, Isabel, Jackie, Karen, Linda, Nancy, Angie, Barbara, Chelsea,
+    Mary, Annie, Eva, Kelly, Nicole), 9 first Heroes (Murph, DT, Chad, JT,
+    Michael, Randy, Daniel, Josh, Nate), and Fight Gone Bad / Filthy Fifty /
+    the CrossFit Total. Loads follow corpus house style (single men's Rx
+    `@ 95lb`, `@ 2pood`, `@ 1.5x BW`) — the bare `(95/65)` split form was
+    rejected because `wdl fmt` expands it to `(women 95 / men 135)`, which is
+    not whiteboard-terse.
+  - **hyrox/ (9)** — `hyrox:race` (the full 8×(1km run + station) race, spec
+    §13.39 shape, loads updated to the **current** standard-division numbers:
+    Sled Push 152/102 kg, Sled Pull 103/78 kg, Farmers Carry 2×24/2×16 kg,
+    Sandbag Lunge 20/10 kg, Wall Balls 6 kg→10ft / 4 kg→9ft; men's as the
+    primary line, women's in a `variants: women:` block) plus its 8 stations as
+    individual single-movement files (`hyrox:skierg`, `hyrox:sled-push`,
+    `hyrox:sled-pull`, `hyrox:burpee-broad-jump`, `hyrox:row`,
+    `hyrox:farmers-carry`, `hyrox:sandbag-lunges`, `hyrox:wall-balls`), each
+    with the same women's `variants:` where a split exists.
+  - **tabata/ (3)** — `tabata:protocol` (8 rounds `work 20s: / rest 10s`,
+    `score: min per round`), `tabata:this` (Tabata each of Row, Air Squat,
+    Pull-Up, Push-Up, Sit-Up with `rest 1min` between, `score: sum of blocks`),
+    `tabata:something-else` (32 straight-through intervals of Pull-Up / Push-Up
+    / Sit-Up / Air Squat, `score: reps`).
+  - **`wdl check`**: all 43 print `<file>: ok`, exit 0 (full output pasted in
+    the L5 write-up / commit trail).
+  - **Board spot-checks** (`make serve`, source pasted into
+    `/apps/display/#<encoded>`): Fran, Murph, Fight Gone Bad, `hyrox:race`,
+    `tabata:this` all render as legible board rows with `<org>:<slug>` in the
+    `#meta` strip, no parse-error strip, no console errors. Murph shows the
+    expected non-error timeline note "tally block: totals with no prescribed
+    order" for its `any order:` block; `hyrox:race` shows the Division selector
+    because of `variants:`.
+  - Every `@id` slug matches its filename stem and its `<org>` matches its
+    directory. `examples/workouts/` is **not** wired into `corpus.test.ts` —
+    that is L6/L7's call, deliberately left out here.
+
 - **2026-09-01 — L4 of *The workout library* epic landed (`0de7f9a`)** —
   search over your own + any public workout, by title or `@id`/`wdlId` (DEC-021).
   **App + mock + one fixture row only** — no schema / `packages/core` / grammar /
