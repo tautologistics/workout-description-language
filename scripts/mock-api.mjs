@@ -18,6 +18,8 @@
  *   GET    /api/_mock/oauth                          — local stub for Google's consent screen: 302s straight back with a canned ?code
  *   POST   /api/collections/users/auth-with-oauth2   — accepts any code, returns the fixture user + a fake token
  *   POST   /api/collections/users/auth-refresh       — same fixture user + a fresh fake token
+ *   GET    /api/collections/users/records            — list/filter (open here, unlike the real `id = @request.auth.id` rule — see below)
+ *   PATCH  /api/collections/users/records/:id        — set `handle` (and a couple of other fields); enforces `handle` uniqueness
  *   GET    /api/collections/workouts/records         — list  { page, perPage, totalItems, totalPages, items }
  *   GET    /api/collections/workouts/records/:id     — one record (404 shape on miss)
  *   POST   /api/collections/workouts/records         — create (persists to fixtures/workouts.local.json)
@@ -33,11 +35,23 @@
  * them: `filter` (a minimal `field="value"` AND match — enough for
  * `owner="…"`), `sort` (`-updated` etc.), `page`, `perPage`. Not a query engine.
  *
- * Fixture write state (`fixtures/workouts.local.json`, `fixtures/movements.local.json`)
- * is git-ignored — delete it to reset to the committed seed / `registry/movements.json`.
- * Movement writes (task M3's `make movements:load`, and the M5 editor) land in
+ * Fixture write state (`fixtures/workouts.local.json`, `fixtures/movements.local.json`,
+ * `fixtures/users.local.json`) is git-ignored — delete it to reset to the
+ * committed seed / `registry/movements.json`. Movement writes (task M3's
+ * `make movements:load`, and the M5 editor) land in
  * `fixtures/movements.local.json` and are merged over the registry-derived list
  * on read, keyed by `movementId`.
+ *
+ * **`handle` (task L1, DEC-021).** `fixtures/users.json`'s mock signed-in user
+ * (`users[0]`) is committed **without** a `handle`, on purpose: the first
+ * sign-in exercises `apps/shared/pocketbase.js`'s random `adjective-noun`
+ * assignment path exactly the way a brand-new real account would. The
+ * assigned handle (and any later edit through the builder's handle editor)
+ * persists to `fixtures/users.local.json`; delete that file to go back to a
+ * handle-less mock user and see the assignment run again. `fixtures/users.json`
+ * also carries the three `org: true` rows (`crossfit`, `hyrox`, `tabata`, fixed
+ * ids matching the L1 migration) so `handle` collisions against them are
+ * exercisable locally (edit your handle to `crossfit` → rejected).
  */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -53,10 +67,29 @@ const M_SCALAR = ['force', 'mechanic', 'load', 'lateralityAxis', 'defaultLateral
 export function createMockApi(root) {
   const P = (...p) => join(root, ...p);
 
-  const users = readJson(P('fixtures/users.json')).users ?? [];
-  const fixtureUser = users[0] ?? {
-    id: 'u_mock_0001', collectionId: '_pb_users_auth_', collectionName: 'users',
-    email: 'dev@example.com', name: 'Dev', verified: true, admin: true,
+  const usersSeedPath = P('fixtures/users.json');
+  const usersLocalPath = P('fixtures/users.local.json');
+  let users = existsSync(usersLocalPath)
+    ? (readJson(usersLocalPath).users ?? [])
+    : JSON.parse(JSON.stringify(readJson(usersSeedPath).users ?? []));
+  if (!users.length) {
+    users = [{
+      id: 'u_mock_0001', collectionId: '_pb_users_auth_', collectionName: 'users',
+      email: 'dev@example.com', name: 'Dev', verified: true, admin: true,
+    }];
+  }
+  // The mock always signs everyone in as users[0] — see the module doc.
+  const fixtureUser = users[0];
+
+  const persistUsers = () => {
+    try {
+      writeFileSync(usersLocalPath, JSON.stringify({
+        $comment: 'Runtime write state for the local dev mock /api. Git-ignored. Delete to reset to fixtures/users.json (and re-exercise the random-handle assignment path).',
+        users,
+      }, null, 2) + '\n');
+    } catch (e) {
+      console.error(`  mock /api: could not persist users — ${e.message}`);
+    }
   };
 
   const seedPath = P('fixtures/workouts.json');
@@ -142,6 +175,42 @@ export function createMockApi(root) {
       }
       if (pathname === '/api/collections/users/auth-refresh' && method === 'POST') {
         return json(res, 200, { token: mkToken(), record: fixtureUser });
+      }
+
+      // -- users / handle (task L1, DEC-021) ---------------------------------
+      // The real `users` list/view rule is `id = @request.auth.id` (nobody
+      // browses other accounts); the mock leaves list/filter open so the
+      // free-handle pre-check (`handleTaken` in pocketbase.js) is fully
+      // accurate locally, unlike against real PocketBase where it is only
+      // best-effort. Only `PATCH` needs an Authorization header, mirroring
+      // every other authed write here.
+      if (pathname === '/api/collections/users/records' && method === 'GET') {
+        return json(res, 200, listEnvelope(applyQuery(users, url), url));
+      }
+      if (pathname.startsWith('/api/collections/users/records/')) {
+        const id = decodeURIComponent(pathname.slice('/api/collections/users/records/'.length));
+        const idx = users.findIndex((u) => u.id === id);
+        if (method === 'GET') {
+          return idx < 0 ? json(res, 404, err(404, "The requested resource wasn't found.")) : json(res, 200, users[idx]);
+        }
+        if (method === 'PATCH') {
+          if (!req.headers.authorization) return json(res, 403, err(403, 'Only the account itself may edit its record.'));
+          if (idx < 0) return json(res, 404, err(404, "The requested resource wasn't found."));
+          const body = await readBody(req);
+          if ('handle' in body) {
+            const taken = users.some((u, i) => i !== idx && u.handle === body.handle);
+            if (taken) {
+              return json(res, 400, err(400, 'Failed to save.', {
+                handle: { code: 'validation_not_unique', message: 'Value must be unique.' },
+              }));
+            }
+            users[idx].handle = body.handle;
+          }
+          for (const k of ['org', 'name']) if (k in body) users[idx][k] = body[k];
+          users[idx].updated = pbNow();
+          persistUsers();
+          return json(res, 200, users[idx]);
+        }
       }
 
       // -- workouts ---------------------------------------------------------

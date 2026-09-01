@@ -38,7 +38,7 @@ import { parseGoals, check } from '../../build/web/core/goals.js';
 import { exposures, muscleLoad, musclesFor, muscles } from '../../build/web/core/muscles.js';
 import { mountBody, paintBody, aggregateStates, highlightStates, heatStates, heatColor, attachZoom } from '../shared/body-map.js';
 import {
-  currentUser, beginGoogleSignIn, refreshAuth, signOut,
+  currentUser, beginGoogleSignIn, refreshAuth, signOut, updateHandle,
   listMine, getById as pbGetById, create as pbCreate, update as pbUpdate,
   remove as pbRemove, shareUrl,
   createMovement, updateMovement, getMovementByMovementId,
@@ -2652,7 +2652,76 @@ function renderIdentity() {
     renderIdentity();
     renderMinePanel();
   };
-  box.append(who, out);
+  box.append(who, renderHandle(user), out);
+}
+
+/**
+ * The `@handle` shown beside the signed-in identity, with an edit affordance
+ * (task L1, DEC-021). `user.handle` is briefly absent right after a first
+ * sign-in — `ensureHandle()` in `pocketbase.js` is assigning one — so that
+ * state reads as "assigning a handle…" rather than a blank space.
+ */
+function renderHandle(user) {
+  const wrap = document.createElement('span');
+  wrap.className = 'handle';
+  if (!user.handle) {
+    wrap.classList.add('pending');
+    wrap.textContent = 'assigning a handle…';
+    return wrap;
+  }
+  const label = document.createElement('span');
+  label.className = 'handle-label';
+  label.title = 'Your handle — the @id namespace for workouts you save';
+  label.textContent = `@${user.handle}`;
+  wrap.append(label, iconBtn('✎', 'Change handle', () => startEditHandle(wrap, user)));
+  return wrap;
+}
+
+function startEditHandle(wrap, user) {
+  wrap.innerHTML = '';
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'handle-input';
+  input.value = user.handle || '';
+  input.maxLength = 63;
+  input.spellcheck = false;
+
+  const save = document.createElement('button');
+  save.type = 'button';
+  save.className = 'handle-btn';
+  save.textContent = 'Save';
+
+  const cancel = document.createElement('button');
+  cancel.type = 'button';
+  cancel.className = 'handle-btn';
+  cancel.textContent = 'Cancel';
+  cancel.onclick = () => renderIdentity();
+
+  const error = document.createElement('div');
+  error.className = 'handle-error';
+
+  const commit = async () => {
+    const next = input.value.trim().toLowerCase();
+    if (next === user.handle) return renderIdentity();
+    save.disabled = true;
+    error.textContent = '';
+    try {
+      await updateHandle(next);
+      renderIdentity();
+    } catch (e) {
+      save.disabled = false;
+      error.textContent = e.message;
+    }
+  };
+  save.onclick = commit;
+  input.onkeydown = (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); commit(); }
+    if (e.key === 'Escape') { e.preventDefault(); cancel.onclick(); }
+  };
+
+  wrap.append(input, save, cancel, error);
+  input.focus();
+  input.select();
 }
 
 async function refreshMineList() {

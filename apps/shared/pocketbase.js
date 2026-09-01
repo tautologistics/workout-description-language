@@ -14,6 +14,8 @@
  *   GET    /api/collections/users/auth-methods       — the Google authURL + PKCE verifier
  *   POST   /api/collections/users/auth-with-oauth2   — exchange the `?code` for a token
  *   POST   /api/collections/users/auth-refresh       — revalidate a stored token
+ *   GET    /api/collections/users/records            — handle-free lookup (best-effort; see `handleTaken`)
+ *   PATCH  /api/collections/users/records/:id        — set the signed-in user's own `handle`
  *   GET    /api/collections/workouts/records         — list (filter by owner)
  *   GET    /api/collections/workouts/records/:id     — one record
  *   POST   /api/collections/workouts/records         — create
@@ -43,10 +45,16 @@
  * the token exchange.
  */
 
+import { validateHandle, randomHandle } from './handle.js';
+
 const API = '/api';
 const USERS = '/collections/users';
+const USER_RECORDS = '/collections/users/records';
 const RECORDS = '/collections/workouts/records';
 const MOVEMENTS = '/collections/movements/records';
+
+/** Retries before the random-handle assignment falls back to a numeric suffix. */
+const HANDLE_ASSIGN_TRIES = 6;
 
 /** Where Google returns the browser after sign-in. Must be a registered URI. */
 export const AUTH_CALLBACK = `${location.origin}/apps/builder/auth-callback.html`;
@@ -77,6 +85,15 @@ export function currentUser() {
 /** The bare auth token, or `null`. */
 export function authToken() {
   return auth?.token ?? null;
+}
+
+/**
+ * The signed-in account's handle — the `@id` namespace prefix for the workouts
+ * it owns (DEC-021) — or `null` when signed out or not yet assigned. `null` is
+ * transient after a first sign-in: `ensureHandle()` fills it in.
+ */
+export function currentHandle() {
+  return auth?.record?.handle || null;
 }
 
 /**
@@ -172,7 +189,8 @@ export async function completeSignInFromRedirect() {
     avatarUrl: result.meta?.avatarURL || result.meta?.avatarUrl || '',
   };
   writeAuth({ token: result.token, record });
-  return { record, returnTo: pending.returnTo || '/apps/builder/' };
+  await ensureHandle();
+  return { record: currentUser(), returnTo: pending.returnTo || '/apps/builder/' };
 }
 
 /**
@@ -186,7 +204,8 @@ export async function refreshAuth() {
     const result = await call(`${USERS}/auth-refresh`, { method: 'POST' });
     const record = { ...result.record, avatarUrl: auth?.record?.avatarUrl || '' };
     writeAuth({ token: result.token, record });
-    return record;
+    await ensureHandle();
+    return currentUser();
   } catch (e) {
     if (e.status === 401 || e.status === 403) writeAuth(null);
     return currentUser();
@@ -196,6 +215,108 @@ export async function refreshAuth() {
 /** Forget the signed-in identity. Local only — PocketBase tokens are stateless. */
 export function signOut() {
   writeAuth(null);
+}
+
+// --- handle (DEC-021, L1) ----------------------------------------------------
+//
+// `users.handle` is the `@id` namespace prefix for every account's workouts.
+// A handle-less account gets a random `adjective-noun` one so onboarding never
+// blocks on it (`ensureHandle`, called after sign-in resolves); the user can
+// change it later (`updateHandle`). The `users` collection's list/view rule is
+// `id = @request.auth.id` (nobody may browse other accounts), so `handleTaken`
+// below is a **best-effort** pre-check — it only ever confirms *your own*
+// handle, never a foreign one — and the unique index's 400 on `PATCH` is the
+// real, server-authoritative reject in both `ensureHandle` and `updateHandle`.
+// The mock `/api` (`scripts/mock-api.mjs`) has no such rule restriction and
+// answers `filter=handle="…"` for any row, so the pre-check is fully accurate
+// there.
+
+/**
+ * Best-effort: is `h` already held by some *other* account? Never throws —
+ * an inconclusive check (blocked by the list rule, or a network error) reads
+ * as "not visibly taken", leaving the `PATCH` 400 as the real guard.
+ */
+async function handleTaken(h) {
+  try {
+    const q = new URLSearchParams({ filter: `handle="${h}"`, perPage: '1' });
+    const data = await call(`${USER_RECORDS}?${q}`, { auth: !!authToken() });
+    const hit = data.items?.[0];
+    return !!hit && hit.id !== currentUser()?.id;
+  } catch {
+    return false;
+  }
+}
+
+/** `true` iff a PocketBase field error names `handle` as not-unique. */
+function isHandleUniqueError(e) {
+  return e?.status === 400 && e.fields?.handle?.code === 'validation_not_unique';
+}
+
+/**
+ * Assign a random `adjective-noun` handle to the signed-in user if they don't
+ * already have one. Called after every sign-in/refresh resolves — onboarding
+ * must never block on a handle, so this never throws; a failure just leaves
+ * `currentHandle()` `null` for this session and the next refresh tries again.
+ */
+export async function ensureHandle() {
+  const user = currentUser();
+  if (!user || user.handle) return;
+  try {
+    for (let i = 0; i < HANDLE_ASSIGN_TRIES; i++) {
+      const candidate = randomHandle();
+      if (await handleTaken(candidate)) continue;
+      try {
+        const rec = await call(`${USER_RECORDS}/${encodeURIComponent(user.id)}`, {
+          method: 'PATCH',
+          body: { handle: candidate },
+        });
+        writeAuth({ token: auth.token, record: { ...auth.record, handle: rec.handle } });
+        return;
+      } catch (e) {
+        if (!isHandleUniqueError(e)) throw e;
+        // collided with another account between the check and the write — retry
+      }
+    }
+    // Every plain pair was taken (very unlikely — ~14k pairs) — disambiguate
+    // with a short numeric suffix rather than leave the account handle-less.
+    const candidate = `${randomHandle()}-${Math.floor(Math.random() * 90 + 10)}`;
+    const rec = await call(`${USER_RECORDS}/${encodeURIComponent(user.id)}`, {
+      method: 'PATCH',
+      body: { handle: candidate },
+    });
+    writeAuth({ token: auth.token, record: { ...auth.record, handle: rec.handle } });
+  } catch (e) {
+    console.warn('could not assign a handle:', e.message);
+  }
+}
+
+/**
+ * Change the signed-in user's handle. Validates client-side first (shape,
+ * reserved words), pre-checks freeness (best-effort — see the section note),
+ * then `PATCH`es; a unique-index 400 from the server is the authoritative
+ * "taken" answer regardless of what the pre-check said. Throws a plain `Error`
+ * with a message fit to show the user; updates local state and returns the
+ * new handle on success.
+ */
+export async function updateHandle(h) {
+  const user = currentUser();
+  if (!user) throw new Error('not signed in');
+  const candidate = (h ?? '').trim().toLowerCase();
+  const { ok, error } = validateHandle(candidate);
+  if (!ok) throw new Error(error);
+  if (candidate === user.handle) return candidate;
+  if (await handleTaken(candidate)) throw new Error('That handle is already taken.');
+  try {
+    const rec = await call(`${USER_RECORDS}/${encodeURIComponent(user.id)}`, {
+      method: 'PATCH',
+      body: { handle: candidate },
+    });
+    writeAuth({ token: auth.token, record: { ...auth.record, handle: rec.handle } });
+    return rec.handle;
+  } catch (e) {
+    if (isHandleUniqueError(e)) throw new Error('That handle is already taken.');
+    throw e;
+  }
 }
 
 // --- workouts ------------------------------------------------------------------

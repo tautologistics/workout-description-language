@@ -2,6 +2,39 @@
 
 ## Changes
 
+- **2026-09-01 — L1 of *The workout library* epic landed (`<TASK-SHA>`)** — the
+  `users` schema + app-side handle machinery DEC-021 opened the epic against.
+  `deploy/pocketbase/pb_migrations/1756900000_add_users_handle_and_orgs.js`
+  adds `org` (bool) and unique `handle` (text) to `users`, and inserts the
+  three org rows (`crossfit`/`hyrox`/`tabata`, fixed 15-char ids, `org: true`,
+  no OAuth/password). App side: `apps/shared/handle.js` +
+  `handle-words.js` (pure — validation, the reserved set, the random-pair
+  generator over two committed word lists); `apps/shared/pocketbase.js` grows
+  `ensureHandle()` (assigns a random `adjective-noun` handle on first sign-in,
+  collision-retried, never blocks onboarding), `updateHandle(h)` (validates,
+  best-effort free-check, `PATCH`, the server's unique-index 400 as the
+  authoritative reject), and `currentHandle()`. The builder header's account
+  area shows `@handle` with an inline edit affordance. Mirrored in
+  `scripts/mock-api.mjs` (open `filter=handle="…"` + a uniqueness-enforcing
+  `PATCH`, unlike real PocketBase's self-only `users` list rule) and
+  `fixtures/users.json` (the three org rows; the mock user is committed
+  handle-less on purpose so a fresh `make serve` exercises the assignment
+  path). `make test` unchanged **2064/2064, 1 pending** — no `packages/core`
+  touch. Migration up/down/up verified against a real PocketBase v0.40.1
+  (darwin_arm64) binary: all four migrations apply cleanly, the fields + index
+  + org rows land, a duplicate `handle` insert is rejected by the index,
+  `migrate down 1` removes everything cleanly. Drove the builder against
+  `make serve` in both themes: random assignment, a free rename, a taken
+  rename (`crossfit`, rejected), a pure-numeric rename (rejected); signed-out
+  unchanged. *Touched:* the migration; `apps/shared/{handle,handle-words}.js`
+  (new); `apps/shared/pocketbase.js`; `apps/builder/{builder.js,builder.css}`;
+  `scripts/mock-api.mjs`; `fixtures/users.json`; `.gitignore`
+  (`fixtures/users.local.json`); `deploy/README.md` §7c;
+  `deploy/pocketbase/pb_migrations/README.md`; `docs/context/`. **Still to do
+  on deploy:** glance at the admin UI — the three org rows + the unique-index
+  badge on `handle` (`deploy/README.md` §7c). Spawns L2 (`workouts.wdlId`
+  column).
+
 - **2026-09-01 — DEC-021 recorded; L0 of *The workout library* epic closed**
   (docs + one spec-prose sentence, no code). L0's job was the design note the
   rest of the epic builds against, the way M0 → DEC-020 opened the movements

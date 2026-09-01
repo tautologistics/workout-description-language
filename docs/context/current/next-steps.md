@@ -5,15 +5,18 @@
 ***The workout library* (L0–L7) is in flight. L0 landed 2026-09-01
 (`b9c52f1`)** — the epic's design note, written up as
 [DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
-plus a one-sentence hosting-convention note beside spec §2's `@id` bullet; docs
-only, `make test` unchanged (2064/2064, 1 pending). **Next is L1 — the `users`
-migration adding `org` (bool) + `handle` (text, unique) and inserting the
-`crossfit` / `hyrox` / `tabata` org rows, plus the app-side random
-`adjective-noun` handle assignment, the handle editor in the builder header,
-and `updateHandle` / `currentUser().handle` in `apps/shared/pocketbase.js`;
-mock `/api` + `fixtures/users.json` mirror; migration up+down verified against a
-real PocketBase v0.40.1 binary.** See
-[../tasks/current.md](../tasks/current.md) "## The workout library (L0–L7)".
+plus a one-sentence hosting-convention note beside spec §2's `@id` bullet.
+**L1 landed 2026-09-01 (`<TASK-SHA>`)** — the `users` migration adding `org`
+(bool) + unique `handle` (text) and inserting the `crossfit` / `hyrox` /
+`tabata` org rows, plus the app-side random `adjective-noun` handle assignment
+(`apps/shared/handle.js` + `handle-words.js`, `ensureHandle()`), the handle
+editor in the builder header, and `updateHandle` / `currentHandle()` in
+`apps/shared/pocketbase.js`; mock `/api` + `fixtures/users.json` mirror;
+migration up+down verified against a real PocketBase v0.40.1 binary; `make
+test` unchanged (2064/2064, 1 pending). **Next is L2 — a migration adding
+`workouts.wdlId`** (text, nullable, indexed; no rule change; existing rows null
+until L3/L6 populate them). See [../tasks/current.md](../tasks/current.md)
+"## The workout library (L0–L7)".
 
 *Movements in the database — Phase 1 (M0–M7)* is
 **complete as of 2026-09-01** — all of M0–M7 landed and the M-section moved to

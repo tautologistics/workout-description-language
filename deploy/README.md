@@ -302,6 +302,46 @@ hand to match the tables above, then snapshot it —
 
 ---
 
+## 7c. `users.org` / `users.handle` + the org accounts
+
+Added by `pb_migrations/1756900000_add_users_handle_and_orgs.js` (queue task
+L1, the *workout library* epic,
+[DEC-021](../docs/context/topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it))
+on serve — verified against a real v0.40.1 binary (`migrate up` / `down 1`
+clean, a duplicate `handle` insert rejected by the index).
+
+| field    | type          | notes                                              |
+|----------|---------------|-----------------------------------------------------|
+| `org`    | bool          | `false` for every record until set — flags a non-interactive account (owns a curated public set) |
+| `handle` | text, unique  | the `@id` namespace prefix for the account's workouts; `[a-z0-9-]+`, user-editable |
+
+Index: `CREATE UNIQUE INDEX idx_users_handle ON users (handle)`.
+
+The same migration inserts three org rows — no OAuth identity, no sign-in,
+`verified: true`, `org: true`, an unusable random password (an auth-collection
+record needs one even though nobody authenticates as these):
+
+| handle     | id                | notes                        |
+|------------|-------------------|-------------------------------|
+| `crossfit` | `org0crossfit001` | the CrossFit benchmark set (L5)|
+| `hyrox`    | `org0hyrox000001` | the HYROX race + stations (L5) |
+| `tabata`   | `org0tabata00001` | the Tabata protocol + variants (L5) |
+
+**After the migration applies, glance at the admin UI**: *Collections →
+`users`* — confirm the three org rows landed with `org` ticked and the right
+`handle`, and that the `handle` field shows a unique-index badge. Nothing to
+grant — org rows never sign in, so there's no admin flag or password to set
+(contrast §7a). A real account gets its own handle automatically (a random
+`adjective-noun` pair) on first sign-in via `apps/shared/pocketbase.js`
+(`ensureHandle()`); the builder header lets a user change it afterward.
+
+If a future PocketBase version rejects the migration, add the two fields and
+the index by hand to match the table above, insert the three rows with the
+fixed ids above, then snapshot the schema
+(`./pocketbase migrate collections`) and commit the generated file.
+
+---
+
 ## 8. Google OAuth2
 
 Cloud Console half (Chris's Google account):

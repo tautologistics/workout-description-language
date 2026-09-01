@@ -62,3 +62,18 @@ supersedes it. From then on the collection schema is reproducible: a fresh
   three migrations cleanly, the collection and both indexes land, `migrate down
   1` drops it. Glance at the admin UI on the box after deploy, same caveat as
   the workouts migration.
+
+- `1756900000_add_users_handle_and_orgs.js` — adds `bool org` and unique `text
+  handle` to `users`, then inserts the three non-interactive org accounts
+  (`crossfit` / `hyrox` / `tabata`, fixed ids, no password/OAuth) that own the
+  curated public workout sets (queue task L1, the *workout library* epic,
+  [DEC-021](../../../docs/context/topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)).
+  Edits an *existing* collection the same way `1756700000_add_users_admin.js`
+  does, plus a `collection.indexes.push(...)` for the unique index and three
+  `new Record(usersCol, {...})` / `app.save(record)` inserts. Verified against a
+  real v0.40.1 binary + throwaway `pb_data`: `migrate up` applies all four
+  migrations cleanly, `org`/`handle` land on `users` with the unique index, the
+  three org rows exist with `org: true`, a duplicate `handle` insert is
+  rejected by the index (`UNIQUE constraint failed`), and `migrate down 1`
+  removes the rows, the index and both fields cleanly. Glance at the admin UI
+  on the box after deploy — [`../../README.md`](../../README.md) §7c.

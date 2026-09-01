@@ -38,8 +38,9 @@ the deployment epic and the redesign chain were closed.
 sized like M0–M7 for sequential sessions. **L0 landed 2026-09-01
 (`b9c52f1`)** — the contract is
 [DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
-+ a spec §2 note; **L1 (the `users` `org`+`handle` migration + handle
-generator/editor) is next**. Three standalone tasks are also queued, all
++ a spec §2 note; **L1 landed 2026-09-01 (`<TASK-SHA>`)** — the `users`
+`org`+`handle` migration + handle generator/editor; **L2 (`workouts.wdlId`
+column) is next**. Three standalone tasks are also queued, all
 dispatchable now:
 
 - **unit defaults** — a unitless `@ 95` load target reads as `95lb` (pound is
@@ -300,23 +301,55 @@ against, the way M0 → DEC-020 did. It must state, at minimum:
 No code. `docs/context` (DEC-021 in `settled-decisions.md` + the index entry
 in `decisions.md`) + the `spec` note. Spawns L1.
 
-**L1 — `users` schema: `org` bool + `handle`, + a handle generator/editor.**
-Migration adds `org` (bool, default false) and `handle` (text, **unique**,
-nullable) to `users`; a second migration (or the same one) inserts the org rows
-— `crossfit`, `hyrox`, `tabata` — with fixed ids and handles, `org: true`, no
-password/OAuth. Then the app side: on first sign-in with no handle, assign a
-**random `adjective-noun` handle** (two committed word lists — adjectives,
-nouns — in `apps/shared/`, collision-checked against the collection) and
-persist it; add a **handle editor** in the builder header's account area — show
-the current handle, let the user change it to any unused valid slug
-(`[a-z0-9-]+`); reject a taken slug, an empty or pure-numeric one, and a short
-reserved set (`api`, `admin`, `_`), client- and server-side.
-`apps/shared/pocketbase.js` grows `updateHandle(h)` /
-reads `currentUser().handle`. Mirror in `scripts/mock-api.mjs` +
-`fixtures/users.json` (give the mock user a handle). Verify: fresh mock user
-gets a handle, rename to a free slug works, rename to `crossfit` (taken)
-rejects. Verify up+down of the migration against a real PocketBase v0.40.1
-binary. `deploy/README.md` section. **Still-to-do-on-deploy** note like M1/M2.
+**L1 — `users` schema: `org` bool + `handle`, + a handle generator/editor.
+DONE 2026-09-01 (`<TASK-SHA>`).**
+`deploy/pocketbase/pb_migrations/1756900000_add_users_handle_and_orgs.js` adds
+`org` (bool, `required:false`) and `handle` (text, `required:false`, **unique**
+— `CREATE UNIQUE INDEX idx_users_handle ON users (handle)`) to `users`, then
+inserts the three org rows — `crossfit` / `hyrox` / `tabata`, fixed 15-char ids
+(`org0crossfit001` / `org0hyrox000001` / `org0tabata00001`), `org: true`,
+`verified: true`, an unusable random password (an auth-collection record needs
+one even though nobody signs in as these), `handle` = the name. App side:
+`apps/shared/handle.js` (pure — `validateHandle`, `randomHandle`, the reserved
+set; a handle is 3–63 characters, Chris's call 2026-09-01 on the minimum)
+reads two committed word lists in `apps/shared/handle-words.js` (~130
+adjectives, ~120 nouns, plain `[a-z]+`). `apps/shared/pocketbase.js` grows
+`ensureHandle()` — called from `refreshAuth()` and
+`completeSignInFromRedirect()`, so onboarding never blocks: assigns a random
+`adjective-noun` handle on first sign-in, retrying on collision and falling
+back to a numeric-suffixed pair after 6 tries — `updateHandle(h)` (client-side
+`validateHandle`, a best-effort free-check, then `PATCH`, with the server's
+unique-index 400 as the authoritative "taken" reject — the `users` list/view
+rule is `id = @request.auth.id`, so the pre-check can only ever confirm your
+*own* handle against real PocketBase; it is fully accurate against the mock)
+— and `currentHandle()`. The builder header's account area (`apps/builder/
+builder.js` `renderIdentity`/`renderHandle`/`startEditHandle`,
+`apps/builder/builder.css`) shows `@handle` beside the signed-in identity
+("assigning a handle…" in the brief gap right after sign-in) with an inline
+edit affordance — Enter/Escape, an error line for a rejected value. Mirrored in
+`scripts/mock-api.mjs` (`GET`/`PATCH .../users/records`, filter=`handle="…"`
+open there since the real self-only list rule doesn't apply) and
+`fixtures/users.json` (the three org rows with the same fixed ids; the mock
+signed-in user is committed **without** a `handle` on purpose, so a fresh
+`make serve` exercises the random-assignment path — the assignment persists to
+git-ignored `fixtures/users.local.json`, deleted to re-exercise it).
+`deploy/README.md` §7c + `pb_migrations/README.md` entry.
+**Verified:** `make test` unchanged 2064/2064, 1 pending (no `packages/core`
+touch). Migration up/down/up against a real PocketBase v0.40.1 (darwin_arm64)
+binary + throwaway `pb_data`: all four migrations apply cleanly, `org`+`handle`
+land on `users` with the unique index, the three org rows exist with the right
+fixed ids and `org: true`, a duplicate-`handle` insert is rejected
+(`UNIQUE constraint failed: users.handle`), `migrate down 1` removes the rows +
+index + both fields cleanly, a re-`up` reapplies cleanly. Drove the builder
+against `make serve` (mock `/api`) in both themes: a fresh mock user is
+assigned a random handle (`@grand-cairn` on this run) that survives reload;
+edited to a free slug (`river-otter`) — succeeds; edited to `crossfit` (an org
+handle) — rejected with "That handle is already taken."; edited to `123` —
+rejected with "A handle can't be all digits." (the empty/mixed-case/reserved
+paths run the identical pure `validateHandle`, checked directly). Signed-out
+builder unchanged (`Download .wdl` / `Open…`, no handle UI). **Still to do on
+deploy:** glance at the admin UI — the three org rows landed, `handle` shows
+the unique-index badge (`deploy/README.md` §7c) — same caveat as M1/M2/M3.
 Spawns L2.
 
 **L2 — `workouts` schema: `wdlId` column.** Migration adds `wdlId` (text,

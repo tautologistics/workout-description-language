@@ -73,7 +73,8 @@ intercepts `/api/*` before static handling and delegates to
 `scripts/mock-api.mjs` — a no-deps mock of the endpoints
 `apps/shared/pocketbase.js` calls: auth (short-circuits the Google redirect via
 a local `/api/_mock/oauth` stub — sign-in "just works" as one fixture user with
-`admin: true`), `workouts/records` CRUD (seeded from committed
+`admin: true`), `users/records` (list/filter + a `handle`-setting `PATCH`, task
+L1 — see below), `workouts/records` CRUD (seeded from committed
 `fixtures/workouts.json`, runtime writes persisted to the git-ignored
 `fixtures/workouts.local.json` — delete that file to reset), and
 `movements/records` from `registry/movements.json` in PocketBase's list envelope
@@ -84,6 +85,22 @@ git-ignored to `fixtures/movements.local.json`). **On by default**;
 `fixtures/` (`users.json`, `workouts.json` committed; `workouts.local.json`
 git-ignored). Nothing here touches `packages/core`, the grammar, the spec or the
 PocketBase migrations, and the mock never runs in production.
+
+**The mock user starts with no `handle`** *(since 2026-09-01, task L1,
+DEC-021)*. `fixtures/users.json`'s signed-in mock user is committed without a
+`handle` on purpose, so a fresh `make serve` + first sign-in exercises
+`apps/shared/pocketbase.js`'s random `adjective-noun` assignment path the same
+way a brand-new real account would; the assigned handle (and any later edit
+through the builder header's handle editor) persists to git-ignored
+`fixtures/users.local.json` — **delete that file to go back to a handle-less
+mock user and see the assignment run again**. `fixtures/users.json` also
+carries the three `org: true` rows (`crossfit` / `hyrox` / `tabata`, fixed ids
+matching `1756900000_add_users_handle_and_orgs.js`), so editing your handle to
+one of those and getting rejected is exercisable locally too. Unlike real
+PocketBase — whose `users` list/view rule is `id = @request.auth.id`, so a
+client can only ever confirm *its own* handle — the mock's
+`filter=handle="…"` is open, so the free-handle pre-check is fully accurate
+against it.
 
 **Ingesting `registry/movements.json` into the DB** *(since 2026-09-01, queue
 task M3, DEC-020)*. `make movements:load` (`scripts/movements-to-db.mjs`, no

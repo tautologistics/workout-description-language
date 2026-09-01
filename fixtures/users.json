@@ -1,5 +1,5 @@
 {
-  "$comment": "Sample user for the local dev mock /api (scripts/mock-api.mjs). The mock signs everyone in as users[0] — sign-in 'just works' locally as one fixture identity. admin:true so the movement editor (M5) is exercisable without a real PocketBase. Not used in production: PocketBase serves real Google auth there.",
+  "$comment": "Sample users for the local dev mock /api (scripts/mock-api.mjs). The mock signs everyone in as users[0] — sign-in 'just works' locally as one fixture identity. admin:true so the movement editor (M5) is exercisable without a real PocketBase. users[0] is committed with NO `handle` on purpose (task L1, DEC-021) so the first sign-in exercises the random adjective-noun assignment path; the assigned handle persists to git-ignored fixtures/users.local.json — delete that file to see the assignment run again. The three org rows (org:true, no password/OAuth) mirror deploy/pocketbase/pb_migrations/1756900000_add_users_handle_and_orgs.js — same fixed ids, same handles — so a duplicate-handle rejection (e.g. editing your handle to 'crossfit') is exercisable locally. Not used in production: PocketBase serves real Google auth and the real migration there.",
   "users": [
     {
       "id": "u_mock_chris_0001",
@@ -11,8 +11,54 @@
       "name": "Chris (local mock)",
       "avatar": "",
       "admin": true,
+      "org": false,
       "created": "2026-08-31 00:00:00.000Z",
       "updated": "2026-08-31 00:00:00.000Z"
+    },
+    {
+      "id": "org0crossfit001",
+      "collectionId": "_pb_users_auth_",
+      "collectionName": "users",
+      "email": "crossfit@orgs.wdl.invalid",
+      "emailVisibility": false,
+      "verified": true,
+      "name": "crossfit",
+      "avatar": "",
+      "admin": false,
+      "org": true,
+      "handle": "crossfit",
+      "created": "2026-09-01 00:00:00.000Z",
+      "updated": "2026-09-01 00:00:00.000Z"
+    },
+    {
+      "id": "org0hyrox000001",
+      "collectionId": "_pb_users_auth_",
+      "collectionName": "users",
+      "email": "hyrox@orgs.wdl.invalid",
+      "emailVisibility": false,
+      "verified": true,
+      "name": "hyrox",
+      "avatar": "",
+      "admin": false,
+      "org": true,
+      "handle": "hyrox",
+      "created": "2026-09-01 00:00:00.000Z",
+      "updated": "2026-09-01 00:00:00.000Z"
+    },
+    {
+      "id": "org0tabata00001",
+      "collectionId": "_pb_users_auth_",
+      "collectionName": "users",
+      "email": "tabata@orgs.wdl.invalid",
+      "emailVisibility": false,
+      "verified": true,
+      "name": "tabata",
+      "avatar": "",
+      "admin": false,
+      "org": true,
+      "handle": "tabata",
+      "created": "2026-09-01 00:00:00.000Z",
+      "updated": "2026-09-01 00:00:00.000Z"
     }
   ]
 }

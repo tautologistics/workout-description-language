@@ -869,6 +869,30 @@ button:hover, .button:hover { border-color: var(--dim); }
 }
 .identity .avatar { width: 1.4rem; height: 1.4rem; border-radius: 999px; object-fit: cover; }
 
+/* The @handle beside the signed-in identity + its inline editor (task L1). */
+.handle { display: inline-flex; align-items: center; gap: .25rem; position: relative; }
+.handle-label {
+  font-size: .78rem; color: var(--dim);
+  max-width: 9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.handle.pending { font-size: .74rem; color: var(--dim); font-style: italic; }
+.handle-input {
+  font: inherit; font-size: .8rem; width: 8rem;
+  padding: .15rem .35rem; border: 1px solid var(--rule); border-radius: .3rem;
+  background: var(--page); color: var(--ink);
+}
+.handle-btn {
+  font: inherit; font-size: .76rem; padding: .15rem .4rem;
+  border: 1px solid var(--rule); border-radius: .3rem;
+  background: var(--panel); color: var(--ink); cursor: pointer;
+}
+.handle-btn:hover { border-color: var(--dim); }
+.handle-error {
+  position: absolute; top: 100%; right: 0; margin-top: .25rem;
+  font-size: .74rem; color: var(--error); white-space: nowrap;
+}
+.handle-error:empty { display: none; }
+
 /* The "My workouts" dropdown: a <details> whose panel is absolutely positioned
    so opening it never reflows the header or the panes below. Same visual
    language as the outline's suggestion popups. */
