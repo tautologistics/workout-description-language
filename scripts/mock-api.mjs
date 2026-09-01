@@ -32,8 +32,17 @@
  *   DELETE /api/collections/movements/records/:id     — delete, same Authorization gate; 403 without it, 204 with
  *
  * Query params honoured on the two list routes, only as far as the client uses
- * them: `filter` (a minimal `field="value"` AND match — enough for
- * `owner="…"`), `sort` (`-updated` etc.), `page`, `perPage`. Not a query engine.
+ * them: `filter` (a minimal `field="value"` AND match — enough for `owner="…"`
+ * and, since L3, `wdlId="<handle>:<slug>"` — the generic matcher already spans
+ * the colon), `sort` (`-updated` etc.), `page`, `perPage`. Not a query engine.
+ *
+ * **`wdlId` (task L3, DEC-021).** `workouts` create/update run the same
+ * force-`@id` + set-`wdlId` logic as `apps/shared/pocketbase.js` (`forceWdlId`
+ * below): the `@id` line in `source` is rewritten to `<owner-handle>:<slug>`
+ * and `wdlId` is set to match, resolving the owner's handle from the `users`
+ * fixture (so a `curl` POST is namespaced just like a builder save). Seed rows
+ * in `fixtures/workouts.json` carry no `wdlId` on purpose (pre-L3 state); it is
+ * filled on first re-save.
  *
  * Fixture write state (`fixtures/workouts.local.json`, `fixtures/movements.local.json`,
  * `fixtures/users.local.json`) is git-ignored — delete it to reset to the
@@ -224,9 +233,11 @@ export function createMockApi(root) {
             owner: body.owner ?? fixtureUser.id,
             title: body.title ?? '',
             source: body.source ?? '',
+            wdlId: body.wdlId ?? null,
             visibility: body.visibility ?? 'private',
             created: now, updated: now,
           };
+          forceWdlId(rec, workouts, users);
           workouts.push(rec);
           persist();
           return json(res, 200, rec);
@@ -241,7 +252,8 @@ export function createMockApi(root) {
         if (method === 'PATCH') {
           if (idx < 0) return json(res, 404, err(404, "The requested resource wasn't found."));
           const body = await readBody(req);
-          for (const k of ['title', 'source', 'visibility', 'owner']) if (k in body) workouts[idx][k] = body[k];
+          for (const k of ['title', 'source', 'visibility', 'owner', 'wdlId']) if (k in body) workouts[idx][k] = body[k];
+          if ('source' in body) forceWdlId(workouts[idx], workouts, users);
           workouts[idx].updated = pbNow();
           persist();
           return json(res, 200, workouts[idx]);
@@ -478,4 +490,53 @@ function cmp(a, b) {
   a = a ?? '';
   b = b ?? '';
   return a < b ? -1 : a > b ? 1 : 0;
+}
+
+// --- @id namespace + wdlId (task L3, DEC-021) ------------------------------
+// A JS port of the same force-`@id` + set-`wdlId` logic `apps/shared/
+// pocketbase.js` runs client-side, so a direct `curl` against the mock (or a
+// future non-browser caller) is namespaced the same way a builder save is.
+// `filter=wdlId="<handle>:<slug>"` needs no parser change — the generic
+// `field="value"` matcher in `applyQuery` already handles the colon.
+
+const mSlugify = (s) => String(s ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+const mReadId = (src) => (String(src ?? '').match(/^@id[ \t]+(\S.*?)[ \t]*$/m) || [, ''])[1];
+const mReadTitle = (src) => (String(src ?? '').match(/^#[ \t]+(\S.*?)[ \t]*$/m) || [, ''])[1];
+const mSlugOfId = (v) => (v ? mSlugify(v.includes(':') ? v.slice(v.indexOf(':') + 1) : v) : '');
+const mBaseSlug = (src) => mSlugOfId(mReadId(src)) || mSlugify(mReadTitle(src)) || 'untitled';
+
+function mWriteId(source, id) {
+  const lines = String(source ?? '').split('\n');
+  const at = lines.findIndex((l) => /^@id(?:\s|$)/.test(l));
+  if (at !== -1) { lines[at] = `@id ${id}`; return lines.join('\n'); }
+  let ins = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const t = lines[i].trim();
+    if ((t === '' || t.startsWith('//')) && i === ins) { ins = i + 1; continue; }
+    if (t.startsWith('#') || /^@[A-Za-z][\w-]*(?:\s|$)/.test(t)) { ins = i + 1; continue; }
+    break;
+  }
+  const chunk = [`@id ${id}`];
+  if (lines[ins] !== undefined && lines[ins].trim() !== '') chunk.push('');
+  lines.splice(ins, 0, ...chunk);
+  return lines.join('\n');
+}
+
+/**
+ * Force `rec.source`'s `@id` and `rec.wdlId` to `<owner-handle>:<slug>`, with a
+ * deterministic `-2` / `-3` … suffix on a same-owner clash. Mutates `rec`. A
+ * no-op if the owner has no handle yet (`ensureHandle` has not run) or the row
+ * carries no `source`.
+ */
+function forceWdlId(rec, allWorkouts, users) {
+  const handle = users.find((u) => u.id === rec.owner)?.handle;
+  if (!handle || typeof rec.source !== 'string') return;
+  const base = mBaseSlug(rec.source);
+  const taken = new Set(
+    allWorkouts.filter((w) => w.owner === rec.owner && w.id !== rec.id && w.wdlId).map((w) => w.wdlId),
+  );
+  let slug = base;
+  for (let n = 2; taken.has(`${handle}:${slug}`); n++) slug = `${base}-${n}`;
+  rec.wdlId = `${handle}:${slug}`;
+  rec.source = mWriteId(rec.source, rec.wdlId);
 }

@@ -319,6 +319,113 @@ export async function updateHandle(h) {
   }
 }
 
+// --- @id namespace + wdlId (DEC-021, L3) -----------------------------------
+//
+// Every create/update of a workout by a signed-in user force-writes the `@id`
+// directive line in `source` to `<owner-handle>:<slug>` and sends `wdlId` set
+// to the identical string, so the column and the text never disagree and there
+// is no un-namespaced saved workout (DEC-021 — "it always writes back,
+// silently, every time"). `<slug>` is the slug of an existing `@id` in the text
+// if there is one, else a slug of the `# title` line, else `untitled`; a clash
+// with another of the *same owner's* workouts gets a deterministic,
+// re-save-stable `-2` / `-3` … suffix. `@id`'s value is uninterpreted by the
+// grammar (spec §2), so a light regex on the preamble line is all this needs —
+// no `packages/core` dependency is pulled into this shared module.
+
+/** lower-case; non-alnum runs collapse to one `-`; ends trimmed (cf. `handle.js`). */
+function slugify(s) {
+  return String(s ?? '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/** The value on the zero-indent `@id` preamble line of `source`, or `''`. */
+function readIdValue(source) {
+  const m = String(source ?? '').match(/^@id[ \t]+(\S.*?)[ \t]*$/m);
+  return m ? m[1] : '';
+}
+
+/** The zero-indent `# title` line of `source`, or `''`. */
+function readTitleLine(source) {
+  const m = String(source ?? '').match(/^#[ \t]+(\S.*?)[ \t]*$/m);
+  return m ? m[1] : '';
+}
+
+/** The slug portion of an `@id` value — after the first `:`, else the whole. */
+function slugOfIdValue(v) {
+  if (!v) return '';
+  const tail = v.includes(':') ? v.slice(v.indexOf(':') + 1) : v;
+  return slugify(tail);
+}
+
+/** The un-suffixed slug for a workout: `@id` slug, else `# title` slug, else `untitled`. */
+function baseSlug(source) {
+  return slugOfIdValue(readIdValue(source)) || slugify(readTitleLine(source)) || 'untitled';
+}
+
+/**
+ * Write (or rewrite) the zero-indent `@id` line of `source` to `id`. Overwrites
+ * in place when an `@id` line exists; otherwise inserts it into the preamble —
+ * after a leading `# title` / `@`-directive run — with a blank line before the
+ * body so the at-rest text still reads on a whiteboard.
+ */
+function writeIdLine(source, id) {
+  const lines = String(source ?? '').split('\n');
+  const at = lines.findIndex((l) => /^@id(?:\s|$)/.test(l));
+  if (at !== -1) {
+    lines[at] = `@id ${id}`;
+    return lines.join('\n');
+  }
+  let ins = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const t = lines[i].trim();
+    if ((t === '' || t.startsWith('//')) && i === ins) { ins = i + 1; continue; }
+    if (t.startsWith('#') || /^@[A-Za-z][\w-]*(?:\s|$)/.test(t)) { ins = i + 1; continue; }
+    break;
+  }
+  const chunk = [`@id ${id}`];
+  if (lines[ins] !== undefined && lines[ins].trim() !== '') chunk.push('');
+  lines.splice(ins, 0, ...chunk);
+  return lines.join('\n');
+}
+
+/** This account's handle, assigning a random one first if needed (post-L1: a no-op). */
+async function requireHandle() {
+  let h = currentHandle();
+  if (!h) { await ensureHandle(); h = currentHandle(); }
+  if (!h) throw new Error('no account handle — cannot namespace this workout');
+  return h;
+}
+
+/**
+ * `<handle>:<base>` unless another of this owner's workouts already holds it,
+ * in which case `-2`, `-3`, … until free. Stable across re-saves: the scan
+ * skips only *other* records, and `base` is re-derived from the stored `@id`,
+ * so a record already carrying `-2` keeps it.
+ */
+async function namespacedId(handle, base, excludeId) {
+  let taken = new Set();
+  try {
+    const mine = await listMine();
+    taken = new Set(mine.filter((w) => w.id !== excludeId && w.wdlId).map((w) => w.wdlId));
+  } catch { /* not signed in / offline — no siblings to clash with */ }
+  let slug = base;
+  for (let n = 2; taken.has(`${handle}:${slug}`); n++) slug = `${base}-${n}`;
+  return `${handle}:${slug}`;
+}
+
+/**
+ * Force `source`'s `@id` to `<owner-handle>:<slug>`; returns `{ source, wdlId }`
+ * to send. `excludeId` is the record being updated (so it can't clash with
+ * itself) — omit it for a create.
+ */
+async function forceNamespace(source, excludeId) {
+  const handle = await requireHandle();
+  const wdlId = await namespacedId(handle, baseSlug(source), excludeId);
+  return { source: writeIdLine(source, wdlId), wdlId };
+}
+
 // --- workouts ------------------------------------------------------------------
 
 /** The signed-in user's workouts, newest edit first. */
@@ -344,16 +451,66 @@ export function getById(id) {
   return call(`${RECORDS}/${encodeURIComponent(id)}`, { auth: !!authToken() });
 }
 
-/** Create a workout. Always `private` on create (per the collection's contract). */
+/**
+ * Resolve *either* a 15-char PocketBase record id *or* a `<handle>:<slug>`
+ * `wdlId` to one record (DEC-021). The colon is the discriminator — a `wdlId`
+ * always carries one, a record id never does. A value with a `:` goes straight
+ * to `filter=wdlId="…"`; a plain value is fetched by record id, then retried as
+ * a `wdlId` on a 404. Not-found surfaces the same `Error` + `.status` shape as
+ * `getById`, so the board's existing `catch` is unchanged.
+ */
+export async function getByAnyId(x) {
+  const key = String(x ?? '');
+  const byWdlId = async () => {
+    const q = new URLSearchParams({ filter: `wdlId="${key}"`, perPage: '1' });
+    const data = await call(`${RECORDS}?${q}`, { auth: !!authToken() });
+    return data.items?.[0] ?? null;
+  };
+  if (key.includes(':')) {
+    const hit = await byWdlId();
+    if (hit) return hit;
+    const e = new Error("The requested resource wasn't found.");
+    e.status = 404;
+    throw e;
+  }
+  try {
+    return await getById(key);
+  } catch (e) {
+    if (e.status === 404) {
+      const hit = await byWdlId();
+      if (hit) return hit;
+    }
+    throw e;
+  }
+}
+
+/**
+ * Create a workout. Always `private` on create (per the collection's contract).
+ * Forces `@id` / `wdlId` to `<owner-handle>:<slug>` first (DEC-021, L3).
+ */
 export async function create({ title = '', source, visibility = 'private' }) {
   const uid = currentUser()?.id;
   if (!uid) throw new Error('not signed in');
-  return call(RECORDS, { method: 'POST', body: { owner: uid, title, source, visibility } });
+  const ns = await forceNamespace(source);
+  return call(RECORDS, {
+    method: 'POST',
+    body: { owner: uid, title, source: ns.source, wdlId: ns.wdlId, visibility },
+  });
 }
 
-/** Patch a workout — pass only the fields that change (`source`, `title`, `visibility`). */
-export function update(id, patch) {
-  return call(`${RECORDS}/${encodeURIComponent(id)}`, { method: 'PATCH', body: patch });
+/**
+ * Patch a workout — pass only the fields that change (`source`, `title`,
+ * `visibility`). When `source` is in the patch it is re-namespaced and `wdlId`
+ * is set alongside it (DEC-021, L3); a patch without `source` leaves `wdlId`
+ * untouched.
+ */
+export async function update(id, patch) {
+  let body = patch;
+  if (patch && typeof patch.source === 'string') {
+    const ns = await forceNamespace(patch.source, id);
+    body = { ...patch, source: ns.source, wdlId: ns.wdlId };
+  }
+  return call(`${RECORDS}/${encodeURIComponent(id)}`, { method: 'PATCH', body });
 }
 
 /** Delete a workout. */

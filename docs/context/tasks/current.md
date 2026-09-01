@@ -40,9 +40,12 @@ sized like M0–M7 for sequential sessions. **L0 landed 2026-09-01
 [DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
 + a spec §2 note; **L1 landed 2026-09-01 (`88ab8b6`)** — the `users`
 `org`+`handle` migration + handle generator/editor; **L2 landed 2026-09-01
-(`fc72881`)** — the `workouts.wdlId` column migration; **L3 (force `@id` on
-save + set `wdlId` + lookup resolver) is next**. Three standalone tasks are
-also queued, all dispatchable now:
+(`fc72881`)** — the `workouts.wdlId` column migration; **L3 landed 2026-09-01
+(`<TASK-SHA>`)** — every save now force-writes `@id` / `wdlId` to
+`<owner-handle>:<slug>` and the board resolves `?w=<handle>:<slug>` as well as
+`?w=<recordid>`; **L4 (search: `searchWorkouts` + builder search UI + the mock's
+`~` operator and parenthesised OR) is next**. Three standalone tasks are also
+queued, all dispatchable now:
 
 - **unit defaults** — a unitless `@ 95` load target reads as `95lb` (pound is
   the default); a unitless magnitude on a machine/aerobic movement reads as
@@ -380,23 +383,45 @@ after the migration applies — confirm the `wdlId` column + `idx_workouts_wdl_i
 landed on `workouts` (`deploy/README.md` §7d); nothing to backfill or grant,
 same style as the M1/M2/M3/L1 "still to do on deploy" notes. Spawns L3.
 
-**L3 — force `@id` on save + set `wdlId` + lookup resolver** (per
-[DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)).
-`apps/shared/pocketbase.js`: `create` / `update` **write/rewrite the `@id`
-directive line in `source`** to `<owner-handle>:<slug>` before sending —
-`<slug>` from an existing `@id` slug in the text if present, else a slug of the
-`# Title`, else `untitled`; a collision against another of the *same owner's*
-workouts gets a deterministic, re-save-stable suffix (`-2`, `-3`, …). Send
-`wdlId` set to that same `<owner-handle>:<slug>` string (light regex on the
-now-written line, or a core directive helper if cheap to import). Add a resolver
-`getByAnyId(x)`: a value **containing `:` is a `wdlId`** → `filter=wdlId="<x>"`;
-no `:` → the 15-char record-id route, with a `wdlId` fallback on miss. Point the
-board's `?w=<id>` resolution at it so a share link can carry `crossfit:fran`.
-Mirror in `scripts/mock-api.mjs` (`filter=wdlId="…"`, force `@id` + set `wdlId`
-on mock create/update). Verify by driving the builder — save with no `@id`
-(gets `<yourhandle>:<title-slug>`), save a copy of `crossfit:fran` (becomes
-`<yourhandle>:fran`), confirm the column — and the board (`?w=<yourhandle>:…`
-and `?w=<recordid>` both resolve). Spawns L4.
+**L3 — force `@id` on save + set `wdlId` + lookup resolver. DONE 2026-09-01
+(`<TASK-SHA>`).** App + mock only, no schema/core/grammar/spec touch, `make
+test` unchanged 2064/2064 (1 pending). `apps/shared/pocketbase.js` grew a
+module-local `@id`/slug helper block (`slugify`, `readIdValue` / `readTitleLine`
+— light regex on the zero-indent preamble line, `slugOfIdValue`, `baseSlug`,
+`writeIdLine`, `requireHandle`, `namespacedId`, `forceNamespace`) and
+`create` / `update` now run it: on every save `source`'s `@id` line is
+written/rewritten to `<owner-handle>:<slug>` and `wdlId` is sent set to the same
+string. `<slug>` = the slug portion of an existing `@id` in the text (`@id
+crossfit:fran` → `fran`, re-namespaced to `<yourhandle>:fran`), else a slug of
+the zero-indent `# title` line *in the source* (the passed `title` param is a
+display fallback and is deliberately not used for the slug — it can be
+`"Untitled workout"`), else `untitled`. A same-owner clash appends a
+deterministic `-2` / `-3` … suffix, stable across re-saves (the scan skips only
+*other* records' `wdlId`s and `base` is re-derived from the stored `@id`). A
+patch without `source` leaves `wdlId` alone. New export `getByAnyId(x)`: a
+value with `:` → `filter=wdlId="<x>"` (throws a 404-shaped `Error` on no hit);
+no `:` → `getById`, with a `filter=wdlId="<x>"` fallback on a 404 — same
+error/not-found shape as `getById` so `board.js`'s `loadShared` `catch` is
+untouched. `apps/display/board.js` swapped the `?w=` import + call from
+`getById` to `getByAnyId`; the id-is-the-share-link / clean-`?w=` behaviour
+(`load(..., false)`) is unchanged. `scripts/mock-api.mjs` gained a JS port of
+the helper (`forceWdlId` + `mSlugify` / `mReadId` / `mReadTitle` / `mSlugOfId` /
+`mBaseSlug` / `mWriteId`) run on mock `workouts` create/update, resolving the
+owner's handle from the `users` fixture; `wdlId` added to the record shape and
+the PATCH field list; `filter=wdlId="<handle>:<slug>"` needed **no** parser
+change — the generic `field="value"` matcher already spans the colon. **Verified**
+(mock `/api`, driving `pocketbase.js`'s real `create`/`update`/`getByAnyId` and
+one end-to-end builder "Save to my workouts" click): `# Fran` no `@id` → `@id
+easy-beacon:fran`; copy of `@id crossfit:fran` on a clean namespace → `@id
+easy-beacon:fran`; no `@id`/title ×2 → `easy-beacon:untitled` then
+`easy-beacon:untitled-2`, and re-saving either keeps its slug (no bump / no
+creep); body-edit re-save of a saved workout → `@id`/`wdlId` unchanged; builder
+Save button → `@id easy-beacon:new-workout` inserted after the `# New workout`
+title line + `wdlId` set. Board: `?w=easy-beacon:fran` resolves and renders with
+`easy-beacon:fran` in the meta strip and the URL left clean; `?w=<15-char
+recordid>` still resolves; `?w=nope:nope` shows the existing "could not be
+found" line, no crash. Theme is not exercised — L3 is logic-only, no CSS/render
+change, both `prefers-color-scheme` values run identical code. Spawns L4.
 
 **L4 — Search: API + builder UI.** `searchWorkouts(q, {page})` in
 `pocketbase.js` — `filter=(visibility="public" || owner="<uid>") && (title~"<q>"

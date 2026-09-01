@@ -34,7 +34,7 @@ import { declaredScore } from '../../build/web/core/result.js';
 import { provide, has } from '../../build/web/core/env.js';
 import { exposures, musclesFor } from '../../build/web/core/muscles.js';
 import { mountBody, paintBody, aggregateStates, highlightStates, attachZoom } from '../shared/body-map.js';
-import { getById as pbGetById } from '../shared/pocketbase.js';
+import { getByAnyId as pbGetByAnyId } from '../shared/pocketbase.js';
 
 // The core is handed its data; it reads no files itself. On Node that is
 // packages/core/node.ts, here it is a fetch.
@@ -768,10 +768,16 @@ const where = (d) => (d.line === undefined ? d.message : `line ${d.line}: ${d.me
  */
 const sharedId = () => new URLSearchParams(location.search).get('w') || '';
 
-/** Fetch a shared workout and run it, or show a "not found" line (never crash). */
+/**
+ * Fetch a shared workout and run it, or show a "not found" line (never crash).
+ * `?w=` may carry a 15-char record id or a `<handle>:<slug>` `wdlId` — one
+ * resolver handles both (DEC-021, L3). The id still *is* the share link, so
+ * `load(..., false)` keeps `?w=` clean in the address bar rather than expanding
+ * the source into the hash.
+ */
 async function loadShared(id) {
   try {
-    const rec = await pbGetById(id);
+    const rec = await pbGetByAnyId(id);
     if (!rec?.source) throw new Error('empty');
     load(rec.source, '', false);
   } catch (e) {

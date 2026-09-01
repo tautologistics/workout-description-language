@@ -2,6 +2,51 @@
 
 ## Changes
 
+- **2026-09-01 — L3 of *The workout library* epic landed (`<TASK-SHA>`)** — the
+  app-side write that makes `wdlId` mean something and `@id` deterministic
+  (DEC-021). **App + mock only** — no schema / `packages/core` / grammar / spec
+  touch; `make test` unchanged **2064/2064, 1 pending**.
+  - `apps/shared/pocketbase.js`: a module-local `@id`/slug helper block
+    (`slugify`, `readIdValue` / `readTitleLine` — light regex on the zero-indent
+    preamble line, `slugOfIdValue`, `baseSlug`, `writeIdLine`, `requireHandle`,
+    `namespacedId`, `forceNamespace`). `create` and `update` now run it: every
+    save writes/rewrites `source`'s `@id` line to `<owner-handle>:<slug>` and
+    sends `wdlId` set to the identical string. `<slug>` = an existing `@id`'s
+    slug portion (`@id crossfit:fran` → `fran`), else a slug of the zero-indent
+    `# title` line *in the source* (not the passed `title` param, which is a
+    display fallback that can read `"Untitled workout"`), else `untitled`; a
+    same-owner clash appends a deterministic `-2` / `-3` … suffix that is stable
+    across re-saves (scan skips only *other* records' `wdlId`s; `base` is
+    re-derived from the stored `@id`). A patch with no `source` leaves `wdlId`
+    alone. New export **`getByAnyId(x)`**: `:` in the value → `filter=wdlId="…"`
+    (404-shaped `Error` on miss); no `:` → `getById` with a `wdlId` fallback on
+    a 404 — same not-found shape as `getById`.
+  - `apps/display/board.js`: the `?w=` resolution imports and calls
+    `getByAnyId` instead of `getById`; the id-is-the-share-link / clean-`?w=`
+    behaviour (`load(..., false)`) is unchanged, so `?w=easy-beacon:fran` and
+    `?w=<recordid>` both work and the address bar stays clean.
+  - `scripts/mock-api.mjs`: a JS port of the helper (`forceWdlId` +
+    `mSlugify` / `mReadId` / `mReadTitle` / `mSlugOfId` / `mBaseSlug` /
+    `mWriteId`) runs on mock `workouts` create/update, resolving the owner's
+    handle from the `users` fixture; `wdlId` added to the record shape and the
+    PATCH field list. `filter=wdlId="<handle>:<slug>"` needed no parser change —
+    the generic `field="value"` matcher already spans the colon.
+  - **Verified** against `make serve` (mock `/api`), driving the real
+    `pocketbase.js` `create`/`update`/`getByAnyId` plus one end-to-end builder
+    "Save to my workouts" click: `# Fran` no `@id` → `@id easy-beacon:fran`;
+    copy of `@id crossfit:fran` on a clean namespace → `@id easy-beacon:fran`;
+    no `@id`/title saved twice → `easy-beacon:untitled` then
+    `easy-beacon:untitled-2`, re-saving either keeps its slug; body-edit re-save
+    of a saved workout → `@id`/`wdlId` unchanged; builder Save button → `@id
+    easy-beacon:new-workout` written after the title line + `wdlId` set. Board:
+    `?w=easy-beacon:fran` resolves/renders with the id in the `#meta` strip,
+    URL left clean; `?w=<15-char recordid>` resolves; `?w=nope:nope` shows the
+    existing "could not be found" line, no crash. Theme not exercised — L3 is
+    logic-only, no CSS/render change. *Touched:* `apps/shared/pocketbase.js`,
+    `apps/display/board.js`, `scripts/mock-api.mjs`, `docs/context/`. Spawns L4
+    (search: `searchWorkouts` + builder search UI + the mock's `~` operator and
+    parenthesised OR).
+
 - **2026-09-01 — L2 of *The workout library* epic landed (`fc72881`)** — the
   `workouts` side of the DEC-021 schema.
   `deploy/pocketbase/pb_migrations/1757000000_add_workouts_wdlid.js` adds
