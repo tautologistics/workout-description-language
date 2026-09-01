@@ -33,10 +33,14 @@ M0–M7 all landed (M6, the nightly VPS DB backup, `97f236f`), and the whole
 M-section moved to [completed.md](completed.md) as one grouped section, the way
 the deployment epic and the redesign chain were closed.
 
-**One epic is now queued — *The workout library* (L0–L7)**, fleshed out
+**One epic is in flight — *The workout library* (L0–L7)**, fleshed out
 2026-09-01 from Chris's ask and the calls he made on it; the section is below,
-sized like M0–M7 for sequential sessions. Three standalone tasks are also
-queued, all dispatchable now:
+sized like M0–M7 for sequential sessions. **L0 landed 2026-09-01
+(`<TASK-SHA>`)** — the contract is
+[DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
++ a spec §2 note; **L1 (the `users` `org`+`handle` migration + handle
+generator/editor) is next**. Three standalone tasks are also queued, all
+dispatchable now:
 
 - **unit defaults** — a unitless `@ 95` load target reads as `95lb` (pound is
   the default); a unitless magnitude on a machine/aerobic movement reads as
@@ -250,7 +254,26 @@ Grounding facts (what the tasks are built against — cf. the M0–M7 section in
 - `@id` is already a spec directive (`@id crossfit:fran`, spec preamble) and
   the existing Fran fixture already uses exactly that value.
 
-**L0 — Design note / decision (DEC-021).** Write the contract the rest builds
+**L0 — Design note / decision (DEC-021). DONE 2026-09-01 (`<TASK-SHA>`).**
+Written up as
+[DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
+(+ the index entry in [../decisions.md](../decisions.md)) and a one-sentence
+**hosting-convention note** beside spec §2's `@id` bullet (`spec/spec-0.1.md`)
+— flagged explicitly as a convention, so the "never derived from contents"
+language rule is untouched; no grammar / parser / `packages/core` change, suite
+unchanged at 2064/2064. The DEC nails: `org: true` flagged `users` rows own the
+curated sets; `users.handle` (unique, `[a-z0-9-]+`, user-editable, random
+`adjective-noun` default from committed `apps/shared/` word lists) is the `@id`
+namespace for every account; every save writes/rewrites `@id` to
+`<owner-handle>:<slug>` (slug from an existing `@id` else the title; same-owner
+collision → deterministic suffix; copy→save re-namespaces; L6 loader applies the
+same rule to org workouts non-interactively); `workouts.wdlId` set from the same
+value, indexed; `getByAnyId` resolves a `:`-bearing `wdlId` or a 15-char record
+id to one row (the `:` is the discriminator) and the board's `?w=` uses it; the
+mock `/api` + `fixtures/` mirror all of it; the handle-rename staleness and any
+*platform* concern are out of scope. Original spec follows.
+
+Write the contract the rest builds
 against, the way M0 → DEC-020 did. It must state, at minimum:
 
 - Org accounts are flagged `users` rows (`org: true`), no OAuth, fixed ids,
@@ -282,11 +305,13 @@ Migration adds `org` (bool, default false) and `handle` (text, **unique**,
 nullable) to `users`; a second migration (or the same one) inserts the org rows
 — `crossfit`, `hyrox`, `tabata` — with fixed ids and handles, `org: true`, no
 password/OAuth. Then the app side: on first sign-in with no handle, assign a
-**random `adjective-noun` handle** (a small committed word-list in
-`apps/shared/`, collision-checked against the collection) and persist it; add a
-**handle editor** in the builder header's account area — show the current
-handle, let the user change it to any unused valid slug (`[a-z0-9-]+`),
-reject a taken one. `apps/shared/pocketbase.js` grows `updateHandle(h)` /
+**random `adjective-noun` handle** (two committed word lists — adjectives,
+nouns — in `apps/shared/`, collision-checked against the collection) and
+persist it; add a **handle editor** in the builder header's account area — show
+the current handle, let the user change it to any unused valid slug
+(`[a-z0-9-]+`); reject a taken slug, an empty or pure-numeric one, and a short
+reserved set (`api`, `admin`, `_`), client- and server-side.
+`apps/shared/pocketbase.js` grows `updateHandle(h)` /
 reads `currentUser().handle`. Mirror in `scripts/mock-api.mjs` +
 `fixtures/users.json` (give the mock user a handle). Verify: fresh mock user
 gets a handle, rename to a free slug works, rename to `crossfit` (taken)
@@ -299,15 +324,23 @@ nullable, indexed) to `workouts`. No rule change (visibility rules unchanged).
 Note that existing rows have it null until re-saved / backfilled (L3 covers new
 saves; L6's loader sets it for the library). Verify up+down. Spawns L3.
 
-**L3 — `wdlId` on save + lookup resolver.** `apps/shared/pocketbase.js`:
-`create` / `update` parse the `@id` value out of `source` (a light regex, or a
-core directive helper if one is cheap to import) and send `wdlId`; add a
-resolver `getByAnyId(x)` that tries the record-id route then
-`filter=wdlId="<x>"`. Point the board's `?w=<id>` resolution at it so a share
-link can carry `crossfit:fran`. Mirror in `scripts/mock-api.mjs`
-(`filter=wdlId="…"`, and set `wdlId` on mock create/update). Verify by driving
-the builder (save a workout with `@id x:y`, confirm the column) and the board
-(`?w=x:y` resolves). Spawns L4.
+**L3 — force `@id` on save + set `wdlId` + lookup resolver** (per
+[DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)).
+`apps/shared/pocketbase.js`: `create` / `update` **write/rewrite the `@id`
+directive line in `source`** to `<owner-handle>:<slug>` before sending —
+`<slug>` from an existing `@id` slug in the text if present, else a slug of the
+`# Title`, else `untitled`; a collision against another of the *same owner's*
+workouts gets a deterministic, re-save-stable suffix (`-2`, `-3`, …). Send
+`wdlId` set to that same `<owner-handle>:<slug>` string (light regex on the
+now-written line, or a core directive helper if cheap to import). Add a resolver
+`getByAnyId(x)`: a value **containing `:` is a `wdlId`** → `filter=wdlId="<x>"`;
+no `:` → the 15-char record-id route, with a `wdlId` fallback on miss. Point the
+board's `?w=<id>` resolution at it so a share link can carry `crossfit:fran`.
+Mirror in `scripts/mock-api.mjs` (`filter=wdlId="…"`, force `@id` + set `wdlId`
+on mock create/update). Verify by driving the builder — save with no `@id`
+(gets `<yourhandle>:<title-slug>`), save a copy of `crossfit:fran` (becomes
+`<yourhandle>:fran`), confirm the column — and the board (`?w=<yourhandle>:…`
+and `?w=<recordid>` both resolve). Spawns L4.
 
 **L4 — Search: API + builder UI.** `searchWorkouts(q, {page})` in
 `pocketbase.js` — `filter=(visibility="public" || owner="<uid>") && (title~"<q>"

@@ -38,7 +38,7 @@ for time:
 score: time
 ```
 
-- **Directives** (`@key value`) carry metadata and identity. All optional. `@id` is any unique string with an optional `namespace:` prefix; it must be unique within the repository holding the file, and is never derived from the file's contents (roadmap §3.2.1).
+- **Directives** (`@key value`) carry metadata and identity. All optional. `@id` is any unique string with an optional `namespace:` prefix; it must be unique within the repository holding the file, and is never derived from the file's contents (roadmap §3.2.1). *Hosting convention, not a language rule:* when a file is saved to a hosted account the namespace is by convention that account's editable handle (`crossfit:fran`, `chris:fran`), and the host rewrites `@id` to match on every save — a local file on disk still uses any namespace or none.
 - **Title** is a single `#` heading. Optional.
 - **Body** is one or more blocks, or a bare list of steps — a single-step workout (`- 1mi Run`) is a valid file.
 - **Sections** (optional) group blocks: `warmup:`, `strength:`, `conditioning:`, `accessory:`, `cooldown:`, or any custom label (§5.1) — a bare heading with no digit and no kind-word, read literally and noted.

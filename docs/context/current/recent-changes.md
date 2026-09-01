@@ -2,6 +2,36 @@
 
 ## Changes
 
+- **2026-09-01 — DEC-021 recorded; L0 of *The workout library* epic closed**
+  (docs + one spec-prose sentence, no code). L0's job was the design note the
+  rest of the epic builds against, the way M0 → DEC-020 opened the movements
+  epic.
+  [DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it):
+  curated public sets are owned by **flagged `users` rows** (`org: true`, fixed
+  ids from an L1 migration, no OAuth, workouts `visibility: "public"`) — no new
+  collection. A new unique **`users.handle`** (`[a-z0-9-]+`, user-editable,
+  random `adjective-noun` default from two committed `apps/shared/` word lists)
+  is the `@id` namespace prefix for **every** account. **Every save
+  writes/rewrites the workout's `@id` line to `<owner-handle>:<slug>`** (slug
+  from an existing `@id` else the title; same-owner collision → deterministic
+  suffix) — so there is no un-namespaced saved workout and no mismatch state;
+  copy→save re-namespaces naturally; the L6 loader applies the identical rule
+  non-interactively to org workouts. **`workouts.wdlId`** is set from the same
+  value and indexed; **`getByAnyId`** resolves a `:`-bearing `wdlId` or a
+  15-char record id to one row (the `:` is the discriminator), and the board's
+  `?w=` uses it. The mock `/api` + `fixtures/` mirror all of it. `packages/core`,
+  the grammar and spec *semantics* are untouched — the namespace rule is a
+  **hosting convention**, recorded as one flagged sentence beside spec §2's
+  `@id` bullet. **Deferred:** handle-rename strands saved `@id`s / `wdlId`s /
+  share links (already in [../topics/known-debts.md](../topics/known-debts.md));
+  any *platform* concern stays a Non-Goal. `make test` unchanged at
+  **2064/2064, 1 pending**. *Touched:*
+  `docs/context/topics/settled-decisions.md`, `docs/context/decisions.md`,
+  `docs/context/tasks/current.md`, `docs/context/current/{recent-changes,next-steps}.md`,
+  `spec/spec-0.1.md`. Also tightened L1 (handle validation: reserved/empty/
+  numeric rejects, two word lists) and L3 (now spells out the force-`@id`-on-save
+  rule + the `:`-discriminator resolver) so they need no mid-flight call.
+
 - **2026-09-01 — queued a new epic + three standalone tasks; recorded the
   unit-defaults decision** (docs only, no code). From Chris, in the same
   session as the `»`-panel fix. **Epic *The workout library* (L0–L7)** in

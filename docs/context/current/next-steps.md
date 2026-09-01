@@ -2,8 +2,20 @@
 
 ## Immediate
 
-**No epic is in flight yet** (*The workout library*, L0–L7, is queued but
-unstarted — see below). *Movements in the database — Phase 1 (M0–M7)* is
+***The workout library* (L0–L7) is in flight. L0 landed 2026-09-01
+(`<TASK-SHA>`)** — the epic's design note, written up as
+[DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
+plus a one-sentence hosting-convention note beside spec §2's `@id` bullet; docs
+only, `make test` unchanged (2064/2064, 1 pending). **Next is L1 — the `users`
+migration adding `org` (bool) + `handle` (text, unique) and inserting the
+`crossfit` / `hyrox` / `tabata` org rows, plus the app-side random
+`adjective-noun` handle assignment, the handle editor in the builder header,
+and `updateHandle` / `currentUser().handle` in `apps/shared/pocketbase.js`;
+mock `/api` + `fixtures/users.json` mirror; migration up+down verified against a
+real PocketBase v0.40.1 binary.** See
+[../tasks/current.md](../tasks/current.md) "## The workout library (L0–L7)".
+
+*Movements in the database — Phase 1 (M0–M7)* is
 **complete as of 2026-09-01** — all of M0–M7 landed and the M-section moved to
 [../tasks/completed.md](../tasks/completed.md) as one grouped section. The last
 link, **M6** (`97f236f`), specified the nightly VPS SQLite backup + off-box
@@ -32,7 +44,7 @@ from Chris, in [../tasks/current.md](../tasks/current.md)):
   account gets an editable `handle` that namespaces its `@id`s; a
   `workouts.wdlId` column; search over own + public by name / `@id` / record
   id; authored `.wdl` library + a `make workouts:load` ingest that also
-  regenerates fixtures. Start at **L0** (DEC-021 design note). This absorbs
+  regenerates fixtures. **L0 (DEC-021) done 2026-09-01; L1 next.** This absorbs
   most of the deferred account-namespacing rethink.
 - **unit defaults** — `@ 95` reads as `95lb`; a unitless magnitude on a
   machine/aerobic movement reads as calories. Spec + grammar + parser + golden

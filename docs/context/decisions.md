@@ -182,3 +182,23 @@ local `make serve` answers `/api` from a mock (M7) with `registry/movements.json
 as the movements fixture. `packages/core`, the grammar and the spec are
 untouched.
 -> [topics/settled-decisions.md](topics/settled-decisions.md#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump)
+
+## DEC-021 — An account's handle is the `@id` namespace, forced onto every workout on save; `workouts.wdlId` mirrors it
+Status: active. Recorded 2026-09-01, opening the *workout library* epic (L0).
+Curated public sets are owned by flagged `users` rows (`org: true`, fixed ids
+from a migration, no OAuth, workouts `visibility: "public"`) — no new
+collection. A new unique `users.handle` (`[a-z0-9-]+`, user-editable, random
+`adjective-noun` default from committed `apps/shared/` word lists) is the `@id`
+namespace prefix for **every** account. Every save writes/rewrites the workout's
+`@id` line to `<owner-handle>:<slug>` (slug from an existing `@id`, else the
+title; same-owner collision → deterministic suffix) — so there is no
+un-namespaced saved workout and no mismatch state; copy→save re-namespaces
+naturally; the L6 loader applies the same rule non-interactively to org
+workouts. `workouts.wdlId` is set from the same value, indexed; `getByAnyId`
+resolves a `:`-bearing `wdlId` or a 15-char record id to the same row, and the
+board's `?w=` uses it. `packages/core`, the grammar and spec *semantics* are
+untouched — the namespace rule is a hosting convention, with one flagged note
+added beside spec §2's `@id` bullet. Deferred: handle-rename strands saved
+`@id`s / share links ([topics/known-debts.md](topics/known-debts.md)); a
+*platform* stays a Non-Goal.
+-> [topics/settled-decisions.md](topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)

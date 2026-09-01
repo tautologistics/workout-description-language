@@ -4,7 +4,7 @@ Closed questions, and what each answer buys. Read this before changing how
 something is structured: reopening one of these needs a reason better than "it
 would be tidier".
 
-The sixteen structurally significant decisions carry a `DEC-NNN` heading and
+The twenty-one structurally significant decisions carry a `DEC-NNN` heading and
 are indexed with a one-line summary in [../decisions.md](../decisions.md);
 every decision below — headed or not — is equally settled, the heading only
 marks the ones worth a top-level pointer.
@@ -1290,6 +1290,155 @@ Phase 1* epic (queue task M0).*
   dump → load → dump round-trip requirement is met. Dump **cadence** is still
   undecided — this ships no pre-commit hook, only a `--check` flag that a hook
   or the deploy step could call.*
+
+### DEC-021 An account's handle is the `@id` namespace, forced onto every workout on save; `workouts.wdlId` mirrors it
+*Status: active. Settled 2026-09-01, opening the *workout library* epic (queue
+task L0). Absorbs and closes most of the deferred "account namespacing" /
+"`@id` ↔ record-id" rethink ([builder-ux.md](builder-ux.md) "Accounts, IDs and
+layout").*
+
+- **Curated public workout sets are owned by flagged `users` rows, not a new
+  collection.** A new `org` (bool) field on `users` marks an account that owns a
+  curated set — `crossfit`, `hyrox`, `tabata`, room for more. An org row has a
+  fixed id and is created by a migration (L1); it has **no OAuth identity and no
+  password** — nobody signs in as it. Its workouts are owned through the
+  **existing `owner` relation** at `visibility: "public"`, so every list/view
+  rule (`owner = @request.auth.id || visibility != "private"`) and write rule
+  (owner-only) on `workouts` already covers them unchanged. No new collection,
+  no `workouts`-schema churn for ownership. The `org` flag itself only gates
+  *who may write* the row (a later admin/loader concern) and lets a UI label
+  "an org's set" — it is not read by `packages/core` or the grammar.
+
+- **`users.handle` is the `@id` namespace for every account — orgs and people
+  alike.** A new `handle` field on `users`: text, **unique** (unique index),
+  `[a-z0-9-]+`, nullable at rest but never null for an account that has saved a
+  workout. It is the username-style public identifier and the single source of
+  the `@id` namespace prefix: everything the `crossfit` account owns is
+  `@id crossfit:*`; everything a person whose handle is `chris` owns is
+  `@id chris:*`. **The user picks and edits their own handle** — it is not
+  derived from anything and not fixed. Org handles are just handles the L1
+  migration sets.
+
+- **Onboarding never blocks on the handle: a handle-less account is assigned a
+  random `adjective-noun` one.** On first sign-in with no handle (or the first
+  save, whichever the app reaches first), the app generates `brave-otter` /
+  `quiet-harbor` from two committed word lists in `apps/shared/` (an adjectives
+  list and a nouns list — plain data files, no dependency, the same way
+  `fixtures/` is committed data), checks it is free against the collection,
+  retries on collision, and persists it. The user can change it later in the
+  builder header's account area to **any unused valid slug**; a taken slug, an
+  empty one, a pure-numeric one, or a short reserved set (`api`, `admin`, `_`)
+  is rejected client- and server-side. `apps/shared/pocketbase.js` grows
+  `updateHandle(h)` and exposes `currentUser().handle` (L1).
+
+- **Every save forces the workout's `@id` to `<owner-handle>:<slug>` — written
+  or rewritten into the source text.** This is the load-bearing ruling. On every
+  create and update of a `workouts` row by a signed-in user,
+  `apps/shared/pocketbase.js` writes the `@id` directive line in `source` to
+  `<owner-handle>:<slug>`:
+  - **`<slug>`** is the slug portion of an existing `@id` in the text if there
+    is one (`@id crossfit:fran` copied into a new buffer → slug `fran`); else a
+    slug of the `# Title` (`Fight Gone Bad` → `fight-gone-bad`); else — no
+    `@id`, no title — `untitled`, disambiguated by the suffix rule below.
+  - **A collision inside the owner's namespace** — another workout of the *same
+    owner* already carries that `wdlId` and it is not this record — appends a
+    deterministic suffix (`-2`, `-3`, …). The suffix must be stable across
+    re-saves of the same record (derive it once, keep it in the stored `@id`).
+    Collisions *across* owners are impossible by construction — the handle
+    prefix differs — so two accounts may both hold `…:fran`.
+  - **The `@id` line is inserted** into the preamble if absent, **overwritten**
+    if present with any other value. There is therefore **no un-namespaced
+    saved workout, no "mismatch" state, and no warn-on-mismatch UX to design** —
+    the question the deferred rethink held open ("does saving reconcile, warn,
+    or write back?") is answered: it always writes back, silently, every time.
+  - **Copying another user's workout re-namespaces it naturally.** Open
+    `crossfit:fran`, edit, Save → your record is `@id yourhandle:fran`,
+    `wdlId yourhandle:fran`. No copy dialog, no "fork" concept — the save rule
+    does it.
+  - **Org workouts get the identical treatment via the L6 loader**, not an
+    interactive save: `workouts-to-db.mjs` sets `owner` to the org row and
+    forces `@id` / `wdlId` to `<orghandle>:<slug>` from each authored `.wdl`'s
+    own `@id`, under the same slug and suffix rules. The rule is "every saved
+    workout is namespaced by its owner's handle", and the loader is just the
+    non-interactive writer.
+
+- **`workouts.wdlId` mirrors the `@id` — `<handle>:<slug>`, indexed, set on
+  save from the same value.** L2 adds the column (text, nullable, plain index).
+  The same save operation that writes the `@id` line into `source` sets
+  `wdlId` to the identical string, so the column and the text never disagree.
+  Existing rows are `wdlId: null` until re-saved or loaded — no backfill is
+  required (L3 covers new saves, L6 the library). `wdlId` is the
+  human-readable, searchable, shareable handle for a record; the 15-char
+  PocketBase record id stays the opaque one.
+
+- **A lookup resolves either the record id or the `wdlId` to the same record.**
+  `apps/shared/pocketbase.js` gains `getByAnyId(x)`: **a value containing `:`
+  is a `wdlId`** → `filter=wdlId="<x>"`; a value with no `:` is a 15-char
+  record id → `GET …/records/<x>`, with a `wdlId` fallback on miss. The colon
+  is the unambiguous discriminator — a `wdlId` always has one, a record id
+  never does. The board's `?w=<id>` resolution (item 20) points at this, so
+  `?w=crossfit:fran` works end to end and `?w=<recordid>` still does. This is
+  the "correlate `@id` and record id" ask from the rethink, answered as "both
+  address the same row through one resolver" rather than by making the ids
+  equal.
+
+- **The mock `/api` mirrors all of it.** `fixtures/users.json` rows gain
+  `handle` (and `org` where relevant); `fixtures/workouts.json` rows gain
+  `wdlId`; `scripts/mock-api.mjs` resolves `filter=wdlId="…"`, parses `@id`
+  out of `source` to set `wdlId` on mock create/update, supports the
+  random-handle assignment path, and (L4) grows the `~` operator and the
+  parenthesised `(visibility="public" || owner="<uid>") && (title~"…" ||
+  wdlId~"…")` OR shape that search needs. A fresh `make serve` shows the whole
+  library with no PocketBase, `registry/movements.json`-as-fixture being the
+  precedent.
+
+- **The library loader is the twin of `scripts/movements-to-db.mjs`.**
+  `scripts/workouts-to-db.mjs` / `make workouts:load` (L6): reads
+  `examples/workouts/**/*.wdl`, upserts each as a `workouts` row owned by the
+  matching org handle at `visibility: "public"`, `wdlId` from `@id`,
+  **idempotent on `wdlId`** (`POST` the absent, `PATCH` the changed, re-run
+  writes nothing; `--dry-run`). The same run regenerates `fixtures/workouts.json`
+  (the library rows) and `fixtures/users.json` (the org rows). Prod writes need
+  admin auth (`WDL_PB_ADMIN_*`, exactly as `movements:load`); against the mock
+  it just works.
+
+- **`packages/core`, the grammar and the spec semantics do not change.** `@id`
+  is already a grammar-accepted directive whose value is uninterpreted (spec §2;
+  "never derived from the file's contents", roadmap §3.2.1). The
+  `<handle>:<slug>` rule is an **app / hosting convention** enforced by
+  `apps/shared/pocketbase.js` and the loader — not a language rule, not a
+  grammar production, not a parser change. A local `.wdl` file on disk may still
+  use any namespace or none; nothing about `wdl fmt`, `wdl check` or the corpus
+  moves. **One spec note is warranted and lands in this commit**: a sentence in
+  spec §2 beside the `@id` bullet recording that when a file is saved to a
+  hosted account the namespace is by convention that account's handle and the
+  host rewrites `@id` to match on every save — explicitly flagged as a hosting
+  convention, so the "never derived from contents" language rule is untouched.
+
+- **Deferred on purpose — the handle-rename staleness.** When a user renames
+  their handle, every already-saved `<oldhandle>:<slug>` `@id`, every `wdlId`
+  built on it, and every share link goes stale. Phase 1 does **not** solve this
+  (Chris: "we can revisit that"); it is recorded in
+  [known-debts.md](known-debts.md) with the three options to weigh later —
+  rename-time rewrite of `wdlId` + the `@id` text across all the user's
+  workouts (the natural extension of "save forces the namespace"); keep old
+  handles as resolvable aliases; forbid the rename once a workout exists under
+  the handle. DEC-021 picks none of them.
+
+- **Out of scope — anything that is a *platform*.** Public signup flows,
+  discovery, profile pages, follower graphs, scale: off the roadmap per
+  [goals.md](../goals.md) Non-Goals and [../tasks/deferred.md](../tasks/deferred.md).
+  This epic is a fixed handful of org accounts, an editable handle per user, and
+  search over one's own plus public workouts — for a small known set of users on
+  one small instance. User-scoped *movements* (Phase 2) are a separate deferred
+  item and unrelated.
+
+- **What this closes.** After L0–L7, the only thing left in the "Accounts, IDs
+  and layout" rethink is the board **Edit** button round-tripping into the
+  builder (a separate, still-unscheduled item) and the deferred rename debt
+  above. The `@id` ↔ record-id correlation, the account namespace, `users.handle`,
+  `workouts.wdlId`, forcing the `@id` namespace on save, and "open on the board"
+  for any public workout are all decided here or by the L-tasks this note opens.
 
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
