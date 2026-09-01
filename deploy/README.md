@@ -49,7 +49,7 @@ convenience backup, mode `600`) in `deploy/pocketbase/pocketbase.env` on the box
 |---|---|
 | `pocketbase/pocketbase.user.service` | **the unit that runs the live instance** (per-user, no root) |
 | `pocketbase/pocketbase.service` | system unit — reference only, for a host where you have root |
-| `pocketbase/run-pocketbase.sh` + `crontab.fragment` | cron keepalive — fallback for a host with neither root nor user-linger |
+| `pocketbase/run-pocketbase.sh` + `crontab.fragment` | cron keepalive (fallback for a host with neither root nor user-linger) **+ the nightly SQLite backup line (task M6) — wanted on every box, systemd or not**|
 | `pocketbase/pb_migrations/` | collection schema migrations (`workouts`, `users.admin`, `movements`), auto-applied on start ([README](pocketbase/pb_migrations/README.md)) |
 | `pocketbase/env.example` | secret-file template |
 | `nginx/wdl.conf` | a hand-managed nginx vhost — **not used on DreamHost** (panel does it); kept for a self-managed host |
@@ -354,26 +354,105 @@ rules or the migration API.
 
 ### Back up (SQLite)
 
+Ad hoc, any time:
+
 ```sh
 # admin UI: Settings -> Backups -> "Create backup"  (downloadable zip), or:
 cd ~/pb
 sqlite3 pb_data/data.db ".backup '$HOME/pb/pb_backups/data-$(date -u +%Y%m%dT%H%M%SZ).db'"
 ```
 
-`storage/` holds uploaded files (none yet — workouts are text). Automate a daily
-`sqlite3 .backup` + `find pb_backups -mtime +30 -delete` via `crontab -e`, and
-**copy the backups off the box** (rsync/scp to Chris's machine).
+**Automated nightly backup — task M6.** Once the curated movement layer lives in
+the DB (DEC-020), `~/pb/pb_data/data.db` is the primary copy of ~972 curated
+movements plus every saved workout; `registry/movements.json` in the repo is only
+as current as the last `make movements-dump`. So the box takes a dated snapshot
+every night and a second copy is pulled off the box.
+
+The mechanism is a **shell cron line**, not PocketBase's built-in scheduler: the
+box already carries a per-user `crontab` for the keepalive fallback, so one more
+greppable, version-controlled line beside it — with the schedule, the retention
+prune and the path all visible in the repo — beats a setting buried in PB's
+own DB that still needs a separate off-box cron anyway. The "box down at 03:17"
+risk is equal for either scheduler and small (the keepalive means the box is
+almost always up; a missed night loses at most a day of edits, and the off-box
+pull only ever copies what exists). PB's scheduler is the fallback below, for a
+box without `sqlite3`.
+
+**On the VPS** — one line in the PocketBase account's `crontab -e`, from
+[`pocketbase/crontab.fragment`](pocketbase/crontab.fragment) (which now carries
+it next to the keepalive):
+
+```
+17 3 * * * sqlite3 "$HOME/pb/pb_data/data.db" ".backup '$HOME/pb/pb_backups/data-$(date -u +\%F).db'" >> "$HOME/pb/pb_backups/backup.log" 2>&1 && find "$HOME/pb/pb_backups" -name 'data-*.db' -mtime +30 -delete
+```
+
+- `.backup` is SQLite's online hot-copy — safe to run while PocketBase is live.
+  It captures `pb_data/data.db` only: users, workouts, movements. `auxiliary.db`
+  (request logs) and `storage/` (uploaded files — none yet, workouts are text)
+  are **not** in it; if either becomes load-bearing, switch to the PB zip below.
+- `\%F` — cron turns an unescaped `%` into a newline, so every `%` in a crontab
+  command must be backslash-escaped. `\%F` reaches the shell as `%F`, giving one
+  `data-YYYY-MM-DD.db` per night.
+- `find … -mtime +30 -delete` keeps ~30 days on the box; the off-box copy keeps
+  the long tail.
+- This line is wanted **whether or not** the box uses the systemd unit — it is
+  supervision-independent.
+
+**Off the box** — pull to Chris's machine over the same `~/.ssh/config` alias
+`make deploy` uses (so no new key material anywhere; the VPS never needs an
+outbound credential):
+
+```sh
+# on Chris's machine, after a curation session or on a cron of his own
+rsync -az dreamhost.ae.wex:pb/pb_backups/ ~/wdl-pb-backups/
+```
+
+No `--delete`: the local copy accumulates history past the VPS's 30-day prune.
+A **pull** is chosen over a VPS **push cron** deliberately — a push would need an
+outbound keypair minted on the managed box and Chris's laptop reachable at backup
+time; a pull reuses the credential direction that already works for `make deploy`.
+For a hands-off copy, add a line to Chris's *own* crontab (not the fragment,
+which is the VPS's):
+
+```
+0 6 * * * rsync -az dreamhost.ae.wex:pb/pb_backups/ $HOME/wdl-pb-backups/ >> $HOME/wdl-pb-backups/pull.log 2>&1
+```
+
+**Alternative mechanism — PocketBase built-in scheduled backups.** If `sqlite3`
+is not on the box, or a whole-`pb_data/` zip (including `storage/`) is wanted:
+admin UI → *Settings → Backups* → set **Auto backups cron** to `0 3 * * *` and
+**Max keep** to `30`. This is a still-to-do-on-the-box item like §7a — it cannot
+be set by a migration. Backups then land in `pb_data/backups/*.zip`; point the
+off-box `rsync` at `~/pb/pb_data/backups/` instead, and restore via *Settings →
+Backups → Restore*.
+
+**Still to do on the box (Chris):** paste the backup line into `crontab -e` on
+the PocketBase account. Then verify once by hand on the VPS —
+
+```sh
+sqlite3 "$HOME/pb/pb_data/data.db" ".backup '$HOME/pb/pb_backups/data-$(date -u +%F).db'"
+ls -la ~/pb/pb_backups/            # the dated .db is there
+```
+
+— and run the off-box `rsync` from Chris's machine once, confirming the file
+lands. Same "still to do on deploy" caveat M1/M2/M3 carry.
 
 ### Restore
 
 ```sh
 systemctl --user stop pocketbase
 cd ~/pb
-cp pb_backups/data-WANTED.db pb_data/data.db
-rm -f pb_data/data.db-wal pb_data/data.db-shm
+cp pb_backups/data-YYYY-MM-DD.db pb_data/data.db      # the dated snapshot you want
+rm -f pb_data/data.db-wal pb_data/data.db-shm         # a stale WAL over a restored DB corrupts it
 systemctl --user start pocketbase
 curl -sS http://127.0.0.1:8090/api/health
 ```
+
+This restores app data (users, workouts, movements) — the `.backup` snapshot's
+scope. `auxiliary.db` (logs) is left as-is; `storage/` is unaffected (empty).
+After a restore that rolled movements back, re-run `make movements-dump` against
+prod to bring `registry/movements.json` into line, or `make movements-load` to
+push the repo's copy forward — whichever direction is correct.
 
 From a PocketBase backup zip: *Settings → Backups → Restore*, or unzip over a
 stopped `pb_data/`.

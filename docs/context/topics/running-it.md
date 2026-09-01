@@ -250,6 +250,15 @@ detail — the MIME finding (`.ohm`/`.wdlg` land as `text/plain`, and are
 - **Runbook:** [`deploy/README.md`](../../../deploy/README.md) — install, the
   panel proxy setup, PocketBase upgrade, SQLite backup/restore, and the
   "port 8090 exposure" known issue (open DreamHost firewall ticket).
+- **DB backup / restore:** [`deploy/README.md`](../../../deploy/README.md) §9
+  "Back up (SQLite)" is the runbook — *since 2026-09-01 (task M6)* a nightly
+  `sqlite3 .backup` cron line in
+  [`deploy/pocketbase/crontab.fragment`](../../../deploy/pocketbase/crontab.fragment)
+  (03:17 UTC, 30-day prune) plus an off-box `rsync` **pull** to Chris's machine
+  over the `dreamhost.ae.wex` alias, with PocketBase's built-in
+  *Settings → Backups* as the fallback and aligned restore steps. **Not yet
+  installed on the box** — Chris pastes the line into `crontab -e` and verifies
+  the first run + first pull by hand.
 - **Config templates** committed under `deploy/`; secrets are gitignored.
 - No new local commands. The apps' test/build/serve commands above are
   unchanged; a production static deploy is item 19's `deploy/` script.

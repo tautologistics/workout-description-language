@@ -2,6 +2,47 @@
 
 ## Changes
 
+- **2026-09-01 — Movements epic M6 landed** (`<M6-SHA>`), seventh and final
+  session of the M-chain — **the *Movements in the database — Phase 1* epic
+  (M0–M7) is now complete**; the whole M-section moved to
+  [../tasks/completed.md](../tasks/completed.md) as one grouped section (the way
+  the deployment epic 18–20 and the redesign chain R1–R10 were closed). M6 is
+  **VPS-side config + docs only** — no app / core / migration change; suite
+  unchanged **2064/2064, 1 pending** (stated, not re-run against changed code —
+  nothing was touched). A **nightly SQLite backup of the PocketBase DB** plus an
+  **off-box copy** are now specified:
+  - **Mechanism — a shell cron line**, not PocketBase's built-in scheduler: the
+    box already carries a per-user `crontab` for the keepalive fallback, so one
+    more greppable, version-controlled line beside it (schedule + retention prune
+    + path visible in the repo) beats a setting buried in PB's own DB that would
+    still need a separate off-box cron anyway; the "box down at the backup hour"
+    risk is equal for either scheduler and small. `deploy/pocketbase/crontab.fragment`
+    gains, next to the keepalive:
+    `17 3 * * * sqlite3 "$HOME/pb/pb_data/data.db" ".backup '…/pb_backups/data-$(date -u +\%F).db'" … && find "$HOME/pb/pb_backups" -name 'data-*.db' -mtime +30 -delete`
+    — `\%F` backslash-escaped (cron turns an unescaped `%` into a newline),
+    `.backup` is SQLite's online hot-copy (captures `pb_data/data.db` only — not
+    `auxiliary.db` logs or `storage/`), 30-day prune on the box.
+  - **Off-box copy — a pull** from Chris's machine over the same `~/.ssh/config`
+    alias `make deploy` uses (`rsync -az dreamhost.ae.wex:pb/pb_backups/
+    ~/wdl-pb-backups/`, no `--delete` so local history outlives the VPS prune),
+    chosen over a VPS push cron (which would need an outbound keypair minted on
+    the managed box and Chris's laptop reachable).
+  - **Fallback documented:** PocketBase *Settings → Backups* (Auto backups cron +
+    Max keep) for a box without `sqlite3` or when a whole-`pb_data/` zip is
+    wanted.
+  - `deploy/README.md` §9 "Back up (SQLite)" rewritten — the old "recommended,
+    not done" note replaced with the cron lines + off-box pull + PB alternative;
+    "Restore" aligned to the dated filename with the "app data only" scope noted,
+    and a pointer to re-run `make movements-dump` / `movements-load` after a
+    restore that rolled movements.
+  - **Still to install on the box by Chris:** paste the backup line into
+    `crontab -e` on the PocketBase account and verify the first backup + first
+    off-box `rsync` by hand on the VPS — the same "still to do on deploy" caveat
+    M1/M2/M3 carry. *Touched:* `deploy/pocketbase/crontab.fragment`,
+    `deploy/README.md`; `docs/context/tasks/{completed,current}.md`,
+    `docs/context/current/{recent-changes,next-steps}.md`,
+    `docs/context/topics/{what-exists,running-it}.md`.
+
 - **2026-09-01 — Movements epic M4 landed** (`e472cde`), sixth session of the
   M-chain. **`scripts/movements-from-db.mjs`** (no deps — `node:fs` + global
   `fetch`, `node:child_process` only for the `--dry-run` diff preview) +

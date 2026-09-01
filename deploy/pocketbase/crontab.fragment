@@ -1,7 +1,28 @@
-# Add to `crontab -e` on the PocketBase account (user-level supervision path).
+# Add to `crontab -e` on the PocketBase account.
+
+# ─── Supervision keepalive — ONLY on a box without the user-systemd unit ───────
 # The every-minute line is the crash-restart; @reboot is the boot-start.
 # run-pocketbase.sh is a no-op when the process is already alive, so the
-# every-minute tick is cheap.
+# every-minute tick is cheap. Skip this block on the live box — the per-user
+# systemd unit (deploy/README.md §4) already supervises PocketBase there.
 
 * * * * * $HOME/pb/run-pocketbase.sh >> $HOME/pb/cron.log 2>&1
 @reboot   $HOME/pb/run-pocketbase.sh >> $HOME/pb/cron.log 2>&1
+
+# ─── Nightly SQLite backup + 30-day prune (queue task M6) ─────────────────────
+# WANTED ON EVERY DEPLOYMENT, systemd or not: once the curated movement layer
+# lives in the DB (DEC-020) this dated .db is the only copy of it outside PB's
+# own pb_data/. Runs 03:17 UTC nightly.
+#
+#   * cron turns an unescaped `%` into a newline, so every `%` in the command is
+#     backslash-escaped: `\%F` reaches the shell as `%F` → data-YYYY-MM-DD.db,
+#     one file per night.
+#   * `.backup` is SQLite's online hot-copy — safe against the live DB; it
+#     captures pb_data/data.db only (users + workouts + movements), not
+#     auxiliary.db (request logs) or storage/ (uploaded files — none yet).
+#   * needs `sqlite3` on the box. If it is missing, use PocketBase's built-in
+#     Settings → Backups instead — see deploy/README.md, "Back up (SQLite)".
+#   * a backup that never leaves the VPS does not survive the VPS: pair this
+#     with the off-box pull on Chris's machine (same README section).
+
+17 3 * * * sqlite3 "$HOME/pb/pb_data/data.db" ".backup '$HOME/pb/pb_backups/data-$(date -u +\%F).db'" >> "$HOME/pb/pb_backups/backup.log" 2>&1 && find "$HOME/pb/pb_backups" -name 'data-*.db' -mtime +30 -delete

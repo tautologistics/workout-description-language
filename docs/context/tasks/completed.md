@@ -1901,6 +1901,185 @@ the bare form identically; independent of 13a. Recorded in
 
 ---
 
+## Movements in the database — Phase 1 (M0–M7)
+
+*Raised 2026-08-31 (see [../topics/builder-ux.md](../topics/builder-ux.md)
+"Accounts, IDs and layout"): Chris, trying to run the first laterality pass
+through `curation-sheet.csv`, found the spreadsheet unworkable and realised
+movement create/edit wants to be an in-app GUI hit **while building a workout**.
+Direction: the curated `registry/movements.json` layer moves into a PocketBase
+`movements` collection ([DEC-020](../topics/settled-decisions.md#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump)),
+edited through a reusable widget; ingestion loads the JSON in, a reviewable dump
+writes it back to the repo, `build-canonical.ts` and `packages/core` stay
+untouched (`registry/movements.json` remains the offline file they read).
+**Phase 1 is global (admin-edited) movements only**; Phase 2 (user-scoped) is in
+[deferred.md](deferred.md). Broken into eight tasks, each a landable branch
+sized for its own session, each spawning the next — kept together in `current.md`
+while in flight, moved here as one section when **M6 landed 2026-09-01** and
+closed the epic. Execution order as worked: M0+M2 → M1 → M7 → M3 → M5 → M4 → M6.
+All of M0–M7 landed; nothing in `packages/core`, the grammar or the spec was
+touched by any of them, and the suite held at **2064/2064, 1 pending**
+throughout.*
+
+Grounding facts, kept because they are what the tasks were built against:
+
+- The **curated layer** is `registry/movements.json` (~972 entries: `id`,
+  `title`, `aliases`, `muscles`, `pattern`, `force`, `mechanic`, `equipment`,
+  `laterality`, `defaultLaterality`, `lateralityAxis`, `measures`, `load`,
+  `implements`). This is what moved into the DB.
+- `registry/movements.canonical.json` is **built** from external sources by
+  `scripts/build-canonical.ts` and is *not* ingested — that pipeline keeps
+  running; the DB replaces the curated seed it merges in.
+- `packages/core` reads `registry/movements.json` directly
+  (`packages/core/src/env.ts`) and stays install-free and offline. The apps go
+  through `apps/shared/pocketbase.js`, a hand-rolled client hitting `/api/*`
+  same-origin: in production that is PocketBase (it serves the apps from
+  `pb_public/`); under `make serve` M7's mock answers `/api`.
+- PocketBase v0.40.1 on the DreamHost VPS, `~/pb/`, migrations in
+  `deploy/pocketbase/pb_migrations/`, the `workouts` collection as the model.
+
+**M0 — Design note: read path + dump cadence.** DONE 2026-08-31 (`ea2a64f`),
+written up as
+[DEC-020](../topics/settled-decisions.md#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump).
+Production apps read movements from the PocketBase `movements` collection via the
+same `/api/*` the client already uses; `packages/core`, its tests and
+`build-canonical.ts` keep reading `registry/movements.json` untouched; local
+`make serve` answers `/api` from a mock (M7), and `registry/movements.json` **is**
+the movements fixture; M4's dump keeps that file current from the live DB. The
+dump → load → dump round-trip requirement was left open in the DEC and closed by
+M4.
+
+**M1 — `movements` PocketBase collection + migration.** DONE 2026-08-31
+(`00c29a5`). `deploy/pocketbase/pb_migrations/1756800000_create_movements.js`
+creates a `base` collection `movements` via `new Collection({...})`: one column
+per per-movement field — `movementId` (text, required — the registry `id`, not
+`id`); `title` (text, required); `force`/`mechanic`/`load`/`lateralityAxis`/
+`defaultLaterality` as `select` (single); every non-scalar field (`aliases`,
+`muscles`, `pattern`, `laterality`, `measures`, `implements`, `equipment`,
+`related`, `sameAs`) as `json`; `source` (text); plus `scope` (select
+`global|user`, required) and `user` (relation → `users`, nullable, cascadeDelete,
+unused in Phase 1) and `created`/`updated` autodates. Unique index on
+`movementId` (M3's idempotency key), plain index on `scope`. Rules: list/view
+`scope = "global"`; create/update/delete `@request.auth.admin = true` (the field
+M2 added). `down` deletes the collection. Verified locally against a real
+PocketBase v0.40.1 binary. **Still to do on deploy:** glance at the collection in
+the admin UI on the box (`deploy/README.md` §7b).
+
+**M2 — Admin designation.** DONE 2026-08-31 (`ea2a64f`).
+`deploy/pocketbase/pb_migrations/1756700000_add_users_admin.js` adds a
+`bool admin` field to the `users` collection, so M1's write rule can be
+`@request.auth.admin = true`. Verified locally against a real PocketBase v0.40.1
+binary (up + down clean). **Still to do on deploy:** set Chris's own `users` row
+`admin: true` in the admin UI — the migration can't know his id
+(`deploy/README.md` §7a).
+
+**M3 — Ingestion: `registry/movements.json` → DB.** DONE 2026-09-01 (`0917705`).
+`scripts/movements-to-db.mjs` (`make movements-load`) upserts every entry over
+`/api/collections/movements/records`: bulk-fetches the collection once
+(`perPage=500`), keys on `movementId`, `POST`s the absent and `PATCH`es only the
+columns that differ — a field the entry lacks is omitted on create and cleared
+(json→`null`, scalar→`""`) on update, so M4's dump round-trips. A re-run writes
+nothing; prints a `created`/`updated`/`unchanged` tally; `--dry-run` reports
+without writing. Every row `scope: "global"`, `user` unset. Target via `--api` /
+`WDL_PB_URL` (default `http://localhost:8081`); **prod writes need admin auth** —
+`WDL_PB_ADMIN_TOKEN`, or `WDL_PB_ADMIN_EMAIL`/`WDL_PB_ADMIN_PASSWORD`
+(+ `WDL_PB_ADMIN_COLLECTION`, default `users`) exchanged at `auth-with-password`.
+The M7 mock accepts authorized `movements` writes (any `Authorization` header
+stands in for admin), persisting to git-ignored `fixtures/movements.local.json`.
+Verified against `make serve`: first run creates 972 / re-run all-unchanged /
+delete-one-then-load creates exactly 1 / mutate-one-then-load updates exactly 1.
+**Still to do on deploy:** run it once against prod after M1/M2 are applied and
+Chris's `users` row is `admin: true`.
+
+**M4 — Egress: DB → `registry/movements.json`.** DONE 2026-09-01 (`e472cde`).
+`scripts/movements-from-db.mjs` (`make movements-dump`, no deps) reads every
+`scope = "global"` row over `/api` (no auth — the list/view rule is
+`scope = "global"`) and rewrites `registry/movements.json` in its current
+formatting (`JSON.stringify(obj, null, 1) + "\n"`, each entry's keys in the order
+that entry already uses on disk, empty columns omitted — the exact inverse of M3
+clearing an absent field), so a dump of an unmutated M3 ingest reproduces the
+file byte-for-byte. `$comment` / `version` / `$sources` copied from disk
+untouched; `scope` / `user` / record `id` / `created` / `updated` never written.
+Prints a tally; `--dry-run` reports tally + `git diff --stat` and writes nothing;
+`--check` writes then exits non-zero if the file moved (for the round-trip test
+and a future pre-commit hook — DEC-020 leaves the cadence open, this ships no
+hook). Verified against `make serve`: `make movements-load` then
+`make movements-dump` leaves `git diff registry/movements.json` **empty**; a
+one-field PATCH then a dump moves exactly that one entry's one field. **The
+dump → load → dump round-trip closes DEC-020's "still open" round-trip
+requirement.** **Still to do on deploy:** run it once against prod to pull any
+admin edits back into the repo.
+
+**M5 — Movement editor widget.** DONE 2026-09-01 (`b2bd7b5`).
+`apps/shared/movement-editor.js` — `createMovementEditor({ container, record,
+api, onSaved, onCancel })`, a host-agnostic form over one movement's curated
+fields (enum fields as `<select>`s whose options are exactly the registry
+vocabulary + "— unset —"; `laterality` / `measures` as checkbox groups;
+string-list fields and `muscles.primary`/`.secondary` as comma-separated inputs;
+`movementId` editable + kebab-validated on create, read-only on edit). It
+`POST`s / `PATCH`es a `scope: "global"` row over `/api` in the same record shape
+M3 writes (empties omitted on create / cleared on update; `source` / `user` /
+timestamps never touched). Cross-field validation (an axis needs a per-side
+mode; a default must be a ticked mode) and the id check run before any request;
+an `/api` failure (403 for signed-out / non-admin) is shown in the form. The
+movement `/api` calls (`listMovements` / `getMovementByMovementId` /
+`createMovement` / `updateMovement`) live in `apps/shared/pocketbase.js`. First
+host: the builder — `＋ new movement` in the palette modal, `✎` on every palette
+card, "Edit … its curated fields" in a step row's `»` panel (whose caret now
+shows for any curated movement); a save folds the row into the in-memory
+`curatedMovements` / `catalogue` via `provide(...)` so it shows without a reload.
+Verified by driving the builder against `make serve`, both themes. **Still to do
+on deploy:** nothing collection-side — the editor just needs an admin `users` row
+on the box to write against prod.
+
+**M6 — Nightly DB backup cron on the VPS.** DONE 2026-09-01 (`<M6-SHA>`).
+*Pre-existing gap, independent of M1–M5, raised higher-priority by Chris
+2026-08-31 — the answer to "did we set this up?" was no; only the keepalive cron
+existed.* VPS-side config + docs only (no app / core / migration change; suite
+unchanged **2064/2064, 1 pending**). **Mechanism: a shell cron line**, not
+PocketBase's built-in scheduler — the box already carries a per-user `crontab`
+for the keepalive fallback, so one more greppable, version-controlled line beside
+it (schedule, retention prune and path all visible in the repo) beats a setting
+buried in PB's own DB that would still need a separate off-box cron anyway; the
+"box down at the backup hour" risk is equal for either scheduler and small.
+`deploy/pocketbase/crontab.fragment` gains, next to the keepalive:
+`17 3 * * * sqlite3 "$HOME/pb/pb_data/data.db" ".backup '…/pb_backups/data-$(date -u +\%F).db'" … && find "$HOME/pb/pb_backups" -name 'data-*.db' -mtime +30 -delete`
+— `\%F` escaped (cron turns an unescaped `%` into a newline), `.backup` is
+SQLite's online hot-copy (safe against the live DB; captures `pb_data/data.db`
+only — not `auxiliary.db` logs or `storage/`), 30-day prune on the box.
+**Off-box copy: a pull** from Chris's machine over the same `~/.ssh/config` alias
+`make deploy` uses (`rsync -az dreamhost.ae.wex:pb/pb_backups/ ~/wdl-pb-backups/`,
+no `--delete` so local history outlives the VPS prune) — chosen over a VPS push
+cron, which would need an outbound keypair minted on the managed box and Chris's
+laptop reachable. **Fallback documented:** PocketBase *Settings → Backups*
+(Auto backups cron + Max keep) for a box without `sqlite3` or when a
+whole-`pb_data/` zip is wanted. `deploy/README.md` §9 "Back up (SQLite)"
+rewritten (the old "recommended, not done" note replaced with the cron lines +
+off-box pull + PB alternative) and "Restore" aligned to the dated filename with
+the "app data only" scope noted. **Still to install on the box by Chris:** paste
+the backup line into `crontab -e` on the PocketBase account and verify the first
+backup + first off-box `rsync` by hand on the VPS — the same "still to do on
+deploy" caveat M1/M2/M3 carry. *Touched:*
+`deploy/pocketbase/crontab.fragment`, `deploy/README.md`;
+`docs/context/tasks/{completed,current}.md`,
+`docs/context/current/{recent-changes,next-steps}.md`,
+`docs/context/topics/{what-exists,running-it}.md`.
+
+**M7 — Local dev mock `/api` + fixtures.** DONE 2026-08-31 (`4431683`).
+`scripts/mock-api.mjs` (no deps) is wired into `scripts/serve.mjs` ahead of
+static handling: on by default, `WDL_MOCK_API=0` opts out. Committed
+`fixtures/users.json` (one admin fixture user — sign-in "just works" as it) and
+`fixtures/workouts.json` (3 seed rows); runtime workout writes persist to
+git-ignored `fixtures/workouts.local.json`. `registry/movements.json` doubles as
+the movements fixture — mapped to the M1 collection shape and wrapped in the PB
+list envelope; `/records/:id` resolves by synthetic id *or* `movementId`;
+unauthenticated writes `403`. Minimal query support (`filter=field="value"` AND,
+`sort`, `page`/`perPage`) only as far as the client needs. Verified by curl over
+every endpoint and by driving the builder — Google sign-in completes the full
+redirect flow as the fixture user and *My workouts* populates from the mock.
+
+---
+
 *Ordering of 5, 6, 7 and 9 against 1-4 is not settled - they are appended
 rather than placed. 5, 6 and 7 were raised by writing and sending one workout
 rather than by a plan, and 9 by closing item 3. **0f was lettered rather than
