@@ -166,3 +166,19 @@ parens. Cost: 9 corpus `.wdl` files reformatted, moving only the `text` field of
 those 9 in `workouts.canonical.json` — no AST or summary changed. Side selectors
 (`first arm`) and team words (`shared`) stay bare — a laterality-only change.
 -> [topics/settled-decisions.md](topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised)
+
+## DEC-020 — The curated movement layer lives in PocketBase; `registry/movements.json` is its committed dump
+Status: active. Settled 2026-08-31, opening the *Movements in the database —
+Phase 1* epic (M0).
+The ~972-entry curated movement layer (`laterality` / `defaultLaterality` /
+`lateralityAxis` / `load` / `implements` / `measures` / `force` / `mechanic` /
+`equipment` / `aliases` / `muscles` / `pattern`) is edited in a PocketBase
+`movements` collection, not by hand-editing JSON. `registry/movements.json`
+stays in the repo as the reviewable dump of that collection (`make
+movements-dump`, M4) and remains the unchanged, offline, install-free file
+`packages/core`, its tests and `build-canonical.ts` read. Production apps read
+movements via `/api/collections/movements/records` (same-origin PocketBase);
+local `make serve` answers `/api` from a mock (M7) with `registry/movements.json`
+as the movements fixture. `packages/core`, the grammar and the spec are
+untouched.
+-> [topics/settled-decisions.md](topics/settled-decisions.md#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump)

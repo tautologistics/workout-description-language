@@ -2,6 +2,30 @@
 
 ## Changes
 
+- **2026-08-31 — Movements epic M0+M2 landed** (`<PENDING-SHA>`), first session
+  of the M-chain. **M0:** [DEC-020](../topics/settled-decisions.md#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump)
+  recorded — the curated movement layer is edited in a PocketBase `movements`
+  collection; `registry/movements.json` stays as its reviewable committed dump
+  (`make movements-dump`, M4) and the unchanged offline file `packages/core` /
+  tests / `build-canonical.ts` read; production reads
+  `/api/collections/movements/records`, local `make serve` reads a mock (M7)
+  with `registry/movements.json` as the fixture. Dump cadence + prod-edit dump
+  timing left explicitly open in the DEC. **M2:**
+  `deploy/pocketbase/pb_migrations/1756700000_add_users_admin.js` adds a
+  `bool admin` field to the `users` collection (edits an existing collection via
+  `fields.add(new Field(...))` / `fields.removeByName`), so M1's write rules can
+  be `@request.auth.admin = true`. Verified locally against a real PocketBase
+  v0.40.1 binary + throwaway `pb_data` — `migrate up` applies it and the
+  workouts migration cleanly, `migrate down 1` reverts it; binary discarded, not
+  committed. Still to do on deploy: set Chris's `users` row `admin: true` in the
+  admin UI (`deploy/README.md` §7a). No `packages/core` change — suite
+  **2064/2064, 1 pending**. **Next: M1** — the `movements` collection + migration.
+  *Touched:* `docs/context/decisions.md`,
+  `docs/context/topics/settled-decisions.md`, new
+  `deploy/pocketbase/pb_migrations/1756700000_add_users_admin.js`,
+  `deploy/pocketbase/pb_migrations/README.md`, `deploy/README.md`,
+  `docs/context/tasks/current.md`, `docs/context/current/next-steps.md`.
+
 - **2026-08-31 — New epic: Movements in the database — Phase 1 (M0–M7)** (no
   code yet; task breakdown only). Chris, trying to run the first laterality pass
   through `curation-sheet.csv`, found the spreadsheet unworkable and realised

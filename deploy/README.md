@@ -50,7 +50,7 @@ convenience backup, mode `600`) in `deploy/pocketbase/pocketbase.env` on the box
 | `pocketbase/pocketbase.user.service` | **the unit that runs the live instance** (per-user, no root) |
 | `pocketbase/pocketbase.service` | system unit — reference only, for a host where you have root |
 | `pocketbase/run-pocketbase.sh` + `crontab.fragment` | cron keepalive — fallback for a host with neither root nor user-linger |
-| `pocketbase/pb_migrations/` | the `workouts` collection schema, auto-applied on start ([README](pocketbase/pb_migrations/README.md)) |
+| `pocketbase/pb_migrations/` | collection schema migrations (`workouts`, `users.admin`), auto-applied on start ([README](pocketbase/pb_migrations/README.md)) |
 | `pocketbase/env.example` | secret-file template |
 | `nginx/wdl.conf` | a hand-managed nginx vhost — **not used on DreamHost** (panel does it); kept for a self-managed host |
 | `../scripts/deploy-web.mjs` | builds + rsyncs the static builder/board into `pb_public/` (item 19) |
@@ -225,6 +225,21 @@ hand to match the tables above, then snapshot it —
 [`pocketbase/pb_migrations/README.md`](pocketbase/pb_migrations/README.md)).
 
 No `profiles` collection — item 20 adds one only if it turns out to need it.
+
+---
+
+## 7a. The `users.admin` field
+
+Added by `pb_migrations/1756700000_add_users_admin.js` (queue task M2) on serve:
+a `bool admin` field on the built-in `users` collection, so the `movements`
+collection (task M1) can gate create/update/delete on
+`@request.auth.admin = true`. The field is `false` for every record until set,
+so the migration on its own changes nothing.
+
+**After the migration applies, grant yourself admin:** admin UI → *Collections →
+`users`* → open Chris's row (`chris@winberry.net`) → tick **admin** → Save. The
+migration can't do this — it doesn't know the user id. Do the same for any other
+account that should curate global movements.
 
 ---
 

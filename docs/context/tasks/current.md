@@ -69,11 +69,12 @@ comes up *while building a workout*. **Phase 1 is global (admin-edited)
 movements only.** Phase 2 — user-scoped movements — is in
 [deferred.md](deferred.md).
 
-**Execution order (established 2026-08-31):** **M0+M2 → M1 → M7 → M3 → M5 → M4**,
-with **M6** landable at any point (it depends on nothing here). M0 and M2 run as
-one session — M0 is a short DEC write-up and M2 a one-field migration, both
-prerequisites for M1. Each session lands its task fully (committed, pushed to
-`origin/main`, `docs/context/` updated) and spawns the next.
+**Execution order (established 2026-08-31):** ~~M0+M2~~ → **M1 (next / in
+progress)** → M7 → M3 → M5 → M4, with **M6** landable at any point (it depends
+on nothing here). **M0+M2 landed 2026-08-31** (`<PENDING-SHA>`): DEC-020
+recorded, `1756700000_add_users_admin.js` added (verified locally against a real
+PocketBase v0.40.1 binary). Each session lands its task fully (committed, pushed
+to `origin/main`, `docs/context/` updated) and spawns the next.
 
 Grounding facts, so an M-task can start cold:
 
@@ -95,8 +96,12 @@ Grounding facts, so an M-task can start cold:
 - PocketBase v0.40.1 on the DreamHost VPS, `~/pb/`, migrations in
   `deploy/pocketbase/pb_migrations/`, the `workouts` collection as the model.
 
-- **M0 — Design note: read path + dump cadence** *(mostly settled 2026-08-31;
-  write it up as a DEC)*. **Settled:** production apps read movements from the
+- **M0 — Design note: read path + dump cadence** — **DONE 2026-08-31**
+  (`<PENDING-SHA>`), written up as
+  [DEC-020](../topics/settled-decisions.md#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump).
+  Dump cadence + prod-edit dump timing left explicitly open in the DEC's
+  "Consequences" para. Original notes kept below.
+  **Settled:** production apps read movements from the
   PocketBase `movements` collection via the same `/api/*` the client already
   uses; `packages/core`, its tests and `build-canonical.ts` keep reading
   `registry/movements.json` and are untouched; local `make serve` answers `/api`
@@ -116,9 +121,14 @@ Grounding facts, so an M-task can start cold:
   (M2). Versioned migration in `deploy/pocketbase/pb_migrations/`, same as
   `workouts`.
 
-- **M2 — Admin designation.** A `bool admin` field on the `users` collection
-  (migration), so M1's write rule can be `@request.auth.admin = true`; set
-  Chris's account. Small; M1 depends on it.
+- **M2 — Admin designation.** — **DONE 2026-08-31** (`<PENDING-SHA>`).
+  `deploy/pocketbase/pb_migrations/1756700000_add_users_admin.js` adds a
+  `bool admin` field to the `users` collection (`up`: `fields.add(new Field(...))`;
+  `down`: `fields.removeByName`), so M1's write rule can be
+  `@request.auth.admin = true`. Verified locally against a real PocketBase
+  v0.40.1 binary (up + down both clean). **Still to do on deploy:** set Chris's
+  own `users` row `admin: true` in the admin UI — the migration can't know his
+  id (`deploy/README.md` §7a).
 
 - **M3 — Ingestion: `registry/movements.json` → DB.**
   `scripts/movements-to-db.mjs` (wrap as `make movements-load`), idempotent,

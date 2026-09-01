@@ -33,3 +33,16 @@ supersedes it. From then on the collection schema is reproducible: a fresh
   (`./pocketbase migrate` output, then check the admin UI); if your version
   rejects it, set the collection up by hand per the runbook and snapshot it as
   above.
+
+- `1756700000_add_users_admin.js` — adds a `bool admin` field to the `users`
+  collection (queue task M2), so M1's `movements` write rules can be
+  `@request.auth.admin = true`. Edits an *existing* collection
+  (`findCollectionByNameOrId` → `fields.add(new Field(...))` → `app.save`),
+  verified against the PocketBase v0.40.1 JS API. Checked locally against a real
+  v0.40.1 binary + throwaway `pb_data`: `migrate up` applies it and the workouts
+  migration cleanly, the `admin` field lands on `users`, `migrate down 1`
+  removes it. Still glance at the admin UI on the box after deploy, same as the
+  workouts migration. The field defaults to `false`
+  for every record, so the migration grants nobody anything — after deploy,
+  set Chris's `users` row `admin: true` in the admin UI (see
+  [`../../README.md`](../../README.md) §7a).

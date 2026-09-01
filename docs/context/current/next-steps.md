@@ -9,7 +9,10 @@ reviewable dump back out; local `make serve` gets a mock `/api` from committed
 fixtures so it works without PocketBase. Execution order (established 2026-08-31): **M0+M2 (DEC + admin bool, one
 session) → M1 (collection) → M7 (mock API + fixtures) → M3 (ingest) → M5 (editor
 widget) → M4 (dump)**; **M6 (nightly VPS DB backup cron)** is independent and
-can go anytime — a pre-existing gap never set up. **In progress: M0+M2.** Phase 1 is global (admin-edited) movements only; Phase 2
+can go anytime — a pre-existing gap never set up. **M0+M2 landed 2026-08-31** (DEC-020 written;
+`1756700000_add_users_admin.js` added, verified locally against a real
+PocketBase v0.40.1 binary). **In progress: M1** — the `movements` PocketBase
+collection + migration. Phase 1 is global (admin-edited) movements only; Phase 2
 (user-scoped) is in [../tasks/deferred.md](../tasks/deferred.md). Full
 write-ups: [../tasks/current.md](../tasks/current.md) "Movements in the
 database".

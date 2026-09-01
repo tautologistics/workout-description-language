@@ -1215,6 +1215,57 @@ marks the ones worth a top-level pointer.
   *This is the norm the corpus is held to — every file equals `wdl fmt` of
   itself — which is why the 9 were reformatted rather than left as authored.*
 
+### DEC-020 The curated movement layer lives in PocketBase; `registry/movements.json` is its committed dump
+*Status: active. Settled 2026-08-31, opening the *Movements in the database —
+Phase 1* epic (queue task M0).*
+
+- **The curated movement layer is edited in a PocketBase `movements`
+  collection, not by hand-editing JSON.** That layer is the ~972-entry set that
+  carries `laterality` / `defaultLaterality` / `lateralityAxis` / `load` /
+  `implements` / `measures` / `force` / `mechanic` / `equipment` / `aliases` /
+  `muscles` / `pattern` on top of the raw imported records. The trigger was
+  practical (see [builder-ux.md](builder-ux.md) "Accounts, IDs and layout"): the
+  972-row × 32-column curation spreadsheet is unworkable to look at or reason
+  about, and the need to fix or add a movement comes up *while building a
+  workout* — so editing wants to be a GUI (M5), reached as a step in that flow.
+  Phase 1 is **global (admin-edited) movements only**; user-scoped movements are
+  Phase 2, deferred ([../tasks/deferred.md](../tasks/deferred.md)).
+
+- **`registry/movements.json` stays in the repo as the reviewable dump of that
+  collection.** `make movements-dump` (built in M4) reads `scope = "global"`
+  from the live DB and rewrites the file in its current key order and
+  formatting, so the git diff is a shape-for-shape review of what an admin
+  changed. It remains the exact file `packages/core` reads
+  (`packages/core/src/env.ts`), its tests read, and `scripts/build-canonical.ts`
+  reads — **unchanged, offline, install-free**. This epic does not touch
+  `packages/core`, the grammar or the spec ([DEC-003](#dec-003-src-is-portable-and-is-handed-its-data)).
+  The canonical pipeline still merges `registry/movements.json` with the
+  external sources; `registry/movements.canonical.json` is **built**, not
+  ingested, and is untouched.
+
+- **Production apps read movements from PocketBase; local `make serve` reads a
+  mock.** Production goes through the same `/api/*` same-origin PocketBase the
+  client already uses (`apps/shared/pocketbase.js`) —
+  `/api/collections/movements/records`, wrapped in PocketBase's list/response
+  envelope. Under `make serve` there is no PocketBase; M7 adds a mock `/api`
+  (on by default, opt out with `WDL_MOCK_API=0`) and **`registry/movements.json`
+  *is* the movements fixture** — the mock reads it and wraps the records in the
+  same envelope. M4's dump keeps that file current from the live DB, so the
+  fixture never drifts from production.
+
+- **Why.** Editing wants to be a form with enum pickers, not a wall of CSV
+  cells; `packages/core` must stay offline and install-free, so it cannot
+  reach a database; the repo stays the durable, reviewable record of what the
+  curated layer *is*; and user-scoped movements (Phase 2) drop into the same
+  collection through the `scope` / `user` fields M1 adds — no second store.
+
+- **Consequences / still open.** **Dump cadence is undecided** — a manual
+  `make movements-dump` a curator runs, a git pre-commit hook, or a step in the
+  deploy script; likewise whether an admin edit in prod is expected to be
+  dumped + committed promptly or batched. Left for a later call once the
+  round-trip is real. **The dump must round-trip:** dump → ingest (M3) → dump
+  yields no diff; M3/M4 land with that check.
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).
