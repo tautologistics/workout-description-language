@@ -6,7 +6,7 @@
 (`b9c52f1`)** — the epic's design note, written up as
 [DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
 plus a one-sentence hosting-convention note beside spec §2's `@id` bullet.
-**L1 landed 2026-09-01 (`<TASK-SHA>`)** — the `users` migration adding `org`
+**L1 landed 2026-09-01 (`88ab8b6`)** — the `users` migration adding `org`
 (bool) + unique `handle` (text) and inserting the `crossfit` / `hyrox` /
 `tabata` org rows, plus the app-side random `adjective-noun` handle assignment
 (`apps/shared/handle.js` + `handle-words.js`, `ensureHandle()`), the handle

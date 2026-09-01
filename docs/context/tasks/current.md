@@ -38,7 +38,7 @@ the deployment epic and the redesign chain were closed.
 sized like M0–M7 for sequential sessions. **L0 landed 2026-09-01
 (`b9c52f1`)** — the contract is
 [DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
-+ a spec §2 note; **L1 landed 2026-09-01 (`<TASK-SHA>`)** — the `users`
++ a spec §2 note; **L1 landed 2026-09-01 (`88ab8b6`)** — the `users`
 `org`+`handle` migration + handle generator/editor; **L2 (`workouts.wdlId`
 column) is next**. Three standalone tasks are also queued, all
 dispatchable now:
@@ -302,7 +302,7 @@ No code. `docs/context` (DEC-021 in `settled-decisions.md` + the index entry
 in `decisions.md`) + the `spec` note. Spawns L1.
 
 **L1 — `users` schema: `org` bool + `handle`, + a handle generator/editor.
-DONE 2026-09-01 (`<TASK-SHA>`).**
+DONE 2026-09-01 (`88ab8b6`).**
 `deploy/pocketbase/pb_migrations/1756900000_add_users_handle_and_orgs.js` adds
 `org` (bool, `required:false`) and `handle` (text, `required:false`, **unique**
 — `CREATE UNIQUE INDEX idx_users_handle ON users (handle)`) to `users`, then

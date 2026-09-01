@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-01 — L1 of *The workout library* epic landed (`<TASK-SHA>`)** — the
+- **2026-09-01 — L1 of *The workout library* epic landed (`88ab8b6`)** — the
   `users` schema + app-side handle machinery DEC-021 opened the epic against.
   `deploy/pocketbase/pb_migrations/1756900000_add_users_handle_and_orgs.js`
   adds `org` (bool) and unique `handle` (text) to `users`, and inserts the
