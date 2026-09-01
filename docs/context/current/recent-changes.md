@@ -3,7 +3,7 @@
 ## Changes
 
 - **2026-09-01 — `»`-panel per-implement load token reads clearly mid-edit**
-  (`<TASK-SHA>`). Self-contained builder-UX fix, first loose bullet off
+  (`00f599c`). Self-contained builder-UX fix, first loose bullet off
   `tasks/current.md`. *Was:* the `»` panel's "takes a load" pick for a
   `load: "per-implement"` movement (Bulgarian Split Squat, Dumbbell Curl,
   `implements: 2`) spliced a bare `@ 2x` seeded from `implements`, which Chris —

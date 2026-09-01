@@ -230,7 +230,7 @@ It split in two, and the halves were not equally ready — both are done now:
   keep the whole-fragment fallback. Bare `each side` fixed identically.
 
   **~~Open — the per-implement load token `@ Nx` reads as cryptic mid-edit.~~
-  Fixed 2026-09-01 (`<TASK-SHA>`).** *Was:* for a `load: "per-implement"`
+  Fixed 2026-09-01 (`00f599c`).** *Was:* for a `load: "per-implement"`
   movement (Bulgarian Split Squat, `implements: 2`) the panel spliced a bare
   `@ 2x`, seeded from `implements`, caret after it for the weight → `@ 2x35lb`.
   Before the weight was typed the bare `@ 2x` was unclear — Chris, who designed

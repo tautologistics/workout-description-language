@@ -19,7 +19,7 @@ Everything else is closed: the whole 0-series through 21, the deployment epic
 2026-08-31) — see [../tasks/completed.md](../tasks/completed.md).
 
 **The `»`-panel per-implement load-token fix landed 2026-09-01
-(`<TASK-SHA>`)** — the token stays `@ Nx`, its reading was fixed (reworded pick
+(`00f599c`)** — the token stays `@ Nx`, its reading was fixed (reworded pick
 label + a transient inline hint by the caret); see
 [../topics/builder-ux.md](../topics/builder-ux.md) under the `»`-panel entry.
 

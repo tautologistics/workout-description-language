@@ -36,7 +36,7 @@ The loose bullets below are unscheduled; both remaining ones need Chris to
 scope or sequence:
 
 - **~~The `»` panel's per-implement load token (`@ 2x`) is unclear
-  mid-edit~~ — landed 2026-09-01 (`<TASK-SHA>`).** The seeded `@ Nx` token
+  mid-edit~~ — landed 2026-09-01 (`00f599c`).** The seeded `@ Nx` token
   stays (it carries the implement count, and a bare `@ Nx` round-trips clean —
   unlike the plain-load `@ `); its *reading* was fixed instead — the pick's
   label now names the finished shape (`@ 2x — load, per implement (2) — then
