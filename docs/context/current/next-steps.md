@@ -27,7 +27,7 @@ the `# title`, else `untitled`; re-save-stable `-2`/`-3` suffix on a same-owner
 clash); new `getByAnyId(x)` resolves a `:`-bearing value as a `wdlId` else a
 15-char record id with a `wdlId` fallback; `apps/display/board.js`'s `?w=` uses
 it; `scripts/mock-api.mjs` mirrors (`forceWdlId` port, `wdlId` on the record
-shape). **L4 landed 2026-09-01 (`<TASK-SHA>`)** — app + mock + one fixture row:
+shape). **L4 landed 2026-09-01 (`0de7f9a`)** — app + mock + one fixture row:
 `searchWorkouts(q, {page})` in `pocketbase.js`
 (`filter=(visibility="public" || owner="<uid>") && (title~"<q>" ||
 wdlId~"<q>")`, `sort=-updated`, `perPage: 20`; empty `q` → `[]`; `"` stripped)

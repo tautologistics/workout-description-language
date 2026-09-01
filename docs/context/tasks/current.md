@@ -43,7 +43,7 @@ sized like M0–M7 for sequential sessions. **L0 landed 2026-09-01
 (`fc72881`)** — the `workouts.wdlId` column migration; **L3 landed 2026-09-01
 (`5be4a30`)** — every save now force-writes `@id` / `wdlId` to
 `<owner-handle>:<slug>` and the board resolves `?w=<handle>:<slug>` as well as
-`?w=<recordid>`; **L4 landed 2026-09-01 (`<TASK-SHA>`)** — `searchWorkouts` +
+`?w=<recordid>`; **L4 landed 2026-09-01 (`0de7f9a`)** — `searchWorkouts` +
 the builder's My-workouts search box + the mock's `~` operator and parenthesised
 OR; **L5 (author the benchmark `.wdl` library) is next**. Three standalone tasks
 are also queued, all dispatchable now:
@@ -424,7 +424,7 @@ recordid>` still resolves; `?w=nope:nope` shows the existing "could not be
 found" line, no crash. Theme is not exercised — L3 is logic-only, no CSS/render
 change, both `prefers-color-scheme` values run identical code. Spawns L4.
 
-**L4 — Search: API + builder UI. DONE 2026-09-01 (`<TASK-SHA>`).** App + mock +
+**L4 — Search: API + builder UI. DONE 2026-09-01 (`0de7f9a`).** App + mock +
 one fixture row only, no schema/core/grammar/spec touch, `make test` unchanged
 2064/2064 (1 pending). `apps/shared/pocketbase.js` grew **`searchWorkouts(q,
 {page})`** — one `GET …/workouts/records` with

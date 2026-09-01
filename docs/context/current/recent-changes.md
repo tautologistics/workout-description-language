@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-01 — L4 of *The workout library* epic landed (`<TASK-SHA>`)** —
+- **2026-09-01 — L4 of *The workout library* epic landed (`0de7f9a`)** —
   search over your own + any public workout, by title or `@id`/`wdlId` (DEC-021).
   **App + mock + one fixture row only** — no schema / `packages/core` / grammar /
   spec touch; `make test` unchanged **2064/2064, 1 pending**.
