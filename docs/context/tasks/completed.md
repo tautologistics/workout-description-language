@@ -2051,7 +2051,7 @@ only — not `auxiliary.db` logs or `storage/`), 30-day prune on the box.
 `make deploy` uses (`rsync -av dreamhost.ae.wex:pb/pb_backups/ ~/wdl-pb-backups/`,
 no `--delete` so local history outlives the VPS prune) — chosen over a VPS push
 cron, which would need an outbound keypair minted on the managed box and Chris's
-laptop reachable. *(Follow-up 2026-09-01, `<RENAME-SHA>`: wrapped as
+laptop reachable. *(Follow-up 2026-09-01, `2c1cdb0`: wrapped as
 **`make backups:pull`**, alongside a new **`make deploy:db`** that rsyncs
 `deploy/pocketbase/pb_migrations/*.js` to the box — no `--delete` — and restarts
 PocketBase; and every multi-word `make` target moved to a `:` namespace

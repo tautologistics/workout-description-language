@@ -1120,7 +1120,7 @@ marks the ones worth a top-level pointer.
   secret — so it is safe checked in. The raw `node scripts/deploy-web.mjs`
   form does not inherit the default (pass `--ssh` or the env var).
 
-- **`:` namespace separator + DB-side targets (2026-09-01, `<RENAME-SHA>`):**
+- **`:` namespace separator + DB-side targets (2026-09-01, `2c1cdb0`):**
   multi-word targets use `:` not `-` — `curation:sheet` / `curation:check` /
   `curation:apply`, `movements:load` / `movements:dump`, `deploy:dry`,
   `deploy:db`, `backups:pull`; single-word targets unchanged. GNU Make needs

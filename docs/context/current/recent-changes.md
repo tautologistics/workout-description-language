@@ -3,7 +3,7 @@
 ## Changes
 
 - **2026-09-01 — `make` task surface: `:` namespaces + `deploy:db` / `backups:pull`**
-  (`<RENAME-SHA>`), a follow-up to M6. Chris's call. **(1) Rename** — every
+  (`2c1cdb0`), a follow-up to M6. Chris's call. **(1) Rename** — every
   multi-word target now uses a `:` namespace separator instead of `-`:
   `curation-sheet` → `curation:sheet`, `curation-check` → `curation:check`,
   `curation-apply` → `curation:apply`, `movements-load` → `movements:load`,
