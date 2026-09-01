@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-08-31 — Movements epic M0+M2 landed** (`<PENDING-SHA>`), first session
+- **2026-08-31 — Movements epic M0+M2 landed** (`ea2a64f`), first session
   of the M-chain. **M0:** [DEC-020](../topics/settled-decisions.md#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump)
   recorded — the curated movement layer is edited in a PocketBase `movements`
   collection; `registry/movements.json` stays as its reviewable committed dump

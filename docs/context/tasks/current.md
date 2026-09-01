@@ -71,7 +71,7 @@ movements only.** Phase 2 — user-scoped movements — is in
 
 **Execution order (established 2026-08-31):** ~~M0+M2~~ → **M1 (next / in
 progress)** → M7 → M3 → M5 → M4, with **M6** landable at any point (it depends
-on nothing here). **M0+M2 landed 2026-08-31** (`<PENDING-SHA>`): DEC-020
+on nothing here). **M0+M2 landed 2026-08-31** (`ea2a64f`): DEC-020
 recorded, `1756700000_add_users_admin.js` added (verified locally against a real
 PocketBase v0.40.1 binary). Each session lands its task fully (committed, pushed
 to `origin/main`, `docs/context/` updated) and spawns the next.
@@ -97,7 +97,7 @@ Grounding facts, so an M-task can start cold:
   `deploy/pocketbase/pb_migrations/`, the `workouts` collection as the model.
 
 - **M0 — Design note: read path + dump cadence** — **DONE 2026-08-31**
-  (`<PENDING-SHA>`), written up as
+  (`ea2a64f`), written up as
   [DEC-020](../topics/settled-decisions.md#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump).
   Dump cadence + prod-edit dump timing left explicitly open in the DEC's
   "Consequences" para. Original notes kept below.
@@ -121,7 +121,7 @@ Grounding facts, so an M-task can start cold:
   (M2). Versioned migration in `deploy/pocketbase/pb_migrations/`, same as
   `workouts`.
 
-- **M2 — Admin designation.** — **DONE 2026-08-31** (`<PENDING-SHA>`).
+- **M2 — Admin designation.** — **DONE 2026-08-31** (`ea2a64f`).
   `deploy/pocketbase/pb_migrations/1756700000_add_users_admin.js` adds a
   `bool admin` field to the `users` collection (`up`: `fields.add(new Field(...))`;
   `down`: `fields.removeByName`), so M1's write rule can be
