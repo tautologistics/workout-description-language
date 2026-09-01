@@ -29,7 +29,7 @@ axis — `(each direction)`). See [completed.md](completed.md).
 **Every earlier numbered item is closed** — the whole 0-series through 21, the
 deployment epic (18–20) and the redesign chain (R1–R10). **The
 *Movements in the database — Phase 1* epic is also complete as of 2026-09-01**:
-M0–M7 all landed (M6, the nightly VPS DB backup, `<M6-SHA>`), and the whole
+M0–M7 all landed (M6, the nightly VPS DB backup, `97f236f`), and the whole
 M-section moved to [completed.md](completed.md) as one grouped section, the way
 the deployment epic and the redesign chain were closed. **No epic is in flight.**
 The loose bullets below are unscheduled — the first is self-contained and

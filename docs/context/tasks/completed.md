@@ -2032,7 +2032,7 @@ Verified by driving the builder against `make serve`, both themes. **Still to do
 on deploy:** nothing collection-side — the editor just needs an admin `users` row
 on the box to write against prod.
 
-**M6 — Nightly DB backup cron on the VPS.** DONE 2026-09-01 (`<M6-SHA>`).
+**M6 — Nightly DB backup cron on the VPS.** DONE 2026-09-01 (`97f236f`).
 *Pre-existing gap, independent of M1–M5, raised higher-priority by Chris
 2026-08-31 — the answer to "did we set this up?" was no; only the keepalive cron
 existed.* VPS-side config + docs only (no app / core / migration change; suite

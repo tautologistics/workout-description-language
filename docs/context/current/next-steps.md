@@ -5,7 +5,7 @@
 **No epic is in flight.** *Movements in the database — Phase 1 (M0–M7)* is
 **complete as of 2026-09-01** — all of M0–M7 landed and the M-section moved to
 [../tasks/completed.md](../tasks/completed.md) as one grouped section. The last
-link, **M6** (`<M6-SHA>`), specified the nightly VPS SQLite backup + off-box
+link, **M6** (`97f236f`), specified the nightly VPS SQLite backup + off-box
 copy in `deploy/README.md` + `deploy/pocketbase/crontab.fragment` (shell cron
 `sqlite3 .backup` + 30-day prune, 03:17 UTC; off-box `rsync` pull from Chris's
 machine over the `dreamhost.ae.wex` alias; PocketBase built-in backups as the

@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-01 — Movements epic M6 landed** (`<M6-SHA>`), seventh and final
+- **2026-09-01 — Movements epic M6 landed** (`97f236f`), seventh and final
   session of the M-chain — **the *Movements in the database — Phase 1* epic
   (M0–M7) is now complete**; the whole M-section moved to
   [../tasks/completed.md](../tasks/completed.md) as one grouped section (the way
