@@ -3,7 +3,7 @@
 ## Immediate
 
 ***The workout library* (L0–L7) is in flight. L0 landed 2026-09-01
-(`<TASK-SHA>`)** — the epic's design note, written up as
+(`b9c52f1`)** — the epic's design note, written up as
 [DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
 plus a one-sentence hosting-convention note beside spec §2's `@id` bullet; docs
 only, `make test` unchanged (2064/2064, 1 pending). **Next is L1 — the `users`

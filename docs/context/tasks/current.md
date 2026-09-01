@@ -36,7 +36,7 @@ the deployment epic and the redesign chain were closed.
 **One epic is in flight — *The workout library* (L0–L7)**, fleshed out
 2026-09-01 from Chris's ask and the calls he made on it; the section is below,
 sized like M0–M7 for sequential sessions. **L0 landed 2026-09-01
-(`<TASK-SHA>`)** — the contract is
+(`b9c52f1`)** — the contract is
 [DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
 + a spec §2 note; **L1 (the `users` `org`+`handle` migration + handle
 generator/editor) is next**. Three standalone tasks are also queued, all
@@ -254,7 +254,7 @@ Grounding facts (what the tasks are built against — cf. the M0–M7 section in
 - `@id` is already a spec directive (`@id crossfit:fran`, spec preamble) and
   the existing Fran fixture already uses exactly that value.
 
-**L0 — Design note / decision (DEC-021). DONE 2026-09-01 (`<TASK-SHA>`).**
+**L0 — Design note / decision (DEC-021). DONE 2026-09-01 (`b9c52f1`).**
 Written up as
 [DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
 (+ the index entry in [../decisions.md](../decisions.md)) and a one-sentence
