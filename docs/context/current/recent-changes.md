@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-01 — L3 of *The workout library* epic landed (`<TASK-SHA>`)** — the
+- **2026-09-01 — L3 of *The workout library* epic landed (`5be4a30`)** — the
   app-side write that makes `wdlId` mean something and `@id` deterministic
   (DEC-021). **App + mock only** — no schema / `packages/core` / grammar / spec
   touch; `make test` unchanged **2064/2064, 1 pending**.

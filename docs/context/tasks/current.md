@@ -41,7 +41,7 @@ sized like M0–M7 for sequential sessions. **L0 landed 2026-09-01
 + a spec §2 note; **L1 landed 2026-09-01 (`88ab8b6`)** — the `users`
 `org`+`handle` migration + handle generator/editor; **L2 landed 2026-09-01
 (`fc72881`)** — the `workouts.wdlId` column migration; **L3 landed 2026-09-01
-(`<TASK-SHA>`)** — every save now force-writes `@id` / `wdlId` to
+(`5be4a30`)** — every save now force-writes `@id` / `wdlId` to
 `<owner-handle>:<slug>` and the board resolves `?w=<handle>:<slug>` as well as
 `?w=<recordid>`; **L4 (search: `searchWorkouts` + builder search UI + the mock's
 `~` operator and parenthesised OR) is next**. Three standalone tasks are also
@@ -384,7 +384,7 @@ landed on `workouts` (`deploy/README.md` §7d); nothing to backfill or grant,
 same style as the M1/M2/M3/L1 "still to do on deploy" notes. Spawns L3.
 
 **L3 — force `@id` on save + set `wdlId` + lookup resolver. DONE 2026-09-01
-(`<TASK-SHA>`).** App + mock only, no schema/core/grammar/spec touch, `make
+(`5be4a30`).** App + mock only, no schema/core/grammar/spec touch, `make
 test` unchanged 2064/2064 (1 pending). `apps/shared/pocketbase.js` grew a
 module-local `@id`/slug helper block (`slugify`, `readIdValue` / `readTitleLine`
 — light regex on the zero-indent preamble line, `slugOfIdValue`, `baseSlug`,

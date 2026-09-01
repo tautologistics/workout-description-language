@@ -19,7 +19,7 @@ adds `wdlId` (text, `max: 260`, nullable) + a plain index
 `idx_workouts_wdl_id` to `workouts`; no rule change, no app/mock/fixture change
 (pure schema — existing rows stay `null` until L3 sets it on save / L6's loader
 for the org rows); `make test` unchanged; migration up/down/up verified against
-a real PocketBase v0.40.1 binary. **L3 landed 2026-09-01 (`<TASK-SHA>`)** —
+a real PocketBase v0.40.1 binary. **L3 landed 2026-09-01 (`5be4a30`)** —
 app + mock only: `apps/shared/pocketbase.js` `create`/`update` now force-write
 `source`'s `@id` line to `<owner-handle>:<slug>` and send `wdlId` set to the
 same string (module-local `@id`/slug helper; slug from an existing `@id`, else
