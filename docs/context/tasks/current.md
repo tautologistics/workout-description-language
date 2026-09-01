@@ -93,7 +93,7 @@ registry-derived list on read — so the local round-trip is real. Verified: fir
 run against `make serve` creates all 972 / a re-run reports all-unchanged /
 delete-one-then-load creates exactly 1 / mutate-one-then-load updates exactly 1;
 suite unchanged **2064/2064, 1 pending**. **M5 landed 2026-09-01**
-(`<M5-SHA>`): `apps/shared/movement-editor.js` — a reusable, host-agnostic form
+(`b2bd7b5`): `apps/shared/movement-editor.js` — a reusable, host-agnostic form
 over one movement's curated fields (`movementId` / `title` / string-list fields /
 `muscles.primary`+`.secondary` / `implements`, plus `force` `mechanic` `load`
 `defaultLaterality` `lateralityAxis` as `<select>`s whose options are exactly the
@@ -225,7 +225,7 @@ Grounding facts, so an M-task can start cold:
   persist it in the codebase". Round-trip check: dump → load → dump yields no
   diff. Pairs with M3.
 
-- **M5 — Movement editor widget.** — **DONE 2026-09-01** (`<M5-SHA>`).
+- **M5 — Movement editor widget.** — **DONE 2026-09-01** (`b2bd7b5`).
   `apps/shared/movement-editor.js` — `createMovementEditor({ container, record,
   api, onSaved, onCancel })`, a form over one movement's curated fields, no
   builder-global dependency (it takes the three `/api` functions and its

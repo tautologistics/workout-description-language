@@ -833,7 +833,7 @@ below are the larger rethinks.
   [../tasks/deferred.md](../tasks/deferred.md).
 
   **The in-app GUI this bullet called for now exists for create *and* edit
-  (M5, 2026-09-01, `<M5-SHA>`).** `apps/shared/movement-editor.js`
+  (M5, 2026-09-01, `b2bd7b5`).** `apps/shared/movement-editor.js`
   (`createMovementEditor(...)`) is a reusable form over one curated movement's
   fields — enum `<select>`s restricted to the registry vocabularies, checkbox
   groups for `laterality` / `measures`, comma-separated inputs for the lists and

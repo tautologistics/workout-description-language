@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-01 — Movements epic M5 landed** (`<M5-SHA>`), fifth session of the
+- **2026-09-01 — Movements epic M5 landed** (`b2bd7b5`), fifth session of the
   M-chain. **`apps/shared/movement-editor.js`** — `createMovementEditor({
   container, record, api, onSaved, onCancel })`, a reusable form over one
   movement's curated fields with no builder-global dependency (it takes the
