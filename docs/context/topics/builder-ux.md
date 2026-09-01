@@ -752,6 +752,18 @@ matching is untouched. `@id` / `@tags` moved into a `#meta` strip under the bar
 workout **body renders line-for-line, unchanged**; the `# title` stays the
 first board row (a reversible default — open whether it moves into the strip
 too). *Touched: `apps/display/board.js`, `board.css`, `index.html`.*
+**That open question is now answered (Chris, 2026-09-01): the `# title` should
+*not* be a body row — it moves into the `#meta` strip, with any `@id` shown
+small in parentheses after it (`Fran (crossfit:fran)`). Queued as the
+"board: the `#` title into the meta strip" standalone task in
+[../tasks/current.md](../tasks/current.md).**
+
+**The board's red parse-error / notification strip has no dismiss control.**
+Raised 2026-09-01 by Chris driving the board. Showing the errors is right, but
+there is no way to clear them — wanted a **"Clear notifications" footer button**
+beside Start / Next / Back / Reset (his preference), or a per-line `✕`. Queued
+as the "board: dismissible notifications" standalone task in
+[../tasks/current.md](../tasks/current.md).
 
 ---
 
@@ -770,6 +782,20 @@ scroll container, dismissible Movements drawer, header grouping), `## Outline`
 nesting rails), `## Movements` (tag contrast + size), `## What it reads`
 (collapse the cue list by default). Those are the low-hanging fruit; the bullets
 below are the larger rethinks.
+
+**Update 2026-09-01 — most of the first three bullets are now the queued epic
+*The workout library* (L0–L7)** in [../tasks/current.md](../tasks/current.md).
+Chris scoped it: non-interactive **org accounts** (`crossfit`, `hyrox`,
+`tabata`) owning public benchmark sets; **every account gets an editable
+`handle`** that is the `@id` namespace prefix for the workouts it creates
+(random `adjective-noun` default so onboarding never blocks; rename-strands-`@id`
+is recorded debt); a **`workouts.wdlId`** column parsed from `@id` on save;
+**search** over own + public by name / `@id` / record id; an
+**"open on the board"** action. What is *left* here after that epic: the board's
+**Edit** button round-tripping into the builder, and — for *personal* accounts —
+whether saving rewrites the `@id` line to match the handle and the
+warn-on-mismatch UX. The **Movement create/edit** bullet (below) already
+shipped as M5.
 
 - **`@id` and the record id do not correlate, and probably should.** A workout
   can carry an `@id` directive in its text (spec preamble; `wdl result` already

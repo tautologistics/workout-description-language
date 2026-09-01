@@ -2,7 +2,8 @@
 
 ## Immediate
 
-**No epic is in flight.** *Movements in the database — Phase 1 (M0–M7)* is
+**No epic is in flight yet** (*The workout library*, L0–L7, is queued but
+unstarted — see below). *Movements in the database — Phase 1 (M0–M7)* is
 **complete as of 2026-09-01** — all of M0–M7 landed and the M-section moved to
 [../tasks/completed.md](../tasks/completed.md) as one grouped section. The last
 link, **M6** (`97f236f`), specified the nightly VPS SQLite backup + off-box
@@ -23,17 +24,26 @@ Everything else is closed: the whole 0-series through 21, the deployment epic
 label + a transient inline hint by the caret); see
 [../topics/builder-ux.md](../topics/builder-ux.md) under the `»`-panel entry.
 
-**Nothing else is dispatchable without Chris.** The two loose bullets left in
-[../tasks/current.md](../tasks/current.md) both need him to scope:
+**One epic + three standalone tasks are queued** (all fleshed out 2026-09-01
+from Chris, in [../tasks/current.md](../tasks/current.md)):
 
-- A full **laterality curation sweep** (needs Chris to scope which movements;
-  run via the audit CSV, not hand-edits).
-- The **post-redesign rethinks** — `@id` ↔ record-id correlation, account
-  namespacing, the board's Edit button round-tripping into the builder, an
-  "open on the board" action (need Chris to scope).
+- ***The workout library* (L0–L7)** — non-interactive "org" accounts
+  (`crossfit`, `hyrox`, `tabata`) owning public benchmark-WOD sets; every
+  account gets an editable `handle` that namespaces its `@id`s; a
+  `workouts.wdlId` column; search over own + public by name / `@id` / record
+  id; authored `.wdl` library + a `make workouts:load` ingest that also
+  regenerates fixtures. Start at **L0** (DEC-021 design note). This absorbs
+  most of the deferred account-namespacing rethink.
+- **unit defaults** — `@ 95` reads as `95lb`; a unitless magnitude on a
+  machine/aerobic movement reads as calories. Spec + grammar + parser + golden
+  change.
+- **board: dismissible notifications** — a "Clear notifications" footer button.
+- **board: the `#` title into the meta strip** — not a body row; `@id` small in
+  parentheses after it.
 
-Failing that, a fresh session off the board / `known-debts.md` for a
-self-contained defect.
+Still needing Chris to scope: a full **laterality curation sweep** (which
+movements), and the **residual rethinks** (board Edit → builder round-trip; `@id`
+write-back / warn-on-mismatch for personal accounts).
 
 Phase 2 of the movements epic (user-scoped movements) is in
 [../tasks/deferred.md](../tasks/deferred.md).

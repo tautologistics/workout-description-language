@@ -191,16 +191,19 @@ when something looks odd before treating it as a discovery.
   `test/grammar.test.ts`, because with one implementation left there is no
   disagreement to read it off.
 
-- **Open: what a target with no unit means.** `@ 95` parses to
-  `{kind: 'raw', text: '95'}` — held verbatim, meaning nothing. That is
-  deliberate as of 2026-08-15 and pinned as a vocabulary case, but it is a
-  holding answer rather than a settled one. The alternative is a `load` with an
-  absent unit, which `Load` cannot express today (`unit` is a required
-  `'lb' | 'kg'`), and making it optional reaches `formatLoad`, volume, muscle
-  analysis and every exporter. `raw` at least says something true — a target was
-  written and nothing can be computed from it — where a defaulted unit would be
-  an invention: `@95` is 95lb in one gym and 95kg in another. Decide it properly
-  when something needs to consume it.
+- **Open: what a target with no unit means — decided 2026-09-01, implementation
+  queued.** `@ 95` parses to `{kind: 'raw', text: '95'}` — held verbatim,
+  meaning nothing. That was deliberate as of 2026-08-15 and pinned as a
+  vocabulary case, on the reasoning that a defaulted unit would be an invention
+  (`@95` is 95lb in one gym and 95kg in another). **Chris has now settled it:
+  the default is `lb`** — `@ 95` reads as `95lb`, pound being the default for
+  any movement that carries a load; and a unitless magnitude on a
+  machine/aerobic non-load movement reads as **calories**. The implementation
+  (spec §3/§7, grammar, parser, `Load` handling, golden files, the six pinned
+  `was-wrong` vocabulary forms) is the **"unit defaults" standalone task** in
+  [../tasks/current.md](../tasks/current.md). Until it lands, `@ 95` is still
+  `raw` in the code — this entry is the record that the *reading* is decided,
+  not the reason it stays raw.
 
 - ~~**A target written after a comma is filed as a note.**~~ **Closed 2026-08-15**
   by the swap. `- 10 Thruster, @ 95lb` used to put `@ 95lb` in `notes`, not
@@ -1025,6 +1028,19 @@ when something looks odd before treating it as a discovery.
   (~line 890) are untouched — separate debts.
   *Touched: `scripts/find-duplicates.mjs`, `registry/duplicate-candidates.json`
   (deleted).*
+
+- **Open, deferred on purpose: renaming an account handle strands its
+  workouts' `@id`s.** Raised 2026-09-01 with *The workout library* epic
+  ([../tasks/current.md](../tasks/current.md)), which makes `users.handle` the
+  `@id` namespace for the workouts an account creates (`chris:fran`,
+  `crossfit:fran`) and lets the user edit that handle. When they change it,
+  every existing `<oldhandle>:<slug>` `@id`, every `workouts.wdlId` built on it,
+  and every share link goes stale. **Phase 1 does not solve this** — Chris's
+  call ("we can revisit that"). Options to weigh when it is picked up: rewrite
+  `wdlId` + the `@id` line in the text across all the user's workouts on rename;
+  keep old handles as resolvable aliases; or forbid the rename once a workout
+  exists under the handle. Recorded so the first session to hit a broken share
+  link knows it is expected, not a bug.
 
 The ones with a plan attached are queued in
 [tasks.md](../tasks.md); the ones found by driving the

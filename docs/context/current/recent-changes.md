@@ -2,6 +2,30 @@
 
 ## Changes
 
+- **2026-09-01 — queued a new epic + three standalone tasks; recorded the
+  unit-defaults decision** (docs only, no code). From Chris, in the same
+  session as the `»`-panel fix. **Epic *The workout library* (L0–L7)** in
+  [../tasks/current.md](../tasks/current.md): non-interactive "org" accounts
+  (`crossfit` / `hyrox` / `tabata`) owning public benchmark-WOD sets; **every
+  account gets an editable `handle`** that namespaces its `@id`s (random
+  `adjective-noun` default; handle-rename-strands-`@id` recorded as deferred
+  debt in [../topics/known-debts.md](../topics/known-debts.md)); a
+  `workouts.wdlId` column parsed from `@id` on save; search over own + public
+  by name / `@id` / record id; an authored `examples/workouts/<org>/*.wdl`
+  library + a `make workouts:load` ingest that also regenerates `fixtures/`.
+  Four calls Chris made are recorded in the section; it **absorbs most of the
+  deferred account-namespacing rethink**. **Standalone tasks:** (1) **unit
+  defaults** — `@ 95` reads as `95lb` (pound default for any load-carrying
+  movement), a unitless magnitude on a machine/aerobic movement reads as
+  calories; this **settles** the "Open: what a target with no unit means" item
+  in `known-debts.md` (was deliberately `raw`), implementation still to land.
+  (2) **board: dismissible notifications** — a "Clear notifications" footer
+  button. (3) **board: the `#` title into the `#meta` strip** — not a body row,
+  `@id` small in parens after it; closes the "reversible default" question item
+  15b left open. *Touched:* `docs/context/tasks/current.md`,
+  `docs/context/current/{recent-changes,next-steps}.md`,
+  `docs/context/topics/{known-debts,builder-ux}.md`.
+
 - **2026-09-01 — `»`-panel per-implement load token reads clearly mid-edit**
   (`00f599c`). Self-contained builder-UX fix, first loose bullet off
   `tasks/current.md`. *Was:* the `»` panel's "takes a load" pick for a
