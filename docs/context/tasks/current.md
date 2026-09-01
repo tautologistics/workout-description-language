@@ -70,7 +70,7 @@ movements only.** Phase 2 — user-scoped movements — is in
 [deferred.md](deferred.md).
 
 **Execution order (established 2026-08-31):** ~~M0+M2~~ → ~~M1~~ → ~~M7~~ →
-**M3 (next / in progress)** → M5 → M4, with **M6** landable at any point (it
+~~M3~~ → **M5 (next / in progress)** → M4, with **M6** landable at any point (it
 depends on nothing here). **M0+M2 landed 2026-08-31** (`ea2a64f`): DEC-020
 recorded, `1756700000_add_users_admin.js` added (verified locally against a real
 PocketBase v0.40.1 binary). **M1 landed 2026-08-31** (`00c29a5`):
@@ -80,9 +80,21 @@ PocketBase v0.40.1 binary — up + down clean, collection and both indexes land)
 wired into `scripts/serve.mjs` before static handling (on by default,
 `WDL_MOCK_API=0` opts out); verified by curl over every endpoint and by driving
 the builder — Google sign-in completes the full redirect flow as the fixture
-user and *My workouts* populates from the mock. Each session lands its task
-fully (committed, pushed to `origin/main`, `docs/context/` updated) and spawns
-the next.
+user and *My workouts* populates from the mock. **M3 landed 2026-09-01**
+(`0917705`): `scripts/movements-to-db.mjs` + `make movements-load` — an
+idempotent upsert of `registry/movements.json` into the `movements` collection
+over `/api`, keyed on the `movementId` unique index, every row `scope: "global"`;
+target via `--api` / `WDL_PB_URL` (default `http://localhost:8081`) + admin auth
+(`WDL_PB_ADMIN_TOKEN` or `WDL_PB_ADMIN_EMAIL`/`_PASSWORD` → `auth-with-password`)
+for prod. The M7 mock now **accepts authorized `movements` writes** (any
+`Authorization` header stands in for admin, matching its faked sign-in),
+persisting them to git-ignored `fixtures/movements.local.json` merged over the
+registry-derived list on read — so the local round-trip is real. Verified: first
+run against `make serve` creates all 972 / a re-run reports all-unchanged /
+delete-one-then-load creates exactly 1 / mutate-one-then-load updates exactly 1;
+suite unchanged **2064/2064, 1 pending**. Each session lands its task fully
+(committed, pushed to `origin/main`, `docs/context/` updated) and spawns the
+next.
 
 Grounding facts, so an M-task can start cold:
 
@@ -152,10 +164,32 @@ Grounding facts, so an M-task can start cold:
   own `users` row `admin: true` in the admin UI — the migration can't know his
   id (`deploy/README.md` §7a).
 
-- **M3 — Ingestion: `registry/movements.json` → DB.**
-  `scripts/movements-to-db.mjs` (wrap as `make movements-load`), idempotent,
-  keyed by `id`, every row `scope: "global"`. Run once against prod after
-  M1/M2 deploy; re-runnable in dev. Canonical corpus untouched.
+- **M3 — Ingestion: `registry/movements.json` → DB.** — **DONE 2026-09-01**
+  (`0917705`). `scripts/movements-to-db.mjs` (`make movements-load`) reads
+  `registry/movements.json` and upserts every entry over
+  `/api/collections/movements/records`: it bulk-fetches the collection once
+  (`perPage=500`), keys on `movementId`, `POST`s the absent and `PATCH`es only
+  the columns that differ — a field the entry lacks is omitted on create and
+  cleared (json→`null`, scalar→`""`) on update, so M4's dump round-trips. A
+  re-run writes nothing (all-`unchanged`); prints a `created`/`updated`/
+  `unchanged` tally; `--dry-run` reports without writing. Nine array/object
+  fields pass shape-for-shape into the `json` columns, six scalars map straight,
+  every row `scope: "global"` and `user` unset. **Target** `--api <base>` /
+  `WDL_PB_URL` (default `http://localhost:8081`); **prod writes need admin
+  auth** — `WDL_PB_ADMIN_TOKEN`, or `WDL_PB_ADMIN_EMAIL`/`WDL_PB_ADMIN_PASSWORD`
+  (+ `WDL_PB_ADMIN_COLLECTION`, default `users`) exchanged at
+  `POST /api/collections/<c>/auth-with-password`; the token rides as the
+  `Authorization` header. With no creds it tries the dev-mock OAuth stub (works
+  against `make serve`) and otherwise errors with what to set. **The M7 mock now
+  accepts authorized `movements` writes** (`scripts/mock-api.mjs`) — any
+  `Authorization` header passes the admin gate (its faked sign-in hands every
+  caller `admin: true`), create/update/delete persist to git-ignored
+  `fixtures/movements.local.json` (overlay + tombstones), merged over the
+  registry-derived list on read; a bare `GET` is still open. Canonical corpus
+  untouched — the script only talks to `/api`, never writes `registry/*.json`,
+  never runs the pipeline, never touches `packages/core` (suite **2064/2064, 1
+  pending**, unchanged). **Still to do on deploy:** run it once against prod
+  PocketBase after M1/M2 are applied and Chris's `users` row is `admin: true`.
 
 - **M4 — Egress: DB → `registry/movements.json`.**
   `scripts/movements-from-db.mjs` (`make movements-dump`) reads `scope =

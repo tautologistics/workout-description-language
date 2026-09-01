@@ -17,15 +17,20 @@ curated field, `scope`/`user` for Phase 2, admin-gated writes), verified locally
 against a real PocketBase v0.40.1 binary. **M7 landed 2026-08-31** (`4431683`):
 `scripts/mock-api.mjs` + `fixtures/` — `make serve` now answers `/api` (auth
 short-circuit, `workouts/records` CRUD from committed fixtures with git-ignored
-runtime state, read-only `movements/records` from `registry/movements.json` in
-the PB envelope), on by default / `WDL_MOCK_API=0` opts out. **In progress: M3**
-— ingest `registry/movements.json` → the `movements` collection
-(`scripts/movements-to-db.mjs`, `make movements-load`; idempotent on
-`movementId`, every row `scope: "global"`). Phase 1 is global
-(admin-edited) movements only; Phase 2 (user-scoped) is in
-[../tasks/deferred.md](../tasks/deferred.md). Full
-write-ups: [../tasks/current.md](../tasks/current.md) "Movements in the
-database".
+runtime state, `movements/records` from `registry/movements.json` in the PB
+envelope), on by default / `WDL_MOCK_API=0` opts out. **M3 landed 2026-09-01**
+(`0917705`): `scripts/movements-to-db.mjs` + `make movements-load` — an
+idempotent upsert of `registry/movements.json` into the `movements` collection
+over `/api`, keyed on `movementId`, every row `scope: "global"`; target via
+`--api` / `WDL_PB_URL` + admin auth (`WDL_PB_ADMIN_TOKEN` or
+`WDL_PB_ADMIN_EMAIL`/`_PASSWORD`) for prod; a re-run writes nothing. The M7 mock
+now accepts authorized `movements` writes with git-ignored local persistence
+(`fixtures/movements.local.json`), so the local round-trip is real. **In
+progress: M5** — the movement editor widget (`apps/shared/movement-editor.js`),
+first hosted in the builder, writing a `scope: "global"` row via `/api`. Phase 1
+is global (admin-edited) movements only; Phase 2 (user-scoped) is in
+[../tasks/deferred.md](../tasks/deferred.md). Full write-ups:
+[../tasks/current.md](../tasks/current.md) "Movements in the database".
 
 Everything before this is closed: the whole 0-series through 21, the deployment
 epic (18–20, landed 2026-08-30) and the builder layout redesign (R1–R10, landed

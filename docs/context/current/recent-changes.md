@@ -2,6 +2,43 @@
 
 ## Changes
 
+- **2026-09-01 — Movements epic M3 landed** (`0917705`), fourth session of the
+  M-chain. **`scripts/movements-to-db.mjs`** (no deps — `node:fs` + global
+  `fetch`) + **`make movements-load`**: an idempotent upsert of every
+  `registry/movements.json` entry into the `movements` collection over
+  `/api/collections/movements/records`. It bulk-fetches the collection once
+  (`perPage=500`, paged), keys on the `movementId` unique index (M1), `POST`s the
+  absent and `PATCH`es only the columns that differ — a field the entry lacks is
+  omitted on create and **cleared** (json→`null`, scalar→`""`) on update, so
+  M4's dump → this → dump round-trips. A re-run writes nothing (reports
+  all-`unchanged`); it prints a `created`/`updated`/`unchanged` tally and takes
+  `--dry-run`. The nine array/object fields pass shape-for-shape into the `json`
+  columns, the six scalars map straight, **every row `scope: "global"`**, `user`
+  unset. **Target** is `--api <base>` or `WDL_PB_URL` (default
+  `http://localhost:8081`, matching `make serve`). **Prod writes need admin
+  auth**: `WDL_PB_ADMIN_TOKEN`, or `WDL_PB_ADMIN_EMAIL` + `WDL_PB_ADMIN_PASSWORD`
+  (+ optional `WDL_PB_ADMIN_COLLECTION`, default `users`) exchanged at
+  `POST /api/collections/<c>/auth-with-password`; the token rides as the
+  `Authorization` header on every write. With no creds set it falls back to the
+  dev-mock OAuth stub (so a bare `make movements-load` works against `make
+  serve`) and against a real PocketBase errors with exactly what to set.
+  **`scripts/mock-api.mjs` now accepts authorized `movements` writes** — any
+  `Authorization` header stands in for admin (the mock's faked sign-in already
+  hands every caller an `admin: true` fixture user), and create/update/delete
+  persist to a git-ignored **`fixtures/movements.local.json`** (an overlay list +
+  `deleted` tombstones) merged over the `registry/movements.json`-derived list on
+  read — a bare `GET` stays open, mirroring the collection's real rules. So the
+  local round-trip is real and M4/M5 can be built against `make serve`. Nothing
+  here touches `packages/core`, the grammar, the spec or the migrations — suite
+  unchanged **2064/2064, 1 pending**. Verified against `make serve`: first run
+  creates 972 / a re-run reports all-unchanged / delete-one-then-load creates
+  exactly 1 / mutate-one-then-load updates exactly 1 / no-auth write → 403 /
+  `WDL_MOCK_API=0` still 404s `/api`. **Next: M5** — the movement editor widget.
+  *Touched:* new `scripts/movements-to-db.mjs`; `scripts/mock-api.mjs`,
+  `Makefile`, `.gitignore`, `docs/context/tasks/current.md`,
+  `docs/context/current/next-steps.md`, `docs/context/current/recent-changes.md`,
+  `docs/context/topics/what-exists.md`, `docs/context/topics/running-it.md`.
+
 - **2026-08-31 — Movements epic M7 landed** (`4431683`), third session of the
   M-chain. `scripts/mock-api.mjs` — a no-deps mock of the PocketBase `/api`
   surface `apps/shared/pocketbase.js` uses — is wired into `scripts/serve.mjs`

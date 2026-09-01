@@ -19,6 +19,7 @@ make corpora     # node scripts/describe-corpora.mjs — are SOURCES.json/.md st
 make curation-sheet          # export-movement-curation.mjs curation-sheet.csv — the modifier hand-pass sheet
 make curation-check CSV=x.csv  # import-movement-curation.mjs x.csv — dry-run report, nothing written
 make curation-apply CSV=x.csv  # import-movement-curation.mjs x.csv --apply — land it into registry/movements.json
+make movements-load  # movements-to-db.mjs — idempotent upsert of registry/movements.json into the movements collection over /api
 make deploy      # node scripts/deploy-web.mjs   (WDL_DEPLOY_SSH defaults to dreamhost.ae.wex — see "## Hosting")
 make deploy-dry  # same, rsync with -n
 make clean       # rm -rf build pairs.json curation-sheet.csv
@@ -65,13 +66,46 @@ intercepts `/api/*` before static handling and delegates to
 a local `/api/_mock/oauth` stub — sign-in "just works" as one fixture user with
 `admin: true`), `workouts/records` CRUD (seeded from committed
 `fixtures/workouts.json`, runtime writes persisted to the git-ignored
-`fixtures/workouts.local.json` — delete that file to reset), and read-only
-`movements/records` straight from `registry/movements.json` in PocketBase's list
-envelope. **On by default**; **`WDL_MOCK_API=0 make serve`** opts out and
+`fixtures/workouts.local.json` — delete that file to reset), and
+`movements/records` from `registry/movements.json` in PocketBase's list envelope
+(reads open; writes accepted with any `Authorization` header since M3, persisted
+git-ignored to `fixtures/movements.local.json`). **On by default**;
+**`WDL_MOCK_API=0 make serve`** opts out and
 `/api/*` falls through to the old behaviour (404 / static). Sample data lives in
 `fixtures/` (`users.json`, `workouts.json` committed; `workouts.local.json`
 git-ignored). Nothing here touches `packages/core`, the grammar, the spec or the
 PocketBase migrations, and the mock never runs in production.
+
+**Ingesting `registry/movements.json` into the DB** *(since 2026-09-01, queue
+task M3, DEC-020)*. `make movements-load` (`scripts/movements-to-db.mjs`, no
+deps) upserts every entry into the `movements` collection over
+`/api/collections/movements/records` — **idempotent**, keyed on the `movementId`
+unique index: it `POST`s the absent, `PATCH`es only the columns that differ, and
+a re-run writes nothing (prints a `created`/`updated`/`unchanged` tally;
+`--dry-run` reports without writing). A field the entry lacks is cleared on the
+row (json→`null`, scalar→`""`), so the M4 dump round-trips.
+
+- **Target** — `--api <base>` or `WDL_PB_URL`, default `http://localhost:8081`
+  (matches `make serve`).
+- **Local round-trip** — with `make serve` running (mock `/api` on by default),
+  a bare `make movements-load` in another terminal works: the mock now accepts
+  authorized `movements` writes, and with no `WDL_PB_ADMIN_*` set the script
+  authenticates through the mock's stubbed OAuth. Runtime writes land in
+  git-ignored `fixtures/movements.local.json` — delete it to reset. Since the
+  mock already serves all of `registry/movements.json` on read, a first
+  `movements-load` against a fresh mock reports *all unchanged* (the diff
+  matches); `curl -X DELETE .../records/<id> -H 'authorization: x'` then a
+  `movements-load` is how to see it create.
+- **Against prod PocketBase** — needs admin auth: `WDL_PB_ADMIN_TOKEN`, or
+  `WDL_PB_ADMIN_EMAIL` + `WDL_PB_ADMIN_PASSWORD` (+ optional
+  `WDL_PB_ADMIN_COLLECTION`, default `users` — the row needs `admin: true`,
+  `deploy/README.md` §7a) exchanged at
+  `POST /api/collections/<c>/auth-with-password`. Run it once after M1/M2 are
+  applied on the box. Without creds against a real PocketBase the script exits
+  with the list of what to set.
+
+The egress half — `make movements-dump` (DB → `registry/movements.json`) — is
+M4, not built yet.
 
 A change to the apps needs `build-web.mjs` before the browser sees it, and the
 board and builder are verified by driving them, not only by the suite — see
