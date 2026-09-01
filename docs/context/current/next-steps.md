@@ -2,14 +2,16 @@
 
 ## Immediate
 
-**The active epic is *Movements in the database — Phase 1 (M1–M6)*** (Chris,
+**The active epic is *Movements in the database — Phase 1 (M0–M7)*** (Chris,
 2026-08-31): move the curated `registry/movements.json` layer into a PocketBase
 `movements` collection edited through an in-app widget, with ingestion in and a
-reviewable dump back out. Suggested order **M0 (design note) → M2 (admin bool) →
-M1 (collection) → M3 (ingest) → M5 (editor widget) → M4 (dump)**; **M6 (nightly
-VPS DB backup cron)** is independent and can go anytime — it is a pre-existing
-gap that was never set up. Phase 1 is global (admin-edited) movements only;
-Phase 2 (user-scoped) is in [../tasks/deferred.md](../tasks/deferred.md). Full
+reviewable dump back out; local `make serve` gets a mock `/api` from committed
+fixtures so it works without PocketBase. Suggested order **M0 (design note, now
+mostly settled — write the DEC) → M2 (admin bool) → M1 (collection) → M7 (mock
+API + fixtures) → M3 (ingest) → M5 (editor widget) → M4 (dump)**; **M6 (nightly
+VPS DB backup cron)** is independent and can go anytime — a pre-existing gap
+never set up. Phase 1 is global (admin-edited) movements only; Phase 2
+(user-scoped) is in [../tasks/deferred.md](../tasks/deferred.md). Full
 write-ups: [../tasks/current.md](../tasks/current.md) "Movements in the
 database".
 

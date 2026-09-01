@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-08-31 — New epic: Movements in the database — Phase 1 (M1–M6)** (no
+- **2026-08-31 — New epic: Movements in the database — Phase 1 (M0–M7)** (no
   code yet; task breakdown only). Chris, trying to run the first laterality pass
   through `curation-sheet.csv`, found the spreadsheet unworkable and realised
   movement create/edit wants to be an in-app GUI, hit *while building a workout*.
@@ -12,7 +12,11 @@
   in, a reviewable dump writes it back to the repo, `build-canonical.ts` and
   `packages/core` are untouched. Two scopes: **global** (admin-edit — needs an
   admin `bool` on `users`, M2) now; **user-scoped** deferred to Phase 2
-  ([../tasks/deferred.md](../tasks/deferred.md)). M6 is a **nightly VPS DB
+  ([../tasks/deferred.md](../tasks/deferred.md)). **M7** adds a **mock `/api` for
+  local `make serve`** — on by default, served from committed fixtures
+  (`registry/movements.json` doubles as the movements fixture; sample `fixtures/`
+  for users + workouts), so local dev — including auth and saved workouts, which
+  currently just 404 — works without PocketBase. **M6** is a **nightly VPS DB
   backup cron** — a pre-existing gap, never set up (only the keepalive cron
   exists). The CSV flow shipped below is **kept for bulk** sweeps. Full
   breakdown in [../tasks/current.md](../tasks/current.md) "Movements in the

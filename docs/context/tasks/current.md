@@ -59,7 +59,7 @@ dispatchable now; the rest need Chris to scope or sequence:
   the builder, an **"open on the board"** action for saved workouts. In
   [../topics/builder-ux.md](../topics/builder-ux.md) "Accounts, IDs and layout".
 
-## Movements in the database — Phase 1 (M1–M6)
+## Movements in the database — Phase 1 (M0–M7)
 
 The movement registry moves from a hand-edited JSON file to a PocketBase
 collection, edited through an in-app widget. Raised 2026-08-31 (see
@@ -78,20 +78,28 @@ Grounding facts, so an M-task can start cold:
 - `registry/movements.canonical.json` is **built** from external sources by
   `scripts/build-canonical.ts` and is *not* ingested — that pipeline keeps
   running; the DB replaces the curated seed it merges in.
-- `packages/core` and both apps read the JSON files over HTTP
-  (`packages/core/src/env.ts`, `apps/builder/builder.js:47`,
-  `apps/display/board.js:42`). `packages/core` must stay install-free and
-  offline.
+- `packages/core` reads `registry/movements.json` directly
+  (`packages/core/src/env.ts`) and **must stay install-free and offline** — this
+  epic does not touch it. The apps go through `apps/shared/pocketbase.js`, a
+  hand-rolled client hitting `/api/*` **same-origin**: in production that is
+  PocketBase (it serves the apps from `pb_public/`); under `make serve` there is
+  no PocketBase, so today auth and saved workouts just 404 and movements work
+  only because they are fetched as a static file. M7 fixes that with a mock
+  `/api`.
 - PocketBase v0.40.1 on the DreamHost VPS, `~/pb/`, migrations in
   `deploy/pocketbase/pb_migrations/`, the `workouts` collection as the model.
 
-- **M0 — Design note: read path + dump cadence** *(one decision, unblocks
-  M3–M5; candidate DEC)*. Do the apps read movements from the DB live, from the
-  committed JSON, or **DB-as-source-of-truth with a committed JSON dump as the
-  cache** (the arrangement that keeps tests, the canonical build and offline use
-  untouched, and gives only the builder a live DB read)? When does the dump run
-  — a `make` target, the deploy step? Does `build-canonical.ts` consume the DB
-  or still the JSON?
+- **M0 — Design note: read path + dump cadence** *(mostly settled 2026-08-31;
+  write it up as a DEC)*. **Settled:** production apps read movements from the
+  PocketBase `movements` collection via the same `/api/*` the client already
+  uses; `packages/core`, its tests and `build-canonical.ts` keep reading
+  `registry/movements.json` and are untouched; local `make serve` answers `/api`
+  from a **mock** (M7), and `registry/movements.json` **is** the movements
+  fixture — the mock reads it and wraps records in PocketBase's response
+  envelope; M4's dump keeps that file current from the live DB. **Residual:**
+  when the dump runs (manual `make` target, a git pre-commit, or the deploy
+  step); whether an admin edit in prod is expected to be dumped + committed
+  promptly or batched.
 
 - **M1 — `movements` PocketBase collection + migration.** Mirror the curated
   schema; array/object fields (`aliases`, `muscles`, `pattern`, `laterality`,
@@ -139,6 +147,28 @@ Grounding facts, so an M-task can start cold:
   under Settings → Backups) **and copy the backups off the box** (rsync to
   Chris's machine). Update `deploy/README.md` + `crontab.fragment`. Load-bearing
   once movement data lives only in the DB.
+
+- **M7 — Local dev mock `/api` + fixtures** *(on by default; opt out with
+  `WDL_MOCK_API=0` to hit a real local PocketBase)*. `scripts/serve.mjs`
+  intercepts `/api/*` before static handling and routes to a small mock module
+  (no deps — it is still a one-person dev server). Covers the endpoints
+  `apps/shared/pocketbase.js` uses:
+  - **auth** (`users/auth-methods`, `auth-with-oauth2`, `auth-refresh`) —
+    short-circuit the Google redirect: `auth-methods` returns an `authURL`
+    pointing at a local stub that bounces straight back with a canned `?code`;
+    `auth-with-oauth2` accepts any code and returns a fixture `users` record +
+    a fake token. Sign-in "just works" locally as one fixture user.
+  - **`workouts/records`** CRUD — seeded from a committed `fixtures/workouts.json`
+    of sample data, runtime writes persisted to a git-ignored
+    `fixtures/workouts.local.json` so a restart keeps them. Just something to
+    work with; not a prod mirror.
+  - **`movements/records`** (needs M1's shape) — read-only, straight from
+    `registry/movements.json`, wrapped in the PB list/response envelope.
+  New: `fixtures/workouts.json` + `fixtures/users.json` (sample data, committed);
+  `registry/movements.json` doubles as the movements fixture; runtime write
+  state stays out of git. Unblocks the builder's account features and (with M1)
+  the movement editor without a local PocketBase. The auth part depends on
+  nothing; the movements endpoint waits on M1.
 
 Nobody has run a session off the board yet. Everything is verified by tests
 and by driving the UI — every defect Chris has caught by *looking* was

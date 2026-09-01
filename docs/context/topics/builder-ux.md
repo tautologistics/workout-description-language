@@ -820,12 +820,16 @@ below are the larger rethinks.
   whether "make global" is a copy, a move, or a flag flip.
 
   **Fleshed out 2026-08-31** into *Movements in the database — Phase 1
-  (M1–M6)*, a task section in
+  (M0–M7)*, a task section in
   [../tasks/current.md](../tasks/current.md): a PocketBase `movements`
   collection with `scope` + a nullable `user` field, an admin `bool` on
   `users`, ingestion (`registry/movements.json` → DB) and a reviewable dump
-  back, the editor widget, and a nightly VPS backup cron (a pre-existing gap —
-  never set up). Phase 2 (user-scoped) is in
+  back, the editor widget, a nightly VPS backup cron (a pre-existing gap — never
+  set up), and a **mock `/api` for local `make serve`** (on by default, served
+  from committed fixtures — `registry/movements.json` doubles as the movements
+  fixture; sample `fixtures/` for users + workouts) so local dev works without
+  PocketBase. Production always talks to real PocketBase; `packages/core` is
+  untouched. Phase 2 (user-scoped) is in
   [../tasks/deferred.md](../tasks/deferred.md).
 
 ### The layout redesign — direction chosen 2026-08-30
