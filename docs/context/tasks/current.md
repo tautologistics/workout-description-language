@@ -73,7 +73,7 @@ movements only.** Phase 2 — user-scoped movements — is in
 in progress)** → M3 → M5 → M4, with **M6** landable at any point (it depends
 on nothing here). **M0+M2 landed 2026-08-31** (`ea2a64f`): DEC-020
 recorded, `1756700000_add_users_admin.js` added (verified locally against a real
-PocketBase v0.40.1 binary). **M1 landed 2026-08-31** (`<M1-SHA>`):
+PocketBase v0.40.1 binary). **M1 landed 2026-08-31** (`00c29a5`):
 `1756800000_create_movements.js` added (verified locally against a real
 PocketBase v0.40.1 binary — up + down clean, collection and both indexes land).
 Each session lands its task fully (committed, pushed to `origin/main`,
@@ -116,7 +116,7 @@ Grounding facts, so an M-task can start cold:
   promptly or batched.
 
 - **M1 — `movements` PocketBase collection + migration.** — **DONE 2026-08-31**
-  (`<M1-SHA>`). `deploy/pocketbase/pb_migrations/1756800000_create_movements.js`
+  (`00c29a5`). `deploy/pocketbase/pb_migrations/1756800000_create_movements.js`
   creates a `base` collection `movements` via `new Collection({...})`. One
   column per per-movement field in `registry/movements.json`: `movementId`
   (text, required — the registry `id`, deliberately not `id`); `title` (text,

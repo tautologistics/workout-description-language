@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-08-31 — Movements epic M1 landed** (`<M1-SHA>`), second session of
+- **2026-08-31 — Movements epic M1 landed** (`00c29a5`), second session of
   the M-chain. `deploy/pocketbase/pb_migrations/1756800000_create_movements.js`
   creates the `movements` PocketBase collection ([DEC-020](../topics/settled-decisions.md#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump)):
   one column per per-movement field in `registry/movements.json` — `movementId`

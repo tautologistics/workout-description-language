@@ -11,7 +11,7 @@ session) → M1 (collection) → M7 (mock API + fixtures) → M3 (ingest) → M5
 widget) → M4 (dump)**; **M6 (nightly VPS DB backup cron)** is independent and
 can go anytime — a pre-existing gap never set up. **M0+M2 landed 2026-08-31** (DEC-020 written;
 `1756700000_add_users_admin.js` added, verified locally against a real
-PocketBase v0.40.1 binary). **M1 landed 2026-08-31** (`<M1-SHA>`):
+PocketBase v0.40.1 binary). **M1 landed 2026-08-31** (`00c29a5`):
 `1756800000_create_movements.js` — the `movements` collection (one column per
 curated field, `scope`/`user` for Phase 2, admin-gated writes), verified locally
 against a real PocketBase v0.40.1 binary. **In progress: M7** — local dev mock
