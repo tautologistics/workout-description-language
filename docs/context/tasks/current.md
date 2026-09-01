@@ -69,6 +69,12 @@ comes up *while building a workout*. **Phase 1 is global (admin-edited)
 movements only.** Phase 2 — user-scoped movements — is in
 [deferred.md](deferred.md).
 
+**Execution order (established 2026-08-31):** **M0+M2 → M1 → M7 → M3 → M5 → M4**,
+with **M6** landable at any point (it depends on nothing here). M0 and M2 run as
+one session — M0 is a short DEC write-up and M2 a one-field migration, both
+prerequisites for M1. Each session lands its task fully (committed, pushed to
+`origin/main`, `docs/context/` updated) and spawns the next.
+
 Grounding facts, so an M-task can start cold:
 
 - The **curated layer** is `registry/movements.json` (~972 entries: `id`,

@@ -6,11 +6,10 @@
 2026-08-31): move the curated `registry/movements.json` layer into a PocketBase
 `movements` collection edited through an in-app widget, with ingestion in and a
 reviewable dump back out; local `make serve` gets a mock `/api` from committed
-fixtures so it works without PocketBase. Suggested order **M0 (design note, now
-mostly settled — write the DEC) → M2 (admin bool) → M1 (collection) → M7 (mock
-API + fixtures) → M3 (ingest) → M5 (editor widget) → M4 (dump)**; **M6 (nightly
-VPS DB backup cron)** is independent and can go anytime — a pre-existing gap
-never set up. Phase 1 is global (admin-edited) movements only; Phase 2
+fixtures so it works without PocketBase. Execution order (established 2026-08-31): **M0+M2 (DEC + admin bool, one
+session) → M1 (collection) → M7 (mock API + fixtures) → M3 (ingest) → M5 (editor
+widget) → M4 (dump)**; **M6 (nightly VPS DB backup cron)** is independent and
+can go anytime — a pre-existing gap never set up. **In progress: M0+M2.** Phase 1 is global (admin-edited) movements only; Phase 2
 (user-scoped) is in [../tasks/deferred.md](../tasks/deferred.md). Full
 write-ups: [../tasks/current.md](../tasks/current.md) "Movements in the
 database".
