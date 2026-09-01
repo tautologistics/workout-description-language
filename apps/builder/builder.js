@@ -330,13 +330,22 @@ const movementModifiers = (entry) => {
     text: `, count ${mode === 'calories' ? 'cal' : mode}`,
     label: mode === 'calories' ? 'measured in calories' : 'measured in distance',
   }));
+  // The per-implement seed keeps the `Nx` from `entry.implements` — real
+  // information (how many implements) the author would otherwise have to know to
+  // type, and a bare `@ Nx` with no weight round-trips clean through parse +
+  // Canonicalise + diagnostics (a bare `@ ` alone is an *unreadable step* until
+  // a weight follows, so dropping the seed would read worse, not better). What
+  // was cryptic mid-edit was the *reading* of `@ 2x`, not its validity — so the
+  // label names the finished shape and `applyModifier` drops a transient hint by
+  // the caret after the pick.
   const load = entry.load
-    ? {
-        text: entry.load === 'per-implement' && entry.implements ? `@ ${entry.implements}x` : '@ ',
-        label: entry.load === 'per-implement'
-          ? `takes a load, per implement (holds ${entry.implements ?? 2})`
-          : 'takes a load',
-      }
+    ? entry.load === 'per-implement' && entry.implements
+      ? {
+          text: `@ ${entry.implements}x`,
+          label: `load, per implement (${entry.implements}) — then type the weight: @ ${entry.implements}x35lb`,
+          perImplement: entry.implements,
+        }
+      : { text: '@ ', label: 'takes a load' }
     : null;
   // Array.isArray, not just `?? []`: registry/movements.json carried
   // `equipment` as a bare string on 669 entries until 2026-08-25 (a curated
@@ -566,6 +575,21 @@ function renderOutline() {
       input.value = logicalText(lines, n.line);
       input.dataset.line = String(n.line);
 
+      // A transient one-liner under the input after a per-implement load pick,
+      // where the seeded `@ Nx` reads as cryptic until the weight is typed (it
+      // says how many implements, not a rep count). Cleared on the next
+      // keystroke, on blur, and on a row re-render. Declared up here because the
+      // `input` listeners below reference `clearModHint` at bind time.
+      let modHint = null;
+      const clearModHint = () => { modHint?.remove(); modHint = null; };
+      const showModHint = (msg) => {
+        clearModHint();
+        modHint = document.createElement('div');
+        modHint.className = 'mod-hint';
+        modHint.textContent = msg;
+        wrap.append(modHint);
+      };
+
       // The movement caret: a live-filtered list of curated movements matching
       // whatever is being typed, replacing just the movement-name part of the
       // line so quantity and modifiers already on it survive the pick.
@@ -667,6 +691,7 @@ function renderOutline() {
       };
 
       input.addEventListener('input', () => {
+        clearModHint();
         // The indent is structure, and the outline is not where you change it —
         // that is what indent and outdent are for. `replaceLogical` keeps it.
         lines = replaceLogical(lines, n.line, input.value);
@@ -680,6 +705,7 @@ function renderOutline() {
       input.addEventListener('change', () => render(n.line));
       input.addEventListener('focus', () => { focused = n.line; });
       input.addEventListener('blur', closeSuggestions);
+      input.addEventListener('blur', clearModHint);
       input.addEventListener('keydown', (e) => {
         if (!suggestions.hidden && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
           e.preventDefault();
@@ -730,7 +756,7 @@ function renderOutline() {
       // target"), load follows it and precedes any comma modifiers (`10
       // Dumbbell Curl each arm @ 2x35lb`), and measured output is itself a
       // comma modifier, so it goes at the very end.
-      const applyModifier = (entryTitle, addition, position) => {
+      const applyModifier = (entryTitle, addition, position, perImplement) => {
         const value = input.value;
         let next; let caretAt;
         if (position === 'title' || position === 'end') {
@@ -785,6 +811,12 @@ function renderOutline() {
         renderBody();
         input.focus();
         input.setSelectionRange(caretAt, caretAt);
+        // The seeded `@ Nx` says how many implements, not a rep count — spell
+        // that out by the caret until the weight is typed (the hint clears on
+        // the next keystroke or blur).
+        if (perImplement) {
+          showModHint(`@ ${perImplement}x is a load in each of ${perImplement} implements — now type the weight: @ ${perImplement}x35lb`);
+        }
       };
 
       const openModifiers = () => {
@@ -806,7 +838,7 @@ function renderOutline() {
           b.className = 'suggestion';
           b.textContent = `${it.text}${it.isDefault ? ' (default)' : ''} — ${it.label}`;
           b.onmousedown = (e) => e.preventDefault();
-          b.onclick = () => applyModifier(entry.title, it.addition, it.position);
+          b.onclick = () => applyModifier(entry.title, it.addition, it.position, it.perImplement);
           modifiers.append(b);
         }
         if (mods.equipment.length) {

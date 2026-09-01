@@ -229,20 +229,46 @@ It split in two, and the halves were not equally ready — both are done now:
   typed word. Names that don't start with the title (aliases like `DB Snatch`)
   keep the whole-fragment fallback. Bare `each side` fixed identically.
 
-  **Open — the per-implement load token `@ Nx` reads as cryptic mid-edit.**
-  For a `load: "per-implement"` movement (Bulgarian Split Squat, `implements: 2`)
-  the panel splices `@ 2x`, seeded from `implements`, and leaves the caret after
-  it for the weight → `@ 2x35lb`. Before the weight is typed, the bare `@ 2x` is
-  unclear — Chris, who designed the panel, had to stop and work out what it
-  meant. The panel *label* is clear ("takes a load, per implement (holds 2)");
-  the inserted text is not. Revisit both the **formatting** of the seeded token
-  (`@ 2x` vs an `@ 2x⟨wt⟩` placeholder vs plain `@ ` vs nothing until a weight is
-  present — spec §3 governs the `Nx⟨weight⟩` notation) and the **clarity** (an
-  inline hint, a reworded label, a better caret position). The plain-load pick's
-  bare `@ ` is the same shape but less ambiguous. Token built in
-  `movementModifiers()`, `apps/builder/builder.js` — `` `@ ${entry.implements}x` ``
-  when `entry.load === 'per-implement'`, else `'@ '`. Self-contained; dispatchable
-  on its own.
+  **~~Open — the per-implement load token `@ Nx` reads as cryptic mid-edit.~~
+  Fixed 2026-09-01 (`<TASK-SHA>`).** *Was:* for a `load: "per-implement"`
+  movement (Bulgarian Split Squat, `implements: 2`) the panel spliced a bare
+  `@ 2x`, seeded from `implements`, caret after it for the weight → `@ 2x35lb`.
+  Before the weight was typed the bare `@ 2x` was unclear — Chris, who designed
+  the panel, had to stop and work out what it meant. The panel *label*
+  ("takes a load, per implement (holds 2)") was clear; the inserted text was not.
+
+  **The token itself stays `@ Nx`** — the call was to keep the seed and fix its
+  *reading*, not swap it. Two reasons it stays: the `Nx` carries real
+  information (how many implements — from the registry, `entry.implements`) that
+  the author would otherwise have to know to type; and — checked by driving the
+  parser, not assumed — a bare `@ 2x` with no weight round-trips clean through
+  `parse` + `Canonicalise` (`wdl fmt` keeps it verbatim) + diagnostics
+  (`wdl check` reports nothing), whereas the plain-load pick's bare `@ ` is
+  actually an *unreadable step* until a weight follows. So dropping the seed
+  would read *worse*, and `@ 2x⟨wt⟩` was rejected because a literal `⟨wt⟩` left
+  on the line is held as target prose, not a placeholder. What changed, both in
+  `movementModifiers()` / `applyModifier()` in `apps/builder/builder.js`, no
+  buffer-format or grammar change:
+
+  - **The pick's label names the finished shape.** The per-implement load entry
+    now reads `` `@ 2x — load, per implement (2) — then type the weight: @ 2x35lb` ``
+    (was `takes a load, per implement (holds 2)`), so the panel spells out what
+    lands and what to do with it before you pick.
+  - **A transient inline hint by the caret.** After the pick, a one-line
+    `.mod-hint` under the row reads *"@ 2x is a load in each of 2 implements —
+    now type the weight: @ 2x35lb"* in the `--accent` colour; it clears on the
+    next keystroke, on blur, and on a row re-render. This is the piece that
+    addresses the *mid-edit* confusion — it speaks at the moment `@ 2x` is on
+    the line with no weight yet.
+  - **Caret position unchanged** — it already sat at the end of `@ 2x`, which is
+    correct: typing `35lb` there yields the valid `@ 2x35lb`.
+
+  Verified by driving the builder both themes: panel label, hint appears +
+  clears, `@ 2x35lb` and bare `@ 2x` both round-trip through Canonicalise with
+  clean diagnostics, plain-load Back Squat still inserts `@ ` with no hint, and
+  laterality picks still replace-not-append with load landing after laterality
+  in spec order. `make test` unchanged — 2064/2064, 1 pending (nothing in the
+  core suite covers `movementModifiers` / `applyModifier`).
 
   Two decisions Chris made before this was built: the affordance is a second
   caret opening a panel (reusing the existing movement-suggestion caret's

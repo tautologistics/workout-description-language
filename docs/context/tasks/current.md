@@ -32,16 +32,17 @@ deployment epic (18–20) and the redesign chain (R1–R10). **The
 M0–M7 all landed (M6, the nightly VPS DB backup, `97f236f`), and the whole
 M-section moved to [completed.md](completed.md) as one grouped section, the way
 the deployment epic and the redesign chain were closed. **No epic is in flight.**
-The loose bullets below are unscheduled — the first is self-contained and
-dispatchable now; the rest need Chris to scope or sequence:
+The loose bullets below are unscheduled; both remaining ones need Chris to
+scope or sequence:
 
-- **The `»` panel's per-implement load token (`@ 2x`) is unclear mid-edit** —
-  not a numbered item; a self-contained builder-UX task. For a
-  `load: "per-implement"` movement the panel splices a bare `@ 2x` (seeded from
-  `implements`) that reads as cryptic before the weight is typed. Revisit the
-  formatting of the seeded `@ Nx` token and its clarity (hint / label / caret).
-  Detail in [../topics/builder-ux.md](../topics/builder-ux.md) under the
-  `»`-panel entry.
+- **~~The `»` panel's per-implement load token (`@ 2x`) is unclear
+  mid-edit~~ — landed 2026-09-01 (`<TASK-SHA>`).** The seeded `@ Nx` token
+  stays (it carries the implement count, and a bare `@ Nx` round-trips clean —
+  unlike the plain-load `@ `); its *reading* was fixed instead — the pick's
+  label now names the finished shape (`@ 2x — load, per implement (2) — then
+  type the weight: @ 2x35lb`) and a transient inline hint appears by the caret
+  after the pick. Full write-up in
+  [../topics/builder-ux.md](../topics/builder-ux.md) under the `»`-panel entry.
 
 - **A full laterality curation sweep** — not a numbered item. `around-worlds` is
   the only movement carrying `lateralityAxis`. The audit-CSV tooling is ready:

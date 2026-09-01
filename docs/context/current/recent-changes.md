@@ -2,6 +2,37 @@
 
 ## Changes
 
+- **2026-09-01 — `»`-panel per-implement load token reads clearly mid-edit**
+  (`<TASK-SHA>`). Self-contained builder-UX fix, first loose bullet off
+  `tasks/current.md`. *Was:* the `»` panel's "takes a load" pick for a
+  `load: "per-implement"` movement (Bulgarian Split Squat, Dumbbell Curl,
+  `implements: 2`) spliced a bare `@ 2x` seeded from `implements`, which Chris —
+  who designed the panel — found cryptic before the weight was typed.
+  **Design call:** keep the `@ Nx` token, fix its *reading*. It carries real
+  information (the implement count), and — verified by driving the parser, not
+  assumed — a bare `@ 2x` with no weight round-trips clean through `parse` +
+  `Canonicalise` + diagnostics, whereas the plain-load `@ ` is an *unreadable
+  step* until a weight follows, so dropping the seed would read worse.
+  `@ 2x⟨wt⟩` was rejected (a literal `⟨wt⟩` is held as target prose).
+  **Changed** in `movementModifiers()` / `applyModifier()` in
+  `apps/builder/builder.js` (+ a `.mod-hint` rule and `flex-wrap` on
+  `.line-wrap` in `builder.css`), no buffer-format / grammar / core change:
+  (1) the per-implement load pick's label now names the finished shape —
+  `@ 2x — load, per implement (2) — then type the weight: @ 2x35lb`; (2) after
+  the pick, a transient one-line hint under the row (`@ 2x is a load in each of
+  2 implements — now type the weight: @ 2x35lb`, `--accent`) that clears on the
+  next keystroke / blur / re-render; (3) caret position left as-is (already
+  correct — end of `@ 2x`, so typing `35lb` gives `@ 2x35lb`). **Verified by
+  driving the builder both `prefers-color-scheme` themes:** panel label, hint
+  shows + clears, `@ 2x35lb` and bare `@ 2x` both round-trip through
+  Canonicalise with clean diagnostics, plain-load Back Squat still inserts `@ `
+  with no hint, laterality picks still replace-not-append with load after
+  laterality in spec order. `make test` **unchanged — 2064/2064, 1 pending**
+  (nothing in the core suite covers `movementModifiers` / `applyModifier`).
+  *Touched:* `apps/builder/builder.js`, `apps/builder/builder.css`,
+  `docs/context/topics/builder-ux.md`, `docs/context/tasks/current.md`,
+  `docs/context/current/{recent-changes,next-steps}.md`.
+
 - **2026-09-01 — `make` task surface: `:` namespaces + `deploy:db` / `backups:pull`**
   (`2c1cdb0`), a follow-up to M6. Chris's call. **(1) Rename** — every
   multi-word target now uses a `:` namespace separator instead of `-`:

@@ -18,18 +18,22 @@ Everything else is closed: the whole 0-series through 21, the deployment epic
 (18–20, landed 2026-08-30) and the builder layout redesign (R1–R10, landed
 2026-08-31) — see [../tasks/completed.md](../tasks/completed.md).
 
-**The next work is the loose unscheduled bullets** in
-[../tasks/current.md](../tasks/current.md) after the "Open" preamble, or a fresh
-session off the board:
+**The `»`-panel per-implement load-token fix landed 2026-09-01
+(`<TASK-SHA>`)** — the token stays `@ Nx`, its reading was fixed (reworded pick
+label + a transient inline hint by the caret); see
+[../topics/builder-ux.md](../topics/builder-ux.md) under the `»`-panel entry.
 
-- **The `»` panel's per-implement load token (`@ 2x`) is unclear mid-edit** —
-  explicitly flagged self-contained and dispatchable now; detail in
-  [../topics/builder-ux.md](../topics/builder-ux.md) under the `»`-panel entry.
+**Nothing else is dispatchable without Chris.** The two loose bullets left in
+[../tasks/current.md](../tasks/current.md) both need him to scope:
+
 - A full **laterality curation sweep** (needs Chris to scope which movements;
   run via the audit CSV, not hand-edits).
 - The **post-redesign rethinks** — `@id` ↔ record-id correlation, account
   namespacing, the board's Edit button round-tripping into the builder, an
   "open on the board" action (need Chris to scope).
+
+Failing that, a fresh session off the board / `known-debts.md` for a
+self-contained defect.
 
 Phase 2 of the movements epic (user-scoped movements) is in
 [../tasks/deferred.md](../tasks/deferred.md).

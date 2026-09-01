@@ -261,9 +261,21 @@ body.col-resizing { cursor: col-resize; user-select: none; }
   flex: 1;
   min-width: 0;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   border-left: 3px solid transparent;
   padding-left: .45rem;
+}
+
+/* A transient one-liner under the input after a per-implement load pick,
+   explaining the seeded `@ Nx` until the weight is typed (see `showModHint`).
+   Full-width so it breaks below the input; the panels above it are all
+   position:absolute, so this is the only wrapping child. */
+.node .line-wrap .mod-hint {
+  flex-basis: 100%;
+  margin: .15rem 0 0;
+  font: 400 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--accent);
 }
 .node[data-kind="title"]     .line-wrap { border-left-color: var(--kind-title); }
 .node[data-kind="directive"] .line-wrap { border-left-color: var(--kind-directive); }
