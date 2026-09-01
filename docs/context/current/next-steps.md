@@ -38,7 +38,7 @@ copy); `scripts/mock-api.mjs`'s `applyQuery` grew a `~` operator + the
 parenthesised OR (`matchesFilter`); `fixtures/workouts.json` gained one public
 `crossfit:helen` row. `make test` unchanged (2064/2064, 1 pending); verified
 driving the builder against `make serve` in both themes. **L5 landed 2026-09-01
-(`<TASK-SHA>`)** — the authored benchmark `.wdl` library, **43 files** under
+(`6cb8df4`)** — the authored benchmark `.wdl` library, **43 files** under
 `examples/workouts/<org>/<slug>.wdl`: **crossfit** (31 — the 19 Girls, 9 first
 Heroes, Fight Gone Bad / Filthy Fifty / the CrossFit Total), **hyrox** (9 — the
 full race + its 8 stations), **tabata** (3 — the protocol, Tabata This, Tabata

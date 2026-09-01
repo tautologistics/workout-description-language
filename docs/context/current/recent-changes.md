@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-01 — L5 of *The workout library* epic landed (`<TASK-SHA>`)** —
+- **2026-09-01 — L5 of *The workout library* epic landed (`6cb8df4`)** —
   the authored benchmark `.wdl` library. **Content only** — everything new is
   under `examples/workouts/`; no schema / `packages/core` / grammar / spec /
   test-suite touch, `make test` unchanged **2064/2064, 1 pending**.

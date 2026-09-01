@@ -45,7 +45,7 @@ sized like M0–M7 for sequential sessions. **L0 landed 2026-09-01
 `<owner-handle>:<slug>` and the board resolves `?w=<handle>:<slug>` as well as
 `?w=<recordid>`; **L4 landed 2026-09-01 (`0de7f9a`)** — `searchWorkouts` +
 the builder's My-workouts search box + the mock's `~` operator and parenthesised
-OR; **L5 landed 2026-09-01 (`<TASK-SHA>`)** — the authored benchmark `.wdl`
+OR; **L5 landed 2026-09-01 (`6cb8df4`)** — the authored benchmark `.wdl`
 library, 43 files under `examples/workouts/{crossfit,hyrox,tabata}/`, content
 only; **L6 (ingestion: `scripts/workouts-to-db.mjs` / `make workouts:load`) is
 next**. Three standalone tasks are also queued, all dispatchable now:
@@ -462,7 +462,7 @@ not a general engine. `fixtures/workouts.json` gained **one** row —
 set — so a fresh `make serve` has something public to find (L6's loader will
 regenerate this file). Spawns L5.
 
-**L5 — Author the benchmark `.wdl` library. DONE 2026-09-01 (`<TASK-SHA>`).**
+**L5 — Author the benchmark `.wdl` library. DONE 2026-09-01 (`6cb8df4`).**
 **43 files** under `examples/workouts/<org>/<slug>.wdl`, each first line
 `@id <org>:<slug>` (slug = filename stem), then `# Title`, then the body — every
 file byte-identical to `wdl fmt` canonical output (diffed each against `fmt`), so
