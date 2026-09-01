@@ -24,6 +24,15 @@ ready to start, with what it touches, is in [current.md](current.md).
   [DEC-016](../topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage).
   What stays off the roadmap is a *platform* — public signup, discovery, scale.
 - **Whiteboard photo → WDL.** Interesting, separate project.
+- **User-scoped movements (Movements-in-DB Phase 2).** Movements a user creates
+  under their own account — viewable by anyone when published, editable only by
+  the creator — the way workouts already work. Deferred behind Phase 1 (global,
+  admin-edited movements: M1–M6 in [current.md](current.md)), whose `movements`
+  collection already ships the `scope` and nullable `user` fields Phase 2 needs.
+  Ties into account **namespacing** (see
+  [../topics/builder-ux.md](../topics/builder-ux.md) "Accounts, IDs and layout")
+  — a user-scoped movement needs a namespaced id and a cross-viewer resolution
+  story, the same problem the workout-id namespace has.
 
 ## Reconsider when
 
@@ -34,3 +43,7 @@ ready to start, with what it touches, is in [current.md](current.md).
   hosted-instance slice (items 18–20) is now active; a *platform* beyond that
   (public signup, discovery, scale) is still not on the roadmap and would need
   another goal change.
+- **User-scoped movements** become worth building once Phase 1 (global movements
+  in the DB, edited in-app) has landed and Chris is regularly creating movements
+  while building workouts — at which point "this one is just mine" is the
+  natural next ask.

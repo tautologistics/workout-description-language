@@ -2,16 +2,22 @@
 
 ## Changes
 
-- **2026-08-31 — Direction: movement create/edit is headed into an in-app GUI**
-  (thinking out loud, not scheduled, no code). Chris, trying to run the first
-  laterality pass through `curation-sheet.csv`, found the spreadsheet hard to
-  organise and realised the need to fix/add a movement comes up *while building a
-  workout* — so it wants to be a builder GUI. Two scopes: **global**
-  (admin-edit, needs an admin flag established) and **user-scoped** (creator-edit,
-  public-viewable, a later phase); admin/global first. The CSV flow shipped below
-  is **kept for bulk** sweeps. Recorded in
-  [../topics/builder-ux.md](../topics/builder-ux.md) "Accounts, IDs and layout"
-  and [../tasks/current.md](../tasks/current.md).
+- **2026-08-31 — New epic: Movements in the database — Phase 1 (M1–M6)** (no
+  code yet; task breakdown only). Chris, trying to run the first laterality pass
+  through `curation-sheet.csv`, found the spreadsheet unworkable and realised
+  movement create/edit wants to be an in-app GUI, hit *while building a workout*.
+  Direction: the curated `registry/movements.json` layer moves into a PocketBase
+  `movements` collection (a `scope` field `global|user` + a nullable `user`
+  field for Phase 2), edited through a reusable widget; ingestion loads the JSON
+  in, a reviewable dump writes it back to the repo, `build-canonical.ts` and
+  `packages/core` are untouched. Two scopes: **global** (admin-edit — needs an
+  admin `bool` on `users`, M2) now; **user-scoped** deferred to Phase 2
+  ([../tasks/deferred.md](../tasks/deferred.md)). M6 is a **nightly VPS DB
+  backup cron** — a pre-existing gap, never set up (only the keepalive cron
+  exists). The CSV flow shipped below is **kept for bulk** sweeps. Full
+  breakdown in [../tasks/current.md](../tasks/current.md) "Movements in the
+  database"; direction in
+  [../topics/builder-ux.md](../topics/builder-ux.md) "Accounts, IDs and layout".
 
 - **2026-08-31 — The movement-curation sheet has a committed generator, and
   `lateralityAxis` is in its CURRENT block** (a one-off, not a queue item, in

@@ -2,23 +2,23 @@
 
 ## Immediate
 
-**The deployment epic — queue items 18–20 — is the top priority** (Chris,
-2026-08-30): stand up PocketBase on his DreamHost VPS, deploy the builder and
-board behind a stable public URL, and wire in Google sign-in plus saved/shared
-workouts. Order 18 → 19 → 20; item 19 (the public URL) can land before 18 is
-finished. This reverses the "Sharing, accounts, a platform" Non-Goal — see
-[../goals.md](../goals.md) "## Pivots" and
-[DEC-016](../topics/settled-decisions.md#dec-016-a-hosted-instance-with-pocketbase-for-auth-and-storage).
-None of it touches `packages/core`, the grammar or the spec.
+**The active epic is *Movements in the database — Phase 1 (M1–M6)*** (Chris,
+2026-08-31): move the curated `registry/movements.json` layer into a PocketBase
+`movements` collection edited through an in-app widget, with ingestion in and a
+reviewable dump back out. Suggested order **M0 (design note) → M2 (admin bool) →
+M1 (collection) → M3 (ingest) → M5 (editor widget) → M4 (dump)**; **M6 (nightly
+VPS DB backup cron)** is independent and can go anytime — it is a pre-existing
+gap that was never set up. Phase 1 is global (admin-edited) movements only;
+Phase 2 (user-scoped) is in [../tasks/deferred.md](../tasks/deferred.md). Full
+write-ups: [../tasks/current.md](../tasks/current.md) "Movements in the
+database".
 
-After 20, the builder-UX items resume in the order Chris set: **12 → 16 → 17 →
-15**, then 13, then 11. A background-task chip for item 12 was spawned 2026-08-29
-and is superseded in priority (not cancelled) by the deployment epic.
-
-Full write-ups for every open item are in
-[../tasks/current.md](../tasks/current.md). Closed: the whole 0-series, 1, 1a,
-2, 3, 4, 5, 6, 7, 8, 8a, 9, 10 and 14 — see
-[../tasks/completed.md](../tasks/completed.md).
+Everything before this is closed: the whole 0-series through 21, the deployment
+epic (18–20, landed 2026-08-30) and the builder layout redesign (R1–R10, landed
+2026-08-31) — see [../tasks/completed.md](../tasks/completed.md). The loose
+unscheduled bullets (the `»`-panel `@ 2x` clarity task, a full laterality
+curation sweep, the post-redesign account/ID/layout rethinks) are in
+[../tasks/current.md](../tasks/current.md) after the epic section.
 
 ## Later
 

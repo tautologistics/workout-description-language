@@ -1,7 +1,8 @@
 # Current State
 
 *Last updated: 2026-08-25 (136 commits, 1800 tests passing, 1 pending). Every
-numbered queue item raised so far is closed — see
+numbered queue item (0-series–21, deployment 18–20, redesign R1–R10) is closed;
+the one active epic is *Movements in the database — Phase 1 (M1–M6)* — see
 [current/next-steps.md](current/next-steps.md).*
 
 ## Working State

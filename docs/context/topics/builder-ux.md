@@ -819,6 +819,15 @@ below are the larger rethinks.
   different viewer (namespaced id, cf. the account-namespacing bullet above);
   whether "make global" is a copy, a move, or a flag flip.
 
+  **Fleshed out 2026-08-31** into *Movements in the database — Phase 1
+  (M1–M6)*, a task section in
+  [../tasks/current.md](../tasks/current.md): a PocketBase `movements`
+  collection with `scope` + a nullable `user` field, an admin `bool` on
+  `users`, ingestion (`registry/movements.json` → DB) and a reviewable dump
+  back, the editor widget, and a nightly VPS backup cron (a pre-existing gap —
+  never set up). Phase 2 (user-scoped) is in
+  [../tasks/deferred.md](../tasks/deferred.md).
+
 ### The layout redesign — direction chosen 2026-08-30
 
 Explored on a Claude Design canvas: three directions (A Focus + Inspector, B
