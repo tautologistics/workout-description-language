@@ -1,0 +1,18 @@
+{
+  "$comment": "Sample user for the local dev mock /api (scripts/mock-api.mjs). The mock signs everyone in as users[0] — sign-in 'just works' locally as one fixture identity. admin:true so the movement editor (M5) is exercisable without a real PocketBase. Not used in production: PocketBase serves real Google auth there.",
+  "users": [
+    {
+      "id": "u_mock_chris_0001",
+      "collectionId": "_pb_users_auth_",
+      "collectionName": "users",
+      "email": "chris@winberry.net",
+      "emailVisibility": false,
+      "verified": true,
+      "name": "Chris (local mock)",
+      "avatar": "",
+      "admin": true,
+      "created": "2026-08-31 00:00:00.000Z",
+      "updated": "2026-08-31 00:00:00.000Z"
+    }
+  ]
+}

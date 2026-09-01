@@ -13,8 +13,17 @@
 import { createServer } from 'node:http';
 import { readFile, stat, readdir } from 'node:fs/promises';
 import { join, extname, normalize } from 'node:path';
+import { createMockApi } from './mock-api.mjs';
 
 const root = process.cwd();
+
+// The mock `/api` (DEC-020, task M7). In production the apps talk to a
+// co-located PocketBase at `/api/*`; under this dev server there is none, so
+// auth, saved workouts and DB-backed movements would 404. The mock answers the
+// `apps/shared/pocketbase.js` surface from `fixtures/` + `registry/movements.json`.
+// On by default; `WDL_MOCK_API=0` opts out and `/api/*` falls through to the
+// normal 404 / static handling.
+const mockApi = process.env.WDL_MOCK_API === '0' ? null : createMockApi(root);
 // An argument wins, then PORT, then a default. The environment variable is how
 // a harness that assigns ports gets to choose one.
 const port = Number(process.argv[2] ?? process.env.PORT ?? 8081);
@@ -55,6 +64,12 @@ h1{font-size:1rem;opacity:.6;font-weight:400}h2{font-size:1rem}ul{padding-left:1
 createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://localhost:${port}`);
+    // The mock `/api` gets first refusal on any `/api` path. It returns `true`
+    // once it has written a response; `false` (an unmocked `/api` path, or the
+    // mock disabled) falls through to static handling, which 404s as before.
+    if (mockApi && (url.pathname === '/api' || url.pathname.startsWith('/api/'))) {
+      if (await mockApi(req, res, url)) return;
+    }
     // `normalize` after stripping the leading slash keeps `..` from climbing out
     // of the tree. Serving one person on localhost is still no reason to hand out
     // arbitrary files.
@@ -82,4 +97,7 @@ createServer(async (req, res) => {
     res.writeHead(e.code === 'ENOENT' ? 404 : 500, { 'content-type': 'text/plain' });
     res.end(String(e.message));
   }
-}).listen(port, () => console.log(`serving ${root} on http://localhost:${port}`));
+}).listen(port, () => {
+  console.log(`serving ${root} on http://localhost:${port}`);
+  if (mockApi) console.log('  mock /api on — auth + workouts + movements  (WDL_MOCK_API=0 to disable)');
+});

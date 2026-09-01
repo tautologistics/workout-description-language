@@ -1,0 +1,38 @@
+{
+  "$comment": "Seed rows for the local dev mock /api `workouts` collection (scripts/mock-api.mjs). Just something to work with — not a production mirror. Runtime create/update/delete are written to fixtures/workouts.local.json (git-ignored); delete that file to reset to this seed. `owner` matches fixtures/users.json users[0].id. Shape follows deploy/pocketbase/pb_migrations/1756600000_create_workouts.js.",
+  "workouts": [
+    {
+      "id": "wk_mock_fran_00001",
+      "collectionId": "mock_workouts",
+      "collectionName": "workouts",
+      "owner": "u_mock_chris_0001",
+      "title": "Fran",
+      "source": "@id crossfit:fran\n\nfor time:\n  21-15-9:\n    Thruster (95/65)\n    Pull-Up\n",
+      "visibility": "private",
+      "created": "2026-08-20 09:00:00.000Z",
+      "updated": "2026-08-20 09:00:00.000Z"
+    },
+    {
+      "id": "wk_mock_cindy_0001",
+      "collectionId": "mock_workouts",
+      "collectionName": "workouts",
+      "owner": "u_mock_chris_0001",
+      "title": "Cindy",
+      "source": "@id crossfit:cindy\n\nAMRAP 20min:\n  5 Pull-Up\n  10 Push-Up\n  15 Air Squat\n",
+      "visibility": "unlisted",
+      "created": "2026-08-24 07:30:00.000Z",
+      "updated": "2026-08-28 18:05:00.000Z"
+    },
+    {
+      "id": "wk_mock_gtg_000001",
+      "collectionId": "mock_workouts",
+      "collectionName": "workouts",
+      "owner": "u_mock_chris_0001",
+      "title": "Pull-up grease-the-groove",
+      "source": "every 1min for 10min:\n  3 Strict Pull-Up\n",
+      "visibility": "private",
+      "created": "2026-08-30 12:00:00.000Z",
+      "updated": "2026-08-30 12:00:00.000Z"
+    }
+  ]
+}

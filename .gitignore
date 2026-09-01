@@ -6,3 +6,6 @@ dist/
 # generated exports
 build/
 curation-sheet.csv
+
+# local dev mock /api runtime write state (scripts/mock-api.mjs)
+fixtures/workouts.local.json
