@@ -69,12 +69,15 @@ comes up *while building a workout*. **Phase 1 is global (admin-edited)
 movements only.** Phase 2 — user-scoped movements — is in
 [deferred.md](deferred.md).
 
-**Execution order (established 2026-08-31):** ~~M0+M2~~ → **M1 (next / in
-progress)** → M7 → M3 → M5 → M4, with **M6** landable at any point (it depends
+**Execution order (established 2026-08-31):** ~~M0+M2~~ → ~~M1~~ → **M7 (next /
+in progress)** → M3 → M5 → M4, with **M6** landable at any point (it depends
 on nothing here). **M0+M2 landed 2026-08-31** (`ea2a64f`): DEC-020
 recorded, `1756700000_add_users_admin.js` added (verified locally against a real
-PocketBase v0.40.1 binary). Each session lands its task fully (committed, pushed
-to `origin/main`, `docs/context/` updated) and spawns the next.
+PocketBase v0.40.1 binary). **M1 landed 2026-08-31** (`<M1-SHA>`):
+`1756800000_create_movements.js` added (verified locally against a real
+PocketBase v0.40.1 binary — up + down clean, collection and both indexes land).
+Each session lands its task fully (committed, pushed to `origin/main`,
+`docs/context/` updated) and spawns the next.
 
 Grounding facts, so an M-task can start cold:
 
@@ -112,14 +115,28 @@ Grounding facts, so an M-task can start cold:
   step); whether an admin edit in prod is expected to be dumped + committed
   promptly or batched.
 
-- **M1 — `movements` PocketBase collection + migration.** Mirror the curated
-  schema; array/object fields (`aliases`, `muscles`, `pattern`, `laterality`,
-  `measures`) as JSON columns so the dump/load stays a shape-for-shape mapping.
-  Add `scope` (select `global | user`, required) and `user` (relation to
-  `users`, **nullable, unused in Phase 1** — present for Phase 2). API rules:
-  read = anyone where `scope = "global"`; create / update / delete = admin only
-  (M2). Versioned migration in `deploy/pocketbase/pb_migrations/`, same as
-  `workouts`.
+- **M1 — `movements` PocketBase collection + migration.** — **DONE 2026-08-31**
+  (`<M1-SHA>`). `deploy/pocketbase/pb_migrations/1756800000_create_movements.js`
+  creates a `base` collection `movements` via `new Collection({...})`. One
+  column per per-movement field in `registry/movements.json`: `movementId`
+  (text, required — the registry `id`, deliberately not `id`); `title` (text,
+  required); `force`/`mechanic`/`load`/`lateralityAxis`/`defaultLaterality` as
+  `select` (single); every non-scalar field — `aliases`, `muscles`, `pattern`,
+  `laterality`, `measures`, `implements`, `equipment`, `related`, `sameAs` — as
+  `json` (`equipment` is always an array in the data; `implements` is a scalar
+  number but json keeps the dump/load code uniform); `source` (text). Plus
+  `scope` (select `global|user`, **required**) and `user` (relation → `users`,
+  `maxSelect: 1`, **nullable, cascadeDelete, unused in Phase 1** — present for
+  Phase 2), and `created`/`updated` autodates like `workouts`. Indexes: unique
+  on `movementId` (M3's idempotency key), plain on `scope`. Rules:
+  list/view `scope = "global"`; create/update/delete `@request.auth.admin =
+  true` (the field M2 added). `down` deletes the collection. Verified locally
+  against a real PocketBase v0.40.1 binary + throwaway `pb_data` — `migrate up`
+  applies all three migrations cleanly, the collection and both indexes land,
+  `migrate down 1` drops it; binary discarded, not committed. No `packages/core`
+  change — suite **2064/2064, 1 pending** unchanged. **Still to do on deploy:**
+  glance at the collection in the admin UI on the box, same caveat as the
+  workouts migration.
 
 - **M2 — Admin designation.** — **DONE 2026-08-31** (`ea2a64f`).
   `deploy/pocketbase/pb_migrations/1756700000_add_users_admin.js` adds a

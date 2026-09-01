@@ -2,6 +2,30 @@
 
 ## Changes
 
+- **2026-08-31 — Movements epic M1 landed** (`<M1-SHA>`), second session of
+  the M-chain. `deploy/pocketbase/pb_migrations/1756800000_create_movements.js`
+  creates the `movements` PocketBase collection ([DEC-020](../topics/settled-decisions.md#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump)):
+  one column per per-movement field in `registry/movements.json` — `movementId`
+  (text, required — the registry `id`, not `id`); `title` (text, required);
+  `force`/`mechanic`/`load`/`lateralityAxis`/`defaultLaterality` as `select`
+  (single); every non-scalar field (`aliases`, `muscles`, `pattern`,
+  `laterality`, `measures`, `implements`, `equipment`, `related`, `sameAs`) as
+  `json` so the dump/load is shape-for-shape; `source` (text); plus `scope`
+  (`select global|user`, required — M3 writes every row `global`), `user`
+  (relation → `users`, nullable/cascade, unused until Phase 2), and
+  `created`/`updated` autodates. Unique index on `movementId` (M3's idempotency
+  key), plain index on `scope`. Read rules `scope = "global"` (readable
+  signed-out); create/update/delete `@request.auth.admin = true` — the field M2
+  added. `down` deletes the collection. Verified locally against a real
+  PocketBase v0.40.1 binary + throwaway `pb_data`: `migrate up` applies all
+  three migrations cleanly, the collection and both indexes land, `migrate down
+  1` drops it; binary discarded, not committed. No `packages/core` change —
+  suite **2064/2064, 1 pending**. **Next: M7** — local dev mock `/api` +
+  fixtures. *Touched:* new
+  `deploy/pocketbase/pb_migrations/1756800000_create_movements.js`,
+  `deploy/pocketbase/pb_migrations/README.md`, `deploy/README.md` (new §7b),
+  `docs/context/tasks/current.md`, `docs/context/current/next-steps.md`.
+
 - **2026-08-31 — Movements epic M0+M2 landed** (`ea2a64f`), first session
   of the M-chain. **M0:** [DEC-020](../topics/settled-decisions.md#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump)
   recorded — the curated movement layer is edited in a PocketBase `movements`

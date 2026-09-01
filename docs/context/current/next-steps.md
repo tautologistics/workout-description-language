@@ -11,9 +11,13 @@ session) → M1 (collection) → M7 (mock API + fixtures) → M3 (ingest) → M5
 widget) → M4 (dump)**; **M6 (nightly VPS DB backup cron)** is independent and
 can go anytime — a pre-existing gap never set up. **M0+M2 landed 2026-08-31** (DEC-020 written;
 `1756700000_add_users_admin.js` added, verified locally against a real
-PocketBase v0.40.1 binary). **In progress: M1** — the `movements` PocketBase
-collection + migration. Phase 1 is global (admin-edited) movements only; Phase 2
-(user-scoped) is in [../tasks/deferred.md](../tasks/deferred.md). Full
+PocketBase v0.40.1 binary). **M1 landed 2026-08-31** (`<M1-SHA>`):
+`1756800000_create_movements.js` — the `movements` collection (one column per
+curated field, `scope`/`user` for Phase 2, admin-gated writes), verified locally
+against a real PocketBase v0.40.1 binary. **In progress: M7** — local dev mock
+`/api` + fixtures so `make serve` works without PocketBase. Phase 1 is global
+(admin-edited) movements only; Phase 2 (user-scoped) is in
+[../tasks/deferred.md](../tasks/deferred.md). Full
 write-ups: [../tasks/current.md](../tasks/current.md) "Movements in the
 database".
 

@@ -46,3 +46,19 @@ supersedes it. From then on the collection schema is reproducible: a fresh
   for every record, so the migration grants nobody anything — after deploy,
   set Chris's `users` row `admin: true` in the admin UI (see
   [`../../README.md`](../../README.md) §7a).
+
+- `1756800000_create_movements.js` — creates the `movements` collection (queue
+  task M1, [DEC-020](../../../docs/context/topics/settled-decisions.md#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump)):
+  one column per per-movement field in `registry/movements.json` (`movementId`
+  is the registry `id`; `force`/`mechanic`/`load`/`lateralityAxis`/
+  `defaultLaterality` are `select`; every non-scalar field — `aliases`,
+  `muscles`, `pattern`, `laterality`, `measures`, `implements`, `equipment`,
+  `related`, `sameAs` — is `json`), plus `scope` (`select global|user`,
+  required) and `user` (relation → `users`, nullable, for Phase 2). Read rules
+  `scope = "global"`; write rules `@request.auth.admin = true`. Unique index on
+  `movementId`, plain index on `scope`. Uses the `new Collection({...})` create
+  form like the workouts migration; `down` deletes the collection. Verified
+  against a real v0.40.1 binary + throwaway `pb_data`: `migrate up` applies all
+  three migrations cleanly, the collection and both indexes land, `migrate down
+  1` drops it. Glance at the admin UI on the box after deploy, same caveat as
+  the workouts migration.

@@ -50,7 +50,7 @@ convenience backup, mode `600`) in `deploy/pocketbase/pocketbase.env` on the box
 | `pocketbase/pocketbase.user.service` | **the unit that runs the live instance** (per-user, no root) |
 | `pocketbase/pocketbase.service` | system unit — reference only, for a host where you have root |
 | `pocketbase/run-pocketbase.sh` + `crontab.fragment` | cron keepalive — fallback for a host with neither root nor user-linger |
-| `pocketbase/pb_migrations/` | collection schema migrations (`workouts`, `users.admin`), auto-applied on start ([README](pocketbase/pb_migrations/README.md)) |
+| `pocketbase/pb_migrations/` | collection schema migrations (`workouts`, `users.admin`, `movements`), auto-applied on start ([README](pocketbase/pb_migrations/README.md)) |
 | `pocketbase/env.example` | secret-file template |
 | `nginx/wdl.conf` | a hand-managed nginx vhost — **not used on DreamHost** (panel does it); kept for a self-managed host |
 | `../scripts/deploy-web.mjs` | builds + rsyncs the static builder/board into `pb_public/` (item 19) |
@@ -240,6 +240,59 @@ so the migration on its own changes nothing.
 `users`* → open Chris's row (`chris@winberry.net`) → tick **admin** → Save. The
 migration can't do this — it doesn't know the user id. Do the same for any other
 account that should curate global movements.
+
+---
+
+## 7b. The `movements` collection
+
+Created by `pb_migrations/1756800000_create_movements.js` (queue task M1,
+DEC-020) on serve — applied cleanly on v0.40.1. The curated movement layer
+(~972 rows) that lived in `registry/movements.json` moves here; that file stays
+in the repo as the reviewable dump (`make movements-dump`, M4). One column per
+per-movement field, so a dump/ingest round-trip is shape-for-shape:
+
+| field               | type                | notes                                             |
+|---------------------|---------------------|---------------------------------------------------|
+| `movementId`        | text                | required — the registry `id` (not `id`, which is PocketBase's own record id) |
+| `title`             | text                | required                                          |
+| `aliases`           | json                | string[]                                          |
+| `muscles`           | json                | `{ primary, secondary, support, sources }`        |
+| `pattern`           | json                | string[]                                          |
+| `laterality`        | json                | `("both"\|"split"\|"per-side")[]`                 |
+| `measures`          | json                | `("distance"\|"calories")[]`                      |
+| `implements`        | json                | scalar number in the data; json keeps load/dump uniform |
+| `equipment`         | json                | string[] (always an array in the data)            |
+| `related`           | json                | string[]                                          |
+| `sameAs`            | json                | string[]                                          |
+| `force`             | select (single)     | `push` / `pull` / `static`                        |
+| `mechanic`          | select (single)     | `compound` / `isolation`                          |
+| `load`              | select (single)     | `total` / `per-implement`                         |
+| `defaultLaterality` | select (single)     | `both` / `split` / `per-side`                     |
+| `lateralityAxis`    | select (single)     | `arm` / `leg` / `side` / `hand` / `direction`     |
+| `source`            | text                | import provenance string                          |
+| `scope`             | select (single)     | required — `global` / `user`; M3 writes every row `global` |
+| `user`              | relation → `users`  | single, nullable, cascade delete — unused in Phase 1, present for Phase 2 |
+| `created`           | autodate            | on create                                         |
+| `updated`           | autodate            | on create + update                               |
+
+Indexes: unique on `movementId` (M3's idempotency key), plain on `scope`.
+
+API rules:
+
+| rule       | value                          |
+|------------|--------------------------------|
+| List/View  | `scope = "global"`             |
+| Create     | `@request.auth.admin = true`   |
+| Update     | `@request.auth.admin = true`   |
+| Delete     | `@request.auth.admin = true`   |
+
+Global movements are readable signed-out; only an admin (§7a) may create, edit
+or delete one. Phase 2 will widen List/View to also expose a viewer's own
+`scope = "user"` rows.
+
+If a future PocketBase version rejects the migration, set the collection up by
+hand to match the tables above, then snapshot it —
+`./pocketbase migrate collections` — and commit the generated file.
 
 ---
 
