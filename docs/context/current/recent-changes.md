@@ -2,6 +2,67 @@
 
 ## Changes
 
+- **2026-09-02 — V8 landed (`b2efb64`): `make vocab:load`, and the movement
+  editor's equipment + pattern pickers now read `/api`.** Stage C of
+  *Vocabularies & editor ergonomics* is complete bar the optional V9.
+  - **`scripts/vocab-to-db.mjs` / `make vocab:load`** — the vocab twin of
+    `movements-to-db.mjs`: one no-deps run upserts **both**
+    `registry/equipment.json` → the `equipment` collection and
+    `registry/patterns.json` → the `patterns` collection over `/api`, keyed on
+    the registry `id` → `termId` unique index. `POST`s the absent, `PATCH`es only
+    `name` / `synonyms` where they differ, a re-run writes nothing.
+    Per-collection `created` / `updated` / `unchanged` tally + a combined total;
+    `--dry-run`; `--api` / `WDL_PB_URL` default `http://localhost:8081`; prod
+    auth identical to `movements-to-db.mjs` (the vocab write rule is
+    `@request.auth.admin = true`, **verified against the migration**, so a
+    `users` `admin: true` row satisfies it). No `make vocab:dump` — a two-file,
+    forty-term vocabulary edited through the registry files does not want the
+    round-trip guarantee.
+  - **`listEquipment()` / `listPatterns()` in `apps/shared/pocketbase.js`** —
+    copies of `listMovements()`'s shape (`filter=scope="global"`, `sort=termId`,
+    `perPage=1000`, auth only if a token is held), returning the raw rows.
+  - **`apps/shared/vocab.js`** — `equipmentVocab()` / `patternVocab()` fetch
+    those and map each row to `termId`, with the committed literals kept as the
+    **offline fallback**. `movement-editor.js` swaps `() => EQUIPMENT` /
+    `() => MOVEMENT_PATTERNS` for the two new fetchers; the `vocab:` option is
+    still a function returning an id array, so `createTokenInput` and `collect()`
+    are untouched.
+  - **Two corrections to the V8 task note, recorded in `vocab.js`** (the DEC-023
+    verify-the-premise habit, now four for four this epic): there is **no**
+    "movements fallback pattern" to mirror — `builder.js` loads movement lists
+    straight from `registry/movements*.json` with a bare `.catch`; the pattern
+    mirrored is this file's own `muscleIds()`. And the literals were always
+    `string[]` of ids, **not** `{ id, name, synonyms }` — so the interchangeable
+    shape is a `string[]` of term ids.
+  - **Files:** `scripts/vocab-to-db.mjs` (new), `Makefile`,
+    `apps/shared/{pocketbase.js, vocab.js, movement-editor.js}`. No
+    `packages/core` change. `make test` **2064/2064, 1 pending**, before and
+    after.
+  - **Verified — drove it.** Against `make serve`: both pickers populate from
+    `GET /api/collections/{equipment,patterns}/records?filter=scope="global"&sort=termId&perPage=1000`
+    → **29** / **11**, `termId` order (equipment `atlas stone … yoke`; patterns
+    `carry, core, elbow-extension, …` — push/pull pairs still adjacent). With
+    **`WDL_MOCK_API=0 make serve`** and the editor reopened, both pickers still
+    populate — **29** / **11**, patterns in family order (`squat, hinge,
+    horizontal-push, …`, the literal) — and the console shows
+    `equipment: no /api vocabulary, using the bundled list — 404 Not Found` /
+    `movement patterns: …`. `make vocab:load` output against the mock:
+    ```
+      equipment 29 term(s): 0 created, 0 updated, 29 unchanged (29 row(s) in the collection)
+      patterns  11 term(s): 0 created, 0 updated, 11 unchanged (11 row(s) in the collection)
+    done: 0 created, 0 updated, 40 unchanged
+    ```
+    `--dry-run` wrote nothing (`git status` clean of fixtures). `curl -X DELETE
+    .../equipment/records/skierg -H 'authorization: mock'` then `make vocab:load`
+    → **equipment 1 created**, patterns untouched; the recreated row carries
+    `name: "SkiErg"`, `synonyms: []`, `scope: "global"`. A `curl -X PATCH`
+    drifting `name` / `synonyms` then a reload → **equipment 1 updated** (patched
+    back to `Barbell` / `[]`); an idempotent re-run → all `unchanged`. Local
+    overlay files deleted after the run.
+  - **Still to do on deploy (Chris):** `make deploy:db` (the V6 migration) +
+    `make vocab:load` with prod admin creds — until then prod serves nothing and
+    the editor uses the fallback.
+
 - **2026-09-02 — V7 landed (`67001cb`): the equipment + pattern vocabulary is
   served by the local mock `/api`.** Stage C of *Vocabularies & editor
   ergonomics* continues. `scripts/mock-api.mjs` grew `equipment/records` and

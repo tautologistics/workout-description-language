@@ -118,15 +118,16 @@ across 972 curated records**. `make test` 2064/2064, 1 pending, unchanged.
 Write-up in [../tasks/current.md](../tasks/current.md) (struck) and
 [../topics/builder-ux.md](../topics/builder-ux.md).
 
-**Stage C is under way. V6 landed 2026-09-02 (`370b2d0`)** — the committed
+**Stage C (V6 + V7 + V8) shipped 2026-09-02. V6 (`370b2d0`)** — the committed
 `registry/equipment.json` (29 terms) and `registry/patterns.json` (11), plus
 `1757100000_create_vocab.js` creating the `equipment` and `patterns`
 collections, verified up and down against a real pocketbase v0.40.1 binary.
 Settled as
 [DEC-025](../topics/settled-decisions.md#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump),
-mirroring DEC-020. **Data and schema only — nothing is user-visible yet**: the
-collections are empty on the box (no loader until V8) and `apps/shared/vocab.js`
-is untouched and still what the editor reads.
+mirroring DEC-020. At V6 this was data and schema only; V8 (below) put the
+`/api` fetch in front of `apps/shared/vocab.js`. The **prod** collections are
+still empty until Chris runs `make deploy:db` + `make vocab:load` against the
+box.
 
 **V7 landed 2026-09-02 (`67001cb`)** — `scripts/mock-api.mjs` grew
 `equipment/records` + `patterns/records` handlers in the PocketBase
@@ -142,20 +143,32 @@ agrees field-for-field with the migration's columns. `.gitignore` gained the two
 `*.local.json` entries. No core, no app change; `make test` 2064/2064, 1
 pending.
 
-**Next is V8 — load script + point the widget at the API.**
-`scripts/vocab-to-db.mjs` / `make vocab:load` — an idempotent upsert of
-`registry/{equipment,patterns}.json` into the two collections keyed on the
-registry id → `termId`, mirroring `movements-to-db.mjs` (created/updated/unchanged
-tally, `--dry-run`, prod writes need admin auth); `listEquipment()` /
-`listPatterns()` in `apps/shared/pocketbase.js` (`filter=scope="global"`, no
-auth — reads are open); and `apps/shared/vocab.js` changed so equipment + pattern
-vocab is **fetched from `/api` with the committed `registry/*.json` as the
-offline fallback** — the same fallback the apps use for movements. Optional
-`make vocab:dump` twin only if the round-trip guarantee is wanted. V8 **is**
-drivable: `make serve`, open the movement editor, confirm the equipment and
-pattern pickers populate from the API and still populate with the API down.
-**Muscles stays `registry/muscles.json`** — closed set, body-map SVG is the real
-limit. **V9 (inline "＋ new term" in the picker) stays optional**, after V8.
+**V8 landed 2026-09-02 (`b2efb64`) — Stage C is complete bar the optional V9.**
+`scripts/vocab-to-db.mjs` / `make vocab:load` is the `movements:load` twin (one
+run upserts both `registry/{equipment,patterns}.json` into the two collections,
+keyed on `id` → `termId`, per-collection tally, `--dry-run`, prod auth identical
+to `movements-to-db.mjs`); `listEquipment()` / `listPatterns()` in
+`apps/shared/pocketbase.js` copy `listMovements()`'s shape; and
+`apps/shared/vocab.js` now fetches those and maps to `termId`, with the committed
+literals kept as the **offline fallback** (the fetch-with-bundled-default shape
+is `muscleIds()`'s — there is no movements-list fallback to mirror, one of two
+task-note premises corrected in the file). Drove it: both pickers populate from
+`/api` (29 / 11) and still populate with `WDL_MOCK_API=0` from the literals.
+`make test` 2064/2064, 1 pending. **No `make vocab:dump`** — not wanted for a
+two-file vocabulary. **Muscles stays `registry/muscles.json`.**
+
+**V9 (inline "＋ new term" in the picker) is the only V-series item left, and it
+is optional — deferred unless Chris asks for it.** If nothing else in the
+V-series is open and no V9 request comes, the next actionable work is a
+self-contained item from
+[../topics/builder-ux.md](../topics/builder-ux.md)'s design-critique section
+(the read pane's four stacked `<h2>`s; the *Movements* palette drawer + the flat
+129-row core list) or [../topics/known-debts.md](../topics/known-debts.md).
+
+**Still to do on deploy (Chris):** the prod `equipment` / `patterns` collections
+need `make deploy:db` (the V6 migration) then `make vocab:load` with prod admin
+creds — the same "still to do on deploy" caveat M1–M3 carry. Until then prod
+serves nothing and the editor uses the bundled fallback.
 
 **The movement-editor wrong-record defect is closed (`a643824`, 2026-09-02)** —
 see the dedicated paragraph above; nothing is open on it. Still needing Chris to

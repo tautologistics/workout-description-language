@@ -22,6 +22,7 @@ make curation:apply CSV=x.csv  # import-movement-curation.mjs x.csv --apply — 
 make movements:load  # movements-to-db.mjs — idempotent upsert of registry/movements.json into the movements collection over /api
 make movements:dump  # movements-from-db.mjs — dump the movements collection back to registry/movements.json (ARGS=--dry-run / --check)
 make workouts:load   # workouts-to-db.mjs — idempotent upsert of examples/workouts/**/*.wdl into the workouts collection over /api + regenerate fixtures (ARGS=--dry-run)
+make vocab:load      # vocab-to-db.mjs — idempotent upsert of registry/{equipment,patterns}.json into the equipment + patterns collections over /api (ARGS=--dry-run)
 make deploy      # node scripts/deploy-web.mjs — static apps into pb_public/  (WDL_DEPLOY_SSH defaults to dreamhost.ae.wex — see "## Hosting")
 make deploy:dry  # same, rsync with -n
 make deploy:db   # rsync deploy/pocketbase/pb_migrations/*.js to the VPS + restart PocketBase to apply
@@ -31,7 +32,7 @@ make install     # prints "nothing to install" — the repo is install-free, on 
 ```
 
 Multi-word targets use a `:` namespace separator (`curation:sheet`,
-`movements:load`, `workouts:load`, `deploy:dry`, `deploy:db`, `backups:pull`) — GNU Make needs it
+`movements:load`, `workouts:load`, `vocab:load`, `deploy:dry`, `deploy:db`, `backups:pull`) — GNU Make needs it
 backslash-escaped in the `Makefile` (`curation\:sheet:`), typed plain on the
 command line (`make curation:sheet`). Single-word targets (`test`, `build`,
 `serve`, `deploy`, …) are unchanged.
@@ -212,6 +213,42 @@ the `# Title` line and `source` from the file body, and sets
   `POST /api/collections/<c>/auth-with-password`. Without creds against a real
   PocketBase the script exits with the list of what to set.
 
+**Ingesting the equipment + pattern vocabularies into the DB** *(since
+2026-09-02, queue task V8, DEC-025)*. `make vocab:load`
+(`scripts/vocab-to-db.mjs`, no deps — `node:fs` + global `fetch`) is the vocab
+twin of `movements:load`. One run upserts **both** `registry/equipment.json` →
+the `equipment` collection **and** `registry/patterns.json` → the `patterns`
+collection over `/api/collections/<name>/records` — **idempotent**, keyed on the
+registry `id` → the `termId` unique index: it `POST`s the absent term, `PATCH`es
+only the columns that differ (`name`, `synonyms`), and a re-run writes nothing.
+Prints a per-collection `created` / `updated` / `unchanged` tally then a
+combined total; `--dry-run` (or `make vocab:load ARGS=--dry-run`) reports
+without writing. Every row is written `scope: "global"`, `user` unset.
+
+- **Target** — `--api <base>` or `WDL_PB_URL`, default `http://localhost:8081`
+  (matches `make serve`).
+- **Local round-trip** — with `make serve` running (mock `/api` on by default),
+  a bare `make vocab:load` works: the mock accepts authorized vocab writes, and
+  with no `WDL_PB_ADMIN_*` set the script authenticates through the mock's
+  stubbed OAuth. Since the mock already serves all of
+  `registry/{equipment,patterns}.json` on read, a first `vocab:load` against a
+  fresh mock reports **all `unchanged`** (40 terms; the diff matches — same as a
+  first `movements:load`); `curl -X DELETE .../equipment/records/<termId> -H
+  'authorization: x'` then a `vocab:load` is how to see it create. Runtime writes
+  land in git-ignored `fixtures/{equipment,patterns}.local.json` — delete them to
+  reset.
+- **Against prod PocketBase** — needs admin auth, exactly as `movements:load`:
+  `WDL_PB_ADMIN_TOKEN`, or `WDL_PB_ADMIN_EMAIL` + `WDL_PB_ADMIN_PASSWORD` (+
+  optional `WDL_PB_ADMIN_COLLECTION`, default `users` — the row needs
+  `admin: true`; the vocab write rule is `@request.auth.admin = true`, the same
+  rule `movements` carries). Run it once after `make deploy:db` applies the V6
+  migration on the box. Without creds against a real PocketBase the script exits
+  with the list of what to set.
+- **No egress twin.** `make vocab:dump` was considered and not built — the two
+  registry files are small enough to edit directly, so the
+  `dump → load → dump` round-trip guarantee movements needed does not earn its
+  keep here.
+
 **Exercising the movement editor** *(since 2026-09-01, queue task M5)*. No `make`
 target — it is app code. Drive the builder against `make serve` (mock `/api` on
 by default): sign in (the mock's faked Google sign-in hands every caller an
@@ -346,9 +383,12 @@ detail — the MIME finding (`.ohm`/`.wdlg` land as `text/plain`, and are
   down against a real pocketbase v0.40.1 binary but **not yet run on the box** —
   `make deploy:db` is what lands it. It creates empty collections and loads no
   rows; the loader that fills them from `registry/{equipment,patterns}.json` is
-  V8's `make vocab:load`, which **does not exist yet** — do not go looking for
-  it. Until then nothing reads the collections, so deploying the migration early
-  is harmless and deferring it is equally harmless.
+  **`make vocab:load`** (task V8, `b2efb64`, shipped 2026-09-02 — see the
+  "Ingesting the equipment + pattern vocabularies into the DB" paragraph above).
+  On the box the sequence is `make deploy:db` (migration) then `make vocab:load`
+  with prod admin creds. Until both run, the prod collections stay empty and the
+  movement editor falls back to `apps/shared/vocab.js`'s bundled literals, so
+  deploying the migration early is harmless and deferring it is equally harmless.
 - **DB backup / restore:** [`deploy/README.md`](../../../deploy/README.md) §9
   "Back up (SQLite)" is the runbook — *since 2026-09-01 (task M6)* a nightly
   `sqlite3 .backup` cron line in
