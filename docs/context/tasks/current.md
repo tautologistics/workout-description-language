@@ -447,7 +447,23 @@ once:
   collision is length 1 in each. The tool that does list them is
   **`make aliases`** (`scripts/check-aliases.mjs`), which `fold.ts`'s own comment
   names for exactly this case. **Run `make aliases` before and after a post-fix
-  `make movements:dump`** — that is the check, not the test suite.
+  `make movements:dump`** — that is the check, not the test suite. The baseline
+  to hold, measured 2026-09-02 at `7956fa1`, pins the two sides separately:
+
+  ```
+  curated   (registry/movements.json)           — 972 records,  0 contended names
+  canonical (registry/movements.canonical.json) — 3109 records, 1 contended name
+                                                   assaultbike -> bike (via alias)
+  ```
+
+  **`0 contended names` on the curated side is the acceptance criterion** — that
+  zero is exactly what the six collisions break, and it is a sharper test than
+  "run `make aliases` and read it". One of the six is a small warning about how
+  quietly this would land: `squat-bands` claiming `Squats - With Bands` lands on
+  **Squat with Bands**, already pinned in `fold.test.ts:347` as one of the three
+  known plural-split survivors the suite tolerates — so the defect would add a
+  *second, different* problem to a record the suite is already looking at and
+  still passing.
 
 **Same class as the bug [DEC-023](../topics/settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice)
 was written to prevent** — a silent write-back that degrades curation, invisible
