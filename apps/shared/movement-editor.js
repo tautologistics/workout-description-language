@@ -154,11 +154,15 @@ export function movementRecordToEntry(rec) {
  *                                    `musclesSecondary`, `aliases`) — each a `string[]` or a function
  *                                    returning one, possibly async. Anything not given falls back to
  *                                    `TOKEN_FIELDS`, so a host that passes nothing still works.
+ * @param {object}   [opts.onCreateTerm] per-token-field "＋ new term" handlers, keyed by field name —
+ *                                    each `async ({ termId, name }) => void`. Only the fields the host
+ *                                    supplies get the affordance; the builder wires `equipment` /
+ *                                    `pattern` for an admin (V9) and nothing else.
  * @param {Function} [opts.onSaved]   called with the saved record in registry-entry shape
  * @param {Function} [opts.onCancel]  called when the user cancels
  * @returns {{ destroy(): void, focus(): void }}
  */
-export function createMovementEditor({ container, record = null, api, vocab = {}, onSaved, onCancel }) {
+export function createMovementEditor({ container, record = null, api, vocab = {}, onCreateTerm = {}, onSaved, onCancel }) {
   const state = readRecord(record);
   container.innerHTML = '';
 
@@ -263,6 +267,7 @@ export function createMovementEditor({ container, record = null, api, vocab = {}
       vocab: vocab[name] ?? spec.vocab,
       allowCustom: spec.allowCustom,
       placeholder: spec.placeholder,
+      onCreateTerm: onCreateTerm[name],
     });
   }
 

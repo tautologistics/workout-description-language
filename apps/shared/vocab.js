@@ -118,10 +118,15 @@ export const MOVEMENT_PATTERNS = [
  * lowercase id the picker shows and `collect()` writes into the movement's
  * `equipment` / `pattern` array — so the fetched path and the fallback are
  * interchangeable.
+ *
+ * The returned function carries a **`.reset()`**: it drops the cached promise so
+ * the next call re-fetches. V9's inline "＋ new term" calls it after a curator
+ * `POST`s a new global term, so the *next* movement-editor open in the same
+ * session sees the addition (the widget it was added from splices it in live).
  */
 function dbVocab(list, fallback, label) {
   let promise = null;
-  return () => (promise ??= Promise.resolve()
+  const get = () => (promise ??= Promise.resolve()
     .then(list)
     .then((rows) => {
       const ids = (rows ?? [])
@@ -134,6 +139,8 @@ function dbVocab(list, fallback, label) {
       promise = null;
       return fallback.slice();
     }));
+  get.reset = () => { promise = null; };
+  return get;
 }
 
 /** The equipment vocabulary: `/api` first, `EQUIPMENT` offline. */

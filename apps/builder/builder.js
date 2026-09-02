@@ -42,8 +42,10 @@ import {
   listMine, getById as pbGetById, create as pbCreate, update as pbUpdate,
   remove as pbRemove, shareUrl, searchWorkouts, getHandle,
   createMovement, updateMovement, getMovementByMovementId,
+  createEquipmentTerm, createPatternTerm,
 } from '../shared/pocketbase.js';
 import { createMovementEditor } from '../shared/movement-editor.js';
+import { equipmentVocab, patternVocab } from '../shared/vocab.js';
 
 const GRAMMAR = '../../spec/grammar-0.1.ohm';
 const REGISTRY = '../../registry/movements.json';
@@ -1743,6 +1745,17 @@ let movementEditorSeq = 0;
  *   in create mode carrying only the id and title, so every curated field is an
  *   assertion the curator makes rather than one the merge made for them.
  */
+/**
+ * V9: persist a curator's "＋ new term" from a token-input picker, then bust the
+ * matching `dbVocab` cache so the next editor open re-fetches it. Throws on a
+ * failed `POST` (e.g. a 403 for a non-admin) — `createTokenInput` catches that,
+ * rolls its optimistic add back and shows the message inline.
+ */
+async function createVocabTermLive(createTerm, vocabClosure, { termId, name }) {
+  await createTerm({ termId, name, synonyms: [] });
+  vocabClosure.reset();
+}
+
 async function openMovementEditor(ref = null) {
   if (movementEditorModal.open) return;
   const seq = ++movementEditorSeq;
@@ -1786,6 +1799,16 @@ async function openMovementEditor(ref = null) {
       related: () => (curatedMovements ?? []).map((m) => m.id).filter(Boolean).sort(),
       sameAs: () => (catalogue ?? []).map((m) => m.id).filter(Boolean).sort(),
     },
+    // V9: an admin can mint a new global equipment / pattern term without leaving
+    // the editor. Gated on `currentUser()?.admin` so a non-admin never sees the
+    // row; the `@request.auth.admin = true` server rule (DEC-025) is the real
+    // boundary and a 403 surfaces inline in the picker if it is ever shown. After
+    // the POST the `dbVocab` cache is busted so the *next* editor open re-fetches
+    // — the widget it was added from has already spliced it in live.
+    onCreateTerm: currentUser()?.admin ? {
+      equipment: (f) => createVocabTermLive(createEquipmentTerm, equipmentVocab, f),
+      pattern: (f) => createVocabTermLive(createPatternTerm, patternVocab, f),
+    } : undefined,
     onSaved: (entry) => { absorbMovement(entry); },
     onCancel: () => closeMovementEditor(),
   });

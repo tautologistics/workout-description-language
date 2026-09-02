@@ -24,6 +24,8 @@
  *   GET    /api/collections/movements/records        — list / lookup by movementId (open)
  *   POST   /api/collections/movements/records        — create a global movement (admin)
  *   PATCH  /api/collections/movements/records/:id    — update a global movement (admin)
+ *   GET    /api/collections/{equipment,patterns}/records      — list a vocabulary (open)
+ *   POST   /api/collections/{equipment,patterns}/records      — create a global term (admin, V9)
  *
  * The auth route names have changed across versions (pre-0.23 it was
  * `auth-via-oauth2`; the record CRUD path was `/api/collections/:c/records`
@@ -644,3 +646,16 @@ export async function listPatterns() {
   const data = await call(`${PATTERNS}?${q}`, { auth: !!authToken() });
   return data.items ?? [];
 }
+
+/**
+ * Create a global vocabulary term (V9's inline "＋ new term"). Always
+ * `scope: "global"`, `synonyms` defaulting to `[]` — the twin of `createMovement`.
+ * The server enforces admin (`@request.auth.admin = true`); a signed-out or
+ * non-admin caller gets a 403 whose message the caller surfaces inline.
+ * `fields` is `{ termId, name }` (plus an optional `synonyms`).
+ */
+const createVocabTerm = (route) => (fields) =>
+  call(route, { method: 'POST', body: { synonyms: [], ...fields, scope: 'global' } });
+
+export const createEquipmentTerm = createVocabTerm(EQUIPMENT);
+export const createPatternTerm = createVocabTerm(PATTERNS);

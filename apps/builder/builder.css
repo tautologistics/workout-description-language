@@ -1192,6 +1192,19 @@ button:hover, .button:hover { border-color: var(--dim); }
 .ti-filter::placeholder { color: var(--dim); }
 .ti-filter:focus { outline: none; border-color: var(--accent); }
 
+/* V9: the "＋ new term" row — an admin mints a global vocabulary term without
+   leaving the editor. In normal flow inside the picker, so the modal's scroll
+   container can never clip it. */
+.ti-new {
+  min-height: 2rem; padding: .2rem .5rem; text-align: left;
+  border: 1px dashed var(--rule); border-radius: .3rem;
+  background: var(--page); color: var(--dim);
+  font: inherit; font-size: .82rem; font-style: italic; cursor: pointer;
+}
+.ti-new:hover:not(:disabled) { border-color: var(--accent); color: var(--ink); font-style: normal; }
+.ti-new:disabled { cursor: default; }
+.ti-error { margin: 0; padding: .1rem .25rem; font-size: .78rem; color: var(--error); }
+
 /* Bounded and scrolling, so the widget's height is the same for 11 terms as for
    1100 — the reason no size threshold is needed. Columns fill the width a wide
    modal offers without letting a long vocabulary run off the bottom. */

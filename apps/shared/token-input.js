@@ -30,6 +30,19 @@
  * author `display` silently overrules the attribute). The menu and the picker
  * are shown/hidden by `.hidden`, so a host without that rule shows them always
  * rather than breaking.
+ *
+ * **`onCreateTerm` (V9) — the inline "＋ new term" row.** When the host passes
+ * an `onCreateTerm` callback, the picker grows one extra row *inside itself*
+ * (normal flow, above the checklist — DEC-024 stays intact, this is one
+ * affordance, not a new mode): while the filter box holds text that folds to no
+ * known term, a `＋ new term "x"` button offers to create it. Clicking it adds
+ * the slugged term to the live vocabulary and picks it **optimistically**, then
+ * awaits `onCreateTerm({ termId, name })` — the host does the `POST` and busts
+ * any vocab cache. On rejection the optimistic add is rolled back, the typed
+ * text is left in the filter box (a refusal must not look like a success), and
+ * the reason is shown inline. Absent `onCreateTerm`, no row renders — the
+ * builder only wires it for the DB-backed equipment / pattern fields, gated on
+ * `currentUser()?.admin`.
  */
 
 /** Same tiny builder as `movement-editor.js` — both modules stay self-contained. */
@@ -47,6 +60,23 @@ const h = (tag, attrs = {}, ...kids) => {
 
 /** Comparison key — a vocabulary is lowercase, what a person types may not be. */
 const norm = (s) => String(s).trim().toLowerCase();
+
+/**
+ * A term id from typed text — lowercase, trimmed, internal whitespace collapsed.
+ * Hyphens the curator typed are kept: `registry/equipment.json` ids keep their
+ * spaces (`medicine ball`) and `registry/patterns.json` ids are hyphenated
+ * compounds (`elbow-flexion`), and the curator is looking at that very
+ * convention in this list as they type.
+ */
+const slugTerm = (s) => String(s).trim().toLowerCase().replace(/\s+/g, ' ');
+
+/**
+ * Hard fold for the "is this already a term?" check — case, spaces, hyphens and
+ * underscores all removed, the same fold `scripts/lib/muscles.mjs` applies when
+ * it reads these lists. So `Medicine-Ball` does not offer to create `medicine
+ * ball` again.
+ */
+const foldKey = (s) => String(s).toLowerCase().replace(/[\s_-]+/g, '');
 
 /** Trimmed, order-preserving, case-insensitively de-duplicated. */
 const dedupe = (list) => {
@@ -72,10 +102,14 @@ let uid = 0;
  * @param {boolean}  [opts.allowCustom]  may a token outside `vocab` be added? (default true)
  * @param {string}   [opts.placeholder]  placeholder for the text entry
  * @param {Function} [opts.onChange]     called with the new value array after every change
+ * @param {Function} [opts.onCreateTerm] `async ({ termId, name }) => void` — when given, the
+ *                                       picker offers a "＋ new term" row; the host persists it
+ *                                       and the widget adds it to the live vocabulary. A
+ *                                       rejection rolls the optimistic add back.
  * @returns {{ value(): string[], focus(): void, destroy(): void }}
  */
 export function createTokenInput({
-  container, value = [], vocab = [], allowCustom = true, placeholder = '', onChange,
+  container, value = [], vocab = [], allowCustom = true, placeholder = '', onChange, onCreateTerm,
 } = {}) {
   const id = `ti${++uid}`;
   let chosen = dedupe(value);
@@ -110,7 +144,13 @@ export function createTokenInput({
     'aria-label': 'Filter the list',
   });
   const list = h('div', { class: 'ti-list' });
-  const picker = h('div', { class: 'ti-picker', id: `${id}-picker`, hidden: true }, filter, list);
+  // V9: the "＋ new term" affordance — a row and an error line, both inside the
+  // picker so they cannot be clipped by the modal's scroll container.
+  const newRow = h('button', {
+    type: 'button', class: 'ti-new', hidden: true,
+  });
+  const newErr = h('p', { class: 'ti-error', role: 'alert', hidden: true });
+  const picker = h('div', { class: 'ti-picker', id: `${id}-picker`, hidden: true }, filter, newRow, newErr, list);
 
   container.append(h('div', { class: 'ti' }, field, menu, picker));
 
@@ -265,7 +305,65 @@ export function createTokenInput({
 
   const boxes = new Map();
 
+  // --- the "＋ new term" row (V9) ---------------------------------------
+  // `null` when idle; the in-flight term's typed text while its POST runs, so a
+  // second click can't double-submit and the row can say "Adding …".
+  let pendingTerm = null;
+
+  /** Show / hide / label the create row against the filter box's current text. */
+  function renderNewRow() {
+    if (!onCreateTerm) { newRow.hidden = true; return; }
+    if (pendingTerm != null) {
+      newRow.hidden = false;
+      newRow.disabled = true;
+      newRow.textContent = `Adding “${pendingTerm}”…`;
+      return;
+    }
+    const typed = filter.value.trim();
+    const known = typed && terms.some((t) => foldKey(t) === foldKey(typed));
+    newRow.hidden = !typed || !!known;
+    newRow.disabled = false;
+    newRow.textContent = `＋ new term “${typed}”`;
+  }
+
+  async function createTypedTerm() {
+    if (!onCreateTerm || pendingTerm != null) return;
+    const typed = filter.value.trim();
+    if (!typed) return;
+    const termId = slugTerm(typed);
+    if (terms.some((t) => foldKey(t) === foldKey(termId))) { renderNewRow(); return; }
+
+    newErr.hidden = true;
+    newErr.textContent = '';
+    pendingTerm = typed;
+    // Optimistic: the term is pickable and picked at once, before the round trip.
+    terms = dedupe([...terms, termId]);
+    commitValue([...chosen, termId]);
+    renderNewRow();
+    renderList();
+    try {
+      await onCreateTerm({ termId, name: typed });
+      if (!alive) return;
+      pendingTerm = null;
+      filter.value = '';
+      renderList();
+      filter.focus();
+    } catch (e) {
+      if (!alive) return;
+      // Roll the optimistic add back; keep the typed text so the refusal is
+      // visible instead of looking like a success (the V4 rule).
+      pendingTerm = null;
+      terms = terms.filter((t) => t !== termId);
+      remove(termId);
+      renderList();
+      newErr.textContent = e?.message || 'Could not add that term.';
+      newErr.hidden = false;
+    }
+  }
+  newRow.addEventListener('click', createTypedTerm);
+
   function renderList() {
+    renderNewRow();
     const q = norm(filter.value);
     boxes.clear();
     list.innerHTML = '';
@@ -291,7 +389,10 @@ export function createTokenInput({
 
   filter.addEventListener('input', renderList);
   filter.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !picker.hidden) { e.preventDefault(); e.stopPropagation(); togglePicker(false); }
+    if (e.key === 'Escape' && !picker.hidden) { e.preventDefault(); e.stopPropagation(); togglePicker(false); return; }
+    // Enter commits the "＋ new term" row when it is the only thing that text
+    // could mean — never submits the hosting <form>.
+    if (e.key === 'Enter') { e.preventDefault(); if (!newRow.hidden && !newRow.disabled) createTypedTerm(); }
   });
 
   function togglePicker(open = picker.hidden) {
