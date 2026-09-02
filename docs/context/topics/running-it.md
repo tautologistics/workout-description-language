@@ -26,7 +26,7 @@ make vocab:load      # vocab-to-db.mjs — idempotent upsert of registry/{equipm
 make deploy      # node scripts/deploy-web.mjs — static apps into pb_public/  (WDL_DEPLOY_SSH defaults to dreamhost.ae.wex — see "## Hosting")
 make deploy:dry  # same, rsync with -n
 make deploy:db   # rsync deploy/pocketbase/pb_migrations/*.js to the VPS + restart PocketBase to apply
-make backups:pull  # rsync the VPS DB backups off the box into ~/wdl-pb-backups (WDL_BACKUP_DIR; no --delete)
+make backups:pull  # rsync the VPS DB backups off the box into db-backups/ (WDL_BACKUP_DIR; no --delete)
 make clean       # rm -rf build pairs.json curation-sheet.csv
 make install     # prints "nothing to install" — the repo is install-free, on purpose
 ```
@@ -357,7 +357,7 @@ Deploy the static apps (needs SSH to the VPS):
 make deploy       # static apps into pb_public/. WDL_DEPLOY_SSH defaults to dreamhost.ae.wex (Chris's ~/.ssh/config alias)
 make deploy:dry   # no-write rsync -n
 make deploy:db    # rsync deploy/pocketbase/pb_migrations/*.js to the VPS, then restart PocketBase to apply
-make backups:pull # rsync the VPS ~/pb/pb_backups/ off the box into ~/wdl-pb-backups (WDL_BACKUP_DIR; no --delete, so history accrues)
+make backups:pull # rsync the VPS ~/pb/pb_backups/ off the box into db-backups/ (WDL_BACKUP_DIR; no --delete, so history accrues)
 # From another box, override the alias:
 WDL_DEPLOY_SSH=androidempathy_wex@wex.androidempathy.com make deploy
 # Raw form (bypasses the Makefile default):
@@ -417,12 +417,13 @@ detail — the MIME finding (`.ohm`/`.wdlg` land as `text/plain`, and are
   `sqlite3 .backup` cron line in
   [`deploy/pocketbase/crontab.fragment`](../../../deploy/pocketbase/crontab.fragment)
   (03:17 UTC, 30-day prune) plus **`make backups:pull`** — an off-box `rsync`
-  **pull** to Chris's machine (`~/wdl-pb-backups`, no `--delete`) over the
+  **pull** into the repo-relative **`db-backups/`** (`WDL_BACKUP_DIR` default;
+  contents git-ignored, `db-backups/README.md` tracked; no `--delete`) over the
   `dreamhost.ae.wex` alias, with PocketBase's built-in *Settings → Backups* as
   the fallback and aligned restore steps. **Installed and running as of
   2026-09-02** — `~/pb/pb_backups/data-2026-09-02.db` was written by cron at
   03:17 UTC, `backup.log` clean. Only the off-box `make backups:pull` is left
-  (`~/wdl-pb-backups/` does not exist yet).
+  (`db-backups/` has no snapshots yet).
 - **Config templates** committed under `deploy/`; secrets are gitignored.
 - No new local commands. The apps' test/build/serve commands above are
   unchanged; a production static deploy is item 19's `deploy/` script.

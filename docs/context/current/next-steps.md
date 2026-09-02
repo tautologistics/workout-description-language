@@ -175,7 +175,7 @@ fetches the DB vocab. **V8 is fully live.** The **M6 nightly-backup cron is
 installed and running** — `~/pb/pb_backups/data-2026-09-02.db` was written by
 cron at 03:17 UTC, `backup.log` clean. The one remaining deploy sliver anywhere
 is the **off-box copy**: `make backups:pull` has not been run
-(`~/wdl-pb-backups/` does not exist yet).
+(`db-backups/` — repo-relative, git-ignored contents — has no snapshots yet).
 
 *Corrected 2026-09-02, twice the same day: this first said the prod
 `equipment` / `patterns` collections still needed `make deploy:db` +

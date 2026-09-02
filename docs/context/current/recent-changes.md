@@ -37,7 +37,16 @@
     the box and has produced `~/pb/pb_backups/data-2026-09-02.db` (507904 B,
     written by cron at 03:17 UTC; `backup.log` empty). The Sep-1 file is a
     manual test. **Still open on deploy:** only the off-box `make backups:pull`
-    — `~/wdl-pb-backups/` does not exist on Chris's machine yet.
+    (not yet run).
+  - **`make backups:pull` now lands in a repo-relative `db-backups/`**, not
+    `~/wdl-pb-backups/` — a `make` target has no business writing to `$HOME`.
+    `WDL_BACKUP_DIR` default changed from `$(HOME)/wdl-pb-backups` to
+    `db-backups`; `db-backups/README.md` committed as the stub; `.gitignore`
+    gets `/db-backups/*` + `!/db-backups/README.md` so snapshots and `pull.log`
+    stay out of the repo while the directory survives a clone. `.env.example`
+    and `deploy/README.md` §9 updated; an absolute `WDL_BACKUP_DIR` in `.env`
+    still relocates it. **Files:** `Makefile`, `.gitignore`, `.env.example`,
+    `db-backups/README.md` (new), `deploy/README.md`.
 
 - **2026-09-02 — V8 landed (`b2efb64`): `make vocab:load`, and the movement
   editor's equipment + pattern pickers now read `/api`.** Stage C of

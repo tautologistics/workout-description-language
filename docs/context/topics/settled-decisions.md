@@ -1132,9 +1132,11 @@ marks the ones worth a top-level pointer.
   (**no `--delete`** — the box also carries admin-UI snapshot migrations that
   are not in the repo) and restarts PocketBase so a new migration applies;
   **`make backups:pull`** is the M6 off-box backup copy (`rsync` of
-  `~/pb/pb_backups/` to `$(WDL_BACKUP_DIR)`, default `~/wdl-pb-backups`, no
-  `--delete`). Still no dependency or package-manager step — all three are thin
-  `rsync` / `ssh` wrappers.
+  `~/pb/pb_backups/` to `$(WDL_BACKUP_DIR)`, no `--delete`). Still no dependency
+  or package-manager step — all three are thin `rsync` / `ssh` wrappers.
+  *(`WDL_BACKUP_DIR` default was `~/wdl-pb-backups` until 2026-09-02; now the
+  repo-relative `db-backups/` — git-ignored contents, tracked README — so a
+  `make` target never writes outside the repo unless told to.)*
 
 ### DEC-018 A bare-label block header is a section
 *Status: active. Settled 2026-08-31, closing queue item 11.*
