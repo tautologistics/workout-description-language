@@ -44,14 +44,29 @@ board resolves `?w=<handle>:<slug>` end to end and shows the namespaced id in th
 what is left of it — the board **Edit** button round-tripping into the builder —
 is a loose bullet below.
 
-**No epic is in flight. One standalone task is queued, dispatchable now:**
-
-- **unit defaults** — a unitless `@ 95` load target reads as `95lb` (pound is
-  the default); a unitless magnitude on a machine/aerobic movement reads as
-  calories.
+**No epic is in flight, and the standalone queue is empty.** Every numbered
+queue item is closed and all three post-library standalone tasks have landed.
+What remains is the two loose bullets below, which need Chris to scope.
 
 Recently closed (kept here briefly for the trail):
 
+- **~~unit defaults: a unitless load target is pounds~~ — landed 2026-09-01
+  (rule 1 `<RULE1-SHA>`, rule 2 `<RULE2-SHA>`).** Rule 1: `@ <number>` with no
+  unit now parses to a real `load` (`{kind:'absolute', unit:'lb', value}`) and
+  `wdl fmt` rewrites `@ 95` → `@ 95lb` — pound is the documented default for a
+  load that omits its unit (design rule 3), overriding the "a default is an
+  invention" holding answer. `parseTarget` in `packages/core/src/units.ts`, spec
+  §3/§7, grammar comment; no corpus movement, `interpretations.json` unmoved,
+  `vocabulary.json` moved for the pinned `@95` / `@ 95` forms only. Rule 2: a
+  *builder-only* suggesting diagnostic (`calorieUnitHints()` in
+  `apps/builder/builder.js`) for a bare count on a load-less calorie machine
+  (`15 Row` → "did you mean `15cal Row`?"); the board stays agnostic, no parser
+  change. [DEC-022](../topics/settled-decisions.md#dec-022-a-unitless-load-magnitude-is-pounds-wdl-fmt-writes-the-unit-in);
+  resolves the "what a target with no unit means" entry in
+  [../topics/known-debts.md](../topics/known-debts.md). `make test` 2064/2064,
+  1 pending throughout. Write-ups in
+  [../topics/what-exists.md](../topics/what-exists.md) (Format / load rows) and
+  [../topics/builder-ux.md](../topics/builder-ux.md) ("What it reads").
 - **~~board: the `#` title belongs in the meta strip, not the body~~ — landed
   2026-09-01 (`110ed2b`).** The `# Title` line now joins the hidden preamble
   run (`draw()`'s preamble test covers a `#`-line in the leading run) and shows
@@ -85,65 +100,6 @@ Recently closed (kept here briefly for the trail):
   type the weight: @ 2x35lb`) and a transient inline hint appears by the caret
   after the pick. Full write-up in
   [../topics/builder-ux.md](../topics/builder-ux.md) under the `»`-panel entry.
-
----
-
-## Standalone task — unit defaults: a unitless load target is pounds
-
-*Raised 2026-09-01 by Chris, answering the open question from the `»`-panel
-task's report. Settles the "what a target with no unit means" Open item in
-[../topics/known-debts.md](../topics/known-debts.md). Two rules with very
-different blast radii — rule 1 is a real parser/spec change, rule 2 is a
-builder-only diagnostic — and they can land separately.*
-
-Chris's call, verbatim intent: **"A unitless `@ 95` should just be 95 pounds.
-Pound should be the default for any exercise that carries a load. Something like
-rowing / machines / running — any aerobic work that carries no load — the safe
-assumption is calories (that is what I have always seen). Distance is never
-unitless in practice — it is always feet or metres (rarely miles) — so it keeps
-requiring its unit."**
-
-This **overrides** the current holding answer, which
-[../topics/known-debts.md](../topics/known-debts.md) states deliberately: today
-`@ 95` parses to `{kind: 'raw', text: '95'}` — held, meaning nothing — on the
-reasoning that "`@95` is 95lb in one gym and 95kg in another, so a default is an
-invention". Chris is settling it: **the default is `lb`**, stated once here
-rather than left as raw.
-
-Two rules, and the second is the bigger change:
-
-1. **`@ <number>` with no unit → `<number>lb`** — a `Load` with `unit: 'lb'`,
-   not `raw`. `Load.unit` is a required `'lb' | 'kg'` today, so this is either
-   "default the parse to `lb`" (simplest — the AST never carries an absent
-   unit) or "make `unit` optional and default at every read site". Prefer the
-   former: `targetText` / the load rule fills `lb` when the magnitude has no
-   unit suffix. Reaches `formatLoad` (canonical output becomes `@ 95lb` — decide
-   whether `wdl fmt` *rewrites* `@ 95` to `@ 95lb` or leaves it; likely
-   rewrites, since the format's job is to make the reading explicit), volume,
-   muscle analysis, every exporter, and the golden files.
-2. **A unitless magnitude on a non-load machine/aerobic movement — a
-   *builder-only suggesting diagnostic*, not a parse-level default**
-   (Chris, 2026-09-01). `15 Row` on a machine that measures calories: the
-   **builder** shows a diagnostic suggesting the unit ("did you mean
-   `15cal Row`?"), registry-derived (the row's movement resolves to an entry
-   with `measures` including `calories` and no `load`). The **board stays
-   agnostic** — it renders exactly what was written, no defaulting, no
-   forced calories. So this rule is **not** a `parse.ts` / grammar / spec
-   semantics change: the parser keeps the magnitude as-is; only
-   `apps/builder/builder.js`'s diagnostics/findings gain the suggestion. A
-   `spec` *note* that a bare magnitude on a calorie-measured machine is
-   ambiguous is fine; the reading is not changed. Can land independently of
-   rule 1 (and is much smaller).
-
-Scope — **rule 1**: `spec/spec-0.1.md` §3/§7, `spec/grammar-0.1.ohm`,
-`packages/core/src/parse.ts` + the load/target semantics, `packages/core/src/`
-formatter and anything walking `targets` for `kind === 'load'`, the golden
-files (`node packages/core/test/golden/generate.ts`, read the diff — load-by-
-muscle moves), `test/grammar.test.ts` + `test/golden/vocabulary.ts` (six forms
-are pinned there as `was-wrong`; `@ 95` joins them). No app change strictly
-required. **Rule 2**: `apps/builder/builder.js` diagnostics/findings only —
-registry-derived suggestion, no core/spec-semantics change; the board is
-untouched.
 
 ---
 

@@ -35,16 +35,19 @@ the cue marker still tracks the right physical lines. `apps/display/` only
 (2064/2064, 1 pending). Closes the "reversible default" question left by item
 15b.
 
-**Next off the queue: one standalone task left** (fleshed out 2026-09-01 from
-Chris, in [../tasks/current.md](../tasks/current.md), dispatchable now):
+**unit defaults closed 2026-09-01 (rule 1 `<RULE1-SHA>`, rule 2 `<RULE2-SHA>`)**
+— the last queued standalone task. Rule 1: `@ 95` with no unit now parses to a
+real `load` and `wdl fmt` rewrites it to `@ 95lb` (pound is the documented
+default; `parseTarget` in `packages/core/src/units.ts`, spec §3/§7, no corpus
+movement). Rule 2: a builder-only suggesting diagnostic for a bare count on a
+load-less calorie machine (`15 Row` → `15cal Row`); the board is untouched.
+[DEC-022](../topics/settled-decisions.md#dec-022-a-unitless-load-magnitude-is-pounds-wdl-fmt-writes-the-unit-in).
+`make test` 2064/2064, 1 pending.
 
-1. **unit defaults** — the big one: `@ 95` with no unit reads as `95lb` (rule 1,
-   a real spec + grammar + parser + golden change) and a unitless magnitude on a
-   machine/aerobic movement suggests calories (rule 2, a builder-only
-   diagnostic). The two rules can land separately.
-
-Still needing Chris to scope: a full **laterality curation sweep** (which
-movements), and the board's **Edit** button round-tripping into the builder.
+**The standalone queue is now empty and no epic is in flight.** What is left
+needs Chris to scope: a full **laterality curation sweep** (which movements),
+and the board's **Edit** button round-tripping into the builder — the two loose
+bullets in [../tasks/current.md](../tasks/current.md).
 
 ---
 
@@ -137,13 +140,12 @@ Everything else is closed: the whole 0-series through 21, the deployment epic
 label + a transient inline hint by the caret); see
 [../topics/builder-ux.md](../topics/builder-ux.md) under the `»`-panel entry.
 
-**One standalone task is left** (fleshed out 2026-09-01 from Chris, in
-[../tasks/current.md](../tasks/current.md)) — the two board tasks closed
-2026-09-01 (`01c0af3` dismissible notifications, `110ed2b` title-into-strip):
-
-- **unit defaults** — `@ 95` reads as `95lb`; a unitless magnitude on a
-  machine/aerobic movement reads as calories. Spec + grammar + parser + golden
-  change.
+**The standalone queue is empty as of 2026-09-01.** All three post-library
+standalone tasks landed: `01c0af3` (board dismissible notifications), `110ed2b`
+(board title-into-strip), and **unit defaults** (rule 1 `<RULE1-SHA>` — `@ 95`
+reads as `95lb`, `wdl fmt` writes the unit in; rule 2 `<RULE2-SHA>` — a
+builder-only calorie-machine diagnostic).
+[DEC-022](../topics/settled-decisions.md#dec-022-a-unitless-load-magnitude-is-pounds-wdl-fmt-writes-the-unit-in).
 
 Still needing Chris to scope: a full **laterality curation sweep** (which
 movements), and the board's **Edit** button round-tripping into the builder.

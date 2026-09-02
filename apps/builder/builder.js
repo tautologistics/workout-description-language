@@ -1096,6 +1096,48 @@ function renderDirectives(directives) {
 }
 
 /**
+ * A builder-only suggesting diagnostic (Chris, 2026-09-01, "unit defaults"
+ * rule 2). A bare unitless count on a machine that carries no load and measures
+ * calories — `15 Row` on an erg — is ambiguous: `15` reads as reps, but the
+ * thing a rower actually counts is calories. Unlike a unitless *load*, which is
+ * now pounds by default (DEC-022, spec §7), this is NOT defaulted anywhere —
+ * the parser keeps the count as written and the board renders it verbatim.
+ * Where a workout is being *authored*, we say so: registry-derived, firing only
+ * when the movement resolves to an entry whose `measures` include `calories`
+ * and that has no `load`. Distance-only machines are left alone — a run is
+ * genuinely written as a bare count sometimes, and `distance` needs its own
+ * unit anyway (spec §3).
+ */
+function calorieUnitHints(workout) {
+  const out = [];
+  const visit = (nodes) => {
+    for (const n of nodes ?? []) {
+      if (n.node === 'block') visit(n.children);
+      else if (n.node === 'interrupt') visit(n.body);
+      else if (n.node === 'step') {
+        // `15 Row` parses `15` as reps; `15cal Row` parses as calories and
+        // never reaches here. A step that already names a load, or already
+        // carries a `, count …` measure modifier, has said what it means.
+        if (n.quantity?.kind !== 'reps') continue;
+        if ((n.targets ?? []).some((t) => t.kind === 'load')) continue;
+        if ((n.measures ?? []).length) continue;
+        const entry = movementEntry(n.movement);
+        if (!entry || entry.load) continue;
+        if (!(entry.measures ?? []).includes('calories')) continue;
+        out.push({
+          severity: 'warning',
+          line: n.line,
+          message: `${n.movement}: a bare count on a machine that measures calories — `
+            + `did you mean "${n.quantity.value}cal ${n.movement}"?`,
+        });
+      }
+    }
+  };
+  visit(workout.body);
+  return out;
+}
+
+/**
  * What the parser understood — the honest half of the round trip.
  *
  * A builder that only shows you what you typed is a text editor. The value is in
@@ -1212,6 +1254,7 @@ function renderReading() {
   const diagnostics = [
     ...errors.map((e) => ({ severity: 'error', line: e.line, message: e.message })),
     ...(has('movements') ? validate(workout) : []),
+    ...(has('movements') ? calorieUnitHints(workout) : []),
   ];
   if (!has('movements')) {
     diagnostics.push({ severity: 'warning', message: 'no movement registry loaded — name checks are off' });

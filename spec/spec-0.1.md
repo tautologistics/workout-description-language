@@ -605,7 +605,7 @@ A target that is a bare number with no unit — `@ 95` — **is pounds.** `@ 95`
 `@ 95lb` are one reading, and canonical output writes the unit in: `wdl fmt`
 rewrites `@ 95` to `@ 95lb`, because the format's job is to make the reading
 explicit (design rule 3 — pound is the dominant convention for a load, so it is a
-documented default, not a guess). *Settled 2026-09-01 (DEC-<RULE1-SHA>). Earlier
+documented default, not a guess). *Settled 2026-09-01, DEC-022 (`<RULE1-SHA>`). Earlier
 drafts held `@ 95` as raw and meaning nothing, on the reasoning that a defaulted
 unit is an invention; Chris settled it the other way — a workout that carries a
 load and omits the unit means pounds.*
@@ -613,6 +613,19 @@ load and omits the unit means pounds.*
 Distance still requires its unit (`400m`, never a bare `400` after `@`), because
 a distance is written in feet, metres or miles about equally and there is no
 dominant one to default to.
+
+### 7.1 A bare count on a calorie-measured machine
+
+A *leading* bare magnitude — `15 Row`, not a target — on a machine that carries
+no load and measures calories is genuinely ambiguous: the `15` reads as reps,
+but the thing a rower or a bike-erg counts is calories. **The reading is not
+changed** — the parser keeps the count as written and the board renders it
+verbatim; there is no calorie default anywhere. Where a workout is being
+*authored*, the **builder** shows a suggesting diagnostic ("did you mean
+`15cal Row`?"), fired only when the movement resolves to a registry entry whose
+`measures` include `calories` and that has no `load`. *Chris's call,
+2026-09-01: flag it where it is written, default it nowhere.* This is unlike a
+unitless *load* (§7), which pound is the documented default for.
 
 A load can also be a word from a small closed vocabulary — `heavy`, `moderate`,
 `light`, `unloaded` — read exactly like a coach says it out loud:

@@ -2,6 +2,23 @@
 
 ## Changes
 
+- **2026-09-01 — unit defaults, rule 2: a builder diagnostic for a bare count on
+  a calorie machine (`<RULE2-SHA>`).** Second and final rule of the last queued
+  standalone task; **the standalone queue is now empty.** `15 Row` on an erg
+  parses `15` as reps, but a rower counts calories — the **builder** now shows a
+  suggesting diagnostic ("did you mean `15cal Row`?"). No parser / grammar /
+  spec-*semantics* change: the reading is untouched, the board stays agnostic.
+  **Files:** `apps/builder/builder.js` (`calorieUnitHints(workout)` — a parsed-
+  tree walk feeding `renderReading()`'s `diagnostics` array; fires only for a
+  bare-`reps` step with no `@`-load / `, count …` whose movement resolves to a
+  registry entry with `measures` ⊇ `{calories}` and no `load`), `spec/spec-0.1.md`
+  §7.1 (a note that the case is ambiguous and flagged in the builder, not
+  defaulted). Reuses the existing `.warning` diagnostic style — no CSS.
+  **Verified** by driving the builder against `make serve`: `15 Row` fires,
+  `15cal Row` clears it, `15cal Bike` / `95 Back Squat` (a load movement) /
+  `500 Run` (distance-only) do not; light + dark; no console errors. `make test`
+  **2064/2064, 1 pending** — app code, no suite coverage. Closes the "unit
+  defaults" task; DEC-022 covers both rules.
 - **2026-09-01 — unit defaults, rule 1: a unitless load magnitude is pounds
   (`<RULE1-SHA>`).** First of the two rules of the last queued standalone task.
   `@ <number>` with no unit now parses to a real `load` (`{kind:'absolute',

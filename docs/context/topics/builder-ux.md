@@ -685,6 +685,26 @@ of each new round (a `roundLabel()` change vs the previous cue) opens a
 `margin-top: .5rem` half-line, so the every-cue list reads as N groups rather
 than one column.
 
+**A bare count on a calorie machine gets a suggesting diagnostic — landed
+2026-09-01 (`<RULE2-SHA>`).** Rule 2 of the "unit defaults" task (rule 1 was the
+parser change — a unitless *load* is now pounds, DEC-022). `15 Row` on an erg
+parses `15` as reps, but the thing a rower counts is calories. The reading is
+**not** changed anywhere — the parser keeps the count and the board renders it
+verbatim; only the **builder** flags it. `calorieUnitHints(workout)` in
+`apps/builder/builder.js` walks the parsed tree and, for a step whose quantity
+is bare `reps`, that carries no `@`-load and no `, count …` modifier, and whose
+movement resolves (via the same `movementEntry()` / `Registry.resolve()` the
+`»` panel uses) to an entry with `measures` including `calories` and **no
+`load`**, pushes `{severity: 'warning', line, message: '… did you mean
+"15cal Row"?'}` into `renderReading()`'s `diagnostics` array (right after
+`validate(workout)`, gated on `has('movements')`). No new CSS — it reuses the
+existing `.warning` diagnostic row. Distance-only machines (`Run`,
+`measures: ['distance']`) are left alone; a load movement (`Back Squat`) never
+matches because `entry.load` is truthy. Spec §7.1. Verified by driving the
+builder: `15 Row` fires on line 2, `15cal Row` clears it, `15cal Bike` /
+`95 Back Squat` / `500 Run` do not fire; light + dark; no console errors.
+`make test` unchanged — this is app code, no suite coverage.
+
 **Minor — the read pane stacks four `<h2>`s.** "What it reads as", "Body",
 "Against your goals" (each with an inline `<select>`) repeat the uppercase
 label treatment three times in a column that is already overfull. If that

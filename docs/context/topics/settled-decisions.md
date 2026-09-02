@@ -1483,9 +1483,12 @@ unit means" holding answer in [known-debts.md](known-debts.md). Rule 1 of the
   directly. `make test` 2064/2064, 1 pending — unchanged.
 
 - **A magnitude that is really calories on a load-less machine** (`15 Row`) is a
-  separate question — rule 2 of the same task: a *builder-only* suggesting
-  diagnostic, no parse-level default, the board stays agnostic. See spec §7.1 and
-  [builder-ux.md](builder-ux.md).
+  separate question — rule 2 of the same task, landed 2026-09-01 (`<RULE2-SHA>`):
+  a *builder-only* suggesting diagnostic (`calorieUnitHints()` in
+  `apps/builder/builder.js`, feeding the Analysis-tab diagnostics), **no
+  parse-level default**, the board stays agnostic and the reading is unchanged.
+  Fires when the movement resolves to a registry entry with `measures` ⊇
+  `{calories}` and no `load`. See spec §7.1 and [builder-ux.md](builder-ux.md).
 
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
