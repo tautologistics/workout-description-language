@@ -52,6 +52,8 @@ const USERS = '/collections/users';
 const USER_RECORDS = '/collections/users/records';
 const RECORDS = '/collections/workouts/records';
 const MOVEMENTS = '/collections/movements/records';
+const EQUIPMENT = '/collections/equipment/records';
+const PATTERNS = '/collections/patterns/records';
 
 /** Retries before the random-handle assignment falls back to a numeric suffix. */
 const HANDLE_ASSIGN_TRIES = 6;
@@ -618,4 +620,27 @@ export function createMovement(fields) {
 /** Patch a movement by its PocketBase record id. Admin-only, server-enforced. */
 export function updateMovement(id, patch) {
   return call(`${MOVEMENTS}/${encodeURIComponent(id)}`, { method: 'PATCH', body: patch });
+}
+
+// --- vocabularies (equipment + patterns, DEC-025) --------------------------
+// The `equipment` and `patterns` collections: list/view open (`scope =
+// "global"`), writes admin-only (`@request.auth.admin = true`) — the same rules
+// `movements` carries. `apps/shared/vocab.js` reads these through the two
+// helpers below and falls back to its bundled literals when the call fails;
+// `scripts/vocab-to-db.mjs` (V8) does the bulk ingest over the same routes.
+// Sorted by `termId`, which is what the editor's picker shows and, for
+// equipment, the order `registry/equipment.json` is already written in.
+
+/** Every global equipment term, in `termId` order. Reads need no auth. */
+export async function listEquipment() {
+  const q = new URLSearchParams({ filter: 'scope="global"', sort: 'termId', perPage: '1000' });
+  const data = await call(`${EQUIPMENT}?${q}`, { auth: !!authToken() });
+  return data.items ?? [];
+}
+
+/** Every global movement pattern, in `termId` order. Reads need no auth. */
+export async function listPatterns() {
+  const q = new URLSearchParams({ filter: 'scope="global"', sort: 'termId', perPage: '1000' });
+  const data = await call(`${PATTERNS}?${q}`, { auth: !!authToken() });
+  return data.items ?? [];
 }

@@ -41,17 +41,18 @@
  * instead of the comma-separated `<input>`s they shipped as. `collect()` emits
  * the same arrays it always did, so the request body, the write path and both
  * cross-field validations are untouched. Vocabularies come from
- * `apps/shared/vocab.js` (static until Stage C moves equipment/patterns behind
- * `/api`), except `related` / `sameAs`, which type-ahead over whatever movement
- * ids the host passes in `opts.vocab` — the editor holds no movement list of
- * its own, and stays host-agnostic by asking for one rather than reaching for it.
+ * `apps/shared/vocab.js` — equipment and patterns fetched from `/api` with a
+ * bundled offline fallback (V8), muscles from `registry/muscles.json` — except
+ * `related` / `sameAs`, which type-ahead over whatever movement ids the host
+ * passes in `opts.vocab`: the editor holds no movement list of its own, and
+ * stays host-agnostic by asking for one rather than reaching for it.
  *
  * No `packages/core` change, no grammar/spec change, no registry-file write —
  * this is DB-only, same as M3.
  */
 
 import { createTokenInput } from './token-input.js';
-import { EQUIPMENT, MOVEMENT_PATTERNS, muscleIds } from './vocab.js';
+import { equipmentVocab, patternVocab, muscleIds } from './vocab.js';
 
 /** json (array/object) columns — order matches the M1 migration + M3 script. */
 const LIST_FIELDS = ['aliases', 'equipment', 'pattern', 'related', 'sameAs'];
@@ -81,8 +82,8 @@ const MULTIS = {
  */
 const TOKEN_FIELDS = {
   aliases: { allowCustom: true, vocab: () => [], placeholder: 'type a name, Enter to add' },
-  equipment: { allowCustom: true, vocab: () => EQUIPMENT, placeholder: 'type or browse' },
-  pattern: { allowCustom: true, vocab: () => MOVEMENT_PATTERNS, placeholder: 'type or browse' },
+  equipment: { allowCustom: true, vocab: equipmentVocab, placeholder: 'type or browse' },
+  pattern: { allowCustom: true, vocab: patternVocab, placeholder: 'type or browse' },
   related: { allowCustom: true, vocab: () => [], placeholder: 'type a movement id' },
   sameAs: { allowCustom: true, vocab: () => [], placeholder: 'type a movement id' },
   musclesPrimary: { allowCustom: false, vocab: muscleIds, placeholder: 'type or browse' },
