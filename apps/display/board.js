@@ -794,6 +794,18 @@ function setProblems(text = '') {
 const sharedId = () => new URLSearchParams(location.search).get('w') || '';
 
 /**
+ * The key the footer's **Edit in builder** button round-trips with — the
+ * workout's `wdlId` (`<handle>:<slug>`) when it has one, else its record id:
+ * the same choice the builder's `openHitOnBoard` makes going the other way.
+ * Empty unless the board is showing a workout resolved from `?w=` — a
+ * `#<source>` paste/drop board has no saved record to open, so the button
+ * stays hidden. Cleared by every `load()`, re-set only by a `loadShared`
+ * that resolved a record.
+ */
+let editKey = '';
+const showEditLink = () => { el('edit').hidden = !editKey; };
+
+/**
  * Fetch a shared workout and run it, or show a "not found" line (never crash).
  * `?w=` may carry a 15-char record id or a `<handle>:<slug>` `wdlId` — one
  * resolver handles both (DEC-021, L3). The id still *is* the share link, so
@@ -805,6 +817,10 @@ async function loadShared(id) {
     const rec = await pbGetByAnyId(id);
     if (!rec?.source) throw new Error('empty');
     load(rec.source, '', false);
+    // A resolved record is one the builder can open — light up Edit in builder,
+    // keyed the way the builder's board link is (wdlId if present, else id).
+    editKey = rec.wdlId || rec.id;
+    showEditLink();
   } catch (e) {
     // A `private` record 404s for a stranger; a bad id 404s too. Either way the
     // board stays on its empty drop-zone with a line saying why.
@@ -968,6 +984,10 @@ function load(source, division = '', toUrl = true) {
   state.source = source;
   state.division = division;
   state.lines = source.replace(/\n$/, '').split('\n');
+  // Any load starts from "no round-trippable record"; `loadShared` re-sets this
+  // afterwards when the `?w=` id resolved to one.
+  editKey = '';
+  showEditLink();
 
   const parsed = parse(source);
   state.workout = parsed.workout;
@@ -996,17 +1016,6 @@ function chooseDivision(name) {
   tick();
 }
 
-function showEmpty() {
-  bar.hidden = true;
-  meta.hidden = true;
-  controls.hidden = true;
-  setProblems();
-  // Drop both the hash and a `?w=<id>` share param, so "Edit" lands on the
-  // real empty board rather than immediately reloading the shared workout.
-  if (location.search || location.hash) location.assign(location.pathname);
-  else location.reload();
-}
-
 // --- wiring -----------------------------------------------------------------
 
 el('start').onclick = toggle;
@@ -1030,7 +1039,15 @@ el('record-save').onclick = () => {
   URL.revokeObjectURL(a.href);
   said(`saved ${a.download}`);
 };
-el('edit').onclick = showEmpty;
+// Round-trip the workout the board is showing back into the builder, in a new
+// tab. Only wired to fire when `editKey` is set (a `?w=` record); the button is
+// `hidden` otherwise. `../builder/?w=<key>` mirrors the builder's own
+// board link (`openHitOnBoard`) in reverse — the builder reads `?w=` on load
+// and decides attach vs detached copy from ownership.
+el('edit').onclick = () => {
+  if (!editKey) return;
+  window.open(`../builder/?w=${encodeURIComponent(editKey)}`, '_blank', 'noopener');
+};
 picker.onchange = () => chooseDivision(picker.value);
 
 addEventListener('keydown', (e) => {

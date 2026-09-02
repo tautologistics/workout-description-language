@@ -101,7 +101,10 @@
     <select id="division"></select>
   </label>
   <span id="position" class="position"></span>
-  <button id="edit">Edit</button>
+  <!-- Opens the builder on this workout in a new tab (`../builder/?w=<key>`).
+       Shown only when the board is showing a workout resolved from `?w=` — a
+       raw `#<source>` paste has no saved record to round-trip to. -->
+  <button id="edit" hidden>Edit in builder ↗</button>
 </footer>
 
 <script type="module" src="board.js"></script>

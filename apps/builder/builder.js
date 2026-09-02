@@ -39,7 +39,7 @@ import { exposures, muscleLoad, musclesFor, muscles } from '../../build/web/core
 import { mountBody, paintBody, aggregateStates, highlightStates, heatStates, heatColor, attachZoom } from '../shared/body-map.js';
 import {
   currentUser, beginGoogleSignIn, refreshAuth, signOut, updateHandle,
-  listMine, getById as pbGetById, create as pbCreate, update as pbUpdate,
+  listMine, getById as pbGetById, getByAnyId, create as pbCreate, update as pbUpdate,
   remove as pbRemove, shareUrl, searchWorkouts, getHandle,
   createMovement, updateMovement, getMovementByMovementId,
   createEquipmentTerm, createPatternTerm,
@@ -2783,13 +2783,16 @@ async function runMineSearch(term) {
 }
 
 /**
- * Open a search hit into the editor. Your own row attaches like `openMine` so
- * Save updates it; someone else's public row opens detached, so the first Save
- * creates *your* copy (re-namespaced to your handle by `pocketbase.js` — the
- * DEC-021 copy flow, no fork concept).
+ * Load a fetched workout row into the editor, making the one attach-vs-detach
+ * call the builder makes everywhere: a row the signed-in user owns **attaches**
+ * (`openWorkout` set, Save updates it); anyone else's — or any row while signed
+ * out — opens as a **detached editable copy** (`openWorkout = null`, so the
+ * first Save creates a fresh row re-namespaced to the user's handle by
+ * `pocketbase.js`, the DEC-021 copy flow, no fork concept). Shared by the
+ * *Workouts* panel's search hits (`openFoundWorkout`) and the board's Edit
+ * round-trip (`?w=` on load, in the bootstrap).
  */
-function openFoundWorkout(hit) {
-  const { rec, mine } = hit;
+function openRecord(rec, mine) {
   lines = (rec.source || '').replace(/\n$/, '').split('\n');
   if (!lines.length) lines = [''];
   openWorkout = mine ? { id: rec.id, title: rec.title, visibility: rec.visibility } : null;
@@ -2800,6 +2803,14 @@ function openFoundWorkout(hit) {
   el('mine').open = false;
   render();
   renderMinePanel();
+}
+
+/**
+ * Open a search hit into the editor — `openRecord` with the hit's precomputed
+ * `mine` flag (`rec.owner === currentUser()?.id`, set in `runMineSearch`).
+ */
+function openFoundWorkout(hit) {
+  openRecord(hit.rec, hit.mine);
 }
 
 /**
@@ -3309,7 +3320,23 @@ analysis.then(() => el('goal-pick').dispatchEvent(new Event('change')));
 // pull the workout list.
 renderIdentity();
 renderMinePanel();
-refreshAuth().then((user) => {
+
+// `?w=<id|handle:slug>` — the board's "Edit in builder" round-trip. Load that
+// saved workout into the editor once auth is settled (the attach-vs-detached
+// call needs `currentUser()`), degrading to the default buffer with a warning
+// on a failed fetch the way the registry loads above do. `?w=` is left in the
+// address bar untouched, so a reload re-loads the same row.
+const wParam = new URLSearchParams(location.search).get('w');
+
+refreshAuth().then(async (user) => {
   renderIdentity();
   if (user) refreshMineList().then(renderMinePanel);
+  if (wParam) {
+    try {
+      const rec = await getByAnyId(wParam);
+      openRecord(rec, rec.owner === currentUser()?.id);
+    } catch (e) {
+      console.warn(`?w=${wParam}: could not load that workout —`, e.message);
+    }
+  }
 });
