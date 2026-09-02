@@ -30,6 +30,16 @@
  *   POST   /api/collections/movements/records        — create, IF the request carries an Authorization header (else 403 — mirrors the admin-only rule)
  *   PATCH  /api/collections/movements/records/:id     — update, same Authorization gate; 403 without it
  *   DELETE /api/collections/movements/records/:id     — delete, same Authorization gate; 403 without it, 204 with
+ *   GET    /api/collections/equipment/records        — list, from registry/equipment.json + local writes, in the PB record shape (task V7, DEC-025)
+ *   GET    /api/collections/equipment/records/:id    — one term (by synthetic id or termId)
+ *   POST   /api/collections/equipment/records        — create, same Authorization gate as movements (else 403)
+ *   PATCH  /api/collections/equipment/records/:id    — update, same Authorization gate; 403 without it
+ *   DELETE /api/collections/equipment/records/:id    — delete, same Authorization gate; 403 without it, 204 with
+ *   GET    /api/collections/patterns/records         — list, from registry/patterns.json + local writes (same shape as equipment)
+ *   GET    /api/collections/patterns/records/:id     — one term (by synthetic id or termId)
+ *   POST   /api/collections/patterns/records         — create, same Authorization gate
+ *   PATCH  /api/collections/patterns/records/:id     — update, same Authorization gate
+ *   DELETE /api/collections/patterns/records/:id     — delete, same Authorization gate; 204 with
  *
  * Query params honoured on the two list routes, only as far as the client uses
  * them: `filter` (a pattern-matcher for the exact strings the client emits —
@@ -47,11 +57,16 @@
  * filled on first re-save.
  *
  * Fixture write state (`fixtures/workouts.local.json`, `fixtures/movements.local.json`,
- * `fixtures/users.local.json`) is git-ignored — delete it to reset to the
- * committed seed / `registry/movements.json`. Movement writes (task M3's
+ * `fixtures/users.local.json`, `fixtures/equipment.local.json`,
+ * `fixtures/patterns.local.json`) is git-ignored — delete it to reset to the
+ * committed seed / `registry/*.json`. Movement writes (task M3's
  * `make movements:load`, and the M5 editor) land in
  * `fixtures/movements.local.json` and are merged over the registry-derived list
- * on read, keyed by `movementId`.
+ * on read, keyed by `movementId`. Equipment and pattern vocabulary (task V7)
+ * works the same way: `registry/{equipment,patterns}.json` is the seed, runtime
+ * writes overlay from `fixtures/{equipment,patterns}.local.json`, keyed by
+ * `termId`. No `fixtures/{equipment,patterns}.json` is committed — the seed is
+ * always the registry file, mirroring movements.
  *
  * **`handle` (task L1, DEC-021).** `fixtures/users.json`'s mock signed-in user
  * (`users[0]`) is committed **without** a `handle`, on purpose: the first
@@ -160,6 +175,61 @@ export function createMockApi(root) {
     mvDeleted = mvDeleted.filter((id) => id !== rec.movementId);
     persistMovements();
   };
+
+  // -- vocabularies: equipment + patterns (task V7, DEC-025) --------------
+  // Two independent vocabularies of one shape — the mock mirror of the
+  // migration's `vocabCollection(name)` helper. Each is seeded from
+  // `registry/<name>.json` (never a committed `fixtures/<name>.json` — the
+  // registry file is the seed, exactly as movements has no fixture seed) and
+  // overlaid with runtime writes from git-ignored `fixtures/<name>.local.json`,
+  // keyed by `termId`. Reads are open; writes need an Authorization header,
+  // standing in for the collection's `@request.auth.admin = true` rule the same
+  // way the movements handler does.
+  const makeVocab = (name, prefix) => {
+    let seed = null;
+    const loadSeed = () => {
+      if (!seed) seed = (readJson(P(`registry/${name}.json`))[name] ?? []).map((e) => toVocabRecord(e, name, prefix));
+      return seed;
+    };
+    const localPath = P(`fixtures/${name}.local.json`);
+    const local = existsSync(localPath) ? readJson(localPath) : {};
+    let overlay = Array.isArray(local.records) ? local.records : [];
+    let deleted = Array.isArray(local.deleted) ? local.deleted : [];
+    const persist = () => {
+      try {
+        writeFileSync(localPath, JSON.stringify({
+          $comment: `Runtime write state for the local dev mock /api (${name} vocabulary). Git-ignored. Delete to reset to registry/${name}.json.`,
+          records: overlay,
+          deleted,
+        }, null, 2) + '\n');
+      } catch (e) {
+        console.error(`  mock /api: could not persist ${name} — ${e.message}`);
+      }
+    };
+    return {
+      name,
+      prefix,
+      /** The registry seed with runtime writes merged over it, keyed by termId. */
+      current() {
+        const byId = new Map(loadSeed().map((r) => [r.termId, r]));
+        for (const rec of overlay) byId.set(rec.termId, rec);
+        for (const id of deleted) byId.delete(id);
+        return [...byId.values()];
+      },
+      upsert(rec) {
+        const i = overlay.findIndex((r) => r.termId === rec.termId);
+        if (i >= 0) overlay[i] = rec; else overlay.push(rec);
+        deleted = deleted.filter((id) => id !== rec.termId);
+        persist();
+      },
+      remove(rec) {
+        overlay = overlay.filter((r) => r.termId !== rec.termId);
+        if (!deleted.includes(rec.termId)) deleted.push(rec.termId);
+        persist();
+      },
+    };
+  };
+  const vocabs = [makeVocab('equipment', 'eq'), makeVocab('patterns', 'pt')];
 
   return async function handle(req, res, url) {
     const { pathname } = url;
@@ -314,6 +384,49 @@ export function createMockApi(root) {
         return mvWriteDenied();
       }
 
+      // -- vocabularies: equipment + patterns (task V7, DEC-025) ---------
+      // Reads open (list/view rule `scope = "global"`); writes need an
+      // Authorization header, standing in for `@request.auth.admin = true` —
+      // the same gate the movements routes above use.
+      for (const v of vocabs) {
+        const base = `/api/collections/${v.name}/records`;
+        const vWriteDenied = () => json(res, 403, err(403, `Only admins can write the global ${v.name} vocabulary.`));
+        if (pathname === base) {
+          if (method === 'GET') return json(res, 200, listEnvelope(applyQuery(v.current(), url), url));
+          if (method === 'POST') {
+            if (!req.headers.authorization) return vWriteDenied();
+            const body = await readBody(req);
+            const rec = mkVocabRecord(body, v.name, v.prefix);
+            if (!rec.termId) return json(res, 400, err(400, 'termId is required.', { termId: { code: 'validation_required', message: 'Missing required value.' } }));
+            v.upsert(rec);
+            return json(res, 200, rec);
+          }
+          return vWriteDenied();
+        }
+        if (pathname.startsWith(base + '/')) {
+          const id = decodeURIComponent(pathname.slice((base + '/').length));
+          const rec = v.current().find((r) => r.id === id || r.termId === id);
+          if (method === 'GET') {
+            return rec ? json(res, 200, rec) : json(res, 404, err(404, "The requested resource wasn't found."));
+          }
+          if (!req.headers.authorization) return vWriteDenied();
+          if (method === 'PATCH') {
+            if (!rec) return json(res, 404, err(404, "The requested resource wasn't found."));
+            const body = await readBody(req);
+            const next = { ...rec, ...pickVocabFields(body), updated: pbNow() };
+            v.upsert(next);
+            return json(res, 200, next);
+          }
+          if (method === 'DELETE') {
+            if (rec) v.remove(rec);
+            res.writeHead(204);
+            res.end();
+            return true;
+          }
+          return vWriteDenied();
+        }
+      }
+
       return false; // some other /api path — not mocked; caller falls through
     } catch (e) {
       json(res, 500, err(500, `mock /api: ${e.message}`));
@@ -394,6 +507,61 @@ function pickMovementFields(body) {
     if (k in body) out[k] = body[k];
   }
   return out;
+}
+
+// --- vocabulary shapes (equipment + patterns, task V7, DEC-025) ----------
+// The migration's `equipment` / `patterns` columns: termId (the registry id —
+// not `id`, which is PocketBase's own), name, synonyms (json, always an array),
+// scope, user, created, updated. One `registry/{equipment,patterns}.json` entry
+// is `{ id, name, synonyms }`; `id` maps to the `termId` column exactly as a
+// movement's `id` maps to `movementId`.
+
+/** One `registry/<name>.json` entry as a `<name>` collection record. */
+function toVocabRecord(e, collectionName, prefix) {
+  return {
+    id: vocabId(prefix, e.id),
+    collectionId: `mock_${collectionName}`,
+    collectionName,
+    termId: e.id,
+    name: e.name ?? '',
+    synonyms: Array.isArray(e.synonyms) ? e.synonyms : [],
+    scope: 'global',
+    user: '',
+    created: '',
+    updated: '',
+  };
+}
+
+/** A create body -> a full vocabulary record (missing fields at their empty). */
+function mkVocabRecord(body, collectionName, prefix) {
+  const now = pbNow();
+  return {
+    id: vocabId(prefix, body.termId ?? ''),
+    collectionId: `mock_${collectionName}`,
+    collectionName,
+    termId: body.termId ?? '',
+    name: body.name ?? '',
+    synonyms: Array.isArray(body.synonyms) ? body.synonyms : [],
+    scope: body.scope ?? 'global',
+    user: body.user ?? '',
+    created: now,
+    updated: now,
+  };
+}
+
+/** The subset of an update body that maps to a vocabulary column. */
+function pickVocabFields(body) {
+  const out = {};
+  for (const k of ['termId', 'name', 'synonyms', 'scope', 'user']) if (k in body) out[k] = body[k];
+  return out;
+}
+
+/** A stable synthetic record id for a vocabulary term, `<prefix>` + hash of its termId. */
+function vocabId(prefix, key) {
+  let h = 5381;
+  const s = String(key);
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+  return prefix + h.toString(36).padStart(9, '0');
 }
 
 // --- query + envelope -----------------------------------------------------

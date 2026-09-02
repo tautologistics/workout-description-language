@@ -11,3 +11,5 @@ curation-sheet.csv
 fixtures/workouts.local.json
 fixtures/movements.local.json
 fixtures/users.local.json
+fixtures/equipment.local.json
+fixtures/patterns.local.json
