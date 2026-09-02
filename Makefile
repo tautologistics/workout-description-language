@@ -26,7 +26,7 @@ WDL_BACKUP_DIR ?= $(HOME)/wdl-pb-backups
 
 .PHONY: help install test build serve registry goldens aliases corpora \
         curation\:sheet curation\:check curation\:apply movements\:load movements\:dump \
-        deploy deploy\:dry deploy\:db backups\:pull clean
+        workouts\:load deploy deploy\:dry deploy\:db backups\:pull clean
 
 help: ## List the targets
 	@grep -hE '^[a-z][a-z:\\-]*:.*## ' $(MAKEFILE_LIST) \
@@ -75,6 +75,9 @@ movements\:load: ## Ingest registry/movements.json -> the movements collection o
 
 movements\:dump: ## Dump the movements collection -> registry/movements.json over /api  (reviewable diff; --dry-run / --check via ARGS=)
 	node scripts/movements-from-db.mjs $(ARGS)
+
+workouts\:load: ## Ingest examples/workouts/**/*.wdl -> the workouts collection over /api + regenerate fixtures  (idempotent; ARGS=--dry-run; superuser creds for prod)
+	node scripts/workouts-to-db.mjs $(ARGS)
 
 deploy: ## Deploy the static apps  (WDL_DEPLOY_SSH defaults to dreamhost.ae.wex)
 	node scripts/deploy-web.mjs

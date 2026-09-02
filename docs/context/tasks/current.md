@@ -47,8 +47,12 @@ sized like M0–M7 for sequential sessions. **L0 landed 2026-09-01
 the builder's My-workouts search box + the mock's `~` operator and parenthesised
 OR; **L5 landed 2026-09-01 (`6cb8df4`)** — the authored benchmark `.wdl`
 library, 43 files under `examples/workouts/{crossfit,hyrox,tabata}/`, content
-only; **L6 (ingestion: `scripts/workouts-to-db.mjs` / `make workouts:load`) is
-next**. Three standalone tasks are also queued, all dispatchable now:
+only; **L6 landed 2026-09-01 (`<TASK-SHA>`)** — `scripts/workouts-to-db.mjs` /
+`make workouts:load`, idempotent-on-`wdlId` upsert of the 43 files into
+`workouts` + regeneration of `fixtures/workouts.json` (46 rows) and
+`fixtures/users.json`, so a fresh `make serve` / prod box shows the whole
+library with no manual step; **L7 (surface the library in the apps — closes the
+epic) is next**. Three standalone tasks are also queued, all dispatchable now:
 
 - **unit defaults** — a unitless `@ 95` load target reads as `95lb` (pound is
   the default); a unitless magnitude on a machine/aerobic movement reads as
@@ -486,18 +490,53 @@ Bad / `hyrox:race` / `tabata:this` spot-checked on the board (`<org>:<slug>` in
 the `#meta` strip, no error strip; Murph's `any order:` shows the expected
 tally-block timeline note; `hyrox:race` shows the Division selector). Spawns L6.
 
-**L6 — Ingestion: library → DB + fixtures.** `scripts/workouts-to-db.mjs`
-(`make workouts:load`), twin of `movements-to-db.mjs`: reads
-`examples/workouts/**/*.wdl`, upserts each as a `workouts` row owned by the
-matching org handle, `visibility: "public"`, `wdlId` from `@id`, **idempotent
-on `wdlId`** (`POST` absent / `PATCH` changed / re-run writes nothing;
-`--dry-run`). Same run also regenerates `fixtures/workouts.json` (the library
-rows) and `fixtures/users.json` (the org rows) so a fresh `make serve` shows
-the whole library with no PocketBase — `registry/movements.json` being its own
-fixture is the precedent. Prod run needs admin auth
-(`WDL_PB_ADMIN_*`, like `movements:load`); against the mock it just works.
-Verify: fresh mock → creates N / re-run all-unchanged / edit one `.wdl` →
-updates exactly 1. Spawns L7.
+**L6 — Ingestion: library → DB + fixtures. DONE 2026-09-01 (`<TASK-SHA>`).**
+`scripts/workouts-to-db.mjs` + a `make workouts:load` target (beside
+`movements:load` in the root `Makefile`), the twin of `movements-to-db.mjs` —
+no deps (`node:fs` + global `fetch`). Reads `examples/workouts/<org>/<slug>.wdl`
+(43 files), resolves `<org>` → the org row's fixed id as `owner`
+(`crossfit`→`org0crossfit001` etc.), forces `@id` / `wdlId` to
+`<orghandle>:<slug>` via a port of `apps/shared/pocketbase.js`'s slug helper
+(slug from the file's own `@id`; the authored files are already canonical so the
+rewrite is a no-op on them), `title` from the `# Title` line, `source` = the
+file body, `visibility: "public"`. **Idempotent on `wdlId`**: bulk-fetches the
+collection (`perPage=500`, paged), `POST`s the absent, `PATCH`es only when
+`title`/`source`/`visibility`/`owner` differ, re-run writes nothing (prints a
+`created`/`updated`/`unchanged` tally). **`--dry-run`** (via `ARGS=--dry-run`)
+reports the planned POSTs/PATCHes and writes **nothing** — no HTTP mutation, no
+fixture rewrite. **The same run regenerates the committed fixtures** (unless
+`--dry-run`): `fixtures/workouts.json` gets the 43 library rows (deterministic
+15-char ids derived from `wdlId`) plus every pre-existing **non-org-owned** row
+preserved (the mock signed-in user's 3 seed workouts, which populate the
+builder's *My workouts* list from a fresh `make serve`) — the old hand-added
+`crossfit:helen` row is replaced by the generated one (same `wdlId`);
+`fixtures/users.json` gets the three `org: true` rows (same fixed
+ids/handles/`org:true` L1 commits) plus the mock user row kept verbatim
+(no `handle`, on purpose). Each fixture file is rewritten only when its content
+changes, so a clean re-run leaves `git status` untouched. **Prod writes need
+superuser auth** — the `workouts` write rule is owner-only, so unlike
+`movements:load` (a `users` admin satisfies the movements rule) this needs
+`WDL_PB_ADMIN_TOKEN` or `WDL_PB_ADMIN_EMAIL`/`_PASSWORD` with
+`WDL_PB_ADMIN_COLLECTION` defaulting to `_superusers`; against the mock
+(`make serve`) writes need no auth and it just works. **No `packages/core` /
+grammar / spec / migration / authored-`.wdl` touch; `examples/workouts/` is
+still not wired into `corpus.test.ts`.** **Verified:** `make test` unchanged
+**2064/2064, 1 pending**. Against a fresh mock still carrying the pre-L6 seed:
+`make workouts:load` → **42 created, 1 updated** (the seed already held
+`crossfit:helen` — its source differs from the authored file, so it PATCHes);
+re-run → **43 unchanged, nothing written**; bump `@ 95lb`→`@ 96lb` in
+`examples/workouts/crossfit/fran.wdl`, re-run → **exactly 1 PATCH (source)**,
+reverted. `--dry-run` → `git status` clean. End-to-end against the regenerated
+fixtures (fresh `make serve`): board `?w=crossfit:fran` / `?w=hyrox:race` /
+`?w=tabata:this` all resolve and render with `<org>:<slug>` in the `#meta`
+strip, no error strip, `hyrox:race` shows the Division selector; builder *My
+workouts* search — `fran` returns `Fran @crossfit` (public org hit) beside
+`Fran mine`, `hyrox` returns all 9, `murph` returns `crossfit:murph`;
+click-to-open the `@crossfit` hit loads a detached read-only copy
+(`@id crossfit:fran`, the DEC-021 copy flow). Regenerated
+`fixtures/workouts.json` has **46 rows** (43 library + the 3 preserved
+mock-user seed rows); `fixtures/users.json` unchanged (already canonical from
+L1). Spawns L7.
 
 **L7 — Surface the library in the apps.** The builder's *Open…* / *My
 workouts* area gets a way to browse an org's public set (filter by owner

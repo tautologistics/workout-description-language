@@ -2,6 +2,60 @@
 
 ## Changes
 
+- **2026-09-01 — L6 of *The workout library* epic landed (`<TASK-SHA>`)** —
+  ingestion: the authored `.wdl` library → the `workouts` DB + regenerated
+  fixtures. **Script + Makefile target + two fixtures only** — no
+  `packages/core` / grammar / spec / migration / authored-`.wdl` touch;
+  `make test` unchanged **2064/2064, 1 pending**; `examples/workouts/` still
+  **not** wired into `corpus.test.ts`.
+  - **`scripts/workouts-to-db.mjs`** + **`make workouts:load`** (beside
+    `movements:load` in the root `Makefile`), the `workouts` twin of
+    `movements-to-db.mjs` — no deps (`node:fs` + global `fetch`). Reads
+    `examples/workouts/<org>/<slug>.wdl` (43 files); per file: `<org>` → the org
+    row's fixed id as `owner` (`crossfit`→`org0crossfit001`,
+    `hyrox`→`org0hyrox000001`, `tabata`→`org0tabata00001`), `@id` / `wdlId`
+    forced to `<orghandle>:<slug>` via a port of `apps/shared/pocketbase.js`'s
+    slug helper (slug from the file's own `@id`; a no-op on the canonical
+    authored files), `title` from `# Title`, `source` = the body,
+    `visibility: "public"`.
+  - **Idempotent on `wdlId`** — bulk-fetch (`perPage=500`, paged), `POST` the
+    absent, `PATCH` only when `title`/`source`/`visibility`/`owner` differ,
+    re-run writes nothing (`created`/`updated`/`unchanged` tally). **`--dry-run`**
+    (`ARGS=--dry-run`) reports and writes nothing — no HTTP mutation, no fixture
+    rewrite.
+  - **Same run regenerates the committed fixtures** (unless `--dry-run`):
+    `fixtures/workouts.json` → 43 library rows (deterministic 15-char ids from
+    `wdlId`) + every pre-existing non-org-owned row preserved (the mock user's 3
+    seed workouts — they populate the builder's *My workouts* list from a fresh
+    `make serve`); the old hand-added `crossfit:helen` row is replaced by the
+    generated one (same `wdlId`). `fixtures/users.json` → the three `org: true`
+    rows (same fixed ids/handles L1 commits) + the mock user row kept verbatim
+    (no `handle`, on purpose). Each file rewritten only when its content
+    changes. A fresh `make serve` / prod box now shows the whole library with no
+    manual step.
+  - **Prod writes need superuser auth** — the `workouts` write rule is
+    owner-only, so `WDL_PB_ADMIN_COLLECTION` defaults to `_superusers` (unlike
+    `movements:load`); `WDL_PB_ADMIN_TOKEN` / `_EMAIL` / `_PASSWORD` names
+    otherwise identical. Against the mock, writes need no auth.
+  - **Verified.** `wdl check` / `make test` unchanged (2064/2064, 1 pending).
+    Against a fresh mock still carrying the pre-L6 seed:
+    `make workouts:load` → **42 created, 1 updated** (the seed's `crossfit:helen`
+    source differs from the authored file → PATCH); re-run → **43 unchanged,
+    nothing written**; `@ 95lb`→`@ 96lb` in
+    `examples/workouts/crossfit/fran.wdl`, re-run → **exactly 1 PATCH (source)**,
+    reverted. `--dry-run` → `git status` clean. End-to-end against the
+    regenerated fixtures (fresh `make serve`): board `?w=crossfit:fran` /
+    `?w=hyrox:race` / `?w=tabata:this` resolve and render, `<org>:<slug>` in the
+    `#meta` strip, no error strip, Division selector on `hyrox:race`; builder
+    *My workouts* search — `fran` → `Fran @crossfit` beside `Fran mine`, `hyrox`
+    → all 9, `murph` → `crossfit:murph`; opening the `@crossfit` hit loads a
+    detached read-only copy (the DEC-021 copy flow). Regenerated
+    `fixtures/workouts.json` = **46 rows** (43 library + 3 preserved mock-user);
+    `fixtures/users.json` unchanged (already canonical from L1).
+  - **Files:** `scripts/workouts-to-db.mjs` (new), `Makefile`,
+    `fixtures/workouts.json`, plus `docs/context/`. **Next: L7** — surface the
+    library in the apps; closes the epic (moves L0–L7 to `tasks/completed.md`).
+
 - **2026-09-01 — L5 of *The workout library* epic landed (`6cb8df4`)** —
   the authored benchmark `.wdl` library. **Content only** — everything new is
   under `examples/workouts/`; no schema / `packages/core` / grammar / spec /

@@ -21,6 +21,7 @@ make curation:check CSV=x.csv  # import-movement-curation.mjs x.csv — dry-run 
 make curation:apply CSV=x.csv  # import-movement-curation.mjs x.csv --apply — land it into registry/movements.json
 make movements:load  # movements-to-db.mjs — idempotent upsert of registry/movements.json into the movements collection over /api
 make movements:dump  # movements-from-db.mjs — dump the movements collection back to registry/movements.json (ARGS=--dry-run / --check)
+make workouts:load   # workouts-to-db.mjs — idempotent upsert of examples/workouts/**/*.wdl into the workouts collection over /api + regenerate fixtures (ARGS=--dry-run)
 make deploy      # node scripts/deploy-web.mjs — static apps into pb_public/  (WDL_DEPLOY_SSH defaults to dreamhost.ae.wex — see "## Hosting")
 make deploy:dry  # same, rsync with -n
 make deploy:db   # rsync deploy/pocketbase/pb_migrations/*.js to the VPS + restart PocketBase to apply
@@ -30,7 +31,7 @@ make install     # prints "nothing to install" — the repo is install-free, on 
 ```
 
 Multi-word targets use a `:` namespace separator (`curation:sheet`,
-`movements:load`, `deploy:dry`, `deploy:db`, `backups:pull`) — GNU Make needs it
+`movements:load`, `workouts:load`, `deploy:dry`, `deploy:db`, `backups:pull`) — GNU Make needs it
 backslash-escaped in the `Makefile` (`curation\:sheet:`), typed plain on the
 command line (`make curation:sheet`). Single-word targets (`test`, `build`,
 `serve`, `deploy`, …) are unchanged.
@@ -158,6 +159,52 @@ the DB is dropped (the diff shows the removal).
   `make movements:load` then `make movements:dump`, then
   `git diff --stat registry/movements.json` — **must be empty**. This is the
   check DEC-020 requires; it now passes.
+
+**Ingesting the workout library into the DB** *(since 2026-09-01, queue task L6,
+DEC-021)*. `make workouts:load` (`scripts/workouts-to-db.mjs`, no deps —
+`node:fs` + global `fetch`) is the `workouts` twin of `movements:load`. It reads
+`examples/workouts/<org>/<slug>.wdl` (the 43 authored files, L5), and for each:
+resolves `<org>` from the path to the org `users` row's **fixed id** as `owner`
+(`crossfit`→`org0crossfit001`, `hyrox`→`org0hyrox000001`,
+`tabata`→`org0tabata00001`), forces `@id` / `wdlId` to `<orghandle>:<slug>`
+(slug from the file's own `@id`; a port of `apps/shared/pocketbase.js`'s slug
+helper — a no-op on the already-canonical authored files), takes `title` from
+the `# Title` line and `source` from the file body, and sets
+`visibility: "public"`.
+
+- **Upsert, idempotent on `wdlId`** — bulk-fetches the collection
+  (`?perPage=500`, paged, keyed on `wdlId`), `POST`s a file whose `wdlId` is
+  absent, `PATCH`es one whose `title` / `source` / `visibility` / `owner`
+  changed, and a re-run with nothing changed **writes nothing** and says so
+  (prints a `created` / `updated` / `unchanged` tally).
+- **`--dry-run`** (`make workouts:load ARGS=--dry-run`) reports the planned
+  POSTs/PATCHes and writes **nothing** — no HTTP mutation and **no fixture
+  rewrite** (`git status` stays clean).
+- **The same run regenerates the committed fixtures** (unless `--dry-run`):
+  `fixtures/workouts.json` — the 43 library rows (deterministic 15-char ids
+  derived from `wdlId`) plus every pre-existing **non-org-owned** row preserved
+  (the mock signed-in user's own seed workouts, which populate the builder's
+  *My workouts* list from a fresh `make serve`); the old hand-added
+  `crossfit:helen` row is replaced by the generated one (same `wdlId`).
+  `fixtures/users.json` — the three `org: true` rows (same fixed
+  ids/handles L1 commits) plus the mock user row kept verbatim (no `handle`, on
+  purpose). Each file is rewritten only when its content changes. So a fresh
+  `make serve` (and a fresh prod box, after the run) shows the whole library
+  with no manual step — `registry/movements.json`-as-committed-fixture is the
+  precedent.
+- **Target** — `--api <base>` or `WDL_PB_URL`, default `http://localhost:8081`
+  (matches `make serve`).
+- **Against the mock** (`make serve`) — writes need no auth; a bare
+  `make workouts:load` in another terminal just works. Runtime writes land in
+  git-ignored `fixtures/workouts.local.json` — delete it to reset to the
+  regenerated seed.
+- **Against prod PocketBase** — writes need **superuser** auth, because the
+  `workouts` write rule is owner-only (unlike `movements:load`, where a
+  `users` `admin: true` row satisfies the movements rule): set
+  `WDL_PB_ADMIN_TOKEN`, or `WDL_PB_ADMIN_EMAIL` + `WDL_PB_ADMIN_PASSWORD` with
+  `WDL_PB_ADMIN_COLLECTION` (defaults to `_superusers` here) exchanged at
+  `POST /api/collections/<c>/auth-with-password`. Without creds against a real
+  PocketBase the script exits with the list of what to set.
 
 **Exercising the movement editor** *(since 2026-09-01, queue task M5)*. No `make`
 target — it is app code. Drive the builder against `make serve` (mock `/api` on

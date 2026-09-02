@@ -47,13 +47,23 @@ Something Else). Each is `@id <org>:<slug>` + `# Title` + body, byte-identical t
 Bad / `hyrox:race` / `tabata:this` spot-checked on the board. **Content only** —
 no schema / `packages/core` / grammar / spec / test touch, `make test` unchanged
 (2064/2064, 1 pending); `examples/workouts/` deliberately **not** wired into
-`corpus.test.ts` (L6/L7's call). **Next is L6 — ingestion: library → DB +
-fixtures**: `scripts/workouts-to-db.mjs` / `make workouts:load`, twin of
-`movements-to-db.mjs` — reads `examples/workouts/**/*.wdl`, upserts each as a
-`workouts` row owned by the matching org handle at `visibility: "public"`,
-`wdlId` from `@id`, idempotent on `wdlId`, `--dry-run`; the same run regenerates
-`fixtures/workouts.json` + `fixtures/users.json` so a fresh `make serve` shows
-the whole library with no PocketBase; prod writes need `WDL_PB_ADMIN_*`. See
+`corpus.test.ts` (L6/L7's call). **L6 landed 2026-09-01 (`<TASK-SHA>`)** —
+`scripts/workouts-to-db.mjs` / `make workouts:load`, twin of
+`movements-to-db.mjs`: idempotent-on-`wdlId` upsert of the 43
+`examples/workouts/**/*.wdl` files into the `workouts` collection as public rows
+owned by the matching org account, plus regeneration of `fixtures/workouts.json`
+(46 rows — 43 library + 3 preserved mock-user seed) and `fixtures/users.json`
+(the three org rows), so a fresh `make serve` / prod box shows the whole library
+with no manual step; `--dry-run` writes nothing; prod writes need superuser auth
+(`WDL_PB_ADMIN_*`, collection defaults to `_superusers`). `make test` unchanged
+(2064/2064, 1 pending); verified fresh mock → 42 created / 1 updated, re-run
+clean, edit-one → 1 PATCH, board + builder end-to-end against the regenerated
+fixtures. **Next is L7 — surface the library in the apps** (the builder's
+*Open…* / *My workouts* area gets a way to browse an org's public set — filter
+by owner handle or a small "Examples" list — and "open on the board" for any
+public workout; board confirms `?w=crossfit:fran` end to end and shows the org
+as source; small polish). **L7 closes the epic — move L0–L7 to
+[../tasks/completed.md](../tasks/completed.md) as one grouped section.** See
 [../tasks/current.md](../tasks/current.md) "## The workout library (L0–L7)".
 
 *Movements in the database — Phase 1 (M0–M7)* is
@@ -87,10 +97,11 @@ from Chris, in [../tasks/current.md](../tasks/current.md)):
   id; authored `.wdl` library + a `make workouts:load` ingest that also
   regenerates fixtures. **L0 (DEC-021), L1 (`users` `org`+`handle`), L2
   (`workouts.wdlId` column), L3 (force `@id`/`wdlId` on save + `getByAnyId`),
-  L4 (`searchWorkouts` + builder search box + the mock's `~`) and L5 (the
-  authored `.wdl` library — 43 files under `examples/workouts/`) done
-  2026-09-01; L6 (ingestion: `scripts/workouts-to-db.mjs` / `make
-  workouts:load`) next.** This absorbs most of the deferred account-namespacing
+  L4 (`searchWorkouts` + builder search box + the mock's `~`), L5 (the
+  authored `.wdl` library — 43 files under `examples/workouts/`) and L6
+  (ingestion: `scripts/workouts-to-db.mjs` / `make workouts:load` + fixture
+  regeneration) done 2026-09-01; L7 (surface the library in the apps — closes
+  the epic) next.** This absorbs most of the deferred account-namespacing
   rethink.
 - **unit defaults** — `@ 95` reads as `95lb`; a unitless magnitude on a
   machine/aerobic movement reads as calories. Spec + grammar + parser + golden
