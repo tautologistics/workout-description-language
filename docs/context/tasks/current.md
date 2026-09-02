@@ -183,6 +183,10 @@ detailed in its own bullet below.**
 
 ### Stage B — editor ergonomics (the visible win; V4 is the keystone)
 
+**Stage B is done as of 2026-09-02 (`10a2b8a`) — V4 and V5 landed together in
+one commit, and V5 carried the caption-bug fix with it. Stage C is next, and
+starts at V6.**
+
 - ~~**V3. Measured output → a 3-way segmented control.**~~ **Withdrawn
   2026-09-02 by Chris — the premise does not hold. Nothing shipped; no code
   landed. Settled as
@@ -237,36 +241,62 @@ detailed in its own bullet below.**
   reverted attempt: `apps/shared/movement-editor.js`,
   `apps/builder/builder.css`. No core.*
 
-- **V4. Build the reusable token-input widget** — `apps/shared/token-input.js`,
-  host-agnostic like `movement-editor.js`. Signature roughly
-  `createTokenInput({ container, value: string[], vocab: string[] | () =>
-  Promise<string[]>, allowCustom: boolean, placeholder?, onChange })`. Renders:
-  removable **chips** for the current value; a text **input with type-ahead**
-  over `vocab` (arrow-key highlight, Enter/click to add; `allowCustom` →
-  a `＋ Add "x"` row for an unrecognised token, else no-op); and, below the
-  field, a small **filter/select picker** — a filter box + a scrollable
-  (max-height, `overflow:auto`) checklist of `vocab`, click to toggle a term in
-  or out. *One* composition at every vocab size — no count threshold, no "show
-  N then More". CSS lives in `builder.css` on the shared tokens (no
-  host-specific look). *Touched: `apps/shared/token-input.js` (new),
-  `apps/builder/builder.css`. No core. Verify by driving the editor once V5
-  wires it.*
+- ~~**V4. Build the reusable token-input widget.**~~ **Fixed 2026-09-02
+  (`10a2b8a`, with V5 in one commit).** `apps/shared/token-input.js` —
+  `createTokenInput({ container, value, vocab, allowCustom, placeholder,
+  onChange })`, returning `{ value(), focus(), destroy() }`, host-agnostic the
+  way `movement-editor.js` is (no builder globals; the caller hands it a
+  container and callbacks). Renders the three things as specified: removable
+  chips; a text entry with type-ahead over `vocab` (arrow-key highlight, Enter
+  or click to add, a `＋ Add "x"` row when `allowCustom`, a **no-op that leaves
+  the typed text visible** when not — clearing the box would have made a refusal
+  look like a success); and, below the field, a filter/select picker (filter box
+  + a `max-height` / `overflow:auto` checklist, click to toggle). `vocab` may be
+  a `string[]` or a sync/async function, resolved once at mount. Comma and a
+  pasted `a, b, c` still commit tokens, so the old comma habit survives the
+  control change. **One composition at every vocab size** — settled as
+  [DEC-024](../topics/settled-decisions.md#dec-024-the-token-input-is-one-composition-chips--type-ahead--a-filterselect-picker).
+  The only thing size changes is how far the two bounded lists scroll; the only
+  thing a vocab's *absence* changes is that the picker and type-ahead are not
+  rendered at all (`aliases` is chips + free text). Both the menu and the picker
+  sit in **normal flow, not floating**, so neither can be clipped by or overflow
+  the modal's own scroll container at any width — verified at 768px. CSS in
+  `apps/builder/builder.css` on the shared tokens only, ≥2rem hit boxes, no text
+  under `.75rem`, secondary text dimmed by colour. *Touched:
+  `apps/shared/token-input.js` (new), `apps/builder/builder.css`.*
 
-- **V5. Wire the token-input widget into the movement editor.**
-  In `movement-editor.js` replace the free-text comma inputs for `equipment`,
-  `pattern`, `musclesPrimary`, `musclesSecondary`, `aliases`, `related`,
-  `sameAs` with `createTokenInput`. Vocab source, **static for now** (Stage C
-  swaps equipment/patterns to the API): a new `apps/shared/vocab.js` holding the
-  deduped equipment + pattern lists (seed from the distinct values in
-  `registry/movements.json` — collapse `kettlebell`/`kettlebells`, fold the
-  machine variants, drop `other`); muscles from `registry/muscles.json`;
-  `related`/`sameAs` type-ahead over the movement-id list already in memory;
-  `aliases` gets chips with no vocab. `allowCustom`: false for muscles, true for
-  the rest. `collect()` still emits arrays exactly as today (`splitList` /
-  `joinList` retire for these fields), so the write path and validation are
-  unchanged. *Touched: `apps/shared/{movement-editor.js, vocab.js (new)}`,
-  `apps/builder/builder.css`. No core. Verify: edit a movement, add/remove
-  chips, type-ahead, picker, save, confirm the `/api` body is unchanged shape.*
+- ~~**V5. Wire the token-input widget into the movement editor.**~~
+  **Fixed 2026-09-02 (`10a2b8a`, with V4 in one commit).** All seven list fields
+  — `aliases`, `equipment`, `pattern`, `related`, `sameAs`, `musclesPrimary`,
+  `musclesSecondary` — are `createTokenInput`s. `collect()` emits the same
+  arrays it always did, so the request body, the write path and **both**
+  cross-field validations are untouched; `splitList` / `joinList` retired with
+  their last callers. Vocab from a new **`apps/shared/vocab.js`**: `EQUIPMENT`
+  (29 terms) and `MOVEMENT_PATTERNS` (11) as literals seeded from
+  `registry/movements.json`, and `muscleIds()` fetching `registry/muscles.json`
+  relative to `import.meta.url` (never duplicated — a stale copy would offer a
+  term `build-movements.mjs` rejects). `createMovementEditor` gained an optional
+  **`vocab`** option keyed by field name; the builder passes `related` (curated
+  ids) and `sameAs` (canonical ids) through it, so the editor still holds no
+  movement list of its own and stays host-agnostic. `allowCustom` false for
+  muscles, true for the rest.
+  **Also fixed the caption bug** recorded in
+  [../topics/builder-ux.md](../topics/builder-ux.md): a `group()` twin of
+  `field()` wraps a multi-input control in a `<div role="group"
+  aria-labelledby>` instead of a `<label>`, used by both checkbox groups and all
+  seven token inputs — written as the rule, not as the two fields that broke.
+  **Two corrections to this item's own note, recorded in `vocab.js`.**
+  `kettlebells`→`kettlebell` and dropping `other` were right; **"fold the
+  machine variants" has nothing to fold** in `registry/movements.json`, whose 31
+  distinct values carry exactly one term containing "machine". The variants
+  (`smith machine`, `t-bar machine`, `machine: bench press`, …) are in
+  `registry/movements.canonical.json`, the raw upstream union — `Barbell` beside
+  `barbell`, `none (bodyweight exercise)` — which is a merge artefact rather
+  than a vocabulary, and is exactly why the curated registry is the seed.
+  Checked against the committed data before writing the list, per DEC-023.
+  *Touched: `apps/shared/{movement-editor.js, vocab.js (new)}`,
+  `apps/builder/builder.js`, `apps/builder/builder.css`. No core;
+  `make test` 2064/2064, 1 pending, before and after.*
 
 ### Stage C — equipment + patterns become data (mirror the movements M-series, lean)
 
@@ -316,7 +346,7 @@ detailed in its own bullet below.**
 V1 ─┐
 V2 ─┴─ ship (Stage A, independent, no risk)
 V3 ──── WITHDRAWN 2026-09-02 (premise false — DEC-023; blocked nothing)
-V4 ──> V5 ──────────────┐
+V4 ──> V5 ── shipped ───┐
 V6 ──> V7 ──> V8 ───────┴─ (V8 swaps V5's vocab source to the API)
                            V9 optional, after V8
 ```
@@ -324,14 +354,19 @@ V6 ──> V7 ──> V8 ───────┴─ (V8 swaps V5's vocab source
 **Stage A shipped 2026-09-02 (`7429863`).** **V3 is withdrawn** (2026-09-02 —
 its premise turned out to be false; DEC-023, see the item above); it was
 independent of everything else, so nothing waited on it and nothing changes.
-**V4→V5 is the next work**, and is the ergonomics deliverable — it can ship on
-static vocab. Stage C (V6→V7→V8) makes it
-data-driven and only needs V5 to exist. Land each with its `docs/context/`
-write-up; V6/V8 want a **DEC** — "equipment & movement patterns are a DB-backed
-vocabulary layer; `registry/{equipment,patterns}.json` is the committed dump"
-(mirrors [DEC-020](../topics/settled-decisions.md)) — and a settled-decision
-note for the token-input pattern (chips + type-ahead + filter/select picker; no
-size-driven variants; `allowCustom` per field; muscles closed).
+**Stage B shipped 2026-09-02 (`10a2b8a`) — V4 and V5 in one commit**, the
+ergonomics deliverable, on static vocab; its pattern is settled as
+[DEC-024](../topics/settled-decisions.md#dec-024-the-token-input-is-one-composition-chips--type-ahead--a-filterselect-picker).
+They landed together on purpose: V4 has no user-visible surface on its own, and
+this repo verifies by driving the real app, so a scratch host page would have
+proved less than driving the editor V4 exists for.
+**Stage C (V6→V7→V8) is the next work** — it makes the vocab data-driven and
+only needed V5 to exist. Land each with its `docs/context/` write-up; V6/V8 want
+a **DEC** — "equipment & movement patterns are a DB-backed vocabulary layer;
+`registry/{equipment,patterns}.json` is the committed dump" (mirrors
+[DEC-020](../topics/settled-decisions.md)). `apps/shared/vocab.js`'s two literal
+exports are already shaped to become V8's offline fallback with the fetch in
+front of them, so no consumer changes when that happens.
 
 ---
 

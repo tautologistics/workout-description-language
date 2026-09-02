@@ -2,6 +2,81 @@
 
 ## Changes
 
+- **2026-09-02 — V4 + V5 landed together (`10a2b8a`): a reusable token-input
+  widget, and the movement editor's seven list fields wired onto it.** Stage B
+  of the *Vocabularies & editor ergonomics* epic, in one commit — V4 has no
+  user-visible surface on its own and this repo verifies by driving the real
+  app, so a scratch host page would have proved less than driving the editor.
+  *Before → after:* seven comma-separated `<input>`s ("barbell, dumbbell") →
+  seven token inputs — removable chips, a type-ahead entry, and a filter box
+  over a bounded scrolling checklist below the field.
+  **What is new:** `apps/shared/token-input.js` (`createTokenInput(...)` →
+  `{ value(), focus(), destroy() }`, host-agnostic like `movement-editor.js`);
+  `apps/shared/vocab.js` (`EQUIPMENT` 29 terms + `MOVEMENT_PATTERNS` 11, seeded
+  from `registry/movements.json`; `muscleIds()` fetching
+  `registry/muscles.json` relative to `import.meta.url`, never duplicated);
+  an optional per-field **`vocab`** option on `createMovementEditor`, through
+  which the builder passes `related` (curated ids) and `sameAs` (canonical ids)
+  so the editor still holds no movement list of its own; and a **`group()`**
+  twin of `field()`. `splitList` / `joinList` retired with their last callers.
+  **One composition at every vocabulary size** — no count threshold, no "show 15
+  then More" — settled as
+  [DEC-024](../topics/settled-decisions.md#dec-024-the-token-input-is-one-composition-chips--type-ahead--a-filterselect-picker).
+  **The caption bug went with it.** `field()` wrapped every field in a
+  `<label>`, and a `<label>` labels only its first labelable descendant, so
+  clicking the words COUNTING MODES ticked `both` and MEASURED OUTPUT ticked
+  `distance`. `group()` uses `<div role="group" aria-labelledby>` instead, and
+  **every** control holding more than one input uses it — the two checkbox
+  groups and all seven token inputs, which would each have acquired the bug the
+  day they landed. Written as the rule, not as the two fields that broke.
+  **The measured-output checkbox pair is untouched** — `measures` is a
+  capability set ([DEC-023](../topics/settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice))
+  — and `skierg` round-tripping as `["distance","calories"]` was the regression
+  guard.
+  **Two corrections to the queued V5 note, recorded in `vocab.js` rather than
+  silently applied.** Folding `kettlebells`→`kettlebell` and dropping `other`
+  were right. **"Fold the machine variants" had nothing to fold**:
+  `registry/movements.json`'s 31 distinct equipment values carry exactly one
+  term containing "machine". The variants (`smith machine`, `t-bar machine`,
+  `machine: bench press`, …) are in `registry/movements.canonical.json`, whose
+  69 values are the raw upstream union — `Barbell` beside `barbell`, `none
+  (bodyweight exercise)` — a merge artefact rather than a vocabulary, and
+  exactly why the curated registry is the seed. Checked against the committed
+  data before writing the list, which is the habit DEC-023 bought.
+  **Files:** `apps/shared/token-input.js` (new), `apps/shared/vocab.js` (new),
+  `apps/shared/movement-editor.js`, `apps/builder/builder.js`,
+  `apps/builder/builder.css`. No core, grammar, spec, registry, migration or
+  test change; `make test` **2064/2064, 1 pending** measured before and after,
+  unchanged as expected for app JS + CSS.
+  **Verified by driving the builder** against `make serve` (mock `/api`):
+  `skierg` and `deadlift` open with the right chips in every field; type-ahead
+  narrows on prefix first (`bar` → barbell / e-z curl bar / pull-up bar) and
+  Enter adds; the picker adds, its filter narrows (`push` → the two push
+  patterns), and removing a chip unticks its checkbox; an unrecognised token
+  offers `＋ Add "ski-erg"` in aliases and is refused **without clearing the
+  box** in muscles; neither caption ticks anything (the DOM reads nine
+  `DIV:group` fields beside eight `LABEL` ones); the axis/per-side validation
+  still fires. **The observed `PATCH …/movements/records/mv0007qwakq` body** —
+  every list field an array of strings, nothing stringified, same shape as
+  before: `aliases:["ski"]`, `equipment:["skierg","machine"]`,
+  `pattern:["core","vertical-pull","locomotion"]`,
+  `muscles.primary:["abs","lats","triceps"]`,
+  `muscles.secondary:["erectors","mid-back","quads","shoulders"]`,
+  `measures:["distance","calories"]`, `related:null`, `sameAs:null`,
+  `laterality:null` — and stray text typed but never committed to a chip
+  (`rowin` left sitting in Related) was correctly **not** saved. Reopened and
+  the chips round-tripped. Both themes, 768px wide with
+  `scrollWidth === clientWidth` inside the modal host and the picker, console
+  clean.
+  **One pre-existing defect found on the way and recorded, not fixed:** the
+  palette's `✎` hands the editor the **canonical** merged entry rather than the
+  curated one, so `deadlift` shows equipment `Barbell` and `skierg` shows only
+  one of its two curated aliases — and a save writes that back. Unchanged by V5
+  (it is which record the host passes, not how the control renders it), but far
+  more visible now that chips show the spelling. Needs a Chris call between two
+  fixes; written up in [../topics/builder-ux.md](../topics/builder-ux.md) under
+  "The movement editor".
+
 - **2026-09-02 — V3 withdrawn by Chris; settled as
   [DEC-023](../topics/settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice).**
   The resolution of the entry below. `measures` on a movement is a **capability

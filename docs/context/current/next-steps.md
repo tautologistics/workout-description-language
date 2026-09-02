@@ -86,20 +86,35 @@ and listed in
 [../topics/deliberately-not-done.md](../topics/deliberately-not-done.md).
 **Nothing is open on it.**
 
-**So Stage B starts at V4 → V5**, the ergonomics deliverable: build the
-reusable `apps/shared/token-input.js` (chips + type-ahead + filter/select
-picker, one composition at every vocab size) and wire it into the movement
-editor's seven list fields over a static `apps/shared/vocab.js`. V4 has no
-user-visible surface until V5, so they land together or V4 gets a scratch host
-page to verify against. V5 should also fix the **caption bug** found on the way
-(clicking a grouped field's caption ticks its first checkbox — a `<label>`
-labels only its first labelable descendant); it is in
-[../topics/builder-ux.md](../topics/builder-ux.md). Stage C (V6–V8)
-then makes **equipment** and **movement patterns** a DB/API-backed vocabulary
-(fixtures + mock `/api` + collection + committed `registry/*.json` dump,
-mirroring the movements M-series) and swaps V5's vocab source to it.
-**Muscles stays `registry/muscles.json`** — closed set, body-map SVG is the real
-limit.
+**Stage B (V4 + V5) landed 2026-09-02 (`10a2b8a`)** — in one commit, because V4
+has no user-visible surface on its own and this repo verifies by driving the
+real app. `apps/shared/token-input.js` is the reusable widget (chips +
+type-ahead + a filter/select picker, **one composition at every vocab size** —
+[DEC-024](../topics/settled-decisions.md#dec-024-the-token-input-is-one-composition-chips--type-ahead--a-filterselect-picker)),
+and the movement editor's seven list fields are wired onto it over a static
+`apps/shared/vocab.js`. `collect()` emits the same arrays, so the write path and
+both validations are unchanged. It also carried the **caption bug** fix: a
+`group()` twin of `field()` wraps every multi-input control in a `<div
+role="group" aria-labelledby>`, so neither checkbox-group caption — nor any of
+the seven token inputs — is bound to its first input any more. `make test`
+unchanged (2064/2064, 1 pending).
+
+**So the next work is Stage C — V6 → V7 → V8**, which makes **equipment** and
+**movement patterns** a DB/API-backed vocabulary (committed
+`registry/{equipment,patterns}.json` + a PocketBase migration, then fixtures +
+mock `/api`, then a load script and a fetch in front of `vocab.js`'s literals,
+which are already shaped to become the offline fallback). V6 starts it and wants
+a **DEC** of its own, mirroring DEC-020. **Muscles stays
+`registry/muscles.json`** — closed set, body-map SVG is the real limit. **V9
+(inline "＋ new term" in the picker) stays optional**, after V8.
+
+**One new self-contained item came out of V5's verification**, needing Chris to
+pick between two fixes: the palette's `✎` hands the movement editor the
+**canonical** merged entry rather than the curated one, so `deadlift` opens
+showing equipment `Barbell` and `skierg` shows one of its two curated aliases —
+and a save writes that back. Pre-existing since M5 and unchanged by V5, but
+newly legible now that chips show the spelling. In
+[../topics/builder-ux.md](../topics/builder-ux.md) under "The movement editor".
 
 Also still open, needing Chris to scope: a full **laterality curation sweep**
 (which movements), and the board's **Edit** button round-tripping into the

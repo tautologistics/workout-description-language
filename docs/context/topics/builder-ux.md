@@ -610,28 +610,55 @@ No core change.*
 
 ### The movement editor
 
-**Clicking a grouped field's caption silently ticks its first checkbox.**
-Found 2026-09-02 while building V3; **pre-existing, not fixed, and not caused
-by that attempt.** `movement-editor.js`'s `field(label, control)` helper wraps
-every field in a `<label class="me-field">`, which is right for the single
-`<input>` / `<select>` fields it was written for — but **a `<label>` labels only
-its first labelable descendant**, so for the two checkbox *groups* the caption
-is bound to whichever box happens to be first. Clicking the words **COUNTING
-MODES** ticks `both`; clicking **MEASURED OUTPUT** ticks `distance`. Confirmed
-live on `skierg` (all three counting modes unticked → one click on the caption
-→ `both=true`), and it is invisible in review because the caption looks like a
+**~~Clicking a grouped field's caption silently ticks its first checkbox.~~
+Fixed 2026-09-02 (`10a2b8a`, carried by V5).** Found 2026-09-02 while building
+V3; **pre-existing, and not caused by that attempt.**
+`movement-editor.js`'s `field(label, control)` helper wrapped every field in a
+`<label class="me-field">`, which is right for the single `<input>` /
+`<select>` fields it was written for — but **a `<label>` labels only its first
+labelable descendant**, so for the two checkbox *groups* the caption was bound
+to whichever box happened to be first. Clicking the words **COUNTING MODES**
+ticked `both`; clicking **MEASURED OUTPUT** ticked `distance`. Confirmed live on
+`skierg` (all three counting modes unticked → one click on the caption →
+`both=true`), and it was invisible in review because the caption looks like a
 caption, not a control.
 
-The fix is not per-field: **a wrapper that contains a group of inputs must be a
-`<div>`, not a `<label>`, and name the group through `aria-label` /
-`aria-labelledby` instead** — stated as a rule, because the next grouped field
-added to this form inherits the bug otherwise (the same shape of mistake as
-*A CSS rule with a `display` silently overrules `hidden`* in
-[lessons-learned.md](lessons-learned.md), where the fix written as a list of
-the elements that broke was missing the next one). **V5 should carry it**: it
-replaces seven of these fields with the token-input widget and will be in this
-helper anyway. *Scope: `apps/shared/movement-editor.js` (`field()` + a `group()`
-twin), `apps/builder/builder.css`. No core change.*
+The fix is not per-field, and was not written that way: **a wrapper that
+contains a group of inputs must be a `<div>`, not a `<label>`, and name the
+group through `aria-label` / `aria-labelledby` instead** — stated as a rule,
+because the next grouped field added to this form would inherit the bug
+otherwise (the same shape of mistake as *A CSS rule with a `display` silently
+overrules `hidden`* in [lessons-learned.md](lessons-learned.md), where the fix
+written as a list of the elements that broke was missing the next one). V5 added
+a **`group()` twin of `field()`** — `<div class="me-field" role="group"
+aria-labelledby="…">` — and every control holding more than one input now uses
+it: the two checkbox groups **and all seven token inputs**, which would each
+have acquired the same bug the day they landed. Verified live: clicking either
+caption changes nothing, and the DOM reads nine `DIV:group` fields beside eight
+`LABEL` ones. *`apps/shared/movement-editor.js`; no core change.*
+
+**The palette's `✎` hands the editor the *canonical* entry, not the curated
+one — so a save writes the merged corpus's spelling back into the DB.** Found
+2026-09-02 while verifying V5; **pre-existing since M5, unchanged by V5, and not
+fixed.** `renderPalette()` passes the movement object it drew the card from,
+which comes from `registry/movements.canonical.json` (the 5-source merge), not
+`registry/movements.json` (the curated layer the editor is *for*). Three
+consequences, all visible now that chips make the values legible: opening
+`deadlift` shows equipment **`Barbell`** (capital B — the canonical file carries
+69 raw upstream spellings, `Barbell` beside `barbell`, `Swiss Ball` beside
+`swiss ball`); opening `skierg` shows `aliases: ["ski"]` though the curated
+entry has `["ski", "ski erg"]`, so saving would drop the second; and `muscles`
+rides along with the canonical `support` / `sources` sub-objects, which the
+PATCH body then carries into the `movements` collection. The old comma inputs
+did exactly the same thing — this is *which record the host passes*, not how the
+control renders it — but it was hard to see when the values were a comma string.
+The token input's picker matches case-insensitively, so `Barbell` still shows
+`barbell` ticked rather than looking absent. **The fix is a decision, not a
+patch**: either the `✎` looks the curated entry up by id before opening (and
+falls back to the canonical one for a movement the curated layer does not
+carry), or it fetches the row over `/api` the way `getMovementByMovementId`
+already can. *Scope: `apps/builder/builder.js` (`renderPalette`'s edit handler,
+~2092) — needs Chris to pick which of the two. No core change.*
 
 ---
 

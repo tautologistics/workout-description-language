@@ -1539,13 +1539,70 @@ premise (`77bff40`). No code shipped — the V3 attempt was reverted.*
   underneath V3 was real and survives it: the editor's grouped fields have a
   caption bug (a `<label>` labels only its first labelable descendant, so
   clicking a group's caption ticks its first checkbox) — recorded in
-  [builder-ux.md](builder-ux.md), to be fixed by V5. The rest of the epic
-  (V4→V5, Stage C V6→V8) is unaffected; V3 blocked nothing.
+  [builder-ux.md](builder-ux.md), and **fixed by V5 on 2026-09-02
+  (`10a2b8a`)**, as planned. The rest of the epic (V4→V5, Stage C V6→V8) was
+  unaffected; V3 blocked nothing.
 
 - **If this is ever revisited**, the thing to change first is the *data model*,
   not the widget: a per-movement "preferred" measure would be a new field, not a
   narrowing of this one. Re-curating the three ergs to a single measure each
   contradicts spec §9.3 and would need its own decision.
+
+### DEC-024 The token input is one composition: chips + type-ahead + a filter/select picker
+*Status: active. Settled 2026-09-02 with queue items V4 + V5 of the
+Vocabularies & editor ergonomics epic (`10a2b8a`).*
+
+- **A list-of-strings field is edited by one widget, `apps/shared/token-input.js`,
+  which always renders the same three things**: removable chips for the current
+  value; a text entry with type-ahead over the vocabulary; and, below the field,
+  a filter box over a bounded, scrolling checklist of the whole vocabulary.
+  Nothing about the *size* of a vocabulary selects a different layout.
+
+- **The rejected alternative was a count threshold** — a "vocab tray" for short
+  lists and a "show the first 15, then More" for long ones, which the design
+  review proposed. It was dropped before V4 was written: a filterable picker
+  with a `max-height` and `overflow: auto` already reads the same at 11 terms
+  (movement patterns) and at 29 (equipment) and would at 1100, so the threshold
+  buys nothing and costs a second layout every reader has to learn, plus a
+  boundary where the control changes shape under someone mid-edit as a
+  vocabulary grows. *One control that scales beats two controls that each fit.*
+
+- **The only thing that varies is a vocabulary's absence, not its size.** With
+  no vocabulary — `aliases`, whose whole point is a name nobody has written
+  down yet — there is nothing to browse and nothing to complete, so the picker
+  and the type-ahead are not rendered at all and the field is chips plus free
+  text. That is a *degradation by missing data*, which is the kind this project
+  already accepts everywhere (each registry fetch failing takes its own feature
+  with it), not a size variant.
+
+- **`allowCustom` is per field, and closed is the exception.** Equipment,
+  patterns, aliases, related and same-as are open: a curator meeting a new
+  implement writes it down rather than waiting for a vocabulary release, and the
+  picker is a shortcut rather than a gate. **Muscles are closed** — the body-map
+  SVG has one hand-drawn path per id and `scripts/build-movements.mjs` fails on
+  anything not in `registry/muscles.json`, so an unrecognised muscle is a typo,
+  not a new term. A closed field offers no `＋ Add "x"` row and refuses the
+  token — but **leaves the typed text in the box**, because clearing it would
+  make a refusal look exactly like a success.
+
+- **Both popups sit in normal flow, not floating.** The type-ahead menu and the
+  picker push the fields below them down instead of overlaying. It costs a
+  little layout movement while typing and buys the guarantee that neither can be
+  clipped by, or overflow, the scroll container of whatever modal is hosting the
+  form — which is the failure this widget would otherwise hit at every narrow
+  width. Verified at 768px inside the movement editor's `<dialog>`.
+
+- **The vocabulary is `string[]` *or* a function returning one, possibly async.**
+  That is what lets V8 swap equipment and patterns from
+  `apps/shared/vocab.js`'s literals to a `/api` fetch with those literals as the
+  offline fallback, and lets a *host* supply a vocabulary it already holds —
+  which is how the builder feeds `related` / `sameAs` its movement-id lists
+  without the editor ever reaching for a builder global.
+
+- **Where the look lives.** The widget's CSS is in `apps/builder/builder.css` on
+  the shared `--ink` / `--dim` / `--rule` / `--accent` / `--page` / `--panel`
+  tokens only, with ≥2rem hit boxes and no text under `.75rem`, dimmed by colour
+  rather than `opacity`. A second host restyles nothing; it inherits the tokens.
 
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in

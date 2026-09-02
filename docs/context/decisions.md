@@ -232,3 +232,21 @@ off `calorieUnitHints()` (rule 2 of
 [DEC-022](topics/settled-decisions.md#dec-022-a-unitless-load-magnitude-is-pounds-wdl-fmt-writes-the-unit-in))
 and dropping a `»` modifier pick. The rest of the epic is unaffected.
 -> [topics/settled-decisions.md](topics/settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice)
+
+## DEC-024 — The token input is one composition: chips + type-ahead + a filter/select picker
+Status: active. Settled 2026-09-02 with queue items V4 + V5 (`10a2b8a`).
+A list-of-strings field is edited by one widget — `apps/shared/token-input.js` —
+that always renders removable chips, a type-ahead entry, and a filter box over a
+bounded scrolling checklist. **No count threshold and no size-driven variants**:
+the review's "vocab tray for short lists, show-15-then-More for long ones" was
+dropped because a filterable, `max-height`ed picker reads the same at 11 terms
+and at 1100, so a second layout costs a reader for nothing. The only thing that
+varies is a vocabulary's *absence* (no vocab → chips + free text, as `aliases`).
+`allowCustom` is per field — open for equipment / patterns / aliases / related /
+same-as, **closed for muscles** (the body map has one path per id and the
+registry build fails on anything else), and a refused token stays visible in the
+box rather than being cleared. Both popups sit in normal flow so neither can
+overflow a hosting modal. Vocabulary is `string[]` or a (possibly async)
+function, which is what lets V8 swap in a `/api` fetch and lets a host pass a
+list it already holds.
+-> [topics/settled-decisions.md](topics/settled-decisions.md#dec-024-the-token-input-is-one-composition-chips--type-ahead--a-filterselect-picker)
