@@ -2,6 +2,24 @@
 
 ## Changes
 
+- **2026-09-01 — board: the notifications strip is now dismissible
+  (`<TASK-SHA>`).** First of the two remaining post-library standalone tasks.
+  The red `#problems` strip at the foot of the board (parse errors, resolve
+  diagnostics, run warnings) gained a **Clear notifications** button in the
+  footer control row, beside Reset. **Files:** `apps/display/index.html` (static
+  `<button id="clear-notifs" hidden>` after `#reset`), `apps/display/board.js`
+  (new `setProblems(text = '')` helper — the single show/hide path for the strip
+  text + `problems.hidden` + the button's `hidden`; `recue()`, `loadShared()`
+  and `showEmpty()` routed through it; click handler `() => setProblems()`). No
+  `board.css` change (generic `button` styling), no `packages/core` / grammar /
+  spec / mock / fixture touch. The clear is not a permanent suppression — the
+  next `recue()` (reparse / `?w=` load / division change) repopulates the strip.
+  Verified dark only (the board has no light theme) by driving the board:
+  clean workout → no strip, no button; `AMRAP 3min: 10 Push-Up` via the
+  `#<source>` hash → strip + button; Clear → both hidden, no reserved gap;
+  navigate to another erroring workout → both return; Start / Next / Back /
+  Reset and footer layout unaffected. `make test` unchanged — **2064/2064, 1
+  pending**; `git status` clean of fixtures.
 - **2026-09-01 — L7 of *The workout library* epic landed (`2557177`) — the
   epic is closed.** Surfacing pass: a way to browse a curated org's public set
   from the builder, and "open on the board" for any public workout. **App code

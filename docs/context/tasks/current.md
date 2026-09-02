@@ -44,17 +44,29 @@ board resolves `?w=<handle>:<slug>` end to end and shows the namespaced id in th
 what is left of it — the board **Edit** button round-tripping into the builder —
 is a loose bullet below.
 
-**No epic is in flight. Three standalone tasks are queued, all dispatchable now:**
+**No epic is in flight. Two standalone tasks are queued, both dispatchable now:**
 
+- **board: the `#` title moves into the meta strip** — not a body row; `@id`
+  shown small in parentheses after it.
 - **unit defaults** — a unitless `@ 95` load target reads as `95lb` (pound is
   the default); a unitless magnitude on a machine/aerobic movement reads as
   calories.
-- **board: dismissible notifications** — a "Clear notifications" footer button.
-- **board: the `#` title moves into the meta strip** — not a body row; `@id`
-  shown small in parentheses after it.
 
 Recently closed (kept here briefly for the trail):
 
+- **~~board: parse errors / notifications must be dismissible~~ — landed
+  2026-09-01 (`<TASK-SHA>`).** A **Clear notifications** button now sits in the
+  board's footer control row (static markup in `apps/display/index.html`, beside
+  Reset), shown only while the red `#problems` strip has content and hidden with
+  it. One `setProblems(text = '')` helper in `apps/display/board.js` is the
+  single show/hide path — it sets the strip text, `problems.hidden`, and the
+  button's `hidden` together; `recue()`, `loadShared()`'s catch and
+  `showEmpty()` all route through it. Clicking the button calls `setProblems()`
+  with no text, so the strip is genuinely `hidden` (`[hidden]{display:none}` — no
+  reserved gap), not suppressed: the next `recue()` (a reparse, a `?w=` load, a
+  division change) repopulates it if anything is still wrong. `apps/display/`
+  only; dark verified; `make test` unchanged (2064/2064, 1 pending). Write-up in
+  [../topics/builder-ux.md](../topics/builder-ux.md) under "The board".
 - **~~The `»` panel's per-implement load token (`@ 2x`) is unclear
   mid-edit~~ — landed 2026-09-01 (`00f599c`).** The seeded `@ Nx` token
   stays (it carries the implement count, and a bare `@ Nx` round-trips clean —
@@ -122,25 +134,6 @@ are pinned there as `was-wrong`; `@ 95` joins them). No app change strictly
 required. **Rule 2**: `apps/builder/builder.js` diagnostics/findings only —
 registry-derived suggestion, no core/spec-semantics change; the board is
 untouched.
-
----
-
-## Standalone task — board: parse errors / notifications must be dismissible
-
-*Raised 2026-09-01 by Chris, driving the board.*
-
-The board shows parse errors (and other notifications) in a red strip at the
-bottom. **Showing them is right; there is no way to dismiss them.** Wanted:
-either a per-line `✕`, or — Chris's preference — a **"Clear notifications"
-button in the footer control row, beside Start / Next / Back / Reset**. It
-clears the strip until the next parse/notification event repopulates it.
-
-Scope: `apps/display/board.js` (the footer control assembly and the
-diagnostics/notifications render — find where the red strip is drawn and where
-`el('reset')` etc. are wired), `apps/display/board.css` (button + a `.hidden`
-or emptied state for the strip), `apps/display/index.html` if the footer
-buttons are static markup rather than built in JS. The board has no light
-theme — verify dark only. No core change. Small and self-contained.
 
 ---
 

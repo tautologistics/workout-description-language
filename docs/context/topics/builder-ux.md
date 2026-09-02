@@ -758,12 +758,30 @@ small in parentheses after it (`Fran (crossfit:fran)`). Queued as the
 "board: the `#` title into the meta strip" standalone task in
 [../tasks/current.md](../tasks/current.md).**
 
-**The board's red parse-error / notification strip has no dismiss control.**
-Raised 2026-09-01 by Chris driving the board. Showing the errors is right, but
-there is no way to clear them — wanted a **"Clear notifications" footer button**
-beside Start / Next / Back / Reset (his preference), or a per-line `✕`. Queued
-as the "board: dismissible notifications" standalone task in
-[../tasks/current.md](../tasks/current.md).
+**~~The board's red parse-error / notification strip has no dismiss control.~~
+Fixed 2026-09-01 (`<TASK-SHA>`).** *Was:* the `#problems` strip below the board
+showed parse errors, resolve diagnostics and run warnings with no way to clear
+them once read. Chris's stated preference (raised driving the board) was a
+footer button, not a per-line `✕`. **Shipped:** a **Clear notifications**
+`<button id="clear-notifs" hidden>` in `apps/display/index.html`'s footer, right
+after Reset — the footer buttons are static markup wired by `el(id).onclick`, so
+it follows that pattern. All strip show/hide now goes through one helper in
+`board.js`, `setProblems(text = '')`: it sets `problems.textContent`,
+`problems.hidden = !text` and `el('clear-notifs').hidden = !text` together, so
+the button is present exactly when the strip has content. `recue()` (which runs
+on every reparse / `?w=` load / division change), `loadShared()`'s not-found
+catch, and `showEmpty()` were switched to call it. The button's click handler is
+`() => setProblems()` — clears the text, hides both; because the hide is the
+`hidden` attribute (`[hidden]{display:none!important}` in `board.css`) the strip
+reserves no layout, matching how `#meta` and the footer's own conditional
+buttons hide. It is **not** a permanent suppression: the next `recue()`
+repopulates the strip if anything is still wrong. `apps/display/` only — no
+`board.css` change was needed (generic `button` styling already covers it), no
+core change. Verified dark (the board has no light theme): clean workout shows
+neither strip nor button; a parse error (`AMRAP 3min: 10 Push-Up` via the
+`#<source>` hash) shows both; Clear hides both with no gap; navigating to
+another workout with an error brings both back; Start / Next / Back / Reset and
+the footer layout are unaffected. `make test` unchanged — 2064/2064, 1 pending.
 
 ---
 

@@ -17,17 +17,23 @@ epic absorbed most of the deferred account-namespacing rethink; what is left —
 the board **Edit** button round-tripping into the builder — is a loose bullet
 below.
 
-**Next off the queue: the three standalone tasks** (all fleshed out 2026-09-01
-from Chris, in [../tasks/current.md](../tasks/current.md), all dispatchable now).
-Recommended order — smallest / most self-contained first:
+**board: dismissible notifications closed 2026-09-01 (`<TASK-SHA>`)** — a
+**Clear notifications** button in the board footer beside Reset, shown only
+while the red `#problems` strip has content; one `setProblems()` helper in
+`apps/display/board.js` is the single show/hide path, and clearing is not
+permanent (the next reparse / `?w=` load / division change repopulates it).
+`apps/display/` only, dark verified, `make test` unchanged (2064/2064, 1
+pending).
 
-1. **board: dismissible notifications** — a "Clear notifications" footer button
-   beside Start / Next / Back / Reset; `apps/display/` only, dark theme only, no
-   core change. The smallest.
-2. **board: the `#` title moves into the meta strip** — the `# Title` line joins
+**Next off the queue: two standalone tasks left** (both fleshed out 2026-09-01
+from Chris, in [../tasks/current.md](../tasks/current.md), both dispatchable
+now). Recommended order — smaller / more self-contained first:
+
+1. **board: the `#` title moves into the meta strip** — the `# Title` line joins
    the hidden preamble run and shows in the `#meta` strip instead of as the
-   first body row; `@id` small in parentheses after it. `apps/display/` only.
-3. **unit defaults** — the big one: `@ 95` with no unit reads as `95lb` (rule 1,
+   first body row; `@id` small in parentheses after it. `apps/display/` only,
+   dark only, no core change. The smaller one.
+2. **unit defaults** — the big one: `@ 95` with no unit reads as `95lb` (rule 1,
    a real spec + grammar + parser + golden change) and a unitless magnitude on a
    machine/aerobic movement suggests calories (rule 2, a builder-only
    diagnostic). The two rules can land separately.

@@ -739,6 +739,19 @@ function recordName() {
 const where = (d) => (d.line === undefined ? d.message : `line ${d.line}: ${d.message}`);
 
 /**
+ * The red strip at the foot of the board — parse errors, resolve diagnostics,
+ * run warnings. Shown whenever there is something to say, and dismissible: the
+ * "Clear notifications" footer button calls this with no text to hide it. It is
+ * not a permanent suppression — the next parse or division change runs `recue`,
+ * which repopulates it if anything is still wrong.
+ */
+function setProblems(text = '') {
+  problems.textContent = text;
+  problems.hidden = !text;
+  el('clear-notifs').hidden = !text;
+}
+
+/**
  * The URL is the share link, the hash is the workout — and now the division too.
  *
  * `encodeURIComponent` escapes `&`, so an `&` in the hash can only be one this
@@ -783,10 +796,9 @@ async function loadShared(id) {
   } catch (e) {
     // A `private` record 404s for a stranger; a bad id 404s too. Either way the
     // board stays on its empty drop-zone with a line saying why.
-    problems.hidden = false;
-    problems.textContent = e.status === 404 || e.message === 'empty'
+    setProblems(e.status === 404 || e.message === 'empty'
       ? 'That workout could not be found — the link may be wrong, or it may be private.'
-      : `Could not load that workout: ${e.message}`;
+      : `Could not load that workout: ${e.message}`);
   }
 }
 
@@ -930,8 +942,7 @@ function recue() {
     ...chosen.map(where),
     ...laid.warnings,
   ];
-  problems.hidden = !diagnostics.length;
-  problems.textContent = diagnostics.join('\n');
+  setProblems(diagnostics.join('\n'));
 }
 
 /**
@@ -977,7 +988,7 @@ function showEmpty() {
   bar.hidden = true;
   meta.hidden = true;
   controls.hidden = true;
-  problems.hidden = true;
+  setProblems();
   // Drop both the hash and a `?w=<id>` share param, so "Edit" lands on the
   // real empty board rather than immediately reloading the shared workout.
   if (location.search || location.hash) location.assign(location.pathname);
@@ -991,6 +1002,7 @@ el('next').onclick = () => advance(1);
 el('prev').onclick = () => advance(-1);
 el('leave').onclick = leave;
 el('reset').onclick = reset;
+el('clear-notifs').onclick = () => setProblems();
 el('record-open').onclick = showRecord;
 el('record-close').onclick = () => { el('record').hidden = true; };
 el('record-copy').onclick = async () => {
