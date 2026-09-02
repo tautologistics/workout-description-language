@@ -714,43 +714,6 @@ what catches the resolver direction.*
 
 ---
 
-## Security audit / hardening sweep — queued 2026-09-02 (Chris)
-
-**A full security sweep across the hosted stack**, with the working assumption
-that **nothing from the client is ever trusted**. The specific asks Chris named:
-
-- **`admin` / user identity must be verified server-side on every mutating
-  endpoint**, not just where the UI decides what to show. Today the apps gate
-  editing affordances client-side and the mock `/api` hands every caller an
-  `admin: true` fixture user — the real check is whatever the **PocketBase
-  collection rules** enforce. Audit every collection's **create / update /
-  delete** rules (`movements`, `workouts`, `equipment`, `patterns`, `users`),
-  confirm `@request.auth.admin = true` (or owner-only, as appropriate) actually
-  holds on the write path, and that a crafted `POST` / `PATCH` from an
-  unprivileged (or unauthenticated) session is rejected by the server.
-- **No cross-user editing.** Confirm a signed-in non-org user cannot `PATCH`
-  another user's `workouts` row, cannot set `owner` to someone else, cannot
-  claim an `org` handle, cannot flip their own `admin` flag.
-- **No secret / PII leakage.** Check `users` list/view rules don't expose other
-  users' rows or fields; check no admin token, `.env` value, or superuser
-  credential is reachable from a served asset or an API response.
-- **The usual sweep** — injection into the `filter=` query strings the apps
-  build (`searchWorkouts`, `listEquipment`, …), the OAuth redirect URIs, the
-  static-asset MIME/path handling, the port-8090 exposure already tracked in
-  [../topics/known-debts.md](../topics/known-debts.md) /
-  `deploy/README.md`.
-
-Cross-check against [../topics/settled-decisions.md](../topics/settled-decisions.md)
-(the collection-rule decisions — DEC-020 movements, DEC-021 handles/namespace,
-DEC-025 vocab) and `deploy/pocketbase/pb_migrations/*.js` (where every rule is
-written). The mock `/api` (`scripts/mock-api.mjs`) is **not** the security
-boundary and its permissive auth is by design — the audit is against the real
-PocketBase rules on the box. *Needs Chris to scope depth / whether it blocks
-other work; likely wants a written findings doc rather than a code change in the
-first pass.*
-
----
-
 ## Loose bullets — unscheduled, need Chris to scope
 
 - **A full laterality curation sweep** — not a numbered item. `around-worlds` is

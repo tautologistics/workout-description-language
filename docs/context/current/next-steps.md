@@ -195,14 +195,16 @@ git-ignored `.env` (`.env.example` is the template) — [running-it.md](../topic
 see the dedicated paragraph above; nothing is open on it. Still needing Chris to
 scope: the two loose bullets below.
 
-**Queued 2026-09-02 (Chris): a full security audit / hardening sweep** —
+**Deferred 2026-09-02 (Chris): a full security audit / hardening sweep** —
 nothing from the client trusted; verify `admin` / user identity server-side on
 **every mutating endpoint** (PocketBase collection create/update/delete rules,
 not just the UI gate), no cross-user editing, no secret/PII leakage, plus the
 usual `filter=` injection / OAuth-redirect / static-asset / port-8090 checks.
-Full write-up in [../tasks/current.md](../tasks/current.md) "## Security audit /
-hardening sweep". Needs Chris to scope depth; likely a findings doc first, not a
-code change.
+**Explicitly a "once the queue is exhausted and functionality has settled down"
+item, not a next task** — auditing the rules while the accounts / vocab /
+library surface is still moving would mean auditing twice. Full write-up in
+[../tasks/deferred.md](../tasks/deferred.md) ("## Deferred" + "## Reconsider
+when").
 
 Also still open, needing Chris to scope: a full **laterality curation sweep**
 (which movements), and the board's **Edit** button round-tripping into the

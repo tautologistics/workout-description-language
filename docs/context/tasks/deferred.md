@@ -85,6 +85,36 @@ ready to start, with what it touches, is in [current.md](current.md).
   derived columns on the `workouts` collection (score kind, duration, a movement
   id list, an equipment id list) written at save time.
 
+- **A full security audit / hardening sweep.** *Captured 2026-09-02 (Chris) —
+  explicitly a "once the current queue is exhausted and functionality has
+  settled down" item, **not** a next task.* A sweep across the hosted stack on
+  the assumption that **nothing from the client is ever trusted**:
+  - **`admin` / user identity verified server-side on every mutating
+    endpoint**, not just where the UI decides what to show. Audit every
+    PocketBase collection's **create / update / delete** rules (`movements`,
+    `workouts`, `equipment`, `patterns`, `users`) in
+    `deploy/pocketbase/pb_migrations/*.js` — confirm `@request.auth.admin = true`
+    or owner-only actually holds on the write path, and a crafted `POST` /
+    `PATCH` from an unprivileged or unauthenticated session is rejected by the
+    server. (The mock `/api` in `scripts/mock-api.mjs` is **not** the boundary —
+    its `admin: true` fixture user and permissive writes are dev-only by design.)
+  - **No cross-user editing** — a signed-in non-org user cannot `PATCH` another
+    user's `workouts` row, set `owner` to someone else, claim an `org` handle,
+    or flip their own `admin` / `org` flag.
+  - **No secret / PII leakage** — `users` list/view rules don't expose other
+    users' rows/fields; no admin token, `.env` value or superuser credential is
+    reachable from a served asset or an API response.
+  - **The usual** — injection into the `filter=` strings the apps build
+    (`searchWorkouts`, `listEquipment`, …), the OAuth redirect URIs, the
+    static-asset MIME/path handling, the port-8090 exposure already tracked in
+    [../topics/known-debts.md](../topics/known-debts.md) / `deploy/README.md`.
+
+  Cross-check against
+  [../topics/settled-decisions.md](../topics/settled-decisions.md) (DEC-020
+  movements, DEC-021 handles/namespace, DEC-025 vocab). First pass is likely a
+  written findings doc (`docs/context/topics/security-audit.md`), not a code
+  change. See "## Reconsider when" below.
+
 - **A WOD-library scouring pass — grow the corpus past CrossFit / Hyrox / Tabata.**
   *Captured 2026-09-02 (Chris).* Extract workouts from other public libraries into
   the same `examples/workouts/<org>/<slug>.wdl` + DB shape the L-series built.
@@ -130,3 +160,11 @@ ready to start, with what it touches, is in [current.md](current.md).
 - **The WOD-library scouring pass** is worth starting whenever corpus size is
   the bottleneck — for generation quality, for search being useful, or just for
   coverage. No dependency; it can run in parallel with the V-series.
+
+- **The security audit / hardening sweep** is worth doing once the active
+  functional queue is exhausted and the surface has stopped moving — Chris's
+  framing: "when everything is kind of settled down as far as functionality,
+  should a sweep be done." Not before: auditing collection rules and client
+  queries while the accounts / vocab / library surface is still changing under
+  it means auditing it twice. When the builder-UX and format work has quieted,
+  this is the natural hardening pass before leaning on the hosted instance.
