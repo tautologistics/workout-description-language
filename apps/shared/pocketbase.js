@@ -543,6 +543,24 @@ export async function searchWorkouts(q, { page = 1 } = {}) {
 }
 
 /**
+ * Every public workout owned by one curated org account, title order (task L7).
+ * `ownerId` is a fixed org-account id from the L1 migration (`org0crossfit001`
+ * …) — passed in rather than looked up, since the real PocketBase `users` list
+ * rule (`id = @request.auth.id`) resolves an org row for nobody. One
+ * `GET …/workouts/records`; the row shape matches `listMine` / `searchWorkouts`,
+ * `wdlId` included. Reads need no auth (the rows are `visibility="public"`).
+ */
+export async function listOrgWorkouts(ownerId) {
+  const q = new URLSearchParams({
+    filter: `owner="${ownerId}" && visibility="public"`,
+    sort: 'title',
+    perPage: '200',
+  });
+  const data = await call(`${RECORDS}?${q}`, { auth: !!authToken() });
+  return data.items ?? [];
+}
+
+/**
  * Create a workout. Always `private` on create (per the collection's contract).
  * Forces `@id` / `wdlId` to `<owner-handle>:<slug>` first (DEC-021, L3).
  */

@@ -2,7 +2,44 @@
 
 ## Immediate
 
-***The workout library* (L0–L7) is in flight. L0 landed 2026-09-01
+***The workout library* (L0–L7) is complete as of 2026-09-01** — all eight
+tasks landed and the whole L-section moved to
+[../tasks/completed.md](../tasks/completed.md) as one grouped section. The last
+link, **L7 (`<TASK-SHA>`)**, surfaced the library in the apps: an **Examples**
+chip row in the builder's *My workouts* panel that browses each org account's
+whole public set (`crossfit` 31 / `hyrox` 9 / `tabata` 3), each row a
+click-to-open detached read-only copy, plus a per-row `↗` "Open on the board"
+shortcut; `listOrgWorkouts(ownerId)` in `apps/shared/pocketbase.js` against the
+L1 fixed org ids. The board resolves `?w=<handle>:<slug>` end to end and shows
+the namespaced id in its `#meta` strip (no separate source line — the id names
+the owner). App code only; `make test` unchanged (2064/2064, 1 pending). The
+epic absorbed most of the deferred account-namespacing rethink; what is left —
+the board **Edit** button round-tripping into the builder — is a loose bullet
+below.
+
+**Next off the queue: the three standalone tasks** (all fleshed out 2026-09-01
+from Chris, in [../tasks/current.md](../tasks/current.md), all dispatchable now).
+Recommended order — smallest / most self-contained first:
+
+1. **board: dismissible notifications** — a "Clear notifications" footer button
+   beside Start / Next / Back / Reset; `apps/display/` only, dark theme only, no
+   core change. The smallest.
+2. **board: the `#` title moves into the meta strip** — the `# Title` line joins
+   the hidden preamble run and shows in the `#meta` strip instead of as the
+   first body row; `@id` small in parentheses after it. `apps/display/` only.
+3. **unit defaults** — the big one: `@ 95` with no unit reads as `95lb` (rule 1,
+   a real spec + grammar + parser + golden change) and a unitless magnitude on a
+   machine/aerobic movement suggests calories (rule 2, a builder-only
+   diagnostic). The two rules can land separately.
+
+Still needing Chris to scope: a full **laterality curation sweep** (which
+movements), and the board's **Edit** button round-tripping into the builder.
+
+---
+
+<details><summary>Historical — the L0–L7 trail (kept for the record)</summary>
+
+***The workout library* (L0–L7).** L0 landed 2026-09-01
 (`b9c52f1`)** — the epic's design note, written up as
 [DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
 plus a one-sentence hosting-convention note beside spec §2's `@id` bullet.
@@ -66,6 +103,8 @@ as source; small polish). **L7 closes the epic — move L0–L7 to
 [../tasks/completed.md](../tasks/completed.md) as one grouped section.** See
 [../tasks/current.md](../tasks/current.md) "## The workout library (L0–L7)".
 
+</details>
+
 *Movements in the database — Phase 1 (M0–M7)* is
 **complete as of 2026-09-01** — all of M0–M7 landed and the M-section moved to
 [../tasks/completed.md](../tasks/completed.md) as one grouped section. The last
@@ -87,28 +126,16 @@ Everything else is closed: the whole 0-series through 21, the deployment epic
 label + a transient inline hint by the caret); see
 [../topics/builder-ux.md](../topics/builder-ux.md) under the `»`-panel entry.
 
-**One epic + three standalone tasks are queued** (all fleshed out 2026-09-01
-from Chris, in [../tasks/current.md](../tasks/current.md)):
+**Three standalone tasks are queued** (all fleshed out 2026-09-01 from Chris, in
+[../tasks/current.md](../tasks/current.md)) — see the recommended order in the
+Immediate section above:
 
-- ***The workout library* (L0–L7)** — non-interactive "org" accounts
-  (`crossfit`, `hyrox`, `tabata`) owning public benchmark-WOD sets; every
-  account gets an editable `handle` that namespaces its `@id`s; a
-  `workouts.wdlId` column; search over own + public by name / `@id` / record
-  id; authored `.wdl` library + a `make workouts:load` ingest that also
-  regenerates fixtures. **L0 (DEC-021), L1 (`users` `org`+`handle`), L2
-  (`workouts.wdlId` column), L3 (force `@id`/`wdlId` on save + `getByAnyId`),
-  L4 (`searchWorkouts` + builder search box + the mock's `~`), L5 (the
-  authored `.wdl` library — 43 files under `examples/workouts/`) and L6
-  (ingestion: `scripts/workouts-to-db.mjs` / `make workouts:load` + fixture
-  regeneration) done 2026-09-01; L7 (surface the library in the apps — closes
-  the epic) next.** This absorbs most of the deferred account-namespacing
-  rethink.
-- **unit defaults** — `@ 95` reads as `95lb`; a unitless magnitude on a
-  machine/aerobic movement reads as calories. Spec + grammar + parser + golden
-  change.
 - **board: dismissible notifications** — a "Clear notifications" footer button.
 - **board: the `#` title into the meta strip** — not a body row; `@id` small in
   parentheses after it.
+- **unit defaults** — `@ 95` reads as `95lb`; a unitless magnitude on a
+  machine/aerobic movement reads as calories. Spec + grammar + parser + golden
+  change.
 
 Still needing Chris to scope: a full **laterality curation sweep** (which
 movements), and the board's **Edit** button round-tripping into the builder.

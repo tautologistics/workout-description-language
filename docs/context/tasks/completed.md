@@ -2084,6 +2084,418 @@ redirect flow as the fixture user and *My workouts* populates from the mock.
 
 ---
 
+## The workout library (L0–L7)
+
+*Raised 2026-09-01 by Chris (see [../topics/builder-ux.md](../topics/builder-ux.md)
+"Accounts, IDs and layout"): non-interactive **org accounts** owning curated
+public benchmark sets, an editable **`handle`** per account that is the `@id`
+namespace prefix for the workouts it owns, a **`workouts.wdlId`** column, search
+over own + public by name / `@id` / record id, an authored `.wdl` library, and a
+`make workouts:load` ingest that also regenerates the committed fixtures. The
+contract is [DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it).
+Eight tasks (L0–L7), each a landable branch sized for its own session, each
+spawning the next — kept together in `current.md` while in flight, moved here as
+one section when **L7 landed 2026-09-01** and closed the epic. Execution order as
+worked: L0 → L1 → L2 → L3 → L4 → L5 → L6 → L7. All of L0–L7 landed; nothing in
+`packages/core`, the grammar or the spec semantics was touched by any of them
+(only an L0 spec §2 hosting-convention note), the suite held at **2064/2064, 1
+pending** throughout, and `examples/workouts/` was deliberately never wired into
+`corpus.test.ts`. What is *left* after this epic: the board **Edit** button
+round-tripping into the builder, and the deferred handle-rename staleness debt
+([../topics/known-debts.md](known-debts.md)).*
+
+*Raised 2026-09-01 by Chris: he wants **non-interactive "org" accounts** that
+own curated, public sets of named workouts — a `crossfit` account owning the
+official benchmarks (Fran, Fight Gone Bad, the Girls, the Heroes, …), a `hyrox`
+account, a `tabata` account, room for more — plus **fixtures generated from
+authored `.wdl`** so that from the first `make serve` (and on a fresh prod box)
+anyone can pull down a whole org's set or open any single workout, plus
+**search over one's own + any public workout by name or `@id`/record-id**.*
+
+**Four calls Chris made when this was fleshed out (2026-09-01):**
+
+1. **Org accounts are flagged `users` rows** — a new `org: true` (bool) on the
+   `users` collection, no OAuth identity, rows created by a migration with fixed
+   ids. Their workouts are owned by them with `visibility: "public"`. Reuses the
+   existing `owner` relation and every existing list/view rule; no new
+   collection, no `workouts`-schema churn for ownership.
+2. **The account handle *is* the `@id` namespace prefix — for every account,
+   not just orgs.** The `crossfit` account owns everything whose `@id` is
+   `crossfit:*`; a person's handle namespaces the workouts *they* create the
+   same way. **This epic is the forcing function for the deferred "account
+   namespacing" rethink** and settles most of it:
+   - `users.handle` (username), unique, is the `@id` namespace for that
+     account's workouts.
+   - **The user picks / edits their own handle** — it is not derived and not
+     fixed. Needs a place in the UI to set it (account settings in the builder
+     header, and/or a prompt the first time a signed-in user saves a workout).
+   - **Onboarding must not block on it:** a new account gets a **random
+     two-word handle** (`brave-otter`, `quiet-harbor` — an adjective+noun
+     generator, collision-checked) so a save always has a namespace; the user
+     can change it later.
+   - **Saving always forces the `@id` namespace to the owner's handle**
+     (Chris, 2026-09-01): a user *cannot not* set the namespace. On every
+     save, the `@id` line is written/rewritten to `<owner-handle>:<slug>` — so
+     there is no "mismatch" state and no warn-on-mismatch UX to design.
+     Copying another user's workout (`crossfit:fran`) and saving it naturally
+     re-namespaces it to `<yourhandle>:<slug>`. This **fully closes** the
+     `@id`-write-back question the deferred rethink held open.
+   - **Known debt, explicitly deferred (Chris: "we can revisit that"):** when a
+     user changes their handle, every *already-saved* `<oldhandle>:<slug>` `@id`
+     and every share link built on it goes stale. Phase 1 does **not** solve
+     this — record it in [../topics/known-debts.md](../topics/known-debts.md)
+     and move on. Options to weigh later: on rename, rewrite `wdlId` + the `@id`
+     text across all the user's workouts (the natural extension of "save forces
+     the namespace"); keep old handles as resolvable aliases; forbid rename once
+     a workout exists.
+
+   After this epic, **nothing about `@id` ↔ namespace is left in the deferred
+   rethink** — only the handle-rename debt above, and it is deferred on purpose.
+3. **Search-by-ID uses a new `workouts.wdlId` column**, parsed from the `@id`
+   directive on every create/update and indexed. Search matches `title ~ q`,
+   `wdlId = q` (or `~ q`), or the 15-char record id. This also advances the
+   deferred "`@id` ↔ record-id correlation" rethink.
+4. **A session drafts all the benchmark `.wdl` content**, Chris reviews the
+   diff. One L-task is the authoring pass; the WOD list is canonical and
+   public, but transcribing it into WDL accurately (and whiteboard-readably) is
+   real work and the place errors get in.
+
+Grounding facts (what the tasks are built against — cf. the M0–M7 section in
+[completed.md](completed.md)):
+
+- The `workouts` collection
+  (`deploy/pocketbase/pb_migrations/1756600000_create_workouts.js`):
+  `owner` (relation → `users`), `title`, `source` (the `.wdl` body, ≤200 000
+  chars), `visibility` (select `private|unlisted|public`), autodates. Rules:
+  list/view `owner = @request.auth.id || visibility != "private"`; write
+  owner-only. Indexes on `owner`, `visibility`.
+- `apps/shared/pocketbase.js` is the hand-rolled `/api/*` client — `listMine`,
+  `getById`, `create` (always `private`), `update`, `remove`, `shareUrl`
+  (`/apps/display/?w=<id>`). The board resolves `?w=<id>` through `getById`
+  (item 20). There is **no search call and no `wdlId` anywhere** yet.
+- Local `make serve` has no PocketBase: `scripts/mock-api.mjs` answers `/api`
+  from `fixtures/users.json` (one row, `admin:true`) + `fixtures/workouts.json`
+  (seed rows, `owner` = that user; runtime writes → git-ignored
+  `fixtures/workouts.local.json`). The mock's query support is deliberately
+  minimal (`filter=field="value"` AND, `sort`, `page`/`perPage`) — search adds
+  `~` and an OR to it.
+- `registry/`-style ingestion precedent: `scripts/movements-to-db.mjs`
+  (`make movements:load`) — no-deps, idempotent upsert over `/api/collections/…`,
+  keyed on a unique column, admin auth for prod, works against the mock. The
+  library loader is its twin for `workouts`.
+- `@id` is already a spec directive (`@id crossfit:fran`, spec preamble) and
+  the existing Fran fixture already uses exactly that value.
+
+**L0 — Design note / decision (DEC-021). DONE 2026-09-01 (`b9c52f1`).**
+Written up as
+[DEC-021](../topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
+(+ the index entry in [../decisions.md](../decisions.md)) and a one-sentence
+**hosting-convention note** beside spec §2's `@id` bullet (`spec/spec-0.1.md`)
+— flagged explicitly as a convention, so the "never derived from contents"
+language rule is untouched; no grammar / parser / `packages/core` change, suite
+unchanged at 2064/2064. The DEC nails: `org: true` flagged `users` rows own the
+curated sets; `users.handle` (unique, `[a-z0-9-]+`, user-editable, random
+`adjective-noun` default from committed `apps/shared/` word lists) is the `@id`
+namespace for every account; every save writes/rewrites `@id` to
+`<owner-handle>:<slug>` (slug from an existing `@id` else the title; same-owner
+collision → deterministic suffix; copy→save re-namespaces; L6 loader applies the
+same rule to org workouts non-interactively); `workouts.wdlId` set from the same
+value, indexed; `getByAnyId` resolves a `:`-bearing `wdlId` or a 15-char record
+id to one row (the `:` is the discriminator) and the board's `?w=` uses it; the
+mock `/api` + `fixtures/` mirror all of it; the handle-rename staleness and any
+*platform* concern are out of scope. Original spec follows.
+
+Write the contract the rest builds
+against, the way M0 → DEC-020 did. It must state, at minimum:
+
+- Org accounts are flagged `users` rows (`org: true`), no OAuth, fixed ids,
+  workouts owned by them at `visibility: "public"`.
+- `users.handle` (unique) is the `@id` namespace **for every account**. A new
+  account with no handle is assigned a random `adjective-noun` handle
+  (collision-checked); the user can edit it to any unused valid slug.
+- **Saving a workout always forces its `@id` to `<owner-handle>:<slug>`** —
+  written/rewritten into the text on every save. There is no un-namespaced
+  saved workout and no mismatch state. `<slug>` derives from the existing
+  `@id` slug if present, else the title; a collision within the owner's
+  namespace gets a suffix. Copying another user's workout and saving
+  re-namespaces it naturally.
+- `workouts.wdlId` mirrors the `@id` (`<handle>:<slug>`), set from the text on
+  save, indexed — the searchable/resolvable handle.
+- A lookup resolves *either* a 15-char record id *or* a `<handle>:<slug>`
+  `wdlId` to the same record.
+- The **handle-rename debt** is deferred (stale already-saved ids /
+  share-links) — recorded in [../topics/known-debts.md](../topics/known-debts.md),
+  not solved here.
+- What (if anything) `spec/spec-0.1.md` should say about the `@id` ↔ account
+  namespace rule.
+
+No code. `docs/context` (DEC-021 in `settled-decisions.md` + the index entry
+in `decisions.md`) + the `spec` note. Spawns L1.
+
+**L1 — `users` schema: `org` bool + `handle`, + a handle generator/editor.
+DONE 2026-09-01 (`88ab8b6`).**
+`deploy/pocketbase/pb_migrations/1756900000_add_users_handle_and_orgs.js` adds
+`org` (bool, `required:false`) and `handle` (text, `required:false`, **unique**
+— `CREATE UNIQUE INDEX idx_users_handle ON users (handle)`) to `users`, then
+inserts the three org rows — `crossfit` / `hyrox` / `tabata`, fixed 15-char ids
+(`org0crossfit001` / `org0hyrox000001` / `org0tabata00001`), `org: true`,
+`verified: true`, an unusable random password (an auth-collection record needs
+one even though nobody signs in as these), `handle` = the name. App side:
+`apps/shared/handle.js` (pure — `validateHandle`, `randomHandle`, the reserved
+set; a handle is 3–63 characters, Chris's call 2026-09-01 on the minimum)
+reads two committed word lists in `apps/shared/handle-words.js` (~130
+adjectives, ~120 nouns, plain `[a-z]+`). `apps/shared/pocketbase.js` grows
+`ensureHandle()` — called from `refreshAuth()` and
+`completeSignInFromRedirect()`, so onboarding never blocks: assigns a random
+`adjective-noun` handle on first sign-in, retrying on collision and falling
+back to a numeric-suffixed pair after 6 tries — `updateHandle(h)` (client-side
+`validateHandle`, a best-effort free-check, then `PATCH`, with the server's
+unique-index 400 as the authoritative "taken" reject — the `users` list/view
+rule is `id = @request.auth.id`, so the pre-check can only ever confirm your
+*own* handle against real PocketBase; it is fully accurate against the mock)
+— and `currentHandle()`. The builder header's account area (`apps/builder/
+builder.js` `renderIdentity`/`renderHandle`/`startEditHandle`,
+`apps/builder/builder.css`) shows `@handle` beside the signed-in identity
+("assigning a handle…" in the brief gap right after sign-in) with an inline
+edit affordance — Enter/Escape, an error line for a rejected value. Mirrored in
+`scripts/mock-api.mjs` (`GET`/`PATCH .../users/records`, filter=`handle="…"`
+open there since the real self-only list rule doesn't apply) and
+`fixtures/users.json` (the three org rows with the same fixed ids; the mock
+signed-in user is committed **without** a `handle` on purpose, so a fresh
+`make serve` exercises the random-assignment path — the assignment persists to
+git-ignored `fixtures/users.local.json`, deleted to re-exercise it).
+`deploy/README.md` §7c + `pb_migrations/README.md` entry.
+**Verified:** `make test` unchanged 2064/2064, 1 pending (no `packages/core`
+touch). Migration up/down/up against a real PocketBase v0.40.1 (darwin_arm64)
+binary + throwaway `pb_data`: all four migrations apply cleanly, `org`+`handle`
+land on `users` with the unique index, the three org rows exist with the right
+fixed ids and `org: true`, a duplicate-`handle` insert is rejected
+(`UNIQUE constraint failed: users.handle`), `migrate down 1` removes the rows +
+index + both fields cleanly, a re-`up` reapplies cleanly. Drove the builder
+against `make serve` (mock `/api`) in both themes: a fresh mock user is
+assigned a random handle (`@grand-cairn` on this run) that survives reload;
+edited to a free slug (`river-otter`) — succeeds; edited to `crossfit` (an org
+handle) — rejected with "That handle is already taken."; edited to `123` —
+rejected with "A handle can't be all digits." (the empty/mixed-case/reserved
+paths run the identical pure `validateHandle`, checked directly). Signed-out
+builder unchanged (`Download .wdl` / `Open…`, no handle UI). **Still to do on
+deploy:** glance at the admin UI — the three org rows landed, `handle` shows
+the unique-index badge (`deploy/README.md` §7c) — same caveat as M1/M2/M3.
+Spawns L2.
+
+**L2 — `workouts` schema: `wdlId` column. DONE 2026-09-01 (`fc72881`).**
+`deploy/pocketbase/pb_migrations/1757000000_add_workouts_wdlid.js` adds `wdlId`
+(text, `max: 260`, `required: false`) to `workouts` plus a **plain** index
+`CREATE INDEX idx_workouts_wdl_id ON workouts (wdlId)` (non-unique — two owners
+can hold the same slug; same-owner collisions get L3's `-2`/`-3` suffix; a
+plain index is all L3's lookup and L4's search need). Edits an existing
+collection the same way `1756700000_add_users_admin.js` /
+`1756900000_add_users_handle_and_orgs.js` do — `findCollectionByNameOrId` →
+`fields.add(new Field(...))` / `indexes.push(...)` → `app.save`; `down`
+reverses field + index together. **No rule change** — the item-18
+`listRule`/`viewRule`/`createRule`/`updateRule`/`deleteRule` on `workouts` are
+untouched. **No app/mock/fixture change** — L2 is pure DB schema; nothing sets
+`wdlId` yet (L3 does, on save; L6's loader for the org rows), so existing rows
+stay `wdlId: null` — no backfill, per DEC-021. `deploy/README.md` §7 table +
+new §7d; `pb_migrations/README.md` entry. **Verified:** `make test` unchanged
+2064/2064, 1 pending (no `packages/core` touch). Migration up/down/up against a
+real PocketBase v0.40.1 (darwin_arm64) binary + throwaway `pb_data`, all five
+migration files present: `migrate up` applies all five cleanly; `sqlite3`
+against `_collections` shows `wdlId` (text, max 260, required false, system
+false) and against `sqlite_master` shows `idx_workouts_wdl_id` beside the
+existing `owner` / `visibility` indexes; `echo y | migrate down 1` reverts —
+`wdlId` and `idx_workouts_wdl_id` both gone, owner/visibility indexes intact;
+a re-`up` reapplies cleanly. **Still to do on deploy:** glance at the admin UI
+after the migration applies — confirm the `wdlId` column + `idx_workouts_wdl_id`
+landed on `workouts` (`deploy/README.md` §7d); nothing to backfill or grant,
+same style as the M1/M2/M3/L1 "still to do on deploy" notes. Spawns L3.
+
+**L3 — force `@id` on save + set `wdlId` + lookup resolver. DONE 2026-09-01
+(`5be4a30`).** App + mock only, no schema/core/grammar/spec touch, `make
+test` unchanged 2064/2064 (1 pending). `apps/shared/pocketbase.js` grew a
+module-local `@id`/slug helper block (`slugify`, `readIdValue` / `readTitleLine`
+— light regex on the zero-indent preamble line, `slugOfIdValue`, `baseSlug`,
+`writeIdLine`, `requireHandle`, `namespacedId`, `forceNamespace`) and
+`create` / `update` now run it: on every save `source`'s `@id` line is
+written/rewritten to `<owner-handle>:<slug>` and `wdlId` is sent set to the same
+string. `<slug>` = the slug portion of an existing `@id` in the text (`@id
+crossfit:fran` → `fran`, re-namespaced to `<yourhandle>:fran`), else a slug of
+the zero-indent `# title` line *in the source* (the passed `title` param is a
+display fallback and is deliberately not used for the slug — it can be
+`"Untitled workout"`), else `untitled`. A same-owner clash appends a
+deterministic `-2` / `-3` … suffix, stable across re-saves (the scan skips only
+*other* records' `wdlId`s and `base` is re-derived from the stored `@id`). A
+patch without `source` leaves `wdlId` alone. New export `getByAnyId(x)`: a
+value with `:` → `filter=wdlId="<x>"` (throws a 404-shaped `Error` on no hit);
+no `:` → `getById`, with a `filter=wdlId="<x>"` fallback on a 404 — same
+error/not-found shape as `getById` so `board.js`'s `loadShared` `catch` is
+untouched. `apps/display/board.js` swapped the `?w=` import + call from
+`getById` to `getByAnyId`; the id-is-the-share-link / clean-`?w=` behaviour
+(`load(..., false)`) is unchanged. `scripts/mock-api.mjs` gained a JS port of
+the helper (`forceWdlId` + `mSlugify` / `mReadId` / `mReadTitle` / `mSlugOfId` /
+`mBaseSlug` / `mWriteId`) run on mock `workouts` create/update, resolving the
+owner's handle from the `users` fixture; `wdlId` added to the record shape and
+the PATCH field list; `filter=wdlId="<handle>:<slug>"` needed **no** parser
+change — the generic `field="value"` matcher already spans the colon. **Verified**
+(mock `/api`, driving `pocketbase.js`'s real `create`/`update`/`getByAnyId` and
+one end-to-end builder "Save to my workouts" click): `# Fran` no `@id` → `@id
+easy-beacon:fran`; copy of `@id crossfit:fran` on a clean namespace → `@id
+easy-beacon:fran`; no `@id`/title ×2 → `easy-beacon:untitled` then
+`easy-beacon:untitled-2`, and re-saving either keeps its slug (no bump / no
+creep); body-edit re-save of a saved workout → `@id`/`wdlId` unchanged; builder
+Save button → `@id easy-beacon:new-workout` inserted after the `# New workout`
+title line + `wdlId` set. Board: `?w=easy-beacon:fran` resolves and renders with
+`easy-beacon:fran` in the meta strip and the URL left clean; `?w=<15-char
+recordid>` still resolves; `?w=nope:nope` shows the existing "could not be
+found" line, no crash. Theme is not exercised — L3 is logic-only, no CSS/render
+change, both `prefers-color-scheme` values run identical code. Spawns L4.
+
+**L4 — Search: API + builder UI. DONE 2026-09-01 (`0de7f9a`).** App + mock +
+one fixture row only, no schema/core/grammar/spec touch, `make test` unchanged
+2064/2064 (1 pending). `apps/shared/pocketbase.js` grew **`searchWorkouts(q,
+{page})`** — one `GET …/workouts/records` with
+`filter=(visibility="public" || owner="<uid>") && (title~"<q>" || wdlId~"<q>")`
+(signed out: no `owner` clause, no auth header), `sort=-updated`,
+`perPage: 20`; `q` is trimmed and has `"` stripped (it sits inside `"…"` in the
+filter — one-instance tool, not a query builder); empty `q` → `[]` with no
+request; returns the `items` array (same row shape as `listMine`). Also
+**`getHandle(uid)`** — best-effort uid→handle, session-memoised, for labelling a
+public hit; against real PocketBase only *your own* uid resolves (the `users`
+list rule is `id = @request.auth.id`) so a foreign owner degrades to the label
+"public", against the mock every uid resolves. The record-id search DEC-021
+lists is **left to the existing `Open…` path** — a bare 15-char id matches
+neither `title~` nor `wdlId~`, and the board's `?w=` / `getByAnyId` already
+resolve one; folding it into the box wasn't worth a second speculative request
+per keystroke. Builder (`apps/builder/builder.js` + `builder.css`): a debounced
+(220 ms) `<input type="search">` at the top of the **My workouts** panel; a
+non-empty query replaces the plain list with `searchWorkouts` hits, each row
+labelled **`mine`** (accent) or **`@ownerhandle`** / **`public`** (dim);
+click-to-open runs `openFoundWorkout` — your own hit attaches like `openMine`
+(Save updates it), someone else's public hit opens **detached** with a note
+("Opened `crossfit:helen` — a read-only copy; Save makes it yours.") so the
+first Save creates *your* re-namespaced copy (the DEC-021 copy flow). "No
+matches." line for an empty result; clearing the box restores the plain list.
+The search `<input>` is one persistent node re-appended (not rebuilt) across
+panel re-renders, with focus/caret restored, so typing isn't interrupted when
+results land. `scripts/mock-api.mjs`: `applyQuery`'s one-regex filter was
+replaced by `matchesFilter` — `splitTop` (paren/quote-aware `&&` / `||` split) +
+`matchesAtom` (`field="v"` exact / `field~"v"` case-insensitive substring); a
+header comment states it is a matcher for the exact strings the client emits,
+not a general engine. `fixtures/workouts.json` gained **one** row —
+`crossfit:helen`, owned by `org0crossfit001`, `visibility: "public"`, `wdlId`
+set — so a fresh `make serve` has something public to find (L6's loader will
+regenerate this file). Spawns L5.
+
+**L5 — Author the benchmark `.wdl` library. DONE 2026-09-01 (`6cb8df4`).**
+**43 files** under `examples/workouts/<org>/<slug>.wdl`, each first line
+`@id <org>:<slug>` (slug = filename stem), then `# Title`, then the body — every
+file byte-identical to `wdl fmt` canonical output (diffed each against `fmt`), so
+the at-rest text is already the whiteboard form. **crossfit/ (31)** — the 19
+Girls (Fran, Cindy, Grace, Helen, Diane, Elizabeth, Isabel, Jackie, Karen,
+Linda, Nancy, Angie, Barbara, Chelsea, Mary, Annie, Eva, Kelly, Nicole), 9 first
+Heroes (Murph, DT, Chad, JT, Michael, Randy, Daniel, Josh, Nate), Fight Gone Bad
+/ Filthy Fifty / the CrossFit Total. **hyrox/ (9)** — `hyrox:race` (the full
+8×(1km run + station) race, spec §13.39 shape, loads at the current
+standard-division numbers — Sled Push 152/102 kg, Sled Pull 103/78 kg, Farmers
+Carry 2×24/2×16 kg, Sandbag Lunge 20/10 kg, Wall Balls 6 kg→10ft / 4 kg→9ft;
+men's primary, women's in `variants: women:`) + its 8 stations as individual
+single-movement files. **tabata/ (3)** — `tabata:protocol`, `tabata:this`,
+`tabata:something-else`. Loads use corpus house style (single men's Rx
+`@ 95lb`); the bare `(95/65)` split form was rejected because `wdl fmt` expands
+it to the verbose `(women 95 / men 135)`. **Content only** — no schema / code /
+grammar / spec / test touch; `make test` unchanged 2064/2064, 1 pending;
+`examples/workouts/` deliberately **not** wired into `corpus.test.ts` (L6/L7's
+call). All 43 pass `wdl check` (`<file>: ok`, exit 0); Fran / Murph / Fight Gone
+Bad / `hyrox:race` / `tabata:this` spot-checked on the board (`<org>:<slug>` in
+the `#meta` strip, no error strip; Murph's `any order:` shows the expected
+tally-block timeline note; `hyrox:race` shows the Division selector). Spawns L6.
+
+**L6 — Ingestion: library → DB + fixtures. DONE 2026-09-01 (`5cc9e0f`).**
+`scripts/workouts-to-db.mjs` + a `make workouts:load` target (beside
+`movements:load` in the root `Makefile`), the twin of `movements-to-db.mjs` —
+no deps (`node:fs` + global `fetch`). Reads `examples/workouts/<org>/<slug>.wdl`
+(43 files), resolves `<org>` → the org row's fixed id as `owner`
+(`crossfit`→`org0crossfit001` etc.), forces `@id` / `wdlId` to
+`<orghandle>:<slug>` via a port of `apps/shared/pocketbase.js`'s slug helper
+(slug from the file's own `@id`; the authored files are already canonical so the
+rewrite is a no-op on them), `title` from the `# Title` line, `source` = the
+file body, `visibility: "public"`. **Idempotent on `wdlId`**: bulk-fetches the
+collection (`perPage=500`, paged), `POST`s the absent, `PATCH`es only when
+`title`/`source`/`visibility`/`owner` differ, re-run writes nothing (prints a
+`created`/`updated`/`unchanged` tally). **`--dry-run`** (via `ARGS=--dry-run`)
+reports the planned POSTs/PATCHes and writes **nothing** — no HTTP mutation, no
+fixture rewrite. **The same run regenerates the committed fixtures** (unless
+`--dry-run`): `fixtures/workouts.json` gets the 43 library rows (deterministic
+15-char ids derived from `wdlId`) plus every pre-existing **non-org-owned** row
+preserved (the mock signed-in user's 3 seed workouts, which populate the
+builder's *My workouts* list from a fresh `make serve`) — the old hand-added
+`crossfit:helen` row is replaced by the generated one (same `wdlId`);
+`fixtures/users.json` gets the three `org: true` rows (same fixed
+ids/handles/`org:true` L1 commits) plus the mock user row kept verbatim
+(no `handle`, on purpose). Each fixture file is rewritten only when its content
+changes, so a clean re-run leaves `git status` untouched. **Prod writes need
+superuser auth** — the `workouts` write rule is owner-only, so unlike
+`movements:load` (a `users` admin satisfies the movements rule) this needs
+`WDL_PB_ADMIN_TOKEN` or `WDL_PB_ADMIN_EMAIL`/`_PASSWORD` with
+`WDL_PB_ADMIN_COLLECTION` defaulting to `_superusers`; against the mock
+(`make serve`) writes need no auth and it just works. **No `packages/core` /
+grammar / spec / migration / authored-`.wdl` touch; `examples/workouts/` is
+still not wired into `corpus.test.ts`.** **Verified:** `make test` unchanged
+**2064/2064, 1 pending**. Against a fresh mock still carrying the pre-L6 seed:
+`make workouts:load` → **42 created, 1 updated** (the seed already held
+`crossfit:helen` — its source differs from the authored file, so it PATCHes);
+re-run → **43 unchanged, nothing written**; bump `@ 95lb`→`@ 96lb` in
+`examples/workouts/crossfit/fran.wdl`, re-run → **exactly 1 PATCH (source)**,
+reverted. `--dry-run` → `git status` clean. End-to-end against the regenerated
+fixtures (fresh `make serve`): board `?w=crossfit:fran` / `?w=hyrox:race` /
+`?w=tabata:this` all resolve and render with `<org>:<slug>` in the `#meta`
+strip, no error strip, `hyrox:race` shows the Division selector; builder *My
+workouts* search — `fran` returns `Fran @crossfit` (public org hit) beside
+`Fran mine`, `hyrox` returns all 9, `murph` returns `crossfit:murph`;
+click-to-open the `@crossfit` hit loads a detached read-only copy
+(`@id crossfit:fran`, the DEC-021 copy flow). Regenerated
+`fixtures/workouts.json` has **46 rows** (43 library + the 3 preserved
+mock-user seed rows); `fixtures/users.json` unchanged (already canonical from
+L1). Spawns L7.
+
+**L7 — Surface the library in the apps. DONE 2026-09-01 (`<TASK-SHA>`).**
+App code only — `apps/shared/pocketbase.js` + `apps/builder/builder.js` +
+`apps/builder/builder.css`; no schema / core / grammar / spec / mock / fixture /
+board touch, `make test` unchanged **2064/2064, 1 pending**, `git status` clean
+of fixtures. `apps/shared/pocketbase.js` grew **`listOrgWorkouts(ownerId)`** — one
+`GET …/workouts/records` with `filter=owner="<id>" && visibility="public"`,
+`sort=title`, `perPage=200`; `ownerId` is a fixed org-account id passed in, not
+looked up (the real `users` list rule `id = @request.auth.id` resolves an org row
+for nobody). The builder's **My workouts** panel gained an **Examples** chip row
+under the search box — one toggle per org (`CrossFit` / `Hyrox` / `Tabata`, a
+shipped `ORG_ACCOUNTS` constant carrying the L1 fixed ids + handles); the lit chip
+replaces the plain list with that org's public set, each row labelled
+`@<handle>`, click-to-open through the **existing** `openFoundWorkout` detached path
+(a read-only copy the first Save re-namespaces — the DEC-021 copy flow),
+re-picking the lit chip closes the set. `renderSearchResults` was refactored to a
+shared **`renderHitList(hits, emptyMsg)`** that both the search results and the
+Examples set use; every hit row now also carries a per-row **`↗` "Open on the
+board"** shortcut (`openHitOnBoard` → a new tab at `../display/?w=<wdlId|id>`).
+Searching and browsing share the one list slot — a query closes an open set and
+vice versa; sign-out clears the browse state. The builder header's existing
+*Open on the board ↗* already covers the current buffer via the `#<source>` hash
+and works unchanged from a library-opened buffer. **Board:** `?w=crossfit:fran`
+resolves end to end and the `#meta` strip shows `crossfit:fran` verbatim — the id
+already names the owner handle, so **no "by @crossfit" source line was added**
+(the id is enough; noted rather than built). **Verified** driving the builder
+against a fresh `make serve` (mock `/api`, regenerated fixtures): the Examples
+chips list **31 / 9 / 3** workouts for crossfit / hyrox / tabata, all labelled
+`@<handle>`, title-sorted; toggling a chip off restores the plain list; opening
+`Fran` from the crossfit set gives a detached read-only copy (buffer
+`@id crossfit:fran`, note "Opened crossfit:fran — a read-only copy; Save makes it
+yours.", Save button "Save to my workouts"); the per-row `↗` targets
+`?w=crossfit:fran`; the board renders it with `crossfit:fran` in the `#meta`
+strip, no error strip; `?w=hyrox:race` / `?w=tabata:this` resolve; the search box
+is unchanged (`fran` → `Fran @crossfit` beside `Fran mine`, clearing restores the
+plain list). **This task closes the epic** — the L0–L7 section moved here from
+`current.md` as one grouped block.
+
+
 *Ordering of 5, 6, 7 and 9 against 1-4 is not settled - they are appended
 rather than placed. 5, 6 and 7 were raised by writing and sending one workout
 rather than by a plan, and 9 by closing item 3. **0f was lettered rather than

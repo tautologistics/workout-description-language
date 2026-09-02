@@ -972,6 +972,19 @@ button:hover, .button:hover { border-color: var(--dim); }
 .mine-open .mine-label { flex: none; font-size: .74rem; color: var(--dim); }
 .mine-open .mine-label.is-mine { color: var(--accent); }
 
+.mine-examples { align-items: baseline; row-gap: .3rem; }
+.mine-examples .examples-label {
+  font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--dim);
+}
+.mine-chip {
+  font: inherit; font-size: .78rem;
+  padding: .12rem .55rem;
+  border: 1px solid var(--rule); border-radius: 999px;
+  background: var(--panel); color: var(--ink); cursor: pointer;
+}
+.mine-chip:hover { border-color: var(--dim); }
+.mine-chip.active { background: var(--accent); border-color: var(--accent); color: var(--page); }
+
 .menu-icon {
   flex: none; width: 1.7rem;
   border: 1px solid transparent; border-radius: .3rem;

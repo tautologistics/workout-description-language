@@ -798,6 +798,20 @@ mismatch state to warn about. What is *left* here after that epic: the board's
 handle-rename debt (stale already-saved ids — [known-debts.md](known-debts.md)).
 The **Movement create/edit** bullet (below) already shipped as M5.
 
+**Update 2026-09-01 — the epic is complete (L0–L7 in
+[../tasks/completed.md](../tasks/completed.md)).** L7 (`<TASK-SHA>`) surfaced the
+library: the builder's *My workouts* panel gained an **Examples** chip row under
+the search box — one toggle per org account (`crossfit` / `hyrox` / `tabata`,
+`listOrgWorkouts(ownerId)` against the L1 fixed ids) that replaces the plain list
+with that org's whole public set, each row labelled `@<handle>` and click-to-open
+through the existing detached read-only-copy path (`openFoundWorkout`); the
+"open on the board" bullet below is answered by a per-row `↗` on every hit row
+(search or Examples) opening `../display/?w=<wdlId>`, and the header's existing
+*Open on the board ↗* covers the current buffer. The board's `#meta` strip shows
+the namespaced `@id` (`crossfit:fran`) — that already names the owner, so no
+separate "by @crossfit" line was added. Only the board **Edit** round-trip and
+the handle-rename debt remain from this thread.
+
 - **`@id` and the record id do not correlate, and probably should.** A workout
   can carry an `@id` directive in its text (spec preamble; `wdl result` already
   uses it as the record head). When that workout is saved to an account it also
@@ -827,11 +841,11 @@ The **Movement create/edit** bullet (below) already shipped as M5.
   own namespace. This is the natural completion of item 20's `?w=<id>` board
   link.
 
-- **Saved workouts need an "open on the board" action, not just "Copy link".**
-  The My-workouts panel copies a share URL; it should also have a button that
-  **launches the board** with that workout directly (`/apps/display/?w=<id>` in
-  a new tab), the way the builder header's *Open on the board ↗* already does
-  for the current buffer.
+- **~~Saved workouts need an "open on the board" action, not just "Copy
+  link".~~ Done — L7, 2026-09-01 (`<TASK-SHA>`).** Every hit row in the
+  *My workouts* panel (a search result or an Examples-set row) carries a per-row
+  `↗` that opens `../display/?w=<wdlId>` in a new tab. The builder header's
+  *Open on the board ↗* still covers the current buffer via the `#<source>` hash.
 
 - **Builder layout needs a rethink — the analysis panes fall off-screen.**
   Concretely: the **Movements** column should become a **pop-out sidebar behind

@@ -2,6 +2,50 @@
 
 ## Changes
 
+- **2026-09-01 — L7 of *The workout library* epic landed (`<TASK-SHA>`) — the
+  epic is closed.** Surfacing pass: a way to browse a curated org's public set
+  from the builder, and "open on the board" for any public workout. **App code
+  only** — `apps/shared/pocketbase.js`, `apps/builder/builder.js`,
+  `apps/builder/builder.css`; no schema / `packages/core` / grammar / spec /
+  mock / fixture / board touch, `make test` unchanged **2064/2064, 1 pending**,
+  `git status` clean of fixtures.
+  - **`listOrgWorkouts(ownerId)`** in `apps/shared/pocketbase.js` — one
+    `GET …/workouts/records` with `filter=owner="<id>" && visibility="public"`,
+    `sort=title`, `perPage=200`. `ownerId` is a fixed org-account id passed in,
+    not looked up — the real PocketBase `users` list rule (`id =
+    @request.auth.id`) resolves an org row for nobody, and the ids never change.
+  - **Examples chip row** in the builder's *My workouts* panel, under the search
+    box: one toggle per org (`CrossFit` / `Hyrox` / `Tabata`, from a shipped
+    `ORG_ACCOUNTS` constant of the L1 fixed ids + handles). The lit chip
+    replaces the plain list with that org's public set, each row labelled
+    `@<handle>`, click-to-open through the **existing** `openFoundWorkout`
+    detached path (a read-only copy the first Save re-namespaces — the DEC-021
+    copy flow); re-picking the lit chip closes the set. Searching and browsing
+    share the one list slot (a query closes an open set and vice versa);
+    sign-out clears the browse state.
+  - **Per-row `↗` "Open on the board"** on every hit row (search results and
+    Examples set alike) — `openHitOnBoard` opens `../display/?w=<wdlId|id>` in a
+    new tab. `renderSearchResults` refactored to a shared
+    `renderHitList(hits, emptyMsg)` both views use.
+  - **Board:** confirmed `?w=crossfit:fran` resolves end to end and the `#meta`
+    strip shows `crossfit:fran` verbatim. The id already names the owner handle,
+    so **no separate "by @crossfit" source line was added** — the id is enough
+    (noted rather than built). No board change.
+  - **Verified** driving the builder against a fresh `make serve` (mock `/api`,
+    regenerated fixtures): Examples chips list **31 / 9 / 3** for crossfit /
+    hyrox / tabata, all `@<handle>`-labelled, title-sorted; toggle-off restores
+    the plain list; opening `Fran` from the crossfit set → detached read-only
+    copy (`@id crossfit:fran`, "Opened crossfit:fran — a read-only copy…" note,
+    "Save to my workouts"); per-row `↗` → `?w=crossfit:fran`; board renders it
+    with `crossfit:fran` in `#meta`, no error strip; `?w=hyrox:race` /
+    `?w=tabata:this` resolve; search box unchanged (`fran` → `Fran @crossfit`
+    beside `Fran mine`, clearing restores the plain list).
+  - **Files:** `apps/shared/pocketbase.js`, `apps/builder/builder.js`,
+    `apps/builder/builder.css`, plus `docs/context/`. **The epic is closed —
+    L0–L7 moved to `tasks/completed.md` as one grouped section.** Next: the
+    three standalone tasks (unit defaults; board dismissible notifications;
+    board `#` title into the meta strip).
+
 - **2026-09-01 — L6 of *The workout library* epic landed (`5cc9e0f`)** —
   ingestion: the authored `.wdl` library → the `workouts` DB + regenerated
   fixtures. **Script + Makefile target + two fixtures only** — no

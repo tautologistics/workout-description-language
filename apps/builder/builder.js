@@ -40,7 +40,7 @@ import { mountBody, paintBody, aggregateStates, highlightStates, heatStates, hea
 import {
   currentUser, beginGoogleSignIn, refreshAuth, signOut, updateHandle,
   listMine, getById as pbGetById, create as pbCreate, update as pbUpdate,
-  remove as pbRemove, shareUrl, searchWorkouts, getHandle,
+  remove as pbRemove, shareUrl, searchWorkouts, getHandle, listOrgWorkouts,
   createMovement, updateMovement, getMovementByMovementId,
 } from '../shared/pocketbase.js';
 import { createMovementEditor } from '../shared/movement-editor.js';
@@ -2623,6 +2623,9 @@ function onMineSearchInput(value) {
     renderMinePanel();
     return;
   }
+  // Searching and browsing an org set share the list slot — a query closes any
+  // open set.
+  if (mineOrg) { mineOrg = null; mineOrgList = null; mineOrgSeq++; }
   mineSearchTimer = setTimeout(() => runMineSearch(term), 220);
 }
 
@@ -2668,14 +2671,32 @@ function openFoundWorkout(hit) {
   renderMinePanel();
 }
 
-function renderSearchResults() {
+/**
+ * Open a public workout on the board in a new tab, addressed by its `wdlId`
+ * (`<handle>:<slug>`) — `getByAnyId` resolves that there — falling back to the
+ * record id for a row without one. The builder header's *Open on the board ↗*
+ * covers the *current buffer* (via the `#<source>` hash); this is the per-row
+ * shortcut for a workout you have not opened.
+ */
+function openHitOnBoard(rec) {
+  const key = rec.wdlId || rec.id;
+  window.open(`../display/?w=${encodeURIComponent(key)}`, '_blank', 'noopener');
+}
+
+/**
+ * A list of hits — search results or a browsed org set. Each row: the title, an
+ * owner label, an `↗` "open on the board" shortcut, and click-to-open into the
+ * editor (`openFoundWorkout` — your own attaches, a public one opens as a
+ * detached read-only copy, the DEC-021 copy flow).
+ */
+function renderHitList(hits, emptyMessage) {
   const list = document.createElement('div');
   list.className = 'mine-list';
-  if (!mineSearchResults.length) {
-    list.append(hintP('No matches.'));
+  if (!hits.length) {
+    list.append(hintP(emptyMessage));
     return list;
   }
-  for (const hit of mineSearchResults) {
+  for (const hit of hits) {
     const row = document.createElement('div');
     row.className = 'mine-row';
     if (hit.mine && openWorkout?.id === hit.rec.id) row.classList.add('current');
@@ -2693,10 +2714,91 @@ function renderSearchResults() {
     open.append(title, who);
     open.onclick = () => openFoundWorkout(hit);
 
-    row.append(open);
+    row.append(open, iconBtn('↗', 'Open on the board', () => openHitOnBoard(hit.rec)));
     list.append(row);
   }
   return list;
+}
+
+function renderSearchResults() {
+  return renderHitList(mineSearchResults, 'No matches.');
+}
+
+// --- browse a curated org's public example set (task L7, DEC-021) -----------
+// The search box above covers *name* lookup; this covers "what does @crossfit
+// have" — an empty-query browse of one org's whole public set. The three org
+// accounts are fixed by the L1 migration: non-interactive `users` rows
+// (`org: true`) with known ids and handles, owning the L5/L6 benchmark library.
+// They ship as a constant rather than being discovered — the real PocketBase
+// `users` list rule (`id = @request.auth.id`) resolves an org row for nobody,
+// and the ids never change.
+const ORG_ACCOUNTS = [
+  { handle: 'crossfit', id: 'org0crossfit001', label: 'CrossFit' },
+  { handle: 'hyrox', id: 'org0hyrox000001', label: 'Hyrox' },
+  { handle: 'tabata', id: 'org0tabata00001', label: 'Tabata' },
+];
+
+/** The handle of the org whose set is being browsed, or `null`. */
+let mineOrg = null;
+/** `[{ rec, label, mine:false }]` for `mineOrg`, or `null` while it loads. */
+let mineOrgList = null;
+/** Monotonic token — a slow fetch resolving after a newer pick is discarded. */
+let mineOrgSeq = 0;
+
+async function browseOrg(handle) {
+  if (mineOrg === handle) {   // re-pick the lit chip → close the set
+    mineOrg = null;
+    mineOrgList = null;
+    renderMinePanel();
+    return;
+  }
+  mineOrg = handle;
+  mineOrgList = null;
+  // Browsing a set and searching share the one list slot below — a pick clears
+  // any live query so the panel never shows both at once.
+  if (mineSearchQuery) {
+    mineSearchQuery = '';
+    mineSearchResults = null;
+    mineSearchSeq++;
+    if (mineSearchInput) mineSearchInput.value = '';
+  }
+  if (mineNote.startsWith('Could not load @')) mineNote = '';
+  renderMinePanel();
+
+  const seq = ++mineOrgSeq;
+  const org = ORG_ACCOUNTS.find((o) => o.handle === handle);
+  try {
+    const rows = await listOrgWorkouts(org.id);
+    if (seq !== mineOrgSeq) return;
+    mineOrgList = rows.map((rec) => ({ rec, label: `@${handle}`, mine: false }));
+  } catch (e) {
+    if (seq !== mineOrgSeq) return;
+    mineOrgList = [];
+    mineNote = `Could not load @${handle}: ${e.message}`;
+  }
+  renderMinePanel();
+}
+
+/** The "Examples" chip row — one toggle per curated org; the lit chip's set
+ *  replaces the plain list below. */
+function renderExamplesRow() {
+  const row = document.createElement('div');
+  row.className = 'menu-row mine-examples';
+  const label = document.createElement('span');
+  label.className = 'examples-label';
+  label.textContent = 'Examples';
+  row.append(label);
+  for (const org of ORG_ACCOUNTS) {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'mine-chip';
+    if (mineOrg === org.handle) chip.classList.add('active');
+    chip.textContent = org.label;
+    chip.title = `Browse @${org.handle}'s public workouts`;
+    chip.onclick = () => browseOrg(org.handle);
+    row.append(chip);
+  }
+  return row;
 }
 
 const detachServerWorkout = () => { openWorkout = null; renderMinePanel(); };
@@ -2768,6 +2870,8 @@ function renderIdentity() {
     mineSearchResults = null;
     mineSearchQuery = '';
     mineSearchInput = null;
+    mineOrg = null;
+    mineOrgList = null;
     renderIdentity();
     renderMinePanel();
   };
@@ -2901,12 +3005,19 @@ function renderMinePanel() {
     mineSearchInput.focus();
     mineSearchInput.setSelectionRange(n, n);
   }
+  panel.append(renderExamplesRow());
 
   if (mineNote) panel.append(hintP(mineNote));
   if (openWorkout) panel.append(renderShareRow());
 
   if (mineSearchResults !== null) {
     panel.append(renderSearchResults());
+    return;
+  }
+
+  if (mineOrg) {
+    if (mineOrgList === null) { panel.append(hintP(`Loading @${mineOrg}…`)); return; }
+    panel.append(renderHitList(mineOrgList, `@${mineOrg} has no public workouts.`));
     return;
   }
 
