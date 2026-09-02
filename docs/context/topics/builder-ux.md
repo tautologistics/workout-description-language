@@ -524,7 +524,7 @@ closer to that pillar than to a palette convenience.
 From the **design-critique pass, 2026-08-30.**
 
 **~~The movement-row muscle tags fail contrast and are too small to scan.~~
-Fixed 2026-09-02 (`<TASK-SHA>`).** *Was:* `.movement .meta` was **11.25px at
+Fixed 2026-09-02 (`547d986`).** *Was:* `.movement .meta` was **11.25px at
 `opacity: 0.5`** over the panel — the tag text (`glutes quads`,
 `erectors glutes hamstrings`), the thing you actually scan the list by, well
 under the 4.5:1 AA floor. `.hint` (`129 of the core set`) was **10.2px at

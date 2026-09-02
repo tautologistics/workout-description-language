@@ -3,7 +3,7 @@
 ## Changes
 
 - **2026-09-02 — builder: dim/small text floored at AA contrast + 12px
-  (`<TASK-SHA>`).** A self-contained item off
+  (`547d986`).** A self-contained item off
   [../topics/builder-ux.md](../topics/builder-ux.md)'s design-critique section
   (the standalone queue is empty; not a numbered task). The builder's
   `opacity`-dimmed secondary text — the palette muscle tags (`.movement .meta`,

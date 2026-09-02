@@ -45,7 +45,7 @@ load-less calorie machine (`15 Row` → `15cal Row`); the board is untouched.
 `make test` 2064/2064, 1 pending.
 
 **builder: dim/small text floored at AA + 12px, landed 2026-09-02
-(`<TASK-SHA>`)** — a self-contained pull from
+(`547d986`)** — a self-contained pull from
 [../topics/builder-ux.md](../topics/builder-ux.md)'s design-critique section
 (not a queued task). The `opacity`-dimmed secondary text (palette muscle tags,
 `.hint`, ~8 more) now dims by `--dim` colour, not `opacity` — AA in both themes
