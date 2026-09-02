@@ -68,20 +68,31 @@ Esc / backdrop, zero layout width when closed. Building N2 as briefed would
 re-add the exact `☰` + `localStorage` state R7 deliberately deleted, to collapse
 a column that no longer exists. Same fate as the other two entries from that
 2026-08-30 design-critique pass (read-pane scroll, header control row), both
-already struck as "already done by R1". **The next actionable queue item is
-N3 — the board's *Edit* round-trip into the builder** (premise still valid: the
-board has no path back to the builder today). N2's two claimed follow-ons were
+already struck as "already done by R1". N2's two claimed follow-ons were
 gated on a *drawer* that never happened, and Chris ruled on both 2026-09-02:
 the **read pane's four `<h2>`s — declined** (two sections per tab, nothing to
 collapse); the **flat 129-row palette list — deferred** to
 [deferred.md](deferred.md) pending the curation sweep (which grows the core set
 substantially) and a dedicated browse-UX review, not a quick grouping patch.
-**After N3, the actionable self-contained queue is empty** — remaining work is
-the laterality sweep (Chris's manual step), the deferred items, and the security
-audit. The **laterality curation sweep** is
-Chris's manual step, not dev work (loose bullet at the end). A **full security
-audit** is recorded in [deferred.md](deferred.md) as a "once functionality has
-settled" item.
+
+**N3 shipped 2026-09-02 (`fecf6b3`)** — the board's *Edit in builder ↗* footer
+button opens the builder on the shown workout, in a new tab; the builder reads
+`?w=<id|handle:slug>` on load and attaches (owned) or opens a detached copy
+(the DEC-021 flow). App code only, `make test` unchanged. Its section below is
+struck.
+
+**With N1 + N3 landed and N2 void, the three-task set (N1/N2/N3) is closed and
+the actionable self-contained coding queue is empty.** What remains:
+- the **movement-"sets" model + UX rework** — deferred, needs the DB-collection
+  model scoped first (namespaced `<handle>:<slug>` ids; global / org-library /
+  personal scopes; the workouts pattern), then the create/edit dialog UX
+  ([deferred.md](deferred.md));
+- the **flat 129-row palette browse UX** — deferred pending the curation sweep
+  + a dedicated UX review ([deferred.md](deferred.md));
+- the **laterality curation sweep** — Chris's manual CSV step (`make
+  curation:sheet`), not dev work (loose bullet at the end);
+- a **full security audit** — recorded in [deferred.md](deferred.md) as a "once
+  functionality has settled" item.
 
 Recently closed (kept here briefly for the trail):
 
@@ -780,24 +791,69 @@ should not hold a quarter of the width while you are heads-down in the editor.
   loop by noting those are now dispatchable and (optionally) spawning them.
 - **Scope.** `apps/builder/{index.html, builder.css, builder.js}`. No core.
 
-### N3 — the board's **Edit** button round-trips into the builder
+### ~~N3 — the board's **Edit** button round-trips into the builder~~ — **DONE 2026-09-02 (`fecf6b3`)**
 
-**Chris: "being able to hit the edit button from the board should be able to go
-back into the builder. That's needed as well."** Today the board
-(`apps/display/`) has no path back to the builder for the workout it is showing.
+**Shipped.** The board's footer **"Edit in builder ↗"** button — which used to
+drop the hash/query and reload the board to its empty paste-box — now opens the
+builder on the workout the board is showing, in a new tab. Last piece of the
+post-redesign account thread; the rest shipped in the L-series. `make test`
+2064/2064, 1 pending — unchanged (app code; the core suite does not cover it).
 
-- The board resolves `?w=<handle>:<slug>` end to end (L-series) and knows the
-  workout's id / source. An **Edit** control in the board's footer (beside the
-  division picker / Reset / Clear notifications) opens the builder on that
-  workout — the owner's own copy if they own it, a detached editable copy
-  otherwise, mirroring the *My workouts* panel's open behaviour
-  (`apps/shared/pocketbase.js` `getByAnyId` / `getById`; builder load path).
-- Was a loose bullet ("Post-redesign rethinks — the board's **Edit** button
-  round-tripping into the builder", [../topics/builder-ux.md](../topics/builder-ux.md)
-  "Accounts, IDs and layout"). Everything else in that thread already shipped in
-  the L-series; this is the last piece.
-- **Scope.** `apps/display/{index.html, board.css, board.js}`, possibly a query
-  param the builder reads on load (`apps/builder/builder.js`). No core.
+Drove `make serve`, signed in as the mock `admin: true` user:
+- **Owned workout** (`?w=wk_mock_gtg_000001`): board shows the button →
+  `../builder/?w=wk_mock_gtg_000001` loads the builder **attached** (panel shows
+  *Save* + *Save as copy* + the sharing row, no "read-only copy" note); Save
+  `PATCH`ed the same record — workout count unchanged at 4.
+- **Public library workout** (`?w=crossfit:fran`): builder opens a **detached**
+  copy (*Save to my workouts*, note "Opened crossfit:fran — a read-only copy;
+  Save makes it yours."); first Save `POST`ed a **new** `fresh-dune:fran` row
+  owned by the mock user — `crossfit:fran` was **not** `PATCH`ed.
+- **Raw `#<source>` board**: no Edit button (nothing saved to round-trip to).
+- `?w=` (both a record id and a `<handle>:<slug>`) **survives a builder reload**
+  — same row, same attach state, URL never expands into the `#<source>` hash.
+- A bogus `?w=` → `console.warn` + the default buffer, builder stays up.
+- The board's division picker / Reset / footer layout are unaffected; verified
+  the button on a normal width and at 375px (footer wraps, button on its own
+  row, no clipping); dark only (the board has no light theme); no console errors.
+
+**Decisions made:**
+- **Button label — "Edit in builder ↗".** It leaves the app and opens a new
+  tab, so the label says where you land and the `↗` signals the new tab,
+  mirroring the builder header's *Open on the board ↗*. Not the terse "Edit" the
+  other footer buttons use — this is a meaningfully different (cross-app) action.
+- **Placement — footer end, after the division picker and position readout**,
+  where the button already sat. Reads cleanest as a distinct "leave" action.
+- **Shown only for a `?w=` workout the builder can open** — a module-local
+  `editKey` (the workout's `wdlId` if it has one, else its record id — exactly
+  `openHitOnBoard`'s choice, in reverse) is cleared by every `load()` and re-set
+  only by a `loadShared` that resolved a record; `showEditLink()` toggles
+  `#edit.hidden` off it. A `#<source>` paste/drop board has no `editKey`, so no
+  button.
+- **Shown even with parse errors** — editing is how you fix them; the button
+  gates on "is there a saved record", not on parse state.
+- **No division rides along.** The builder shows both sides of a split by
+  decision ("What it reads" in [../topics/builder-ux.md](../topics/builder-ux.md))
+  and a `&division=` on the builder URL would be ignored, so it is not added.
+- **`?w=` is the builder's load-a-saved-workout entry point** but this executes
+  the existing L-series / DEC-021 copy flow across the board→builder direction —
+  no new structural decision, so no DEC (the contract is: `?w=<id|handle:slug>`,
+  attach when `rec.owner === currentUser()?.id`, detached copy otherwise).
+
+**What shipped, by file:**
+- `apps/display/index.html` — `#edit` starts `hidden`; label + comment updated.
+- `apps/display/board.js` — `editKey` / `showEditLink()`; `load()` clears it,
+  `loadShared` sets it after a resolved record; the button's `onclick` is
+  `window.open('../builder/?w=' + encodeURIComponent(editKey), '_blank',
+  'noopener')` (mirrors `openHitOnBoard`); `showEmpty()` retired with its only
+  caller. `board.css` untouched — the footer already `flex-wrap`s and `#edit`
+  uses generic `button` styling.
+- `apps/builder/builder.js` — imports `getByAnyId`; a reusable
+  **`openRecord(rec, mine)`** factored out of `openFoundWorkout` owns the
+  attach-vs-detached-copy call in one place; the bootstrap reads
+  `new URLSearchParams(location.search).get('w')` and, inside the
+  `refreshAuth().then()` (so `currentUser()` is known), `await getByAnyId(w)` →
+  `openRecord(rec, rec.owner === currentUser()?.id)`, degrading to a
+  `console.warn` + default buffer on a failed fetch.
 
 ---
 

@@ -13,10 +13,10 @@ shortcut; `listOrgWorkouts(ownerId)` in `apps/shared/pocketbase.js` against the
 L1 fixed org ids. The board resolves `?w=<handle>:<slug>` end to end and shows
 the namespaced id in its `#meta` strip (no separate source line — the id names
 the owner). App code only; `make test` unchanged (2064/2064, 1 pending). The
-epic absorbed most of the deferred account-namespacing rethink; what is left —
-the board **Edit** button round-tripping into the builder — is now scheduled as
-**N3** (see "## Next builder-UX work" in
-[../tasks/current.md](../tasks/current.md)).
+epic absorbed most of the deferred account-namespacing rethink; what was left —
+the board **Edit** button round-tripping into the builder — **shipped as N3
+2026-09-02 (`fecf6b3`)** (see "## Next builder-UX work" below). Only the deferred
+handle-rename debt now remains from that thread.
 
 **board: dismissible notifications closed 2026-09-01 (`01c0af3`)** — a
 **Clear notifications** button in the board footer beside Reset, shown only
@@ -161,10 +161,10 @@ task-note premises corrected in the file). Drove it: both pickers populate from
 `make test` 2064/2064, 1 pending. **No `make vocab:dump`** — not wanted for a
 two-file vocabulary. **Muscles stays `registry/muscles.json`.**
 
-**The active queue is *## Next builder-UX work* in
-[../tasks/current.md](../tasks/current.md) — three tasks Chris named 2026-09-02.
-N1 is done; N2's premise turned out stale (nothing shipped, flagged Open for
-Chris); N3 is the next actionable item:**
+**The *## Next builder-UX work* set in
+[../tasks/current.md](../tasks/current.md) — three tasks Chris named 2026-09-02 —
+is closed. N1 shipped (`2a534b6`); N2 is void (obsolete premise, nothing
+shipped); N3 shipped (`fecf6b3`):**
 
 - ~~**N1 — V9: inline "＋ new term" in the token-input picker.**~~ **Shipped
   2026-09-02 (`2a534b6`).** `createTokenInput` gained an `onCreateTerm` opt; the
@@ -185,17 +185,25 @@ Chris); N3 is the next actionable item:**
   nothing to collapse); **129-row palette grouping — deferred** to
   [../tasks/deferred.md](../tasks/deferred.md) pending the curation sweep + a
   browse-UX review.
-- **N3 — the board's *Edit* button round-trips into the builder.** Chris:
-  *"that's needed as well."* A footer control on the board that opens the builder
-  on the shown workout (owner's copy if owned, detached copy otherwise). Last
-  piece of the post-redesign account thread; the rest shipped in the L-series.
-  `apps/display/*` + maybe a builder load param, no core. **This is the only
-  self-contained coding task left in the queue.**
+- ~~**N3 — the board's *Edit* button round-trips into the builder.**~~
+  **Shipped 2026-09-02 (`fecf6b3`).** The board footer's *Edit* button (now
+  **"Edit in builder ↗"**) opens `../builder/?w=<key>` in a new tab (`key` =
+  `wdlId` if present, else record id); the builder reads `?w=<id|handle:slug>`
+  on load and, via a reusable `openRecord(rec, mine)` helper, **attaches** when
+  the signed-in user owns the row (Save updates it) or opens a **detached
+  editable copy** otherwise (first Save creates a re-namespaced new row — the
+  DEC-021 flow). Shown only for a `?w=`-resolved board; a bogus `?w=` warns and
+  falls back; `?w=` survives a builder reload. `apps/display/{index.html,
+  board.js}` + `apps/builder/builder.js`, no core. `make test` 2064/2064, 1
+  pending — unchanged. Dark + 375px verified.
 
-No hard dependency chain. N1 was a small no-dep win (done); N2 dissolved on
+No hard dependency chain. N1 was a small no-dep win (`2a534b6`); N2 dissolved on
 contact with the source (obsolete premise, and its two follow-ons are now
-declined / deferred); **N3 stands on its own and is the last item — after it,
-the actionable self-contained queue is empty.**
+declined / deferred); N3 shipped standalone (`fecf6b3`). **The three-task set is
+closed and the actionable self-contained coding queue is empty** — what remains
+is the deferred movement-"sets" model + UX rework, the deferred flat-129-row
+palette browse UX, the laterality curation sweep (Chris's manual step), and the
+deferred security audit.
 
 Not dev work: the **laterality curation sweep** is Chris's manual CSV step
 ([../tasks/current.md](../tasks/current.md) loose bullets). A **full security
@@ -245,13 +253,13 @@ out **already resolved by the R1 layout redesign** (+ V1 for the header rename),
 verified 2026-09-02, no code shipped. Chris then named the concrete next work
 (2026-09-02): **N1 V9 → N2 palette-drawer redesign → N3 board Edit round-trip**,
 detailed above and in [../tasks/current.md](../tasks/current.md) "## Next
-builder-UX work". **N1 shipped 2026-09-02 (`2a534b6`); N2's premise turned out
-stale on inspection (2026-09-02) — the palette has been a summoned modal, not a
-docked column, since R1/R7, so nothing shipped and it is Open for Chris; N3 is
-next.** The two design-critique items N2 was said to unblock (flat 129-row list;
-four `<h2>`s) were gated on a drawer that never happened — Chris's call whether
-they go now. The **laterality curation sweep** is Chris's manual step, not dev
-work.
+builder-UX work". **All three are closed: N1 shipped 2026-09-02 (`2a534b6`); N2
+is void — the palette has been a summoned modal, not a docked column, since
+R1/R7, so nothing shipped; N3 shipped 2026-09-02 (`fecf6b3`).** The two
+design-critique items N2 was said to unblock (flat 129-row list; four `<h2>`s)
+were gated on a drawer that never happened — the `<h2>`s are declined and the
+129-row list is deferred to [../tasks/deferred.md](../tasks/deferred.md). The
+**laterality curation sweep** is Chris's manual step, not dev work.
 
 **Verified already-done 2026-09-02, no code shipped — two design-critique
 ## Layout entries:**
@@ -375,9 +383,9 @@ reads as `95lb`, `wdl fmt` writes the unit in; rule 2 `952c80c` — a
 builder-only calorie-machine diagnostic).
 [DEC-022](../topics/settled-decisions.md#dec-022-a-unitless-load-magnitude-is-pounds-wdl-fmt-writes-the-unit-in).
 
-The board's **Edit** round-trip is now scheduled as **N3** (see "## Next
-builder-UX work"). The **laterality curation sweep** is Chris's manual CSV step,
-not dev work.
+The board's **Edit** round-trip shipped as **N3** 2026-09-02 (`fecf6b3`) — see
+"## Next builder-UX work". The **laterality curation sweep** is Chris's manual
+CSV step, not dev work.
 
 Phase 2 of the movements epic (user-scoped movements) is in
 [../tasks/deferred.md](../tasks/deferred.md).

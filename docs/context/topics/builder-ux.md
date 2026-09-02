@@ -1057,6 +1057,18 @@ neither strip nor button; a parse error (`AMRAP 3min: 10 Push-Up` via the
 another workout with an error brings both back; Start / Next / Back / Reset and
 the footer layout are unaffected. `make test` unchanged — 2064/2064, 1 pending.
 
+**The footer's *Edit* button now round-trips into the builder (N3,
+`fecf6b3`, 2026-09-02).** It used to be `el('edit') → showEmpty()`: drop the
+hash/query and reload the board to its empty paste-box. It now reads **"Edit in
+builder ↗"** and opens `../builder/?w=<key>` in a new tab (`key` = the
+workout's `wdlId` if it has one, else its record id — `openHitOnBoard`'s choice
+in reverse). It is `hidden` unless the board is showing a workout resolved from
+`?w=` (a module-local `editKey`, cleared by every `load()`, re-set by a
+`loadShared` that got a record); a `#<source>` paste board shows no button.
+`showEmpty()` was retired with its only caller. The builder side is in "##
+Accounts, IDs and layout" below (the last loose bullet of that thread, now
+struck).
+
 ---
 
 ## Accounts, IDs and layout — raised 2026-08-30, thinking out loud, not scheduled
@@ -1086,9 +1098,10 @@ is recorded debt); a **`workouts.wdlId`** column parsed from `@id` on save;
 **"open on the board"** action. **Saving always forces the `@id` to
 `<owner-handle>:<slug>`** (Chris: "users can't not set the ID namespace") — no
 mismatch state to warn about. What is *left* here after that epic: the board's
-**Edit** button round-tripping into the builder, and the deferred
-handle-rename debt (stale already-saved ids — [known-debts.md](known-debts.md)).
-The **Movement create/edit** bullet (below) already shipped as M5.
+**Edit** button round-tripping into the builder *(shipped as N3, `fecf6b3`,
+2026-09-02)*, and the deferred handle-rename debt (stale already-saved ids —
+[known-debts.md](known-debts.md)). The **Movement create/edit** bullet (below)
+already shipped as M5.
 
 **Update 2026-09-01 — the epic is complete (L0–L7 in
 [../tasks/completed.md](../tasks/completed.md)).** L7 (`2557177`) surfaced the
@@ -1101,8 +1114,9 @@ through the existing detached read-only-copy path (`openFoundWorkout`); the
 (search or Examples) opening `../display/?w=<wdlId>`, and the header's existing
 *Open on the board ↗* covers the current buffer. The board's `#meta` strip shows
 the namespaced `@id` (`crossfit:fran`) — that already names the owner, so no
-separate "by @crossfit" line was added. Only the board **Edit** round-trip and
-the handle-rename debt remain from this thread.
+separate "by @crossfit" line was added. **Update 2026-09-02 — the board
+**Edit** round-trip shipped as N3 (`fecf6b3`).** Only the handle-rename debt
+([known-debts.md](known-debts.md)) is now left open from this thread.
 
 - **`@id` and the record id do not correlate, and probably should.** A workout
   can carry an `@id` directive in its text (spec preamble; `wdl result` already
@@ -1123,15 +1137,23 @@ the handle-rename debt remain from this thread.
   by the viewer, resolves to "a new unsaved workout" that the viewer can then
   save **into their own namespace** (see the board-Edit bullet).
 
-- **Board "Edit" should round-trip to the builder, not reset the board.**
-  Today `el('edit')` → `showEmpty()` drops the hash/query and reloads the board
-  to its own empty paste-box ("a default workout in this weird little editor —
-  it's not builder"). Wanted: **Edit opens the builder with this workout
-  loaded.** If the viewer owns it and it is found in the DB → open it as the
-  saved record (attached, so Save updates it). If it is not found or not owned →
-  open it as a **new unsaved workout** the viewer can edit and save to their
-  own namespace. This is the natural completion of item 20's `?w=<id>` board
-  link.
+- **~~Board "Edit" should round-trip to the builder, not reset the board.~~
+  Done — N3, 2026-09-02 (`fecf6b3`).** The footer button
+  (`el('edit')`, now labelled **"Edit in builder ↗"**) no longer calls
+  `showEmpty()` — it opens `../builder/?w=<key>` in a new tab (`key` = the
+  workout's `wdlId` if it has one, else its record id). The builder reads
+  `new URLSearchParams(location.search).get('w')` on load and, after
+  `refreshAuth()` (so `currentUser()` is known), `await getByAnyId(w)` →
+  a reusable `openRecord(rec, mine)` helper (factored out of `openFoundWorkout`)
+  that attaches when `rec.owner === currentUser()?.id` (Save updates it) and
+  otherwise opens a **detached editable copy** (first Save creates a new row
+  re-namespaced to the viewer's handle — the DEC-021 copy flow). A failed fetch
+  degrades to a `console.warn` + the default buffer; `?w=` stays clean in the
+  address bar so a reload re-loads the same row. The board's `#edit` button is
+  `hidden` unless it is showing a `?w=`-resolved workout. `showEmpty()` retired
+  with its only caller. `apps/display/{index.html, board.js}` +
+  `apps/builder/builder.js`; no core; `make test` unchanged (2064/2064, 1
+  pending).
 
 - **~~Saved workouts need an "open on the board" action, not just "Copy
   link".~~ Done — L7, 2026-09-01 (`2557177`).** Every hit row in the

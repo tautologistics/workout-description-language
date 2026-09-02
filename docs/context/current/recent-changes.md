@@ -2,6 +2,51 @@
 
 ## Changes
 
+- **2026-09-02 — N3 shipped (`fecf6b3`): the board's *Edit* button round-trips
+  into the builder.** The board footer's *Edit* button used to call
+  `showEmpty()` — drop the hash/query and reload the board to its empty
+  paste-box. It now reads **"Edit in builder ↗"** and opens `../builder/?w=<key>`
+  in a new tab, where `<key>` is the workout's `wdlId` (`<handle>:<slug>`) if it
+  has one, else its 15-char record id — exactly `openHitOnBoard`'s choice, in
+  reverse. It is `hidden` unless the board is showing a workout resolved from
+  `?w=` (a module-local `editKey`, cleared by every `load()`, re-set by a
+  `loadShared` that got a record); a raw `#<source>` paste board has no button.
+  `showEmpty()` retired with its only caller. **The builder now honours
+  `?w=<id|handle:slug>` on load** — the bootstrap reads
+  `new URLSearchParams(location.search).get('w')` and, inside the
+  `refreshAuth().then()` so `currentUser()` is known, `await getByAnyId(w)` and
+  loads the row through a **reusable `openRecord(rec, mine)`** helper factored
+  out of `openFoundWorkout`: the signed-in user owns it (`rec.owner ===
+  currentUser()?.id`) ⇒ **attach** (`openWorkout` set, Save `PATCH`es that row);
+  otherwise ⇒ **detached editable copy** (`openWorkout = null`, first Save
+  `POST`s a new row re-namespaced to the viewer's handle — the DEC-021 copy
+  flow, no fork concept). A failed fetch degrades to a `console.warn` + the
+  default buffer; `?w=` is left untouched in the address bar so a reload
+  re-loads the same row in the same attach state. No `&division=` — the builder
+  shows both sides of a split by decision and would ignore it.
+  Files: `apps/display/{index.html, board.js}` + `apps/builder/builder.js`
+  (`board.css` untouched — the footer already `flex-wrap`s and `#edit` uses
+  generic `button` styling). **No `packages/core` change.** `make test`
+  **2064/2064, 1 pending** — unchanged (app code; the core suite does not cover
+  it). Verified driving `make serve` signed in as the mock `admin: true` user:
+  an owned workout (`?w=wk_mock_gtg_000001`) round-trips **attached** (panel
+  *Save* + *Save as copy* + sharing row, no "read-only copy" note) and Save
+  `PATCH`ed the same record (workout count unchanged at 4); a public library
+  workout (`?w=crossfit:fran`) opens a **detached** copy ("Save to my
+  workouts", the read-only note) and the first Save `POST`ed a **new**
+  `fresh-dune:fran` row owned by the mock user — `crossfit:fran` was **not**
+  `PATCH`ed; a raw `#<source>` board shows no Edit button; `?w=` (a record id
+  and a `<handle>:<slug>` both) survives a builder reload with the right attach
+  state and the URL never expands into the `#<source>` hash; a bogus `?w=` →
+  `console.warn` + default buffer, builder stays up; the board's division
+  picker / Reset / footer layout are unaffected, verified at a normal width and
+  375px (footer wraps, the button on its own row, no clipping); dark only (the
+  board has no light theme); no console errors. **With N1 + N3 landed and N2
+  void, the three-task set is closed and the actionable self-contained coding
+  queue is empty** — what remains is the deferred sets-model + palette-browse-UX
+  reworks, the laterality curation sweep (Chris's manual step), and the deferred
+  security audit.
+
 - **2026-09-02 — N2 (palette-drawer redesign) investigated, premise stale,
   nothing shipped.** A session picked N2 up, read `apps/builder/{index.html,
   builder.css,builder.js}` and drove `make serve` at 1440px: the "permanent
