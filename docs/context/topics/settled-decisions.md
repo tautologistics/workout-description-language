@@ -1680,3 +1680,35 @@ movement editor offers.*
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).
+
+### DEC-026 The inline "＋ new term" slugs by lowercase + trim + collapse whitespace, keeping typed hyphens
+*Status: active. Settled 2026-09-02 with queue item N1 / V9 (`2a534b6`) — the
+admin "＋ new term" row in the token-input picker.*
+
+- **The rule.** When a curator types a new equipment / pattern term into the
+  picker, its `termId` is `text.trim().toLowerCase().replace(/\s+/g, ' ')` — no
+  more. Internal whitespace collapses to one space; **hyphens the curator typed
+  are kept, and spaces are not turned into hyphens.** `name` is the trimmed text
+  as typed (case preserved).
+
+- **Why not always hyphenate.** The two vocabularies spell compound ids
+  differently and both are right: `registry/equipment.json` keeps spaces
+  (`medicine ball`, `pull-up bar`), `registry/patterns.json` uses hyphenated
+  compounds (`elbow-flexion`, `horizontal-push`). There is no single
+  transformation that produces the house form for both. The curator is looking
+  at that convention — the existing terms are in the very list they are filtering
+  — so they type `battle rope` for equipment and `anti-rotation` for a pattern,
+  and the slug preserves each. A forced hyphenation would have mangled every
+  multi-word equipment term.
+
+- **Duplicate suppression folds harder than the slug.** The row is withheld when
+  the typed text folds — case, spaces, hyphens *and* underscores all stripped,
+  the `scripts/lib/muscles.mjs` fold — to a term already in the vocabulary, so
+  `Medicine-Ball` does not offer to re-create `medicine ball`. The looser slug
+  is only what gets written; the tighter fold is what decides whether writing is
+  even offered.
+
+- **The server still owns uniqueness.** `termId` has a unique index
+  (DEC-025's migration); a slug that collides returns a 400 the widget surfaces
+  inline and rolls its optimistic add back. The client rule is a convenience,
+  not the guard.

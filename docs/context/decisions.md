@@ -269,3 +269,17 @@ hand-drawn path per id, so a new muscle is a code change either way. The rule is
 `{ id, name, synonyms }` matched to `registry/muscles.json` — **not** the
 `label` the queue note asked for — and a pure case variant is not a synonym.
 -> [topics/settled-decisions.md](topics/settled-decisions.md#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump)
+
+## DEC-026 — The inline "＋ new term" slugs by lowercase + trim + collapse whitespace, keeping typed hyphens
+Status: active. Settled 2026-09-02 with queue item N1 / V9 (`2a534b6`). A
+curator's typed term becomes a `termId` of `text.trim().toLowerCase()` with
+internal whitespace collapsed to one space — **spaces are not hyphenated**.
+`registry/equipment.json` keeps spaces (`medicine ball`) and
+`registry/patterns.json` uses hyphenated compounds (`elbow-flexion`); no single
+transform is the house form for both, and the curator is filtering the existing
+list as they type, so preserving what they type follows the convention in front
+of them. The row is *withheld* when the text folds (case / space / hyphen /
+underscore stripped) to an existing term, so the looser slug only ever governs
+what is written, not whether writing is offered; the `termId` unique index is
+the real guard.
+-> [topics/settled-decisions.md](topics/settled-decisions.md#dec-026-the-inline--new-term-slugs-by-lowercase--trim--collapse-whitespace-keeping-typed-hyphens)

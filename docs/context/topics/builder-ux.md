@@ -716,6 +716,22 @@ canonical-only movement opens blank; an unedited `deadlift` save round-trips
 baseline (curated — 972 records, 0 contended names). *`apps/builder/builder.js`
 + `builder.css`; no core change; `make test` 2064/2064, 1 pending, unchanged.*
 
+**An admin can add a vocabulary term from the editor** *(2026-09-02, N1 / V9,
+`2a534b6`).* The token-input picker for `equipment` / `pattern` — and only those
+two — shows a **"＋ new term"** row while the filter box holds text that folds to
+no known term. It is `createTokenInput`'s new `onCreateTerm` opt; the builder
+passes it only when `currentUser()?.admin`, so a non-admin never sees the row and
+the `@request.auth.admin = true` server rule (DEC-025) is the real boundary — a
+forced write 403s and the widget rolls its optimistic add back with the message
+inline. Clicking the row slugs the text
+([DEC-026](settled-decisions.md#dec-026-the-inline--new-term-slugs-by-lowercase--trim--collapse-whitespace-keeping-typed-hyphens):
+lowercase + trim + collapse whitespace, typed hyphens kept), `POST`s
+`{ termId, name, synonyms: [], scope: "global" }` via `createEquipmentTerm` /
+`createPatternTerm`, adds it to the live picker at once, and busts the
+`dbVocab()` cache (`.reset()`) so the next editor open re-fetches. Muscles never
+get the row (closed set). *`apps/shared/{token-input,vocab,pocketbase,movement-editor}.js`
++ `apps/builder/{builder.js,builder.css}`; no core; `make test` unchanged.*
+
 ---
 
 ## What it reads

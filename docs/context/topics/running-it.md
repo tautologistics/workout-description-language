@@ -103,7 +103,10 @@ V7)* `equipment/records` + `patterns/records` the same way — derived from
 `fixtures/{equipment,patterns}.json`), reads open, writes behind the same
 `Authorization` gate, overlay persisted git-ignored to
 `fixtures/{equipment,patterns}.local.json` — so a bare `make serve` serves the
-equipment and pattern vocabulary V8 will point the editor at. **On by default**;
+equipment and pattern vocabulary the editor reads. *Since 2026-09-02 (N1 / V9)*
+an admin's **"＋ new term"** in the editor's picker `POST`s here too; **delete
+`fixtures/{equipment,patterns}.local.json` to drop terms added that way** and
+fall back to the `registry/*.json` seed. **On by default**;
 **`WDL_MOCK_API=0 make serve`** opts out and
 `/api/*` falls through to the old behaviour (404 / static). Sample data lives in
 `fixtures/` (`users.json`, `workouts.json` committed; `*.local.json`

@@ -44,9 +44,9 @@ board resolves `?w=<handle>:<slug>` end to end and shows the namespaced id in th
 what is left of it — the board **Edit** button round-tripping into the builder —
 is a loose bullet below.
 
-**The *Vocabularies & editor ergonomics* epic (V1–V9)** is done through V8; V3
-was withdrawn; **V9 is wanted (Chris, 2026-09-02) and is now N1 of the
-three-task set below.** *Corrected 2026-09-02: this paragraph read "No epic is in
+**The *Vocabularies & editor ergonomics* epic (V1–V9) is complete** — V3 was
+withdrawn; **V9 shipped 2026-09-02 (`2a534b6`) as N1 of the three-task set
+below.** *Corrected 2026-09-02: this paragraph read "No epic is in
 flight, and the standalone queue is empty" from 2026-09-01 until the V-series
 was queued on 2026-09-02, and stayed that way for a day after — a session
 picking work off this file would have been told there was none.* Every earlier
@@ -57,10 +57,11 @@ landed. The standalone **movement-editor wrong-record defect** was fixed
 **The active queue is *## Next builder-UX work* below — three tasks Chris named
 2026-09-02, in order: N1 = V9 (inline "＋ new term"), N2 = the *Movements*
 palette-drawer redesign, N3 = the board's **Edit** round-trip into the builder.**
-N2 unblocks two further `builder-ux.md` design-critique items (the flat 129-row
-list; the read pane's four `<h2>`s). The **laterality curation sweep** is Chris's
-manual step, not dev work (loose bullet at the end). A **full security audit** is
-recorded in [deferred.md](deferred.md) as a "once functionality has settled" item.
+**N1 landed 2026-09-02 (`2a534b6`) — N2 is next.** N2 unblocks two further
+`builder-ux.md` design-critique items (the flat 129-row list; the read pane's
+four `<h2>`s). The **laterality curation sweep** is Chris's manual step, not dev
+work (loose bullet at the end). A **full security audit** is recorded in
+[deferred.md](deferred.md) as a "once functionality has settled" item.
 
 Recently closed (kept here briefly for the trail):
 
@@ -512,12 +513,16 @@ V6 landed 2026-09-02 (`370b2d0`), so it starts at V7.**
   `scripts/vocab-to-db.mjs` (new), root `Makefile`, `apps/shared/{pocketbase.js,
   vocab.js, movement-editor.js}`.*
 
-- **V9. Inline "＋ new term" in the picker.** **Wanted — Chris confirmed
-  2026-09-02** ("I definitely want that"). No longer optional; it is task 1 of
-  the three-task builder-UX set below. An admin-only affordance in the
-  token-input picker that `POST`s a `scope: "global"` row to `equipment` /
-  `patterns` — the `＋ new movement` pattern, so a curator adds a term mid-edit.
-  See **## Next builder-UX work** below for the full brief.
+- ~~**V9. Inline "＋ new term" in the picker.**~~ **Shipped 2026-09-02
+  (`2a534b6`)** as N1 of the three-task set below — full write-up in the
+  **### N1 — V9** section. An admin-only row in the token-input picker
+  (`onCreateTerm` opt) that `POST`s a `{ termId, name, synonyms: [], scope:
+  "global" }` row to `equipment` / `patterns`; the term is added to the live
+  vocabulary optimistically and the `dbVocab` cache is busted so the next editor
+  open re-fetches. Gated on `currentUser()?.admin`; the server rule is the real
+  boundary and a 403 rolls the optimistic add back with the message inline. Slug
+  rule settled as
+  [DEC-026](../topics/settled-decisions.md#dec-026-the-inline--new-term-slugs-by-lowercase--trim--collapse-whitespace-keeping-typed-hyphens).
 
 ### Sequencing
 
@@ -527,13 +532,12 @@ V2 ─┴─ ship (Stage A, independent, no risk)
 V3 ──── WITHDRAWN 2026-09-02 (premise false — DEC-023; blocked nothing)
 V4 ──> V5 ── shipped ───────────┐
 V6 ── shipped ──> V7 ── shipped ──> V8 ─┴─ shipped (V8 swapped V5's vocab source to the API)
-                                          V9 WANTED (Chris, 2026-09-02) — see "## Next builder-UX work"
+                                          V9 ── shipped 2026-09-02 (`2a534b6`, as N1)
 ```
 
-**Stage C is effectively complete — V6 (`370b2d0`), V7 (`67001cb`), V8
-(`b2efb64`) all shipped 2026-09-02.** **V9** (inline "＋ new term" in the picker)
-is the last V-series item; **Chris confirmed 2026-09-02 he wants it** — it is now
-task 1 of the three-task set in **## Next builder-UX work** below.
+**Stage C is complete — V6 (`370b2d0`), V7 (`67001cb`), V8 (`b2efb64`) all
+shipped 2026-09-02, and V9 (`2a534b6`) closed the epic** as N1 of the
+three-task set in **## Next builder-UX work** below.
 **Prod, 2026-09-02: V8 is fully live.** `make deploy:db`, `make vocab:load`
 and `make deploy` have all run — `equipment` 29 rows, `patterns` 11, and the
 served `apps/shared/*.js` is byte-identical to `origin/main` V8, so the prod
@@ -558,9 +562,9 @@ V6 shipped the data and the schema; V7 put both vocabularies behind the local
 mock `/api`; **V8 added `make vocab:load` and put the `/api` fetch in front of
 `apps/shared/vocab.js`'s literals, which are now the offline fallback** — so the
 movement editor's equipment and pattern pickers read the DB when it answers and
-the bundled list when it does not. That staging matched M1→M3 for movements. The
-only V-series item left is **V9**, which **Chris confirmed he wants** on
-2026-09-02 — folded into **## Next builder-UX work** below.
+the bundled list when it does not. That staging matched M1→M3 for movements.
+**V9 (`2a534b6`, 2026-09-02) closed the epic** — the inline "＋ new term" row,
+dispatched as N1 of **## Next builder-UX work** below.
 Prod is fully deployed as of 2026-09-02 — `make deploy:db` + `make vocab:load`
 + `make deploy` all run (`equipment` 29, `patterns` 11; served V8 JS
 byte-identical to `origin/main`), so the live editor fetches the DB vocab.
@@ -581,7 +585,44 @@ own session; each spawns the next when it lands.
 through the audit CSV (`make curation:sheet`), it is not a coding task. It stays
 in the loose bullets below as his step.*
 
-### N1 — V9: inline "＋ new term" in the token-input picker
+### N1 — V9: inline "＋ new term" in the token-input picker — **DONE 2026-09-02 (`2a534b6`)**
+
+**Shipped.** An admin-only row in the token-input picker creates a new global
+equipment / movement-pattern term without leaving the editor. `make test`
+2064/2064, 1 pending — unchanged (app code; core suite does not cover it).
+Drove `make serve` signed in: added `indian club` and `weight vest` in the
+equipment picker and `anti-rotation` in the patterns picker — each showed as a
+pickable option, added a chip, `collect()` still emitted the same array
+(`equipment: ["indian club"]` on a saved movement); `curl` confirmed each row
+`scope: "global"`; after a server restart all three were served (equipment
+`totalItems` 29 → 31) and appeared in a freshly opened editor's picker. Muscles
+picker has no row (unchanged). Signed out, the row is gone. A rejected `POST`
+rolls the optimistic add back, keeps the typed text, and shows the message
+inline (verified against a forced 403 and the server's real no-auth 403). Light
++ dark + 768px — the row sits in normal flow inside the picker, not clipped.
+No console errors.
+
+**Decisions made:**
+- **Which fields.** A new `onCreateTerm` opt on `createTokenInput`, passed only
+  for `equipment` / `pattern` by the builder. Not inferred from `allowCustom` —
+  absent opt ⇒ no row. Muscles, `aliases`, `related`, `sameAs` never get it.
+- **The gate.** `currentUser()?.admin` in `builder.js` — when false the opt is
+  `undefined` and no row renders. *Note: `#movement-new` itself carries no such
+  gate today (the queue brief's premise there was slightly off) — the server
+  rule is the only boundary on the existing button; V9 adds the client gate the
+  brief describes for the new row.*
+- **Cache-bust.** `dbVocab()` closures gained `.reset()` (drops the cached
+  promise); `builder.js` calls it after the `POST`. The widget splices the term
+  into its live `terms` list optimistically so the current picker updates
+  without waiting.
+- **Slug rule** — settled as
+  [DEC-026](../topics/settled-decisions.md#dec-026-the-inline--new-term-slugs-by-lowercase--trim--collapse-whitespace-keeping-typed-hyphens):
+  lowercase + trim + collapse whitespace, hyphens kept as typed (equipment ids
+  keep spaces, pattern ids hyphenate — no one transform is right for both). The
+  row is withheld when the text folds (case/space/hyphen/underscore) to an
+  existing term.
+
+Original brief kept below for the trail.
 
 **Chris: "I definitely want that."** An **admin-only** row in the token-input
 picker (`apps/shared/token-input.js`, the filter/select list below the field)

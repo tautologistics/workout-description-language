@@ -2,6 +2,36 @@
 
 ## Changes
 
+- **2026-09-02 — N1 / V9 shipped (`2a534b6`): an admin "＋ new term" row in the
+  token-input picker.** A curator mints a global equipment / movement-pattern
+  term without leaving the movement editor. `createTokenInput` gained an
+  `onCreateTerm` opt — when the host passes one, the filter/select picker grows
+  one row (normal flow, above the checklist, DEC-024 intact) offering to create
+  the typed term when it folds to no known one; clicking it slugs the text
+  ([DEC-026](../topics/settled-decisions.md#dec-026-the-inline--new-term-slugs-by-lowercase--trim--collapse-whitespace-keeping-typed-hyphens):
+  lowercase + trim + collapse whitespace, typed hyphens kept), adds it to the
+  live vocabulary and picks it **optimistically**, then awaits the host; a
+  rejection rolls the add back, keeps the typed text, shows the reason inline.
+  `dbVocab()` closures in `apps/shared/vocab.js` gained a **`.reset()`** (drops
+  the cached promise); `builder.js` calls it after the `POST` so the *next*
+  editor open re-fetches. `createEquipmentTerm` / `createPatternTerm` in
+  `pocketbase.js` (POST `{ termId, name, synonyms: [], scope: 'global' }`, the
+  twin of `createMovement`). `movement-editor.js` forwards an `onCreateTerm`
+  option keyed by field name; `builder.js` wires `equipment` / `pattern` only,
+  gated on `currentUser()?.admin`. `apps/shared/{token-input,vocab,pocketbase,
+  movement-editor}.js` + `apps/builder/{builder.js,builder.css}`; **no
+  `packages/core` change**. `make test` **2064/2064, 1 pending — unchanged**.
+  Drove `make serve` signed in: added terms in both pickers (chip + pickable
+  option + `collect()` array shape unchanged), `curl` confirmed `scope:
+  "global"`, they survived a server restart and showed in a fresh editor open
+  (cache-bust working); muscles picker still has no row; signed out the row is
+  gone; a forced 403 and the server's real no-auth 403 both roll back with the
+  message inline. **Light + dark + 768px** — the row is in normal flow, not
+  clipped by the modal scroll container. No console errors. This closes the
+  **V1–V9 epic**. `tasks/current.md` (V9 struck, N1 marked done),
+  `next-steps.md`, `what-exists.md`, `builder-ux.md`, `settled-decisions.md` +
+  `decisions.md` (DEC-026) updated.
+
 - **2026-09-02 — next builder-UX queue set by Chris: N1 V9 → N2 palette-drawer
   redesign → N3 board Edit round-trip.** After the two dispatchable
   design-critique items turned out already-done by the R1 redesign, Chris named

@@ -66,10 +66,11 @@ unchanged (2064/2064, 1 pending). Closes the two open design-critique-trio
 entries in that file's *Outline* section (the nesting-rails third was already
 fixed `d8edde3`).
 
-**The epic in flight is Vocabularies & editor ergonomics (V1–V9)** — from the
-2026-09-02 design review of the header **Workouts** menu and the **movement
-editor**. Nine staged tasks in [../tasks/current.md](../tasks/current.md), with
-the decisions recorded at the top of that epic section.
+**The Vocabularies & editor ergonomics epic (V1–V9) is complete** (V3 withdrawn;
+V9 `2a534b6` 2026-09-02) — from the 2026-09-02 design review of the header
+**Workouts** menu and the **movement editor**. Staged tasks in
+[../tasks/current.md](../tasks/current.md), with the decisions recorded at the
+top of that epic section.
 
 **Stage A (V1 + V2) landed 2026-09-02 (`7429863`)** — the header button reads
 **Workouts**, the chip row reads **Libraries**, and a chip is now sugar over the
@@ -145,8 +146,8 @@ agrees field-for-field with the migration's columns. `.gitignore` gained the two
 `*.local.json` entries. No core, no app change; `make test` 2064/2064, 1
 pending.
 
-**V8 landed 2026-09-02 (`b2efb64`) — Stage C is complete; V9 is wanted (Chris,
-2026-09-02) and is now N1 of the next set.**
+**V8 landed 2026-09-02 (`b2efb64`) — Stage C complete; V9 (`2a534b6`,
+2026-09-02) closed the V1–V9 epic as N1 of the next set.**
 `scripts/vocab-to-db.mjs` / `make vocab:load` is the `movements:load` twin (one
 run upserts both `registry/{equipment,patterns}.json` into the two collections,
 keyed on `id` → `termId`, per-collection tally, `--dry-run`, prod auth identical
@@ -161,17 +162,17 @@ task-note premises corrected in the file). Drove it: both pickers populate from
 two-file vocabulary. **Muscles stays `registry/muscles.json`.**
 
 **The active queue is *## Next builder-UX work* in
-[../tasks/current.md](../tasks/current.md) — three tasks Chris named 2026-09-02,
-in order:**
+[../tasks/current.md](../tasks/current.md) — three tasks Chris named 2026-09-02.
+N1 is done; N2 is next:**
 
-- **N1 — V9: inline "＋ new term" in the token-input picker.** No longer optional
-  — Chris: *"I definitely want that."* An admin-only picker row that `POST`s a
-  `scope: "global"` term to `equipment` / `patterns` (the `＋ new movement`
-  pattern). Fiddly part: the `dbVocab()` promise cache in `apps/shared/vocab.js`
-  and `createTokenInput`'s resolve-once-at-mount both need busting so a
-  just-added term shows without a reload. `apps/shared/{token-input,vocab,
-  pocketbase,movement-editor}.js` + `apps/builder/{builder.js,builder.css}`, no
-  core.
+- ~~**N1 — V9: inline "＋ new term" in the token-input picker.**~~ **Shipped
+  2026-09-02 (`2a534b6`).** `createTokenInput` gained an `onCreateTerm` opt; the
+  builder wires it for `equipment` / `pattern` only, gated on
+  `currentUser()?.admin`. `dbVocab()` closures got `.reset()` for the cache-bust;
+  the widget splices a new term into its live list optimistically and rolls back
+  on a failed `POST` with the reason inline. Slug rule
+  [DEC-026](../topics/settled-decisions.md#dec-026-the-inline--new-term-slugs-by-lowercase--trim--collapse-whitespace-keeping-typed-hyphens).
+  `make test` 2064/2064, 1 pending — unchanged. Light + dark + 768px verified.
 - **N2 — the *Movements* palette-drawer redesign.** A header toggle collapsing
   *Movements* to a strip / overlay drawer **at any width**, persisted in
   `localStorage`; reuse the `@media (max-width:1100px)` collapsed-palette CSS as
@@ -186,8 +187,8 @@ in order:**
   piece of the post-redesign account thread; the rest shipped in the L-series.
   `apps/display/*` + maybe a builder load param, no core.
 
-No hard dependency chain, but the order is deliberate: N1 is a small no-dep win,
-N2 is the keystone, N3 lands after N2's large `builder.{js,css}` churn.
+No hard dependency chain, but the order is deliberate: N1 was a small no-dep win
+(done), N2 is the keystone, N3 lands after N2's large `builder.{js,css}` churn.
 
 Not dev work: the **laterality curation sweep** is Chris's manual CSV step
 ([../tasks/current.md](../tasks/current.md) loose bullets). A **full security
@@ -237,8 +238,9 @@ out **already resolved by the R1 layout redesign** (+ V1 for the header rename),
 verified 2026-09-02, no code shipped. Chris then named the concrete next work
 (2026-09-02): **N1 V9 → N2 palette-drawer redesign → N3 board Edit round-trip**,
 detailed above and in [../tasks/current.md](../tasks/current.md) "## Next
-builder-UX work". N2 unblocks the two remaining design-critique items (the flat
-129-row list; the four `<h2>`s). The **laterality curation sweep** is Chris's
+builder-UX work". **N1 shipped 2026-09-02 (`2a534b6`); N2 is next.** N2 unblocks
+the two remaining design-critique items (the flat 129-row list; the four
+`<h2>`s). The **laterality curation sweep** is Chris's
 manual step, not dev work.
 
 **Verified already-done 2026-09-02, no code shipped — two design-critique
