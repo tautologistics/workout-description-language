@@ -605,7 +605,7 @@ A target that is a bare number with no unit — `@ 95` — **is pounds.** `@ 95`
 `@ 95lb` are one reading, and canonical output writes the unit in: `wdl fmt`
 rewrites `@ 95` to `@ 95lb`, because the format's job is to make the reading
 explicit (design rule 3 — pound is the dominant convention for a load, so it is a
-documented default, not a guess). *Settled 2026-09-01, DEC-022 (`<RULE1-SHA>`). Earlier
+documented default, not a guess). *Settled 2026-09-01, DEC-022 (`6829052`). Earlier
 drafts held `@ 95` as raw and meaning nothing, on the reasoning that a defaulted
 unit is an invention; Chris settled it the other way — a workout that carries a
 load and omits the unit means pounds.*

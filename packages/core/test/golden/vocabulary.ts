@@ -415,7 +415,7 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     // regex chain made a flag called `95` and lost the load. The grammar fixed
     // that in 2026-08-15 but read it as `raw` — held verbatim, meaning nothing —
     // on the reasoning that a defaulted unit is an invention. Settled the other
-    // way 2026-09-01 (DEC-<RULE1-SHA>): pound is the documented default for a
+    // way 2026-09-01 (DEC-022, 6829052): pound is the documented default for a
     // load, so `@ 95` and `@95` read as `95lb` and `wdl fmt` writes the unit in.
     '10 Thruster @95',
     '10 Thruster @ 95',

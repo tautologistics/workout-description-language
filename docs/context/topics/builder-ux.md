@@ -686,7 +686,7 @@ of each new round (a `roundLabel()` change vs the previous cue) opens a
 than one column.
 
 **A bare count on a calorie machine gets a suggesting diagnostic — landed
-2026-09-01 (`<RULE2-SHA>`).** Rule 2 of the "unit defaults" task (rule 1 was the
+2026-09-01 (`952c80c`).** Rule 2 of the "unit defaults" task (rule 1 was the
 parser change — a unitless *load* is now pounds, DEC-022). `15 Row` on an erg
 parses `15` as reps, but the thing a rower counts is calories. The reading is
 **not** changed anywhere — the parser keeps the count and the board renders it

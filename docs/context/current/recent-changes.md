@@ -3,7 +3,7 @@
 ## Changes
 
 - **2026-09-01 — unit defaults, rule 2: a builder diagnostic for a bare count on
-  a calorie machine (`<RULE2-SHA>`).** Second and final rule of the last queued
+  a calorie machine (`952c80c`).** Second and final rule of the last queued
   standalone task; **the standalone queue is now empty.** `15 Row` on an erg
   parses `15` as reps, but a rower counts calories — the **builder** now shows a
   suggesting diagnostic ("did you mean `15cal Row`?"). No parser / grammar /
@@ -20,7 +20,7 @@
   **2064/2064, 1 pending** — app code, no suite coverage. Closes the "unit
   defaults" task; DEC-022 covers both rules.
 - **2026-09-01 — unit defaults, rule 1: a unitless load magnitude is pounds
-  (`<RULE1-SHA>`).** First of the two rules of the last queued standalone task.
+  (`6829052`).** First of the two rules of the last queued standalone task.
   `@ <number>` with no unit now parses to a real `load` (`{kind:'absolute',
   unit:'lb', value}`) instead of `{kind:'raw'}`, and `wdl fmt` rewrites `@ 95` →
   `@ 95lb` — pound is the documented default for a load that omits its unit

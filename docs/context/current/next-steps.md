@@ -35,7 +35,7 @@ the cue marker still tracks the right physical lines. `apps/display/` only
 (2064/2064, 1 pending). Closes the "reversible default" question left by item
 15b.
 
-**unit defaults closed 2026-09-01 (rule 1 `<RULE1-SHA>`, rule 2 `<RULE2-SHA>`)**
+**unit defaults closed 2026-09-01 (rule 1 `6829052`, rule 2 `952c80c`)**
 — the last queued standalone task. Rule 1: `@ 95` with no unit now parses to a
 real `load` and `wdl fmt` rewrites it to `@ 95lb` (pound is the documented
 default; `parseTarget` in `packages/core/src/units.ts`, spec §3/§7, no corpus
@@ -142,8 +142,8 @@ label + a transient inline hint by the caret); see
 
 **The standalone queue is empty as of 2026-09-01.** All three post-library
 standalone tasks landed: `01c0af3` (board dismissible notifications), `110ed2b`
-(board title-into-strip), and **unit defaults** (rule 1 `<RULE1-SHA>` — `@ 95`
-reads as `95lb`, `wdl fmt` writes the unit in; rule 2 `<RULE2-SHA>` — a
+(board title-into-strip), and **unit defaults** (rule 1 `6829052` — `@ 95`
+reads as `95lb`, `wdl fmt` writes the unit in; rule 2 `952c80c` — a
 builder-only calorie-machine diagnostic).
 [DEC-022](../topics/settled-decisions.md#dec-022-a-unitless-load-magnitude-is-pounds-wdl-fmt-writes-the-unit-in).
 

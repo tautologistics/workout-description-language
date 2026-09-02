@@ -215,7 +215,7 @@ export function parseTarget(text: string): Target {
   // movement that carries a load — `@ 95` on a whiteboard is a weight, and it is
   // 95lb far more often than it is anything else, so stating that once (design
   // rule 3, spec §7) beats holding it as `raw` and meaning nothing. Settled
-  // 2026-09-01 (DEC-<RULE1-SHA>); overrides the earlier "a default is an
+  // 2026-09-01 (DEC-022, 6829052); overrides the earlier "a default is an
   // invention" holding answer. An unlabelled rx split still has no unit and
   // never reaches here — `step-semantics` builds its `Load` directly.
   if ((m = t.match(/^(\d+(?:\.\d+)?)$/)))

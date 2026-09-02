@@ -51,7 +51,7 @@ What remains is the two loose bullets below, which need Chris to scope.
 Recently closed (kept here briefly for the trail):
 
 - **~~unit defaults: a unitless load target is pounds~~ — landed 2026-09-01
-  (rule 1 `<RULE1-SHA>`, rule 2 `<RULE2-SHA>`).** Rule 1: `@ <number>` with no
+  (rule 1 `6829052`, rule 2 `952c80c`).** Rule 1: `@ <number>` with no
   unit now parses to a real `load` (`{kind:'absolute', unit:'lb', value}`) and
   `wdl fmt` rewrites `@ 95` → `@ 95lb` — pound is the documented default for a
   load that omits its unit (design rule 3), overriding the "a default is an

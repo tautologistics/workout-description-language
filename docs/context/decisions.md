@@ -204,7 +204,7 @@ added beside spec §2's `@id` bullet. Deferred: handle-rename strands saved
 -> [topics/settled-decisions.md](topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
 
 ## DEC-022 — A unitless load magnitude is pounds; `wdl fmt` writes the unit in
-Status: active. Settled 2026-09-01 (`<RULE1-SHA>`), closing the "what a target
+Status: active. Settled 2026-09-01 (`6829052`), closing the "what a target
 with no unit means" holding answer.
 `@ <number>` with no unit reads as `<number>lb` — `parseTarget` fills `unit:
 'lb'` for a bare magnitude, so the AST carries a real `load` and `wdl fmt`

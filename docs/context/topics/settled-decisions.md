@@ -1443,7 +1443,7 @@ layout").*
 ### DEC-022 A unitless load magnitude is pounds; `wdl fmt` writes the unit in
 *Status: active. Settled 2026-09-01 by Chris, closing the "what a target with no
 unit means" holding answer in [known-debts.md](known-debts.md). Rule 1 of the
-"unit defaults" standalone task (`<RULE1-SHA>`).*
+"unit defaults" standalone task (`6829052`).*
 
 - **`@ <number>` with no unit reads as `<number>lb`.** `parseTarget` in
   `packages/core/src/units.ts` fills `unit: 'lb'` for a bare magnitude
@@ -1483,7 +1483,7 @@ unit means" holding answer in [known-debts.md](known-debts.md). Rule 1 of the
   directly. `make test` 2064/2064, 1 pending — unchanged.
 
 - **A magnitude that is really calories on a load-less machine** (`15 Row`) is a
-  separate question — rule 2 of the same task, landed 2026-09-01 (`<RULE2-SHA>`):
+  separate question — rule 2 of the same task, landed 2026-09-01 (`952c80c`):
   a *builder-only* suggesting diagnostic (`calorieUnitHints()` in
   `apps/builder/builder.js`, feeding the Analysis-tab diagnostics), **no
   parse-level default**, the board stays agnostic and the reading is unchanged.
