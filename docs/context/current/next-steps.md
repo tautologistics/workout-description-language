@@ -200,10 +200,35 @@ shipped); N3 shipped (`fecf6b3`):**
 No hard dependency chain. N1 was a small no-dep win (`2a534b6`); N2 dissolved on
 contact with the source (obsolete premise, and its two follow-ons are now
 declined / deferred); N3 shipped standalone (`fecf6b3`). **The three-task set is
-closed and the actionable self-contained coding queue is empty** — what remains
-is the deferred movement-"sets" model + UX rework, the deferred flat-129-row
-palette browse UX, the laterality curation sweep (Chris's manual step), and the
-deferred security audit.
+closed.**
+
+**The active queue is now two `localStorage` → PocketBase epics Chris scoped
+2026-09-02**, each broken into tasks in [../tasks/current.md](../tasks/current.md),
+independent of each other:
+
+- **The movement-sets database (S0–S4)** — `localStorage['wdl.sets']` → a
+  `movement_sets` collection on the workouts pattern. Scopes `org-library` +
+  `user`; `setId` = `<handle>:<slug(name)>` re-slugged on rename; **nothing
+  ships v1** (no committed registry, no loader); `wdl.sets` retired,
+  signed-in-only, no migration. S0 writes DEC-027; S1 migration; S2 the
+  `apps/shared/sets.js` model + `pocketbase.js` CRUD + builder rewire; S3
+  fixtures + mock; S4 the create/edit dialog UX rework + deploy + close.
+- **The goals database (G0–G4)** — `localStorage['wdl.goals']` → a `goals`
+  collection on the **vocab** pattern (`scope: global | user`, nullable `user`
+  relation). The current `examples/goals/*.wdlg` are the `global` rows;
+  `make goals:load` ingests them (the L5/L6 authored-content shape). No
+  org-library scope, no dedicated UX task. G0 writes DEC-028; G1 migration; G2
+  `apps/shared/goals-store.js` + CRUD + rewire; G3 loader + fixtures + mock; G4
+  deploy + close.
+
+The `localStorage` audit that produced these: only `wdl.sets` and `wdl.goals`
+hold real content; `wdl.editor-tab` / `wdl.analysis-tab` / `wdl.right-col-w` are
+per-device UI state and `wdl.pb-auth` / `wdl.pb-oauth` / `wdl.pb-draft` are
+auth / transient — all correctly local, none promoted.
+
+Also open, unchanged: the deferred flat-129-row palette browse UX, the
+laterality curation sweep (Chris's manual step), and the deferred security
+audit.
 
 Not dev work: the **laterality curation sweep** is Chris's manual CSV step
 ([../tasks/current.md](../tasks/current.md) loose bullets). A **full security

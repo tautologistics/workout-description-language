@@ -99,9 +99,17 @@ ready to start, with what it touches, is in [current.md](current.md).
   any code. Blocked on the curation sweep (so the real core-set size is known)
   and on that review. See "## Reconsider when".
 
-- **The movement-"sets" feature needs a model + UX rework.** *Captured
-  2026-09-02 (Chris) — "right now it's totally fucked."* The "Sets" section of
-  the Movements modal (compose-by-hand repertoire, landed 2026-08-28 —
+- **~~The movement-"sets" feature needs a model + UX rework.~~ PROMOTED to a
+  live epic 2026-09-02 — see "## The movement-sets database (S0–S4)" in
+  [current.md](current.md).** Chris settled the model decisions (scopes:
+  `org-library` + `user`; `setId` re-slugged on rename; nothing ships v1, no
+  loader; `localStorage['wdl.sets']` retired, signed-in-only, no migration) and
+  it was broken into S0–S4. A companion epic **## The goals database (G0–G4)**
+  promotes `localStorage['wdl.goals']` on the same pattern (scopes `global` +
+  `user`). The original stub is kept below for the trail.
+
+  *Captured 2026-09-02 (Chris) — "right now it's totally fucked."* The "Sets"
+  section of the Movements modal (compose-by-hand repertoire, landed 2026-08-28 —
   [../topics/builder-ux.md](../topics/builder-ux.md) "## Movements") has three
   problems Chris wants addressed together:
   - **Storage / model.** Sets live **only** in `localStorage['wdl.sets']` as a
@@ -205,13 +213,9 @@ ready to start, with what it touches, is in [current.md](current.md).
   grown the corpus enough that a title substring is no longer enough to find
   what you want, and once equipment is real data (V6–V8).
 
-- **The movement-"sets" model + UX rework** is worth doing once Chris is
-  actually leaning on sets while building — the trigger the user-scoped-movements
-  item below uses. A `localStorage` blob is fine for a handful of private
-  scratch lists; it stops being fine the moment a set is meant to be shared, to
-  be an org/library artifact, or to survive a machine. Do the collection + the
-  namespaced-id model first (workouts pattern), then the create/edit dialog UX
-  on top of it.
+- **~~The movement-"sets" model + UX rework~~ — promoted to a live epic
+  2026-09-02** (S0–S4 in [current.md](current.md)), with a companion **goals**
+  epic (G0–G4) on the same pattern. No longer deferred.
 
 - **The movement-palette browse UX** is worth doing once the curation sweep has
   run and the core set has reached its real size — at which point a flat scroll

@@ -81,12 +81,19 @@ button opens the builder on the shown workout, in a new tab; the builder reads
 (the DEC-021 flow). App code only, `make test` unchanged. Its section below is
 struck.
 
-**With N1 + N3 landed and N2 void, the three-task set (N1/N2/N3) is closed and
-the actionable self-contained coding queue is empty.** What remains:
-- the **movement-"sets" model + UX rework** — deferred, needs the DB-collection
-  model scoped first (namespaced `<handle>:<slug>` ids; global / org-library /
-  personal scopes; the workouts pattern), then the create/edit dialog UX
-  ([deferred.md](deferred.md));
+**With N1 + N3 landed and N2 void, the three-task set (N1/N2/N3) is closed.**
+The active queue is now **two `localStorage` → PocketBase epics Chris scoped
+2026-09-02**, each broken into tasks below and independent of the other:
+- **## The movement-sets database (S0–S4)** — promote `localStorage['wdl.sets']`
+  to a `movement_sets` collection on the workouts pattern (scopes: `org-library`
+  + `user`; `setId` re-slugged on rename; nothing ships v1, no loader), then
+  rework the create/edit dialog. Model decisions all settled — S0 writes DEC-027.
+- **## The goals database (G0–G4)** — promote `localStorage['wdl.goals']` to a
+  `goals` collection on the vocab pattern (scopes: `global` + `user`;
+  `examples/goals/*.wdlg` are the `global` rows; `make goals:load` ingests
+  them). Model decisions all settled — G0 writes DEC-028.
+
+Also queued / deferred, unchanged:
 - the **flat 129-row palette browse UX** — deferred pending the curation sweep
   + a dedicated UX review ([deferred.md](deferred.md));
 - the **laterality curation sweep** — Chris's manual CSV step (`make
@@ -854,6 +861,400 @@ Drove `make serve`, signed in as the mock `admin: true` user:
   `refreshAuth().then()` (so `currentUser()` is known), `await getByAnyId(w)` →
   `openRecord(rec, rec.owner === currentUser()?.id)`, degrading to a
   `console.warn` + default buffer on a failed fetch.
+
+---
+
+## The movement-sets database (S0–S4)
+
+*Raised 2026-09-02 by Chris: promote **movement sets** — the compose-by-hand
+repertoire in the palette modal's "Sets" section (landed 2026-08-28,
+[../topics/builder-ux.md](../topics/builder-ux.md) "## Movements") — from a
+`localStorage['wdl.sets']` blob to a proper PocketBase collection on the
+workouts pattern, and rework the create/edit dialog on top of it. Was a stub in
+[deferred.md](deferred.md); moved here and broken into tasks 2026-09-02 after
+Chris settled the model decisions below. Mirrors the M-series (movements),
+V6–V8 (vocab) and L-series (workouts) shape: a design/DEC task, a migration, a
+shared model, a mock, then the UX pass + deploy. Each task is one landable
+branch sized for its own session; each spawns the next. **Nothing in
+`packages/core`, the grammar or the spec is touched.***
+
+**Model decisions Chris made 2026-09-02 (S0 writes them up as a DEC):**
+
+- **Two scopes only: `org-library` and `user`.** No `global` scope — Chris:
+  "if it simplifies things, it can be org-library and user only." Org-library
+  sets are owned by the `crossfit` / `hyrox` / `tabata` `users` rows at
+  `visibility: "public"` (the L1 org accounts, DEC-021); user sets are owned by
+  a person. Same shape the vocab layer settled on (DEC-025), minus a first-party
+  tier.
+- **`setId` namespacing = `<owner-handle>:<slug(name)>`, re-slugged on rename.**
+  A set has no `@id` directive, so the slug comes from `name`. Forced on every
+  create/update like `workouts.wdlId`; `-2` / `-3` suffix on a same-owner slug
+  clash. **Re-slug on rename** (Chris's call — mirror workouts), which means a
+  set inherits the **handle-rename staleness debt** already recorded in
+  [../topics/known-debts.md](../topics/known-debts.md) — S0 adds sets to that
+  note, it does not solve it.
+- **Nothing ships at v1.** No sets are currently defined; **no committed
+  `registry/movement-sets.json`, no `make sets:load` loader, no authored
+  first-party content.** A set is a builder *repertoire*, not a workout — the
+  whiteboard at-rest constraint does **not** bind it, and it follows the
+  registry-dump pattern (DEC-025) only *if* first-party sets are ever added.
+  Chris: "maybe later we'll sweep stuff out of existing workouts into a global
+  one" — explicitly out of scope here.
+- **`localStorage['wdl.sets']` is retired; no migration.** Chris is the only
+  user and has created no sets, so there is nothing to carry over. Sets become a
+  **signed-in-only** feature (like Save to workouts): signed out, the palette
+  modal's "Sets" section is hidden. No `localStorage` fallback interface — this
+  keeps S2 clean.
+- **The `movement-sets.json` Export / Import carrier stays.** It is the reversal
+  of the "file format for palette sets" Non-Goal
+  ([../topics/deliberately-not-done.md](../topics/deliberately-not-done.md)) —
+  now "earned more" — still useful for moving a set between accounts; S0 records
+  the reversal, S4's UX pass decides its prominence.
+
+*`wdl.goals` (saved `.wdlg` rulesets, `localStorage['wdl.goals']`) is the only
+other real content in `localStorage` and the direct parallel to sets. Chris's
+call 2026-09-02: **it gets its own epic on the same pattern** — see "## The
+goals database (G0–G4)" below. Not folded in here; the two are independent.*
+
+**Grounding facts (what the tasks build against):**
+
+- **Where sets live today:** `apps/builder/builder.js` ~L2012–2024 —
+  `let sets = JSON.parse(localStorage.getItem('wdl.sets') || '{}')`, a flat
+  `{ "Set name": ["movement-id", …] }` map; `saveSets()` is the sole writer.
+  The surface: `renderSets` (the `#set-pick` filter dropdown), `renderSetList` /
+  `renderSetCard` (one editable card per set — reorder / remove / rename /
+  delete / `↧` add-whole-set-to-outline / `⊕` compose-from-shown), `composing`
+  mode (palette becomes a checklist), `addSetToOutline`, the drag payload
+  `text/wdl-movement-id`, and the `#set-file` Export / Import to
+  `movement-sets.json` (`{ format, version, sets }`).
+- **The workouts pattern to mirror:** `workouts` collection (`owner` relation,
+  `visibility`, `wdlId` unique-ish + indexed), `forceNamespace` /
+  `namespacedId` in `apps/shared/pocketbase.js` (force `<handle>:<slug>` on
+  save), `getByAnyId` (resolve record id *or* `wdlId`), org rows owned by
+  flagged `users` with fixed ids. DEC-021.
+- **The vocab pattern to mirror:** `equipment` / `patterns` collections from one
+  `vocabCollection(name)` migration helper (`deploy/pocketbase/pb_migrations/1757100000_create_vocab.js`),
+  the `makeVocab(name, prefix)` mock factory in `scripts/mock-api.mjs`, the
+  `.local.json` overlay + `.gitignore` entry, `listEquipment` / `listPatterns`
+  in `pocketbase.js`. DEC-025.
+
+### S0 — Design note + a new DEC. No code.
+
+Write the model above up as **DEC-027** (following the
+[../topics/settled-decisions.md](../topics/settled-decisions.md) +
+[../decisions.md](../decisions.md) idiom exactly — an index line in
+`decisions.md`, the full entry in `settled-decisions.md`), covering: the
+`movement_sets` collection shape, the two scopes, `setId` re-slug-on-rename,
+"nothing ships v1 / no loader", and `wdl.sets` retired / signed-in-only. Record
+the **reversal of the "file format for palette sets" Non-Goal** in
+[../topics/deliberately-not-done.md](../topics/deliberately-not-done.md) (the
+"Corrected …" idiom its other reversed entries use). Add movement sets to the
+**handle-rename staleness debt** note in
+[../topics/known-debts.md](../topics/known-debts.md). No collection / app change.
+Spawns S1.
+
+**Collection shape to specify:** `movement_sets` —
+- `owner` — relation → `users`, required, cascade-delete.
+- `name` — text, required.
+- `setId` — text, required, **unique index**; `<owner-handle>:<slug(name)>`.
+- `movements` — json; an **ordered** array of movement ids (the registry `id`,
+  the same value the `text/wdl-movement-id` drag payload carries).
+- `visibility` — select `private | unlisted | public`, required, default
+  `private` (the `workouts` set).
+- `description` — text, optional (S4's UX may or may not surface it; carry the
+  column so it need not be a later migration).
+- the two autodate fields.
+- **Rules:** list/view `owner = @request.auth.id || visibility != "private"`
+  (the `workouts` rule); create/update/delete owner-only
+  (`@request.auth.id = owner`). `down` deletes the collection.
+
+### S1 — `movement_sets` collection + migration. DONE / next after S0.
+
+`deploy/pocketbase/pb_migrations/<ts>_create_movement_sets.js` building the
+collection per S0 — unique index on `setId`, plain index on `owner`, the rules
+above, `down` drops it in one step. Verify **up / down / up** against a real
+`pocketbase` binary on a throwaway `pb_data` (the M1 / L1 / V6 method):
+migrations apply clean, the collection lands with every field + index
+(`sqlite3` against `_collections` / `sqlite_master`), the unique index rejects a
+duplicate `setId`, the `owner` relation resolves to `users`, `down` leaves the
+other collections intact with zero leftover `sqlite_master` rows, a re-`up`
+reapplies. Add the entry to `deploy/pocketbase/pb_migrations/README.md`. Carry a
+**"still to do on deploy"** note (apply on the VPS via `make deploy:db`) exactly
+like M1 / L1 / V6. No app / mock / fixture change — S1 is pure schema. Spawns S2.
+
+### S2 — `apps/shared/sets.js` + `pocketbase.js` CRUD + rewire the builder.
+
+The model moves server-side and out of `builder.js`.
+
+- **`apps/shared/pocketbase.js`** gains, beside the `workouts` block:
+  `listMineSets()`, `getSetByAnyId(key)` (record id *or* `setId`, the
+  `getByAnyId` twin — the `:` is the discriminator), `createSet({ name,
+  movements, visibility })`, `updateSet(id, patch)`, `removeSet(id)`, and a
+  `forceSetNamespace(name, excludeId)` (the `forceNamespace` twin —
+  `<handle>:<slug(name)>`, same suffix-on-clash logic; factor over the existing
+  `namespacedId` if it generalises cleanly). `createSet` / `updateSet` set
+  `setId` from `forceSetNamespace` on every write, so the column and the name
+  never disagree.
+- **`apps/shared/sets.js`** (new, host-agnostic like `vocab.js` /
+  `movement-editor.js`): the in-memory set model + the operations the builder
+  needs (`load`, `list`, `get`, `create`, `rename`, `setMovements`, `remove`),
+  each a thin wrapper over the `pocketbase.js` calls, keeping an in-memory cache
+  the panel renders from and refreshing it after each write. **No `localStorage`
+  path** — signed-out, the builder does not render the Sets section at all.
+- **`apps/builder/builder.js`**: delete `let sets = JSON.parse(localStorage…)`
+  and `saveSets`; point `renderSets` / `renderSetList` / `renderSetCard` /
+  `composing` / `addSetToOutline` / the drag-onto-card handler / the
+  `#set-file` Export-Import at the `sets.js` interface. The Sets section (and
+  `#set-pick`) render only when `currentUser()` is set; a sign-out clears the
+  cache and hides them (mirror `renderMinePanel`'s signed-out branch). Reorder /
+  rename / add / remove now each fire an `updateSet` (debounce the reorder if it
+  chatters). `movements` writes stay an ordered id array, so `addSetToOutline`
+  and `lineFor` are untouched.
+- **No migration / mock change yet** — S3 adds the mock so this is drivable
+  locally; until then S2 is verified against the shape by reading, and the
+  `make test` suite (2064/2064, 1 pending — unchanged, app code) holds. Spawns
+  S3.
+
+### S3 — Fixtures + mock `/api` for `movement_sets` + drive the round-trip.
+
+- **`scripts/mock-api.mjs`** grows a `movement_sets/records` handler — the
+  `workouts` / `makeVocab` twin: PB list-envelope shape, `filter` / `sort` /
+  `page` / `perPage` via the shared `applyQuery` + `listEnvelope`,
+  `/records/:id` by record id *or* `setId`, reads gated by the
+  `visibility != "private" || owner == caller` rule, `POST` / `PATCH` /
+  `DELETE` behind the `Authorization` gate (403 without), authorised writes
+  overlaid onto a git-ignored **`fixtures/movement-sets.local.json`**
+  (`records` + `deleted` tombstones, keyed by `id`). Add the `.local.json` to
+  `.gitignore` beside the existing entries.
+- **`fixtures/movement-sets.json`** (committed): a small seed — one or two
+  `user`-scoped rows owned by the mock `u_mock_chris_0001`, and one
+  `org-library` row owned by `crossfit` at `visibility: "public"` — so a fresh
+  `make serve` shows both scopes. (Derive-vs-commit: commit it — there is no
+  registry source to derive from, unlike vocab.)
+- **Verify** driving `make serve` signed in as the mock `admin` user: create a
+  set in the palette modal, add / reorder / remove movements, rename it →
+  `curl` shows the row in `movement_sets/records` with the right `setId`
+  (`fresh-dune:<slug>`) and ordered `movements`; reload → it persists;
+  `↧` still splices the set into the outline; the `crossfit` public set is
+  visible but not editable; sign out → the Sets section is gone; sign back in →
+  the sets return. `make test` unchanged (2064/2064, 1 pending). Spawns S4.
+
+### S4 — Create/edit dialog UX rework, then deploy + close the epic.
+
+The UX half Chris bundled with the model (deferred.md: "right now it's totally
+fucked", card formatting "total dog shit"):
+
+- **Fix the set-card column alignment / formatting** in the "Sets" section of
+  the palette modal (`apps/builder/builder.css`, `renderSetCard`).
+- **Restructure the create/edit flow so the set being edited is at the *top* of
+  the dialog and the movement search sits *below* it** — so the search reads as
+  "add movements to *this* set", not a separate concern above it. Currently the
+  order/hierarchy is backwards.
+- Tighten New set / compose / rename / delete / `↧` / `⊕` / Export / Import
+  into one coherent hierarchy rather than a scattered button row.
+- A real UX review of the flow driven in the browser, both themes, wide +
+  narrow — not a CSS patch. `apps/builder/{builder.js, builder.css}` (+ maybe
+  `index.html`); **no model change** (S2 landed it).
+
+Then **deploy**: `make deploy:db` (the S1 migration) + `make deploy` (the
+static apps); confirm prod — the collection is present, the served
+`apps/shared/{pocketbase.js, sets.js}` + `apps/builder/*` match `origin/main`.
+**Close the epic:** move the whole S0–S4 section to
+[completed.md](completed.md) as one grouped section (the M / L / V precedent);
+update [../topics/what-exists.md](../topics/what-exists.md) (sets are now a
+collection), [deferred.md](deferred.md) (drop the stub + the "Reconsider when"
+bullet), [../current/next-steps.md](../current/next-steps.md).
+
+### Sequencing
+
+```
+S0 ─> S1 ─> S2 ─> S3 ─> S4
+(DEC) (mig) (model+  (mock+  (UX +
+             rewire)  verify) deploy+close)
+```
+
+Order is strict — each needs the one before. S2 is the biggest (the model +
+the full builder rewire); S3 is what makes S2 drivable locally; S4 is the UX
+pass the model was always for.
+
+---
+
+## The goals database (G0–G4)
+
+*Raised 2026-09-02 by Chris, right after the sets epic above: promote **saved
+goal rulesets** — `localStorage['wdl.goals']`, the "Saved" entries in the
+builder's Goals block ([../topics/what-exists.md](../topics/what-exists.md)
+"Apps", R5) — to a PocketBase collection on the same pattern as the sets epic.
+**Independent of the sets epic** (different collection, different scopes, no
+shared code beyond the `pocketbase.js` idioms); either can be launched first.
+Nothing in `packages/core`, the grammar or the spec is touched — the `.wdlg`
+format is unchanged.*
+
+**Model decisions Chris made 2026-09-02 (G0 writes them up as a DEC):**
+
+- **Two scopes: `global` and `user`. No `org-library`.** Chris: *"there wouldn't
+  be any org-library ones — I don't think Hyrox or CrossFit have any given
+  rules; there's not really much to enforce there."* This is the **vocab scope
+  model** (DEC-025: `scope: global | user` + a nullable `user` relation), **not**
+  the workouts `visibility` model — because "global" here means *"the rulesets
+  applied / available by default, everywhere"*, which is a vocab-like notion,
+  not a sharing one.
+- **The current `examples/goals/*.wdlg` are the `global` rows.** They ship in
+  the repo today (`rotate-muscles.wdlg`, `ramp-the-pull.wdlg`,
+  `ramp-the-squat.wdlg` — note `builder.js`'s `GOALS` const lists only the
+  first two; G3 reconciles that) and stay the committed source. The loader
+  ingests them as `scope: "global"` rows whose `source` is byte-identical to
+  the file — the **L5 / L6 shape** (authored content in the repo, a
+  `make *:load` that upserts it and regenerates the fixture).
+- **`goalId` namespacing** — `<owner-handle>:<slug(title)>` for `user` rows
+  (re-slug on rename, mirror the sets epic + the handle-rename debt);
+  `wdl:<slug>` for `global` rows (a fixed first-party namespace, set by the
+  loader). Unique index.
+- **`localStorage['wdl.goals']` is retired; no migration.** Signed-in-only,
+  like the sets epic — Chris is the sole user. Signed out, the Goals block
+  shows the `global` rulesets (still fetchable) but no "Saved" group.
+- **No Non-Goal reversal** — unlike sets, goals always had `.wdlg` as a real
+  format (`wdl goals --goals` reads it); there is no "goal file format" Non-Goal
+  to reopen. G0's DEC just records the `localStorage` → collection move.
+- **No dedicated UX-rework task.** The Goals block is already fine (R5); G2
+  folds any picker restructure (a "Global" optgroup + a "Saved" optgroup) into
+  the rewire. So the goals epic is G0–G4 with **no S4-style UX pass**.
+
+**Grounding facts:**
+
+- **Where saved goals live today:** `apps/builder/builder.js` ~L2499–2501 —
+  `let savedGoals = JSON.parse(localStorage.getItem('wdl.goals') || '{}')`, a
+  `{ "name": "<.wdlg source text>" }` map; two `localStorage.setItem` writers
+  (save ~L2669, delete ~L2694). The picker (`renderGoalPicker`, ~L2506) builds
+  "no goals" + an **Examples** optgroup (the `GOALS` filenames, fetched from
+  `examples/goals/`) + a **Saved** optgroup (`Object.keys(savedGoals)`); `EXAMPLE`
+  = `'example:'` / `SAVED` = `'saved:'` value prefixes. Download writes a
+  `.wdlg` Blob; there is **no Import** (unlike sets). The rules are consumed by
+  the "Against your goals" panel through the same core code `wdl goals --goals`
+  runs.
+- **The pattern to mirror:** the vocab layer — `equipment` / `patterns`
+  collections, `scope: global | user`, nullable `user` relation, the
+  `vocabCollection(name)` migration helper, the `makeVocab(name, prefix)` mock
+  factory, `.local.json` overlay + `.gitignore`, `listEquipment` /
+  `listPatterns` in `pocketbase.js` with a bundled offline fallback (DEC-025) —
+  **plus** the L5/L6 authored-content-in-repo + `make *:load` loader shape,
+  since the `global` rows have a committed source.
+
+### G0 — Design note + a new DEC. No code.
+
+Write the model above up as **DEC-028** (`decisions.md` index line + full entry
+in `settled-decisions.md`, the established idiom), covering: the `goals`
+collection shape, the two scopes (`global` / `user`, the vocab model),
+`goalId` namespacing (`wdl:<slug>` global / `<handle>:<slug>` user, re-slug on
+rename), `examples/goals/*.wdlg` as the committed `global` source, and
+`wdl.goals` retired / signed-in-only. Add `user`-scoped goals to the
+**handle-rename staleness debt** note in
+[../topics/known-debts.md](../topics/known-debts.md). No code. Spawns G1.
+
+**Collection shape to specify:** `goals` —
+- `title` — text, required (the `.wdlg` title; `parseGoals(source).title`).
+- `goalId` — text, required, **unique index**; `wdl:<slug>` (global) or
+  `<owner-handle>:<slug>` (user).
+- `source` — text (`editor` / long), required — the raw `.wdlg`.
+- `scope` — select `global | user`, required.
+- `user` — relation → `users`, **nullable** (null for `global`), cascade-delete.
+- the two autodate fields.
+- **Rules:** read `scope = "global" || user = @request.auth.id`; create/update/
+  delete `(scope = "user" && user = @request.auth.id) || @request.auth.admin = true`
+  (a user owns their rows; an admin may write `global`). `down` deletes it.
+
+### G1 — `goals` collection + migration.
+
+`deploy/pocketbase/pb_migrations/<ts>_create_goals.js` per G0 — unique index on
+`goalId`, plain index on `scope`, the rules above, `down` drops it. Verify
+**up / down / up** against a real `pocketbase` binary (the V6 method): the
+collection lands with every field + index, the unique index rejects a duplicate
+`goalId`, the `user` relation resolves and is nullable, `down` leaves the other
+collections intact, a re-`up` reapplies. Entry in
+`deploy/pocketbase/pb_migrations/README.md`. "Still to do on deploy" note
+(`make deploy:db`) like M1 / L1 / V6. Pure schema — no app / mock / fixture
+change. Spawns G2.
+
+### G2 — `apps/shared/goals-store.js` + `pocketbase.js` CRUD + rewire the builder.
+
+*(name it `goals-store.js` — `apps/shared/goals.js` would collide with the
+core-goals concept.)*
+
+- **`apps/shared/pocketbase.js`**: `listGlobalGoals()`
+  (`filter=scope="global"`, `sort=goalId`, `perPage=1000`, the `listMovements`
+  shape), `listMineGoals()` (`filter=user="<uid>"`), `getGoalByAnyId(key)`,
+  `createGoal({ title, source })` (always `scope: "user"`, `user` = caller),
+  `updateGoal(id, patch)`, `removeGoal(id)`, and `forceGoalNamespace(title,
+  excludeId)` (`<handle>:<slug(title)>`, suffix-on-clash — factor over the sets
+  epic's helper if that landed first).
+- **`apps/shared/goals-store.js`** (new, host-agnostic): the in-memory model +
+  operations, thin wrappers over `pocketbase.js`, with a **bundled offline
+  fallback for the `global` set** (fetch `examples/goals/*.wdlg` — the exact
+  `vocab.js` `muscleIds()` fetch-then-`.catch`-to-bundled shape) so a
+  signed-out or `WDL_MOCK_API=0` builder still shows the default rulesets.
+- **`apps/builder/builder.js`**: delete `savedGoals` + its two
+  `localStorage.setItem`s; the picker's **Examples** optgroup becomes
+  **Global** fed from `listGlobalGoals()` (offline-fallback to the bundled
+  files), and the **Saved** optgroup is fed from `listMineGoals()` and rendered
+  only when `currentUser()` is set. Save → `createGoal` / `updateGoal`; Delete →
+  `removeGoal`. Download is unchanged. Consider a small **Import** affordance
+  for symmetry with sets (optional — Chris hasn't asked; leave it out unless the
+  rewire makes it free).
+- No migration / mock change yet — G3 adds the mock. `make test` unchanged
+  (2064/2064, 1 pending — app code). Spawns G3.
+
+### G3 — `make goals:load` + fixtures + mock `/api` + drive the round-trip.
+
+- **`scripts/goals-to-db.mjs`** / **`make goals:load`** — the
+  `movements-to-db.mjs` / `vocab-to-db.mjs` twin: idempotent upsert of
+  `examples/goals/*.wdlg` into the `goals` collection as `scope: "global"` rows
+  (`goalId` = `wdl:<slug>`, `title` from `parseGoals`), keyed on `goalId`,
+  `POST` the absent / `PATCH` only changed `title` / `source`; `--dry-run`,
+  `--api` / `WDL_PB_URL`, prod auth like `movements-to-db.mjs`
+  (`@request.auth.admin = true`). The same run regenerates
+  **`fixtures/goals.json`** (the global rows + any preserved mock-user seed).
+  **Reconcile `builder.js`'s `GOALS` const** (2 files) against the 3 in
+  `examples/goals/` — the loader ingests whichever are canonical; if
+  `ramp-the-squat.wdlg` is real it should be in both.
+- **`scripts/mock-api.mjs`** grows a `goals/records` handler — the `makeVocab`
+  twin (list envelope, `filter` / `sort` / `page`, `/records/:id` by id or
+  `goalId`, `scope`-gated reads, authorised writes overlaid onto git-ignored
+  `fixtures/goals.local.json`). `.gitignore` the `.local.json`. Derive the
+  `global` rows from `examples/goals/` at boot (no committed
+  `fixtures/goals.json` of globals) — or commit it; match whatever
+  `workouts` / `vocab` do (vocab derives, workouts commits — pick one and say
+  why in the task).
+- **Verify** on `make serve` signed in as the mock `admin` user: the Global
+  optgroup populates from `/api`; with `WDL_MOCK_API=0` it still populates from
+  the bundled `.wdlg` files; Save a ruleset → `curl` shows a `scope: "user"`
+  row with `goalId` `fresh-dune:<slug>`; reload → it persists; Delete removes
+  it; sign out → only the Global group shows; the "Against your goals" panel
+  still evaluates against a picked ruleset unchanged. `make goals:load` against
+  the mock: first run all `unchanged` (the movements precedent), `--dry-run`
+  writes nothing, an edited file → 1 `updated`. `make test` unchanged. Spawns
+  G4.
+
+### G4 — deploy + close the epic.
+
+`make deploy:db` (the G1 migration) + `make goals:load` (the global rows) +
+`make deploy` (the static apps). Confirm prod: the collection is present, the
+global rows loaded, the served `apps/shared/{pocketbase.js, goals-store.js}` +
+`apps/builder/*` match `origin/main`. **Close the epic:** move G0–G4 to
+[completed.md](completed.md) as one grouped section; update
+[../topics/what-exists.md](../topics/what-exists.md) (goals are now a
+collection), [../current/next-steps.md](../current/next-steps.md), and
+[deferred.md](deferred.md) if a goals stub was added there.
+
+### Sequencing
+
+```
+G0 ─> G1 ─> G2 ─> G3 ─> G4
+(DEC) (mig) (model+  (loader+  (deploy
+             rewire)  mock+     + close)
+                      verify)
+```
+
+Strict order. Independent of the sets epic (S0–S4) — run either first.
 
 ---
 
