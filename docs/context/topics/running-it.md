@@ -419,9 +419,10 @@ detail — the MIME finding (`.ohm`/`.wdlg` land as `text/plain`, and are
   (03:17 UTC, 30-day prune) plus **`make backups:pull`** — an off-box `rsync`
   **pull** to Chris's machine (`~/wdl-pb-backups`, no `--delete`) over the
   `dreamhost.ae.wex` alias, with PocketBase's built-in *Settings → Backups* as
-  the fallback and aligned restore steps. **Not yet installed on the box** —
-  Chris pastes the line into `crontab -e` and verifies
-  the first run + first pull by hand.
+  the fallback and aligned restore steps. **Installed and running as of
+  2026-09-02** — `~/pb/pb_backups/data-2026-09-02.db` was written by cron at
+  03:17 UTC, `backup.log` clean. Only the off-box `make backups:pull` is left
+  (`~/wdl-pb-backups/` does not exist yet).
 - **Config templates** committed under `deploy/`; secrets are gitignored.
 - No new local commands. The apps' test/build/serve commands above are
   unchanged; a production static deploy is item 19's `deploy/` script.

@@ -171,9 +171,11 @@ applied, every loader has run against prod (`movements` **972**, `workouts`
 **45**, `equipment` **29**, `patterns` **11** rows), and the **V8 static apps
 are `make deploy`'d** — the served `apps/shared/{pocketbase.js, vocab.js,
 movement-editor.js}` are byte-identical to `origin/main` and the prod editor
-fetches the DB vocab. **V8 is fully live.** The one item still open is the
-**M6 nightly-backup cron line** — `crontab -e` on the box + first backup and
-first off-box `rsync` verified by hand (`deploy/README.md` §9).
+fetches the DB vocab. **V8 is fully live.** The **M6 nightly-backup cron is
+installed and running** — `~/pb/pb_backups/data-2026-09-02.db` was written by
+cron at 03:17 UTC, `backup.log` clean. The one remaining deploy sliver anywhere
+is the **off-box copy**: `make backups:pull` has not been run
+(`~/wdl-pb-backups/` does not exist yet).
 
 *Corrected 2026-09-02, twice the same day: this first said the prod
 `equipment` / `patterns` collections still needed `make deploy:db` +
@@ -272,15 +274,15 @@ link, **M6** (`97f236f`), specified the nightly VPS SQLite backup + off-box
 copy in `deploy/README.md` + `deploy/pocketbase/crontab.fragment` (shell cron
 `sqlite3 .backup` + 30-day prune, 03:17 UTC; off-box `rsync` pull from Chris's
 machine over the `dreamhost.ae.wex` alias; PocketBase built-in backups as the
-documented fallback; restore steps aligned). **The backup cron line still has to
-be installed on the box by Chris** (`crontab -e`, paste the line) and the first
-backup + first off-box `rsync` verified by hand on the VPS. *Corrected
-2026-09-02: this also listed "admin `users` row, migrations glanced at, prod
-ingest run" as outstanding — all done by 2026-09-02 (Chris's `users` row is
-`admin: true`, all six migrations applied, and `movements` 972 / `workouts` 45 /
-`equipment` 29 / `patterns` 11 rows loaded against prod, and the V8 static
-apps `make deploy`'d). Only the M6 backup cron line is left — see "Deploy
-state" above.*
+documented fallback; restore steps aligned). **The backup cron is installed and
+running** (`data-2026-09-02.db` written at 03:17 UTC, `backup.log` clean); only
+the off-box `make backups:pull` is left. *Corrected 2026-09-02, thrice: this
+listed "admin `users` row, migrations glanced at, prod ingest run", then
+"install the backup cron line", then "verify the cron runs" as outstanding — all
+done by 2026-09-02 (Chris's `users` row is `admin: true`, all six migrations
+applied, `movements` 972 / `workouts` 45 / `equipment` 29 / `patterns` 11 rows
+loaded, the V8 static apps `make deploy`'d, and the backup cron installed and
+observed producing a nightly file). See "Deploy state" above.*
 
 Everything else is closed: the whole 0-series through 21, the deployment epic
 (18–20, landed 2026-08-30) and the builder layout redesign (R1–R10, landed

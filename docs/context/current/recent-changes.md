@@ -33,8 +33,11 @@
     exact call `listEquipment()` builds
     (`?filter=scope="global"&sort=termId&perPage=1000`) returns **29** on the
     live API (`listPatterns()` **11**). **V8 is fully live** — DB + app code.
-  - **Still open on deploy:** only the M6 nightly-backup `crontab -e` line + its
-    first verified run.
+  - **M6 nightly backup: installed and running.** The `crontab -e` line is on
+    the box and has produced `~/pb/pb_backups/data-2026-09-02.db` (507904 B,
+    written by cron at 03:17 UTC; `backup.log` empty). The Sep-1 file is a
+    manual test. **Still open on deploy:** only the off-box `make backups:pull`
+    — `~/wdl-pb-backups/` does not exist on Chris's machine yet.
 
 - **2026-09-02 — V8 landed (`b2efb64`): `make vocab:load`, and the movement
   editor's equipment + pattern pickers now read `/api`.** Stage C of

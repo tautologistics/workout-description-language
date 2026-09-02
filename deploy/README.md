@@ -508,13 +508,23 @@ be set by a migration. Backups then land in `pb_data/backups/*.zip`; point the
 off-box `rsync` at `~/pb/pb_data/backups/` instead, and restore via *Settings →
 Backups → Restore*.
 
-**Still to do on the box (Chris):** paste the backup line into `crontab -e` on
-the PocketBase account. Then verify once by hand on the VPS —
+**Status (2026-09-02):** the backup line is installed in the PocketBase
+account's `crontab -e` **and is running** — `~/pb/pb_backups/` holds
+`data-2026-09-01.db` (a manual test) and `data-2026-09-02.db` (written by cron
+at 03:17 UTC), and `backup.log` is empty (no errors). The only piece left is
+the **off-box copy**: run `make backups:pull` once from a repo checkout and
+confirm the files land in `~/wdl-pb-backups/`.
+
+To force a snapshot by hand on the VPS (e.g. before a PocketBase upgrade):
 
 ```sh
+mkdir -p ~/pb/pb_backups   # the cron line does not create it
 sqlite3 "$HOME/pb/pb_data/data.db" ".backup '$HOME/pb/pb_backups/data-$(date -u +%F).db'"
 ls -la ~/pb/pb_backups/            # the dated .db is there
 ```
+
+(run by hand `%F` is plain — the `\%F` in the crontab line is only cron's
+`%`-escaping) —
 
 — and run the off-box `rsync` from Chris's machine once, confirming the file
 lands. Same "still to do on deploy" caveat M1/M2/M3 carry.
