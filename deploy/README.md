@@ -514,12 +514,11 @@ be set by a migration. Backups then land in `pb_data/backups/*.zip`; point the
 off-box `rsync` at `~/pb/pb_data/backups/` instead, and restore via *Settings →
 Backups → Restore*.
 
-**Status (2026-09-02):** the backup line is installed in the PocketBase
-account's `crontab -e` **and is running** — `~/pb/pb_backups/` holds
+**Status (2026-09-02): complete.** The backup line is installed in the
+PocketBase account's `crontab -e` and running — `~/pb/pb_backups/` holds
 `data-2026-09-01.db` (a manual test) and `data-2026-09-02.db` (written by cron
-at 03:17 UTC), and `backup.log` is empty (no errors). The only piece left is
-the **off-box copy**: run `make backups:pull` once from a repo checkout and
-confirm the files land in `db-backups/`.
+at 03:17 UTC), `backup.log` empty. `make backups:pull` has been run and both
+snapshots landed in the repo-relative `db-backups/` (git-ignored contents).
 
 To force a snapshot by hand on the VPS (e.g. before a PocketBase upgrade):
 

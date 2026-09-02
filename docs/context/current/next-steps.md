@@ -172,10 +172,12 @@ applied, every loader has run against prod (`movements` **972**, `workouts`
 are `make deploy`'d** — the served `apps/shared/{pocketbase.js, vocab.js,
 movement-editor.js}` are byte-identical to `origin/main` and the prod editor
 fetches the DB vocab. **V8 is fully live.** The **M6 nightly-backup cron is
-installed and running** — `~/pb/pb_backups/data-2026-09-02.db` was written by
-cron at 03:17 UTC, `backup.log` clean. The one remaining deploy sliver anywhere
-is the **off-box copy**: `make backups:pull` has not been run
-(`db-backups/` — repo-relative, git-ignored contents — has no snapshots yet).
+installed, running, and pulled off-box** — cron writes
+`~/pb/pb_backups/data-YYYY-MM-DD.db` at 03:17 UTC (`backup.log` clean), and
+`make backups:pull` copies them into the repo-relative `db-backups/`
+(git-ignored contents), verified 2026-09-02 with both snapshots landing.
+**Nothing is open on deploy.** (Deferred, not open: PocketBase upgrades, and
+the DreamHost firewall ticket for the port-8090 exposure.)
 
 *Corrected 2026-09-02, twice the same day: this first said the prod
 `equipment` / `patterns` collections still needed `make deploy:db` +

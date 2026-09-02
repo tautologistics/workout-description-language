@@ -2063,10 +2063,12 @@ off-box pull + PB alternative) and "Restore" aligned to the dated filename with
 the "app data only" scope noted. **Still to install on the box by Chris:** paste
 the backup line into `crontab -e` on the PocketBase account and verify the first
 backup + first off-box `rsync` by hand on the VPS — the same "still to do on
-deploy" caveat M1/M2/M3 carry. *[Corrected 2026-09-02: the cron line is
-installed and running — `~/pb/pb_backups/data-2026-09-02.db` was written by cron
-at 03:17 UTC; only `make backups:pull` (off-box copy) remains. M1–M3's deploy
-caveats are all closed too. See [../current/next-steps.md](../current/next-steps.md).]* *Touched:*
+deploy" caveat M1/M2/M3 carry. *[Corrected 2026-09-02: fully done. The cron
+line is installed and running (`~/pb/pb_backups/data-2026-09-02.db` written by
+cron at 03:17 UTC), and `make backups:pull` has copied the snapshots off-box
+into the repo-relative `db-backups/` (was `~/wdl-pb-backups/` until 2026-09-02).
+M1–M3's deploy caveats are all closed too. See
+[../current/next-steps.md](../current/next-steps.md).]* *Touched:*
 `deploy/pocketbase/crontab.fragment`, `deploy/README.md`;
 `docs/context/tasks/{completed,current}.md`,
 `docs/context/current/{recent-changes,next-steps}.md`,

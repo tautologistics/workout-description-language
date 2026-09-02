@@ -420,10 +420,10 @@ detail — the MIME finding (`.ohm`/`.wdlg` land as `text/plain`, and are
   **pull** into the repo-relative **`db-backups/`** (`WDL_BACKUP_DIR` default;
   contents git-ignored, `db-backups/README.md` tracked; no `--delete`) over the
   `dreamhost.ae.wex` alias, with PocketBase's built-in *Settings → Backups* as
-  the fallback and aligned restore steps. **Installed and running as of
-  2026-09-02** — `~/pb/pb_backups/data-2026-09-02.db` was written by cron at
-  03:17 UTC, `backup.log` clean. Only the off-box `make backups:pull` is left
-  (`db-backups/` has no snapshots yet).
+  the fallback and aligned restore steps. **Installed, running, and pulled
+  off-box as of 2026-09-02** — cron wrote `~/pb/pb_backups/data-2026-09-02.db`
+  at 03:17 UTC (`backup.log` clean) and `make backups:pull` copied both
+  snapshots into `db-backups/`, verified. Nothing outstanding.
 - **Config templates** committed under `deploy/`; secrets are gitignored.
 - No new local commands. The apps' test/build/serve commands above are
   unchanged; a production static deploy is item 19's `deploy/` script.
