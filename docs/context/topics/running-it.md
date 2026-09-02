@@ -37,6 +37,22 @@ backslash-escaped in the `Makefile` (`curation\:sheet:`), typed plain on the
 command line (`make curation:sheet`). Single-word targets (`test`, `build`,
 `serve`, `deploy`, …) are unchanged.
 
+**A `.env` feeds the database + deploy targets** *(since 2026-09-02)*. The
+Makefile does `include .env` inside an `ifneq (,$(wildcard ./.env))` guard (so
+a missing file is silent — no behaviour change) then a bare `export`, so any
+`WDL_PB_URL` / `WDL_PB_ADMIN_TOKEN` /
+`WDL_PB_ADMIN_EMAIL` / `WDL_PB_ADMIN_PASSWORD` / `WDL_PB_ADMIN_COLLECTION` /
+`WDL_DEPLOY_SSH` / `WDL_DEPLOY_DIR` / `WDL_BACKUP_DIR` set there reaches the
+`node scripts/*` recipe environment with no inline `VAR=… make …` prefix. Copy
+**`.env.example`** (committed, all keys commented with guidance) to **`.env`**
+(git-ignored — `/.env` in the root `.gitignore`) and fill in what a run needs.
+GNU Make parses the file, so values take **no quotes, no `#` mid-value, no
+`$`**. Precedence: `make VAR=x <target>` (a make argument) overrides `.env`;
+`.env` overrides the Makefile's `?=` defaults and a `VAR=x make` shell prefix.
+Nothing about running against the local mock changes — leave `.env` absent, or
+leave `WDL_PB_URL` unset in it, and the scripts still default to
+`http://localhost:8081`.
+
 Not wrapped (situational, take arguments): `node scripts/find-duplicates.mjs >
 pairs.json` (cross-source dup pairs to triage) and the `wdl` CLI itself
 (below). `import-movement-curation.mjs` is wrapped as `make curation:check
@@ -135,8 +151,10 @@ row (json→`null`, scalar→`""`), so the M4 dump round-trips.
   `WDL_PB_ADMIN_COLLECTION`, default `users` — the row needs `admin: true`,
   `deploy/README.md` §7a) exchanged at
   `POST /api/collections/<c>/auth-with-password`. Run it once after M1/M2 are
-  applied on the box. Without creds against a real PocketBase the script exits
-  with the list of what to set.
+  applied on the box — **done for prod 2026-09-02, `movements` holds 972 rows**.
+  Since 2026-09-02 the creds can live in `.env` (see the `.env` paragraph near
+  the top). Without creds against a real PocketBase the script exits with the
+  list of what to set.
 
 **Dumping the DB back to `registry/movements.json`** *(since 2026-09-01, queue
 task M4, DEC-020)*. `make movements:dump` (`scripts/movements-from-db.mjs`, no
@@ -242,8 +260,10 @@ without writing. Every row is written `scope: "global"`, `user` unset.
   optional `WDL_PB_ADMIN_COLLECTION`, default `users` — the row needs
   `admin: true`; the vocab write rule is `@request.auth.admin = true`, the same
   rule `movements` carries). Run it once after `make deploy:db` applies the V6
-  migration on the box. Without creds against a real PocketBase the script exits
-  with the list of what to set.
+  migration on the box — **done for prod 2026-09-02, `equipment` holds 29 rows
+  and `patterns` 11**. The creds can live in `.env` (see the `.env` paragraph
+  near the top). Without creds against a real PocketBase the script exits with
+  the list of what to set.
 - **No egress twin.** `make vocab:dump` was considered and not built — the two
   registry files are small enough to edit directly, so the
   `dump → load → dump` round-trip guarantee movements needed does not earn its
@@ -376,19 +396,22 @@ detail — the MIME finding (`.ohm`/`.wdlg` land as `text/plain`, and are
 - **Migrations onto the box:** `make deploy:db` — `rsync` of
   `deploy/pocketbase/pb_migrations/*.js` to `~/pb/pb_migrations/` (no `--delete`)
   then a PocketBase restart so any new migration applies. Run it whenever a
-  migration is added; `deploy/README.md` §3 / §7a–b. **There is an unapplied
-  migration as of 2026-09-02**: `1757100000_create_vocab.js` (queue task V6,
+  migration is added; `deploy/README.md` §3 / §7a–b. **All six migrations are
+  applied on the box as of 2026-09-02** (verified by hitting the live API — the
+  `workouts` / `movements` / `equipment` / `patterns` collections all respond).
+  *Corrected 2026-09-02: this bullet said `1757100000_create_vocab.js` (V6,
   [DEC-025](settled-decisions.md#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump))
-  creates the `equipment` and `patterns` collections. It has been verified up and
-  down against a real pocketbase v0.40.1 binary but **not yet run on the box** —
-  `make deploy:db` is what lands it. It creates empty collections and loads no
-  rows; the loader that fills them from `registry/{equipment,patterns}.json` is
-  **`make vocab:load`** (task V8, `b2efb64`, shipped 2026-09-02 — see the
-  "Ingesting the equipment + pattern vocabularies into the DB" paragraph above).
-  On the box the sequence is `make deploy:db` (migration) then `make vocab:load`
-  with prod admin creds. Until both run, the prod collections stay empty and the
-  movement editor falls back to `apps/shared/vocab.js`'s bundled literals, so
-  deploying the migration early is harmless and deferring it is equally harmless.
+  was "not yet run on the box" — Chris ran `make deploy:db` on 2026-09-02 and
+  the vocab collections landed.*
+- **Prod data load state, 2026-09-02** (checked against the live API):
+  `movements` **972 rows**, `workouts` **45**, `equipment` **29**, `patterns`
+  **11** — `make movements:load` / `make workouts:load` / `make vocab:load` have
+  all been run against prod. `apps/shared/vocab.js`'s bundled literals are no
+  longer the only thing the editor can read — *but the prod static apps are
+  still the pre-V8 build* (the V8 `apps/shared/{pocketbase.js, vocab.js,
+  movement-editor.js}` have not been `make deploy`'d), so the live editor is not
+  yet fetching the vocab collections. One `make deploy` from a checkout at
+  `b2efb64`+ closes that.
 - **DB backup / restore:** [`deploy/README.md`](../../../deploy/README.md) §9
   "Back up (SQLite)" is the runbook — *since 2026-09-01 (task M6)* a nightly
   `sqlite3 .backup` cron line in

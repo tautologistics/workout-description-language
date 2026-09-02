@@ -125,9 +125,10 @@ collections, verified up and down against a real pocketbase v0.40.1 binary.
 Settled as
 [DEC-025](../topics/settled-decisions.md#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump),
 mirroring DEC-020. At V6 this was data and schema only; V8 (below) put the
-`/api` fetch in front of `apps/shared/vocab.js`. The **prod** collections are
-still empty until Chris runs `make deploy:db` + `make vocab:load` against the
-box.
+`/api` fetch in front of `apps/shared/vocab.js`. **On prod (2026-09-02):** the
+migration is applied and `make vocab:load` has run — `equipment` 29 rows,
+`patterns` 11 — but the static apps on the box are still pre-V8, so the live
+editor is not fetching them yet (see "Deploy state" below).
 
 **V7 landed 2026-09-02 (`67001cb`)** — `scripts/mock-api.mjs` grew
 `equipment/records` + `patterns/records` handlers in the PocketBase
@@ -165,10 +166,23 @@ self-contained item from
 (the read pane's four stacked `<h2>`s; the *Movements* palette drawer + the flat
 129-row core list) or [../topics/known-debts.md](../topics/known-debts.md).
 
-**Still to do on deploy (Chris):** the prod `equipment` / `patterns` collections
-need `make deploy:db` (the V6 migration) then `make vocab:load` with prod admin
-creds — the same "still to do on deploy" caveat M1–M3 carry. Until then prod
-serves nothing and the editor uses the bundled fallback.
+**Deploy state, 2026-09-02** (checked against the live API): all six migrations
+are applied on the box and every loader has run against prod — `movements`
+**972**, `workouts` **45**, `equipment` **29**, `patterns` **11** rows. What is
+**still open on deploy:**
+- **The V8 static apps have not been `make deploy`'d.** The live
+  `apps/shared/{pocketbase.js, vocab.js, movement-editor.js}` is the pre-V8
+  build, so the prod editor still reads the bundled literals rather than the
+  now-populated vocab collections. One `make deploy` from a checkout at
+  `b2efb64`+ closes it.
+- **The M6 nightly-backup cron line** — `crontab -e` on the box + first backup
+  and first off-box `rsync` verified by hand (`deploy/README.md` §9).
+
+*Corrected 2026-09-02: this said the prod `equipment` / `patterns` collections
+still needed `make deploy:db` + `make vocab:load` and "prod serves nothing" —
+stale within hours; Chris ran both on 2026-09-02. Since then the
+`WDL_PB_ADMIN_*` / `WDL_DEPLOY_*` vars for those targets can live in a
+git-ignored `.env` (`.env.example` is the template) — [running-it.md](../topics/running-it.md).*
 
 **The movement-editor wrong-record defect is closed (`a643824`, 2026-09-02)** —
 see the dedicated paragraph above; nothing is open on it. Still needing Chris to
@@ -259,10 +273,15 @@ link, **M6** (`97f236f`), specified the nightly VPS SQLite backup + off-box
 copy in `deploy/README.md` + `deploy/pocketbase/crontab.fragment` (shell cron
 `sqlite3 .backup` + 30-day prune, 03:17 UTC; off-box `rsync` pull from Chris's
 machine over the `dreamhost.ae.wex` alias; PocketBase built-in backups as the
-documented fallback; restore steps aligned). **It still has to be installed on
-the box by Chris** (`crontab -e`, paste the line) and the first backup + first
-off-box `rsync` verified by hand on the VPS — the "still to do on deploy" caveat
-M1/M2/M3 also carry (admin `users` row, migrations glanced at, prod ingest run).
+documented fallback; restore steps aligned). **The backup cron line still has to
+be installed on the box by Chris** (`crontab -e`, paste the line) and the first
+backup + first off-box `rsync` verified by hand on the VPS. *Corrected
+2026-09-02: this also listed "admin `users` row, migrations glanced at, prod
+ingest run" as outstanding — all done by 2026-09-02 (Chris's `users` row is
+`admin: true`, all six migrations applied, and `movements` 972 / `workouts` 45 /
+`equipment` 29 / `patterns` 11 rows loaded against prod). The one deploy item
+V8 adds — a `make deploy` of the V8 static apps — is under "Deploy state"
+above.*
 
 Everything else is closed: the whole 0-series through 21, the deployment epic
 (18–20, landed 2026-08-30) and the builder layout redesign (R1–R10, landed

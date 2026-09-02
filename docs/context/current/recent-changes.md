@@ -2,6 +2,37 @@
 
 ## Changes
 
+- **2026-09-02 — a `.env` now feeds the database + deploy make targets, and the
+  prod deploy state is corrected.**
+  - **`.env` / `.env.example`.** The root `Makefile` gained
+    `ifneq (,$(wildcard ./.env)) / include .env / export / endif` above the
+    `?=` defaults, so `WDL_PB_URL` / `WDL_PB_ADMIN_TOKEN` / `WDL_PB_ADMIN_EMAIL`
+    / `WDL_PB_ADMIN_PASSWORD` / `WDL_PB_ADMIN_COLLECTION` / `WDL_DEPLOY_SSH` /
+    `WDL_DEPLOY_DIR` / `WDL_BACKUP_DIR` set in a git-ignored `.env` reach the
+    `node scripts/*` recipes with no inline `VAR=… make …` prefix. `.env.example`
+    (committed, every key commented with guidance) is the template; `/.env` added
+    to the root `.gitignore`. GNU Make parses the file → values take no quotes,
+    no `#` mid-value, no `$`. Precedence verified: `make VAR=x <target>`
+    overrides `.env`; `.env` overrides the `?=` defaults and a `VAR=x make`
+    shell prefix; a missing `.env` changes nothing (local mock still defaults to
+    `http://localhost:8081`). **Files:** `Makefile`, `.env.example` (new),
+    `.gitignore`. No script change — they already read `process.env`.
+  - **Prod deploy state corrected.** Checked against the live API
+    (`https://wex.androidempathy.com/api/...`): **all six migrations are applied
+    on the box**, and `movements` **972** / `workouts` **45** / `equipment`
+    **29** / `patterns` **11** rows — every loader has run against prod. The
+    context files (`what-exists.md` Hosting row, `next-steps.md`,
+    `running-it.md`) had said the `movements` table did not exist in prod, the
+    vocab migration was unrun, and "prod serves nothing" — all stale, some
+    within hours of being written. Fixed as dated corrections in place.
+  - **Still open on deploy:** (1) the **V8 static apps** have not been
+    `make deploy`'d — the live `apps/shared/{pocketbase.js, vocab.js,
+    movement-editor.js}` is the pre-V8 build (`last-modified` 2026-09-02
+    21:06 UTC, no `equipmentVocab` / `listEquipment`), so the prod editor still
+    reads the bundled literals; one `make deploy` from a checkout at `b2efb64`+
+    closes it. (2) the M6 nightly-backup `crontab -e` line + its first verified
+    run.
+
 - **2026-09-02 — V8 landed (`b2efb64`): `make vocab:load`, and the movement
   editor's equipment + pattern pickers now read `/api`.** Stage C of
   *Vocabularies & editor ergonomics* is complete bar the optional V9.
