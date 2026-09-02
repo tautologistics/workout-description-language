@@ -1058,6 +1058,11 @@ button:hover, .button:hover { border-color: var(--dim); }
 }
 .movement-editor-modal::backdrop { background: rgba(0, 0, 0, .3); }
 #movement-editor-host { overflow-y: auto; max-height: 90vh; }
+/* The editor opens on the DB row, so there is a fetch between the click and the
+   form. This is what the modal shows meanwhile, and where a failed read is
+   reported — the same box, so an error cannot land somewhere the user is not
+   already looking. */
+#movement-editor-host.me-loading { padding: 1.4rem 1.1rem; color: var(--dim); font-size: .88rem; }
 
 .movement-editor { display: flex; flex-direction: column; gap: .7rem; padding: 1rem 1.1rem 1.1rem; }
 .movement-editor .me-title { margin: 0; font-size: 1rem; }

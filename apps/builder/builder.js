@@ -854,7 +854,7 @@ function renderOutline() {
         edit.className = 'suggestion modifier-edit';
         edit.textContent = `Edit “${entry.title}” — its curated fields`;
         edit.onmousedown = (e) => e.preventDefault();
-        edit.onclick = () => { closeModifiers(); openMovementEditor(entry); };
+        edit.onclick = () => { closeModifiers(); openMovementEditor({ id: entry.id, title: entry.title }); };
         modifiers.append(edit);
         modifiers.hidden = false;
       };
@@ -1707,14 +1707,74 @@ addEventListener('keydown', (e) => {
 // non-admin the write 403s and the form shows the message. On a successful save
 // `absorbMovement` folds the row into the in-memory registries so it shows in
 // the palette / the `»` panel without a reload.
+//
+// **The editor opens on the DB row, never on an in-memory entry** (Chris,
+// 2026-09-02, fixing a defect that shipped with M5). The three entry points used
+// to hand `createMovementEditor` whichever movement object they had to hand, and
+// two of them had the *canonical* merge (`registry/movements.canonical.json`,
+// 5 sources unioned) rather than the curated layer the editor exists to edit. So
+// the form showed merge output and a save wrote merge output into the curated
+// row: `deadlift` gained equipment `["Barbell"]` that curation deliberately
+// omits, `skierg` lost the alias `ski erg`, `muscles` carried the merge's
+// `support` / `sources` metadata in, and six movements gained an alias another
+// record holds as its name — which, since an alias outranks a name in
+// `fold.ts`'s `lookup`, silently moved what that word resolves to everywhere.
+// Nothing in the form said so and no test could see it.
+//
+// The fix is structural rather than per-call-site: this function takes an
+// **identity** — `null` to create, or `{ id, title }` — and nothing else. It
+// cannot be handed a record to display, so no caller can leak merge output into
+// the form again by passing the object it happened to be holding. What fills the
+// fields is always `getMovementByMovementId`, i.e. exactly the row a save will
+// `PATCH` against. `id` / `title` are identity, not curated claims, so seeding a
+// not-yet-curated movement with them invents nothing.
 const movementEditorModal = el('movement-editor-modal');
 let movementEditorHandle = null;
+/** Guards against a second open racing the first one's fetch. */
+let movementEditorSeq = 0;
 
-function openMovementEditor(record = null) {
+/**
+ * Open the editor on a movement's **database row**.
+ *
+ * @param {null | {id: string, title?: string}} ref
+ *   `null` creates a blank movement. Otherwise the row for `ref.id` is fetched
+ *   and edited; if there is no row — the movement is in the merged corpus but
+ *   not yet in the curated layer, which is true of most of it — the form opens
+ *   in create mode carrying only the id and title, so every curated field is an
+ *   assertion the curator makes rather than one the merge made for them.
+ */
+async function openMovementEditor(ref = null) {
   if (movementEditorModal.open) return;
+  const seq = ++movementEditorSeq;
+  const host = el('movement-editor-host');
   movementEditorHandle?.destroy();
+  movementEditorHandle = null;
+
+  // Open first, fill second: the fetch is same-origin and quick, but a click
+  // with no response is worse than a moment of "Loading…", and a failure needs
+  // somewhere to be shown.
+  host.textContent = ref ? `Loading ${ref.id}…` : '';
+  host.className = ref ? 'me-loading' : '';
+  movementEditorModal.showModal();
+
+  let record = null;
+  if (ref?.id) {
+    try {
+      record = await getMovementByMovementId(ref.id);
+    } catch (e) {
+      if (seq !== movementEditorSeq || !movementEditorModal.open) return;
+      host.textContent = `Could not read ${ref.id} from the movement database: ${e.message}`;
+      return;
+    }
+    if (seq !== movementEditorSeq || !movementEditorModal.open) return;
+    // No row yet: create it, carrying identity only.
+    record ??= { id: ref.id, title: ref.title ?? '' };
+  }
+
+  host.textContent = '';
+  host.className = '';
   movementEditorHandle = createMovementEditor({
-    container: el('movement-editor-host'),
+    container: host,
     record,
     api: { createMovement, updateMovement, getMovementByMovementId },
     // V5: the two id-valued token fields type-ahead over the movement lists this
@@ -1729,7 +1789,6 @@ function openMovementEditor(record = null) {
     onSaved: (entry) => { absorbMovement(entry); },
     onCancel: () => closeMovementEditor(),
   });
-  movementEditorModal.showModal();
   movementEditorHandle.focus();
 }
 
@@ -2089,7 +2148,7 @@ function renderPalette() {
       edit.tabIndex = 0;
       edit.title = `Edit “${m.title}”`;
       edit.textContent = '✎';
-      const openEdit = (e) => { e.stopPropagation(); e.preventDefault(); openMovementEditor(m); };
+      const openEdit = (e) => { e.stopPropagation(); e.preventDefault(); openMovementEditor({ id: m.id, title: m.title }); };
       edit.addEventListener('click', openEdit);
       edit.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') openEdit(e); });
       edit.addEventListener('dragstart', (e) => { e.preventDefault(); e.stopPropagation(); });
