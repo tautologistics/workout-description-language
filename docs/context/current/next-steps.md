@@ -53,15 +53,26 @@ load-less calorie machine (`15 Row` → `15cal Row`); the board is untouched.
 written as a rule (no `opacity` on body text; nothing below `.75rem`).
 `apps/builder/builder.css` only, `make test` unchanged (2064/2064, 1 pending).
 
+**builder: outline row affordances made discoverable + touch-reachable, landed
+2026-09-02 (`<TASK-SHA>`)** — a self-contained pull from
+[../topics/builder-ux.md](../topics/builder-ux.md)'s design-critique section
+(not a queued task). The per-row tool strip and both carets went from
+`opacity: 0`-until-hover to a persistent `opacity: .6` brightening to full on
+`.node:hover` / `.node:focus-within` (`:focus-within` covered touch — no JS,
+`⋮`-menu declined), tool + caret hit boxes to 32px, the tool strip wrapping to
+its own row below `560px`. `apps/builder/builder.css` only; `make test`
+unchanged (2064/2064, 1 pending). Closes the two open design-critique-trio
+entries in that file's *Outline* section (the nesting-rails third was already
+fixed `d8edde3`).
+
 **The standalone queue is now empty and no epic is in flight.** What is left
 needs Chris to scope: a full **laterality curation sweep** (which movements),
 and the board's **Edit** button round-tripping into the builder — the two loose
-bullets in [../tasks/current.md](../tasks/current.md).
-
-A further self-contained builder-UX item is available if wanted: the per-row
-outline tools / `»` caret are `opacity: 0` until hover (no touch, no
-discoverability) — see the design-critique trio in
-[../topics/builder-ux.md](../topics/builder-ux.md) under *Outline*.
+bullets in [../tasks/current.md](../tasks/current.md). Other self-contained
+builder-UX items remain in [../topics/builder-ux.md](../topics/builder-ux.md)'s
+design-critique section (the read pane's four stacked `<h2>`s; the header as one
+undifferentiated control row; the *Movements* palette drawer + the flat 129-row
+core list).
 
 ---
 

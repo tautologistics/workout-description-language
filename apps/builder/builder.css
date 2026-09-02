@@ -13,10 +13,12 @@
  * Legibility floor (2026-09-02): secondary text is dimmed by COLOUR, never by
  * `opacity`. `--dim` on `--page` / `--panel` clears WCAG AA 4.5:1 in both
  * themes (~4.8:1 light, ~6.3:1 dark), an `opacity` multiplier on top of it does
- * not. `opacity` stays only on things that are not body text: the hover-reveal
- * control strips (`.node .tools` / `.node .caret`), the drag ghost, the cycle
- * rails, and `:disabled`. And no text renders below .75rem (12px) — smaller
- * secondary text is still allowed to be smaller, just not sub-12px.
+ * not. `opacity` stays only on things that are not body text: the row-affordance
+ * controls (`.node .tools` / `.node .caret` — persistent at a low `opacity`,
+ * brightening to full on `.node:hover` / `.node:focus-within`, never fully
+ * hidden), the drag ghost, the cycle rails, and `:disabled`. And no text renders
+ * below .75rem (12px) — smaller secondary text is still allowed to be smaller,
+ * just not sub-12px.
  */
 :root {
   --ink: #14161a;
@@ -81,6 +83,12 @@
 }
 
 * { box-sizing: border-box; }
+
+/* `hidden` must win over any author `display` (the per-row `modCaret` /
+   `blockCaret` / movement-caret are hidden by the attribute, and several rules
+   below set `display` on `.caret` / `.tools`). Written as the rule, not a list
+   of the selectors that currently collide — see lessons-learned. */
+[hidden] { display: none !important; }
 
 body {
   margin: 0;
@@ -297,7 +305,7 @@ body.col-resizing { cursor: col-resize; user-select: none; }
 .node input.line {
   flex: 1;
   min-width: 0;
-  padding: .35rem 2.8rem .35rem .5rem;
+  padding: .35rem 4.4rem .35rem .5rem;
   border: 1px solid transparent;
   border-radius: .3rem;
   background: transparent;
@@ -324,33 +332,52 @@ body.col-resizing { cursor: col-resize; user-select: none; }
 .node[data-kind="title"] + .node[data-kind="directive"] { margin-top: .1rem; }
 .node[data-kind="directive"] + .node:not([data-kind="directive"]) { margin-top: .7rem; }
 
-/* The movement caret: hidden until the row is worth showing tools on, same as
-   `.tools` — it opens a live-filtered list of curated movements matching
-   whatever is being typed in place of the browser's native (and useless,
-   since a row's value is never just a movement name) datalist popup. */
+/* The movement caret opens a live-filtered list of curated movements matching
+   whatever is being typed, in place of the browser's native (and useless, since
+   a row's value is never just a movement name) datalist popup. Persistent at a
+   low opacity so a first-time user sees it before touching the row (and a touch
+   user, who has no hover, can reach it); the reveal rule below brings the whole
+   affordance set to full strength on row hover / focus. A ≥32px hit box (glyph
+   stays small) for WCAG 2.2 target size — the box is centred on the row's right
+   edge. Per-row relevance is still the `hidden` attribute, set in JS. */
 .node .caret {
   position: absolute;
-  right: .3rem;
+  right: .1rem;
   top: 50%;
   transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
   border: 0;
   background: transparent;
   color: var(--dim);
   font-size: .65rem;
   line-height: 1;
-  padding: .2rem;
   border-radius: .2rem;
   cursor: pointer;
-  opacity: 0;
 }
 
-.node:hover .caret, .node:focus-within .caret { opacity: 1; }
 .node .caret:hover { background: var(--rule); color: var(--ink); }
 
-/* The modifier caret sits left of the movement caret, same treatment, and is
-   hidden per-row (not just faded) when the row names no curated movement or
-   the entry has nothing to offer — see `movementModifiers`. */
-.node .caret.modcaret { right: 1.6rem; }
+/* The modifier / block caret sits left of the movement caret, same treatment,
+   and is hidden per-row (not just faded) when the row names no curated movement
+   or block — see `movementModifiers` / `blockOf`. Offset by one hit box so the
+   two 32px targets do not overlap. */
+.node .caret.modcaret { right: 2.1rem; }
+
+/* One reveal rule for the whole row-affordance set: dim-but-present at rest,
+   full on row hover and on any focus into the row (a keyboard user tabbing the
+   tool strip, or a touch user who has tapped a control — the buttons take focus
+   on tap even at tabindex -1, so `:focus-within` covers the no-hover case). */
+.node .tools,
+.node .caret { opacity: .6; transition: opacity .12s ease; }
+.node:hover .tools,
+.node:focus-within .tools,
+.node:hover .caret,
+.node:focus-within .caret { opacity: 1; }
 
 .node .suggestions {
   position: absolute;
@@ -392,12 +419,13 @@ body.col-resizing { cursor: col-resize; user-select: none; }
   margin-top: .2rem;
 }
 
-.node .tools { display: flex; gap: .1rem; opacity: 0; flex: none; }
-.node:hover .tools, .node:focus-within .tools { opacity: 1; }
+/* Reorder / indent / clone / delete. Persistent at the shared low opacity (the
+   reveal rule is up by `.caret`); ≥32px targets for WCAG 2.2. */
+.node .tools { display: flex; gap: .1rem; flex: none; }
 
 .node .tools button {
-  width: 1.6rem;
-  height: 1.6rem;
+  width: 2rem;
+  height: 2rem;
   padding: 0;
   border: 0;
   border-radius: .25rem;
@@ -640,6 +668,16 @@ button:hover, .button:hover { border-color: var(--dim); }
   .text-wrap { min-height: 40vh; }
   .rpanel { max-height: 78vh; }
   .band { position: static; }
+}
+
+/* On a phone the 32px tool strip (six buttons) would crush the line input to a
+   few characters. Drop it to its own full-width row under the input — the
+   targets stay big (the point, for touch), the input gets the whole width, and
+   vertical space is the cheap axis here. The two carets stay on the input row,
+   over its right padding. */
+@media (max-width: 560px) {
+  .node { flex-wrap: wrap; }
+  .node .tools { flex-basis: 100%; justify-content: flex-end; }
 }
 
 /* --- the movement palette modal ------------------------------------------- */

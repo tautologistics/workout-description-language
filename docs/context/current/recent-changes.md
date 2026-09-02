@@ -2,6 +2,35 @@
 
 ## Changes
 
+- **2026-09-02 — builder: outline row affordances made discoverable + touch-
+  reachable + ≥32px (`<TASK-SHA>`).** A self-contained item off
+  [../topics/builder-ux.md](../topics/builder-ux.md)'s design-critique section
+  (standalone queue empty). *Was:* the per-row tool strip (`↑ ↓ ⇥ ⇤ ⧉ ✕`) and
+  the two carets (`▾` movement suggestions, `»` what-this-line-takes / block
+  header) were `opacity: 0` until you hovered that exact row — no
+  discoverability, unreachable by touch — and the tool buttons were 25.6px,
+  under the 24px WCAG 2.2 floor. **Shipped, as one reveal rule + one sizing
+  rule over the whole set:** resting `opacity: .6` (effective ~2.2:1 light /
+  ~2.9:1 dark, the `--rail` "low but present" band) → `1` on `.node:hover`
+  **and** `.node:focus-within`; `.node .tools button` `1.6rem → 2rem` (32px);
+  `.node .caret` gets a `2rem` inline-flex hit box (glyph stays `.65rem`), the
+  two carets offset by one box so they don't overlap, `input.line`
+  right-padding `2.8rem → 4.4rem`. `:focus-within` covered the touch case with
+  **no JS** (a tap focuses the button even at `tabindex -1`); the `⋮`-menu the
+  critique floated was **declined** (reads fine as a persistent strip, and it's
+  an interaction-model fork). Phone (`≤560px`): the tool strip **wraps to its
+  own full-width row** under the input so the input keeps its width — rows
+  roughly double in height there. Added a global
+  `[hidden] { display: none !important }` guardrail (`.caret` now sets
+  `display`; per-row carets hide via the attribute) — written as the rule per
+  [../topics/lessons-learned.md](../topics/lessons-learned.md).
+  **Files:** `apps/builder/builder.css` **only**. `make test` **2064/2064, 1
+  pending** — unchanged (app CSS). **Verified** driving the builder against
+  `make serve`, both themes, wide + narrow + a 375px mobile viewport:
+  resting opacity `.6` / hover-focus `1.0` (measured both themes), tool button
+  & caret boxes 32 × 32px, carets non-overlapping, `»` / `▾` / block panels
+  still open and splice, Analysis / Reads-as / header unmoved, no console
+  errors.
 - **2026-09-02 — builder: dim/small text floored at AA contrast + 12px
   (`547d986`).** A self-contained item off
   [../topics/builder-ux.md](../topics/builder-ux.md)'s design-critique section

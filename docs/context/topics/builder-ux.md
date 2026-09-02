@@ -421,31 +421,64 @@ affordances that only exist on `:hover`, at sub-minimum size, on near-invisible
 structure) seen three ways. They also touch the same CSS the numbered items
 12 / 15 / 16 (line-kind markers) will touch, so pairing them is sensible.
 
-**The per-row tools are 25.6px and invisible until you hover that exact row.**
-`.node .tools` and `.node .caret` / `.modcaret` are `opacity: 0` except under
-`.node:hover` / `.node:focus-within` (confirmed in `builder.css`). So the six
-tools (`↑ ↓ ⇥ ⇤ ⧉ ✕`) and the two carets (`▾` movement suggestions, `»` what
-this line takes) have **no discoverability** — you have to know they are there —
-and on a touchscreen (the ≤900px single-column layout invites phone use) they
-are unreachable: no hover, and `:focus-within` needs a focus a tap into a
-text-less part of the row does not give. Measured target size **25.6 × 25.6px**,
-below the 24px WCAG 2.2 / 44px iOS minimum, six of them clustered in a ~26px
-row. **Fix:** larger targets (≥32px); reveal on row **focus** as well as hover;
-and a persistent low-contrast handle (a `⋮` that opens the tool set, and a
-dim-but-present caret) so the affordance is visible before you touch the row.
-*Scope: `apps/builder/builder.css` (the `.tools` / `.caret` opacity + sizing
-rules), possibly `apps/builder/builder.js` if a `⋮`-opens-a-menu pattern
-replaces the always-rendered button strip. No core change.*
+**~~The per-row tools are 25.6px and invisible until you hover that exact
+row.~~ Fixed 2026-09-02 (`<TASK-SHA>`).** *Was:* `.node .tools` and
+`.node .caret` / `.modcaret` were `opacity: 0` except under `.node:hover` /
+`.node:focus-within`, so the six tools (`↑ ↓ ⇥ ⇤ ⧉ ✕`) and the two carets
+(`▾` movement suggestions, `»` what this line takes) had no discoverability and
+were unreachable by touch (no hover; a tap into a text-less part of the row
+gives no `:focus-within`). Tool buttons measured **25.6 × 25.6px** (`1.6rem`),
+under the 24px WCAG 2.2 floor; the carets had no explicit box at all.
 
-**The `»` "what this line can take" caret is the most useful thing in the
-outline and it is `opacity: 0`.** Same rule as above, called out on its own
-because it is a capability, not a nicety — it surfaces the registry's per-movement
-modifiers and the grammar's per-header options (see the *Outline* item above;
-the panel's contents were queue item 13, closed 2026-08-31). A first-time user
-never learns it exists. **Fix:** render it at
-a low but non-zero opacity always, brightening on hover/focus; consider a
-one-time hint the first time a row resolves to a movement or a block.
-*Scope: `apps/builder/builder.css`. No core change. Do this with the tools fix.*
+**Shipped, as one reveal rule + one sizing rule over the whole set**
+(`.node .tools`, `.node .tools button`, `.node .caret`, `.node .caret.modcaret`
+— and by extension the block `»` caret, which shares `.caret.modcaret`):
+
+- **Persistent dim → full on hover/focus.** The resting `opacity: 0` became
+  `opacity: .6` (effective glyph contrast ~2.2:1 light / ~2.9:1 dark against
+  `--panel` — the same "low but present" band the `--rail` fix struck, brief
+  `.12s` fade), brightening to `1` on `.node:hover` **and** `.node:focus-within`.
+  Nothing is fully invisible now; a 30+-row outline still does not read as busy.
+- **`:focus-within` sufficed for the touch case — no JS added.** A tap on any
+  tool button or caret focuses that button (they take focus on click even at
+  `tabindex -1`), so `.node:focus-within` fires and the row's controls come to
+  full strength with no hover. A keyboard user tabbing the tool strip gets the
+  same. The `⋮`-opens-a-menu pattern the critique floated was **declined** — the
+  persistent-dim strip reads fine when driven in both themes, and a `⋮` menu is
+  a real interaction-model fork (always-rendered strip vs a summoned menu) for
+  no gain here.
+- **Target size ≥ 32px.** `.node .tools button` → `2rem` (32 × 32px).
+  `.node .caret` → a `2rem` inline-flex hit box (glyph stays `.65rem`); the two
+  carets are offset by one box (`»`/block caret at `right: 2.1rem`, `▾` at
+  `right: .1rem`) so the 32px targets do not overlap, and `.node input.line`
+  right padding went `2.8rem → 4.4rem` to clear them.
+- **Row height:** unchanged on desktop (the in-flow 32px tool buttons stay
+  under the input's ~35px). On a phone (`@media (max-width: 560px)`) the
+  six-button strip would crush the input to a few characters, so it **wraps to
+  its own full-width row under the input** (`.node { flex-wrap: wrap }`,
+  `.tools { flex-basis: 100% }`) — targets stay 32px, the input gets the whole
+  width, the row roughly doubles in height (vertical space is the cheap axis on
+  a phone).
+- **Guardrail:** a global `[hidden] { display: none !important }` was added
+  (`.caret` now sets `display`, and the per-row `modCaret` / `blockCaret` /
+  movement-caret hide via the `hidden` attribute) — written as the rule, not a
+  list of the selectors that currently collide, per
+  [lessons-learned.md](lessons-learned.md).
+
+*Touched: `apps/builder/builder.css` only. No JS, no core change.
+`make test` unchanged — 2064/2064, 1 pending (app CSS). Verified driving the
+builder against `make serve`, both themes, wide + narrow + a 375px mobile
+viewport: every row shows its tools + both carets quietly at rest, hover/focus
+brings them to full strength, the `»` / `▾` / block panels still open and splice,
+and the Analysis / Reads-as / header panes are unmoved.*
+
+**~~The `»` "what this line can take" caret is the most useful thing in the
+outline and it is `opacity: 0`.~~ Fixed 2026-09-02 (`<TASK-SHA>`), with the
+tools fix above** — it is `.node .caret.modcaret`, so the one reveal rule
+covers it: persistent at `opacity: .6`, full on `.node:hover` /
+`.node:focus-within`, in a `2rem` (32px) hit box. A first-time user now sees it
+on every step / block row before touching the row. The one-time hint the entry
+floated was not added — the persistent dim presence is enough.
 
 **~~The nesting rails are ~1.05:1 contrast — the block structure is invisible.~~
 Fixed 2026-08-31** (R3, `d8edde3`). New **`--rail`** token — `#a3a8b4` light
