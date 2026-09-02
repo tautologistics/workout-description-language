@@ -90,16 +90,39 @@ drawer's closed state. *Scope: `apps/builder/index.html` (a toggle control),
 `apps/builder/builder.js` (toggle handler, persist in `localStorage` like
 `wdl.editor-tab`). No core change.*
 
-**The header is one undifferentiated control row.** Six controls after item 20 —
-*My workouts*, *Open…*, *Canonicalise*, *Download .wdl*, *Open on the board ↗*,
-identity — all the same button weight, right-aligned in `header .row`
-(`flex-wrap: wrap`), with file I/O, a document transform, navigation and account
-reading as peers. Two concrete moves: **(a)** group them — account far right;
-*Open* / *Download* / a future *New* behind one file control; **(b)**
-*Canonicalise* rewrites the editor buffer, so it belongs *with the editor* (near
-the Outline/Text tab strip or the `+ movement` row), not in the top-level nav.
-*Scope: `apps/builder/index.html`, `apps/builder/builder.css`. No JS logic
-change beyond moving a listener. No core change.*
+**~~The header is one undifferentiated control row.~~ Already resolved by R1
+(`758dff1`) + V1 (`7429863`); verified 2026-09-02, no code shipped.** The entry
+was written the day R1 landed and never updated. It described *"six controls …
+all the same button weight, right-aligned in `header .row` (`flex-wrap: wrap`)"*
+and proposed two concrete moves — **(a)** group them (account far right; Open /
+Download / a future *New* behind one file control) and **(b)** move
+*Canonicalise* onto the editor. **The redesign had already done both:**
+
+- **`header .row` no longer exists.** `<header>` is a direct flex
+  (`gap: .6rem`); the centred `#doc-title` (`flex: 1`) sits between the brand and
+  the right-side controls, so the controls are not one right-aligned run.
+- **(b) is done.** `#canon` ("Canonicalise") is a `.toolbar-btn` in
+  `.editor-tabs` — the Outline/Text tab strip — not in the header (R1:
+  *"Canonicalise moved onto the editor's tab strip"*).
+- **(a) is done.** Driven at 1440 (signed in), the header reads as **five
+  visually distinct zones**, not six peer buttons: `WDL` mark (left) · centred
+  `#doc-title` · **`.file-cluster`** — a `1px solid` bordered, rounded box
+  holding *Open… / Download .wdl / Open on the board ↗* · the **`#mine`
+  `.menu`** — its own bordered, rounded `<summary>` pill with a `▾` caret,
+  renamed *My workouts → Workouts* by V1 · **`#identity`** — name, `@handle`,
+  `✎`, *Sign out* — far right. The bordered file cluster and the bordered menu
+  pill are each a self-contained unit; account is far right as proposed.
+- **The "future *New* behind one file control" popover sub-idea is unbuilt and
+  unrequested**, and is a deliberately-closed call: R1's note says the file
+  cluster is a *"plain bordered button cluster — three items didn't warrant a
+  popover"*. Not invented here.
+
+Verified light **and** dark at 1440 / 1000 / 760px: no wrap, no collision
+between the cluster / menu / identity (≈9–10px gaps, each with its own border),
+no console errors. `make test` 2064/2064, 1 pending — unchanged (no code
+touched). *Correction to this entry's own text: it predicted grouping work and a
+Canonicalise move that the layout redesign (direction C) had already shipped the
+same day it was written.*
 
 **~~The editor/margin split is fixed, and on a wide display the editor hoards
 space the analysis could use.~~ Fixed 2026-08-31** (`83bfb78`, from Chris using

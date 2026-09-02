@@ -2,6 +2,29 @@
 
 ## Changes
 
+- **2026-09-02 — builder header "one undifferentiated control row": verified
+  already resolved, no code shipped.** A session was dispatched on the
+  design-critique entry *"The header is one undifferentiated control row"* in
+  [../topics/builder-ux.md](../topics/builder-ux.md)'s **## Layout** section. Its
+  two concrete moves were **already shipped** by **R1 of the layout redesign
+  (`758dff1`, 2026-08-30)** + **V1 (`7429863`, 2026-09-02)**: **(b)**
+  `#canon` ("Canonicalise") is a `.toolbar-btn` on the editor's `.editor-tabs`
+  strip, not the header; **(a)** `header .row` no longer exists — `<header>` is a
+  flex with a centred `#doc-title` (`flex:1`) splitting the brand from the
+  right-side controls, which read as five distinct zones: `WDL` mark · centred
+  title · bordered rounded **`.file-cluster`** (*Open… / Download .wdl / Open on
+  the board ↗*) · the bordered rounded **`#mine .menu`** pill (`▾` caret;
+  *My workouts → Workouts* by V1) · **`#identity`** far right. Verified by
+  driving `make serve` at 1440 / 1000 / 760px, light + dark, signed in: no wrap,
+  ≈9–10px gaps between the three right-side units (each with its own border), no
+  console errors. The *"future New behind one file control"* popover sub-idea is
+  unbuilt/unrequested and a closed call (R1: *"three items didn't warrant a
+  popover"*) — not invented. **`make test` 2064/2064, 1 pending — unchanged (no
+  code touched).** Docs only: the `builder-ux.md` entry struck with the control
+  inventory + the correction that it predicted grouping/Canonicalise work the
+  redesign had already done the same day the entry was written;
+  `current/next-steps.md` design-critique status updated.
+
 - **2026-09-02 — builder read/analysis pane scroll: verified already fixed, no
   code shipped.** A session was dispatched on the first design-critique entry in
   [../topics/builder-ux.md](../topics/builder-ux.md)'s **## Layout** section —

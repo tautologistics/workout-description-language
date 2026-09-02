@@ -58,6 +58,28 @@ open: the two loose bullets at the end, which need Chris to scope.
 
 Recently closed (kept here briefly for the trail):
 
+- **~~builder: the header is one undifferentiated control row~~ — was already
+  resolved; verified 2026-09-02, no code shipped.** A session was dispatched on
+  the *"The header is one undifferentiated control row"* design-critique entry in
+  [../topics/builder-ux.md](../topics/builder-ux.md)'s **## Layout** section. Its
+  two concrete moves were **already shipped** by **R1 of the layout redesign
+  (`758dff1`, 2026-08-30)** + **V1 (`7429863`)**: **(b)** *Canonicalise* is a
+  `.toolbar-btn` on the editor's `.editor-tabs` strip, not the header; **(a)**
+  `header .row` no longer exists — `<header>` is a flex with a centred
+  `#doc-title` (`flex:1`) splitting the brand from five distinct right-side
+  zones (`WDL` mark · title · bordered `.file-cluster` *Open…/Download/board* ·
+  bordered `#mine .menu` pill, *My workouts → Workouts* by V1 · `#identity` far
+  right). Verified driving `make serve` at 1440 / 1000 / 760px, light + dark,
+  signed in — no wrap, no collision, no console errors; `make test` 2064/2064,
+  1 pending, unchanged. The *"future New behind one file control"* popover is a
+  closed call (R1: *"three items didn't warrant a popover"*), not invented.
+  Entry struck in `builder-ux.md`; `current/recent-changes.md` +
+  `current/next-steps.md` updated. **The self-contained builder-UX queue is now
+  exhausted** — both dispatchable design-critique items (read-pane scroll, this
+  one) were already-done by R1. What remains is all gated on the palette-drawer
+  redesign (drawer + 129-row list + four `<h2>`s) or is a loose bullet, both
+  needing Chris to scope; optional V9 too.
+
 - **~~builder: the read/analysis pane has no scroll container~~ — was already
   fixed; verified 2026-09-02, no code shipped.** A session was dispatched on the
   first design-critique entry in
@@ -75,10 +97,11 @@ Recently closed (kept here briefly for the trail):
   ancestor `min-height:0` chain, which the redesign supplied. The optional
   *collapsible sub-panels* half was **not** built — polish on a working pane,
   and it clusters with the palette-drawer items. **Open for Chris:** the
-  remaining design-critique items are all in `builder-ux.md` and unchanged in
-  priority — the header control-row grouping (self-contained), and the
-  *Movements* palette drawer + flat 129-row list + four stacked `<h2>`s (gated on
-  the palette-drawer redesign, which needs Chris to scope).
+  remaining design-critique items are all in `builder-ux.md` — the *Movements*
+  palette drawer + flat 129-row list + four stacked `<h2>`s, all gated on the
+  palette-drawer redesign, which needs Chris to scope. *(The header control-row
+  grouping, listed here as still-open, was itself verified already-done by
+  R1 + V1 on 2026-09-02 — see the bullet above.)*
 
 - **~~unit defaults: a unitless load target is pounds~~ — landed 2026-09-01
   (rule 1 `6829052`, rule 2 `952c80c`).** Rule 1: `@ <number>` with no
@@ -688,6 +711,43 @@ and `skierg`, confirming the form shows the curated values, saving, and checking
 the `PATCH` body carries no `support` / `sources`, no invented equipment, and no
 added alias — then `make aliases` and a `make movements:dump` diff, which is
 what catches the resolver direction.*
+
+---
+
+## Security audit / hardening sweep — queued 2026-09-02 (Chris)
+
+**A full security sweep across the hosted stack**, with the working assumption
+that **nothing from the client is ever trusted**. The specific asks Chris named:
+
+- **`admin` / user identity must be verified server-side on every mutating
+  endpoint**, not just where the UI decides what to show. Today the apps gate
+  editing affordances client-side and the mock `/api` hands every caller an
+  `admin: true` fixture user — the real check is whatever the **PocketBase
+  collection rules** enforce. Audit every collection's **create / update /
+  delete** rules (`movements`, `workouts`, `equipment`, `patterns`, `users`),
+  confirm `@request.auth.admin = true` (or owner-only, as appropriate) actually
+  holds on the write path, and that a crafted `POST` / `PATCH` from an
+  unprivileged (or unauthenticated) session is rejected by the server.
+- **No cross-user editing.** Confirm a signed-in non-org user cannot `PATCH`
+  another user's `workouts` row, cannot set `owner` to someone else, cannot
+  claim an `org` handle, cannot flip their own `admin` flag.
+- **No secret / PII leakage.** Check `users` list/view rules don't expose other
+  users' rows or fields; check no admin token, `.env` value, or superuser
+  credential is reachable from a served asset or an API response.
+- **The usual sweep** — injection into the `filter=` query strings the apps
+  build (`searchWorkouts`, `listEquipment`, …), the OAuth redirect URIs, the
+  static-asset MIME/path handling, the port-8090 exposure already tracked in
+  [../topics/known-debts.md](../topics/known-debts.md) /
+  `deploy/README.md`.
+
+Cross-check against [../topics/settled-decisions.md](../topics/settled-decisions.md)
+(the collection-rule decisions — DEC-020 movements, DEC-021 handles/namespace,
+DEC-025 vocab) and `deploy/pocketbase/pb_migrations/*.js` (where every rule is
+written). The mock `/api` (`scripts/mock-api.mjs`) is **not** the security
+boundary and its permissive auth is by design — the audit is against the real
+PocketBase rules on the box. *Needs Chris to scope depth / whether it blocks
+other work; likely wants a written findings doc rather than a code change in the
+first pass.*
 
 ---
 

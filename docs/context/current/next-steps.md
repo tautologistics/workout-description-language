@@ -159,12 +159,16 @@ task-note premises corrected in the file). Drove it: both pickers populate from
 two-file vocabulary. **Muscles stays `registry/muscles.json`.**
 
 **V9 (inline "＋ new term" in the picker) is the only V-series item left, and it
-is optional — deferred unless Chris asks for it.** If nothing else in the
-V-series is open and no V9 request comes, the next actionable work is a
-self-contained item from
-[../topics/builder-ux.md](../topics/builder-ux.md)'s design-critique section
-(the read pane's four stacked `<h2>`s; the *Movements* palette drawer + the flat
-129-row core list) or [../topics/known-debts.md](../topics/known-debts.md).
+is optional — deferred unless Chris asks for it.** With V9 deferred and both
+self-contained design-critique items now verified already-done (see below), the
+remaining `builder-ux.md` design-critique items — the *Movements* palette
+drawer, the flat 129-row core list, the read pane's four stacked `<h2>`s — are
+**all gated on the palette-drawer redesign, which needs Chris to scope**. The
+only other unscoped builder work is the two loose bullets in
+[../tasks/current.md](../tasks/current.md) (laterality curation sweep; board
+**Edit** round-trip), both needing Chris. Most
+[../topics/known-debts.md](../topics/known-debts.md) items are core / spec /
+grammar, not app-only.
 
 **Deploy state, 2026-09-02** (checked against the live API): all six migrations
 applied, every loader has run against prod (`movements` **972**, `workouts`
@@ -191,24 +195,49 @@ git-ignored `.env` (`.env.example` is the template) — [running-it.md](../topic
 see the dedicated paragraph above; nothing is open on it. Still needing Chris to
 scope: the two loose bullets below.
 
+**Queued 2026-09-02 (Chris): a full security audit / hardening sweep** —
+nothing from the client trusted; verify `admin` / user identity server-side on
+**every mutating endpoint** (PocketBase collection create/update/delete rules,
+not just the UI gate), no cross-user editing, no secret/PII leakage, plus the
+usual `filter=` injection / OAuth-redirect / static-asset / port-8090 checks.
+Full write-up in [../tasks/current.md](../tasks/current.md) "## Security audit /
+hardening sweep". Needs Chris to scope depth; likely a findings doc first, not a
+code change.
+
 Also still open, needing Chris to scope: a full **laterality curation sweep**
 (which movements), and the board's **Edit** button round-tripping into the
 builder — the two loose bullets in [../tasks/current.md](../tasks/current.md).
-Other self-contained builder-UX items remain in
-[../topics/builder-ux.md](../topics/builder-ux.md)'s design-critique section:
-the **header control-row grouping** (self-contained,
-`apps/builder/{index.html,builder.css}`); and, gated on the *Movements*
-palette-drawer redesign, the drawer itself + the flat 129-row core list + the
-read pane's four stacked `<h2>`s.
+The **self-contained builder-UX queue is now exhausted.** The two named
+design-critique items that were dispatchable on their own —
+the read/analysis-pane scroll and the **header control-row grouping** — both
+turned out **already resolved by the R1 layout redesign** (+ V1 for the header
+rename), verified 2026-09-02, no code shipped. What remains in
+[../topics/builder-ux.md](../topics/builder-ux.md)'s design-critique section is
+**all gated on the *Movements* palette-drawer redesign, which needs Chris to
+scope**: the drawer itself (a header toggle collapsing *Movements* at any
+width), the flat 129-row core movement list (grouping by pattern/region), and
+the read pane's four stacked `<h2>`s (collapsible sub-panels). Plus the optional
+**V9** (inline "＋ new term" in the token-input picker), deferred unless Chris
+asks.
 
-**Verified already-done 2026-09-02, no code shipped:** the design-critique's
-first **## Layout** entry — *"the 'what it reads as' pane has no scroll
-container"*, billed as the single highest-value layout fix — was resolved by
-**R1 of the layout redesign (`758dff1`, 2026-08-30)**. `.read-pane` was
-replaced by the tabbed margin's bounded `.rpanel`; a 56-cue workout scrolls
-inside the panel with the document itself not overflowing (`scrollHeight ===
-innerHeight`), light + dark, 1440 / 820 / 375px. Entry struck in
-`builder-ux.md`.
+**Verified already-done 2026-09-02, no code shipped — two design-critique
+## Layout entries:**
+
+- *"the 'what it reads as' pane has no scroll container"*, billed as the single
+  highest-value layout fix — resolved by **R1 (`758dff1`, 2026-08-30)**.
+  `.read-pane` was replaced by the tabbed margin's bounded `.rpanel`; a 56-cue
+  workout scrolls inside the panel with the document itself not overflowing
+  (`scrollHeight === innerHeight`), light + dark, 1440 / 820 / 375px.
+- *"the header is one undifferentiated control row"* — resolved by **R1**
+  (`header .row` gone; `#doc-title` centred `flex:1` splits brand from controls;
+  Canonicalise moved onto `.editor-tabs`) + **V1 (`7429863`)** (*My workouts →
+  Workouts*). Driven signed-in at 1440 / 1000 / 760px, light + dark: five
+  distinct header zones — mark · centred title · bordered `.file-cluster` ·
+  bordered `.menu` pill · `#identity` far right — no wrap, no collision, no
+  console errors. The unbuilt *"future New behind one file control"* popover is
+  a closed call (R1: *"three items didn't warrant a popover"*), not invented.
+
+Both entries struck in `builder-ux.md`.
 
 ---
 
