@@ -53,7 +53,7 @@ is a loose bullet below.
 Recently closed (kept here briefly for the trail):
 
 - **~~board: the `#` title belongs in the meta strip, not the body~~ — landed
-  2026-09-01 (`<TASK-SHA>`).** The `# Title` line now joins the hidden preamble
+  2026-09-01 (`110ed2b`).** The `# Title` line now joins the hidden preamble
   run (`draw()`'s preamble test covers a `#`-line in the leading run) and shows
   in the `#meta` strip as the prominent lead element, with any `@id` small and
   dim in parentheses after it (`Fran (crossfit:fran)`); `dataset.line` stays 1:1

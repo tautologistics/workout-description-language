@@ -3,7 +3,7 @@
 ## Changes
 
 - **2026-09-01 — board: the `#` title moved into the `#meta` strip
-  (`<TASK-SHA>`).** Second of the two remaining post-library standalone tasks;
+  (`110ed2b`).** Second of the two remaining post-library standalone tasks;
   one (**unit defaults**) left. The workout's `# Title` line no longer renders
   as the first board body row — it joins the hidden preamble run and shows in
   the `#meta` strip as the prominent lead element, with any `@id` small and dim

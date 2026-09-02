@@ -26,7 +26,7 @@ permanent (the next reparse / `?w=` load / division change repopulates it).
 pending).
 
 **board: the `#` title moved into the `#meta` strip, closed 2026-09-01
-(`<TASK-SHA>`)** — the `# Title` line joins the hidden preamble run
+(`110ed2b`)** — the `# Title` line joins the hidden preamble run
 (`draw()`'s preamble test covers a `#`-line in the leading run) and shows in
 the `#meta` strip as the prominent lead element, with any `@id` small and dim
 in parentheses after it (`Fran (crossfit:fran)`); `dataset.line` stays 1:1 so
@@ -139,7 +139,7 @@ label + a transient inline hint by the caret); see
 
 **One standalone task is left** (fleshed out 2026-09-01 from Chris, in
 [../tasks/current.md](../tasks/current.md)) — the two board tasks closed
-2026-09-01 (`01c0af3` dismissible notifications, `<TASK-SHA>` title-into-strip):
+2026-09-01 (`01c0af3` dismissible notifications, `110ed2b` title-into-strip):
 
 - **unit defaults** — `@ 95` reads as `95lb`; a unitless magnitude on a
   machine/aerobic movement reads as calories. Spec + grammar + parser + golden

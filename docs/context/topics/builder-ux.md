@@ -758,7 +758,7 @@ small in parentheses after it (`Fran (crossfit:fran)`). Queued as the
 "board: the `#` title into the meta strip" standalone task in
 [../tasks/current.md](../tasks/current.md).**
 
-**Fixed 2026-09-01 (`<TASK-SHA>`).** The `# title` now joins the hidden
+**Fixed 2026-09-01 (`110ed2b`).** The `# title` now joins the hidden
 preamble run and shows in the `#meta` strip, resolving the reversible default
 above. `draw()`'s preamble test gained `|| text.trim().startsWith('#')` so a
 `#`-line inside the leading run gets the same `.preamble` class the zero-indent
