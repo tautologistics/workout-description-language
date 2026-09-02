@@ -65,14 +65,26 @@ unchanged (2064/2064, 1 pending). Closes the two open design-critique-trio
 entries in that file's *Outline* section (the nesting-rails third was already
 fixed `d8edde3`).
 
-**The standalone queue is now empty and no epic is in flight.** What is left
-needs Chris to scope: a full **laterality curation sweep** (which movements),
-and the board's **Edit** button round-tripping into the builder — the two loose
-bullets in [../tasks/current.md](../tasks/current.md). Other self-contained
-builder-UX items remain in [../topics/builder-ux.md](../topics/builder-ux.md)'s
-design-critique section (the read pane's four stacked `<h2>`s; the header as one
-undifferentiated control row; the *Movements* palette drawer + the flat 129-row
-core list).
+**A new epic is queued: Vocabularies & editor ergonomics (V1–V9)** — from the
+2026-09-02 design review of the header **Workouts** menu and the **movement
+editor**. Nine staged tasks in [../tasks/current.md](../tasks/current.md):
+Stage A (V1–V2) renames "My workouts" → "Workouts" and turns the "Examples"
+row into a "Libraries" row whose chips drive the search box; Stage B (V3–V5)
+is the editor ergonomics — measured-output segmented control, and a reusable
+token/chip + type-ahead + filter-picker widget over the list fields; Stage C
+(V6–V8) makes **equipment** and **movement patterns** a DB/API-backed
+vocabulary (fixtures + mock `/api` + collection + committed `registry/*.json`
+dump, mirroring the movements M-series). **Muscles stays `registry/muscles.json`**
+— closed set, body-map SVG is the real limit. Decisions are recorded at the top
+of that epic section. **Start with Stage A** (independent, no risk).
+
+Also still open, needing Chris to scope: a full **laterality curation sweep**
+(which movements), and the board's **Edit** button round-tripping into the
+builder — the two loose bullets in [../tasks/current.md](../tasks/current.md).
+Other self-contained builder-UX items remain in
+[../topics/builder-ux.md](../topics/builder-ux.md)'s design-critique section
+(the read pane's four stacked `<h2>`s; the *Movements* palette drawer + the
+flat 129-row core list).
 
 ---
 

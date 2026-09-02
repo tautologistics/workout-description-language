@@ -103,6 +103,171 @@ Recently closed (kept here briefly for the trail):
 
 ---
 
+## Vocabularies & editor ergonomics (V1–V9)
+
+A staged epic from the 2026-09-02 design review of two builder surfaces — the
+header **Workouts** menu and the **movement editor** form. The review canvas
+(recreated from source, `Main` / `WorkoutsMenu{Today,Proposed}` /
+`MovementEditor{Today,Proposed}` / token-input pattern) is a private Artifact;
+its findings are transcribed here so the queue is self-contained.
+
+**Decisions already made (Chris, 2026-09-02):**
+
+- The header button **"My workouts" → "Workouts"** (it is your saved workouts
+  *plus* a search across all public ones *plus* the publisher chips).
+- The chip row **"Examples" → "Libraries"** (crossfit / hyrox / tabata are
+  official published sets, not examples).
+- A **Libraries** chip **types `<handle>:` into the search box and lets the
+  normal search run** — no separate `listOrgWorkouts` path.
+- **Measured output** in the editor is **mutually exclusive** → a 3-way
+  segmented control (None / Distance / Calories), not two checkboxes.
+  ("Counting modes" above it stays multi — both/split/per-side genuinely
+  co-occur.)
+- The editor's list fields (equipment, patterns, muscles, aliases, related,
+  same-as) become a **token/chip input + type-ahead + a filter/select picker
+  widget below** — *one* pattern at every list size (the count-driven
+  vocab-tray / "show 15 then More" idea was considered and dropped; a picker
+  scales without blowing out the layout).
+- **Equipment** and **movement patterns** become a **DB/API-backed vocabulary
+  layer** — fixtures + mock `/api` + a PocketBase collection + a committed
+  `registry/*.json` dump, mirroring the movements M-series (DEC-020) — so they
+  grow by data, not a code edit. **Muscles stays `registry/muscles.json`** (a
+  closed 19-term set the body-map SVG has one hand-drawn path per id for, wired
+  deep into the core merge pipeline — it is already data, and runtime-editable
+  is the wrong risk for no gain). The editor's muscle picker reads that file;
+  `allowCustom` is **false** for muscles, **true** for equipment / patterns /
+  aliases / related / same-as.
+
+### Stage A — menu quick wins (builder-only, no data, no deps, ship first)
+
+- **V1. Rename the header menu "My workouts" → "Workouts".**
+  `apps/builder/index.html` `<summary>` text; sweep `builder.js` /
+  `builder.css` / any `title`/aria string that names it. Trivial; can land with
+  V2. *Touched: `apps/builder/{index.html,builder.js,builder.css}`. No core, no
+  test move.*
+
+- **V2. "Examples" row → "Libraries", and the chip drives the search box.**
+  Relabel `renderExamplesRow()`'s `.examples-label` to **Libraries**. Change the
+  chip `onclick`: instead of `browseOrg(handle)` (which calls `listOrgWorkouts`
+  and fills the list while the search box stays blank), set the search input's
+  value to `` `${handle}:` ``, fire the existing debounced `onMineSearchInput`
+  path, and let `searchWorkouts` do the rest (it already matches a `wdlId~`
+  substring, so `crossfit:` returns that namespace). Keep the chip's `.active`
+  state driven by "does the query start with `<handle>:`". Clearing the box
+  returns to the plain saved list, as today. Retire `browseOrg` / `mineOrg` /
+  `mineOrgList` / `mineOrgSeq` / `renderHitList`'s org branch and, if nothing
+  else consumes it, `listOrgWorkouts` in `apps/shared/pocketbase.js` (check
+  `apps/display/board.js` first). *Touched: `apps/builder/builder.js`,
+  `apps/builder/index.html`?, maybe `apps/shared/pocketbase.js`. Mock `/api`
+  already supports `~`. No core, no test move — verify by driving the builder.*
+
+### Stage B — editor ergonomics (the visible win; V4 is the keystone)
+
+- **V3. Measured output → a 3-way segmented control.**
+  In `apps/shared/movement-editor.js` replace the `measures` multi-checkbox
+  group with a single-select segmented control writing `[]` / `['distance']` /
+  `['calories']` — the stored shape stays an array (0 or 1 element) so the DB
+  column and the M4 round-trip are unchanged; `collect()` just can't emit both.
+  A `.me-seg` style in `builder.css` on the shared `--ink`/`--rule`/`--accent`
+  tokens (the widget carries no host look — same rule as the rest of
+  `movement-editor.js`). Independent of V4/V5. *Touched:
+  `apps/shared/movement-editor.js`, `apps/builder/builder.css`. No core.*
+
+- **V4. Build the reusable token-input widget** — `apps/shared/token-input.js`,
+  host-agnostic like `movement-editor.js`. Signature roughly
+  `createTokenInput({ container, value: string[], vocab: string[] | () =>
+  Promise<string[]>, allowCustom: boolean, placeholder?, onChange })`. Renders:
+  removable **chips** for the current value; a text **input with type-ahead**
+  over `vocab` (arrow-key highlight, Enter/click to add; `allowCustom` →
+  a `＋ Add "x"` row for an unrecognised token, else no-op); and, below the
+  field, a small **filter/select picker** — a filter box + a scrollable
+  (max-height, `overflow:auto`) checklist of `vocab`, click to toggle a term in
+  or out. *One* composition at every vocab size — no count threshold, no "show
+  N then More". CSS lives in `builder.css` on the shared tokens (no
+  host-specific look). *Touched: `apps/shared/token-input.js` (new),
+  `apps/builder/builder.css`. No core. Verify by driving the editor once V5
+  wires it.*
+
+- **V5. Wire the token-input widget into the movement editor.**
+  In `movement-editor.js` replace the free-text comma inputs for `equipment`,
+  `pattern`, `musclesPrimary`, `musclesSecondary`, `aliases`, `related`,
+  `sameAs` with `createTokenInput`. Vocab source, **static for now** (Stage C
+  swaps equipment/patterns to the API): a new `apps/shared/vocab.js` holding the
+  deduped equipment + pattern lists (seed from the distinct values in
+  `registry/movements.json` — collapse `kettlebell`/`kettlebells`, fold the
+  machine variants, drop `other`); muscles from `registry/muscles.json`;
+  `related`/`sameAs` type-ahead over the movement-id list already in memory;
+  `aliases` gets chips with no vocab. `allowCustom`: false for muscles, true for
+  the rest. `collect()` still emits arrays exactly as today (`splitList` /
+  `joinList` retire for these fields), so the write path and validation are
+  unchanged. *Touched: `apps/shared/{movement-editor.js, vocab.js (new)}`,
+  `apps/builder/builder.css`. No core. Verify: edit a movement, add/remove
+  chips, type-ahead, picker, save, confirm the `/api` body is unchanged shape.*
+
+### Stage C — equipment + patterns become data (mirror the movements M-series, lean)
+
+- **V6. Vocab files + collections + migration.**
+  Commit `registry/equipment.json` and `registry/patterns.json` — the canonical
+  ordered vocab, entry shape matched to `registry/muscles.json` (`{ id, label,
+  synonyms? }`). Seed equipment from the deduped registry values (V5's list is
+  the same list — share it), patterns from the 11 distinct values. Add a
+  PocketBase migration `deploy/pocketbase/pb_migrations/<ts>_create_vocab.js`
+  creating `equipment` + `patterns` collections (one row per term, `scope:
+  "global"`, list/view rule open, write rule admin) — mirror
+  `1756800000_create_movements.js`. Migration up/down verified against a real
+  PocketBase binary, like M1/M2. *Touched: `registry/{equipment,patterns}.json`
+  (new), `deploy/pocketbase/pb_migrations/` (new). No core, no app change yet.*
+
+- **V7. Fixtures + mock `/api` for equipment + patterns.**
+  `scripts/mock-api.mjs` serves `equipment/records` + `patterns/records` from
+  the registry files in the PB list-envelope shape (copy the `movements/records`
+  handler): reads open, authorised writes persisted to git-ignored
+  `fixtures/{equipment,patterns}.local.json` overlaid on read. Commit
+  `fixtures/{equipment,patterns}.json` (or derive from `registry/` at boot, as
+  movements does). So a bare `make serve` serves the vocab. *Touched:
+  `scripts/mock-api.mjs`, `fixtures/`. No core.*
+
+- **V8. Load script + point the widget at the API.**
+  `scripts/vocab-to-db.mjs` / `make vocab:load` — idempotent upsert of
+  `registry/{equipment,patterns}.json` into the two collections, keyed on `id`
+  (mirror `movements-to-db.mjs`: created/updated/unchanged tally, `--dry-run`,
+  prod needs admin auth). Add `listEquipment()` / `listPatterns()` to
+  `apps/shared/pocketbase.js` (`filter=scope="global"`, no auth — like
+  `movements:dump`'s read). Change `apps/shared/vocab.js` so equipment + pattern
+  vocab is fetched from `/api` with the committed `registry/*.json` as the
+  offline fallback (same fallback pattern the apps use for movements). Now a
+  term is added by a DB row (or edit the file + `make vocab:load`). Optional
+  `make vocab:dump` twin if the round-trip guarantee is wanted. *Touched:
+  `scripts/vocab-to-db.mjs` (new), root `Makefile`, `apps/shared/{pocketbase.js,
+  vocab.js}`, `docs/context/topics/running-it.md`. No core.*
+
+- **V9 (optional, defer unless wanted). Inline "＋ new term" in the picker.**
+  An admin-only affordance in the token-input picker that `POST`s a `scope:
+  "global"` row to `equipment` / `patterns` — the `＋ new movement` pattern, so a
+  curator adds a term mid-edit. Only if the editing flow asks for it.
+
+### Sequencing
+
+```
+V1 ─┐
+V2 ─┴─ ship (Stage A, independent, no risk)
+V3 ──── ship (independent)
+V4 ──> V5 ──────────────┐
+V6 ──> V7 ──> V8 ───────┴─ (V8 swaps V5's vocab source to the API)
+                           V9 optional, after V8
+```
+
+Stage A first (value now, zero risk). V3 any time. V4→V5 is the ergonomics
+deliverable and can ship on static vocab. Stage C (V6→V7→V8) makes it
+data-driven and only needs V5 to exist. Land each with its `docs/context/`
+write-up; V6/V8 want a **DEC** — "equipment & movement patterns are a DB-backed
+vocabulary layer; `registry/{equipment,patterns}.json` is the committed dump"
+(mirrors [DEC-020](../topics/settled-decisions.md)) — and a settled-decision
+note for the token-input pattern (chips + type-ahead + filter/select picker; no
+size-driven variants; `allowCustom` per field; muscles closed).
+
+---
+
 ## Loose bullets — unscheduled, need Chris to scope
 
 - **A full laterality curation sweep** — not a numbered item. `around-worlds` is
