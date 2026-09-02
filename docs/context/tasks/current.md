@@ -447,7 +447,42 @@ become V8's offline fallback, so no consumer changes when that happens.
 
 ---
 
-## The movement editor edits the wrong record — **Open for Chris:** pick the fix
+## ~~The movement editor edits the wrong record~~ — **Fixed 2026-09-02 (`a643824`)**
+
+**Chris's call: always the API/database, never an in-memory object — "even
+when it's test, it's gonna be fetching from the fixture anyway."** That
+settles it as fix **2** below (fetch the row), not fix 1 (look up a file
+already in memory); no `CANONICAL` fallback is ever shown in place of a
+missing curated row.
+
+`openMovementEditor()` now takes an **identity** — `null` to create, or
+`{ id, title }` — and nothing else; it can no longer be handed a display
+object to show. What fills the form is always `getMovementByMovementId(id)`,
+exactly the row a save will `PATCH` against, awaited before the form mounts
+(a `Loading…` state in the same host element the form uses, and an inline
+error there rather than a silent open). A movement with no curated row yet —
+most of the merged corpus — opens in **create** mode carrying only its id and
+title, so every curated field is an assertion the curator makes, not one the
+merge made for them. All **three** entry points route through it —
+`＋ new movement`, the palette's `✎`, and the `»` panel's "Edit … its curated
+fields" — closing the gap the original write-up flagged (all three needed the
+same treatment, one helper rather than a per-call-site patch).
+
+**Verified against every failure mode this section named.** `deadlift` opens
+with Equipment empty (not the invented `Barbell`) and only its two curated
+aliases; `skierg` opens with both curated aliases (`ski`, `ski erg`) intact;
+`push-up`, opened via the `»` panel, matches `registry/movements.json`
+field-for-field; a canonical-only movement (`1-leg-box-squat`, no curated row)
+opens **blank**, confirming nothing is seeded from the merge. Saved `deadlift`
+unedited and ran `make movements:dump`: **0 changed, 0 added, 0 removed** —
+`registry/movements.json` is byte-identical, the round-trip this section asked
+for. `make aliases` still reports the pinned baseline unchanged: **curated —
+972 records, 0 contended names.** `make test` 2064/2064, 1 pending, unchanged.
+Full write-up in [../topics/builder-ux.md](../topics/builder-ux.md) and
+[../current/recent-changes.md](../current/recent-changes.md).
+
+Kept below for the trail — the finding and the two candidate fixes, as they
+stood before Chris's answer.
 
 **A live data-integrity defect in a shipped feature, not new work.** Found
 2026-09-02 while verifying V5; **pre-existing since M5 (2026-09-01), unchanged

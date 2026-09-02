@@ -99,27 +99,23 @@ role="group" aria-labelledby>`, so neither checkbox-group caption — nor any of
 the seven token inputs — is bound to its first input any more. `make test`
 unchanged (2064/2064, 1 pending).
 
-**One defect should probably come first.** The movement editor **edits the
-wrong record** — the palette's `✎` hands it the *canonical* merged entry, not
-the curated one, so every save invents `deadlift`'s equipment, drops `skierg`'s
-second alias, and writes merge metadata (`support` / `sources`) into the
-`movements` collection. Pre-existing since M5 (2026-09-01), unchanged by V4/V5,
-found while verifying V5. It is the same class of silent write-back that
-[DEC-023](../topics/settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice)
-was written to prevent, and it is losing curated data today, whereas Stage C is
-additive infrastructure — so it likely precedes the rest of Stage C, though the
-ordering and the choice between the two fixes are both **Chris's call**. *It was
-still unanswered on 2026-09-02 when V6 was picked up, so V6 shipped and this was
-left alone — it needs the Chris call, and "helpfully" picking a fix would settle
-a design question that has real trade-offs on both sides. It now stands ahead of
-**V7**.* The sharpest direction was **corrected the same day** (`7956fa1`): the
-danger is not the self-plurals — those are the *guarded* class, `fold.ts:212`
-never indexes a record's own regular self-plural — but the **6** added aliases
-that collide with a name another curated record holds as its id or title, each
-of which flips that name onto the wrong movement. `make aliases` is the tool
-that sees it, and the baseline to pin before and after any fix is **0 contended
-names across 972 curated records** (`1b570b6`). Its own section in
-[../tasks/current.md](../tasks/current.md); write-up in
+**The movement-editor wrong-record defect is fixed, 2026-09-02 (`a643824`) —
+V6 was correctly landed ahead of it, and the fix landed right after.** The
+editor used to open on the *canonical* merged entry rather than the curated
+row it edits, at two of its three entry points, so a save could invent
+`deadlift`'s equipment, drop `skierg`'s second alias, smuggle merge metadata
+into `muscles`, or — the sharpest direction, found scheduling the fix — flip
+which movement a name resolves to, for six movements where a merged alias
+already named a different curated record.
+**Chris's call: always the API/database, never an in-memory object** — "even
+when it's test, it's gonna be fetching from the fixture anyway." So
+`openMovementEditor()` now takes an identity (`null`, or `{ id, title }`) and
+always fetches `getMovementByMovementId(id)` before the form mounts, at all
+three entry points. Verified: `deadlift` no longer invents equipment, `skierg`
+keeps both aliases, an unedited save round-trips `make movements:dump` with 0
+changes, and `make aliases` holds the pinned baseline — **0 contended names
+across 972 curated records**. `make test` 2064/2064, 1 pending, unchanged.
+Write-up in [../tasks/current.md](../tasks/current.md) (struck) and
 [../topics/builder-ux.md](../topics/builder-ux.md).
 
 **Stage C is under way. V6 landed 2026-09-02 (`370b2d0`)** — the committed

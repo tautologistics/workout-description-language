@@ -637,37 +637,39 @@ have acquired the same bug the day they landed. Verified live: clicking either
 caption changes nothing, and the DOM reads nine `DIV:group` fields beside eight
 `LABEL` ones. *`apps/shared/movement-editor.js`; no core change.*
 
-**The palette's `✎` hands the editor the *canonical* entry, not the curated
-one — so a save writes the merged corpus's spelling back into the DB.** Found
-2026-09-02 while verifying V5; **pre-existing since M5, unchanged by V5, and not
-fixed.** `renderPalette()` passes the movement object it drew the card from,
-which comes from `registry/movements.canonical.json` (the 5-source merge), not
+**~~The palette's `✎` hands the editor the *canonical* entry, not the curated
+one~~ — Fixed 2026-09-02 (`a643824`).** Found 2026-09-02 while verifying V5;
+was pre-existing since M5, unchanged by V5. `renderPalette()` passed the
+movement object it drew the card from, which came from
+`registry/movements.canonical.json` (the 5-source merge), not
 `registry/movements.json` (the curated layer the editor is *for*). Three
-consequences, all visible now that chips make the values legible: opening
-`deadlift` shows equipment **`Barbell`** though the curated entry has **no
-`equipment` field at all** — so a save *invents* one, in the wrong case (the
-canonical file carries 69 raw upstream spellings, `Barbell` beside `barbell`,
-`Swiss Ball` beside `swiss ball`); opening `skierg` shows `aliases: ["ski"]` though the curated
-entry has `["ski", "ski erg"]`, so saving would drop the second; and `muscles`
-rides along with the canonical `support` / `sources` sub-objects, which the
-PATCH body then carries into the `movements` collection. The old comma inputs
-did exactly the same thing — this is *which record the host passes*, not how the
-control renders it — but it was hard to see when the values were a comma string.
-The token input's picker matches case-insensitively, so `Barbell` still shows
-`barbell` ticked rather than looking absent. **The fix is a decision, not a
-patch**: either the `✎` looks the curated entry up by id before opening (and
-falls back to the canonical one for a movement the curated layer does not
-carry), or it fetches the row over `/api` the way `getMovementByMovementId`
-already can. **Scheduled 2026-09-02** as its own section in
-[../tasks/current.md](../tasks/current.md) ("The movement editor edits the wrong
-record"), with the two fixes written out and the argument for doing it before
-Stage C — it is the same class of silent write-back that
-[DEC-023](settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice)
-was written to prevent. Note the same treatment is needed at all three entry
-points (`＋ new movement`, the palette `✎`, the `»` panel), so the fix wants to
-be one helper, not a patch at the palette call site. *Scope:
-`apps/builder/builder.js` (`renderPalette`'s edit handler, ~2092) — needs Chris
-to pick which of the two. No core change.*
+consequences were visible once chips made the values legible, and a fourth
+(a resolver-changing alias collision) turned up scheduling the fix — full
+detail in [../tasks/current.md](../tasks/current.md)'s now-struck "The
+movement editor edits the wrong record" section: opening `deadlift` showed
+equipment **`Barbell`** though the curated entry had **no `equipment` field at
+all**; `skierg` showed `aliases: ["ski"]` though the curated entry had
+`["ski", "ski erg"]`; `muscles` carried canonical `support` / `sources`
+sub-objects into the PATCH body; and six movements would have gained an alias
+another curated record already held as its id or title, which — because an
+alias outranks an id in `fold.ts`'s `lookup` — would have silently moved what
+that name resolves to.
+
+**Chris's call: always the API/database, never an in-memory object** — "even
+when it's test, it's gonna be fetching from the fixture anyway." So the fix is
+the fetch, not the file-lookup-with-fallback the write-up also offered.
+`openMovementEditor()` now takes an **identity** (`null`, or `{ id, title }`)
+rather than a display object, and always fills the form from
+`getMovementByMovementId(id)` — the exact row a save `PATCH`es against —
+awaited before the form mounts. A movement with no curated row yet opens in
+create mode carrying only its id/title, inventing nothing. All **three** entry
+points (`＋ new movement`, the palette `✎`, the `»` panel) route through the
+one function; there is no second call site to have missed. Verified: `deadlift`
+opens with equipment empty and both curated aliases correct on `skierg`; a
+canonical-only movement opens blank; an unedited `deadlift` save round-trips
+`make movements:dump` with 0 changes; `make aliases` still reports the pinned
+baseline (curated — 972 records, 0 contended names). *`apps/builder/builder.js`
++ `builder.css`; no core change; `make test` 2064/2064, 1 pending, unchanged.*
 
 ---
 

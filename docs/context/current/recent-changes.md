@@ -2,6 +2,38 @@
 
 ## Changes
 
+- **2026-09-02 — Movement editor wrong-record defect fixed (`a643824`).** The
+  data-integrity item scheduled the same day (found verifying V5) is closed:
+  Chris's call was **always the API/database, never an in-memory object** —
+  "even when it's test, it's gonna be fetching from the fixture anyway."
+  *Before → after:* all three entry points (`＋ new movement`, the palette
+  `✎`, the `»` panel) handed `createMovementEditor` whichever movement object
+  they had on screen, and two of those three were the *canonical* 5-source
+  merge rather than the curated row the editor exists to edit and the save
+  `PATCH`es against → `openMovementEditor()` takes an **identity**
+  (`null`, or `{ id, title }`) and always fills the form from
+  `getMovementByMovementId(id)`, awaited before mount, with a `Loading…`
+  state and an inline error path in the same host the form uses.
+  A movement with no curated row yet opens in **create** mode carrying only
+  its id/title — nothing invented.
+  **What this closes, all four measured in the scheduled item:** `deadlift`
+  no longer opens with an invented `Barbell` equipment value; `skierg` no
+  longer loses the `ski erg` alias; canonical `muscles.support`/`sources`
+  no longer rides into the `PATCH` body; and the six movements that would
+  have claimed another curated record's name as an alias (silently moving
+  what that name resolves to, since an alias outranks an id in `fold.ts`'s
+  `lookup`) can no longer do so from this form.
+  **Files:** `apps/builder/{builder.js,builder.css}`. No core; `make test`
+  **2064/2064, 1 pending**, unchanged.
+  **Verified:** `deadlift` opens with Equipment empty and only its two
+  curated aliases; `skierg` opens with both curated aliases; `push-up` via
+  the `»` panel matches `registry/movements.json` field-for-field; a
+  canonical-only movement (`1-leg-box-squat`) opens **blank**; an unedited
+  `deadlift` save round-trips through `make movements:dump` with **0
+  changed, 0 added, 0 removed** (`registry/movements.json` byte-identical);
+  `make aliases` holds the pinned baseline — curated 972 records, **0
+  contended names**; console clean.
+
 - **2026-09-02 — V6 landed (`370b2d0`): equipment and movement patterns
   become a vocabulary layer — two committed files and the two collections
   behind them.** Opens Stage C of the *Vocabularies & editor ergonomics* epic,
