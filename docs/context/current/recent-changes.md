@@ -3,7 +3,7 @@
 ## Changes
 
 - **2026-09-01 — board: the notifications strip is now dismissible
-  (`<TASK-SHA>`).** First of the two remaining post-library standalone tasks.
+  (`01c0af3`).** First of the two remaining post-library standalone tasks.
   The red `#problems` strip at the foot of the board (parse errors, resolve
   diagnostics, run warnings) gained a **Clear notifications** button in the
   footer control row, beside Reset. **Files:** `apps/display/index.html` (static

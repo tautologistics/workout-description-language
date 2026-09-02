@@ -17,7 +17,7 @@ epic absorbed most of the deferred account-namespacing rethink; what is left —
 the board **Edit** button round-tripping into the builder — is a loose bullet
 below.
 
-**board: dismissible notifications closed 2026-09-01 (`<TASK-SHA>`)** — a
+**board: dismissible notifications closed 2026-09-01 (`01c0af3`)** — a
 **Clear notifications** button in the board footer beside Reset, shown only
 while the red `#problems` strip has content; one `setProblems()` helper in
 `apps/display/board.js` is the single show/hide path, and clearing is not

@@ -759,7 +759,7 @@ small in parentheses after it (`Fran (crossfit:fran)`). Queued as the
 [../tasks/current.md](../tasks/current.md).**
 
 **~~The board's red parse-error / notification strip has no dismiss control.~~
-Fixed 2026-09-01 (`<TASK-SHA>`).** *Was:* the `#problems` strip below the board
+Fixed 2026-09-01 (`01c0af3`).** *Was:* the `#problems` strip below the board
 showed parse errors, resolve diagnostics and run warnings with no way to clear
 them once read. Chris's stated preference (raised driving the board) was a
 footer button, not a per-line `✕`. **Shipped:** a **Clear notifications**

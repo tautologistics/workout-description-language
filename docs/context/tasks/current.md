@@ -55,7 +55,7 @@ is a loose bullet below.
 Recently closed (kept here briefly for the trail):
 
 - **~~board: parse errors / notifications must be dismissible~~ — landed
-  2026-09-01 (`<TASK-SHA>`).** A **Clear notifications** button now sits in the
+  2026-09-01 (`01c0af3`).** A **Clear notifications** button now sits in the
   board's footer control row (static markup in `apps/display/index.html`, beside
   Reset), shown only while the red `#problems` strip has content and hidden with
   it. One `setProblems(text = '')` helper in `apps/display/board.js` is the
