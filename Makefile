@@ -9,6 +9,20 @@
 # vendored into packages/core/src/grammar/vendor/.  Keep it that way: no target
 # here may introduce a dependency or a package manager step.
 
+# Load ./.env (git-ignored) when it exists, so the database and deploy targets
+# pick up WDL_PB_URL / WDL_PB_ADMIN_* / WDL_DEPLOY_* without an inline
+# `VAR=… make …` prefix.  Copy .env.example to .env and fill it in.  GNU Make
+# parses the file: no quotes, no '#' mid-value, no '$'.  `export` (inside the
+# guard, so nothing changes when .env is absent) pushes the values into every
+# recipe's environment, where the `node scripts/*` commands read them.  The
+# `?=` defaults below still fill in anything .env leaves unset.  Precedence:
+# `make VAR=x <target>` (a make argument) overrides .env; .env overrides the
+# `?=` defaults and a `VAR=x make` shell prefix.
+ifneq (,$(wildcard ./.env))
+include .env
+export
+endif
+
 PORT ?= 8081
 
 # Deploy target host.  `?=` defers to the environment when it is already set, so
