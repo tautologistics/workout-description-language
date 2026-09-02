@@ -1062,7 +1062,10 @@ button:hover, .button:hover { border-color: var(--dim); }
 .movement-editor { display: flex; flex-direction: column; gap: .7rem; padding: 1rem 1.1rem 1.1rem; }
 .movement-editor .me-title { margin: 0; font-size: 1rem; }
 .movement-editor .me-row { display: flex; flex-wrap: wrap; gap: .7rem; }
-.movement-editor .me-row > .me-field { flex: 1 1 10rem; }
+.movement-editor .me-row > .me-field { flex: 1 1 10rem; min-width: 0; }
+/* The container a token input is mounted into — a plain flex item, but one that
+   must be allowed to shrink or a long chip widens the whole modal. */
+.me-tokens { min-width: 0; }
 
 .me-field { display: flex; flex-direction: column; gap: .2rem; }
 .me-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); }
@@ -1096,3 +1099,107 @@ button:hover, .button:hover { border-color: var(--dim); }
 }
 .movement-edit:hover { color: var(--accent); }
 .suggestion.modifier-edit { border-top: 1px solid var(--rule); }
+
+/* --- the token input (V4) ------------------------------------------------ */
+
+/* `apps/shared/token-input.js` — chips + type-ahead + a filter/select picker,
+   the movement editor's seven list fields. Styled here on the shared
+   --ink/--dim/--rule/--accent/--page/--panel tokens only, so the widget carries
+   no host-specific look and a second host restyles nothing.
+
+   One composition at every vocabulary size: no count threshold, no "show N then
+   More" (DEC-024). Size only changes how far the two bounded lists scroll.
+
+   Both the type-ahead menu and the picker sit in normal flow rather than
+   floating, so neither can be clipped by, or overflow, the modal's own
+   scroll container at any width. They are shown/hidden by the `hidden`
+   attribute, which the `[hidden] { display: none !important }` rule at the top
+   of this file makes win over the `display`s below. */
+.ti { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
+
+.ti-field {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .25rem;
+  min-width: 0; padding: .2rem .2rem .2rem .3rem;
+  border: 1px solid var(--rule); border-radius: .3rem;
+  background: var(--page); cursor: text;
+}
+.ti-field:focus-within { border-color: var(--accent); }
+
+.ti-chips { display: contents; }
+.ti-chip {
+  display: inline-flex; align-items: center; gap: .1rem;
+  min-height: 2rem; max-width: 100%;
+  padding-left: .5rem;
+  border: 1px solid var(--rule); border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+  color: var(--ink); font-size: .8rem;
+}
+.ti-chip > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* A 2rem square hit box for WCAG 2.2 target size; the glyph stays small. */
+.ti-x {
+  flex: none; width: 2rem; align-self: stretch;
+  border: none; border-radius: 0 999px 999px 0;
+  background: transparent; color: var(--dim);
+  font: inherit; font-size: .95rem; line-height: 1; cursor: pointer;
+}
+.ti-x:hover { color: var(--error); }
+
+.ti-entry {
+  flex: 1 1 7rem; min-width: 4rem; min-height: 2rem;
+  border: none; outline: none; background: transparent;
+  color: var(--ink); font: inherit; font-size: .88rem;
+}
+.ti-entry::placeholder { color: var(--dim); }
+
+.ti-browse {
+  flex: none; margin-left: auto; width: 2rem; height: 2rem;
+  border: 1px solid transparent; border-radius: .3rem;
+  background: transparent; color: var(--dim);
+  font: inherit; font-size: .8rem; line-height: 1; cursor: pointer;
+}
+.ti-browse:hover { border-color: var(--rule); color: var(--ink); }
+
+.ti-menu {
+  margin: 0; padding: 0; list-style: none;
+  max-height: 11rem; overflow-y: auto;
+  border: 1px solid var(--rule); border-radius: .3rem;
+  background: var(--panel);
+}
+.ti-opt {
+  display: flex; align-items: center; min-height: 2rem;
+  padding: .1rem .5rem; font-size: .82rem; cursor: pointer;
+}
+.ti-opt:hover, .ti-opt.on { background: var(--accent); color: var(--page); }
+.ti-add { color: var(--dim); font-style: italic; }
+.ti-add:hover, .ti-add.on { color: var(--page); font-style: normal; }
+
+.ti-picker {
+  display: flex; flex-direction: column; gap: .25rem;
+  min-width: 0; padding: .3rem;
+  border: 1px solid var(--rule); border-radius: .3rem;
+  background: var(--panel);
+}
+.ti-filter {
+  min-width: 0; min-height: 2rem; padding: .2rem .4rem;
+  border: 1px solid var(--rule); border-radius: .3rem;
+  background: var(--page); color: var(--ink); font: inherit; font-size: .82rem;
+}
+.ti-filter::placeholder { color: var(--dim); }
+.ti-filter:focus { outline: none; border-color: var(--accent); }
+
+/* Bounded and scrolling, so the widget's height is the same for 11 terms as for
+   1100 — the reason no size threshold is needed. Columns fill the width a wide
+   modal offers without letting a long vocabulary run off the bottom. */
+.ti-list {
+  max-height: 9rem; overflow-y: auto;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: 0 .4rem;
+}
+.ti-term {
+  display: flex; align-items: center; gap: .35rem;
+  min-height: 2rem; min-width: 0; padding: 0 .25rem;
+  font-size: .82rem; text-transform: none; letter-spacing: 0; cursor: pointer;
+}
+.ti-term:hover { color: var(--accent); }
+.ti-term input { flex: none; margin: 0; }
+.ti-term span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ti-empty { margin: 0; padding: .3rem .25rem; font-size: .78rem; color: var(--dim); }

@@ -1717,6 +1717,15 @@ function openMovementEditor(record = null) {
     container: el('movement-editor-host'),
     record,
     api: { createMovement, updateMovement, getMovementByMovementId },
+    // V5: the two id-valued token fields type-ahead over the movement lists this
+    // page already holds — `related` over the curated registry, `sameAs` over the
+    // merged corpus, matching what each field means. Read through a function so a
+    // list still loading (or absorbed since) is picked up at open time. Equipment,
+    // patterns and muscles need no override: `vocab.js` is their source.
+    vocab: {
+      related: () => (curatedMovements ?? []).map((m) => m.id).filter(Boolean).sort(),
+      sameAs: () => (catalogue ?? []).map((m) => m.id).filter(Boolean).sort(),
+    },
     onSaved: (entry) => { absorbMovement(entry); },
     onCancel: () => closeMovementEditor(),
   });

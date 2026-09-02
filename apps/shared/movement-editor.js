@@ -35,9 +35,23 @@
  * on create and cleared on update (json → `null`, scalar → `""`), exactly as M3
  * does, and `source` / `user` / timestamps are never written by this form.
  *
+ * **The seven list fields are token inputs** (V5, 2026-09-02) — `aliases`,
+ * `equipment`, `pattern`, `related`, `sameAs` and the two muscle lists render
+ * `apps/shared/token-input.js` (chips + type-ahead + a filter/select picker)
+ * instead of the comma-separated `<input>`s they shipped as. `collect()` emits
+ * the same arrays it always did, so the request body, the write path and both
+ * cross-field validations are untouched. Vocabularies come from
+ * `apps/shared/vocab.js` (static until Stage C moves equipment/patterns behind
+ * `/api`), except `related` / `sameAs`, which type-ahead over whatever movement
+ * ids the host passes in `opts.vocab` — the editor holds no movement list of
+ * its own, and stays host-agnostic by asking for one rather than reaching for it.
+ *
  * No `packages/core` change, no grammar/spec change, no registry-file write —
  * this is DB-only, same as M3.
  */
+
+import { createTokenInput } from './token-input.js';
+import { EQUIPMENT, MOVEMENT_PATTERNS, muscleIds } from './vocab.js';
 
 /** json (array/object) columns — order matches the M1 migration + M3 script. */
 const LIST_FIELDS = ['aliases', 'equipment', 'pattern', 'related', 'sameAs'];
@@ -54,6 +68,27 @@ const MULTIS = {
   laterality: ['both', 'split', 'per-side'],
   measures: ['distance', 'calories'],
 };
+/**
+ * The fields rendered as token inputs, and how each one behaves. `vocab` is the
+ * default source; `opts.vocab[name]` overrides it, which is how the host feeds
+ * `related` / `sameAs` the movement ids it already has in memory.
+ *
+ * `allowCustom` is false only for the two muscle fields: that vocabulary is
+ * closed — the body map has one path per id and the registry build fails on
+ * anything else — so an unrecognised muscle is a typo, not a new term. The
+ * others are open, because a curator meeting a new implement should not have to
+ * wait for a vocabulary release to write it down.
+ */
+const TOKEN_FIELDS = {
+  aliases: { allowCustom: true, vocab: () => [], placeholder: 'type a name, Enter to add' },
+  equipment: { allowCustom: true, vocab: () => EQUIPMENT, placeholder: 'type or browse' },
+  pattern: { allowCustom: true, vocab: () => MOVEMENT_PATTERNS, placeholder: 'type or browse' },
+  related: { allowCustom: true, vocab: () => [], placeholder: 'type a movement id' },
+  sameAs: { allowCustom: true, vocab: () => [], placeholder: 'type a movement id' },
+  musclesPrimary: { allowCustom: false, vocab: muscleIds, placeholder: 'type or browse' },
+  musclesSecondary: { allowCustom: false, vocab: muscleIds, placeholder: 'type or browse' },
+};
+
 /** A readable-slug id: lowercase alphanumerics joined by single hyphens.
  *  Matches how registry ids look (`dumbbell-snatch`, `3-4-sit-up`, `90-90-hamstring`). */
 const ID_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -69,18 +104,6 @@ const h = (tag, attrs = {}, ...kids) => {
   for (const kid of kids) if (kid != null) node.append(kid);
   return node;
 };
-
-/** A comma/newline-separated string ⇄ a trimmed, de-duplicated list. */
-const splitList = (s) => {
-  const seen = new Set();
-  const out = [];
-  for (const part of String(s).split(/[\n,]/)) {
-    const t = part.trim();
-    if (t && !seen.has(t)) { seen.add(t); out.push(t); }
-  }
-  return out;
-};
-const joinList = (v) => (Array.isArray(v) ? v.join(', ') : '');
 
 /**
  * Normalise whatever the caller passed as `record` to the field set this form
@@ -125,11 +148,16 @@ export function movementRecordToEntry(rec) {
  * @param {Element}  opts.container   element the form's DOM is scoped to (cleared on mount)
  * @param {object|null} [opts.record] starting record — PB record, registry entry, or null to create
  * @param {object}   opts.api         { createMovement(fields), updateMovement(pbId, patch), getMovementByMovementId(id) }
+ * @param {object}   [opts.vocab]     per-token-field vocabulary overrides, keyed by field name
+ *                                    (`equipment`, `pattern`, `related`, `sameAs`, `musclesPrimary`,
+ *                                    `musclesSecondary`, `aliases`) — each a `string[]` or a function
+ *                                    returning one, possibly async. Anything not given falls back to
+ *                                    `TOKEN_FIELDS`, so a host that passes nothing still works.
  * @param {Function} [opts.onSaved]   called with the saved record in registry-entry shape
  * @param {Function} [opts.onCancel]  called when the user cancels
  * @returns {{ destroy(): void, focus(): void }}
  */
-export function createMovementEditor({ container, record = null, api, onSaved, onCancel }) {
+export function createMovementEditor({ container, record = null, api, vocab = {}, onSaved, onCancel }) {
   const state = readRecord(record);
   container.innerHTML = '';
 
@@ -137,12 +165,44 @@ export function createMovementEditor({ container, record = null, api, onSaved, o
   const errorBox = h('ul', { class: 'me-errors', hidden: true });
   const status = h('p', { class: 'me-status', hidden: true });
 
+  /**
+   * A field whose control is a single `<input>` / `<select>`. The `<label>`
+   * wrapper is what makes the caption click through to it.
+   */
   const field = (label, control, hint) => h(
     'label', { class: 'me-field' },
     h('span', { class: 'me-label', text: label }),
     control,
     hint ? h('span', { class: 'me-hint', text: hint }) : null,
   );
+
+  /**
+   * A field whose control holds a *group* of inputs — the checkbox groups, and
+   * every token input.
+   *
+   * **Any control containing more than one input must use this, not `field()`.**
+   * A `<label>` labels only its first labelable descendant, so a `<label>`
+   * wrapper turns the caption into a control for whichever input happens to be
+   * first: clicking the words "COUNTING MODES" ticked `both`, and "MEASURED
+   * OUTPUT" ticked `distance` (found 2026-09-02, fixed here in V5). Stated as
+   * the rule rather than as the two fields that broke, because the next grouped
+   * field added to this form inherits the bug otherwise — same shape of mistake
+   * as *A CSS rule with a `display` silently overrules `hidden`* in
+   * `docs/context/topics/lessons-learned.md`.
+   *
+   * A `<div role="group" aria-labelledby>` names the set for assistive tech
+   * without binding the caption to any one member of it.
+   */
+  let groupSeq = 0;
+  const group = (label, control, hint) => {
+    const capId = `me-g${++groupSeq}`;
+    return h(
+      'div', { class: 'me-field', role: 'group', 'aria-labelledby': capId },
+      h('span', { class: 'me-label', id: capId, text: label }),
+      control,
+      hint ? h('span', { class: 'me-hint', text: hint }) : null,
+    );
+  };
 
   // --- movementId + title -------------------------------------------------
   controls.movementId = h('input', {
@@ -181,24 +241,29 @@ export function createMovementEditor({ container, record = null, api, onSaved, o
     value: state.fields.implements != null ? String(state.fields.implements) : '',
   });
 
-  // --- string lists -------------------------------------------------
-  for (const k of LIST_FIELDS) {
-    controls[k] = h('input', {
-      type: 'text', class: 'me-input', value: joinList(state.fields[k]),
-      autocapitalize: 'off', autocomplete: 'off', spellcheck: false,
+  // --- the seven token inputs (V5) -----------------------------------
+  // The five json list columns plus the two muscle lists. Each is a
+  // `createTokenInput` — chips + type-ahead + a filter/select picker — mounted
+  // into its own container so `collect()` can read the value back and
+  // `destroy()` can tear it down.
+  const m0 = state.fields.muscles ?? {};
+  const startValue = {
+    ...Object.fromEntries(LIST_FIELDS.map((k) => [k, state.fields[k] ?? []])),
+    musclesPrimary: Array.isArray(m0.primary) ? m0.primary : [],
+    musclesSecondary: Array.isArray(m0.secondary) ? m0.secondary : [],
+  };
+  const tokens = {};
+  for (const [name, spec] of Object.entries(TOKEN_FIELDS)) {
+    const host = h('div', { class: 'me-tokens' });
+    controls[name] = host;
+    tokens[name] = createTokenInput({
+      container: host,
+      value: startValue[name],
+      vocab: vocab[name] ?? spec.vocab,
+      allowCustom: spec.allowCustom,
+      placeholder: spec.placeholder,
     });
   }
-
-  // --- muscles.primary / .secondary --------------------------------
-  const m0 = state.fields.muscles ?? {};
-  controls.musclesPrimary = h('input', {
-    type: 'text', class: 'me-input', value: joinList(m0.primary),
-    autocapitalize: 'off', autocomplete: 'off', spellcheck: false,
-  });
-  controls.musclesSecondary = h('input', {
-    type: 'text', class: 'me-input', value: joinList(m0.secondary),
-    autocapitalize: 'off', autocomplete: 'off', spellcheck: false,
-  });
 
   // --- buttons ------------------------------------------------------
   const saveBtn = h('button', { type: 'button', class: 'me-save', text: state.mode === 'create' ? 'Create movement' : 'Save movement' });
@@ -219,16 +284,16 @@ export function createMovementEditor({ container, record = null, api, onSaved, o
       field('Laterality axis', controls.lateralityAxis),
       field('Implements', controls.implements, 'per-implement count')),
     h('div', { class: 'me-row' },
-      field('Counting modes', controls.laterality),
-      field('Measured output', controls.measures)),
-    field('Aliases', controls.aliases, 'comma-separated'),
-    field('Equipment', controls.equipment, 'comma-separated'),
-    field('Movement patterns', controls.pattern, 'comma-separated — balance analysis only'),
-    field('Related', controls.related, 'comma-separated movement ids'),
-    field('Same as', controls.sameAs, 'comma-separated ids in the merged corpus'),
+      group('Counting modes', controls.laterality),
+      group('Measured output', controls.measures, 'the units this movement can be measured in — both is normal for an erg')),
+    group('Aliases', controls.aliases, 'other names this movement answers to'),
+    group('Equipment', controls.equipment),
+    group('Movement patterns', controls.pattern, 'balance analysis only'),
+    group('Related', controls.related, 'movement ids'),
+    group('Same as', controls.sameAs, 'ids in the merged corpus'),
     h('div', { class: 'me-row' },
-      field('Muscles — primary', controls.musclesPrimary, 'comma-separated'),
-      field('Muscles — secondary', controls.musclesSecondary, 'comma-separated')),
+      group('Muscles — primary', controls.musclesPrimary),
+      group('Muscles — secondary', controls.musclesSecondary)),
     errorBox,
     status,
     h('div', { class: 'me-actions' }, saveBtn, cancelBtn),
@@ -271,10 +336,10 @@ export function createMovementEditor({ container, record = null, api, onSaved, o
       else fields.implements = n;
     }
 
-    for (const k of LIST_FIELDS) fields[k] = splitList(controls[k].value);
+    for (const k of LIST_FIELDS) fields[k] = tokens[k].value();
 
-    const primary = splitList(controls.musclesPrimary.value);
-    const secondary = splitList(controls.musclesSecondary.value);
+    const primary = tokens.musclesPrimary.value();
+    const secondary = tokens.musclesSecondary.value();
     const muscles = (state.fields.muscles && typeof state.fields.muscles === 'object')
       ? { ...state.fields.muscles } : {};
     if (primary.length) muscles.primary = primary; else delete muscles.primary;
@@ -351,7 +416,10 @@ export function createMovementEditor({ container, record = null, api, onSaved, o
   cancelBtn.onclick = () => onCancel?.();
 
   return {
-    destroy() { container.innerHTML = ''; },
+    destroy() {
+      for (const t of Object.values(tokens)) t.destroy();
+      container.innerHTML = '';
+    },
     focus() { (state.mode === 'create' ? controls.movementId : controls.title).focus(); },
   };
 }
