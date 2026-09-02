@@ -107,19 +107,44 @@ second alias, and writes merge metadata (`support` / `sources`) into the
 found while verifying V5. It is the same class of silent write-back that
 [DEC-023](../topics/settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice)
 was written to prevent, and it is losing curated data today, whereas Stage C is
-additive infrastructure — so it likely precedes V6, though the ordering and the
-choice between the two fixes are both **Chris's call**. Its own section in
+additive infrastructure — so it likely precedes the rest of Stage C, though the
+ordering and the choice between the two fixes are both **Chris's call**. *It was
+still unanswered on 2026-09-02 when V6 was picked up, so V6 shipped and this was
+left alone — it needs the Chris call, and "helpfully" picking a fix would settle
+a design question that has real trade-offs on both sides. It now stands ahead of
+**V7**.* The sharpest direction was **corrected the same day** (`7956fa1`): the
+danger is not the self-plurals — those are the *guarded* class, `fold.ts:212`
+never indexes a record's own regular self-plural — but the **6** added aliases
+that collide with a name another curated record holds as its id or title, each
+of which flips that name onto the wrong movement. `make aliases` is the tool
+that sees it, and the baseline to pin before and after any fix is **0 contended
+names across 972 curated records** (`1b570b6`). Its own section in
 [../tasks/current.md](../tasks/current.md); write-up in
 [../topics/builder-ux.md](../topics/builder-ux.md).
 
-**Then Stage C — V6 → V7 → V8**, which makes **equipment** and
-**movement patterns** a DB/API-backed vocabulary (committed
-`registry/{equipment,patterns}.json` + a PocketBase migration, then fixtures +
-mock `/api`, then a load script and a fetch in front of `vocab.js`'s literals,
-which are already shaped to become the offline fallback). V6 starts it and wants
-a **DEC** of its own, mirroring DEC-020. **Muscles stays
-`registry/muscles.json`** — closed set, body-map SVG is the real limit. **V9
-(inline "＋ new term" in the picker) stays optional**, after V8.
+**Stage C is under way. V6 landed 2026-09-02 (`370b2d0`)** — the committed
+`registry/equipment.json` (29 terms) and `registry/patterns.json` (11), plus
+`1757100000_create_vocab.js` creating the `equipment` and `patterns`
+collections, verified up and down against a real pocketbase v0.40.1 binary.
+Settled as
+[DEC-025](../topics/settled-decisions.md#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump),
+mirroring DEC-020. **Data and schema only — nothing is user-visible yet**: the
+collections are empty on the box (no loader until V8) and `apps/shared/vocab.js`
+is untouched and still what the editor reads.
+
+**Next is V7 — fixtures + mock `/api` for equipment + patterns.**
+`scripts/mock-api.mjs` grows `equipment/records` + `patterns/records` handlers
+in the PocketBase list-envelope shape, copied from the existing
+`movements/records` one: reads open, authorised writes persisted to git-ignored
+`fixtures/{equipment,patterns}.local.json` overlaid on read; commit
+`fixtures/{equipment,patterns}.json` or derive from `registry/` at boot,
+whichever the movements handler already does. Unlike V6 it **is** drivable —
+`make serve` plus a `curl` against the two new endpoints. **Then V8** — the
+`make vocab:load` upsert, `listEquipment()` / `listPatterns()`, and the fetch in
+front of `vocab.js`'s literals, which are already shaped to become the offline
+fallback, so no consumer changes. **Muscles stays `registry/muscles.json`** —
+closed set, body-map SVG is the real limit. **V9 (inline "＋ new term" in the
+picker) stays optional**, after V8.
 
 **One new self-contained item came out of V5's verification**, needing Chris to
 pick between two fixes: the palette's `✎` hands the movement editor the

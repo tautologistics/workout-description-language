@@ -46,7 +46,7 @@ is a loose bullet below.
 
 **The epic in flight is *Vocabularies & editor ergonomics* (V1–V9)**, below —
 Stage A (V1+V2) and Stage B (V4+V5) have landed, V3 was withdrawn, and Stage C
-(V6→V8) is next. *Corrected 2026-09-02: this paragraph read "No epic is in
+is under way — V6 landed 2026-09-02, so **V7 is the next open item**. *Corrected 2026-09-02: this paragraph read "No epic is in
 flight, and the standalone queue is empty" from 2026-09-01 until the V-series
 was queued on 2026-09-02, and stayed that way for a day after — a session
 picking work off this file would have been told there was none.* Every earlier
@@ -191,8 +191,8 @@ detailed in its own bullet below.**
 ### Stage B — editor ergonomics (the visible win; V4 is the keystone)
 
 **Stage B is done as of 2026-09-02 (`10a2b8a`) — V4 and V5 landed together in
-one commit, and V5 carried the caption-bug fix with it. Stage C is next, and
-starts at V6.**
+one commit, and V5 carried the caption-bug fix with it. Stage C is under way —
+V6 landed 2026-09-02 (`370b2d0`), so it starts at V7.**
 
 - ~~**V3. Measured output → a 3-way segmented control.**~~ **Withdrawn
   2026-09-02 by Chris — the premise does not hold. Nothing shipped; no code
@@ -307,17 +307,83 @@ starts at V6.**
 
 ### Stage C — equipment + patterns become data (mirror the movements M-series, lean)
 
-- **V6. Vocab files + collections + migration.**
-  Commit `registry/equipment.json` and `registry/patterns.json` — the canonical
-  ordered vocab, entry shape matched to `registry/muscles.json` (`{ id, label,
-  synonyms? }`). Seed equipment from the deduped registry values (V5's list is
-  the same list — share it), patterns from the 11 distinct values. Add a
-  PocketBase migration `deploy/pocketbase/pb_migrations/<ts>_create_vocab.js`
-  creating `equipment` + `patterns` collections (one row per term, `scope:
-  "global"`, list/view rule open, write rule admin) — mirror
-  `1756800000_create_movements.js`. Migration up/down verified against a real
-  PocketBase binary, like M1/M2. *Touched: `registry/{equipment,patterns}.json`
-  (new), `deploy/pocketbase/pb_migrations/` (new). No core, no app change yet.*
+- ~~**V6. Vocab files + collections + migration.**~~ **Fixed 2026-09-02
+  (`370b2d0`).** `registry/equipment.json` (29 terms) and
+  `registry/patterns.json` (11) are committed, plus
+  `deploy/pocketbase/pb_migrations/1757100000_create_vocab.js` creating the
+  `equipment` and `patterns` collections. Settled as
+  [DEC-025](../topics/settled-decisions.md#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump).
+  Both files were **seeded from `apps/shared/vocab.js`** as the note said, and
+  re-checked against the data anyway: the 31 distinct `equipment` values in
+  `registry/movements.json` minus `kettlebells` (folded) and `other` (dropped)
+  is *exactly* the committed 29, and the 11 patterns match — V5's list agrees,
+  so nothing was re-derived differently. Ordering kept from `vocab.js`
+  (equipment alphabetical, patterns grouped by family), with the reason in each
+  `$comment`. The migration builds both collections from one
+  `vocabCollection(name)` helper so they cannot drift: `termId` (text, required,
+  unique index) for the registry `id` — not `id`, which clashes with
+  PocketBase's own record id — plus `name`, `synonyms` (json), `scope`
+  (`select global|user`, required), a nullable `user` relation and the two
+  autodate fields; read rules `scope = "global"`, write rules
+  `@request.auth.admin = true`; `down` deletes both in reverse creation order.
+  Entry added to `deploy/pocketbase/pb_migrations/README.md`, which lists every
+  migration.
+
+  **Three corrections to this item's own note, each found by reading the
+  committed file rather than the note** — the DEC-023 habit, which is now three
+  for three:
+  - **The entry shape is `{ id, name, synonyms }`, not `{ id, label, synonyms? }`.**
+    `registry/muscles.json` — the file this one is explicitly modelled on — uses
+    **`name`**. Matching the committed file beats matching the note, so the JSON
+    key and the collection column are both `name`. `synonyms` is *always*
+    present, empty where there is nothing to fold, because muscles.json is
+    always-present and its reader (`scripts/lib/muscles.mjs`) iterates it
+    without a guard.
+  - **A pure case variant is not a synonym.** The note offered `Barbell` as a
+    good one to mine out of the canonical file. But the lookup that reads these
+    lists folds case, spaces, hyphens and underscores (`flat()` in
+    `scripts/lib/muscles.mjs`), so `Barbell` already resolves to `barbell` and
+    listing it claims a distinction that does not exist — same for `Swiss Ball`,
+    which is committed as **`swiss ball`**, the lowercased form muscles.json's
+    `$comment` specifies. The 16 synonyms that survive that fold are the ones
+    committed, each verified to appear as a raw value in one of the two movement
+    files: `kettlebells`, `dumbbells`, `swiss ball`, `stability ball`, `sz-bar`
+    (wger's German name for an E-Z curl bar), `cable machine`, `exercise band`,
+    `resistance band`, `body`, `none (bodyweight exercise)`, and the six
+    `machine` variants (`smith machine`, `t-bar machine`, `chest machine`,
+    `machine: bench press`, `machine: butterfly`, `machine: chest`) — which are
+    the variants V5 correctly reported it had nothing to fold *in the curated
+    file*, and which land here as synonyms because this is where they belong.
+  - **`patterns.json` carries no synonyms at all, and that is a finding.**
+    `pattern` is a wdl-curated field with no upstream source, so
+    `movements.canonical.json` holds the same 11 values —
+    nothing to mine. The key is kept and kept present so the two files share one
+    shape.
+
+  Terms **deliberately left out** of `equipment.json`: `bench` (and its six
+  `flat`/`incline`/`decline`/`hyperextension` spellings), `balance board`,
+  `bosu ball`, `gym mat`, `towel`, `weight` / `weight plate`, `parallel bars`,
+  `bar`, `v-bar`, `wide bar`. All are canonical-only kit with **no vocabulary
+  term to be a spelling of** — folding `parallel bars` onto `parallettes` or
+  `bosu ball` onto `exercise ball` would invent an equivalence, which is the
+  failure mode the curated registry exists to avoid. If any of them is a real
+  gap it is a *new term*, not a synonym, and now costs a DB row rather than a
+  code edit. `other` stays dropped.
+
+  Migration verified up **and** down against a real pocketbase **v0.40.1
+  (darwin_arm64)** binary and a throwaway `pb_data`, the M1/M2 method: `migrate
+  up` applies all six migrations cleanly (exit 0); both collections land with
+  all seven fields and all four indexes (`sqlite3` against `_collections` /
+  `sqlite_master`); the unique index rejects a duplicate `termId` (`UNIQUE
+  constraint failed: equipment.termId`); the `user` relation resolves to
+  `users`; `migrate down 1` drops both, leaving `movements` / `workouts` /
+  `users` and their indexes intact with **zero** leftover `sqlite_master` rows;
+  a re-`up` reapplies cleanly. Binary and temp `pb_data` discarded, not
+  committed. *Touched: `registry/{equipment,patterns}.json` (new),
+  `deploy/pocketbase/pb_migrations/1757100000_create_vocab.js` (new),
+  `deploy/pocketbase/pb_migrations/README.md`. No core, no app change —
+  `apps/shared/vocab.js` is untouched and stays the source until V8.
+  `make test` 2064/2064, 1 pending, before and after.*
 
 - **V7. Fixtures + mock `/api` for equipment + patterns.**
   `scripts/mock-api.mjs` serves `equipment/records` + `patterns/records` from
@@ -354,8 +420,8 @@ V1 ─┐
 V2 ─┴─ ship (Stage A, independent, no risk)
 V3 ──── WITHDRAWN 2026-09-02 (premise false — DEC-023; blocked nothing)
 V4 ──> V5 ── shipped ───┐
-V6 ──> V7 ──> V8 ───────┴─ (V8 swaps V5's vocab source to the API)
-                           V9 optional, after V8
+V6 ── shipped ──> V7 ──> V8 ─┴─ (V8 swaps V5's vocab source to the API)
+                                V9 optional, after V8
 ```
 
 **Stage A shipped 2026-09-02 (`7429863`).** **V3 is withdrawn** (2026-09-02 —
@@ -367,13 +433,17 @@ ergonomics deliverable, on static vocab; its pattern is settled as
 They landed together on purpose: V4 has no user-visible surface on its own, and
 this repo verifies by driving the real app, so a scratch host page would have
 proved less than driving the editor V4 exists for.
-**Stage C (V6→V7→V8) is the next work** — it makes the vocab data-driven and
-only needed V5 to exist. Land each with its `docs/context/` write-up; V6/V8 want
-a **DEC** — "equipment & movement patterns are a DB-backed vocabulary layer;
-`registry/{equipment,patterns}.json` is the committed dump" (mirrors
-[DEC-020](../topics/settled-decisions.md)). `apps/shared/vocab.js`'s two literal
-exports are already shaped to become V8's offline fallback with the fetch in
-front of them, so no consumer changes when that happens.
+**Stage C is under way — V6 shipped 2026-09-02 (`370b2d0`)**, and its DEC is
+written: [DEC-025](../topics/settled-decisions.md#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump),
+"equipment & movement patterns are a DB-backed vocabulary layer;
+`registry/{equipment,patterns}.json` is the committed dump", mirroring
+[DEC-020](../topics/settled-decisions.md#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump).
+**V7 is next, then V8.** V6 shipped the data and the schema only — the
+collections are empty on the box and `apps/shared/vocab.js`'s literals are still
+what the editor reads, so **nothing is user-visible until V8** puts the fetch in
+front of them. That is deliberate, the way M1 shipped the `movements` schema
+ahead of M3's loader. `vocab.js`'s two literal exports are already shaped to
+become V8's offline fallback, so no consumer changes when that happens.
 
 ---
 

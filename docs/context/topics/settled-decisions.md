@@ -1604,6 +1604,77 @@ Vocabularies & editor ergonomics epic (`10a2b8a`).*
   tokens only, with ≥2rem hit boxes and no text under `.75rem`, dimmed by colour
   rather than `opacity`. A second host restyles nothing; it inherits the tokens.
 
+### DEC-025 Equipment & movement patterns are a DB-backed vocabulary layer; `registry/{equipment,patterns}.json` is the committed dump
+*Status: active. Settled 2026-09-02 with queue item V6 of the Vocabularies &
+editor ergonomics epic (`370b2d0`), opening its Stage C. The same move
+[DEC-020](#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump)
+made for the curated movement layer, applied to the two open vocabularies the
+movement editor offers.*
+
+- **Equipment and movement patterns are rows in PocketBase `equipment` and
+  `patterns` collections, with `registry/equipment.json` (29 terms) and
+  `registry/patterns.json` (11) as the committed, reviewable dump.** One row per
+  term: `termId` (the registry `id`), `name`, `synonyms`, plus `scope` and a
+  nullable `user` relation carried over from `movements` unchanged. A term is
+  added by a DB row, or by editing the file and running V8's `make vocab:load`.
+
+- **The alternative was a hardcoded list edited in JS — which is literally what
+  V5 shipped as the interim.** `apps/shared/vocab.js`'s `EQUIPMENT` and
+  `MOVEMENT_PATTERNS` are the two lists as literals, deliberately static so V5's
+  ergonomics could ship without waiting on the data work. That is fine for a
+  fixed set and wrong for an open one: `allowCustom` is **true** for both fields
+  ([DEC-024](#dec-024-the-token-input-is-one-composition-chips--type-ahead--a-filterselect-picker)),
+  so a curator meeting a new implement types it in — and under a JS literal that
+  term exists in the saved movement but never in the picker, so the next curator
+  types it again, differently. A vocabulary that users can extend has to be
+  storage, not source.
+
+- **Where the boundary is: muscles stays a file.** `registry/muscles.json` is a
+  **closed** 19-term set. The body-map SVG has one hand-drawn path per id and
+  `scripts/build-movements.mjs` exits non-zero on a name it does not know, so a
+  new muscle is a code change either way — the SVG is the real limit, not the
+  storage. Making it runtime-editable would buy an admin the ability to add a
+  term that renders as nothing and fails the next canonical build. `allowCustom`
+  is false for muscles for the same reason. The rule is not "vocabularies go in
+  the database"; it is **open vocabularies go in the database, closed ones stay
+  files**.
+
+- **The entry shape is `{ id, name, synonyms }`, matched to
+  `registry/muscles.json`.** Not `{ id, label, ... }`, which is what the V6
+  queue note asked for — the committed file it is modelled on uses `name`, and
+  matching the file beats matching the note. `synonyms` is always present, empty
+  where there is nothing to fold, because muscles.json is always-present and its
+  reader (`scripts/lib/muscles.mjs`) iterates it without a guard. The collection
+  column is named `name` to match. **A pure case variant is not a synonym**: the
+  lookup folds case, spaces, hyphens and underscores, so listing `Barbell`
+  beside `barbell` claims a distinction that does not exist. `patterns.json`
+  carries no synonyms at all — `pattern` is a wdl-curated field with no upstream
+  source, so there is nothing to fold, which is a finding rather than an
+  omission.
+
+- **The dump is the offline fallback, not just a review artefact.** V8 points
+  `apps/shared/vocab.js` at `/api` with these two files behind it — the same
+  fallback shape the apps already use for movements, and the reason `vocab.js`'s
+  exports were written as `string[]`-or-function from the start. So a signed-out
+  reader, a `make serve` with no PocketBase, and a failed fetch all still get a
+  populated picker.
+
+- **Two collections, not one table with a `kind` column.** They are independent
+  vocabularies that happen to share a shape; the editor asks for one or the
+  other and never both. A shared table would make every read carry a
+  discriminating filter that a wrong or missing one silently widens — offering
+  `hinge` as a piece of equipment. The cost is one migration describing the same
+  five fields twice, which is why they are built from a single
+  `vocabCollection(name)` helper rather than copy-pasted.
+
+- **Consequences / still open.** Same open question DEC-020 left: **dump cadence
+  is undecided** — whether an admin's edit in prod is expected to be dumped and
+  committed promptly or batched, and whether a `make vocab:dump` twin is wanted
+  at all (V8 lists it as optional). Until V8 lands there is **no loader**, so
+  the collections are empty on the box and `vocab.js`'s literals are still what
+  the editor reads; the migration ships the schema ahead of its data on purpose,
+  the way M1 did.
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).

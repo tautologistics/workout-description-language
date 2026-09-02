@@ -250,3 +250,22 @@ overflow a hosting modal. Vocabulary is `string[]` or a (possibly async)
 function, which is what lets V8 swap in a `/api` fetch and lets a host pass a
 list it already holds.
 -> [topics/settled-decisions.md](topics/settled-decisions.md#dec-024-the-token-input-is-one-composition-chips--type-ahead--a-filterselect-picker)
+
+## DEC-025 — Equipment & movement patterns are a DB-backed vocabulary layer; `registry/{equipment,patterns}.json` is the committed dump
+Status: active. Settled 2026-09-02 with queue item V6 (`370b2d0`), opening
+Stage C. The move [DEC-020](#dec-020--the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump)
+made for movements, applied to the two **open** vocabularies the movement editor
+offers: `equipment` and `patterns` PocketBase collections, one row per term
+(`termId` / `name` / `synonyms` / `scope` / nullable `user`), with
+`registry/equipment.json` (29) and `registry/patterns.json` (11) as the
+committed dump *and* the offline fallback V8's fetch falls back to. The
+alternative was a hardcoded list edited in JS — **literally what V5 shipped as
+the interim** (`apps/shared/vocab.js`) — which is wrong for a field whose
+`allowCustom` is true: a curator's new term lands in the movement but never in
+the picker, so the next curator types it again, differently. **Muscles stays a
+file**: a closed 19-term set whose real limit is the body-map SVG's one
+hand-drawn path per id, so a new muscle is a code change either way. The rule is
+*open vocabularies go in the database, closed ones stay files*. Entry shape is
+`{ id, name, synonyms }` matched to `registry/muscles.json` — **not** the
+`label` the queue note asked for — and a pure case variant is not a synonym.
+-> [topics/settled-decisions.md](topics/settled-decisions.md#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump)

@@ -2,6 +2,89 @@
 
 ## Changes
 
+- **2026-09-02 — V6 landed (`370b2d0`): equipment and movement patterns
+  become a vocabulary layer — two committed files and the two collections
+  behind them.** Opens Stage C of the *Vocabularies & editor ergonomics* epic,
+  and is the move
+  [DEC-020](../topics/settled-decisions.md#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump)
+  made for movements, applied to the two **open** vocabularies the movement
+  editor offers. Settled as
+  [DEC-025](../topics/settled-decisions.md#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump).
+  **Data and schema only — nothing is user-visible yet**, on purpose, the way M1
+  shipped the `movements` schema ahead of M3's loader. `apps/shared/vocab.js` is
+  untouched and stays what the editor reads until V8.
+  **What is new:** `registry/equipment.json` (29 terms) and
+  `registry/patterns.json` (11), entry shape `{ id, name, synonyms }` matched to
+  `registry/muscles.json`; and
+  `deploy/pocketbase/pb_migrations/1757100000_create_vocab.js`, creating the
+  `equipment` and `patterns` collections from one `vocabCollection(name)` helper
+  so the two cannot drift — `termId` (text, required, unique index; the registry
+  `id`, *not* `id`, which clashes with PocketBase's own record id), `name`,
+  `synonyms` (json), `scope` (`select global|user`, required), a nullable `user`
+  relation, two autodate fields; read rules `scope = "global"`, write rules
+  `@request.auth.admin = true`; `down` deletes both in reverse creation order.
+  Two collections rather than one table with a `kind` column: independent
+  vocabularies, and a shared table would need every read to carry a filter a
+  wrong one silently widens. `deploy/pocketbase/pb_migrations/README.md` gained
+  its entry.
+  **Seeded from `vocab.js` and re-checked against the data anyway** — the DEC-023
+  habit, now three for three. The 31 distinct `equipment` values in
+  `registry/movements.json` minus `kettlebells` (folded) and `other` (dropped)
+  is *exactly* the committed 29, and the 11 patterns match, so V5's list and a
+  fresh derivation agree.
+  **Three corrections to the V6 queue note**, all from reading the committed
+  file rather than the note: the entry shape is **`name`, not `label`**
+  (muscles.json uses `name`, and matching the file beats matching the note; and
+  `synonyms` is always present, because muscles.json's reader iterates it
+  without a guard); **a pure case variant is not a synonym** — the note offered
+  `Barbell`, but the lookup folds case, spaces, hyphens and underscores, so
+  `Barbell` already resolves to `barbell` and `Swiss Ball` is committed as
+  `swiss ball`; and **`patterns.json` carries no synonyms at all**, which is a
+  finding rather than an omission, since `pattern` is wdl-curated with no
+  upstream source. The 16 equipment synonyms that survive the fold are each
+  verified to appear as a raw value in one of the two movement files.
+  **Verified:** `make test` **2064/2064, 1 pending** — unchanged before and
+  after, and stated as such because nothing reads these files yet. The migration
+  was verified **up and down against a real pocketbase v0.40.1 (darwin_arm64)
+  binary** and a throwaway `pb_data`, the M1/M2 method:
+
+  ```
+  $ pocketbase migrate up --dir <tmp>/pb_data --migrationsDir deploy/pocketbase/pb_migrations
+  Applied 1756600000_create_workouts.js
+  Applied 1756700000_add_users_admin.js
+  Applied 1756800000_create_movements.js
+  Applied 1756900000_add_users_handle_and_orgs.js
+  Applied 1757000000_add_workouts_wdlid.js
+  Applied 1757100000_create_vocab.js
+  EXIT=0
+
+  $ sqlite3 data.db "SELECT name FROM sqlite_master WHERE type='index'
+                     AND tbl_name IN ('equipment','patterns') AND sql IS NOT NULL;"
+  CREATE UNIQUE INDEX `idx_equipment_term_id` ON `equipment` (`termId`)
+  CREATE INDEX `idx_equipment_scope` ON `equipment` (`scope`)
+  CREATE UNIQUE INDEX `idx_patterns_term_id` ON `patterns` (`termId`)
+  CREATE INDEX `idx_patterns_scope` ON `patterns` (`scope`)
+
+  $ sqlite3 data.db "INSERT INTO equipment ... VALUES (...,'kettlebell',...);"   # 2nd time
+  Error: stepping, UNIQUE constraint failed: equipment.termId (19)
+
+  $ echo y | pocketbase migrate down 1 --dir <tmp>/pb_data --migrationsDir ...
+  Reverted 1757100000_create_vocab.js
+  EXIT=0
+  # collections after down: movements, users, workouts
+  # leftover equipment/patterns sqlite_master rows: 0
+  # movements / workouts / users indexes: all 8 intact
+
+  $ pocketbase migrate up --dir <tmp>/pb_data --migrationsDir ...
+  Applied 1757100000_create_vocab.js
+  EXIT=0
+  ```
+
+  Both collections landed with all seven fields, the `user` relation resolved to
+  `users`, and the binary and temp `pb_data` were discarded, not committed. The
+  migration is **not yet applied on the box** — `make deploy:db` lands it; see
+  [../topics/running-it.md](../topics/running-it.md).
+
 - **2026-09-02 — V4 + V5 landed together (`10a2b8a`): a reusable token-input
   widget, and the movement editor's seven list fields wired onto it.** Stage B
   of the *Vocabularies & editor ergonomics* epic, in one commit — V4 has no

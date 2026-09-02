@@ -333,7 +333,16 @@ detail — the MIME finding (`.ohm`/`.wdlg` land as `text/plain`, and are
 - **Migrations onto the box:** `make deploy:db` — `rsync` of
   `deploy/pocketbase/pb_migrations/*.js` to `~/pb/pb_migrations/` (no `--delete`)
   then a PocketBase restart so any new migration applies. Run it whenever a
-  migration is added; `deploy/README.md` §3 / §7a–b.
+  migration is added; `deploy/README.md` §3 / §7a–b. **There is an unapplied
+  migration as of 2026-09-02**: `1757100000_create_vocab.js` (queue task V6,
+  [DEC-025](settled-decisions.md#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump))
+  creates the `equipment` and `patterns` collections. It has been verified up and
+  down against a real pocketbase v0.40.1 binary but **not yet run on the box** —
+  `make deploy:db` is what lands it. It creates empty collections and loads no
+  rows; the loader that fills them from `registry/{equipment,patterns}.json` is
+  V8's `make vocab:load`, which **does not exist yet** — do not go looking for
+  it. Until then nothing reads the collections, so deploying the migration early
+  is harmless and deferring it is equally harmless.
 - **DB backup / restore:** [`deploy/README.md`](../../../deploy/README.md) §9
   "Back up (SQLite)" is the runbook — *since 2026-09-01 (task M6)* a nightly
   `sqlite3 .backup` cron line in
