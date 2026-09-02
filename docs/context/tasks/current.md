@@ -46,14 +46,14 @@ is a loose bullet below.
 
 **The epic in flight is *Vocabularies & editor ergonomics* (V1–V9)**, below —
 Stage A (V1+V2) and Stage B (V4+V5) have landed, V3 was withdrawn, and Stage C
-is under way — V6 landed 2026-09-02, so **V7 is the next open item**. *Corrected 2026-09-02: this paragraph read "No epic is in
+is under way — V6 and V7 landed 2026-09-02, so **V8 is the next open item**. *Corrected 2026-09-02: this paragraph read "No epic is in
 flight, and the standalone queue is empty" from 2026-09-01 until the V-series
 was queued on 2026-09-02, and stayed that way for a day after — a session
 picking work off this file would have been told there was none.* Every earlier
 numbered queue item is closed and all three post-library standalone tasks have
-landed. Also open: **one standalone defect** (the movement editor edits the
-wrong record — its own section below, needs a Chris pick) and the two loose
-bullets at the end, which need Chris to scope.
+landed. The standalone **movement-editor wrong-record defect** was fixed
+2026-09-02 (`a643824`) — its section below is struck, kept for the trail. Still
+open: the two loose bullets at the end, which need Chris to scope.
 
 Recently closed (kept here briefly for the trail):
 
@@ -385,14 +385,33 @@ V6 landed 2026-09-02 (`370b2d0`), so it starts at V7.**
   `apps/shared/vocab.js` is untouched and stays the source until V8.
   `make test` 2064/2064, 1 pending, before and after.*
 
-- **V7. Fixtures + mock `/api` for equipment + patterns.**
-  `scripts/mock-api.mjs` serves `equipment/records` + `patterns/records` from
-  the registry files in the PB list-envelope shape (copy the `movements/records`
-  handler): reads open, authorised writes persisted to git-ignored
-  `fixtures/{equipment,patterns}.local.json` overlaid on read. Commit
-  `fixtures/{equipment,patterns}.json` (or derive from `registry/` at boot, as
-  movements does). So a bare `make serve` serves the vocab. *Touched:
-  `scripts/mock-api.mjs`, `fixtures/`. No core.*
+- ~~**V7. Fixtures + mock `/api` for equipment + patterns.**~~ **Fixed
+  2026-09-02 (`67001cb`).** `scripts/mock-api.mjs` serves `equipment/records` +
+  `patterns/records` in the PB list-envelope shape from one `makeVocab(name,
+  prefix)` factory (the mock twin of the migration's `vocabCollection`), a
+  field-for-field copy of the `movements/records` handler: `termId` (registry
+  `id` → column) / `name` / `synonyms` / `scope: "global"` / empty `user` /
+  `created` / `updated`; `filter` / `sort` / `page` / `perPage` via the shared
+  `applyQuery` + `listEnvelope`; `/records/:id` by synthetic id (`eq…` / `pt…`
+  hash) or `termId`; reads open, `POST`/`PATCH`/`DELETE` behind the
+  `Authorization` gate (403 without). Authorised writes overlay onto git-ignored
+  `fixtures/{equipment,patterns}.local.json` (`records` + `deleted` tombstones),
+  keyed by `termId`, merged over the registry seed on read — the two entries
+  added to `.gitignore` beside the three existing ones. **Derives from
+  `registry/{equipment,patterns}.json` at boot — no committed
+  `fixtures/{equipment,patterns}.json`.** The V7 note offered "commit the fixture
+  *or* derive"; re-checked, and there is no `fixtures/movements.json` (only
+  `users.json` / `workouts.json`), so derive is the movements pattern and the one
+  taken. Drove it: `make serve` then `curl` both routes — `totalItems` **29** /
+  **11**, single-record fetch by synthetic id and by `termId`, unauthenticated
+  `POST` → **403**, authorised `POST`/`PATCH`/`DELETE` persist to the
+  `.local.json` overlay and survive a server restart. One mock record compared
+  field-for-field against `1757100000_create_vocab.js`'s column list — they
+  agree (the mock adds only PocketBase's own always-present `id` /
+  `collectionId` / `collectionName`). No core, no app change —
+  `apps/shared/vocab.js` untouched, still the source until V8. `make test`
+  2064/2064, 1 pending, before and after. *Touched: `scripts/mock-api.mjs`,
+  `.gitignore`.*
 
 - **V8. Load script + point the widget at the API.**
   `scripts/vocab-to-db.mjs` / `make vocab:load` — idempotent upsert of
@@ -419,9 +438,9 @@ V6 landed 2026-09-02 (`370b2d0`), so it starts at V7.**
 V1 ─┐
 V2 ─┴─ ship (Stage A, independent, no risk)
 V3 ──── WITHDRAWN 2026-09-02 (premise false — DEC-023; blocked nothing)
-V4 ──> V5 ── shipped ───┐
-V6 ── shipped ──> V7 ──> V8 ─┴─ (V8 swaps V5's vocab source to the API)
-                                V9 optional, after V8
+V4 ──> V5 ── shipped ───────────┐
+V6 ── shipped ──> V7 ── shipped ──> V8 ─┴─ (V8 swaps V5's vocab source to the API)
+                                          V9 optional, after V8
 ```
 
 **Stage A shipped 2026-09-02 (`7429863`).** **V3 is withdrawn** (2026-09-02 —
@@ -433,17 +452,21 @@ ergonomics deliverable, on static vocab; its pattern is settled as
 They landed together on purpose: V4 has no user-visible surface on its own, and
 this repo verifies by driving the real app, so a scratch host page would have
 proved less than driving the editor V4 exists for.
-**Stage C is under way — V6 shipped 2026-09-02 (`370b2d0`)**, and its DEC is
-written: [DEC-025](../topics/settled-decisions.md#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump),
+**Stage C is under way — V6 shipped 2026-09-02 (`370b2d0`), V7 shipped
+2026-09-02 (`67001cb`)**, and the DEC behind both is written:
+[DEC-025](../topics/settled-decisions.md#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump),
 "equipment & movement patterns are a DB-backed vocabulary layer;
 `registry/{equipment,patterns}.json` is the committed dump", mirroring
 [DEC-020](../topics/settled-decisions.md#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump).
-**V7 is next, then V8.** V6 shipped the data and the schema only — the
-collections are empty on the box and `apps/shared/vocab.js`'s literals are still
-what the editor reads, so **nothing is user-visible until V8** puts the fetch in
-front of them. That is deliberate, the way M1 shipped the `movements` schema
-ahead of M3's loader. `vocab.js`'s two literal exports are already shaped to
-become V8's offline fallback, so no consumer changes when that happens.
+**V8 is next.** V6 shipped the data and the schema; V7 put both vocabularies
+behind the local mock `/api` (`equipment/records` + `patterns/records`, derived
+from the registry files), so a bare `make serve` now answers the endpoints V8
+will point the widget at. Still **nothing is user-visible** — the prod
+collections are empty and `apps/shared/vocab.js`'s literals are still what the
+editor reads — until **V8** adds `make vocab:load` and puts the fetch in front of
+them. That staging is deliberate, the way M1 shipped the `movements` schema ahead
+of M3's loader. `vocab.js`'s two literal exports are already shaped to become
+V8's offline fallback, so no consumer changes when that happens.
 
 ---
 

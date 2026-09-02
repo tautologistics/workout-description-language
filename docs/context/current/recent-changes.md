@@ -2,6 +2,46 @@
 
 ## Changes
 
+- **2026-09-02 — V7 landed (`67001cb`): the equipment + pattern vocabulary is
+  served by the local mock `/api`.** Stage C of *Vocabularies & editor
+  ergonomics* continues. `scripts/mock-api.mjs` grew `equipment/records` and
+  `patterns/records` handlers in PocketBase's list-envelope shape, a
+  field-for-field copy of the `movements/records` handler built from one
+  `makeVocab(name, prefix)` factory — the mock twin of the migration's
+  `vocabCollection(name)`, so the two vocabularies cannot drift.
+  **Derived, not committed:** the seed is `registry/{equipment,patterns}.json`
+  read at boot — there is **no** `fixtures/{equipment,patterns}.json` (the V7
+  note offered "commit or derive"; movements has no fixture seed either, so
+  derive). Records carry `termId` (registry `id` → column), `name`, `synonyms`,
+  `scope: "global"`, and empty `user` / `created` / `updated` on seed rows;
+  `/records/:id` resolves by synthetic id (`eq…` / `pt…` hash) or `termId`;
+  `filter` / `sort` / `page` / `perPage` via the shared `applyQuery` +
+  `listEnvelope`. Reads are open; `POST` / `PATCH` / `DELETE` need an
+  `Authorization` header (403 without), the same gate the movements routes use.
+  Authorised writes overlay onto git-ignored
+  `fixtures/{equipment,patterns}.local.json` (`records` + `deleted` tombstones),
+  keyed by `termId`, merged over the seed on read — the two entries added to
+  `.gitignore` beside the existing three.
+  **Files:** `scripts/mock-api.mjs`, `.gitignore`. No core, no app change —
+  `apps/shared/vocab.js` untouched, still the editor's source until V8.
+  `make test` **2064/2064, 1 pending**, before and after.
+  **Verified — drove it** (`make serve`, `curl` both routes):
+  `curl '…/equipment/records?perPage=3'` → `totalItems` **29**;
+  `curl '…/patterns/records'` → `totalItems` **11**; single-record fetch works
+  by synthetic id (`…/equipment/records/eq000sbozx5`) and by `termId`
+  (`…/equipment/records/barbell`), both returning the same row;
+  `filter=termId="kettlebell"` → 1 item, `name~"ball"` → 2, `sort=-termId` →
+  `yoke`, `wall`; a 404 on a miss. An unauthenticated `POST` → **403**; an
+  authorised `POST` (`-H 'authorization: mock_tok'`) of a `trap bar` term → 200,
+  `totalItems` **30** on the next read, the row fetchable by `termId`, and
+  written to `fixtures/equipment.local.json`; an authorised `PATCH` and `DELETE`
+  likewise persist and **survive a server restart** (overlay re-read on boot).
+  One mock record compared field-for-field against
+  `1757100000_create_vocab.js`'s column list — they **agree** (`termId`, `name`,
+  `synonyms`, `scope`, `user`, `created`, `updated`; the mock adds only
+  PocketBase's own always-present `id` / `collectionId` / `collectionName`).
+  Local overlay files deleted after the run.
+
 - **2026-09-02 — Movement editor wrong-record defect fixed (`a643824`).** The
   data-integrity item scheduled the same day (found verifying V5) is closed:
   Chris's call was **always the API/database, never an in-memory object** —

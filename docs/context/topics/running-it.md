@@ -80,10 +80,16 @@ L1 — see below), `workouts/records` CRUD (seeded from committed
 `fixtures/workouts.local.json` — delete that file to reset), and
 `movements/records` from `registry/movements.json` in PocketBase's list envelope
 (reads open; writes accepted with any `Authorization` header since M3, persisted
-git-ignored to `fixtures/movements.local.json`). **On by default**;
+git-ignored to `fixtures/movements.local.json`), and *since 2026-09-02 (task
+V7)* `equipment/records` + `patterns/records` the same way — derived from
+`registry/{equipment,patterns}.json` at boot (no committed
+`fixtures/{equipment,patterns}.json`), reads open, writes behind the same
+`Authorization` gate, overlay persisted git-ignored to
+`fixtures/{equipment,patterns}.local.json` — so a bare `make serve` serves the
+equipment and pattern vocabulary V8 will point the editor at. **On by default**;
 **`WDL_MOCK_API=0 make serve`** opts out and
 `/api/*` falls through to the old behaviour (404 / static). Sample data lives in
-`fixtures/` (`users.json`, `workouts.json` committed; `workouts.local.json`
+`fixtures/` (`users.json`, `workouts.json` committed; `*.local.json`
 git-ignored). Nothing here touches `packages/core`, the grammar, the spec or the
 PocketBase migrations, and the mock never runs in production.
 

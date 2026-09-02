@@ -128,27 +128,38 @@ mirroring DEC-020. **Data and schema only — nothing is user-visible yet**: the
 collections are empty on the box (no loader until V8) and `apps/shared/vocab.js`
 is untouched and still what the editor reads.
 
-**Next is V7 — fixtures + mock `/api` for equipment + patterns.**
-`scripts/mock-api.mjs` grows `equipment/records` + `patterns/records` handlers
-in the PocketBase list-envelope shape, copied from the existing
-`movements/records` one: reads open, authorised writes persisted to git-ignored
-`fixtures/{equipment,patterns}.local.json` overlaid on read; commit
-`fixtures/{equipment,patterns}.json` or derive from `registry/` at boot,
-whichever the movements handler already does. Unlike V6 it **is** drivable —
-`make serve` plus a `curl` against the two new endpoints. **Then V8** — the
-`make vocab:load` upsert, `listEquipment()` / `listPatterns()`, and the fetch in
-front of `vocab.js`'s literals, which are already shaped to become the offline
-fallback, so no consumer changes. **Muscles stays `registry/muscles.json`** —
-closed set, body-map SVG is the real limit. **V9 (inline "＋ new term" in the
-picker) stays optional**, after V8.
+**V7 landed 2026-09-02 (`67001cb`)** — `scripts/mock-api.mjs` grew
+`equipment/records` + `patterns/records` handlers in the PocketBase
+list-envelope shape, one `makeVocab(name, prefix)` factory copied field-for-field
+from the `movements/records` handler: reads open, authorised writes
+(`Authorization` header, 403 without) overlaid from git-ignored
+`fixtures/{equipment,patterns}.local.json` on read. **Derived from
+`registry/{equipment,patterns}.json` at boot — no committed fixture**, the
+movements pattern. Drove it: `make serve` + `curl` both routes — `totalItems`
+**29** / **11**, single-record by synthetic id and `termId`, unauthenticated
+`POST` 403, authorised write persisted and survived a restart; a mock record
+agrees field-for-field with the migration's columns. `.gitignore` gained the two
+`*.local.json` entries. No core, no app change; `make test` 2064/2064, 1
+pending.
 
-**One new self-contained item came out of V5's verification**, needing Chris to
-pick between two fixes: the palette's `✎` hands the movement editor the
-**canonical** merged entry rather than the curated one, so `deadlift` opens
-showing equipment `Barbell` and `skierg` shows one of its two curated aliases —
-and a save writes that back. Pre-existing since M5 and unchanged by V5, but
-newly legible now that chips show the spelling. In
-[../topics/builder-ux.md](../topics/builder-ux.md) under "The movement editor".
+**Next is V8 — load script + point the widget at the API.**
+`scripts/vocab-to-db.mjs` / `make vocab:load` — an idempotent upsert of
+`registry/{equipment,patterns}.json` into the two collections keyed on the
+registry id → `termId`, mirroring `movements-to-db.mjs` (created/updated/unchanged
+tally, `--dry-run`, prod writes need admin auth); `listEquipment()` /
+`listPatterns()` in `apps/shared/pocketbase.js` (`filter=scope="global"`, no
+auth — reads are open); and `apps/shared/vocab.js` changed so equipment + pattern
+vocab is **fetched from `/api` with the committed `registry/*.json` as the
+offline fallback** — the same fallback the apps use for movements. Optional
+`make vocab:dump` twin only if the round-trip guarantee is wanted. V8 **is**
+drivable: `make serve`, open the movement editor, confirm the equipment and
+pattern pickers populate from the API and still populate with the API down.
+**Muscles stays `registry/muscles.json`** — closed set, body-map SVG is the real
+limit. **V9 (inline "＋ new term" in the picker) stays optional**, after V8.
+
+**The movement-editor wrong-record defect is closed (`a643824`, 2026-09-02)** —
+see the dedicated paragraph above; nothing is open on it. Still needing Chris to
+scope: the two loose bullets below.
 
 Also still open, needing Chris to scope: a full **laterality curation sweep**
 (which movements), and the board's **Edit** button round-tripping into the
