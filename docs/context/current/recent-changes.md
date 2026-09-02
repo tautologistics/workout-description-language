@@ -2,6 +2,45 @@
 
 ## Changes
 
+- **2026-09-02 — builder: the menu is *Workouts*, and *Libraries* chips drive
+  the search box (`7429863`).** **Stage A (V1 + V2) of the *Vocabularies &
+  editor ergonomics* epic**, landed as one commit; **Stage B (V3–V5) is next**.
+  *Was → is:* the header button **"My workouts" → "Workouts"** (the panel was
+  never only yours — your saved workouts *plus* a live search across every
+  public one *plus* the publisher chips); the chip row label **"Examples" →
+  "Libraries"** (crossfit / hyrox / tabata are official published sets, not
+  examples); and the **mechanism**, from a *second* code path to none. A chip
+  used to call `browseOrg(handle)` → `listOrgWorkouts(ownerId)` and fill the
+  result list while the search box sat blank; it now writes `` `<handle>:` ``
+  into the input and calls the existing debounced `onMineSearchInput`, because
+  `searchWorkouts`'s filter already matches a `wdlId~` substring — `crossfit:`
+  returns exactly that namespace. The lit state is **derived from the query**
+  (`libraryChipActive()`, exact match on `<handle>:`), so typing past the prefix
+  drops it and re-clicking a lit chip empties the box back to the plain saved
+  list. **Retired with it:** `browseOrg`, the `mineOrg` / `mineOrgList` /
+  `mineOrgSeq` state, `renderMinePanel`'s org branch, `onMineSearchInput`'s org
+  guard, the sign-out reset, `listOrgWorkouts` in `apps/shared/pocketbase.js`
+  (the board never used it; the mock `/api` had no handler of its own — the
+  generic `workouts/records` filter serves both), and `ORG_ACCOUNTS`'s fixed org
+  ids. `renderExamplesRow` → `renderLibrariesRow`; the `.mine-examples` /
+  `.examples-label` / `.mine-chip` CSS class names and `id="mine"` stayed —
+  internal. **One consequence found by driving it, and handled rather than
+  left:** `listOrgWorkouts` fetched `perPage=200` but the search fetches
+  `SEARCH_PER_PAGE`, which was **20** — so the CrossFit chip silently returned
+  **20 of 31** rows with no "more" affordance. The constant is now **50**, sized
+  to cover the largest curated library in one page, with the reason in the
+  comment; past 50 this wants a real paging affordance, not a bigger number.
+  **Files:** `apps/builder/{index.html,builder.js,builder.css}`,
+  `apps/shared/pocketbase.js`. No core / grammar / spec / test change.
+  `make test` **2064/2064, 1 pending** — unchanged before and after, as expected
+  for app JS the suite does not exercise. **Verified** by driving the builder
+  against `make serve` in **light + dark** and at **700px single-column**:
+  button reads *Workouts*, row reads *Libraries*, crossfit → 31 rows / hyrox →
+  9 / tabata → 3 each labelled `@<handle>` with the chip lit, re-click returns
+  to the 3-row saved list, a plain `fran` search lights nothing, `crossfit:fr`
+  narrows to one hit and lights nothing, and the per-row `↗` still opens
+  `crossfit:angie` on the board (meta strip *Angie (crossfit:angie)*). Console
+  clean.
 - **2026-09-02 — builder: outline row affordances made discoverable + touch-
   reachable + ≥32px (`6adba47`).** A self-contained item off
   [../topics/builder-ux.md](../topics/builder-ux.md)'s design-critique section

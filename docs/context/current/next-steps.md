@@ -65,18 +65,28 @@ unchanged (2064/2064, 1 pending). Closes the two open design-critique-trio
 entries in that file's *Outline* section (the nesting-rails third was already
 fixed `d8edde3`).
 
-**A new epic is queued: Vocabularies & editor ergonomics (V1–V9)** — from the
+**The epic in flight is Vocabularies & editor ergonomics (V1–V9)** — from the
 2026-09-02 design review of the header **Workouts** menu and the **movement
-editor**. Nine staged tasks in [../tasks/current.md](../tasks/current.md):
-Stage A (V1–V2) renames "My workouts" → "Workouts" and turns the "Examples"
-row into a "Libraries" row whose chips drive the search box; Stage B (V3–V5)
-is the editor ergonomics — measured-output segmented control, and a reusable
-token/chip + type-ahead + filter-picker widget over the list fields; Stage C
-(V6–V8) makes **equipment** and **movement patterns** a DB/API-backed
-vocabulary (fixtures + mock `/api` + collection + committed `registry/*.json`
-dump, mirroring the movements M-series). **Muscles stays `registry/muscles.json`**
-— closed set, body-map SVG is the real limit. Decisions are recorded at the top
-of that epic section. **Start with Stage A** (independent, no risk).
+editor**. Nine staged tasks in [../tasks/current.md](../tasks/current.md), with
+the decisions recorded at the top of that epic section.
+
+**Stage A (V1 + V2) landed 2026-09-02 (`7429863`)** — the header button reads
+**Workouts**, the chip row reads **Libraries**, and a chip is now sugar over the
+search box (it types `<handle>:` and lets the normal debounced search run), which
+retired `browseOrg` / `listOrgWorkouts` and the whole parallel browse path.
+
+**Next is Stage B.** Take **V3** first — measured output becomes a 3-way
+segmented control (None / Distance / Calories) in
+`apps/shared/movement-editor.js` plus a `.me-seg` style; it is the smallest unit
+and independent of the rest. Then **V4 → V5**, the ergonomics deliverable: build
+the reusable `apps/shared/token-input.js` (chips + type-ahead + filter/select
+picker, one composition at every vocab size) and wire it into the movement
+editor's seven list fields over a static `apps/shared/vocab.js`. Stage C (V6–V8)
+then makes **equipment** and **movement patterns** a DB/API-backed vocabulary
+(fixtures + mock `/api` + collection + committed `registry/*.json` dump,
+mirroring the movements M-series) and swaps V5's vocab source to it.
+**Muscles stays `registry/muscles.json`** — closed set, body-map SVG is the real
+limit.
 
 Also still open, needing Chris to scope: a full **laterality curation sweep**
 (which movements), and the board's **Edit** button round-tripping into the

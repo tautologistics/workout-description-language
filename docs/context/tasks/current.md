@@ -140,26 +140,39 @@ its findings are transcribed here so the queue is self-contained.
 
 ### Stage A — menu quick wins (builder-only, no data, no deps, ship first)
 
-- **V1. Rename the header menu "My workouts" → "Workouts".**
-  `apps/builder/index.html` `<summary>` text; sweep `builder.js` /
-  `builder.css` / any `title`/aria string that names it. Trivial; can land with
-  V2. *Touched: `apps/builder/{index.html,builder.js,builder.css}`. No core, no
-  test move.*
+**Stage A is done as of 2026-09-02 (`7429863`) — V1 and V2 landed together in
+one commit. Stage B (V3–V5) is next.**
 
-- **V2. "Examples" row → "Libraries", and the chip drives the search box.**
-  Relabel `renderExamplesRow()`'s `.examples-label` to **Libraries**. Change the
-  chip `onclick`: instead of `browseOrg(handle)` (which calls `listOrgWorkouts`
-  and fills the list while the search box stays blank), set the search input's
-  value to `` `${handle}:` ``, fire the existing debounced `onMineSearchInput`
-  path, and let `searchWorkouts` do the rest (it already matches a `wdlId~`
-  substring, so `crossfit:` returns that namespace). Keep the chip's `.active`
-  state driven by "does the query start with `<handle>:`". Clearing the box
-  returns to the plain saved list, as today. Retire `browseOrg` / `mineOrg` /
-  `mineOrgList` / `mineOrgSeq` / `renderHitList`'s org branch and, if nothing
-  else consumes it, `listOrgWorkouts` in `apps/shared/pocketbase.js` (check
-  `apps/display/board.js` first). *Touched: `apps/builder/builder.js`,
-  `apps/builder/index.html`?, maybe `apps/shared/pocketbase.js`. Mock `/api`
-  already supports `~`. No core, no test move — verify by driving the builder.*
+- ~~**V1. Rename the header menu "My workouts" → "Workouts".**~~
+  **Fixed 2026-09-02 (`7429863`).** The `<summary>` in
+  `apps/builder/index.html` reads **Workouts**; the two `builder.js` /
+  `builder.css` section comments that named the old label were swept with it.
+  `id="mine"` / `el('mine')` / `.mine-*` stayed — internal names. The one
+  remaining "my workouts" string is the panel's own **Save to my workouts**
+  button, which is still literally true and was left alone.
+
+- ~~**V2. "Examples" row → "Libraries", and the chip drives the search box.**~~
+  **Fixed 2026-09-02 (`7429863`).** The row label is **Libraries**, and a chip
+  is now pure sugar over the search box: its `onclick` writes `` `${handle}:` ``
+  into the input and calls the existing debounced `onMineSearchInput`, so
+  `searchWorkouts`'s `wdlId~` substring returns exactly that namespace. The lit
+  state is derived from the query — **exact** match on `<handle>:`
+  (`libraryChipActive()`), so typing past the prefix drops it and re-clicking a
+  lit chip empties the box back to the plain saved list. The whole parallel path
+  went: `browseOrg`, `mineOrg` / `mineOrgList` / `mineOrgSeq`,
+  `renderMinePanel`'s org branch, `onMineSearchInput`'s org guard, the sign-out
+  reset, and `listOrgWorkouts` in `apps/shared/pocketbase.js` (the board never
+  used it; the mock `/api` had no handler of its own — the generic
+  `workouts/records` filter serves both). `ORG_ACCOUNTS` dropped the fixed org
+  ids it no longer needs. `renderExamplesRow` → `renderLibrariesRow`; the
+  `.mine-examples` / `.examples-label` CSS class names are L7's and stayed.
+  **One consequence handled rather than left:** `listOrgWorkouts` fetched
+  `perPage=200` but the search fetches `SEARCH_PER_PAGE`, which was **20** — so
+  the CrossFit chip silently returned 20 of 31 rows with no "more" affordance.
+  The constant is now **50**, enough to cover the largest curated library in one
+  page (crossfit 31 / hyrox 9 / tabata 3), with the reason in the comment. If a
+  library ever passes 50 this needs a real paging affordance, not a bigger
+  number.
 
 ### Stage B — editor ergonomics (the visible win; V4 is the keystone)
 
@@ -257,7 +270,7 @@ V6 ──> V7 ──> V8 ───────┴─ (V8 swaps V5's vocab source
                            V9 optional, after V8
 ```
 
-Stage A first (value now, zero risk). V3 any time. V4→V5 is the ergonomics
+**Stage A shipped 2026-09-02 (`7429863`).** V3 any time. V4→V5 is the ergonomics
 deliverable and can ship on static vocab. Stage C (V6→V7→V8) makes it
 data-driven and only needs V5 to exist. Land each with its `docs/context/`
 write-up; V6/V8 want a **DEC** — "equipment & movement patterns are a DB-backed
