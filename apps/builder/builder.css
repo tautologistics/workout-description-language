@@ -908,7 +908,7 @@ button:hover, .button:hover { border-color: var(--dim); }
 /* Notes stack; each is its own fact. */
 .notes div + div { margin-top: .2rem; }
 
-/* --- accounts: identity, My workouts, sharing --------------------------- */
+/* --- accounts: identity, Workouts menu, sharing ------------------------- */
 
 .identity { display: inline-flex; align-items: center; gap: .4rem; }
 .identity .who {
@@ -941,7 +941,7 @@ button:hover, .button:hover { border-color: var(--dim); }
 }
 .handle-error:empty { display: none; }
 
-/* The "My workouts" dropdown: a <details> whose panel is absolutely positioned
+/* The "Workouts" dropdown: a <details> whose panel is absolutely positioned
    so opening it never reflows the header or the panes below. Same visual
    language as the outline's suggestion popups. */
 .menu { position: relative; flex: none; }

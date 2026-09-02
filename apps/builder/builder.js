@@ -40,7 +40,7 @@ import { mountBody, paintBody, aggregateStates, highlightStates, heatStates, hea
 import {
   currentUser, beginGoogleSignIn, refreshAuth, signOut, updateHandle,
   listMine, getById as pbGetById, create as pbCreate, update as pbUpdate,
-  remove as pbRemove, shareUrl, searchWorkouts, getHandle, listOrgWorkouts,
+  remove as pbRemove, shareUrl, searchWorkouts, getHandle,
   createMovement, updateMovement, getMovementByMovementId,
 } from '../shared/pocketbase.js';
 import { createMovementEditor } from '../shared/movement-editor.js';
@@ -2605,7 +2605,7 @@ el('goal-drop').onclick = () => {
   setGoalSource('');
 };
 
-// --- accounts: sign in, My workouts, sharing --------------------------------
+// --- accounts: sign in, Workouts menu, sharing -----------------------------
 //
 // Additive on top of everything above. Signed out, the builder is exactly what
 // it was — Download .wdl / Open… a local file still the only persistence, and
@@ -2666,9 +2666,6 @@ function onMineSearchInput(value) {
     renderMinePanel();
     return;
   }
-  // Searching and browsing an org set share the list slot — a query closes any
-  // open set.
-  if (mineOrg) { mineOrg = null; mineOrgList = null; mineOrgSeq++; }
   mineSearchTimer = setTimeout(() => runMineSearch(term), 220);
 }
 
@@ -2727,10 +2724,10 @@ function openHitOnBoard(rec) {
 }
 
 /**
- * A list of hits — search results or a browsed org set. Each row: the title, an
- * owner label, an `↗` "open on the board" shortcut, and click-to-open into the
- * editor (`openFoundWorkout` — your own attaches, a public one opens as a
- * detached read-only copy, the DEC-021 copy flow).
+ * A list of search hits. Each row: the title, an owner label, an `↗` "open on
+ * the board" shortcut, and click-to-open into the editor (`openFoundWorkout` —
+ * your own attaches, a public one opens as a detached read-only copy, the
+ * DEC-021 copy flow).
  */
 function renderHitList(hits, emptyMessage) {
   const list = document.createElement('div');
@@ -2767,78 +2764,48 @@ function renderSearchResults() {
   return renderHitList(mineSearchResults, 'No matches.');
 }
 
-// --- browse a curated org's public example set (task L7, DEC-021) -----------
-// The search box above covers *name* lookup; this covers "what does @crossfit
-// have" — an empty-query browse of one org's whole public set. The three org
-// accounts are fixed by the L1 migration: non-interactive `users` rows
-// (`org: true`) with known ids and handles, owning the L5/L6 benchmark library.
-// They ship as a constant rather than being discovered — the real PocketBase
-// `users` list rule (`id = @request.auth.id`) resolves an org row for nobody,
-// and the ids never change.
+// --- the Libraries chip row (task V2, DEC-021) -----------------------------
+// The three curated org accounts own the L5/L6 benchmark library. A chip is
+// pure sugar over the search box above: it types `<handle>:` into the field and
+// lets the normal debounced `searchWorkouts` path run (the filter matches a
+// `wdlId~` substring, so `crossfit:` returns exactly that namespace). No
+// separate `listOrgWorkouts` fetch. The accounts ship as a constant rather than
+// being discovered — the real PocketBase `users` list rule
+// (`id = @request.auth.id`) resolves an org row for nobody, and the handles
+// never change.
 const ORG_ACCOUNTS = [
-  { handle: 'crossfit', id: 'org0crossfit001', label: 'CrossFit' },
-  { handle: 'hyrox', id: 'org0hyrox000001', label: 'Hyrox' },
-  { handle: 'tabata', id: 'org0tabata00001', label: 'Tabata' },
+  { handle: 'crossfit', label: 'CrossFit' },
+  { handle: 'hyrox', label: 'Hyrox' },
+  { handle: 'tabata', label: 'Tabata' },
 ];
 
-/** The handle of the org whose set is being browsed, or `null`. */
-let mineOrg = null;
-/** `[{ rec, label, mine:false }]` for `mineOrg`, or `null` while it loads. */
-let mineOrgList = null;
-/** Monotonic token — a slow fetch resolving after a newer pick is discarded. */
-let mineOrgSeq = 0;
+/** True when the live query is exactly `<handle>:` — the chip's lit state. */
+const libraryChipActive = (handle) =>
+  mineSearchQuery.trim().toLowerCase() === `${handle}:`;
 
-async function browseOrg(handle) {
-  if (mineOrg === handle) {   // re-pick the lit chip → close the set
-    mineOrg = null;
-    mineOrgList = null;
-    renderMinePanel();
-    return;
-  }
-  mineOrg = handle;
-  mineOrgList = null;
-  // Browsing a set and searching share the one list slot below — a pick clears
-  // any live query so the panel never shows both at once.
-  if (mineSearchQuery) {
-    mineSearchQuery = '';
-    mineSearchResults = null;
-    mineSearchSeq++;
-    if (mineSearchInput) mineSearchInput.value = '';
-  }
-  if (mineNote.startsWith('Could not load @')) mineNote = '';
-  renderMinePanel();
-
-  const seq = ++mineOrgSeq;
-  const org = ORG_ACCOUNTS.find((o) => o.handle === handle);
-  try {
-    const rows = await listOrgWorkouts(org.id);
-    if (seq !== mineOrgSeq) return;
-    mineOrgList = rows.map((rec) => ({ rec, label: `@${handle}`, mine: false }));
-  } catch (e) {
-    if (seq !== mineOrgSeq) return;
-    mineOrgList = [];
-    mineNote = `Could not load @${handle}: ${e.message}`;
-  }
-  renderMinePanel();
-}
-
-/** The "Examples" chip row — one toggle per curated org; the lit chip's set
- *  replaces the plain list below. */
-function renderExamplesRow() {
+/** The "Libraries" chip row — one chip per curated org; a click fills the
+ *  search box with `<handle>:` (re-click or clearing the box returns to the
+ *  plain saved list). The `.mine-examples` / `.examples-label` class names are
+ *  L7's and stay — only the label the reader sees changed. */
+function renderLibrariesRow() {
   const row = document.createElement('div');
   row.className = 'menu-row mine-examples';
   const label = document.createElement('span');
   label.className = 'examples-label';
-  label.textContent = 'Examples';
+  label.textContent = 'Libraries';
   row.append(label);
   for (const org of ORG_ACCOUNTS) {
     const chip = document.createElement('button');
     chip.type = 'button';
     chip.className = 'mine-chip';
-    if (mineOrg === org.handle) chip.classList.add('active');
+    if (libraryChipActive(org.handle)) chip.classList.add('active');
     chip.textContent = org.label;
-    chip.title = `Browse @${org.handle}'s public workouts`;
-    chip.onclick = () => browseOrg(org.handle);
+    chip.title = `Search @${org.handle}'s library`;
+    chip.onclick = () => {
+      const input = getMineSearchInput();
+      input.value = libraryChipActive(org.handle) ? '' : `${org.handle}:`;
+      onMineSearchInput(input.value);
+    };
     row.append(chip);
   }
   return row;
@@ -2913,8 +2880,6 @@ function renderIdentity() {
     mineSearchResults = null;
     mineSearchQuery = '';
     mineSearchInput = null;
-    mineOrg = null;
-    mineOrgList = null;
     renderIdentity();
     renderMinePanel();
   };
@@ -3048,19 +3013,13 @@ function renderMinePanel() {
     mineSearchInput.focus();
     mineSearchInput.setSelectionRange(n, n);
   }
-  panel.append(renderExamplesRow());
+  panel.append(renderLibrariesRow());
 
   if (mineNote) panel.append(hintP(mineNote));
   if (openWorkout) panel.append(renderShareRow());
 
   if (mineSearchResults !== null) {
     panel.append(renderSearchResults());
-    return;
-  }
-
-  if (mineOrg) {
-    if (mineOrgList === null) { panel.append(hintP(`Loading @${mineOrg}…`)); return; }
-    panel.append(renderHitList(mineOrgList, `@${mineOrg} has no public workouts.`));
     return;
   }
 
