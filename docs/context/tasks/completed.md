@@ -1764,7 +1764,7 @@ across both sections three times, `Canonicalise` round-trips the label verbatim.
 
 **13b. ~~The per-side laterality form is bare (`each arm`) where `(split)` is
 parenthesised — Chris wants parity.~~ DONE 2026-08-31** (`cf3c47f`,
-[DEC-019](../topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised)).
+[DEC-019](../topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised-each-arm)).
 *One strand of item 13; **13a-curation** (the `lateralityAxis` field) landed
 `71f9469` (below), and **13a** (the `»` panel rendering it) landed `1ffc8d0`
 (above) — item 13 is now closed entirely.*
@@ -2102,7 +2102,7 @@ worked: L0 → L1 → L2 → L3 → L4 → L5 → L6 → L7. All of L0–L7 land
 pending** throughout, and `examples/workouts/` was deliberately never wired into
 `corpus.test.ts`. What is *left* after this epic: the board **Edit** button
 round-tripping into the builder, and the deferred handle-rename staleness debt
-([../topics/known-debts.md](known-debts.md)).*
+([../topics/known-debts.md](../topics/known-debts.md)).*
 
 *Raised 2026-09-01 by Chris: he wants **non-interactive "org" accounts** that
 own curated, public sets of named workouts — a `crossfit` account owning the

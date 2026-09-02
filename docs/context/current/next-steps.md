@@ -75,14 +75,16 @@ the decisions recorded at the top of that epic section.
 search box (it types `<handle>:` and lets the normal debounced search run), which
 retired `browseOrg` / `listOrgWorkouts` and the whole parallel browse path.
 
-**V3 is blocked on a Chris call as of 2026-09-02 — its premise is false, and it
-blocks nothing else.** It was built and reverted: `measures` on a registry entry
-is a **capability set** (the units a movement *can* be measured in), not a
-choice — `bike` / `row` / `skierg` correctly carry **both**, and narrowing them
-would switch off `calorieUnitHints()` (rule 2, DEC-022) and drop a `»` pick.
-Flagged **Open for Chris** in [../tasks/current.md](../tasks/current.md) with
-three options; the recommendation is to **withdraw V3** and keep the checkbox
-pair.
+**V3 is withdrawn as of 2026-09-02 — its premise was false, and it blocked
+nothing else.** It was built and reverted: `measures` on a registry entry is a
+**capability set** (the units a movement *can* be measured in), not a choice —
+`bike` / `row` / `skierg` correctly carry **both**, and narrowing them would
+switch off `calorieUnitHints()` (rule 2, DEC-022) and drop a `»` pick. Chris
+withdrew it the same day; the editor keeps its two checkboxes. Settled as
+[DEC-023](../topics/settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice)
+and listed in
+[../topics/deliberately-not-done.md](../topics/deliberately-not-done.md).
+**Nothing is open on it.**
 
 **So Stage B starts at V4 → V5**, the ergonomics deliverable: build the
 reusable `apps/shared/token-input.js` (chips + type-ahead + filter/select

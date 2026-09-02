@@ -1490,6 +1490,63 @@ unit means" holding answer in [known-debts.md](known-debts.md). Rule 1 of the
   Fires when the movement resolves to a registry entry with `measures` ⊇
   `{calories}` and no `load`. See spec §7.1 and [builder-ux.md](builder-ux.md).
 
+### DEC-023 `measures` on a movement is a capability set, not a choice
+*Status: active. Settled 2026-09-02 by Chris, withdrawing queue item V3 of the
+Vocabularies & editor ergonomics epic after the implementation disproved its
+premise (`77bff40`). No code shipped — the V3 attempt was reverted.*
+
+- **A registry entry's `measures` is the set of output units that movement
+  *can* be prescribed in, not the one it is.** All four subsets are meaningful:
+  neither (a squat), `distance` (a run), `calories`, and **both** — which is the
+  correct, curated state for the three ergometers, `bike` / `row` / `skierg`.
+  A rower is written `500m Row` or `20cal Row` depending on the workout; the
+  entry has to say it can be either.
+
+- **So the movement editor keeps its two checkboxes.** V3 proposed replacing
+  them with a 3-way single-select segmented control (None / Distance /
+  Calories) on the reasoning that measured output is mutually exclusive,
+  explicitly contrasted with counting modes, which "genuinely co-occur".
+  `measures` genuinely co-occurs too. **A checkbox pair is the right control for
+  a capability set**, and there is no meaningless state for a segmented control
+  to prevent — the review mistook the set for a choice.
+
+- **The spec said so already.** §9.3 / `spec-0.1.md:178` — "`1min Row` ends on
+  duration and *measures* calories"; `:185` — a duration-completed step
+  "defaults from the movement's registry `measures` where present"; `:1058` —
+  `- 1min Row, count cal`. And `scripts/import-movement-curation.mjs:232`
+  maintains the field as a **per-mode independent** set in as many words
+  (`Measures: distance` and `Measures: calories` are two independent CSV
+  columns, and all-false is called out as "a real, common state").
+
+- **Two shipped consumers read it as a set, and single-select would have broken
+  both.** `calorieUnitHints()` — rule 2 of
+  [DEC-022](#dec-022-a-unitless-load-magnitude-is-pounds-wdl-fmt-writes-the-unit-in),
+  `952c80c` — fires only where `entry.measures` includes `calories`, and those
+  three entries are its **entire** registry surface, so narrowing any of them
+  switches the diagnostic off for that movement permanently. The `»` panel
+  (`apps/builder/builder.js:329`) maps **one modifier pick per mode**, so a Row
+  step offers both `, count distance` and `, count cal`; narrowing removes one.
+  Verified live in the builder before the revert.
+
+- **The failure mode was silent, which is why this is a decision and not a
+  note.** The 3-way control seeded from the first known value, so `skierg`
+  opened showing only *Distance* and a save would have written `["distance"]`
+  with no warning — a curator editing a rower's *title* would have dropped
+  `calories` and moved `registry/movements.json` under `make movements:dump`.
+  Nothing in the form, and no test, would have said so.
+
+- **What is still open from the same review.** The ergonomic complaint
+  underneath V3 was real and survives it: the editor's grouped fields have a
+  caption bug (a `<label>` labels only its first labelable descendant, so
+  clicking a group's caption ticks its first checkbox) — recorded in
+  [builder-ux.md](builder-ux.md), to be fixed by V5. The rest of the epic
+  (V4→V5, Stage C V6→V8) is unaffected; V3 blocked nothing.
+
+- **If this is ever revisited**, the thing to change first is the *data model*,
+  not the widget: a per-movement "preferred" measure would be a new field, not a
+  narrowing of this one. Re-curating the three ergs to a single measure each
+  contradicts spec §9.3 and would need its own decision.
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).

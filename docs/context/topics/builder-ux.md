@@ -178,7 +178,7 @@ It split in two, and the halves were not equally ready — both are done now:
   caret) opens a panel of what the row's *current* movement actually supports —
   laterality modes (`(both)`, `(split)`, and the per-side form
   `(each <axis>)` — parenthesised per
-  [DEC-019](settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised),
+  [DEC-019](settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised-each-arm),
   the axis word taken from the registry's `lateralityAxis` (`arm` / `leg` /
   `side` / `hand` / `direction`) with a `side` fallback — marking which is the
   registry's `defaultLaterality`), measured output (`, count cal` /

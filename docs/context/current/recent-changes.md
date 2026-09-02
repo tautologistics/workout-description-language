@@ -2,6 +2,25 @@
 
 ## Changes
 
+- **2026-09-02 — V3 withdrawn by Chris; settled as
+  [DEC-023](../topics/settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice).**
+  The resolution of the entry below. `measures` on a movement is a **capability
+  set**, not a choice, so the movement editor **keeps its two checkboxes** — a
+  checkbox pair is the right control for a set, and a 3-way single-select had no
+  meaningless state to prevent. The two alternatives were considered and
+  declined with it: a **4-way** control (None / Distance / Calories / Both),
+  which preserves the data but is the checkbox pair with more clicks; and
+  **narrowing the data** to one measure per movement, which contradicts spec
+  §9.3 and `import-movement-curation.mjs`'s per-mode contract. **No code change
+  either way** — the V3 attempt was already reverted, so the editor today is
+  what it was before the epic started. Recorded in
+  [../topics/deliberately-not-done.md](../topics/deliberately-not-done.md), and
+  the V3 bullet + the epic's own "Decisions already made" line are **struck in
+  place rather than deleted** in [../tasks/current.md](../tasks/current.md) —
+  the decision V3 was built on is the thing a future reader needs to see was
+  tried. **Stage B now starts at V4**; V3 blocked nothing. `make test`
+  **2064/2064, 1 pending** — docs only.
+
 - **2026-09-02 — V3 (measured output → a segmented control) built, disproved,
   and reverted. No code shipped; the finding is the deliverable.** The queued
   decision said *measured output is mutually exclusive*, explicitly contrasting
@@ -998,7 +1017,7 @@
 
 - **2026-08-31 — The per-side laterality form is parenthesised: `(each arm)`**
   (`cf3c47f`, queue item **13b**,
-  [DEC-019](../topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised)).
+  [DEC-019](../topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised-each-arm)).
   `format.ts` wrote `(split)` / `(both)` parenthesised but `per-side` as a bare
   ` each side`; Chris wanted parity. Now all four modes are parenthesised —
   `(each <axis>)` names the count mode and the axis (`arm | leg | side | hand |

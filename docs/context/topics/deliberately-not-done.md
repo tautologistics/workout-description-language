@@ -18,6 +18,21 @@ has a reason it is not one here. Check this before proposing one of them.
   declined for the reason given. See the clarification in [INDEX.md](../INDEX.md).
 - **A field per property in the builder.** It would always lag the grammar, and
   the grammar is the interesting part.
+- **A single-select control for the movement editor's *measured output*.**
+  Proposed as queue item V3 from the 2026-09-02 design review — two checkboxes
+  (`distance`, `calories`) become a 3-way segmented control, because a movement
+  measures one or the other. **Withdrawn 2026-09-02 by Chris after it was built
+  and the premise disproved.** A registry entry's `measures` is a **capability
+  set** — the units the movement *can* be prescribed in — not a choice: `bike`,
+  `row` and `skierg` correctly carry **both**, a rower being written `500m Row`
+  or `20cal Row` depending on the workout. There is no meaningless state for a
+  single-select to prevent, and narrowing would have silently dropped a value on
+  save, switching off `calorieUnitHints()` for the only three entries it fires
+  on. The checkbox pair stays.
+  [DEC-023](settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice);
+  the habit it cost is in [lessons-learned.md](lessons-learned.md) ("A capability
+  set is not a choice"). *Revisit only as a **new field** — a per-movement
+  "preferred" measure — never as a narrowing of this one.*
 
   **Still holds — and the test of it was met, not dodged (2026-08-28).** The
   builder now has a "what can this line take next" affordance on both step rows

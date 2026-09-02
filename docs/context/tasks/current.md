@@ -21,7 +21,7 @@ each grouped as one section. The redesign's absorbed chain items (12 ↔ R2,
 (`70a1852`) — [DEC-018](../topics/settled-decisions.md#dec-018-a-bare-label-block-header-is-a-section).
 **Item 13 (laterality in the builder's `»` panel) is closed entirely as of
 2026-08-31** — 13c `02d819d` (append/double bug), 13b `cf3c47f`
-([DEC-019](../topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised),
+([DEC-019](../topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised-each-arm),
 the per-side form is parenthesised), 13a-curation `71f9469` (the
 `lateralityAxis` registry field), 13a `1ffc8d0` (the `»` panel renders the
 axis — `(each direction)`). See [completed.md](completed.md).
@@ -119,10 +119,15 @@ its findings are transcribed here so the queue is self-contained.
   official published sets, not examples).
 - A **Libraries** chip **types `<handle>:` into the search box and lets the
   normal search run** — no separate `listOrgWorkouts` path.
-- **Measured output** in the editor is **mutually exclusive** → a 3-way
+- ~~**Measured output** in the editor is **mutually exclusive** → a 3-way
   segmented control (None / Distance / Calories), not two checkboxes.
   ("Counting modes" above it stays multi — both/split/per-side genuinely
-  co-occur.)
+  co-occur.)~~ **Reversed 2026-09-02 — the premise was false.** `measures`
+  genuinely co-occurs too (`bike` / `row` / `skierg` correctly carry both), so
+  the editor **keeps its two checkboxes**:
+  [DEC-023](../topics/settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice).
+  Kept here struck rather than deleted — this is the decision V3 was built on,
+  and a reader who does not know it was tried will try it again.
 - The editor's list fields (equipment, patterns, muscles, aliases, related,
   same-as) become a **token/chip input + type-ahead + a filter/select picker
   widget below** — *one* pattern at every list size (the count-driven
@@ -141,8 +146,9 @@ its findings are transcribed here so the queue is self-contained.
 ### Stage A — menu quick wins (builder-only, no data, no deps, ship first)
 
 **Stage A is done as of 2026-09-02 (`7429863`) — V1 and V2 landed together in
-one commit. Stage B is next, and starts at V4 — V3 is blocked on a Chris call
-(2026-09-02), detailed in its own bullet below.**
+one commit. Stage B is next, and starts at V4 — V3 was withdrawn 2026-09-02
+([DEC-023](../topics/settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice)),
+detailed in its own bullet below.**
 
 - ~~**V1. Rename the header menu "My workouts" → "Workouts".**~~
   **Fixed 2026-09-02 (`7429863`).** The `<summary>` in
@@ -177,9 +183,13 @@ one commit. Stage B is next, and starts at V4 — V3 is blocked on a Chris call
 
 ### Stage B — editor ergonomics (the visible win; V4 is the keystone)
 
-- **V3. Measured output → a 3-way segmented control.** **BLOCKED 2026-09-02 —
-  the premise does not hold. Nothing shipped; no code landed.**
-  **Open for Chris:** the decision above says *measured output is mutually
+- ~~**V3. Measured output → a 3-way segmented control.**~~ **Withdrawn
+  2026-09-02 by Chris — the premise does not hold. Nothing shipped; no code
+  landed. Settled as
+  [DEC-023](../topics/settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice)
+  and listed in
+  [../topics/deliberately-not-done.md](../topics/deliberately-not-done.md); the
+  editor keeps its two checkboxes.** The decision above said *measured output is mutually
   exclusive*, contrasting it with counting modes, which "genuinely co-occur".
   Built as specified, then verified against the data and the consumers, and
   **`measures` genuinely co-occurs too**. Three entries in the committed
@@ -211,19 +221,17 @@ one commit. Stage B is next, and starts at V4 — V3 is blocked on a Chris call
   `, count distance` and `, count cal`; narrowing removes one. A save would
   also move `registry/movements.json` under `make movements:dump`.
 
-  **Three ways out, for Chris to pick:**
-  1. **Withdraw V3** — keep the checkbox pair; it is the correct control for a
-     capability set, and there is no meaningless state to prevent.
-     *Recommended.*
-  2. **4-way segmented control** (None / Distance / Calories / Both) —
-     preserves the data and the consumers, but since "Both" is meaningful this
-     is the checkbox pair with more clicks and a worse name.
-  3. **Narrow the data too** — re-curate the three ergs to one measure each and
-     accept losing rule 2 and the second `»` pick. Contradicts spec §9.3 and
-     the curation script's per-mode contract; would need a **DEC** of its own.
+  **Chris's call, 2026-09-02: withdraw V3** — keep the checkbox pair, since it
+  is the correct control for a capability set and there is no meaningless state
+  to prevent. The two alternatives considered and declined with it: a **4-way**
+  control (None / Distance / Calories / Both), which preserves the data but is
+  the checkbox pair with more clicks; and **narrowing the data** to one measure
+  per movement, which contradicts spec §9.3 and the curation script's per-mode
+  contract. Full reasoning in
+  [DEC-023](../topics/settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice).
 
-  Whichever way it goes, the ergonomic complaint underneath the review is real
-  and survives: see the caption bug in
+  The ergonomic complaint underneath the review is real and survives the
+  withdrawal: see the caption bug in
   [../topics/builder-ux.md](../topics/builder-ux.md) ("The movement editor"),
   which **V5 should fix** when it restructures these fields. *Touched by the
   reverted attempt: `apps/shared/movement-editor.js`,
@@ -307,16 +315,17 @@ one commit. Stage B is next, and starts at V4 — V3 is blocked on a Chris call
 ```
 V1 ─┐
 V2 ─┴─ ship (Stage A, independent, no risk)
-V3 ──── BLOCKED (premise false — Chris call; independent, blocks nothing)
+V3 ──── WITHDRAWN 2026-09-02 (premise false — DEC-023; blocked nothing)
 V4 ──> V5 ──────────────┐
 V6 ──> V7 ──> V8 ───────┴─ (V8 swaps V5's vocab source to the API)
                            V9 optional, after V8
 ```
 
-**Stage A shipped 2026-09-02 (`7429863`).** **V3 is blocked on a Chris call**
-(its premise turned out to be false — see the item above); it is independent of
-everything else, so nothing waits on it. **V4→V5 is the next work**, and is the
-ergonomics deliverable — it can ship on static vocab. Stage C (V6→V7→V8) makes it
+**Stage A shipped 2026-09-02 (`7429863`).** **V3 is withdrawn** (2026-09-02 —
+its premise turned out to be false; DEC-023, see the item above); it was
+independent of everything else, so nothing waited on it and nothing changes.
+**V4→V5 is the next work**, and is the ergonomics deliverable — it can ship on
+static vocab. Stage C (V6→V7→V8) makes it
 data-driven and only needs V5 to exist. Land each with its `docs/context/`
 write-up; V6/V8 want a **DEC** — "equipment & movement patterns are a DB-backed
 vocabulary layer; `registry/{equipment,patterns}.json` is the committed dump"

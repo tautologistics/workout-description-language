@@ -165,7 +165,7 @@ held as unknown text. Bare `each arm` / `per leg` still parse (input tolerance),
 parens. Cost: 9 corpus `.wdl` files reformatted, moving only the `text` field of
 those 9 in `workouts.canonical.json` — no AST or summary changed. Side selectors
 (`first arm`) and team words (`shared`) stay bare — a laterality-only change.
--> [topics/settled-decisions.md](topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised)
+-> [topics/settled-decisions.md](topics/settled-decisions.md#dec-019-the-per-side-laterality-form-is-parenthesised-each-arm)
 
 ## DEC-020 — The curated movement layer lives in PocketBase; `registry/movements.json` is its committed dump
 Status: active. Settled 2026-08-31, opening the *Movements in the database —
@@ -217,3 +217,18 @@ uses a unitless load, so `interpretations.json` is unmoved. A unitless magnitude
 on a load-less calorie machine (`15 Row`) is rule 2 — a builder-only diagnostic,
 not a parse default (spec §7.1).
 -> [topics/settled-decisions.md](topics/settled-decisions.md#dec-022-a-unitless-load-magnitude-is-pounds-wdl-fmt-writes-the-unit-in)
+
+## DEC-023 — `measures` on a movement is a capability set, not a choice
+Status: active. Settled 2026-09-02 (`77bff40`), withdrawing queue item V3 after
+the implementation disproved its premise. No code shipped.
+A registry entry's `measures` is the set of output units the movement *can* be
+prescribed in, not the one it is — all four subsets are meaningful, and **both**
+is correct for the three ergometers (`bike` / `row` / `skierg`). So the movement
+editor **keeps its two checkboxes**; the proposed 3-way segmented control had no
+meaningless state to prevent. The spec agrees (§9.3) and
+`import-movement-curation.mjs` maintains the field as a per-mode independent set.
+Single-select would have silently narrowed those three rows on save, switching
+off `calorieUnitHints()` (rule 2 of
+[DEC-022](topics/settled-decisions.md#dec-022-a-unitless-load-magnitude-is-pounds-wdl-fmt-writes-the-unit-in))
+and dropping a `»` modifier pick. The rest of the epic is unaffected.
+-> [topics/settled-decisions.md](topics/settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice)
