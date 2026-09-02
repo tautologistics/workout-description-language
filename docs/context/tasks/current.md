@@ -35,7 +35,7 @@ the deployment epic and the redesign chain were closed.
 
 **The *workout library* epic (L0–L7) is complete as of 2026-09-01** — all of
 L0–L7 landed and the whole L-section moved to [completed.md](completed.md) as one
-grouped section (the last link, **L7 (`<TASK-SHA>`)**, surfaced the library: an
+grouped section (the last link, **L7 (`2557177`)**, surfaced the library: an
 **Examples** chip row in the builder's *My workouts* panel that browses each org
 account's public set — `crossfit` 31 / `hyrox` 9 / `tabata` 3 — plus a per-row
 `↗` "Open on the board" shortcut; app code only, `make test` unchanged). The

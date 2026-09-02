@@ -799,7 +799,7 @@ handle-rename debt (stale already-saved ids — [known-debts.md](known-debts.md)
 The **Movement create/edit** bullet (below) already shipped as M5.
 
 **Update 2026-09-01 — the epic is complete (L0–L7 in
-[../tasks/completed.md](../tasks/completed.md)).** L7 (`<TASK-SHA>`) surfaced the
+[../tasks/completed.md](../tasks/completed.md)).** L7 (`2557177`) surfaced the
 library: the builder's *My workouts* panel gained an **Examples** chip row under
 the search box — one toggle per org account (`crossfit` / `hyrox` / `tabata`,
 `listOrgWorkouts(ownerId)` against the L1 fixed ids) that replaces the plain list
@@ -842,7 +842,7 @@ the handle-rename debt remain from this thread.
   link.
 
 - **~~Saved workouts need an "open on the board" action, not just "Copy
-  link".~~ Done — L7, 2026-09-01 (`<TASK-SHA>`).** Every hit row in the
+  link".~~ Done — L7, 2026-09-01 (`2557177`).** Every hit row in the
   *My workouts* panel (a search result or an Examples-set row) carries a per-row
   `↗` that opens `../display/?w=<wdlId>` in a new tab. The builder header's
   *Open on the board ↗* still covers the current buffer via the `#<source>` hash.

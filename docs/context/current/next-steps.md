@@ -5,7 +5,7 @@
 ***The workout library* (L0–L7) is complete as of 2026-09-01** — all eight
 tasks landed and the whole L-section moved to
 [../tasks/completed.md](../tasks/completed.md) as one grouped section. The last
-link, **L7 (`<TASK-SHA>`)**, surfaced the library in the apps: an **Examples**
+link, **L7 (`2557177`)**, surfaced the library in the apps: an **Examples**
 chip row in the builder's *My workouts* panel that browses each org account's
 whole public set (`crossfit` 31 / `hyrox` 9 / `tabata` 3), each row a
 click-to-open detached read-only copy, plus a per-row `↗` "Open on the board"

@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-01 — L7 of *The workout library* epic landed (`<TASK-SHA>`) — the
+- **2026-09-01 — L7 of *The workout library* epic landed (`2557177`) — the
   epic is closed.** Surfacing pass: a way to browse a curated org's public set
   from the builder, and "open on the board" for any public workout. **App code
   only** — `apps/shared/pocketbase.js`, `apps/builder/builder.js`,

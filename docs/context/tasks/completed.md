@@ -2458,7 +2458,7 @@ click-to-open the `@crossfit` hit loads a detached read-only copy
 mock-user seed rows); `fixtures/users.json` unchanged (already canonical from
 L1). Spawns L7.
 
-**L7 — Surface the library in the apps. DONE 2026-09-01 (`<TASK-SHA>`).**
+**L7 — Surface the library in the apps. DONE 2026-09-01 (`2557177`).**
 App code only — `apps/shared/pocketbase.js` + `apps/builder/builder.js` +
 `apps/builder/builder.css`; no schema / core / grammar / spec / mock / fixture /
 board touch, `make test` unchanged **2064/2064, 1 pending**, `git status` clean
