@@ -1,0 +1,19 @@
+{
+  "$comment": "The movement-pattern vocabulary the movement editor offers — queue task V6, DEC-025. Seeded from apps/shared/vocab.js's MOVEMENT_PATTERNS, which is the 11 distinct `pattern` values across registry/movements.json. Grouped by family rather than alphabetised, because the pairs are the point: the balance analysis reads push against pull, and alphabetical order scatters them. Every `synonyms` here is empty, and that is a finding rather than an omission — `pattern` is a wdl-curated field with no upstream source, so registry/movements.canonical.json's merge carries the same 11 values and there are no other spellings to fold. The key is kept, and kept present, so it matches registry/muscles.json's shape and a consumer written against that file iterates this one without a guard. `allowCustom` is true for this field, so a term missing here is typed in rather than blocked.",
+  "patterns": [
+    { "id": "squat", "name": "Squat", "synonyms": [] },
+    { "id": "hinge", "name": "Hinge", "synonyms": [] },
+
+    { "id": "horizontal-push", "name": "Horizontal push", "synonyms": [] },
+    { "id": "horizontal-pull", "name": "Horizontal pull", "synonyms": [] },
+    { "id": "vertical-push", "name": "Vertical push", "synonyms": [] },
+    { "id": "vertical-pull", "name": "Vertical pull", "synonyms": [] },
+
+    { "id": "elbow-flexion", "name": "Elbow flexion", "synonyms": [] },
+    { "id": "elbow-extension", "name": "Elbow extension", "synonyms": [] },
+
+    { "id": "core", "name": "Core", "synonyms": [] },
+    { "id": "carry", "name": "Carry", "synonyms": [] },
+    { "id": "locomotion", "name": "Locomotion", "synonyms": [] }
+  ]
+}

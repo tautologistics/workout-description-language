@@ -95,3 +95,33 @@ supersedes it. From then on the collection schema is reproducible: a fresh
   `migrate down 1` removes the field and the index together (owner / visibility
   indexes intact), a re-`up` reapplies cleanly. Glance at the admin UI on the
   box after deploy — [`../../README.md`](../../README.md) §7d.
+
+- `1757100000_create_vocab.js` — creates the `equipment` and `patterns`
+  collections (queue task V6, the *vocabularies & editor ergonomics* epic,
+  [DEC-025](../../../docs/context/topics/settled-decisions.md#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump)):
+  one row per vocabulary term, so equipment and movement patterns grow by a DB
+  row rather than an edit to `apps/shared/vocab.js`. Both collections share one
+  shape, built by a local `vocabCollection(name)` helper so the two cannot
+  drift: `termId` (text, required — the registry `id`, *not* `id`, same clash
+  `movements.movementId` avoids), `name` (text, required — `registry/muscles.json`
+  calls this field `name`, and the committed dumps match that file's entry
+  shape), `synonyms` (json), plus `scope` (`select global|user`, required) and
+  `user` (relation → `users`, nullable) carried over from `movements`
+  unchanged. Read rules `scope = "global"`; write rules
+  `@request.auth.admin = true`. Unique index on `termId` and a plain index on
+  `scope`, per collection. Uses the `new Collection({...})` create form like the
+  movements migration; `down` deletes both collections in reverse creation
+  order. Two collections rather than one table with a `kind` column — they are
+  independent vocabularies and a shared table would need every read to carry a
+  filter a wrong one silently widens. Verified against a real v0.40.1
+  (darwin_arm64) binary + throwaway `pb_data`: `migrate up` applies all six
+  migrations cleanly, both collections land with all seven fields and all four
+  indexes (checked via `sqlite3` against `_collections` / `sqlite_master`), the
+  unique index rejects a duplicate `termId` (`UNIQUE constraint failed:
+  equipment.termId`), the `user` relation resolves to `users`, `migrate down 1`
+  drops both and leaves `movements` / `workouts` / `users` and their indexes
+  intact (zero leftover `sqlite_master` rows), and a re-`up` reapplies cleanly.
+  The rows themselves are **not** loaded by this migration —
+  `registry/{equipment,patterns}.json` is the committed dump and V8's
+  `make vocab:load` is what ingests it. Glance at the admin UI on the box after
+  deploy, same caveat as the workouts migration.
