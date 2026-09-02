@@ -405,12 +405,32 @@ once:
   sub-objects. `collect()` preserves unknown sub-keys (`{...state.fields.muscles}`
   replaces only `primary`/`secondary`), so `buildBody` carries merge metadata
   into the curated column.
+- **It re-indexes self-plurals — the sharpest direction, added 2026-09-02 after
+  measuring the blast radius.** The alias flow is not one-way. `deadlift`'s
+  curated `aliases` are `['conventional deadlift', 'dl']`; the canonical entry
+  adds **`Deadlifts`**, and a save writes it back. **126 of the 972 curated
+  entries would gain aliases this way, and 28 of the additions are a regular
+  self-plural of the entry's own title** — `Adductors`, `Back Squats`,
+  `Barbell Shrugs`, `Burpees`, `Box jumps`. That is precisely the name class the
+  2026-08-23 fix stopped indexing, and for a reason recorded in
+  [../topics/lessons-learned.md](../topics/lessons-learned.md) (*A ranking
+  between two kinds of name has to survive the plural*): a self-plural held as
+  an **alias** matched the alias tier on one record while the singular matched
+  it on another, which split `Squat` from `Squats` onto two different movements.
+  `depluralize` reconstructs a regular plural, so the registry deliberately does
+  not hold one. Unlike the other three directions this one can **change which
+  movement a name resolves to** — and the core already has the test that catches
+  it (`never changes which movement a name resolves to`), which is worth running
+  against a post-fix `make movements:dump` either way.
 
 **Same class as the bug [DEC-023](../topics/settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice)
 was written to prevent** — a silent write-back that degrades curation, invisible
 in the form and invisible to the suite — which is the argument for doing it
 **before Stage C**: V6→V8 is additive infrastructure, this is losing curated data
-on every `✎` save today. That ordering is Chris's call too.
+on every `✎` save today. That ordering is Chris's call too. Note the fourth
+bullet raises the stakes: three of the four directions degrade one row quietly,
+but re-indexing a self-plural is the one failure here the suite *can* see, and
+it would show up as a resolver change rather than as a bad-looking record.
 
 **Two fixes; Chris picks one.**
 1. **Look the curated entry up by id before opening**, falling back to the
