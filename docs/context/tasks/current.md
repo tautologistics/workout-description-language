@@ -405,32 +405,61 @@ once:
   sub-objects. `collect()` preserves unknown sub-keys (`{...state.fields.muscles}`
   replaces only `primary`/`secondary`), so `buildBody` carries merge metadata
   into the curated column.
-- **It re-indexes self-plurals — the sharpest direction, added 2026-09-02 after
-  measuring the blast radius.** The alias flow is not one-way. `deadlift`'s
-  curated `aliases` are `['conventional deadlift', 'dl']`; the canonical entry
-  adds **`Deadlifts`**, and a save writes it back. **126 of the 972 curated
-  entries would gain aliases this way, and 28 of the additions are a regular
-  self-plural of the entry's own title** — `Adductors`, `Back Squats`,
-  `Barbell Shrugs`, `Burpees`, `Box jumps`. That is precisely the name class the
-  2026-08-23 fix stopped indexing, and for a reason recorded in
-  [../topics/lessons-learned.md](../topics/lessons-learned.md) (*A ranking
-  between two kinds of name has to survive the plural*): a self-plural held as
-  an **alias** matched the alias tier on one record while the singular matched
-  it on another, which split `Squat` from `Squats` onto two different movements.
-  `depluralize` reconstructs a regular plural, so the registry deliberately does
-  not hold one. Unlike the other three directions this one can **change which
-  movement a name resolves to** — and the core already has the test that catches
-  it (`never changes which movement a name resolves to`), which is worth running
-  against a post-fix `make movements:dump` either way.
+- **It adds aliases, and a few of those flip which movement a name resolves
+  to — the sharpest direction, added 2026-09-02.** The alias flow is not
+  one-way: where `skierg` *loses* `ski erg`, `deadlift` *gains* `Deadlifts`.
+  Measured across the committed files (folded-key comparison, entries present in
+  both): **123 curated entries would gain aliases, 140 added names in total.**
+
+  *Corrected 2026-09-02, same day, before anyone acted on it. This bullet first
+  said the danger was the **self-plurals** — 28 of the additions being a regular
+  self-plural of the entry's own title (`Burpees`, `Back Squats`) — citing
+  [../topics/lessons-learned.md](../topics/lessons-learned.md)'s* A ranking
+  between two kinds of name has to survive the plural. *That has it backwards.
+  The self-plurals are the **guarded** class: the fix that lesson produced is
+  `fold.ts:212` — `if (depluralize(fold(a)) === fold(entry.id)) continue;` — so
+  a record's own regular self-plural is **never indexed at all**. Written into
+  the DB it is inert for resolution; it pollutes the row and shows in a
+  `movements:dump` diff, but it cannot split `Squat` from `Squats`. **31 of the
+  140 additions are that harmless class.***
+
+  **The real risk is the other 109**, which *are* indexed as genuine alias
+  claims — and **6 of them collide with a name another curated record already
+  holds as its id/title**. Since the 2026-08-23 reordering made **an explicit
+  alias beat a record's own id**, each of those six flips the name onto the
+  wrong movement:
+
+  | the record that gains the alias | the name it would claim | currently resolves to |
+  |---|---|---|
+  | `bent-over-row-barbell` | `Bent Over Barbell Row` | `bent-over-barbell-row` |
+  | `biceps-curl-machine` | `Machine Bicep Curl` | `machine-bicep-curl` |
+  | `cable-front-raise` | `Front Cable Raise` | `front-cable-raise` |
+  | `dumbbell-split-squat` | `Split Squat with Dumbbells` | `split-squat-dumbbells` |
+  | `pec-deck` | `Butterfly` | `butterfly` |
+  | `squat-bands` | `Squats - With Bands` | `squats-bands` |
+
+  **And the suite would not catch it.** The bullet first named
+  `never changes which movement a name resolves to` as the guard; that test
+  compares `title` against `pluralize(title)`, so it sees plural/singular splits
+  and not an alias-tier flip on an unrelated spelling. `Registry.validate()`
+  misses them too — it reports only *within-tier* duplicates (`byName` or
+  `byAlias` mapping to more than one entry), and an alias-on-A / id-on-B
+  collision is length 1 in each. The tool that does list them is
+  **`make aliases`** (`scripts/check-aliases.mjs`), which `fold.ts`'s own comment
+  names for exactly this case. **Run `make aliases` before and after a post-fix
+  `make movements:dump`** — that is the check, not the test suite.
 
 **Same class as the bug [DEC-023](../topics/settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice)
 was written to prevent** — a silent write-back that degrades curation, invisible
 in the form and invisible to the suite — which is the argument for doing it
 **before Stage C**: V6→V8 is additive infrastructure, this is losing curated data
-on every `✎` save today. That ordering is Chris's call too. Note the fourth
-bullet raises the stakes: three of the four directions degrade one row quietly,
-but re-indexing a self-plural is the one failure here the suite *can* see, and
-it would show up as a resolver change rather than as a bad-looking record.
+on every `✎` save today. That ordering is Chris's call too. The fourth bullet
+raises the stakes: the first three degrade one row each, quietly, but a bad
+alias claim reaches **name resolution**, so the damage is not confined to the
+row that was edited — a workout that never mentions `pec-deck` still resolves
+`Butterfly` differently afterwards. It is also the one direction **no test
+covers**, so it would surface as a muscle total quietly moving, not as a red
+suite.
 
 **Two fixes; Chris picks one.**
 1. **Look the curated entry up by id before opening**, falling back to the
@@ -447,7 +476,9 @@ fix as the rule (one helper that resolves a movement id to the record the editor
 should edit), not as a patch at the palette call site.
 *Scope: `apps/builder/builder.js`. No core change. Verify by opening `deadlift`
 and `skierg`, confirming the form shows the curated values, saving, and checking
-the `PATCH` body carries no `support` / `sources` and no invented equipment.*
+the `PATCH` body carries no `support` / `sources`, no invented equipment, and no
+added alias — then `make aliases` and a `make movements:dump` diff, which is
+what catches the resolver direction.*
 
 ---
 

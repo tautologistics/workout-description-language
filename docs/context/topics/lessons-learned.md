@@ -923,3 +923,33 @@ about the data and its consumers, not about the widget. Check the committed
 data for the co-occurring case, and grep the consumers, before the claim becomes
 a decision — a settled decision costs more to reverse than to verify.* Recorded
 2026-09-02.
+
+**The class a lesson names is usually the class its fix already covers.** A
+2026-09-02 finding measured the blast radius of the movement editor's
+wrong-record defect and reported the sharpest direction as *re-indexing
+self-plurals*, citing *A ranking between two kinds of name has to survive the
+plural* above: a canonical-sourced save writes `Deadlifts` back onto `deadlift`,
+and self-plurals held as aliases are what once split `Squat` from `Squats`. The
+citation was apt and the conclusion was backwards. The fix that lesson produced
+is `fold.ts:212` — `if (depluralize(fold(a)) === fold(entry.id)) continue;` —
+so a record's own regular self-plural is **never indexed**. Those additions are
+inert for resolution: ugly in the row, invisible to the resolver. The real
+exposure was the *other* 109 added aliases, six of which collide with a name
+another record holds as its id — and since the same 2026-08-23 reordering made
+an alias beat an id, those six genuinely flip which movement a name resolves to.
+
+Two things worth keeping. **A lesson is written at the moment of the wound, so
+its vocabulary is the vocabulary of the wound, not of the scar** — reaching for
+it later, the named class is the one you now have a guard for, and the danger
+has moved to whatever the guard does not cover. Read the fix, not just the
+story. And **the named test was the wrong guard too**: `never changes which
+movement a name resolves to` compares a title against its plural, so it sees
+plural splits and not an alias-tier flip on an unrelated spelling, and
+`validate()` reports only within-tier duplicates. `make aliases`
+(`check-aliases.mjs`) is what lists a cross-tier collision, which `fold.ts`'s
+own comment says in as many words.
+
+*Before escalating on a cited lesson, check whether that lesson's own fix
+already neutralises the case you are pointing at — and check that the test you
+are naming as the guard actually asserts the property you mean.* Recorded
+2026-09-02.
