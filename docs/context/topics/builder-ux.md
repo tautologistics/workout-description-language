@@ -38,25 +38,43 @@ workout, and read the computed styles). They are the low-hanging-fruit list —
 each dispatchable on its own, none blocked on the others, and they slot beside
 the numbered builder-UX chain (12 → 16 → 17 → 15 → 13 → 11) rather than into it.
 
-**The "what it reads as" pane has no scroll container, so on a real workout the
-body map and goal check fall off the bottom of the page.** Confirmed in source:
-`.read-pane` is a `.pane` (`display:flex; flex-direction:column; min-height:0`)
-and **nothing under it sets `overflow`** — computed `overflow-y: visible`. Its
-children (`#summary`, `#diagnostics`, `#bodymap`, the goals block, `#findings`)
-just stack and grow. Measured on a 35-cue workout at 1440×900: the pane's
-content is **1692px tall**, `#bodymap` starts at y≈960 and *Against your goals*
-at y≈1230 — both below the fold, and the only way to reach them is to scroll the
-**whole document** (`documentElement.scrollHeight` 1748), which also scrolls the
-header, palette and editor away. The `.outline` and `.palette` panes each have
-their own `overflow:auto`; the read pane is the one that does not. **Fix:**
-`min-height:0; overflow:auto` on `.read-pane` at minimum; better, split it into
-bounded sub-panels — *Summary* always visible, *Body* and *Against your goals*
-as collapsible sections each with their own scroll — so a long analysis never
-pushes another part of it out of view. This is the single highest-value layout
-fix and the one Chris named first. *Scope: `apps/builder/builder.css`
-(`.read-pane` / a new `.analysis-panel` treatment), `apps/builder/index.html`
-(wrap the three blocks if they become collapsible), `apps/builder/builder.js`
-only if the collapse state wants persisting. No core change.*
+**~~The "what it reads as" pane has no scroll container, so on a real workout
+the body map and goal check fall off the bottom of the page.~~** **Already
+fixed by R1 of the builder layout redesign (`758dff1`, 2026-08-30) — confirmed
+still fixed 2026-09-02, no new code shipped.** This entry was written the same
+day the redesign's first stage landed and never updated. The `.read-pane` /
+`.pane` it describes **no longer exists**: direction C ("Document + margin")
+replaced it with the tabbed margin's `.rpanel` —
+`flex: 1; min-height: 0; overflow: auto` with a bounded height — and the whole
+flex-ancestor chain carries `min-height: 0` (`body` → `.stage`
+[`flex:1; min-height:0; overflow:auto`] → `.sheet` [`height:100%; min-height:0`]
+→ `.right-col` [`min-height:0; overflow:hidden`] → `.rpanel`). So the minimum
+the entry predicted (`min-height:0; overflow:auto` on the pane) was **not
+enough on its own** — the ancestor `min-height:0` chain is what actually bounds
+it — but the redesign put all of it in place. `completed.md`'s R1 note says so
+outright: *"has its own `overflow:auto` + bounded height — the read-pane scroll
+🔴 is fixed."*
+
+Re-verified 2026-09-02 by driving `make serve` in the browser at 1440×900,
+light + dark, with a 56-cue six-section workout (58 lines): the **Analysis**
+panel is `overflow-y: auto`, `scrollHeight` 1622 vs `clientHeight` 722, and
+scrolling it to the bottom leaves the header, summary band and editor column
+fixed; `documentElement.scrollHeight === innerHeight` (**document overflow 0**),
+where the entry measured 1748 vs 900. The **Reads as** panel is the same
+bounded `.rpanel` (`scrollHeight` 2083 vs `clientHeight` 660 with the every-cue
+list expanded, document overflow still 0). Consistent at 1100px, at the 820px
+single-column stack (`.rpanel { max-height: 78vh }`, `.stage` no longer
+scrolls the pair off-screen), and on the 375px mobile emulation. No console
+errors.
+
+The entry's *"better"* half — split into *Summary* always-visible + *Body* /
+*Against your goals* as collapsible sub-sections each with its own scroll — was
+**not** built: it is optional polish on a pane that already scrolls correctly,
+it clusters with the still-open palette-drawer redesign items below, and
+inventing that scope was out of bounds for a fix whose premise no longer holds.
+The related **Minor — the read pane stacks four `<h2>`s** entry in **## What it
+reads** is left standing for the same reason (it was gated on this pane becoming
+collapsible sub-panels, which did not happen).
 
 **Movements is a permanent ~24% column with no way to dismiss it.** At 1440px
 the three panes are 344 / 688 / 408px — the palette, which is *reference you dip

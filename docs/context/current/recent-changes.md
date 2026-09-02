@@ -2,6 +2,31 @@
 
 ## Changes
 
+- **2026-09-02 — builder read/analysis pane scroll: verified already fixed, no
+  code shipped.** A session was dispatched on the first design-critique entry in
+  [../topics/builder-ux.md](../topics/builder-ux.md)'s **## Layout** section —
+  *"the 'what it reads as' pane has no scroll container"* — flagged as the
+  single highest-value layout fix. The premise was **stale**: the `.read-pane`
+  it names was replaced by the tabbed margin's `.rpanel`
+  (`flex:1; min-height:0; overflow:auto`, bounded height, full ancestor
+  `min-height:0` chain `body → .stage → .sheet → .right-col → .rpanel`) in **R1
+  of the layout redesign (`758dff1`, 2026-08-30)** — the same day the critique
+  was written, and `completed.md`'s R1 note already said *"the read-pane scroll
+  🔴 is fixed."* Re-verified by driving `make serve` in the browser at 1440×900,
+  820px, and 375px mobile, light + dark, with a 56-cue six-section workout (58
+  lines): the **Analysis** panel is `overflow-y:auto`, `scrollHeight` 1622 vs
+  `clientHeight` 722, scrolls internally with header / summary band / editor
+  fixed; `documentElement.scrollHeight === innerHeight` — **document overflow 0**
+  (the entry had measured 1748 vs 900). **Reads as** is the same bounded
+  `.rpanel` (2083 vs 660 with every-cue expanded, overflow still 0). No console
+  errors. **`make test` 2064/2064, 1 pending — unchanged (no code touched).**
+  Docs only: the `builder-ux.md` entry struck with the measurements + the
+  correction that the pane-only `overflow:auto` the entry predicted needed the
+  ancestor `min-height:0` chain the redesign supplied; `tasks/current.md` bullet
+  with an **Open for Chris** note on the remaining design-critique items. The
+  optional *collapsible sub-panels* half was not built — polish on a working
+  pane, clustered with the still-open palette-drawer redesign.
+
 - **2026-09-02 — a `.env` now feeds the database + deploy make targets, and the
   prod deploy state is corrected.**
   - **`.env` / `.env.example`.** The root `Makefile` gained

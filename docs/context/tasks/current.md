@@ -58,6 +58,28 @@ open: the two loose bullets at the end, which need Chris to scope.
 
 Recently closed (kept here briefly for the trail):
 
+- **~~builder: the read/analysis pane has no scroll container~~ — was already
+  fixed; verified 2026-09-02, no code shipped.** A session was dispatched on the
+  first design-critique entry in
+  [../topics/builder-ux.md](../topics/builder-ux.md)'s **## Layout** section
+  ("the single highest-value layout fix"). Its premise turned out to be **stale**
+  — the `.read-pane` it describes was replaced by the tabbed margin's `.rpanel`
+  (`flex:1; min-height:0; overflow:auto`, bounded) in **R1 of the layout
+  redesign (`758dff1`, 2026-08-30)**, the day the critique was written.
+  Re-verified by driving `make serve` at 1440×900 + 820px + mobile, light +
+  dark, with a 56-cue workout: both Analysis and Reads-as scroll **internally**,
+  the document itself does not overflow (`scrollHeight === innerHeight`, where
+  the entry measured 1748 vs 900), header / band / editor stay put. The entry is
+  struck in `builder-ux.md` with the measurements and the correction that the
+  minimum it predicted (`overflow:auto` on the pane alone) needed the whole
+  ancestor `min-height:0` chain, which the redesign supplied. The optional
+  *collapsible sub-panels* half was **not** built — polish on a working pane,
+  and it clusters with the palette-drawer items. **Open for Chris:** the
+  remaining design-critique items are all in `builder-ux.md` and unchanged in
+  priority — the header control-row grouping (self-contained), and the
+  *Movements* palette drawer + flat 129-row list + four stacked `<h2>`s (gated on
+  the palette-drawer redesign, which needs Chris to scope).
+
 - **~~unit defaults: a unitless load target is pounds~~ — landed 2026-09-01
   (rule 1 `6829052`, rule 2 `952c80c`).** Rule 1: `@ <number>` with no
   unit now parses to a real `load` (`{kind:'absolute', unit:'lb', value}`) and

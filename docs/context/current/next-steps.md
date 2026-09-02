@@ -195,9 +195,20 @@ Also still open, needing Chris to scope: a full **laterality curation sweep**
 (which movements), and the board's **Edit** button round-tripping into the
 builder — the two loose bullets in [../tasks/current.md](../tasks/current.md).
 Other self-contained builder-UX items remain in
-[../topics/builder-ux.md](../topics/builder-ux.md)'s design-critique section
-(the read pane's four stacked `<h2>`s; the *Movements* palette drawer + the
-flat 129-row core list).
+[../topics/builder-ux.md](../topics/builder-ux.md)'s design-critique section:
+the **header control-row grouping** (self-contained,
+`apps/builder/{index.html,builder.css}`); and, gated on the *Movements*
+palette-drawer redesign, the drawer itself + the flat 129-row core list + the
+read pane's four stacked `<h2>`s.
+
+**Verified already-done 2026-09-02, no code shipped:** the design-critique's
+first **## Layout** entry — *"the 'what it reads as' pane has no scroll
+container"*, billed as the single highest-value layout fix — was resolved by
+**R1 of the layout redesign (`758dff1`, 2026-08-30)**. `.read-pane` was
+replaced by the tabbed margin's bounded `.rpanel`; a 56-cue workout scrolls
+inside the panel with the document itself not overflowing (`scrollHeight ===
+innerHeight`), light + dark, 1440 / 820 / 375px. Entry struck in
+`builder-ux.md`.
 
 ---
 
