@@ -2,6 +2,28 @@
 
 ## Changes
 
+- **2026-09-02 — builder: dim/small text floored at AA contrast + 12px
+  (`<TASK-SHA>`).** A self-contained item off
+  [../topics/builder-ux.md](../topics/builder-ux.md)'s design-critique section
+  (the standalone queue is empty; not a numbered task). The builder's
+  `opacity`-dimmed secondary text — the palette muscle tags (`.movement .meta`,
+  was 11.25px `opacity: .5`), `.hint`, and ~8 more — failed WCAG AA 4.5:1.
+  **Approach:** drop the `opacity` multipliers and let `--dim` carry the
+  dimming (`--dim` at full opacity already clears AA on `--page`/`--panel` in
+  both themes — measured `.movement .meta` **light 3.4→4.9:1, dark 4.6→6.0:1**,
+  every swept selector now ≥4.7:1); **not** raise the `--dim` token (would
+  over-darken its ~40 other uses). Written as a **rule** (comment by `:root`):
+  no `opacity` on body text — only on non-text (hover-reveal control strips, the
+  drag ghost, cycle rails, `.movement .tick` state glyph, `:disabled`) — and no
+  text below `.75rem`. Swept every `opacity:` on text and every sub-12px
+  `font-size` in the file (`.72–.74rem` labels and fragile `em` → `.75rem`+),
+  hierarchy preserved. `--rail` (outline nesting rails) is an independent
+  literal, not derived from `--dim`, so untouched and unchanged.
+  **Files:** `apps/builder/builder.css` **only**. `make test` **2064/2064, 1
+  pending** — unchanged (app CSS, the suite does not exercise it). **Verified**
+  by driving the builder against `make serve` in light + dark, wide + narrow:
+  palette tags legible, Analysis / Reads-as / outline / header panes show no
+  regression, no console errors.
 - **2026-09-01 — unit defaults, rule 2: a builder diagnostic for a bare count on
   a calorie machine (`952c80c`).** Second and final rule of the last queued
   standalone task; **the standalone queue is now empty.** `15 Row` on an erg

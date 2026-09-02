@@ -523,17 +523,48 @@ closer to that pillar than to a palette convenience.
 
 From the **design-critique pass, 2026-08-30.**
 
-**The movement-row muscle tags fail contrast and are too small to scan.**
-`.movement .meta` is **11.25px at `opacity: 0.5`** over the panel — the tag text
-(`glutes quads`, `erectors glutes hamstrings`) computes to roughly **1.9:1**
-against white, well under the 4.5:1 AA floor, and it is the thing you would
-actually scan the list by. `.hint` (`129 of the core set`, the compose hints) is
-**10.2px at `opacity: 0.6`** — same problem, smaller. This is a builder-wide
-type-and-contrast issue that shows up worst here: **floor body text at ~12px and
-bring `--dim`-on-panel to AA** (raise the token, or drop the `opacity`
-multipliers and let the token carry the dimming). Same pass can catch the
-outline rails above and any other `opacity`-dimmed text. *Scope:
-`apps/builder/builder.css`. No core change.*
+**~~The movement-row muscle tags fail contrast and are too small to scan.~~
+Fixed 2026-09-02 (`<TASK-SHA>`).** *Was:* `.movement .meta` was **11.25px at
+`opacity: 0.5`** over the panel — the tag text (`glutes quads`,
+`erectors glutes hamstrings`), the thing you actually scan the list by, well
+under the 4.5:1 AA floor. `.hint` (`129 of the core set`) was **10.2px at
+`opacity: 0.6`** — same, smaller.
+
+**Approach taken: drop the `opacity` multipliers, let `--dim` carry the
+dimming** — not raise the `--dim` token. `--dim` (`#6b7180` light / `#939aa8`
+dark) at **full opacity** already clears AA on both `--page` and `--panel` in
+both themes (measured in-browser: `.movement .meta` **light 3.4:1 → 4.9:1**,
+**dark 4.6:1 → 6.0:1**; every swept selector now ≥4.7:1), so raising the token
+would only have over-darkened its ~40 other uses. `opacity` now dims **only
+non-text**: the hover-reveal control strips (`.node .tools` / `.node .caret` —
+their own open entry above), the drag ghost (`.node.dragging`), the cycle-rail
+pseudo-elements, `.movement .tick` (a ＋/✓ state glyph), and `:disabled`.
+
+**Written as a rule, not a two-selector patch** (a comment block by `:root`
+states it): no `opacity` on body text, and **no text below `.75rem` (12px)**.
+The pass swept every `opacity:` on a text element and every sub-12px
+`font-size` in `builder.css` — beyond the two named: `.compose-hint`,
+`.repertoire h2 span`, `.findings .ok`, `.muscles summary`(+` span`),
+`.chip-region` (was `opacity: .45`), `.link`, `.suggestion.modifier-edit`
+(contrast); `.right-col h2` / `.palette-modal h2` / `.editor-tab` / `.right-tab`
+/ `.reads-cues-head` / `.toolbar-btn` / `.repertoire-tools button` /
+`.set-card .set-n` / `.set-actions button` / `.set-movements button` / `.chip` /
+`.handle.pending` / `.handle-error` / `.share-label` / `.mine-when` /
+`.mine-label` / `.examples-label` / `.me-label` / `.me-hint` / `.movement-edit`
+(size, `.72–.74rem` or fragile `em` → `.75rem`+). Hierarchy kept — secondary
+text is still smaller, just not sub-12px.
+
+**Outline rails (`--rail`) untouched and still fine** — the token is an
+independent literal (`#a3a8b4` / `#565c6a`), not derived from `--dim`, so no
+`--dim` change was made and nothing moved; it is a structural line, not text
+(the ~2.3:1 it carries is the accepted state from its 2026-08-31 fix, not in
+scope here).
+
+*Touched: `apps/builder/builder.css` only. `make test` **2064/2064, 1 pending**
+— app CSS, the suite does not move. Verified by driving the builder against
+`make serve` in both themes, wide + narrow: palette muscle tags + `129 of the
+core set` legible, Analysis / Reads-as / outline / header panes show no
+regression, no console errors.*
 
 **Lower priority — the 129-row core list is one flat alphabetical scroll.** No
 grouping by pattern (`squat` / `hinge` / `press` / `pull` / `carry`) or region,

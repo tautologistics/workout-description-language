@@ -44,10 +44,24 @@ load-less calorie machine (`15 Row` → `15cal Row`); the board is untouched.
 [DEC-022](../topics/settled-decisions.md#dec-022-a-unitless-load-magnitude-is-pounds-wdl-fmt-writes-the-unit-in).
 `make test` 2064/2064, 1 pending.
 
+**builder: dim/small text floored at AA + 12px, landed 2026-09-02
+(`<TASK-SHA>`)** — a self-contained pull from
+[../topics/builder-ux.md](../topics/builder-ux.md)'s design-critique section
+(not a queued task). The `opacity`-dimmed secondary text (palette muscle tags,
+`.hint`, ~8 more) now dims by `--dim` colour, not `opacity` — AA in both themes
+(`.movement .meta` light 3.4→4.9:1, dark 4.6→6.0:1) — with a 12px floor,
+written as a rule (no `opacity` on body text; nothing below `.75rem`).
+`apps/builder/builder.css` only, `make test` unchanged (2064/2064, 1 pending).
+
 **The standalone queue is now empty and no epic is in flight.** What is left
 needs Chris to scope: a full **laterality curation sweep** (which movements),
 and the board's **Edit** button round-tripping into the builder — the two loose
 bullets in [../tasks/current.md](../tasks/current.md).
+
+A further self-contained builder-UX item is available if wanted: the per-row
+outline tools / `»` caret are `opacity: 0` until hover (no touch, no
+discoverability) — see the design-critique trio in
+[../topics/builder-ux.md](../topics/builder-ux.md) under *Outline*.
 
 ---
 
