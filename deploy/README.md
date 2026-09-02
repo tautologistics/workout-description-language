@@ -486,8 +486,14 @@ it next to the keepalive):
 outbound credential). From a repo checkout:
 
 ```sh
-make backups:pull   # rsync -av dreamhost.ae.wex:pb/pb_backups/ ~/wdl-pb-backups/  (WDL_BACKUP_DIR to override)
+make backups:pull   # rsync -av dreamhost.ae.wex:pb/pb_backups/ db-backups/  (WDL_BACKUP_DIR to override)
 ```
+
+The snapshots land in **`db-backups/`** at the repo root — repo-relative on
+purpose, not a home-directory path. Its contents (and `pull.log`) are
+git-ignored; `db-backups/README.md` is the only tracked file, so the directory
+exists in a fresh clone. Set `WDL_BACKUP_DIR` (absolute path) in `.env` or the
+environment to keep backups elsewhere.
 
 No `--delete`: the local copy accumulates history past the VPS's 30-day prune.
 A **pull** is chosen over a VPS **push cron** deliberately — a push would need an
@@ -497,7 +503,7 @@ For a hands-off copy, add a line to Chris's *own* crontab (not the fragment,
 which is the VPS's):
 
 ```
-0 6 * * * cd /path/to/repo && make backups:pull >> $HOME/wdl-pb-backups/pull.log 2>&1
+0 6 * * * cd /path/to/repo && make backups:pull >> db-backups/pull.log 2>&1
 ```
 
 **Alternative mechanism — PocketBase built-in scheduled backups.** If `sqlite3`
@@ -513,7 +519,7 @@ account's `crontab -e` **and is running** — `~/pb/pb_backups/` holds
 `data-2026-09-01.db` (a manual test) and `data-2026-09-02.db` (written by cron
 at 03:17 UTC), and `backup.log` is empty (no errors). The only piece left is
 the **off-box copy**: run `make backups:pull` once from a repo checkout and
-confirm the files land in `~/wdl-pb-backups/`.
+confirm the files land in `db-backups/`.
 
 To force a snapshot by hand on the VPS (e.g. before a PocketBase upgrade):
 

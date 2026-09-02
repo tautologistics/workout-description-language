@@ -11,6 +11,11 @@ curation-sheet.csv
 # loads .env for the database + deploy targets. .env.example stays committed.
 /.env
 
+# make backups:pull drops VPS DB snapshots here (WDL_BACKUP_DIR default).
+# Keep the directory and its README; ignore the snapshots and pull.log.
+/db-backups/*
+!/db-backups/README.md
+
 # local dev mock /api runtime write state (scripts/mock-api.mjs)
 fixtures/workouts.local.json
 fixtures/movements.local.json

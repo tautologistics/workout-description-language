@@ -31,10 +31,13 @@ PORT ?= 8081
 # in the repo — it is a `~/.ssh/config` alias, no host, user or secret in it.
 export WDL_DEPLOY_SSH ?= dreamhost.ae.wex
 
-# Where `make backups:pull` drops the DB snapshots it fetches off the VPS.  No
-# `--delete` on that rsync, so this directory keeps history past the box's own
-# 30-day prune (deploy/README.md §9).  Override in the environment if you like.
-WDL_BACKUP_DIR ?= $(HOME)/wdl-pb-backups
+# Where `make backups:pull` drops the DB snapshots it fetches off the VPS.
+# Repo-relative by default — `db-backups/` at the repo root, whose contents are
+# git-ignored (the directory and its README are tracked).  No `--delete` on that
+# rsync, so it keeps history past the box's own 30-day prune (deploy/README.md
+# §9).  Set an absolute path in `.env` / the environment to keep backups
+# elsewhere.
+WDL_BACKUP_DIR ?= db-backups
 
 .DEFAULT_GOAL := help
 
@@ -106,7 +109,7 @@ deploy\:db: ## Sync deploy/pocketbase/pb_migrations/ to the VPS and restart Pock
 	rsync -av deploy/pocketbase/pb_migrations/*.js $(WDL_DEPLOY_SSH):pb/pb_migrations/
 	ssh $(WDL_DEPLOY_SSH) 'systemctl --user restart pocketbase && sleep 2 && curl -fsS http://127.0.0.1:8090/api/health && echo'
 
-backups\:pull: ## Pull the VPS DB backups off the box into ~/wdl-pb-backups (WDL_BACKUP_DIR)
+backups\:pull: ## Pull the VPS DB backups off the box into db-backups/ (WDL_BACKUP_DIR; no --delete)
 	mkdir -p $(WDL_BACKUP_DIR)
 	rsync -av $(WDL_DEPLOY_SSH):pb/pb_backups/ $(WDL_BACKUP_DIR)/
 
