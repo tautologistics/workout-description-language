@@ -99,7 +99,20 @@ role="group" aria-labelledby>`, so neither checkbox-group caption — nor any of
 the seven token inputs — is bound to its first input any more. `make test`
 unchanged (2064/2064, 1 pending).
 
-**So the next work is Stage C — V6 → V7 → V8**, which makes **equipment** and
+**One defect should probably come first.** The movement editor **edits the
+wrong record** — the palette's `✎` hands it the *canonical* merged entry, not
+the curated one, so every save invents `deadlift`'s equipment, drops `skierg`'s
+second alias, and writes merge metadata (`support` / `sources`) into the
+`movements` collection. Pre-existing since M5 (2026-09-01), unchanged by V4/V5,
+found while verifying V5. It is the same class of silent write-back that
+[DEC-023](../topics/settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice)
+was written to prevent, and it is losing curated data today, whereas Stage C is
+additive infrastructure — so it likely precedes V6, though the ordering and the
+choice between the two fixes are both **Chris's call**. Its own section in
+[../tasks/current.md](../tasks/current.md); write-up in
+[../topics/builder-ux.md](../topics/builder-ux.md).
+
+**Then Stage C — V6 → V7 → V8**, which makes **equipment** and
 **movement patterns** a DB/API-backed vocabulary (committed
 `registry/{equipment,patterns}.json` + a PocketBase migration, then fixtures +
 mock `/api`, then a load script and a fetch in front of `vocab.js`'s literals,

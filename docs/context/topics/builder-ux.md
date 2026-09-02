@@ -644,9 +644,10 @@ fixed.** `renderPalette()` passes the movement object it drew the card from,
 which comes from `registry/movements.canonical.json` (the 5-source merge), not
 `registry/movements.json` (the curated layer the editor is *for*). Three
 consequences, all visible now that chips make the values legible: opening
-`deadlift` shows equipment **`Barbell`** (capital B — the canonical file carries
-69 raw upstream spellings, `Barbell` beside `barbell`, `Swiss Ball` beside
-`swiss ball`); opening `skierg` shows `aliases: ["ski"]` though the curated
+`deadlift` shows equipment **`Barbell`** though the curated entry has **no
+`equipment` field at all** — so a save *invents* one, in the wrong case (the
+canonical file carries 69 raw upstream spellings, `Barbell` beside `barbell`,
+`Swiss Ball` beside `swiss ball`); opening `skierg` shows `aliases: ["ski"]` though the curated
 entry has `["ski", "ski erg"]`, so saving would drop the second; and `muscles`
 rides along with the canonical `support` / `sources` sub-objects, which the
 PATCH body then carries into the `movements` collection. The old comma inputs
@@ -657,8 +658,16 @@ The token input's picker matches case-insensitively, so `Barbell` still shows
 patch**: either the `✎` looks the curated entry up by id before opening (and
 falls back to the canonical one for a movement the curated layer does not
 carry), or it fetches the row over `/api` the way `getMovementByMovementId`
-already can. *Scope: `apps/builder/builder.js` (`renderPalette`'s edit handler,
-~2092) — needs Chris to pick which of the two. No core change.*
+already can. **Scheduled 2026-09-02** as its own section in
+[../tasks/current.md](../tasks/current.md) ("The movement editor edits the wrong
+record"), with the two fixes written out and the argument for doing it before
+Stage C — it is the same class of silent write-back that
+[DEC-023](settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice)
+was written to prevent. Note the same treatment is needed at all three entry
+points (`＋ new movement`, the palette `✎`, the `»` panel), so the fix wants to
+be one helper, not a patch at the palette call site. *Scope:
+`apps/builder/builder.js` (`renderPalette`'s edit handler, ~2092) — needs Chris
+to pick which of the two. No core change.*
 
 ---
 

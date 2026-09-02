@@ -44,9 +44,16 @@ board resolves `?w=<handle>:<slug>` end to end and shows the namespaced id in th
 what is left of it — the board **Edit** button round-tripping into the builder —
 is a loose bullet below.
 
-**No epic is in flight, and the standalone queue is empty.** Every numbered
-queue item is closed and all three post-library standalone tasks have landed.
-What remains is the two loose bullets below, which need Chris to scope.
+**The epic in flight is *Vocabularies & editor ergonomics* (V1–V9)**, below —
+Stage A (V1+V2) and Stage B (V4+V5) have landed, V3 was withdrawn, and Stage C
+(V6→V8) is next. *Corrected 2026-09-02: this paragraph read "No epic is in
+flight, and the standalone queue is empty" from 2026-09-01 until the V-series
+was queued on 2026-09-02, and stayed that way for a day after — a session
+picking work off this file would have been told there was none.* Every earlier
+numbered queue item is closed and all three post-library standalone tasks have
+landed. Also open: **one standalone defect** (the movement editor edits the
+wrong record — its own section below, needs a Chris pick) and the two loose
+bullets at the end, which need Chris to scope.
 
 Recently closed (kept here briefly for the trail):
 
@@ -367,6 +374,60 @@ a **DEC** — "equipment & movement patterns are a DB-backed vocabulary layer;
 [DEC-020](../topics/settled-decisions.md)). `apps/shared/vocab.js`'s two literal
 exports are already shaped to become V8's offline fallback with the fetch in
 front of them, so no consumer changes when that happens.
+
+---
+
+## The movement editor edits the wrong record — **Open for Chris:** pick the fix
+
+**A live data-integrity defect in a shipped feature, not new work.** Found
+2026-09-02 while verifying V5; **pre-existing since M5 (2026-09-01), unchanged
+by V4/V5**, and left unfixed because the fix is a choice. Full write-up in
+[../topics/builder-ux.md](../topics/builder-ux.md) ("The palette's `✎` hands the
+editor the *canonical* entry"); this slot exists so it is **scheduled** rather
+than resting in that file's unordered list.
+
+`renderPalette()` (`apps/builder/builder.js:~2092`) hands `openMovementEditor()`
+the object it drew the card from, and that comes from `catalogue` —
+`registry/movements.canonical.json`, the 5-source merge — not
+`registry/movements.json`, the curated layer the editor exists to edit. So the
+form opens on merge output and **a save writes merge output into the `movements`
+collection**. Verified against the two files, it corrupts in three directions at
+once:
+
+- **It invents.** `deadlift` has **no `equipment` at all** in the curated file;
+  the canonical entry says `['Barbell']` (capital B — the canonical file carries
+  69 raw upstream spellings, `Barbell` beside `barbell`). Opening and saving
+  writes an equipment value curation deliberately does not have, in the wrong
+  case.
+- **It deletes.** `skierg`'s curated `aliases` are `['ski', 'ski erg']`; the
+  canonical entry has only `['ski']`. A save drops `ski erg`.
+- **It smuggles.** Canonical `muscles` carries `support` and `sources`
+  sub-objects. `collect()` preserves unknown sub-keys (`{...state.fields.muscles}`
+  replaces only `primary`/`secondary`), so `buildBody` carries merge metadata
+  into the curated column.
+
+**Same class as the bug [DEC-023](../topics/settled-decisions.md#dec-023-measures-on-a-movement-is-a-capability-set-not-a-choice)
+was written to prevent** — a silent write-back that degrades curation, invisible
+in the form and invisible to the suite — which is the argument for doing it
+**before Stage C**: V6→V8 is additive infrastructure, this is losing curated data
+on every `✎` save today. That ordering is Chris's call too.
+
+**Two fixes; Chris picks one.**
+1. **Look the curated entry up by id before opening**, falling back to the
+   canonical one for a movement the curated layer does not carry. No network,
+   no new state; needs the curated file loaded in the builder (check whether it
+   already is — the palette only loads `CANONICAL`).
+2. **Fetch the row over `/api`** the way `getMovementByMovementId` already can.
+   Always current and matches what the save will `PATCH` against, but adds a
+   round-trip and a failure path to opening the editor.
+
+Whichever wins, **`＋ new movement` and the `»` panel's "Edit … its curated
+fields" need the same treatment** — check all three entry points, and write the
+fix as the rule (one helper that resolves a movement id to the record the editor
+should edit), not as a patch at the palette call site.
+*Scope: `apps/builder/builder.js`. No core change. Verify by opening `deadlift`
+and `skierg`, confirming the form shows the curated values, saving, and checking
+the `PATCH` body carries no `support` / `sources` and no invented equipment.*
 
 ---
 
