@@ -141,7 +141,8 @@ its findings are transcribed here so the queue is self-contained.
 ### Stage A — menu quick wins (builder-only, no data, no deps, ship first)
 
 **Stage A is done as of 2026-09-02 (`7429863`) — V1 and V2 landed together in
-one commit. Stage B (V3–V5) is next.**
+one commit. Stage B is next, and starts at V4 — V3 is blocked on a Chris call
+(2026-09-02), detailed in its own bullet below.**
 
 - ~~**V1. Rename the header menu "My workouts" → "Workouts".**~~
   **Fixed 2026-09-02 (`7429863`).** The `<summary>` in
@@ -176,15 +177,57 @@ one commit. Stage B (V3–V5) is next.**
 
 ### Stage B — editor ergonomics (the visible win; V4 is the keystone)
 
-- **V3. Measured output → a 3-way segmented control.**
-  In `apps/shared/movement-editor.js` replace the `measures` multi-checkbox
-  group with a single-select segmented control writing `[]` / `['distance']` /
-  `['calories']` — the stored shape stays an array (0 or 1 element) so the DB
-  column and the M4 round-trip are unchanged; `collect()` just can't emit both.
-  A `.me-seg` style in `builder.css` on the shared `--ink`/`--rule`/`--accent`
-  tokens (the widget carries no host look — same rule as the rest of
-  `movement-editor.js`). Independent of V4/V5. *Touched:
-  `apps/shared/movement-editor.js`, `apps/builder/builder.css`. No core.*
+- **V3. Measured output → a 3-way segmented control.** **BLOCKED 2026-09-02 —
+  the premise does not hold. Nothing shipped; no code landed.**
+  **Open for Chris:** the decision above says *measured output is mutually
+  exclusive*, contrasting it with counting modes, which "genuinely co-occur".
+  Built as specified, then verified against the data and the consumers, and
+  **`measures` genuinely co-occurs too**. Three entries in the committed
+  registry carry both values — **`bike`, `row`, `skierg`**, the three
+  ergometers — and that is correct curation, not drift: a rower is prescribed in
+  metres *or* in calories. The spec is explicit
+  (**§9.3 / spec-0.1.md:178**, "`1min Row` ends on duration and *measures*
+  calories"; **:185**, a duration-completed step "defaults from the movement's
+  registry `measures`"; **:1058**, `- 1min Row, count cal`), and
+  `import-movement-curation.mjs:232` maintains the field as a **per-mode
+  independent** set in as many words. **`measures` on an entry is a capability
+  set — the output units this movement *can* be measured in — not a choice.**
+  All four subsets are meaningful: neither (a squat), distance (a run),
+  calories, both (the three ergs). A checkbox pair is the right control for a
+  capability set; the review mistook the set for a choice.
+
+  **What single-select would have cost, verified in the browser:** the editor
+  seeded on the *first* known value, so opening `skierg` showed only
+  **Distance** lit and saving would have written `["distance"]`, silently
+  dropping `calories`. That is not cosmetic — it breaks two shipped consumers.
+  (1) **`calorieUnitHints()`** (rule 2, **DEC-022**, landed 2026-09-01,
+  `952c80c`) fires only when `(entry.measures ?? []).includes('calories')` —
+  and `bike` / `row` / `skierg` are the **only three entries in the registry
+  that carry `calories` at all**, so narrowing any of them switches the
+  diagnostic off for that movement permanently. Confirmed live: `15 Row` raises
+  *"a bare count on a machine that measures calories — did you mean `15cal
+  Row`?"* today, and would not after a save. (2) **the `»` panel**
+  (`builder.js:329`) maps **one pick per mode**, so a Row step offers both
+  `, count distance` and `, count cal`; narrowing removes one. A save would
+  also move `registry/movements.json` under `make movements:dump`.
+
+  **Three ways out, for Chris to pick:**
+  1. **Withdraw V3** — keep the checkbox pair; it is the correct control for a
+     capability set, and there is no meaningless state to prevent.
+     *Recommended.*
+  2. **4-way segmented control** (None / Distance / Calories / Both) —
+     preserves the data and the consumers, but since "Both" is meaningful this
+     is the checkbox pair with more clicks and a worse name.
+  3. **Narrow the data too** — re-curate the three ergs to one measure each and
+     accept losing rule 2 and the second `»` pick. Contradicts spec §9.3 and
+     the curation script's per-mode contract; would need a **DEC** of its own.
+
+  Whichever way it goes, the ergonomic complaint underneath the review is real
+  and survives: see the caption bug in
+  [../topics/builder-ux.md](../topics/builder-ux.md) ("The movement editor"),
+  which **V5 should fix** when it restructures these fields. *Touched by the
+  reverted attempt: `apps/shared/movement-editor.js`,
+  `apps/builder/builder.css`. No core.*
 
 - **V4. Build the reusable token-input widget** — `apps/shared/token-input.js`,
   host-agnostic like `movement-editor.js`. Signature roughly
@@ -264,14 +307,16 @@ one commit. Stage B (V3–V5) is next.**
 ```
 V1 ─┐
 V2 ─┴─ ship (Stage A, independent, no risk)
-V3 ──── ship (independent)
+V3 ──── BLOCKED (premise false — Chris call; independent, blocks nothing)
 V4 ──> V5 ──────────────┐
 V6 ──> V7 ──> V8 ───────┴─ (V8 swaps V5's vocab source to the API)
                            V9 optional, after V8
 ```
 
-**Stage A shipped 2026-09-02 (`7429863`).** V3 any time. V4→V5 is the ergonomics
-deliverable and can ship on static vocab. Stage C (V6→V7→V8) makes it
+**Stage A shipped 2026-09-02 (`7429863`).** **V3 is blocked on a Chris call**
+(its premise turned out to be false — see the item above); it is independent of
+everything else, so nothing waits on it. **V4→V5 is the next work**, and is the
+ergonomics deliverable — it can ship on static vocab. Stage C (V6→V7→V8) makes it
 data-driven and only needs V5 to exist. Land each with its `docs/context/`
 write-up; V6/V8 want a **DEC** — "equipment & movement patterns are a DB-backed
 vocabulary layer; `registry/{equipment,patterns}.json` is the committed dump"

@@ -2,6 +2,48 @@
 
 ## Changes
 
+- **2026-09-02 — V3 (measured output → a segmented control) built, disproved,
+  and reverted. No code shipped; the finding is the deliverable.** The queued
+  decision said *measured output is mutually exclusive*, explicitly contrasting
+  it with counting modes, which "genuinely co-occur". The 3-way control was
+  built to spec (radio group + `.me-seg`, array-of-0-or-1 preserved) and it
+  rendered correctly — then verification against the data and the consumers
+  showed **`measures` genuinely co-occurs too**, so the change was reverted
+  rather than landed. *Was → would-have-been → is:* two checkboxes → one
+  3-way picker → **two checkboxes, unchanged**.
+  **The evidence:** three committed registry entries carry both values —
+  `bike`, `row`, `skierg` — and that is correct curation; the spec says a rower
+  is measured in calories (`spec-0.1.md:178`, `:1058`) *and* a duration step
+  "defaults from the movement's registry `measures`" (`:185`), and
+  `import-movement-curation.mjs:232` maintains the field as a **per-mode
+  independent** set. `measures` is a **capability set**, not a choice.
+  **What the narrowing would have cost, confirmed live in the builder:** the
+  editor seeds from the first known value, so `skierg` opened showing only
+  **Distance** lit and a save would have written `["distance"]`, dropping
+  `calories` silently. That breaks two shipped consumers — (1)
+  `calorieUnitHints()` (rule 2, DEC-022, `952c80c`, landed 2026-09-01), which
+  fires only when `entry.measures` includes `calories` and whose *entire*
+  registry surface is those same three entries: `15 Row` raises *"a bare count
+  on a machine that measures calories — did you mean `15cal Row`?"* today and
+  would not after a save; and (2) the `»` panel (`builder.js:329`), which maps
+  one pick per mode — a Row step offers both `, count distance` and
+  `, count cal`, and narrowing removes one. A save would also have moved
+  `registry/movements.json` under `make movements:dump`.
+  **Files: none — working tree reverted, nothing committed to the app.** No
+  save was ever performed, so no `fixtures/movements.local.json` was written and
+  no curated data was touched. `make test` **2064/2064, 1 pending** — measured
+  before and after, unchanged, as expected for a change that was app JS + CSS
+  and is now nothing. **Written up** in
+  [../tasks/current.md](../tasks/current.md) (V3 flagged **Open for Chris**,
+  with three options and a recommendation to withdraw V3),
+  [../topics/lessons-learned.md](../topics/lessons-learned.md) ("A capability
+  set is not a choice"), and
+  [../topics/builder-ux.md](../topics/builder-ux.md) — where a **separate,
+  pre-existing** bug found on the way is recorded: `field()` wraps each field in
+  a `<label>`, and a `<label>` labels only its first labelable descendant, so
+  clicking the caption **COUNTING MODES** ticks `both` and **MEASURED OUTPUT**
+  ticks `distance`. V5 should fix it. **Next: V4 → V5**; V3 blocks nothing.
+
 - **2026-09-02 — builder: the menu is *Workouts*, and *Libraries* chips drive
   the search box (`7429863`).** **Stage A (V1 + V2) of the *Vocabularies &
   editor ergonomics* epic**, landed as one commit; **Stage B (V3–V5) is next**.

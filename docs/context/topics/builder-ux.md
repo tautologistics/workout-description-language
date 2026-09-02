@@ -608,6 +608,31 @@ noted so it is not re-discovered, not because it is next. *Scope:
 `apps/builder/builder.js` (`renderPalette` grouping), `apps/builder/builder.css`.
 No core change.*
 
+### The movement editor
+
+**Clicking a grouped field's caption silently ticks its first checkbox.**
+Found 2026-09-02 while building V3; **pre-existing, not fixed, and not caused
+by that attempt.** `movement-editor.js`'s `field(label, control)` helper wraps
+every field in a `<label class="me-field">`, which is right for the single
+`<input>` / `<select>` fields it was written for — but **a `<label>` labels only
+its first labelable descendant**, so for the two checkbox *groups* the caption
+is bound to whichever box happens to be first. Clicking the words **COUNTING
+MODES** ticks `both`; clicking **MEASURED OUTPUT** ticks `distance`. Confirmed
+live on `skierg` (all three counting modes unticked → one click on the caption
+→ `both=true`), and it is invisible in review because the caption looks like a
+caption, not a control.
+
+The fix is not per-field: **a wrapper that contains a group of inputs must be a
+`<div>`, not a `<label>`, and name the group through `aria-label` /
+`aria-labelledby` instead** — stated as a rule, because the next grouped field
+added to this form inherits the bug otherwise (the same shape of mistake as
+*A CSS rule with a `display` silently overrules `hidden`* in
+[lessons-learned.md](lessons-learned.md), where the fix written as a list of
+the elements that broke was missing the next one). **V5 should carry it**: it
+replaces seven of these fields with the token-input widget and will be in this
+helper anyway. *Scope: `apps/shared/movement-editor.js` (`field()` + a `group()`
+twin), `apps/builder/builder.css`. No core change.*
+
 ---
 
 ## What it reads

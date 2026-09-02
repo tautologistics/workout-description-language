@@ -75,13 +75,24 @@ the decisions recorded at the top of that epic section.
 search box (it types `<handle>:` and lets the normal debounced search run), which
 retired `browseOrg` / `listOrgWorkouts` and the whole parallel browse path.
 
-**Next is Stage B.** Take **V3** first — measured output becomes a 3-way
-segmented control (None / Distance / Calories) in
-`apps/shared/movement-editor.js` plus a `.me-seg` style; it is the smallest unit
-and independent of the rest. Then **V4 → V5**, the ergonomics deliverable: build
-the reusable `apps/shared/token-input.js` (chips + type-ahead + filter/select
+**V3 is blocked on a Chris call as of 2026-09-02 — its premise is false, and it
+blocks nothing else.** It was built and reverted: `measures` on a registry entry
+is a **capability set** (the units a movement *can* be measured in), not a
+choice — `bike` / `row` / `skierg` correctly carry **both**, and narrowing them
+would switch off `calorieUnitHints()` (rule 2, DEC-022) and drop a `»` pick.
+Flagged **Open for Chris** in [../tasks/current.md](../tasks/current.md) with
+three options; the recommendation is to **withdraw V3** and keep the checkbox
+pair.
+
+**So Stage B starts at V4 → V5**, the ergonomics deliverable: build the
+reusable `apps/shared/token-input.js` (chips + type-ahead + filter/select
 picker, one composition at every vocab size) and wire it into the movement
-editor's seven list fields over a static `apps/shared/vocab.js`. Stage C (V6–V8)
+editor's seven list fields over a static `apps/shared/vocab.js`. V4 has no
+user-visible surface until V5, so they land together or V4 gets a scratch host
+page to verify against. V5 should also fix the **caption bug** found on the way
+(clicking a grouped field's caption ticks its first checkbox — a `<label>`
+labels only its first labelable descendant); it is in
+[../topics/builder-ux.md](../topics/builder-ux.md). Stage C (V6–V8)
 then makes **equipment** and **movement patterns** a DB/API-backed vocabulary
 (fixtures + mock `/api` + collection + committed `registry/*.json` dump,
 mirroring the movements M-series) and swaps V5's vocab source to it.

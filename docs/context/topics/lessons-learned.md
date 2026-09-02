@@ -889,3 +889,37 @@ else.
 proven it to be. `?? []` guards against absence; it does not guard against the
 wrong shape being present, and a merge step run on a downstream file does not
 retroactively fix the seed file feeding it.* Recorded 2026-08-25.
+
+**A capability set is not a choice, and a UI review cannot tell them apart from
+the form alone.** A 2026-09-02 design review of the movement editor saw
+*Measured output* rendered as two checkboxes — `distance`, `calories` — and
+concluded it was mutually exclusive: a movement measures one or the other, so
+the control should be a 3-way segmented picker. It was settled as a decision
+(V3) and queued. Built, it worked and looked right; and it was wrong, because
+`measures` on a registry entry is **the set of output units the movement can be
+prescribed in**, not the one it is. All four subsets are real — neither for a
+squat, distance for a run, and **both** for the three ergometers (`bike`, `row`,
+`skierg`), which are exactly the movements anyone would test it on. The spec
+said so all along (§9.3: `1min Row` "ends on duration and *measures* calories",
+while a 500m row is the same machine measured the other way), and
+`import-movement-curation.mjs` maintains the field as a *per-mode independent*
+set in as many words.
+
+Three things worth keeping. **The premise was checkable in about a minute and
+nobody checked it** — 22 entries carry `measures`, three carry both, and one
+`grep` over `registry/movements.json` before writing the queue item would have
+killed the decision instead of the implementation. **The damage would have been
+silent and downstream, not local**: the form itself was fine, but a save
+narrowed the record, and `calorieUnitHints()` — rule 2, shipped the day before
+yesterday — fires only on entries whose `measures` include `calories`, of which
+there are exactly those same three. Editing a rower's title would have switched
+off a feature nobody was touching, in a file nobody had opened. **The tell was
+the sentence justifying the decision**: "it is possible to tick both and save a
+shape nothing downstream can mean" — a claim about *downstream*, made without
+reading downstream. Two consumers meant it fine.
+
+*When a review says a field's values are mutually exclusive, that is a claim
+about the data and its consumers, not about the widget. Check the committed
+data for the co-occurring case, and grep the consumers, before the claim becomes
+a decision — a settled decision costs more to reverse than to verify.* Recorded
+2026-09-02.
