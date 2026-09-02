@@ -2,6 +2,29 @@
 
 ## Changes
 
+- **2026-09-02 — N2 (palette-drawer redesign) investigated, premise stale,
+  nothing shipped.** A session picked N2 up, read `apps/builder/{index.html,
+  builder.css,builder.js}` and drove `make serve` at 1440px: the "permanent
+  ~24% Movements column with no way to dismiss it" the brief targets **does not
+  exist**. The palette is `<dialog id="palette-modal">` — a centred modal opened
+  by ⌘K / "＋ movement", closed by ✕ / Esc / backdrop, costing zero layout width
+  when closed. `.sheet` is a two-track grid (editor · splitter · analysis
+  margin, `builder.css:161`); the `@media` rules only narrow/stack that margin,
+  never the palette (`builder.css:661`). **R1 (`758dff1`, 2026-08-30)** turned
+  the old docked column into an overlay drawer behind a `☰` toggle +
+  `wdl.palette-open` `localStorage`; **R7 (`d1a89ce`, 2026-08-31)** then deleted
+  the drawer, the `☰` toggle and that persistence for the summoned dialog — so
+  N2-as-briefed would revert R7. Third entry from the 2026-08-30 design-critique
+  pass to be stale-the-day-written (read-pane scroll, header control row were
+  the first two, both already struck as done-by-R1). **No code touched.**
+  `make test` **2064/2064, 1 pending** (checked, unchanged — nothing to change).
+  `tasks/current.md` N2 section struck + flagged `**Open for Chris:**` with the
+  full source trace and the "## Open" preamble updated; `builder-ux.md`
+  **## Layout** entry struck with the finding. **Next actionable queue item is
+  N3** (board *Edit* round-trip — premise still valid). N3 chip **not** spawned:
+  the chain's premise check just failed once, so the call on what (if anything)
+  N2 becomes, and whether to proceed to N3, is Chris's.
+
 - **2026-09-02 — N1 / V9 shipped (`2a534b6`): an admin "＋ new term" row in the
   token-input picker.** A curator mints a global equipment / movement-pattern
   term without leaving the movement editor. `createTokenInput` gained an

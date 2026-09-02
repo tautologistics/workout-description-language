@@ -76,23 +76,38 @@ The related **Minor — the read pane stacks four `<h2>`s** entry in **## What i
 reads** is left standing for the same reason (it was gated on this pane becoming
 collapsible sub-panels, which did not happen).
 
-**Movements is a permanent ~24% column with no way to dismiss it.**
-**Scheduled 2026-09-02 as N2** in [../tasks/current.md](../tasks/current.md)
-"## Next builder-UX work" — Chris asked for the palette-drawer redesign
-directly. Landing it unblocks the **129-row flat list** (## Movements) and the
-**four stacked `<h2>`s** (## What it reads), both gated on it. At 1440px
-the three panes are 344 / 688 / 408px — the palette, which is *reference you dip
-into*, holds a quarter of the width while you are heads-down in the editor, and
-there is no toggle. The `@media (max-width:1180px)` rule already does the right
-thing structurally — palette goes full-width across the top, capped at 11rem
-with its own scroll, editor + reading share the row below — but it only fires by
-width, never by choice. **Fix:** a header (hamburger / rail) toggle that
-collapses Movements to a strip or an overlay drawer **at any width**, so editor
-+ reading get the full canvas; reuse the existing collapsed-palette CSS as the
-drawer's closed state. *Scope: `apps/builder/index.html` (a toggle control),
-`apps/builder/builder.css` (a `body.palette-collapsed` / drawer state),
-`apps/builder/builder.js` (toggle handler, persist in `localStorage` like
-`wdl.editor-tab`). No core change.*
+**~~Movements is a permanent ~24% column with no way to dismiss it.~~**
+**Stale the day it was written — verified 2026-09-02, nothing shipped.** This
+entry describes the pre-R1 four-/three-column `<main>` grid. It was written in
+the 2026-08-30 design-critique pass, the same day **R1 of the layout redesign
+(`758dff1`)** replaced that grid with the direction-C centred sheet and turned
+the palette into an overlay `.drawer` behind a `☰ Movements` header toggle
+(`localStorage['wdl.palette-open']`); **R7 (`d1a89ce`, 2026-08-31)** then retired
+the drawer, the `☰` toggle *and* its `wdl.palette-open` persistence in favour of
+the summoned **`<dialog id="palette-modal">`** it is today — opened by ⌘K /
+"＋ movement" / Enter on a blank row, closed by ✕ / Esc / backdrop, **zero
+layout width when closed**. So:
+
+- There is no ~24% column. `.sheet` is `minmax(22rem,1fr) 6px var(--right-col-w,
+  24rem)` — editor · splitter · analysis margin, two tracks (`builder.css:161`).
+- There is no collapsed-palette `@media` CSS to reuse. `max-width:1100px` only
+  narrows the margin fallback; `max-width:820px` stacks editor-above-margin.
+  `builder.css:661`: *"The palette modal is centred at every width, so nothing
+  about it changes here."*
+- N2-as-briefed (a `☰` toggle + `body.palette-collapsed` + `wdl.palette-*`
+  `localStorage`) is **exactly what R7 deleted**. Scheduled 2026-09-02 as N2 in
+  [../tasks/current.md](../tasks/current.md), now flagged **Open for Chris**
+  there with the full source trace — the two follow-ons (**129-row flat list**,
+  ## Movements; **four stacked `<h2>`s**, ## What it reads) were gated on a
+  *drawer* that never happened, so their gate is now just Chris's say-so.
+- Third entry from the 2026-08-30 pass to be found already-resolved by R1 — see
+  the read-pane-scroll and header-control-row entries above/below, both struck
+  for the same reason.
+
+*Correction to this entry's own text: every measurement in it ("~24% column",
+"344 / 688 / 408px", "`@media (max-width:1180px)` … palette full-width across
+the top, capped at 11rem") is against a layout that has not existed since
+2026-08-30.*
 
 **~~The header is one undifferentiated control row.~~ Already resolved by R1
 (`758dff1`) + V1 (`7429863`); verified 2026-09-02, no code shipped.** The entry

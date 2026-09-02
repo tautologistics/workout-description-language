@@ -57,11 +57,26 @@ landed. The standalone **movement-editor wrong-record defect** was fixed
 **The active queue is *## Next builder-UX work* below — three tasks Chris named
 2026-09-02, in order: N1 = V9 (inline "＋ new term"), N2 = the *Movements*
 palette-drawer redesign, N3 = the board's **Edit** round-trip into the builder.**
-**N1 landed 2026-09-02 (`2a534b6`) — N2 is next.** N2 unblocks two further
-`builder-ux.md` design-critique items (the flat 129-row list; the read pane's
-four `<h2>`s). The **laterality curation sweep** is Chris's manual step, not dev
-work (loose bullet at the end). A **full security audit** is recorded in
-[deferred.md](deferred.md) as a "once functionality has settled" item.
+**N1 landed 2026-09-02 (`2a534b6`).** **N2 was investigated 2026-09-02 and its
+premise is stale — nothing shipped; it is `**Open for Chris:**` in its section
+below.** The palette has not been "a permanent ~24% column" since **R1
+(`758dff1`, 2026-08-30)** made it an overlay drawer behind a `☰` toggle, and
+**R7 (`d1a89ce`, 2026-08-31)** then replaced the drawer *and* that `☰` toggle
+*and* its `wdl.palette-open` persistence with the summoned `<dialog
+id="palette-modal">` it is today — opened by ⌘K / "＋ movement", closed by ✕ /
+Esc / backdrop, zero layout width when closed. Building N2 as briefed would
+re-add the exact `☰` + `localStorage` state R7 deliberately deleted, to collapse
+a column that no longer exists. Same fate as the other two entries from that
+2026-08-30 design-critique pass (read-pane scroll, header control row), both
+already struck as "already done by R1". **The next actionable queue item is
+N3 — the board's *Edit* round-trip into the builder** (premise still valid: the
+board has no path back to the builder today). N2's two claimed follow-ons (the
+flat 129-row list; the read pane's four `<h2>`s) were gated on a *drawer* that
+never happened — whether the modal now has "room to breathe" enough to dispatch
+the 129-row grouping is a Chris call. The **laterality curation sweep** is
+Chris's manual step, not dev work (loose bullet at the end). A **full security
+audit** is recorded in [deferred.md](deferred.md) as a "once functionality has
+settled" item.
 
 Recently closed (kept here briefly for the trail):
 
@@ -664,7 +679,69 @@ that creates a new global vocabulary term without leaving the editor — the
   `equipment/records`, restart the server and confirm it persisted, sign out and
   confirm the affordance is gone. `make test` 2064/2064, 1 pending, unchanged.
 
-### N2 — the *Movements* palette-drawer redesign
+### ~~N2 — the *Movements* palette-drawer redesign~~ — **Open for Chris: premise is stale, nothing shipped (2026-09-02)**
+
+**A session picked N2 up 2026-09-02, read the source, and drove `make serve` at
+1440px — the palette this brief is written against does not exist.** It is not a
+docked column and has no `☰`-less "no way to dismiss it" problem:
+
+- **`apps/builder/index.html`** — the palette is `<dialog id="palette-modal"
+  class="palette-modal" aria-label="Movements">`. The `.sheet` grid holds
+  exactly `<section class="doc-col">` · `<div class="col-resize">` ·
+  `<section class="right-col">` — **editor, splitter, analysis margin. No third
+  column.**
+- **`apps/builder/builder.css:161`** —
+  `grid-template-columns: minmax(22rem, 1fr) 6px var(--right-col-w, 24rem)` (two
+  tracks + the 6px handle). The header comment at `:9` states it outright:
+  *"The movement palette is a summoned `.palette-modal` (⌘K / add-row), not a
+  docked column."* `:686` — *"a centred panel, not a docked column. Same inner
+  DOM the drawer held."*
+- **The `@media` rules do not "stack the palette full-width on top".** `:655`
+  (`max-width: 1100px`) only lowers the `--right-col-w` fallback to 20rem; `:662`
+  (`max-width: 820px`) drops to one column (editor stacked above margin) and
+  hides `.col-resize`. `:661` comment: *"The palette modal is centred at every
+  width, so nothing about it changes here."* **There is no collapsed-palette CSS
+  to promote to a `body.palette-collapsed` class.**
+- **`apps/builder/builder.js:1639`** — *"Summoned, never docked: ⌘K / Ctrl-K
+  anywhere, or '+ movement' / Enter on a blank outline row."* `openPalette()` →
+  `paletteModal.showModal()`; `closePalette()` → `.close()`; Esc / backdrop /
+  `#palette-close` all route through it.
+
+**History (from [completed.md](completed.md)):** R1 (`758dff1`, 2026-08-30)
+turned the docked column into an overlay `.drawer` + backdrop **behind a
+`☰ Movements` header toggle**, `localStorage['wdl.palette-open']`, default
+closed — i.e. R1 *shipped the exact toggle N2 describes*. Then **R7
+(`d1a89ce`, 2026-08-31)** retired it: *"Retired: `#drawer` / `#drawer-backdrop`
+/ `.drawer*` CSS / `setDrawer` / the `#palette-toggle` header button + `.ghost`
+CSS / the `wdl.palette-open` bootstrap"* in favour of the summoned `<dialog>`.
+So N2-as-briefed = **revert R7** — re-add a `☰` toggle + `wdl.palette-*`
+persistence that was built and then deliberately deleted, to collapse a column
+that has not existed since 2026-08-30.
+
+**This is the third entry from the 2026-08-30 design-critique pass to turn out
+stale-the-day-it-was-written** — the read-pane-scroll and header-control-row
+entries from the same pass were both found already-done by R1 and struck
+(see the "Recently closed" bullets above). The palette-column entry has the
+same cause: it describes the pre-R1 four-/three-column `<main>` grid.
+
+**Open for Chris — the call this session cannot make.** With the palette already
+a dismiss-anywhere modal that costs zero width when closed, is there anything
+left to do here?
+- If the complaint was *"a docked column"* — **it is fully resolved**, strike
+  N2, and the two follow-ons (129-row grouping, read-pane sub-panels) are gated
+  on nothing but your say-so.
+- If there is a *live* ergonomic gap in the modal (opens over the caret you were
+  reading; ⌘K discoverability; the modal's own height on a laptop) — that is a
+  **different, smaller task** and needs re-scoping in one line.
+- The `builder-ux.md` **## Layout** entry has been struck with this finding so it
+  is not re-picked as written.
+
+Original brief kept below for the trail. **Its every load-bearing claim — "~24%
+column", "at 1440px the three panes are 344 / 688 / 408px", "the
+`@media (max-width:1100px)` rule already does the right thing structurally
+(palette full-width on top, capped, own scroll)", "reuse the existing
+collapsed-palette CSS as the drawer's closed state" — is false against the
+current source.**
 
 The design-critique item *"Movements is a permanent ~24% column with no way to
 dismiss it"* (see [../topics/builder-ux.md](../topics/builder-ux.md) **## Layout**).

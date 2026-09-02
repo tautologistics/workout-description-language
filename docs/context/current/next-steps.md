@@ -163,7 +163,8 @@ two-file vocabulary. **Muscles stays `registry/muscles.json`.**
 
 **The active queue is *## Next builder-UX work* in
 [../tasks/current.md](../tasks/current.md) — three tasks Chris named 2026-09-02.
-N1 is done; N2 is next:**
+N1 is done; N2's premise turned out stale (nothing shipped, flagged Open for
+Chris); N3 is the next actionable item:**
 
 - ~~**N1 — V9: inline "＋ new term" in the token-input picker.**~~ **Shipped
   2026-09-02 (`2a534b6`).** `createTokenInput` gained an `onCreateTerm` opt; the
@@ -173,22 +174,26 @@ N1 is done; N2 is next:**
   on a failed `POST` with the reason inline. Slug rule
   [DEC-026](../topics/settled-decisions.md#dec-026-the-inline--new-term-slugs-by-lowercase--trim--collapse-whitespace-keeping-typed-hyphens).
   `make test` 2064/2064, 1 pending — unchanged. Light + dark + 768px verified.
-- **N2 — the *Movements* palette-drawer redesign.** A header toggle collapsing
-  *Movements* to a strip / overlay drawer **at any width**, persisted in
-  `localStorage`; reuse the `@media (max-width:1100px)` collapsed-palette CSS as
-  the closed state. Must not regress `--right-col-w` / `.col-resize` / `#bodymap`
-  scaling. **Unblocks** two further design-critique items gated on it — the flat
-  129-row core list (pattern/region grouping) and the read pane's four stacked
-  `<h2>`s (collapsible sub-panels). `apps/builder/{index.html,builder.css,
-  builder.js}`, no core.
+- ~~**N2 — the *Movements* palette-drawer redesign.**~~ **Premise stale —
+  investigated 2026-09-02, nothing shipped, `**Open for Chris:**` in
+  [../tasks/current.md](../tasks/current.md).** The palette is not a docked
+  column: R1 (`758dff1`) made it an overlay drawer behind a `☰` toggle, R7
+  (`d1a89ce`) replaced drawer + toggle + `wdl.palette-open` with the summoned
+  `<dialog id="palette-modal">` it is now (⌘K / "＋ movement" to open, ✕ / Esc /
+  backdrop to close, zero width when closed). N2-as-briefed = revert R7. Third
+  entry from the 2026-08-30 design-critique pass found already-resolved by R1.
+  The two follow-ons (129-row grouping; read-pane `<h2>`s) were gated on a
+  *drawer* that never happened — dispatchable on Chris's say-so now.
 - **N3 — the board's *Edit* button round-trips into the builder.** Chris:
   *"that's needed as well."* A footer control on the board that opens the builder
   on the shown workout (owner's copy if owned, detached copy otherwise). Last
   piece of the post-redesign account thread; the rest shipped in the L-series.
   `apps/display/*` + maybe a builder load param, no core.
 
-No hard dependency chain, but the order is deliberate: N1 was a small no-dep win
-(done), N2 is the keystone, N3 lands after N2's large `builder.{js,css}` churn.
+No hard dependency chain. N1 was a small no-dep win (done); N2 dissolved on
+contact with the source (its "keystone" role — unblocking the 129-row grouping
+and read-pane sub-panels — was gated on a drawer that R7 removed, so those two
+now just need a Chris nod); N3 stands on its own and is next.
 
 Not dev work: the **laterality curation sweep** is Chris's manual CSV step
 ([../tasks/current.md](../tasks/current.md) loose bullets). A **full security
@@ -238,10 +243,13 @@ out **already resolved by the R1 layout redesign** (+ V1 for the header rename),
 verified 2026-09-02, no code shipped. Chris then named the concrete next work
 (2026-09-02): **N1 V9 → N2 palette-drawer redesign → N3 board Edit round-trip**,
 detailed above and in [../tasks/current.md](../tasks/current.md) "## Next
-builder-UX work". **N1 shipped 2026-09-02 (`2a534b6`); N2 is next.** N2 unblocks
-the two remaining design-critique items (the flat 129-row list; the four
-`<h2>`s). The **laterality curation sweep** is Chris's
-manual step, not dev work.
+builder-UX work". **N1 shipped 2026-09-02 (`2a534b6`); N2's premise turned out
+stale on inspection (2026-09-02) — the palette has been a summoned modal, not a
+docked column, since R1/R7, so nothing shipped and it is Open for Chris; N3 is
+next.** The two design-critique items N2 was said to unblock (flat 129-row list;
+four `<h2>`s) were gated on a drawer that never happened — Chris's call whether
+they go now. The **laterality curation sweep** is Chris's manual step, not dev
+work.
 
 **Verified already-done 2026-09-02, no code shipped — two design-critique
 ## Layout entries:**
