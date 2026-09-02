@@ -70,10 +70,15 @@ a column that no longer exists. Same fate as the other two entries from that
 2026-08-30 design-critique pass (read-pane scroll, header control row), both
 already struck as "already done by R1". **The next actionable queue item is
 N3 — the board's *Edit* round-trip into the builder** (premise still valid: the
-board has no path back to the builder today). N2's two claimed follow-ons (the
-flat 129-row list; the read pane's four `<h2>`s) were gated on a *drawer* that
-never happened — whether the modal now has "room to breathe" enough to dispatch
-the 129-row grouping is a Chris call. The **laterality curation sweep** is
+board has no path back to the builder today). N2's two claimed follow-ons were
+gated on a *drawer* that never happened, and Chris ruled on both 2026-09-02:
+the **read pane's four `<h2>`s — declined** (two sections per tab, nothing to
+collapse); the **flat 129-row palette list — deferred** to
+[deferred.md](deferred.md) pending the curation sweep (which grows the core set
+substantially) and a dedicated browse-UX review, not a quick grouping patch.
+**After N3, the actionable self-contained queue is empty** — remaining work is
+the laterality sweep (Chris's manual step), the deferred items, and the security
+audit. The **laterality curation sweep** is
 Chris's manual step, not dev work (loose bullet at the end). A **full security
 audit** is recorded in [deferred.md](deferred.md) as a "once functionality has
 settled" item.
@@ -684,8 +689,11 @@ that creates a new global vocabulary term without leaving the editor — the
 **Chris, 2026-09-02:** *"a holdover from when the movement palette was the full
 right sidebar or the full top row depending on browser width. Now it's an
 overlay/modal, so this doesn't really mean anything anymore."* No task here — do
-not re-pick. The two items it was said to unblock (129-row grouping; read-pane
-sub-panels) are dispatchable on their own merits whenever Chris prioritises them.
+not re-pick. The two items it was said to unblock are both now off the coding
+queue: **read-pane sub-panels — declined** by Chris (Analysis = Body + Against
+your goals, Reads-as = two items, nothing to collapse); **129-row palette
+grouping — deferred** pending the curation sweep + a dedicated browse-UX review
+([deferred.md](deferred.md)).
 
 **A session picked N2 up 2026-09-02, read the source, and drove `make serve` at
 1440px — the palette this brief is written against does not exist.** It is not a

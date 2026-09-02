@@ -617,6 +617,21 @@ Worth keeping in view: a curated set is also an input to *generation* — the
 second of the two things the project is for — so a hand-composed repertoire is
 closer to that pillar than to a palette convenience.
 
+**The whole "sets" feature is queued for a model + UX rework (Chris,
+2026-09-02) — captured in [../tasks/deferred.md](../tasks/deferred.md).** Where
+sets are stored today: **only** `localStorage['wdl.sets']`, a flat
+`{ "Set name": ["movement-id", …] }` blob (`apps/builder/builder.js` ~L2023;
+`saveSets` the sole writer). No PocketBase collection, no server row, no
+cross-device sync, no per-scope model — a cleared browser loses them; Export /
+Import to `movement-sets.json` is the only carry-off. Chris's asks: a DB
+collection with **namespaced `<handle>:<slug>` ids** and the **workouts flow**
+(owner / visibility / ingest); **global vs org-library vs personal** scopes; and
+a reworked create/edit dialog — **set on top, movement search below it**, and
+the card column alignment / formatting fixed (it is badly broken today). Do the
+model first; it drives the UX. This reopens the "file format for palette sets"
+Non-Goal in
+[deliberately-not-done.md](deliberately-not-done.md).
+
 From the **design-critique pass, 2026-08-30.**
 
 **~~The movement-row muscle tags fail contrast and are too small to scan.~~
@@ -662,14 +677,25 @@ scope here).
 core set` legible, Analysis / Reads-as / outline / header panes show no
 regression, no console errors.*
 
-**Lower priority — the 129-row core list is one flat alphabetical scroll.** No
-grouping by pattern (`squat` / `hinge` / `press` / `pull` / `carry`) or region,
-so finding a movement without typing is a linear read. Search covers the "I know
-what I want" case; this is the "show me what I've got" case. Only worth doing if
-the palette becomes a drawer (Layout item above) and gets room to breathe —
-noted so it is not re-discovered, not because it is next. *Scope:
-`apps/builder/builder.js` (`renderPalette` grouping), `apps/builder/builder.css`.
-No core change.*
+**The core movement list is one flat alphabetical scroll — needs a dedicated UX
+review, not a quick `renderPalette` grouping patch. Gated on the curation sweep
+(Chris, 2026-09-02).** No grouping by pattern (`squat` / `hinge` / `press` /
+`pull` / `carry`) or region, so finding a movement without typing is a linear
+read. Search covers the "I know what I want" case; this is the "show me what
+I've got" case.
+
+*Chris, 2026-09-02:* the list "will substantially grow once I do a proper full
+sweep and curation of all this stuff — there's a lot of things that got filtered
+out." **So it is not a good idea to just immediately show the full set of all
+exercises as the core set grows.** Before touching this, Chris wants "a full UX
+review / analysis to think of what the best pattern is" — progressive
+disclosure, faceted filters, a landing state that is not the whole list, etc.
+— rather than shipping alphabetical-with-headers now and redoing it after the
+sweep. **Not dispatchable as a coding task until (a) the curation sweep has run
+and the real core-set size is known, and (b) that UX review has picked a
+direction.** Recorded in [../tasks/deferred.md](../tasks/deferred.md)
+("Reconsider when"). *Scope when it lands: likely `apps/builder/builder.js`
+(`renderPalette`), `apps/builder/builder.css`; no core.*
 
 ### The movement editor
 
@@ -911,12 +937,12 @@ builder: `15 Row` fires on line 2, `15cal Row` clears it, `15cal Bike` /
 `95 Back Squat` / `500 Run` do not fire; light + dark; no console errors.
 `make test` unchanged — this is app code, no suite coverage.
 
-**Minor — the read pane stacks four `<h2>`s.** "What it reads as", "Body",
-"Against your goals" (each with an inline `<select>`) repeat the uppercase
-label treatment three times in a column that is already overfull. If that
-column becomes collapsible sub-panels (Layout item), fold these into the panel
-headers rather than carrying them as standalone `<h2>`s. Not worth doing on
-its own. *Scope: `apps/builder/index.html`, `apps/builder/builder.css`.*
+**~~Minor — the read pane stacks four `<h2>`s.~~ Declined by Chris, 2026-09-02.**
+*"The Analysis tab is really just Body and Against your goals — two sections.
+Reads-as is two items too. I don't think there's anything to be done there."*
+The entry assumed the pane would become collapsible sub-panels (the N2 palette
+drawer, now VOID); with only two sections per tab there is nothing to collapse
+and the repeated `<h2>` treatment is not worth restructuring. No task.
 
 ## The board
 

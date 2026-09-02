@@ -63,6 +63,16 @@ has a reason it is not one here. Check this before proposing one of them.
   the reasoning required. The [goals.md](../goals.md) Non-Goal is narrowed to
   match: still no *authored artifact* for sets, but a backup/transfer file is
   fine.
+
+  **Reopened 2026-09-02 (Chris).** The premise "a working preference, not
+  something a workout depends on — `localStorage` until it earns more" no longer
+  holds the whole feature: Chris now wants sets to be a **DB-backed, namespaced,
+  scoped artifact** (global vs org/library vs personal), following the same
+  collection + `<handle>:<slug>` + ingest pattern as workouts, with a reworked
+  create/edit dialog. That is captured in
+  [../tasks/deferred.md](../tasks/deferred.md) ("The movement-'sets' feature
+  needs a model + UX rework"). `localStorage['wdl.sets']` stays the *only* store
+  until that lands; this entry is kept for the trail of how the call moved.
 - **Strength Level as a sixth registry source.** *Declined 2026-08-22 on terms.
   Measured 2026-08-22 anyway, at the author's direction, to size what was being
   given up; the measurement did not change the answer.*

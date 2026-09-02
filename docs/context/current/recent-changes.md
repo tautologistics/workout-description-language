@@ -25,6 +25,23 @@
   the chain's premise check just failed once, so the call on what (if anything)
   N2 becomes, and whether to proceed to N3, is Chris's.
 
+  *Follow-up same day, Chris ruled:* **N2 confirmed VOID** (obsolete premise —
+  the palette has been a modal since R1/R7). Its two nominal follow-ons: the
+  **read-pane four-`<h2>`s item is declined** (Analysis = Body + Against your
+  goals, Reads-as = two items — nothing to collapse); the **flat 129-row palette
+  list is deferred** ([tasks/deferred.md](../tasks/deferred.md)) pending the
+  curation sweep (which grows the core set a lot) + a dedicated browse-UX
+  review, *not* a quick `renderPalette` grouping. Separately, Chris flagged the
+  **movement-"sets" feature for a model + UX rework** — captured in
+  `deferred.md`: sets live only in `localStorage['wdl.sets']` today (no
+  collection), and he wants them DB-backed, namespaced (`<handle>:<slug>`),
+  scoped (global / org-library / personal) on the workouts pattern, with a
+  reworked create/edit dialog (set on top, search below; card formatting is
+  broken). This reopens the "file format for palette sets" Non-Goal
+  ([topics/deliberately-not-done.md](../topics/deliberately-not-done.md)).
+  **N3 (board *Edit* round-trip) is the one self-contained coding task left in
+  the queue and is being launched now.** Docs-only commit for all of the above.
+
 - **2026-09-02 — N1 / V9 shipped (`2a534b6`): an admin "＋ new term" row in the
   token-input picker.** A curator mints a global equipment / movement-pattern
   term without leaving the movement editor. `createTokenInput` gained an

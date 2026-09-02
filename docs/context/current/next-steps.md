@@ -174,26 +174,28 @@ Chris); N3 is the next actionable item:**
   on a failed `POST` with the reason inline. Slug rule
   [DEC-026](../topics/settled-decisions.md#dec-026-the-inline--new-term-slugs-by-lowercase--trim--collapse-whitespace-keeping-typed-hyphens).
   `make test` 2064/2064, 1 pending — unchanged. Light + dark + 768px verified.
-- ~~**N2 — the *Movements* palette-drawer redesign.**~~ **Premise stale —
-  investigated 2026-09-02, nothing shipped, `**Open for Chris:**` in
-  [../tasks/current.md](../tasks/current.md).** The palette is not a docked
-  column: R1 (`758dff1`) made it an overlay drawer behind a `☰` toggle, R7
-  (`d1a89ce`) replaced drawer + toggle + `wdl.palette-open` with the summoned
+- ~~**N2 — the *Movements* palette-drawer redesign.**~~ **VOID — obsolete
+  premise, confirmed by Chris 2026-09-02, nothing shipped.** The palette is not
+  a docked column: R1 (`758dff1`) made it an overlay drawer behind a `☰` toggle,
+  R7 (`d1a89ce`) replaced drawer + toggle + `wdl.palette-open` with the summoned
   `<dialog id="palette-modal">` it is now (⌘K / "＋ movement" to open, ✕ / Esc /
   backdrop to close, zero width when closed). N2-as-briefed = revert R7. Third
   entry from the 2026-08-30 design-critique pass found already-resolved by R1.
-  The two follow-ons (129-row grouping; read-pane `<h2>`s) were gated on a
-  *drawer* that never happened — dispatchable on Chris's say-so now.
+  Its two follow-ons: **read-pane `<h2>`s — declined** (two sections per tab,
+  nothing to collapse); **129-row palette grouping — deferred** to
+  [../tasks/deferred.md](../tasks/deferred.md) pending the curation sweep + a
+  browse-UX review.
 - **N3 — the board's *Edit* button round-trips into the builder.** Chris:
   *"that's needed as well."* A footer control on the board that opens the builder
   on the shown workout (owner's copy if owned, detached copy otherwise). Last
   piece of the post-redesign account thread; the rest shipped in the L-series.
-  `apps/display/*` + maybe a builder load param, no core.
+  `apps/display/*` + maybe a builder load param, no core. **This is the only
+  self-contained coding task left in the queue.**
 
 No hard dependency chain. N1 was a small no-dep win (done); N2 dissolved on
-contact with the source (its "keystone" role — unblocking the 129-row grouping
-and read-pane sub-panels — was gated on a drawer that R7 removed, so those two
-now just need a Chris nod); N3 stands on its own and is next.
+contact with the source (obsolete premise, and its two follow-ons are now
+declined / deferred); **N3 stands on its own and is the last item — after it,
+the actionable self-contained queue is empty.**
 
 Not dev work: the **laterality curation sweep** is Chris's manual CSV step
 ([../tasks/current.md](../tasks/current.md) loose bullets). A **full security

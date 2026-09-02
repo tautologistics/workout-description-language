@@ -85,6 +85,54 @@ ready to start, with what it touches, is in [current.md](current.md).
   derived columns on the `workouts` collection (score kind, duration, a movement
   id list, an equipment id list) written at save time.
 
+- **The movement-palette browse UX — a full review, not a grouping patch.**
+  *Captured 2026-09-02 (Chris).* The palette's core list is one flat
+  alphabetical scroll of ~129 rows today
+  ([../topics/builder-ux.md](../topics/builder-ux.md) "## Movements"). A prior
+  entry proposed a quick pattern/region grouping in `renderPalette`; Chris's
+  call is **not to do that now**: the core set "will substantially grow once I
+  do a proper full sweep and curation of all this stuff — a lot of things got
+  filtered out", and "it will not be a good idea to just immediately show the
+  full set of all exercises as that core set grows." He wants "a full UX review
+  / analysis to think of what the best pattern is" — a landing state that is not
+  the whole list, progressive disclosure, faceted filtering — decided **before**
+  any code. Blocked on the curation sweep (so the real core-set size is known)
+  and on that review. See "## Reconsider when".
+
+- **The movement-"sets" feature needs a model + UX rework.** *Captured
+  2026-09-02 (Chris) — "right now it's totally fucked."* The "Sets" section of
+  the Movements modal (compose-by-hand repertoire, landed 2026-08-28 —
+  [../topics/builder-ux.md](../topics/builder-ux.md) "## Movements") has three
+  problems Chris wants addressed together:
+  - **Storage / model.** Sets live **only** in `localStorage['wdl.sets']` as a
+    flat `{ "Set name": ["movement-id", …] }` blob (`apps/builder/builder.js`
+    ~L2023–2024; `saveSets` is the sole writer). **No PocketBase collection, no
+    server persistence, no cross-device sync** — a cleared browser loses them;
+    the only portability is the builder's Export/Import to a `movement-sets.json`
+    (`{format, version, sets}`) carrier file. Chris: "where the fuck are these
+    sets being stored — I don't see a collection." The
+    ["file format for palette sets" Non-Goal in
+    ../topics/deliberately-not-done.md](../topics/deliberately-not-done.md) is
+    **reopened** by this: it has now "earned more."
+  - **Scopes.** No notion of **global** sets vs **library/org** sets (a Hyrox
+    set, a CrossFit set, …) vs **personal** sets. Chris wants the same
+    three-way split the workouts + vocab layers have.
+  - **Namespaced IDs.** Sets should get their own **`<handle>:<slug>` namespaced
+    ids** and follow **the same flow and pattern as workouts** (a PocketBase
+    collection, `owner`, `visibility`, a `wdlId`-style key, the
+    `make workouts:load` ingest shape, org-owned public rows) — see the L-series
+    ([../topics/settled-decisions.md](../topics/settled-decisions.md) DEC-021,
+    [../topics/what-exists.md](../topics/what-exists.md) "Example library").
+  - **Dialog UX.** Column alignments and formatting in the set cards are broken
+    ("total dog shit"). When **editing** a set, the set should be **at the top**
+    of the dialog and the **movement search below it**, so the search is
+    scoped-feeling to "add to this set" — currently the order and hierarchy are
+    backwards. Needs a real UX review of the create/edit flow, not a CSS patch.
+
+  A DB-backed model will drive the UX rework, so scope the model first. Mirrors
+  the M-series (movements) / V-series (vocab) / L-series (workouts) shape. See
+  "## Reconsider when".
+
 - **A full security audit / hardening sweep.** *Captured 2026-09-02 (Chris) —
   explicitly a "once the current queue is exhausted and functionality has
   settled down" item, **not** a next task.* A sweep across the hosted stack on
@@ -156,6 +204,19 @@ ready to start, with what it touches, is in [current.md](current.md).
 - **Richer workout search** becomes worth building once the scouring pass has
   grown the corpus enough that a title substring is no longer enough to find
   what you want, and once equipment is real data (V6–V8).
+
+- **The movement-"sets" model + UX rework** is worth doing once Chris is
+  actually leaning on sets while building — the trigger the user-scoped-movements
+  item below uses. A `localStorage` blob is fine for a handful of private
+  scratch lists; it stops being fine the moment a set is meant to be shared, to
+  be an org/library artifact, or to survive a machine. Do the collection + the
+  namespaced-id model first (workouts pattern), then the create/edit dialog UX
+  on top of it.
+
+- **The movement-palette browse UX** is worth doing once the curation sweep has
+  run and the core set has reached its real size — at which point a flat scroll
+  is clearly untenable and the right disclosure pattern can be designed against
+  the actual count and category distribution, not guessed at.
 
 - **The WOD-library scouring pass** is worth starting whenever corpus size is
   the bottleneck — for generation quality, for search being useful, or just for
