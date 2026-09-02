@@ -35,10 +35,12 @@
 <!--
   The preamble, lifted off the board.
 
-  `@id` and `@tags` are metadata *about* the workout, not the workout, so they
-  sit in the chrome here rather than as rows the athlete has to read past
-  mid-set. Shown only when the file sets one of them; the rest of the `@key`
-  preamble (`@wdl`, `@date`, …) is simply not board material.
+  The `# title`, `@id` and `@tags` are metadata *about* the workout, not the
+  workout, so they sit in the chrome here rather than as rows the athlete has to
+  read past mid-set. The title leads; a bare `@id` shows verbatim, but
+  parenthesised after a title (`Fran (crossfit:fran)`). Shown only when the file
+  sets at least one of the three; the rest of the `@key` preamble (`@wdl`,
+  `@date`, …) is simply not board material.
 -->
 <div id="meta" class="meta" hidden></div>
 

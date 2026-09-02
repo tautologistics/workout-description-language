@@ -25,15 +25,20 @@ permanent (the next reparse / `?w=` load / division change repopulates it).
 `apps/display/` only, dark verified, `make test` unchanged (2064/2064, 1
 pending).
 
-**Next off the queue: two standalone tasks left** (both fleshed out 2026-09-01
-from Chris, in [../tasks/current.md](../tasks/current.md), both dispatchable
-now). Recommended order — smaller / more self-contained first:
+**board: the `#` title moved into the `#meta` strip, closed 2026-09-01
+(`<TASK-SHA>`)** — the `# Title` line joins the hidden preamble run
+(`draw()`'s preamble test covers a `#`-line in the leading run) and shows in
+the `#meta` strip as the prominent lead element, with any `@id` small and dim
+in parentheses after it (`Fran (crossfit:fran)`); `dataset.line` stays 1:1 so
+the cue marker still tracks the right physical lines. `apps/display/` only
+(`board.js`, `board.css`, `index.html`), dark verified, `make test` unchanged
+(2064/2064, 1 pending). Closes the "reversible default" question left by item
+15b.
 
-1. **board: the `#` title moves into the meta strip** — the `# Title` line joins
-   the hidden preamble run and shows in the `#meta` strip instead of as the
-   first body row; `@id` small in parentheses after it. `apps/display/` only,
-   dark only, no core change. The smaller one.
-2. **unit defaults** — the big one: `@ 95` with no unit reads as `95lb` (rule 1,
+**Next off the queue: one standalone task left** (fleshed out 2026-09-01 from
+Chris, in [../tasks/current.md](../tasks/current.md), dispatchable now):
+
+1. **unit defaults** — the big one: `@ 95` with no unit reads as `95lb` (rule 1,
    a real spec + grammar + parser + golden change) and a unitless magnitude on a
    machine/aerobic movement suggests calories (rule 2, a builder-only
    diagnostic). The two rules can land separately.
@@ -132,13 +137,10 @@ Everything else is closed: the whole 0-series through 21, the deployment epic
 label + a transient inline hint by the caret); see
 [../topics/builder-ux.md](../topics/builder-ux.md) under the `»`-panel entry.
 
-**Three standalone tasks are queued** (all fleshed out 2026-09-01 from Chris, in
-[../tasks/current.md](../tasks/current.md)) — see the recommended order in the
-Immediate section above:
+**One standalone task is left** (fleshed out 2026-09-01 from Chris, in
+[../tasks/current.md](../tasks/current.md)) — the two board tasks closed
+2026-09-01 (`01c0af3` dismissible notifications, `<TASK-SHA>` title-into-strip):
 
-- **board: dismissible notifications** — a "Clear notifications" footer button.
-- **board: the `#` title into the meta strip** — not a body row; `@id` small in
-  parentheses after it.
 - **unit defaults** — `@ 95` reads as `95lb`; a unitless magnitude on a
   machine/aerobic movement reads as calories. Spec + grammar + parser + golden
   change.

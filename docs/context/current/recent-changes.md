@@ -2,6 +2,26 @@
 
 ## Changes
 
+- **2026-09-01 — board: the `#` title moved into the `#meta` strip
+  (`<TASK-SHA>`).** Second of the two remaining post-library standalone tasks;
+  one (**unit defaults**) left. The workout's `# Title` line no longer renders
+  as the first board body row — it joins the hidden preamble run and shows in
+  the `#meta` strip as the prominent lead element, with any `@id` small and dim
+  in parentheses after it (`Fran (crossfit:fran)`). **Files:**
+  `apps/display/board.js` (`draw()`'s preamble test gained
+  `|| text.trim().startsWith('#')`; `renderMeta()` now reads
+  `state.workout.title` and renders `<span class="title">` as the strip lead,
+  parenthesising `@id` when a title is present), `apps/display/board.css` (new
+  `.meta .title` — 2.8vmin/650/`--ink`; `.meta .id` restyled `--ink`→`--dim`),
+  `apps/display/index.html` (the `#meta` strip comment). `dataset.line` stays
+  1:1 with the source so `paint()`'s physical-line cue matching + `scrollIntoView`
+  are untouched. No `packages/core` / grammar / spec / mock / fixture touch.
+  Verified dark only (the board has no light theme) by driving the board:
+  `?w=crossfit:fran` → strip `Fran (crossfit:fran)`, first visible row
+  `for time:`, Start/Next land the marker on line 7 for cue 3/6 (no off-by-one);
+  `#<source>` title + no `@id` → strip shows just the title; `@id` + `@tags`, no
+  title → id verbatim + chips; nothing set → strip hidden. `make test`
+  unchanged — **2064/2064, 1 pending**.
 - **2026-09-01 — board: the notifications strip is now dismissible
   (`01c0af3`).** First of the two remaining post-library standalone tasks.
   The red `#problems` strip at the foot of the board (parse errors, resolve

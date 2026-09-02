@@ -44,16 +44,26 @@ board resolves `?w=<handle>:<slug>` end to end and shows the namespaced id in th
 what is left of it — the board **Edit** button round-tripping into the builder —
 is a loose bullet below.
 
-**No epic is in flight. Two standalone tasks are queued, both dispatchable now:**
+**No epic is in flight. One standalone task is queued, dispatchable now:**
 
-- **board: the `#` title moves into the meta strip** — not a body row; `@id`
-  shown small in parentheses after it.
 - **unit defaults** — a unitless `@ 95` load target reads as `95lb` (pound is
   the default); a unitless magnitude on a machine/aerobic movement reads as
   calories.
 
 Recently closed (kept here briefly for the trail):
 
+- **~~board: the `#` title belongs in the meta strip, not the body~~ — landed
+  2026-09-01 (`<TASK-SHA>`).** The `# Title` line now joins the hidden preamble
+  run (`draw()`'s preamble test covers a `#`-line in the leading run) and shows
+  in the `#meta` strip as the prominent lead element, with any `@id` small and
+  dim in parentheses after it (`Fran (crossfit:fran)`); `dataset.line` stays 1:1
+  so the cue marker still tracks the right physical lines, and the strip still
+  hides when the workout sets none of title / `@id` / `@tags`. `apps/display/`
+  only (`board.js` `draw()` + `renderMeta()`, `board.css` `.meta .title` / `.meta
+  .id`, `index.html` comment); dark verified; `make test` unchanged (2064/2064,
+  1 pending). Closes the "reversible default" question left by item 15b —
+  write-up in [../topics/builder-ux.md](../topics/builder-ux.md) under "The
+  board".
 - **~~board: parse errors / notifications must be dismissible~~ — landed
   2026-09-01 (`01c0af3`).** A **Clear notifications** button now sits in the
   board's footer control row (static markup in `apps/display/index.html`, beside
@@ -134,36 +144,6 @@ are pinned there as `was-wrong`; `@ 95` joins them). No app change strictly
 required. **Rule 2**: `apps/builder/builder.js` diagnostics/findings only —
 registry-derived suggestion, no core/spec-semantics change; the board is
 untouched.
-
----
-
-## Standalone task — board: the `#` title belongs in the meta strip, not the body
-
-*Raised 2026-09-01 by Chris, driving the board. Closes the "reversible default
-— open whether it moves into the strip too" question left by item 15b (see
-[../topics/builder-ux.md](../topics/builder-ux.md) "The board", and
-[../topics/what-exists.md](../topics/what-exists.md) Apps row).*
-
-Today the workout's `# Title` line renders as the **first board body row**,
-sitting among the movements an athlete reads mid-set. It should not be a body
-row. Wanted:
-
-- The `# Title` moves **into the `#meta` strip under the bar** — the strip that
-  currently shows only the `@id`. The **title shows there**, prominent.
-- If the workout also has an `@id`, it shows **smaller, in parentheses after
-  the title** — `Fran (crossfit:fran)`.
-- The workout **body renders line-for-line from the first non-preamble line** —
-  the `# title` line joins the preamble run that `preambleEnd()` already
-  detects and is not drawn as a `.line` row (keep `dataset.line` 1:1 with the
-  source so `paint()`'s physical-line cue matching stays correct, same
-  technique item 15b used for `@key` lines).
-
-Scope: `apps/display/board.js` (`preambleEnd()` / `draw()` — extend the
-hidden-preamble run to the `# title` line; the `#meta` strip render — add the
-title, parenthesise the id), `apps/display/board.css` (`#meta` title vs. id
-sizing). Update [../topics/what-exists.md](../topics/what-exists.md) (the Apps
-row currently says "the `# title` stays the first board row"). Dark only. No
-core change.
 
 ---
 

@@ -106,11 +106,12 @@ header.waiting .time { color: var(--dim); }
 header.overrun .time { color: var(--warn); }
 
 /*
- * The preamble strip: `@id` / `@tags` lifted out of the board.
+ * The preamble strip: the `# title` / `@id` / `@tags` lifted out of the board.
  *
  * Metadata about the workout, kept off the rows the athlete reads mid-set. Sits
  * under the bar, in the same chrome colour, and is hidden entirely when the
- * file sets neither directive.
+ * file sets none of the three. The title leads, in reading weight; the `@id`
+ * trails it small and dim.
  */
 .meta {
   display: flex;
@@ -123,8 +124,15 @@ header.overrun .time { color: var(--warn); }
   font-size: 1.9vmin;
 }
 
-.meta .id {
+.meta .title {
   color: var(--ink);
+  font-size: 2.8vmin;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.meta .id {
+  color: var(--dim);
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
   letter-spacing: 0.02em;
 }
@@ -176,8 +184,9 @@ main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .row .text { flex: 1; }
 
 .row.blank { height: 0.6em; padding: 0; }
-/* A `@key` line from the top-of-file preamble. The row still exists so the
-   marker's line-number maths is unchanged; it is just never shown. */
+/* A `@key` line or the `# title` from the top-of-file preamble. The row still
+   exists so the marker's line-number maths is unchanged; it is just never shown
+   (the title and `@id` render in the `#meta` strip instead). */
 .row.preamble { display: none; }
 .row.comment .text { color: var(--dim); }
 .row.done .text { color: var(--done); }

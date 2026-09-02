@@ -758,6 +758,28 @@ small in parentheses after it (`Fran (crossfit:fran)`). Queued as the
 "board: the `#` title into the meta strip" standalone task in
 [../tasks/current.md](../tasks/current.md).**
 
+**Fixed 2026-09-01 (`<TASK-SHA>`).** The `# title` now joins the hidden
+preamble run and shows in the `#meta` strip, resolving the reversible default
+above. `draw()`'s preamble test gained `|| text.trim().startsWith('#')` so a
+`#`-line inside the leading run gets the same `.preamble` class the zero-indent
+`@key` lines get — the row is still built, `dataset.line` stays 1:1 with the
+source, and `paint()`'s physical-line cue matching + `scrollIntoView` are
+untouched (the title's line number is "spent" bookkeeping-wise but the row is
+`display: none`). `renderMeta()` now reads `state.workout.title` and renders it
+as the strip's lead `<span class="title">` (reading weight, `--ink`); a bare
+`@id` still shows verbatim, but with a title beside it it renders
+`(crossfit:fran)` — `<span class="id">` restyled to `--dim` + monospace. The
+strip still hides entirely when the workout sets none of title / `@id` /
+`@tags`. `board.css` gained `.meta .title` (2.8vmin, 650) and dimmed `.meta
+.id`. `apps/display/` only — no `packages/core` / grammar / spec change. Dark
+verified (the board has no light theme) by driving the board: `?w=crossfit:fran`
+→ strip reads `Fran (crossfit:fran)`, first visible row is `for time:`, Start /
+Next land the cue marker on the right physical lines (line 7 for cue 3/6, no
+off-by-one); a `#<source>` workout with a title and no `@id` → strip shows just
+the title; `@id` + `@tags` and no title → id verbatim + chips as before; nothing
+set → strip hidden. `make test` unchanged — **2064/2064, 1 pending**.
+*Touched: `apps/display/board.js`, `board.css`, `index.html`.*
+
 **~~The board's red parse-error / notification strip has no dismiss control.~~
 Fixed 2026-09-01 (`01c0af3`).** *Was:* the `#problems` strip below the board
 showed parse errors, resolve diagnostics and run warnings with no way to clear

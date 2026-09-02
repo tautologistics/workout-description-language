@@ -167,11 +167,13 @@ function draw() {
     row.className = 'row';
     if (!text.trim()) row.classList.add('blank');
     else if (text.trimStart().startsWith('//')) row.classList.add('comment');
-    // A `@key` line in the top-of-file metadata run is not workout content. The
-    // row is still built — so `dataset.line` stays 1:1 with the source and
-    // `paint()`'s cue-line matching is untouched — but hidden via `.preamble`.
-    // `@id` / `@tags` resurface in the header strip; `# title` stays a real row.
-    else if (i < preEnd && DIRECTIVE_LINE.test(text.trim())) row.classList.add('preamble');
+    // A `@key` line — or the `# title` — in the top-of-file metadata run is not
+    // workout content. The row is still built, so `dataset.line` stays 1:1 with
+    // the source and `paint()`'s cue-line matching is untouched, but hidden via
+    // `.preamble`. `@id` / `@tags` / the title resurface in the `#meta` strip.
+    else if (i < preEnd && (DIRECTIVE_LINE.test(text.trim()) || text.trim().startsWith('#'))) {
+      row.classList.add('preamble');
+    }
     row.dataset.line = String(i + 1);
     const mark = document.createElement('span');
     mark.className = 'mark';
@@ -186,23 +188,33 @@ function draw() {
 }
 
 /**
- * `@id` and `@tags` in the header chrome — the two preamble directives worth
+ * The `# title`, `@id` and `@tags` in the header chrome — the metadata worth
  * seeing at a glance, lifted out of the board rows where `draw()` now hides
- * them. `@id` verbatim; `@tags` split on comma into chips, mirroring the
- * builder's metadata block in a lighter weight. Shown only when the workout
- * sets one or the other — a file with neither gets no strip at all.
+ * them. The title leads, prominent; a bare `@id` shows verbatim, but with a
+ * title beside it, small and parenthesised (`Fran (crossfit:fran)`); `@tags`
+ * split on comma into chips, mirroring the builder's metadata block in a
+ * lighter weight. Shown only when the workout sets at least one of the three —
+ * a file with none gets no strip at all.
  */
 function renderMeta() {
-  const d = state.workout?.directives ?? {};
+  const w = state.workout;
+  const title = (w?.title ?? '').trim();
+  const d = w?.directives ?? {};
   const id = d.id;
   const tags = d.tags ? d.tags.split(',').map((t) => t.trim()).filter(Boolean) : [];
   meta.innerHTML = '';
-  if (!id && !tags.length) { meta.hidden = true; return; }
+  if (!title && !id && !tags.length) { meta.hidden = true; return; }
   meta.hidden = false;
+  if (title) {
+    const span = document.createElement('span');
+    span.className = 'title';
+    span.textContent = title;
+    meta.append(span);
+  }
   if (id) {
     const span = document.createElement('span');
     span.className = 'id';
-    span.textContent = id;
+    span.textContent = title ? `(${id})` : id;
     meta.append(span);
   }
   if (tags.length) {
