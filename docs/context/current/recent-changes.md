@@ -25,13 +25,16 @@
     `running-it.md`) had said the `movements` table did not exist in prod, the
     vocab migration was unrun, and "prod serves nothing" — all stale, some
     within hours of being written. Fixed as dated corrections in place.
-  - **Still open on deploy:** (1) the **V8 static apps** have not been
-    `make deploy`'d — the live `apps/shared/{pocketbase.js, vocab.js,
-    movement-editor.js}` is the pre-V8 build (`last-modified` 2026-09-02
-    21:06 UTC, no `equipmentVocab` / `listEquipment`), so the prod editor still
-    reads the bundled literals; one `make deploy` from a checkout at `b2efb64`+
-    closes it. (2) the M6 nightly-backup `crontab -e` line + its first verified
-    run.
+  - **V8 static apps deployed 2026-09-02 21:38 UTC.** An earlier check in this
+    session caught the box mid-way (served JS still `last-modified` 21:06, the
+    pre-V8 build) and this entry first listed the `make deploy` as open — it
+    landed minutes later. Confirmed: served `apps/shared/{pocketbase.js,
+    vocab.js, movement-editor.js}` are byte-identical to `origin/main`, and the
+    exact call `listEquipment()` builds
+    (`?filter=scope="global"&sort=termId&perPage=1000`) returns **29** on the
+    live API (`listPatterns()` **11**). **V8 is fully live** — DB + app code.
+  - **Still open on deploy:** only the M6 nightly-backup `crontab -e` line + its
+    first verified run.
 
 - **2026-09-02 — V8 landed (`b2efb64`): `make vocab:load`, and the movement
   editor's equipment + pattern pickers now read `/api`.** Stage C of

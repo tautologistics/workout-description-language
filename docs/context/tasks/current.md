@@ -481,10 +481,10 @@ V6 ── shipped ──> V7 ── shipped ──> V8 ─┴─ shipped (V8 swa
 **Stage C is effectively complete — V6 (`370b2d0`), V7 (`67001cb`), V8
 (`b2efb64`) all shipped 2026-09-02.** Only the optional **V9** (inline
 "＋ new term" in the picker) remains, and it is gated on the editing flow
-asking for it. **Prod DB, 2026-09-02:** `make deploy:db` and `make vocab:load`
-have been run — `equipment` 29 rows, `patterns` 11. The one deploy step still
-open is a `make deploy` of the V8 **static apps** (the live `apps/shared/*.js`
-is still pre-V8, so the prod editor is not fetching the collections yet).
+asking for it. **Prod, 2026-09-02: V8 is fully live.** `make deploy:db`, `make vocab:load`
+and `make deploy` have all run — `equipment` 29 rows, `patterns` 11, and the
+served `apps/shared/*.js` is byte-identical to `origin/main` V8, so the prod
+editor fetches the DB vocab with the bundled literals as the offline fallback.
 
 **Stage A shipped 2026-09-02 (`7429863`).** **V3 is withdrawn** (2026-09-02 —
 its premise turned out to be false; DEC-023, see the item above); it was
@@ -507,9 +507,9 @@ mock `/api`; **V8 added `make vocab:load` and put the `/api` fetch in front of
 movement editor's equipment and pattern pickers read the DB when it answers and
 the bundled list when it does not. That staging matched M1→M3 for movements. The
 only thing left in the epic is the **optional V9**, deferred unless Chris asks.
-The prod DB side is done (`make deploy:db` + `make vocab:load` run 2026-09-02 —
-`equipment` 29, `patterns` 11); a `make deploy` of the V8 static apps is still
-pending.
+Prod is fully deployed as of 2026-09-02 — `make deploy:db` + `make vocab:load`
++ `make deploy` all run (`equipment` 29, `patterns` 11; served V8 JS
+byte-identical to `origin/main`), so the live editor fetches the DB vocab.
 
 ---
 

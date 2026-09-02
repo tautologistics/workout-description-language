@@ -403,15 +403,15 @@ detail — the MIME finding (`.ohm`/`.wdlg` land as `text/plain`, and are
   [DEC-025](settled-decisions.md#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump))
   was "not yet run on the box" — Chris ran `make deploy:db` on 2026-09-02 and
   the vocab collections landed.*
-- **Prod data load state, 2026-09-02** (checked against the live API):
+- **Prod data + app state, 2026-09-02** (checked against the live API):
   `movements` **972 rows**, `workouts` **45**, `equipment` **29**, `patterns`
   **11** — `make movements:load` / `make workouts:load` / `make vocab:load` have
-  all been run against prod. `apps/shared/vocab.js`'s bundled literals are no
-  longer the only thing the editor can read — *but the prod static apps are
-  still the pre-V8 build* (the V8 `apps/shared/{pocketbase.js, vocab.js,
-  movement-editor.js}` have not been `make deploy`'d), so the live editor is not
-  yet fetching the vocab collections. One `make deploy` from a checkout at
-  `b2efb64`+ closes that.
+  all been run against prod. The **V8 static apps are deployed too** (`make
+  deploy` landed 21:38 UTC; the served `apps/shared/{pocketbase.js, vocab.js,
+  movement-editor.js}` are byte-identical to `origin/main`, and the exact call
+  `listEquipment()` makes — `?filter=scope="global"&sort=termId&perPage=1000` —
+  returns 29 on prod, `listPatterns()` 11), so the live editor now reads the DB
+  vocab with the bundled literals as the offline fallback. **V8 is fully live.**
 - **DB backup / restore:** [`deploy/README.md`](../../../deploy/README.md) §9
   "Back up (SQLite)" is the runbook — *since 2026-09-01 (task M6)* a nightly
   `sqlite3 .backup` cron line in
