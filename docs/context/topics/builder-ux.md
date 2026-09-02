@@ -76,7 +76,11 @@ The related **Minor — the read pane stacks four `<h2>`s** entry in **## What i
 reads** is left standing for the same reason (it was gated on this pane becoming
 collapsible sub-panels, which did not happen).
 
-**Movements is a permanent ~24% column with no way to dismiss it.** At 1440px
+**Movements is a permanent ~24% column with no way to dismiss it.**
+**Scheduled 2026-09-02 as N2** in [../tasks/current.md](../tasks/current.md)
+"## Next builder-UX work" — Chris asked for the palette-drawer redesign
+directly. Landing it unblocks the **129-row flat list** (## Movements) and the
+**four stacked `<h2>`s** (## What it reads), both gated on it. At 1440px
 the three panes are 344 / 688 / 408px — the palette, which is *reference you dip
 into*, holds a quarter of the width while you are heads-down in the editor, and
 there is no toggle. The `@media (max-width:1180px)` rule already does the right

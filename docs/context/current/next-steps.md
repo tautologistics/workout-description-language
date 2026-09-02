@@ -14,8 +14,9 @@ L1 fixed org ids. The board resolves `?w=<handle>:<slug>` end to end and shows
 the namespaced id in its `#meta` strip (no separate source line — the id names
 the owner). App code only; `make test` unchanged (2064/2064, 1 pending). The
 epic absorbed most of the deferred account-namespacing rethink; what is left —
-the board **Edit** button round-tripping into the builder — is a loose bullet
-below.
+the board **Edit** button round-tripping into the builder — is now scheduled as
+**N3** (see "## Next builder-UX work" in
+[../tasks/current.md](../tasks/current.md)).
 
 **board: dismissible notifications closed 2026-09-01 (`01c0af3`)** — a
 **Clear notifications** button in the board footer beside Reset, shown only
@@ -144,7 +145,8 @@ agrees field-for-field with the migration's columns. `.gitignore` gained the two
 `*.local.json` entries. No core, no app change; `make test` 2064/2064, 1
 pending.
 
-**V8 landed 2026-09-02 (`b2efb64`) — Stage C is complete bar the optional V9.**
+**V8 landed 2026-09-02 (`b2efb64`) — Stage C is complete; V9 is wanted (Chris,
+2026-09-02) and is now N1 of the next set.**
 `scripts/vocab-to-db.mjs` / `make vocab:load` is the `movements:load` twin (one
 run upserts both `registry/{equipment,patterns}.json` into the two collections,
 keyed on `id` → `termId`, per-collection tally, `--dry-run`, prod auth identical
@@ -158,17 +160,40 @@ task-note premises corrected in the file). Drove it: both pickers populate from
 `make test` 2064/2064, 1 pending. **No `make vocab:dump`** — not wanted for a
 two-file vocabulary. **Muscles stays `registry/muscles.json`.**
 
-**V9 (inline "＋ new term" in the picker) is the only V-series item left, and it
-is optional — deferred unless Chris asks for it.** With V9 deferred and both
-self-contained design-critique items now verified already-done (see below), the
-remaining `builder-ux.md` design-critique items — the *Movements* palette
-drawer, the flat 129-row core list, the read pane's four stacked `<h2>`s — are
-**all gated on the palette-drawer redesign, which needs Chris to scope**. The
-only other unscoped builder work is the two loose bullets in
-[../tasks/current.md](../tasks/current.md) (laterality curation sweep; board
-**Edit** round-trip), both needing Chris. Most
-[../topics/known-debts.md](../topics/known-debts.md) items are core / spec /
-grammar, not app-only.
+**The active queue is *## Next builder-UX work* in
+[../tasks/current.md](../tasks/current.md) — three tasks Chris named 2026-09-02,
+in order:**
+
+- **N1 — V9: inline "＋ new term" in the token-input picker.** No longer optional
+  — Chris: *"I definitely want that."* An admin-only picker row that `POST`s a
+  `scope: "global"` term to `equipment` / `patterns` (the `＋ new movement`
+  pattern). Fiddly part: the `dbVocab()` promise cache in `apps/shared/vocab.js`
+  and `createTokenInput`'s resolve-once-at-mount both need busting so a
+  just-added term shows without a reload. `apps/shared/{token-input,vocab,
+  pocketbase,movement-editor}.js` + `apps/builder/{builder.js,builder.css}`, no
+  core.
+- **N2 — the *Movements* palette-drawer redesign.** A header toggle collapsing
+  *Movements* to a strip / overlay drawer **at any width**, persisted in
+  `localStorage`; reuse the `@media (max-width:1100px)` collapsed-palette CSS as
+  the closed state. Must not regress `--right-col-w` / `.col-resize` / `#bodymap`
+  scaling. **Unblocks** two further design-critique items gated on it — the flat
+  129-row core list (pattern/region grouping) and the read pane's four stacked
+  `<h2>`s (collapsible sub-panels). `apps/builder/{index.html,builder.css,
+  builder.js}`, no core.
+- **N3 — the board's *Edit* button round-trips into the builder.** Chris:
+  *"that's needed as well."* A footer control on the board that opens the builder
+  on the shown workout (owner's copy if owned, detached copy otherwise). Last
+  piece of the post-redesign account thread; the rest shipped in the L-series.
+  `apps/display/*` + maybe a builder load param, no core.
+
+No hard dependency chain, but the order is deliberate: N1 is a small no-dep win,
+N2 is the keystone, N3 lands after N2's large `builder.{js,css}` churn.
+
+Not dev work: the **laterality curation sweep** is Chris's manual CSV step
+([../tasks/current.md](../tasks/current.md) loose bullets). A **full security
+audit** is [../tasks/deferred.md](../tasks/deferred.md) ("once functionality has
+settled"). Most [../topics/known-debts.md](../topics/known-debts.md) items are
+core / spec / grammar, not app-only.
 
 **Deploy state, 2026-09-02** (checked against the live API): all six migrations
 applied, every loader has run against prod (`movements` **972**, `workouts`
@@ -206,21 +231,15 @@ library surface is still moving would mean auditing twice. Full write-up in
 [../tasks/deferred.md](../tasks/deferred.md) ("## Deferred" + "## Reconsider
 when").
 
-Also still open, needing Chris to scope: a full **laterality curation sweep**
-(which movements), and the board's **Edit** button round-tripping into the
-builder — the two loose bullets in [../tasks/current.md](../tasks/current.md).
-The **self-contained builder-UX queue is now exhausted.** The two named
-design-critique items that were dispatchable on their own —
-the read/analysis-pane scroll and the **header control-row grouping** — both
-turned out **already resolved by the R1 layout redesign** (+ V1 for the header
-rename), verified 2026-09-02, no code shipped. What remains in
-[../topics/builder-ux.md](../topics/builder-ux.md)'s design-critique section is
-**all gated on the *Movements* palette-drawer redesign, which needs Chris to
-scope**: the drawer itself (a header toggle collapsing *Movements* at any
-width), the flat 129-row core movement list (grouping by pattern/region), and
-the read pane's four stacked `<h2>`s (collapsible sub-panels). Plus the optional
-**V9** (inline "＋ new term" in the token-input picker), deferred unless Chris
-asks.
+The two design-critique items that were dispatchable on their own — the
+read/analysis-pane scroll and the **header control-row grouping** — both turned
+out **already resolved by the R1 layout redesign** (+ V1 for the header rename),
+verified 2026-09-02, no code shipped. Chris then named the concrete next work
+(2026-09-02): **N1 V9 → N2 palette-drawer redesign → N3 board Edit round-trip**,
+detailed above and in [../tasks/current.md](../tasks/current.md) "## Next
+builder-UX work". N2 unblocks the two remaining design-critique items (the flat
+129-row list; the four `<h2>`s). The **laterality curation sweep** is Chris's
+manual step, not dev work.
 
 **Verified already-done 2026-09-02, no code shipped — two design-critique
 ## Layout entries:**
@@ -344,8 +363,9 @@ reads as `95lb`, `wdl fmt` writes the unit in; rule 2 `952c80c` — a
 builder-only calorie-machine diagnostic).
 [DEC-022](../topics/settled-decisions.md#dec-022-a-unitless-load-magnitude-is-pounds-wdl-fmt-writes-the-unit-in).
 
-Still needing Chris to scope: a full **laterality curation sweep** (which
-movements), and the board's **Edit** button round-tripping into the builder.
+The board's **Edit** round-trip is now scheduled as **N3** (see "## Next
+builder-UX work"). The **laterality curation sweep** is Chris's manual CSV step,
+not dev work.
 
 Phase 2 of the movements epic (user-scoped movements) is in
 [../tasks/deferred.md](../tasks/deferred.md).

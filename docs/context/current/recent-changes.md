@@ -2,6 +2,20 @@
 
 ## Changes
 
+- **2026-09-02 — next builder-UX queue set by Chris: N1 V9 → N2 palette-drawer
+  redesign → N3 board Edit round-trip.** After the two dispatchable
+  design-critique items turned out already-done by the R1 redesign, Chris named
+  the concrete next work. **V9** (inline "＋ new term" in the token-input picker)
+  is **no longer optional** — "I definitely want that". The **board Edit
+  round-trip** into the builder is promoted from a loose bullet — "that's needed
+  as well". The **palette-drawer redesign** is now scoped to do (it unblocks the
+  flat 129-row list + the read pane's four `<h2>`s). The **laterality curation
+  sweep** is confirmed as Chris's manual CSV step, not dev work. Order N1→N2→N3
+  is deliberate (small no-dep win → keystone → independent, after N2's churn) but
+  not a hard chain. Recorded in [../tasks/current.md](../tasks/current.md)
+  "## Next builder-UX work"; `next-steps.md` + `builder-ux.md` **## Layout**
+  updated; `deferred.md` unchanged (security sweep stays deferred). Docs only.
+
 - **2026-09-02 — builder header "one undifferentiated control row": verified
   already resolved, no code shipped.** A session was dispatched on the
   design-critique entry *"The header is one undifferentiated control row"* in

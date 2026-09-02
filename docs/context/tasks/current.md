@@ -44,17 +44,23 @@ board resolves `?w=<handle>:<slug>` end to end and shows the namespaced id in th
 what is left of it — the board **Edit** button round-tripping into the builder —
 is a loose bullet below.
 
-**The epic in flight is *Vocabularies & editor ergonomics* (V1–V9)**, below —
-Stage A (V1+V2) and Stage B (V4+V5) have landed, V3 was withdrawn, and Stage C
-(V6+V7+V8) landed 2026-09-02, so the epic is **effectively done bar the optional
-V9** (inline "＋ new term" in the picker — deferred unless Chris asks). *Corrected 2026-09-02: this paragraph read "No epic is in
+**The *Vocabularies & editor ergonomics* epic (V1–V9)** is done through V8; V3
+was withdrawn; **V9 is wanted (Chris, 2026-09-02) and is now N1 of the
+three-task set below.** *Corrected 2026-09-02: this paragraph read "No epic is in
 flight, and the standalone queue is empty" from 2026-09-01 until the V-series
 was queued on 2026-09-02, and stayed that way for a day after — a session
 picking work off this file would have been told there was none.* Every earlier
 numbered queue item is closed and all three post-library standalone tasks have
 landed. The standalone **movement-editor wrong-record defect** was fixed
-2026-09-02 (`a643824`) — its section below is struck, kept for the trail. Still
-open: the two loose bullets at the end, which need Chris to scope.
+2026-09-02 (`a643824`) — its section below is struck, kept for the trail.
+
+**The active queue is *## Next builder-UX work* below — three tasks Chris named
+2026-09-02, in order: N1 = V9 (inline "＋ new term"), N2 = the *Movements*
+palette-drawer redesign, N3 = the board's **Edit** round-trip into the builder.**
+N2 unblocks two further `builder-ux.md` design-critique items (the flat 129-row
+list; the read pane's four `<h2>`s). The **laterality curation sweep** is Chris's
+manual step, not dev work (loose bullet at the end). A **full security audit** is
+recorded in [deferred.md](deferred.md) as a "once functionality has settled" item.
 
 Recently closed (kept here briefly for the trail):
 
@@ -74,11 +80,10 @@ Recently closed (kept here briefly for the trail):
   1 pending, unchanged. The *"future New behind one file control"* popover is a
   closed call (R1: *"three items didn't warrant a popover"*), not invented.
   Entry struck in `builder-ux.md`; `current/recent-changes.md` +
-  `current/next-steps.md` updated. **The self-contained builder-UX queue is now
-  exhausted** — both dispatchable design-critique items (read-pane scroll, this
-  one) were already-done by R1. What remains is all gated on the palette-drawer
-  redesign (drawer + 129-row list + four `<h2>`s) or is a loose bullet, both
-  needing Chris to scope; optional V9 too.
+  `current/next-steps.md` updated. Both dispatchable design-critique items
+  (read-pane scroll, this one) were already-done by R1. *Chris then named the
+  concrete next work (2026-09-02): see **## Next builder-UX work** — N1 V9, N2
+  palette-drawer redesign, N3 board Edit round-trip.*
 
 - **~~builder: the read/analysis pane has no scroll container~~ — was already
   fixed; verified 2026-09-02, no code shipped.** A session was dispatched on the
@@ -507,10 +512,12 @@ V6 landed 2026-09-02 (`370b2d0`), so it starts at V7.**
   `scripts/vocab-to-db.mjs` (new), root `Makefile`, `apps/shared/{pocketbase.js,
   vocab.js, movement-editor.js}`.*
 
-- **V9 (optional, defer unless wanted). Inline "＋ new term" in the picker.**
-  An admin-only affordance in the token-input picker that `POST`s a `scope:
-  "global"` row to `equipment` / `patterns` — the `＋ new movement` pattern, so a
-  curator adds a term mid-edit. Only if the editing flow asks for it.
+- **V9. Inline "＋ new term" in the picker.** **Wanted — Chris confirmed
+  2026-09-02** ("I definitely want that"). No longer optional; it is task 1 of
+  the three-task builder-UX set below. An admin-only affordance in the
+  token-input picker that `POST`s a `scope: "global"` row to `equipment` /
+  `patterns` — the `＋ new movement` pattern, so a curator adds a term mid-edit.
+  See **## Next builder-UX work** below for the full brief.
 
 ### Sequencing
 
@@ -520,13 +527,14 @@ V2 ─┴─ ship (Stage A, independent, no risk)
 V3 ──── WITHDRAWN 2026-09-02 (premise false — DEC-023; blocked nothing)
 V4 ──> V5 ── shipped ───────────┐
 V6 ── shipped ──> V7 ── shipped ──> V8 ─┴─ shipped (V8 swapped V5's vocab source to the API)
-                                          V9 optional — deferred unless Chris asks
+                                          V9 WANTED (Chris, 2026-09-02) — see "## Next builder-UX work"
 ```
 
 **Stage C is effectively complete — V6 (`370b2d0`), V7 (`67001cb`), V8
-(`b2efb64`) all shipped 2026-09-02.** Only the optional **V9** (inline
-"＋ new term" in the picker) remains, and it is gated on the editing flow
-asking for it. **Prod, 2026-09-02: V8 is fully live.** `make deploy:db`, `make vocab:load`
+(`b2efb64`) all shipped 2026-09-02.** **V9** (inline "＋ new term" in the picker)
+is the last V-series item; **Chris confirmed 2026-09-02 he wants it** — it is now
+task 1 of the three-task set in **## Next builder-UX work** below.
+**Prod, 2026-09-02: V8 is fully live.** `make deploy:db`, `make vocab:load`
 and `make deploy` have all run — `equipment` 29 rows, `patterns` 11, and the
 served `apps/shared/*.js` is byte-identical to `origin/main` V8, so the prod
 editor fetches the DB vocab with the bundled literals as the offline fallback.
@@ -551,10 +559,113 @@ mock `/api`; **V8 added `make vocab:load` and put the `/api` fetch in front of
 `apps/shared/vocab.js`'s literals, which are now the offline fallback** — so the
 movement editor's equipment and pattern pickers read the DB when it answers and
 the bundled list when it does not. That staging matched M1→M3 for movements. The
-only thing left in the epic is the **optional V9**, deferred unless Chris asks.
+only V-series item left is **V9**, which **Chris confirmed he wants** on
+2026-09-02 — folded into **## Next builder-UX work** below.
 Prod is fully deployed as of 2026-09-02 — `make deploy:db` + `make vocab:load`
 + `make deploy` all run (`equipment` 29, `patterns` 11; served V8 JS
 byte-identical to `origin/main`), so the live editor fetches the DB vocab.
+
+---
+
+## Next builder-UX work — three concrete tasks (Chris, 2026-09-02)
+
+With the two dispatchable design-critique items verified already-done (read-pane
+scroll, header row — both by the R1 redesign), Chris named the work that
+concretely comes next. **Order: N1 → N2 → N3.** No hard dependency chain, but
+this order is deliberate — N1 is a small no-dep win, N2 is the keystone that
+unblocks two further design-critique items, N3 is independent and lands after
+N2's large `builder.{js,css}` churn so it isn't rebasing across it. Each is its
+own session; each spawns the next when it lands.
+
+*Not in this set: the **laterality curation sweep** — Chris does that manually
+through the audit CSV (`make curation:sheet`), it is not a coding task. It stays
+in the loose bullets below as his step.*
+
+### N1 — V9: inline "＋ new term" in the token-input picker
+
+**Chris: "I definitely want that."** An **admin-only** row in the token-input
+picker (`apps/shared/token-input.js`, the filter/select list below the field)
+that creates a new global vocabulary term without leaving the editor — the
+`＋ new movement` pattern, one level down.
+
+- **Where.** Only for fields whose vocab is the DB-backed equipment / pattern
+  layer (`allowCustom: true` *and* a real `vocab` source). Not muscles
+  (`allowCustom: false`, closed set). `aliases` / `related` / `sameAs` already
+  take free text and have no picker to add to.
+- **Gate.** `currentUser()?.admin` — mirror `#movement-new`'s gate in
+  `apps/builder/builder.js`. A non-admin never sees the affordance; the server
+  rule (`@request.auth.admin = true` on `equipment` / `patterns`, DEC-025)
+  is the real boundary and a 403 message must still surface if it is ever shown.
+- **Write path.** Add `createEquipmentTerm(fields)` / `createPatternTerm(fields)`
+  to `apps/shared/pocketbase.js` beside `createMovement` — `POST` a
+  `{ termId, name, synonyms: [], scope: 'global' }` row (`termId` = the typed
+  term slugged/lowercased the way `registry/equipment.json` ids are; `name` =
+  the typed display text). One helper factored over both collections is fine.
+- **Cache + live update — the fiddly part.** `equipmentVocab` / `patternVocab`
+  in `apps/shared/vocab.js` are `dbVocab()` closures that **cache the resolved
+  promise** (`promise ??= …`), and `createTokenInput` **resolves its `vocab`
+  once at mount**. So after a successful `POST` the new term must be (a)
+  spliced into the *live* widget's in-memory term list optimistically so it
+  shows and can be picked immediately, and (b) the `dbVocab` cache busted (add a
+  `.reset()` to the closure, or null the cached promise) so the *next* editor
+  open in the same session also sees it. On `POST` failure: roll back the
+  optimistic add and show the error inline (reuse the editor's existing
+  error surface).
+- **Scope.** `apps/shared/{token-input.js, vocab.js, pocketbase.js,
+  movement-editor.js}`, `apps/builder/builder.js` (pass the gate + a
+  create callback into the token inputs it builds), `apps/builder/builder.css`
+  for the `＋ new term` row. **No `packages/core` change.** Mock `/api` already
+  accepts authorised `equipment` / `patterns` writes (V7) and persists them to
+  `fixtures/{equipment,patterns}.local.json` — delete those to reset.
+- **Verify.** Drive `make serve` signed in (mock hands an `admin: true` user):
+  add a term in the equipment picker, confirm it appears as a pickable option
+  and as a chip when picked, confirm `curl` shows the row in
+  `equipment/records`, restart the server and confirm it persisted, sign out and
+  confirm the affordance is gone. `make test` 2064/2064, 1 pending, unchanged.
+
+### N2 — the *Movements* palette-drawer redesign
+
+The design-critique item *"Movements is a permanent ~24% column with no way to
+dismiss it"* (see [../topics/builder-ux.md](../topics/builder-ux.md) **## Layout**).
+**Now scoped by Chris — do it.** The palette is *reference you dip into*; it
+should not hold a quarter of the width while you are heads-down in the editor.
+
+- A **header toggle** (hamburger / rail) that collapses *Movements* to a strip
+  or an overlay drawer **at any width**, so the editor + analysis get the full
+  canvas. The `@media (max-width:1100px)` rule already does the right thing
+  structurally (palette full-width on top, capped, own scroll) — this makes it a
+  *choice*, not only a width response. Reuse the collapsed-palette CSS as the
+  drawer's closed state; persist in `localStorage` like `wdl.editor-tab` /
+  `wdl.right-col-w`.
+- **Must stay inside direction C** and must not regress `--right-col-w` /
+  `.col-resize` / `#bodymap` scaling or the `@media` structural behaviour
+  (struck entries in `builder-ux.md` **## Layout**).
+- **Note for the follow-on:** landing the drawer **unblocks two further
+  `builder-ux.md` design-critique items** that were explicitly gated on it — the
+  flat 129-row core movement list needing pattern/region grouping
+  (**## Movements**), and the read pane's four stacked `<h2>`s needing
+  collapsible sub-panels (**## What it reads**). The N2 session should close its
+  loop by noting those are now dispatchable and (optionally) spawning them.
+- **Scope.** `apps/builder/{index.html, builder.css, builder.js}`. No core.
+
+### N3 — the board's **Edit** button round-trips into the builder
+
+**Chris: "being able to hit the edit button from the board should be able to go
+back into the builder. That's needed as well."** Today the board
+(`apps/display/`) has no path back to the builder for the workout it is showing.
+
+- The board resolves `?w=<handle>:<slug>` end to end (L-series) and knows the
+  workout's id / source. An **Edit** control in the board's footer (beside the
+  division picker / Reset / Clear notifications) opens the builder on that
+  workout — the owner's own copy if they own it, a detached editable copy
+  otherwise, mirroring the *My workouts* panel's open behaviour
+  (`apps/shared/pocketbase.js` `getByAnyId` / `getById`; builder load path).
+- Was a loose bullet ("Post-redesign rethinks — the board's **Edit** button
+  round-tripping into the builder", [../topics/builder-ux.md](../topics/builder-ux.md)
+  "Accounts, IDs and layout"). Everything else in that thread already shipped in
+  the L-series; this is the last piece.
+- **Scope.** `apps/display/{index.html, board.css, board.js}`, possibly a query
+  param the builder reads on load (`apps/builder/builder.js`). No core.
 
 ---
 
@@ -714,9 +825,14 @@ what catches the resolver direction.*
 
 ---
 
-## Loose bullets — unscheduled, need Chris to scope
+## Loose bullets
 
-- **A full laterality curation sweep** — not a numbered item. `around-worlds` is
+- **A full laterality curation sweep — Chris's manual step, not a coding task.**
+  *Confirmed 2026-09-02: "that's a manual step that I need to do."* Run through
+  the audit CSV (`make curation:sheet` → review in a spreadsheet →
+  `make curation:apply CSV=…`), per
+  [../topics/running-it.md](../topics/running-it.md). Kept here so it is not
+  re-picked as dev work. `around-worlds` is
   the only movement carrying `lateralityAxis`. The audit-CSV tooling is ready:
   `export-movement-curation.mjs` (`make curation:sheet`) emits the sheet with a
   `Laterality axis` column in both the CURRENT and CURATE blocks, and
@@ -729,11 +845,12 @@ what catches the resolver direction.*
   now the **bulk** path; per the rethink below, one-at-a-time movement edits are
   headed into an in-app GUI.
 
-- **Post-redesign rethinks** (not scheduled) — the board's **Edit** button
-  round-tripping into the builder. *Everything else in that thread —
+- **Post-redesign rethinks** — the board's **Edit** button round-tripping into
+  the builder is now **scheduled as N3** in **## Next builder-UX work** above
+  (Chris, 2026-09-02: "that's needed as well"). *Everything else in that thread —
   `@id` ↔ record-id correlation, the account namespace, `users.handle`,
   `workouts.wdlId`, forcing the `@id` namespace on save, an "open on the board"
-  action — is now in **The workout library (L0–L7)** above; the handle-rename
-  debt is in [../topics/known-debts.md](../topics/known-debts.md).* In
+  action — shipped in **The workout library (L0–L7)** above; the handle-rename
+  debt is in [../topics/known-debts.md](../topics/known-debts.md).* Background in
   [../topics/builder-ux.md](../topics/builder-ux.md) "Accounts, IDs and layout".
 
