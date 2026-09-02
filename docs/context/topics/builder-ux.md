@@ -77,8 +77,11 @@ reads** is left standing for the same reason (it was gated on this pane becoming
 collapsible sub-panels, which did not happen).
 
 **~~Movements is a permanent ~24% column with no way to dismiss it.~~**
-**Stale the day it was written — verified 2026-09-02, nothing shipped.** This
-entry describes the pre-R1 four-/three-column `<main>` grid. It was written in
+**VOID — obsolete premise, confirmed by Chris 2026-09-02, nothing shipped.**
+*Chris: "a holdover from when the palette was the full right sidebar or the full
+top row depending on browser width — now it's an overlay/modal, so this doesn't
+mean anything anymore."* This entry describes the pre-R1 four-/three-column
+`<main>` grid. It was written in
 the 2026-08-30 design-critique pass, the same day **R1 of the layout redesign
 (`758dff1`)** replaced that grid with the direction-C centred sheet and turned
 the palette into an overlay `.drawer` behind a `☰ Movements` header toggle

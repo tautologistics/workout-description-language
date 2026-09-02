@@ -57,9 +57,9 @@ landed. The standalone **movement-editor wrong-record defect** was fixed
 **The active queue is *## Next builder-UX work* below — three tasks Chris named
 2026-09-02, in order: N1 = V9 (inline "＋ new term"), N2 = the *Movements*
 palette-drawer redesign, N3 = the board's **Edit** round-trip into the builder.**
-**N1 landed 2026-09-02 (`2a534b6`).** **N2 was investigated 2026-09-02 and its
-premise is stale — nothing shipped; it is `**Open for Chris:**` in its section
-below.** The palette has not been "a permanent ~24% column" since **R1
+**N1 landed 2026-09-02 (`2a534b6`).** **N2 is VOID — its premise (a docked
+palette column) has been obsolete since R1/R7, confirmed dead by Chris
+2026-09-02; nothing shipped, see its struck section below.** The palette has not been "a permanent ~24% column" since **R1
 (`758dff1`, 2026-08-30)** made it an overlay drawer behind a `☰` toggle, and
 **R7 (`d1a89ce`, 2026-08-31)** then replaced the drawer *and* that `☰` toggle
 *and* its `wdl.palette-open` persistence with the summoned `<dialog
@@ -679,7 +679,13 @@ that creates a new global vocabulary term without leaving the editor — the
   `equipment/records`, restart the server and confirm it persisted, sign out and
   confirm the affordance is gone. `make test` 2064/2064, 1 pending, unchanged.
 
-### ~~N2 — the *Movements* palette-drawer redesign~~ — **Open for Chris: premise is stale, nothing shipped (2026-09-02)**
+### ~~N2 — the *Movements* palette-drawer redesign~~ — **VOID: premise obsolete, confirmed by Chris (2026-09-02). Nothing shipped.**
+
+**Chris, 2026-09-02:** *"a holdover from when the movement palette was the full
+right sidebar or the full top row depending on browser width. Now it's an
+overlay/modal, so this doesn't really mean anything anymore."* No task here — do
+not re-pick. The two items it was said to unblock (129-row grouping; read-pane
+sub-panels) are dispatchable on their own merits whenever Chris prioritises them.
 
 **A session picked N2 up 2026-09-02, read the source, and drove `make serve` at
 1440px — the palette this brief is written against does not exist.** It is not a
