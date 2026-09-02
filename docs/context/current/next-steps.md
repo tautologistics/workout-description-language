@@ -47,7 +47,7 @@ Something Else). Each is `@id <org>:<slug>` + `# Title` + body, byte-identical t
 Bad / `hyrox:race` / `tabata:this` spot-checked on the board. **Content only** —
 no schema / `packages/core` / grammar / spec / test touch, `make test` unchanged
 (2064/2064, 1 pending); `examples/workouts/` deliberately **not** wired into
-`corpus.test.ts` (L6/L7's call). **L6 landed 2026-09-01 (`<TASK-SHA>`)** —
+`corpus.test.ts` (L6/L7's call). **L6 landed 2026-09-01 (`5cc9e0f`)** —
 `scripts/workouts-to-db.mjs` / `make workouts:load`, twin of
 `movements-to-db.mjs`: idempotent-on-`wdlId` upsert of the 43
 `examples/workouts/**/*.wdl` files into the `workouts` collection as public rows

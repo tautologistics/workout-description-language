@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-01 — L6 of *The workout library* epic landed (`<TASK-SHA>`)** —
+- **2026-09-01 — L6 of *The workout library* epic landed (`5cc9e0f`)** —
   ingestion: the authored `.wdl` library → the `workouts` DB + regenerated
   fixtures. **Script + Makefile target + two fixtures only** — no
   `packages/core` / grammar / spec / migration / authored-`.wdl` touch;

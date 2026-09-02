@@ -47,7 +47,7 @@ sized like M0–M7 for sequential sessions. **L0 landed 2026-09-01
 the builder's My-workouts search box + the mock's `~` operator and parenthesised
 OR; **L5 landed 2026-09-01 (`6cb8df4`)** — the authored benchmark `.wdl`
 library, 43 files under `examples/workouts/{crossfit,hyrox,tabata}/`, content
-only; **L6 landed 2026-09-01 (`<TASK-SHA>`)** — `scripts/workouts-to-db.mjs` /
+only; **L6 landed 2026-09-01 (`5cc9e0f`)** — `scripts/workouts-to-db.mjs` /
 `make workouts:load`, idempotent-on-`wdlId` upsert of the 43 files into
 `workouts` + regeneration of `fixtures/workouts.json` (46 rows) and
 `fixtures/users.json`, so a fresh `make serve` / prod box shows the whole
@@ -490,7 +490,7 @@ Bad / `hyrox:race` / `tabata:this` spot-checked on the board (`<org>:<slug>` in
 the `#meta` strip, no error strip; Murph's `any order:` shows the expected
 tally-block timeline note; `hyrox:race` shows the Division selector). Spawns L6.
 
-**L6 — Ingestion: library → DB + fixtures. DONE 2026-09-01 (`<TASK-SHA>`).**
+**L6 — Ingestion: library → DB + fixtures. DONE 2026-09-01 (`5cc9e0f`).**
 `scripts/workouts-to-db.mjs` + a `make workouts:load` target (beside
 `movements:load` in the root `Makefile`), the twin of `movements-to-db.mjs` —
 no deps (`node:fs` + global `fetch`). Reads `examples/workouts/<org>/<slug>.wdl`
