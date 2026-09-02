@@ -54,7 +54,7 @@ written as a rule (no `opacity` on body text; nothing below `.75rem`).
 `apps/builder/builder.css` only, `make test` unchanged (2064/2064, 1 pending).
 
 **builder: outline row affordances made discoverable + touch-reachable, landed
-2026-09-02 (`<TASK-SHA>`)** — a self-contained pull from
+2026-09-02 (`6adba47`)** — a self-contained pull from
 [../topics/builder-ux.md](../topics/builder-ux.md)'s design-critique section
 (not a queued task). The per-row tool strip and both carets went from
 `opacity: 0`-until-hover to a persistent `opacity: .6` brightening to full on

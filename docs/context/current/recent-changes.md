@@ -3,7 +3,7 @@
 ## Changes
 
 - **2026-09-02 — builder: outline row affordances made discoverable + touch-
-  reachable + ≥32px (`<TASK-SHA>`).** A self-contained item off
+  reachable + ≥32px (`6adba47`).** A self-contained item off
   [../topics/builder-ux.md](../topics/builder-ux.md)'s design-critique section
   (standalone queue empty). *Was:* the per-row tool strip (`↑ ↓ ⇥ ⇤ ⧉ ✕`) and
   the two carets (`▾` movement suggestions, `»` what-this-line-takes / block

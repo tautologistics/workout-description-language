@@ -422,7 +422,7 @@ structure) seen three ways. They also touch the same CSS the numbered items
 12 / 15 / 16 (line-kind markers) will touch, so pairing them is sensible.
 
 **~~The per-row tools are 25.6px and invisible until you hover that exact
-row.~~ Fixed 2026-09-02 (`<TASK-SHA>`).** *Was:* `.node .tools` and
+row.~~ Fixed 2026-09-02 (`6adba47`).** *Was:* `.node .tools` and
 `.node .caret` / `.modcaret` were `opacity: 0` except under `.node:hover` /
 `.node:focus-within`, so the six tools (`↑ ↓ ⇥ ⇤ ⧉ ✕`) and the two carets
 (`▾` movement suggestions, `»` what this line takes) had no discoverability and
@@ -473,7 +473,7 @@ brings them to full strength, the `»` / `▾` / block panels still open and spl
 and the Analysis / Reads-as / header panes are unmoved.*
 
 **~~The `»` "what this line can take" caret is the most useful thing in the
-outline and it is `opacity: 0`.~~ Fixed 2026-09-02 (`<TASK-SHA>`), with the
+outline and it is `opacity: 0`.~~ Fixed 2026-09-02 (`6adba47`), with the
 tools fix above** — it is `.node .caret.modcaret`, so the one reveal rule
 covers it: persistent at `opacity: .6`, full on `.node:hover` /
 `.node:focus-within`, in a `2rem` (32px) hit box. A first-time user now sees it
