@@ -202,3 +202,18 @@ added beside spec §2's `@id` bullet. Deferred: handle-rename strands saved
 `@id`s / share links ([topics/known-debts.md](topics/known-debts.md)); a
 *platform* stays a Non-Goal.
 -> [topics/settled-decisions.md](topics/settled-decisions.md#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
+
+## DEC-022 — A unitless load magnitude is pounds; `wdl fmt` writes the unit in
+Status: active. Settled 2026-09-01 (`<RULE1-SHA>`), closing the "what a target
+with no unit means" holding answer.
+`@ <number>` with no unit reads as `<number>lb` — `parseTarget` fills `unit:
+'lb'` for a bare magnitude, so the AST carries a real `load` and `wdl fmt`
+rewrites `@ 95` → `@ 95lb`. Pound is the dominant convention for a load that
+omits its unit, so it is a documented default (design rule 3), not a guess —
+this overrides the earlier "a default is an invention" holding answer, recorded
+as a correction in [topics/known-debts.md](topics/known-debts.md). Distance
+still requires its unit; the unlabelled rx split is unaffected. No corpus file
+uses a unitless load, so `interpretations.json` is unmoved. A unitless magnitude
+on a load-less calorie machine (`15 Row`) is rule 2 — a builder-only diagnostic,
+not a parse default (spec §7.1).
+-> [topics/settled-decisions.md](topics/settled-decisions.md#dec-022-a-unitless-load-magnitude-is-pounds-wdl-fmt-writes-the-unit-in)

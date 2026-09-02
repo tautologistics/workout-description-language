@@ -578,10 +578,11 @@ describe('the rules the exclusions used to describe', () => {
     eq(step('10 Thruster @95lb').targets, [load], 'tight');
     eq(step('10 Thruster @ 95lb').targets, [load], 'spaced — the same reading');
     eq(step('10 Thruster @95lb').flags, undefined, 'and no flag — `strip` drops an empty array');
-    // No unit, still a target: `@95` on a whiteboard is a weight, and `raw` says
-    // "a target was written and nothing can be computed from it" rather than
-    // inventing pounds. See known-debts.md.
-    eq(step('10 Thruster @95').targets, [{ kind: 'raw', text: '95' }]);
+    // No unit, still a target — and it is pounds: pound is the default for any
+    // movement that carries a load (spec §7, settled 2026-09-01), so `@95` reads
+    // exactly as `@95lb`. `parseTarget` fills the unit; the grammar is unchanged.
+    eq(step('10 Thruster @95').targets, [load]);
+    eq(step('10 Thruster @ 95').targets, [load], 'spaced — the same reading');
     // The flag form needs the `@` tight against a *letter*, because a spaced
     // target legitimately begins with one — `@ Z2`, `@ RPE 8`, `@ of
     // heavy-single`. So `@tiebreak` is a flag and `@ tiebreak` is a target, and

@@ -71,9 +71,13 @@ describe('units', () => {
   });
 
   it('accepts load shorthand', () => {
-    for (const s of ['95lb', '95 lbs', '95#']) {
+    // A bare magnitude with no unit is pounds too — pound is the documented
+    // default for a load (spec §7, settled 2026-09-01), so `@ 95` reads as
+    // `95lb` rather than falling into `raw`.
+    for (const s of ['95lb', '95 lbs', '95#', '95']) {
       eq(parseTarget(s), { kind: 'load', load: { kind: 'absolute', value: 95, unit: 'lb' } }, s);
     }
+    eq(parseTarget('107.5'), { kind: 'load', load: { kind: 'absolute', value: 107.5, unit: 'lb' } });
   });
 
   it('parses relative and derived loads', () => {

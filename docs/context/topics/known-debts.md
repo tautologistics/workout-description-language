@@ -191,6 +191,17 @@ when something looks odd before treating it as a discovery.
   `test/grammar.test.ts`, because with one implementation left there is no
   disagreement to read it off.
 
+- **Resolved 2026-09-01 (`<RULE1-SHA>`): a unitless load magnitude is pounds.**
+  `parseTarget` now fills `unit: 'lb'` for a bare `@ <number>`, so `@ 95` parses
+  to `{kind: 'load', load: {kind: 'absolute', unit: 'lb', value: 95}}` and
+  `wdl fmt` rewrites it to `@ 95lb`. The reasoning below (a defaulted unit is an
+  invention) was the holding position for ten months; Chris overrode it —
+  pound is the dominant convention for a load that omits its unit, which by
+  design rule 3 makes it a documented default rather than a guess. Recorded here
+  as a correction, not by deleting the original argument. Distance still requires
+  its unit. Full decision: [settled-decisions.md](settled-decisions.md) DEC-022.
+  *The rest of this entry is the pre-resolution record.*
+
 - **Open: what a target with no unit means — decided 2026-09-01, implementation
   queued.** `@ 95` parses to `{kind: 'raw', text: '95'}` — held verbatim,
   meaning nothing. That was deliberate as of 2026-08-15 and pinned as a

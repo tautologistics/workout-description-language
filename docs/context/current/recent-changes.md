@@ -2,6 +2,25 @@
 
 ## Changes
 
+- **2026-09-01 — unit defaults, rule 1: a unitless load magnitude is pounds
+  (`<RULE1-SHA>`).** First of the two rules of the last queued standalone task.
+  `@ <number>` with no unit now parses to a real `load` (`{kind:'absolute',
+  unit:'lb', value}`) instead of `{kind:'raw'}`, and `wdl fmt` rewrites `@ 95` →
+  `@ 95lb` — pound is the documented default for a load that omits its unit
+  (design rule 3), overriding the ten-month "a default is an invention" holding
+  answer. **Files:** `packages/core/src/units.ts` (`parseTarget` — one
+  `/^\d+(\.\d+)?$/ → lb` branch before the `raw` fallthrough),
+  `spec/spec-0.1.md` §3 (unit table) + §7 (the bare-number paragraph rewritten),
+  `spec/grammar-0.1.ohm` (comment note — grammar unchanged, it always passed the
+  bare magnitude through), `packages/core/test/{units,grammar}.test.ts` (new
+  reading asserted directly), `test/golden/vocabulary.ts` (`@ 95` / `@95` moved
+  under `was-wrong`, canonical `@ 95lb`). **Goldens:** `vocabulary.json` moved
+  for those two pinned forms only; `interpretations.json` **byte-identical** — no
+  corpus file writes a unitless load. `make test` **2064/2064, 1 pending** —
+  unchanged. Distance still requires its unit; the unlabelled rx split is
+  untouched. DEC-022; resolves the "what a target with no unit means" entry in
+  [../topics/known-debts.md](../topics/known-debts.md). Rule 2 (a builder-only
+  calorie-machine diagnostic) lands separately.
 - **2026-09-01 — board: the `#` title moved into the `#meta` strip
   (`110ed2b`).** Second of the two remaining post-library standalone tasks;
   one (**unit defaults**) left. The workout's `# Title` line no longer renders

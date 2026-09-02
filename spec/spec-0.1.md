@@ -85,7 +85,7 @@ Four rules, and each is separately justified:
 | Distance | `400m` `1km` `1mi` `50ft` `25yd` | `400 meters`, `1 mile` |
 | Duration | `12min` `1h` `1min30s` `45s` | `12m`, `90s`, `1:30`, `1:04:19`, `90 sec`, `10` (in a duration position) |
 | Calories | `15cal` | `15 calories`, `15c` |
-| Load | `95lb` `60kg` `2pood` | `95#`, `95 lbs` |
+| Load | `95lb` `60kg` `2pood` | `95#`, `95 lbs`, `95` (no unit → pounds, §7) |
 | Paired load | `2x24kg` | `2 x 24kg`, `24kg each hand` |
 | Relative load | `75%` `80% 1RM` `85% 3RM` `85% TM` `1.5x BW` | `75 percent` |
 | Qualitative load | `heavy` `moderate` `light` `unloaded` | case-insensitive; canonical is lowercase (§7) |
@@ -601,9 +601,18 @@ with a letter — `@ Z2`, `@ RPE 8`, `@ marathon pace`, `@ of heavy-single` — 
 the space cannot be ignored on the letter side the way it is on the digit side.
 `@ tiebreak` is therefore a target, read like those.
 
-A target that is a bare number with no unit — `@ 95` — is held as written and
-means nothing further. It is 95lb in one gym and 95kg in another, and the format
-does not guess.
+A target that is a bare number with no unit — `@ 95` — **is pounds.** `@ 95` and
+`@ 95lb` are one reading, and canonical output writes the unit in: `wdl fmt`
+rewrites `@ 95` to `@ 95lb`, because the format's job is to make the reading
+explicit (design rule 3 — pound is the dominant convention for a load, so it is a
+documented default, not a guess). *Settled 2026-09-01 (DEC-<RULE1-SHA>). Earlier
+drafts held `@ 95` as raw and meaning nothing, on the reasoning that a defaulted
+unit is an invention; Chris settled it the other way — a workout that carries a
+load and omits the unit means pounds.*
+
+Distance still requires its unit (`400m`, never a bare `400` after `@`), because
+a distance is written in feet, metres or miles about equally and there is no
+dominant one to default to.
 
 A load can also be a word from a small closed vocabulary — `heavy`, `moderate`,
 `light`, `unloaded` — read exactly like a coach says it out loud:

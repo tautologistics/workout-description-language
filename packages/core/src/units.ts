@@ -211,6 +211,15 @@ export function parseTarget(text: string): Target {
   if (/^RPE|^RIR/i.test(t)) return { kind: 'effort', text: t };
   if (/^(heavy|moderate|light|unloaded)$/i.test(t))
     return { kind: 'load', load: { kind: 'qualitative', value: t.toLowerCase() as any } };
+  // A bare magnitude with no unit is pounds. Pound is the default for any
+  // movement that carries a load — `@ 95` on a whiteboard is a weight, and it is
+  // 95lb far more often than it is anything else, so stating that once (design
+  // rule 3, spec §7) beats holding it as `raw` and meaning nothing. Settled
+  // 2026-09-01 (DEC-<RULE1-SHA>); overrides the earlier "a default is an
+  // invention" holding answer. An unlabelled rx split still has no unit and
+  // never reaches here — `step-semantics` builds its `Load` directly.
+  if ((m = t.match(/^(\d+(?:\.\d+)?)$/)))
+    return { kind: 'load', load: { kind: 'absolute', value: +m[1], unit: 'lb' } };
   return { kind: 'raw', text: t };
 }
 

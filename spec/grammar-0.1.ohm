@@ -236,6 +236,9 @@ WDL {
   // opens a load. So `@95lb`, `@ 95lb`, `@95` and `@ 95` all read the same way —
   // as targets — and whether a unit is present has nothing to do with it.
   // Nobody writes a flag called `95lb`, and `@95` on a whiteboard is a weight.
+  // A digit-opened target with no unit is pounds — `parseTarget` fills `lb`, so
+  // `@ 95` reads as `95lb` (spec §7, settled 2026-09-01). The grammar is
+  // unchanged: it always passed the bare magnitude through; only its meaning is.
   //
   // The flag form additionally requires the `@` to be tight against the word,
   // and that is not symmetry for its own sake: a *spaced* target legitimately

@@ -157,13 +157,6 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     '30min Run @ 145bpm',
     '5 Back Squat @ RPE 8',
     '5 Back Squat @ RIR 2',
-    // A number with no unit. It stays `raw` on purpose: `@95` is 95lb in one
-    // gym and 95kg in another, and a `load` needs a unit to be worth anything to
-    // volume analysis or an exporter. Reading it as `raw` says "a target was
-    // written and it means nothing yet", which is true; picking a unit would be
-    // an invention. The question of whether `Load` should be able to hold an
-    // absent unit is open — see known-debts.md.
-    '10 Thruster @ 95',
     // The other side of the header fix, and the reason the stop is a *parameter*
     // rather than a line added to the target rule. In a header `for time` is a
     // score and ends a target; in a step there is no such thing, so the target
@@ -418,9 +411,14 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     '10 Thruster @95lb',
     '10 Thruster @2x35lb',
     '10 Thruster @24kg',
-    // No unit at all, which is the case that shows the rule does not key on one.
-    // A target the grammar holds as `raw`; the old chain made a flag called `95`.
+    // No unit at all. Two things were wrong here at different times. The old
+    // regex chain made a flag called `95` and lost the load. The grammar fixed
+    // that in 2026-08-15 but read it as `raw` — held verbatim, meaning nothing —
+    // on the reasoning that a defaulted unit is an invention. Settled the other
+    // way 2026-09-01 (DEC-<RULE1-SHA>): pound is the documented default for a
+    // load, so `@ 95` and `@95` read as `95lb` and `wdl fmt` writes the unit in.
     '10 Thruster @95',
+    '10 Thruster @ 95',
     // Worse than a lost load: `@(\w[\w-]*)` stopped at the `%`, so `85` became a
     // flag and `% 1RM` was left in the text — the movement ended up named
     // `Thruster % 1RM`, which resolves to nothing and took the step out of muscle

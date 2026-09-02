@@ -3121,42 +3121,6 @@
   },
   "fixpoint": true
  },
- "target/other :: 10 Thruster @ 95": {
-  "canonical": "for time:\n  - 10 Thrusters @ 95",
-  "errors": [],
-  "ast": {
-   "body": [
-    {
-     "children": [
-      {
-       "movement": "Thruster",
-       "node": "step",
-       "quantity": {
-        "kind": "reps",
-        "value": 10
-       },
-       "targets": [
-        {
-         "kind": "raw",
-         "text": "95"
-        }
-       ]
-      }
-     ],
-     "node": "block",
-     "score": {
-      "implied": true,
-      "primary": "time",
-      "raw": "time"
-     },
-     "type": "sequence"
-    }
-   ],
-   "directives": {},
-   "node": "workout"
-  },
-  "fixpoint": true
- },
  "target/other :: 10 Thruster @ 95lb for time": {
   "canonical": "for time:\n  - 10 Thrusters @ 95lb for time",
   "errors": [],
@@ -7121,7 +7085,7 @@
   "fixpoint": true
  },
  "was-wrong :: 10 Thruster @95": {
-  "canonical": "for time:\n  - 10 Thrusters @ 95",
+  "canonical": "for time:\n  - 10 Thrusters @ 95lb",
   "errors": [],
   "ast": {
    "body": [
@@ -7136,8 +7100,52 @@
        },
        "targets": [
         {
-         "kind": "raw",
-         "text": "95"
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
+        }
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "was-wrong :: 10 Thruster @ 95": {
+  "canonical": "for time:\n  - 10 Thrusters @ 95lb",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "reps",
+        "value": 10
+       },
+       "targets": [
+        {
+         "kind": "load",
+         "load": {
+          "kind": "absolute",
+          "unit": "lb",
+          "value": 95
+         }
         }
        ]
       }
