@@ -218,7 +218,7 @@ independent of each other:
   the collection per the DEC-027 shape (all eight fields, unique `setId` index,
   the `workouts` rules), verified up/down/up against a real pocketbase v0.40.1
   binary; README entry added; not yet on the VPS (`make deploy:db` at S4). No
-  app change. S2 done 2026-09-03 (`<SHA-S2>`, app code only) — new host-agnostic
+  app change. S2 done 2026-09-03 (`4b3b796`, app code only) — new host-agnostic
   `apps/shared/sets.js` model (`load` / `list` / `clear` / `get` / `create` /
   `rename` / `setMovements` / `remove`), a `movement_sets` block in
   `pocketbase.js` (`listMineSets` / `listPublicSets` / `getSetByAnyId` /

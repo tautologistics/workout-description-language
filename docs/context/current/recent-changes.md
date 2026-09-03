@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-03 — S2 shipped (`<SHA-S2>`): movement sets now read/write the
+- **2026-09-03 — S2 shipped (`4b3b796`): movement sets now read/write the
   `movement_sets` collection; `localStorage['wdl.sets']` retired.** S2 of the
   movement-sets database epic (S0–S4) — app code only, no migration / mock /
   fixture / core change.

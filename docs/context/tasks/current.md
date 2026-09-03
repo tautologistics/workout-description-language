@@ -91,7 +91,7 @@ The active queue is now **two `localStorage` → PocketBase epics Chris scoped
   [DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)
   2026-09-02; S1 (the migration) landed 2026-09-03 (`91e20d5`); S2 (the
   `sets.js` model + `pocketbase.js` CRUD + builder rewire) landed 2026-09-03
-  (`<SHA-S2>`). S3 (fixtures + mock + the signed-in round-trip) is next.**
+  (`4b3b796`). S3 (fixtures + mock + the signed-in round-trip) is next.**
 - **## The goals database (G0–G4)** — promote `localStorage['wdl.goals']` to a
   `goals` collection on the vocab pattern (scopes: `global` + `user`;
   `examples/goals/*.wdlg` are the `global` rows; `make goals:load` ingests
@@ -1041,7 +1041,7 @@ verified but **not yet applied on the VPS** — `make deploy:db` lands it, at S4
 (or whenever Chris next deploys). Same "still to do on deploy" caveat M1 / L1 /
 V6 carry.
 
-**S2 shipped 2026-09-03 (`<SHA-S2>`)** — `apps/shared/sets.js` + the
+**S2 shipped 2026-09-03 (`4b3b796`)** — `apps/shared/sets.js` + the
 `pocketbase.js` CRUD + the builder rewire off `localStorage['wdl.sets']`; see
 the **### S2** subsection below. **S3 is next.**
 
@@ -1059,7 +1059,7 @@ reapplies. Add the entry to `deploy/pocketbase/pb_migrations/README.md`. Carry a
 **"still to do on deploy"** note (apply on the VPS via `make deploy:db`) exactly
 like M1 / L1 / V6. No app / mock / fixture change — S1 is pure schema. Spawns S2.
 
-### S2 — `apps/shared/sets.js` + `pocketbase.js` CRUD + rewire the builder. — **DONE 2026-09-03 (`<SHA-S2>`)**
+### S2 — `apps/shared/sets.js` + `pocketbase.js` CRUD + rewire the builder. — **DONE 2026-09-03 (`4b3b796`)**
 
 **Shipped — app code only, `make test` unchanged (2064/2064, 1 pending; the
 core suite does not cover the builder's set panel).** The movement-set model
@@ -1122,7 +1122,7 @@ available — that is S3's job and this write-up does not fake one):
 - **`make test`** — **2064/2064 passing, 1 pending**, unchanged.
 
 **Self-referential-SHA trap (S0/S1 both hit it):** committed with a
-`<SHA-S2>` placeholder in these docs, pushed, then a tiny follow-up commit
+`4b3b796` placeholder in these docs, pushed, then a tiny follow-up commit
 replaces it with the real landed SHA (option a — what S1 did, `fdaf9b4`).
 
 **S3 is next** — fixtures + mock `/api` for `movement_sets` + the signed-in
