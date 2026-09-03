@@ -308,12 +308,16 @@ to queue**: the audit that produced S and G found only `wdl.sets` and
   migration on the VPS (`goals` live on the prod API), `make goals:load` created
   the 3 `global` rows (`source` byte-identical), `make deploy` shipped the
   static apps (served JS byte-identical to `origin/main`); the G0–G4 section
-  moved to [../tasks/completed.md](../tasks/completed.md). **Open for Chris:** a
-  rule gap found while verifying — the `goals` create rule has no
+  moved to [../tasks/completed.md](../tasks/completed.md). **Rules-hardening
+  follow-up, fix written 2026-09-03:** G1's `goals` rules lacked an
   `@request.auth.id != ""` guard, so an anonymous `POST` of an ownerless
-  `{scope:"user"}` row succeeds (collection spam, not escalation — a `global`
-  row or one attributed to a real uid is `400`); fix is a follow-up migration +
-  a DEC-028 correction.
+  `{scope:"user"}` row succeeded (collection spam, not escalation — a `global`
+  row or one attributed to a real uid is `400`).
+  `deploy/pocketbase/pb_migrations/1757400000_harden_goals_rules.js` tightens all
+  five `goals` rules, verified up/down/up against a real pocketbase v0.40.1
+  binary; DEC-028's correction note records the guarded forms as settled.
+  **`make deploy:db` applies it on the VPS** — the one step left; until it runs
+  the live API still has the gap.
 
 The `localStorage` audit that produced these: only `wdl.sets` and `wdl.goals`
 held real content, **and both are now PocketBase collections** (S0–S4 and
@@ -341,11 +345,13 @@ DB goal rulesets. The **M6 nightly-backup cron is installed, running, and pulled
 off-box** — cron writes `~/pb/pb_backups/data-YYYY-MM-DD.db` at 03:17 UTC
 (`backup.log` clean), and `make backups:pull` copies them into the repo-relative
 `db-backups/` (git-ignored contents), verified 2026-09-02 with both snapshots
-landing. **One follow-up is open on the DB rules** (found at G4): the `goals`
-create rule needs an `@request.auth.id != ""` guard added by a follow-up
-migration — anonymous callers can otherwise create ownerless `{scope:"user"}`
-rows (collection spam, not escalation). (Deferred, not open: PocketBase
-upgrades, and the DreamHost firewall ticket for the port-8090 exposure.)
+landing. **One migration is staged for deploy** (found at G4, 2026-09-03):
+`1757400000_harden_goals_rules.js` adds the `@request.auth.id != ""` guard G1's
+`goals` rules lacked (anonymous callers could otherwise create ownerless
+`{scope:"user"}` rows — collection spam, not escalation). Verified up/down/up
+locally against a real pocketbase v0.40.1 binary; **`make deploy:db` applies it
+on the box.** (Deferred, not open: PocketBase upgrades, and the DreamHost
+firewall ticket for the port-8090 exposure.)
 
 *Corrected 2026-09-02, twice the same day: this first said the prod
 `equipment` / `patterns` collections still needed `make deploy:db` +

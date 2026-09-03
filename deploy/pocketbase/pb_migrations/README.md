@@ -187,6 +187,32 @@ supersedes it. From then on the collection schema is reproducible: a fresh
   `workouts` / `users` / `movement_sets` / `equipment` / `patterns` and their
   indexes intact (zero leftover `sqlite_master` rows), and a re-`up` reapplies
   cleanly. No rows are loaded — `examples/goals/*.wdlg` is the committed `global`
-  source and G3's `make goals:load` ingests it. **Not yet applied on the box** —
-  `make deploy:db` lands it at G4 (or whenever Chris next deploys). Glance at the
-  admin UI on the box after deploy, same caveat as the workouts migration.
+  source and G3's `make goals:load` ingests it. Applied on the box at G4
+  (2026-09-03) — `goals` live on the prod API, 3 `global` rows loaded. Glance at
+  the admin UI on the box after deploy, same caveat as the workouts migration.
+
+- `1757400000_harden_goals_rules.js` — a follow-up to `create_goals.js`, found
+  while verifying G4's prod deploy. G1's rules had no `@request.auth.id != ""`
+  guard, and `goals.user` is a *nullable* relation, so an unauthenticated `POST`
+  of `{ scope: "user" }` with no `user` field satisfied
+  `scope = "user" && user = @request.auth.id` (`"" = ""`) and landed an ownerless
+  `user`-scoped row; the list/view rule had the same hole for reads. Narrow —
+  an anonymous `scope: "global"` write, or one attributing a `user` row to a
+  real uid, was still rejected — so collection spam, not privilege escalation,
+  but a gap `movement_sets` / `workouts` do not have (their create rule guards
+  with `@request.auth.id != ""`, and their read rule's owner clause is safe only
+  because `owner` there is *required*, which `goals.user` is not). This edits the
+  *existing* collection (the `add_users_admin.js` idiom — assign the `*Rule`
+  strings, `app.save`) to:
+  list/view `scope = "global" || (@request.auth.id != "" && user = @request.auth.id)`;
+  create/update/delete
+  `@request.auth.id != "" && ((scope = "user" && user = @request.auth.id) || @request.auth.admin = true)`.
+  A superuser bypasses rules, so `make goals:load` is unaffected; a `users` admin
+  row is authenticated, so the `global`-tier admin write still works. `down`
+  restores G1's five rule strings verbatim. Verified up / down / up against a
+  real v0.40.1 (darwin_arm64) binary + throwaway `pb_data`: `migrate up` applies
+  all nine migrations cleanly, the five `goals` rules read back as the guarded
+  forms (`sqlite3` against `_collections`), `migrate down 1` restores the exact
+  G1 strings with every collection/index intact, a re-`up` reapplies. **Still to
+  apply on the box** — `make deploy:db`. Glance at the admin UI on the box after
+  deploy, same caveat as the workouts migration.

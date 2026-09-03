@@ -3238,11 +3238,19 @@ not privilege escalation, and low-severity for a ~5-user instance — but it is
 a gap the sibling collections do not have: `movement_sets` and `workouts` both
 guard create with `@request.auth.id != ""`. By the same `"" = ""` the list
 rule (`scope = "global" || user = @request.auth.id`) also lets an anon caller
-read ownerless rows. The fix is a follow-up migration tightening the `goals`
-create/update/delete rules (and re-checking the list rule) with that guard,
-plus a DEC-028 correction — code + a schema change, out of G4's deploy-only
-scope. The G3 mock `/api` is already stricter than the live rule (it 403s an
-unauthenticated write outright), so local dev is unaffected.
+read ownerless rows. **Fixed 2026-09-03 by
+`deploy/pocketbase/pb_migrations/1757400000_harden_goals_rules.js`** — a
+follow-up migration editing the existing collection's five rules to the guarded
+forms (list/view
+`scope = "global" || (@request.auth.id != "" && user = @request.auth.id)`;
+create/update/delete
+`@request.auth.id != "" && ((scope = "user" && user = @request.auth.id) || @request.auth.admin = true)`),
+verified up/down/up against a real pocketbase v0.40.1 binary; `down` restores
+G1's strings, and DEC-028's correction note records the guarded forms as the
+settled rules. **`make deploy:db` applies it on the VPS** — the same "still to
+do on deploy" caveat every migration carries; until it runs the live API still
+has the gap. The G3 mock `/api` is already stricter than the live rule (it 403s
+an unauthenticated write outright), so local dev is unaffected.
 
 **Self-referential-SHA trap (S0–S3 / G1–G3 all hit it):** committed with a
 `6d8a9b5` placeholder in these docs, pushed, then a tiny follow-up commit

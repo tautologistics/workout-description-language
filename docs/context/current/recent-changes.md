@@ -2,6 +2,27 @@
 
 ## Changes
 
+- **2026-09-03 — goals-rules hardening migration written
+  (`1757400000_harden_goals_rules.js`).** The follow-up to the gap G4 surfaced:
+  G1's `goals` rules had no `@request.auth.id != ""` guard, and `goals.user` is
+  a nullable relation, so an unauthenticated `POST` of `{scope:"user"}` with no
+  `user` field satisfied `scope = "user" && user = @request.auth.id` (`"" = ""`)
+  and landed an ownerless `user`-scoped row; the list/view rule had the same
+  hole for reads. This edits the *existing* collection's five rules (the
+  `add_users_admin.js` idiom) to the guarded forms — list/view
+  `scope = "global" || (@request.auth.id != "" && user = @request.auth.id)`,
+  create/update/delete
+  `@request.auth.id != "" && ((scope = "user" && user = @request.auth.id) || @request.auth.admin = true)`.
+  A superuser bypasses rules so `make goals:load` is unaffected; a `users` admin
+  row is authenticated so the `global`-tier admin write still works. `down`
+  restores G1's five strings verbatim. Verified up/down/up against a real
+  pocketbase v0.40.1 (darwin_arm64) binary + throwaway `pb_data`: `migrate up`
+  applies all nine migrations cleanly, the five rules read back guarded,
+  `migrate down 1` restores the exact G1 strings, a re-`up` reapplies.
+  README entry added; DEC-028 carries a `*Fixed 2026-09-03*` note with the
+  guarded forms as the settled rules. **Still to apply on the box —
+  `make deploy:db`;** until then the live API still has the gap.
+
 - **2026-09-03 — G4 shipped (`6d8a9b5`): the goals database is live on prod and
   the G0–G4 epic is closed.** Deploy + `docs/context/**` only — no other repo
   diff (the migration is G1's, the loader G3's, the client G2's); the analogue

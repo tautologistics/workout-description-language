@@ -1865,14 +1865,25 @@ the suite was not exercised because nothing it covers moves.*
     a real uid, is still `400`), so it is collection spam rather than privilege
     escalation, but it is a gap the sibling collections do not have —
     `movement_sets` and `workouts` both guard create with `@request.auth.id !=
-    ""`. The fix is a follow-up migration adding that guard to the goals
-    create / update / delete rules and re-checking the list rule; until it
-    lands, the create / update / delete rules should be read as
+    ""` (and their read rule's owner clause is safe only because `owner` there is
+    *required*, which `goals.user` is not). G1's local up/down verification
+    checked the schema, not anonymous-write rule semantics, and G3's mock `/api`
+    is stricter than the live rule (it 403s an unauthenticated write outright),
+    which is why it surfaced only at the prod deploy.*
+
+    ***Fixed 2026-09-03** by
+    `deploy/pocketbase/pb_migrations/1757400000_harden_goals_rules.js` — a
+    follow-up migration editing the existing collection's five rules to the
+    guarded forms:
+    list / view `scope = "global" || (@request.auth.id != "" && user =
+    @request.auth.id)`; create / update / delete
     `@request.auth.id != "" && ((scope = "user" && user = @request.auth.id) ||
-    @request.auth.admin = true)`. G1's local up/down verification checked the
-    schema, not anonymous-write rule semantics, and G3's mock `/api` is stricter
-    than the live rule (it 403s an unauthenticated write outright), which is why
-    it surfaced only at the prod deploy.*
+    @request.auth.admin = true)`. Verified up / down / up against a real
+    pocketbase v0.40.1 binary; `down` restores G1's original strings. **The
+    guarded forms above are now the settled `goals` rules**; the G1 strings at
+    the top of this bullet are kept for the trail. A superuser bypasses rules so
+    `make goals:load` is unaffected, and a `users` admin row is authenticated so
+    the `global`-tier admin write still works.*
 
 - **Two scopes — `global` and `user` — and there *is* a `scope` column.** This
   is the [DEC-025](#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump)
