@@ -171,6 +171,22 @@ ready to start, with what it touches, is in [current.md](current.md).
   written findings doc (`docs/context/topics/security-audit.md`), not a code
   change. See "## Reconsider when" below.
 
+- **A mobile-usability pass across the builder and board.** *Captured 2026-09-03
+  (Chris) — the same "once functionality and UI have settled" framing as the
+  security audit, **not** a next task.* Chris: things "don't fit too well" on a
+  phone today and the builder is "more difficult to use on a mobile device than
+  it should be". The redesign chain (R1–R10) and the epics since have all been
+  driven and verified desktop-first with narrow-viewport spot-checks; this is a
+  dedicated pass instead — drive the real apps at true phone widths (~360–430px,
+  both themes), catalogue what overflows / collides / is too small to tap / is
+  awkward to reach, then fix layout and interaction rather than patch individual
+  CSS rules. Covers `apps/builder/*` (the document + margin layout, the palette
+  modal, the token-input pickers, the editor form, the Sets / Goals blocks) and
+  `apps/display/*` (the board, the meta strip, the footer control row). Must
+  stay inside direction C ([../topics/settled-decisions.md](../topics/settled-decisions.md)
+  layout DECs) and not regress the desktop surface. Likely an R-style multi-step
+  chain, not one task. See "## Reconsider when" below.
+
 - **A WOD-library scouring pass — grow the corpus past CrossFit / Hyrox / Tabata.**
   *Captured 2026-09-02 (Chris).* Extract workouts from other public libraries into
   the same `examples/workouts/<org>/<slug>.wdl` + DB shape the L-series built.
@@ -233,3 +249,11 @@ ready to start, with what it touches, is in [current.md](current.md).
   queries while the accounts / vocab / library surface is still changing under
   it means auditing it twice. When the builder-UX and format work has quieted,
   this is the natural hardening pass before leaning on the hosted instance.
+
+- **The mobile-usability pass** is worth doing on the same trigger as the
+  security audit — once the functional queue is exhausted and the builder/board
+  surface has stopped moving. Chris's framing (2026-09-03): the UI needs to have
+  "settled" first, then a pass to make it genuinely usable on a phone. Doing it
+  while the layout is still changing under it means redoing it; pair it with (or
+  run it right after) the security sweep as the pre-"lean on the hosted
+  instance" polish.
