@@ -282,7 +282,7 @@ live on the prod API (nothing ships v1 — no loader, no seed). **The next scope
   **Saved** optgroup signed-in-only, Save/Delete on the collection with an
   optimistic add + inline error surface, Download unchanged. Verified driving
   `make serve` signed out + signed in + `WDL_MOCK_API=0`; `make test` unchanged.
-  **G3 done 2026-09-03 (`<SHA-G3>`)** — `scripts/**` + `.gitignore` +
+  **G3 done 2026-09-03 (`1a7252f`)** — `scripts/**` + `.gitignore` +
   `goals-store.js`'s `GOAL_FILES`, the S3 analogue: `scripts/goals-to-db.mjs` /
   `make goals:load` (the `vocab-to-db.mjs` twin — idempotent upsert of
   `examples/goals/*.wdlg` as `scope:"global"` rows keyed on `goalId`

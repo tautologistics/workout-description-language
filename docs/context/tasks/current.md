@@ -103,7 +103,7 @@ The remaining scoped epic on the active queue is:
   `examples/goals/*.wdlg` are the `global` rows; `make goals:load` ingests
   them). Model decisions all settled — G0 wrote DEC-028. Independent of the
   now-closed sets epic. **G0 (`8680e2a`), G1 (`1a99448`), G2 (`2512c23`) and G3
-  (`<SHA-G3>` — the loader, the mock `goals/records` route and the signed-in
+  (`1a7252f` — the loader, the mock `goals/records` route and the signed-in
   round-trip) have landed; only G4 (deploy + close the epic) is left.**
 
 Also queued / deferred, unchanged:
@@ -1148,7 +1148,7 @@ core-goals concept.)*
 - No migration / mock change yet — G3 adds the mock. `make test` unchanged
   (2064/2064, 1 pending — app code). Spawns G3.
 
-### G3 — `make goals:load` + fixtures + mock `/api` + drive the round-trip. — **DONE 2026-09-03 (`<SHA-G3>`)**
+### G3 — `make goals:load` + fixtures + mock `/api` + drive the round-trip. — **DONE 2026-09-03 (`1a7252f`)**
 
 **Shipped — `scripts/**` + `.gitignore` + `apps/shared/goals-store.js` (the
 `GOAL_FILES` reconciliation), no migration / builder / `packages/core` change;
@@ -1266,7 +1266,7 @@ title. If a real rename affordance is wanted it is a small `builder.js` change
 (pass the selected row's id when the picker is on a `saved:` entry), owned by
 the G2 rewire, not the loader/mock.
 
-The `docs/context` G3 write-up landed in this same commit with a `<SHA-G3>`
+The `docs/context` G3 write-up landed in this same commit with a `1a7252f`
 placeholder, replaced by a tiny follow-up commit with the real landed SHA (the
 S1–S4 / G1 / G2 approach). Brief kept below for the trail. G4 dispatched.
 

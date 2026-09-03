@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-03 — G3 shipped (`<SHA-G3>`): `goals` is behind the local `/api`,
+- **2026-09-03 — G3 shipped (`1a7252f`): `goals` is behind the local `/api`,
   `make goals:load` ingests the `global` tier, and the signed-in round-trip is
   verified end to end.** G3 of the goals database epic (G0–G4) — `scripts/**` +
   `.gitignore` + `apps/shared/goals-store.js` (the `GOAL_FILES` reconciliation),
