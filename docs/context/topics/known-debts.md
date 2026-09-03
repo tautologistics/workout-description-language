@@ -1065,6 +1065,17 @@ when something looks odd before treating it as a discovery.
   it is recorded here so the first session to hit a stale `setId` after a handle
   change knows it is expected.
 
+  **Extended 2026-09-03 (DEC-028) — a `user`-scoped `goals.goalId` shares this
+  debt too.** The goals database epic (G0,
+  [decisions.md](../decisions.md) DEC-028) moves saved goal rulesets into a
+  `goals` collection whose `user` rows are keyed `<owner-handle>:<slug(title)>`,
+  forced on save and **re-slugged on rename** like `workouts.wdlId` and
+  `movement_sets.setId`. So renaming an account handle re-slugs every
+  `user`-scoped ruleset's `goalId` as well, stranding anything built on the old
+  one — the same failure mode, the same options. `global` goal rows
+  (`wdl:<slug>`) carry no handle and are unaffected. G0 only records it here
+  alongside the workout and set cases; it is not solved in that epic.
+
 The ones with a plan attached are queued in
 [tasks.md](../tasks.md); the ones found by driving the
 builder are in [builder-ux.md](builder-ux.md).

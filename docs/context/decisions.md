@@ -322,3 +322,25 @@ way DEC-020 / 021 / 025 recorded their reversals. The goals epic (DEC-028,
 G0–G4) promotes `localStorage['wdl.goals']` on the parallel vocab pattern with a
 `global` scope — a sibling decision, not this one.
 -> [topics/settled-decisions.md](topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)
+
+## DEC-028 — Goals are a PocketBase collection on the vocab scope model; `localStorage['wdl.goals']` is retired
+Status: active. Settled 2026-09-03 with the goals database epic (G0),
+opening tasks G0–G4. Docs-only; no code shipped.
+Saved goal rulesets move from `localStorage['wdl.goals']` (a flat
+`{name: source}` map in `builder.js`) to a `goals` PocketBase collection on the
+[DEC-025](#dec-025--equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump)
+vocabulary model — `title` / `goalId` (unique) / `source` / `scope` / nullable
+`user` / autodates. **Two scopes, `global` and `user`, with a real `scope`
+column** — unlike its sibling
+[DEC-027](#dec-027--movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired):
+a `global` ruleset is applied by default everywhere, so it needs ownerless
+first-party rows; there is no `org-library` tier (Chris: Hyrox / CrossFit have
+no given rules to enforce). `examples/goals/*.wdlg` stay the committed `global`
+source, ingested byte-identical by `make goals:load` (the L5/L6 loader shape);
+`rotate-muscles.wdlg` is preserved verbatim. `goalId` is `wdl:<slug>` for
+`global`, `<owner-handle>:<slug(title)>` for `user` (re-slugged on rename, so
+`user` rows inherit the handle-rename staleness debt). `localStorage['wdl.goals']`
+is retired with no migration; saved rulesets become signed-in-only. No Non-Goal
+reversal — `.wdlg` was always a real format; nothing in `packages/core`, the
+grammar or the spec moves.
+-> [topics/settled-decisions.md](topics/settled-decisions.md#dec-028-goals-are-a-pocketbase-collection-on-the-vocab-scope-model-localstoragewdlgoals-is-retired)

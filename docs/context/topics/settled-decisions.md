@@ -1819,3 +1819,146 @@ for the vocabulary layer, minus a first-party tier. No code shipped with S0.*
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).
+
+### DEC-028 Goals are a PocketBase collection on the vocab scope model; `localStorage['wdl.goals']` is retired
+*Status: active. Settled 2026-09-03 with the goals database epic (G0) — the
+design task that opens tasks G0–G4. Mirrors
+[DEC-025](#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump)
+for the vocabulary layer and the L5/L6 authored-content-in-repo loader shape
+[DEC-021](#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
+established for the org workout library. Sibling to
+[DEC-027](#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired),
+not the same call. No code shipped with G0 — this is a docs-only design note;
+the suite was not exercised because nothing it covers moves.*
+
+- **A `goals` collection replaces the `localStorage['wdl.goals']` blob.** Today
+  a saved goal ruleset — a "Yours" entry in the builder's Analysis-tab Goals
+  block (R5) — is a value in a flat `{ "name": "<.wdlg source text>" }` map in
+  `localStorage['wdl.goals']` (`savedGoals` in `apps/builder/builder.js`,
+  written only by the block's Save-as and Delete handlers). It moves
+  server-side, one row per ruleset, on the **vocabulary pattern** (DEC-025), not
+  the `workouts` pattern DEC-027 took for sets. This is the G1 contract:
+  - `title` — text, required. The `.wdlg` title, i.e. `parseGoals(source).title`
+    (the inline text after the `goals:` header).
+  - `goalId` — text, required, **unique index**. `wdl:<slug>` for a `global`
+    row (a fixed first-party namespace, set by the loader) or
+    `<owner-handle>:<slug(title)>` for a `user` row.
+  - `source` — text (`editor` / long), required. The raw `.wdlg` source,
+    verbatim.
+  - `scope` — select `global | user`, required.
+  - `user` — relation → `users`, **nullable** (null for a `global` row),
+    cascade-delete.
+  - `created` / `updated` autodate.
+  - **Rules.** Read `scope = "global" || user = @request.auth.id`;
+    create / update / delete
+    `(scope = "user" && user = @request.auth.id) || @request.auth.admin = true`
+    — a user owns their own rows, and an admin may write the `global` tier.
+    `down` deletes the collection in one step.
+
+- **Two scopes — `global` and `user` — and there *is* a `scope` column.** This
+  is the [DEC-025](#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump)
+  vocabulary model (`scope: global | user` plus a nullable `user` relation),
+  **not** the `workouts` `visibility` model, and this is the one place the goals
+  epic diverges from its sibling [DEC-027](#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired).
+  A goal ruleset that is `global` is *the ruleset applied / available by default,
+  everywhere* — it is shown to every reader with no owner in the picture — so it
+  needs ownerless first-party rows, exactly as an `equipment` term does. That is
+  a vocabulary-like notion, not a sharing one, so `visibility` (`private /
+  unlisted / public`) and a derived scope would be the wrong frame. **There is
+  no `org-library` tier.** Chris, 2026-09-02: *"there wouldn't be any org-library
+  ones — I don't think Hyrox or CrossFit have any given rules; there's not
+  really much to enforce there."* A movement set is a named list attributable to
+  its maker, so DEC-027 could derive scope from the owner and skip a `scope`
+  column; a goal ruleset has a genuine ownerless default tier, so it keeps the
+  column.
+
+- **`examples/goals/*.wdlg` are the committed `global` source — the L5/L6
+  shape.** The goal files that ship in the repo today
+  (`rotate-muscles.wdlg`, `ramp-the-pull.wdlg`, `ramp-the-squat.wdlg`) stay the
+  source of truth; the DB rows are a mirror. `make goals:load` (G3) upserts each
+  file as a `scope: "global"` row whose `source` is **byte-identical** to the
+  file and whose `goalId` is `wdl:<slug>`, and regenerates the fixture — the
+  same authored-content-in-repo + idempotent-loader pattern
+  [DEC-021](#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)'s
+  L6 org-workout loader uses and
+  [DEC-025](#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump)'s
+  `make vocab:load` uses. **`rotate-muscles.wdlg` in particular is a keeper Chris
+  flagged explicitly** 2026-09-02 — *"the original goals rules that were around
+  since the early days"* — title `Rotate the muscles, don't stack them`, with
+  its `no repeat` / `cover` / `balance` / `limit` rules and their comment
+  blocks. Its exact text must round-trip untouched: the ingest must not
+  reformat, re-comment, or "canonicalise" it, and a signed-out builder's offline
+  fallback (G2, the `vocab.js` `muscleIds()` fetch-then-`.catch`-to-bundled
+  shape) reads the same file bytes.
+
+- **`goalId` namespacing.** `wdl:<slug>` for a `global` row — a fixed
+  first-party namespace the loader sets, the goals analog of the `wdl:` prefix
+  the vocabulary layer would use for its own defaults. `<owner-handle>:<slug(title)>`
+  for a `user` row — the `workouts.wdlId` / `movement_sets.setId` rule
+  ([DEC-021](#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it) /
+  [DEC-027](#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)),
+  slugged from the ruleset title (a `.wdlg` has no `@id` directive to prefer),
+  with a deterministic `-2` / `-3` suffix on a same-owner clash. Chris's call,
+  mirroring sets: **re-slugged on rename**, not frozen at create — renaming a
+  ruleset changes its `goalId`. Unique index across both tiers.
+
+- **Consequence: a `user` ruleset inherits the handle-rename staleness debt.**
+  Because a `user` row's `goalId` is re-slugged whenever the title *or* the
+  owner's handle changes, renaming an account handle strands every `user`-scoped
+  ruleset's old `<oldhandle>:<slug>` key and anything linked to it — the same
+  failure mode
+  [DEC-021](#dec-021-an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)
+  carries for workout `@id`s and DEC-027 folded in for `movement_sets.setId`.
+  G0 only records it: it is folded into the handle-rename entry in
+  [known-debts.md](known-debts.md) alongside the workout and set cases, not
+  solved here. `global` rows (`wdl:<slug>`) are unaffected — no handle in the key.
+
+- **`localStorage['wdl.goals']` is retired with no migration.** Chris is the
+  sole user; the local map carries nothing worth a migration path. Saved
+  rulesets become a **signed-in-only** feature, like Save to workouts and like
+  sets under DEC-027: signed out, the Goals block still shows the `global`
+  rulesets (still fetchable, or the bundled `.wdlg` files offline) but renders no
+  "Saved" group. There is deliberately **no `localStorage` fallback interface** —
+  G2 rewires the builder straight onto the collection with no local mirror to
+  keep in sync.
+
+- **No Non-Goal to reopen.** Unlike DEC-027 (which reopened the "file format for
+  palette 'sets'" Non-Goal) and DEC-020 / 021 / 025 (each of which recorded a
+  Non-Goal reversal), goals always had `.wdlg` as a real, first-class format —
+  `wdl goals --goals` reads it, the spec documents it, and `packages/core`, the
+  grammar and the spec are **untouched** by this epic. This decision only
+  records the `localStorage` → collection storage move; a `.wdlg` ruleset *is*
+  an at-rest whiteboard-adjacent artifact and the "at-rest format reads on a
+  whiteboard" constraint is not disturbed.
+
+- **No dedicated UX-rework task.** The Analysis-tab Goals block is already fine
+  (R5), so the goals epic is G0–G4 with **no S4-style UX pass**. G2 folds any
+  picker restructure into the rewire: the current **Examples** optgroup (labelled
+  "Examples", fed from the `GOALS` filename list) becomes a **Global** optgroup
+  fed from `listGlobalGoals()`, and the current **Yours** optgroup (fed from
+  `Object.keys(savedGoals)`) becomes a **Saved** optgroup fed from
+  `listMineGoals()`, rendered only when `currentUser()` is set. An **Import**
+  affordance for symmetry with sets is optional and unrequested — left out unless
+  the rewire makes it free.
+
+- **The `GOALS`-const discrepancy is a G3 reconciliation item, not resolved
+  here.** `apps/builder/builder.js` (`const GOALS = ['rotate-muscles.wdlg',
+  'ramp-the-pull.wdlg']`) names **two** files, while `examples/goals/` holds
+  **three** — `ramp-the-squat.wdlg` (title `Put weight on the bar, week after
+  week`) is present on disk but absent from the const, so the builder's Examples
+  optgroup never offers it today. **G3's loader ingests whichever files are
+  canonical**; if `ramp-the-squat.wdlg` is real it belongs in both the loader's
+  input and the const, and if it is vestigial it should be deleted. G0 records
+  the discrepancy; it does not decide it.
+
+- **Sibling epic.** The movement-sets database epic
+  ([DEC-027](#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired),
+  tasks S0–S4, complete 2026-09-03) promoted `localStorage['wdl.sets']` on the
+  *`workouts`* pattern — `org-library` + `user` scopes derived from owner, no
+  `scope` column, no first-party content. The two epics are independent (different
+  collection, different scope model, no shared code beyond the `pocketbase.js`
+  idioms) and landed as separate decisions; either could run first.
+
+What was *tried* and turned out wrong is in
+[lessons-learned.md](lessons-learned.md); what is not built on purpose is in
+[deliberately-not-done.md](deliberately-not-done.md).
