@@ -1102,10 +1102,17 @@ format is unchanged.*
 - **The current `examples/goals/*.wdlg` are the `global` rows.** They ship in
   the repo today (`rotate-muscles.wdlg`, `ramp-the-pull.wdlg`,
   `ramp-the-squat.wdlg` — note `builder.js`'s `GOALS` const lists only the
-  first two; G3 reconciles that) and stay the committed source. The loader
-  ingests them as `scope: "global"` rows whose `source` is byte-identical to
-  the file — the **L5 / L6 shape** (authored content in the repo, a
-  `make *:load` that upserts it and regenerates the fixture).
+  first two; G3 reconciles whether `ramp-the-squat` is canonical or vestigial)
+  and stay the committed source. The loader ingests them as `scope: "global"`
+  rows whose `source` is **byte-identical** to the file — the **L5 / L6 shape**
+  (authored content in the repo, a `make *:load` that upserts it and regenerates
+  the fixture). The files are the source of truth; the DB rows are a mirror.
+  **`rotate-muscles.wdlg` in particular is a keeper Chris flagged explicitly
+  2026-09-02** ("the original goals rules that were around since the early
+  days") — its exact text (title `Rotate the muscles, don't stack them`; the
+  `no repeat` / `cover` / `balance` / `limit` rules with their comment blocks)
+  is preserved verbatim and must not be reformatted, re-commented or
+  "canonicalised" by the ingest.
 - **`goalId` namespacing** — `<owner-handle>:<slug(title)>` for `user` rows
   (re-slug on rename, mirror the sets epic + the handle-rename debt);
   `wdl:<slug>` for `global` rows (a fixed first-party namespace, set by the
