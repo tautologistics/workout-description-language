@@ -210,9 +210,13 @@ grouped section. Movement sets are now a `movement_sets` PocketBase collection
 `user` scopes, `setId = <handle>:<slug(name)>` re-slugged on rename; the S4 pass
 put the repertoire at the top of the palette modal, fixed the set-card grid, and
 made read-only sets distinct. The migration is on the VPS and `movement_sets` is
-live on the prod API (nothing ships v1 — no loader, no seed). **The next scoped
-`localStorage` → PocketBase epic is the goals database (G0–G4)**, still open in
-[../tasks/current.md](../tasks/current.md):
+live on the prod API (nothing ships v1 — no loader, no seed). **The goals
+database epic (G0–G4) that followed it is also complete as of 2026-09-03** (G4
+`<SHA-G4>`, deploy + close) and moved to
+[../tasks/completed.md](../tasks/completed.md) as one grouped section — see the
+bullet below. With both done there is **no `localStorage` → PocketBase epic left
+to queue**: the audit that produced S and G found only `wdl.sets` and
+`wdl.goals` held real content, and both are now collections.
 
 <details><summary>Historical — the S0–S4 trail (kept for the record)</summary>
 
@@ -299,15 +303,23 @@ live on the prod API (nothing ships v1 — no loader, no seed). **The next scope
   Saved), by `curl` (read gate, 403/400 paths, byte-identical `source`), with
   `WDL_MOCK_API=0` (bundled fallback + expected warning), and `make goals:load`
   against the mock (first run all `unchanged`, `--dry-run` clean, edited file →
-  1 `updated`). `make test` 2064/2064, 1 pending — unchanged. **Next: G4** —
-  `make deploy:db` (the G1 migration) + `make goals:load` against prod + `make
-  deploy` (the static apps), then close the epic (move G0–G4 to
-  `completed.md`).
+  1 `updated`). `make test` 2064/2064, 1 pending — unchanged. **G4 done
+  2026-09-03 (`<SHA-G4>`) — epic complete.** `make deploy:db` applied the G1
+  migration on the VPS (`goals` live on the prod API), `make goals:load` created
+  the 3 `global` rows (`source` byte-identical), `make deploy` shipped the
+  static apps (served JS byte-identical to `origin/main`); the G0–G4 section
+  moved to [../tasks/completed.md](../tasks/completed.md). **Open for Chris:** a
+  rule gap found while verifying — the `goals` create rule has no
+  `@request.auth.id != ""` guard, so an anonymous `POST` of an ownerless
+  `{scope:"user"}` row succeeds (collection spam, not escalation — a `global`
+  row or one attributed to a real uid is `400`); fix is a follow-up migration +
+  a DEC-028 correction.
 
 The `localStorage` audit that produced these: only `wdl.sets` and `wdl.goals`
-hold real content; `wdl.editor-tab` / `wdl.analysis-tab` / `wdl.right-col-w` are
-per-device UI state and `wdl.pb-auth` / `wdl.pb-oauth` / `wdl.pb-draft` are
-auth / transient — all correctly local, none promoted.
+held real content, **and both are now PocketBase collections** (S0–S4 and
+G0–G4); `wdl.editor-tab` / `wdl.analysis-tab` / `wdl.right-col-w` are per-device
+UI state and `wdl.pb-auth` / `wdl.pb-oauth` / `wdl.pb-draft` are auth /
+transient — all correctly local, none promoted. Nothing else remains to move.
 
 Also open, unchanged: the deferred flat-129-row palette browse UX, the
 laterality curation sweep (Chris's manual step), and the deferred security
@@ -319,18 +331,21 @@ audit** is [../tasks/deferred.md](../tasks/deferred.md) ("once functionality has
 settled"). Most [../topics/known-debts.md](../topics/known-debts.md) items are
 core / spec / grammar, not app-only.
 
-**Deploy state, 2026-09-02** (checked against the live API): all six migrations
-applied, every loader has run against prod (`movements` **972**, `workouts`
-**45**, `equipment` **29**, `patterns` **11** rows), and the **V8 static apps
-are `make deploy`'d** — the served `apps/shared/{pocketbase.js, vocab.js,
-movement-editor.js}` are byte-identical to `origin/main` and the prod editor
-fetches the DB vocab. **V8 is fully live.** The **M6 nightly-backup cron is
-installed, running, and pulled off-box** — cron writes
-`~/pb/pb_backups/data-YYYY-MM-DD.db` at 03:17 UTC (`backup.log` clean), and
-`make backups:pull` copies them into the repo-relative `db-backups/`
-(git-ignored contents), verified 2026-09-02 with both snapshots landing.
-**Nothing is open on deploy.** (Deferred, not open: PocketBase upgrades, and
-the DreamHost firewall ticket for the port-8090 exposure.)
+**Deploy state, 2026-09-03** (checked against the live API): all **eight**
+migrations applied, every loader has run against prod (`movements` **972**,
+`workouts` **45**, `equipment` **29**, `patterns` **11**, `movement_sets` **0**,
+`goals` **3** `global` rows), and the **V8 + S0–S4 + G0–G4 static apps are `make
+deploy`'d** — the served `apps/shared/*.js` and `apps/builder/builder.js` are
+byte-identical to `origin/main`, so the prod editor fetches the DB vocab and the
+DB goal rulesets. The **M6 nightly-backup cron is installed, running, and pulled
+off-box** — cron writes `~/pb/pb_backups/data-YYYY-MM-DD.db` at 03:17 UTC
+(`backup.log` clean), and `make backups:pull` copies them into the repo-relative
+`db-backups/` (git-ignored contents), verified 2026-09-02 with both snapshots
+landing. **One follow-up is open on the DB rules** (found at G4): the `goals`
+create rule needs an `@request.auth.id != ""` guard added by a follow-up
+migration — anonymous callers can otherwise create ownerless `{scope:"user"}`
+rows (collection spam, not escalation). (Deferred, not open: PocketBase
+upgrades, and the DreamHost firewall ticket for the port-8090 exposure.)
 
 *Corrected 2026-09-02, twice the same day: this first said the prod
 `equipment` / `patterns` collections still needed `make deploy:db` +

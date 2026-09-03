@@ -188,8 +188,9 @@ ready to start, with what it touches, is in [current.md](current.md).
   what you want, and once equipment is real data (V6–V8).
 
 - **~~The movement-"sets" model + UX rework~~ — shipped as the S0–S4 epic,
-  complete 2026-09-03** ([completed.md](completed.md)). The companion **goals**
-  epic (G0–G4) on the same pattern is still open in [current.md](current.md).
+  complete 2026-09-03** ([completed.md](completed.md)). **~~The companion goals
+  epic (G0–G4) on the same pattern~~ — also complete 2026-09-03** (G4 deploy +
+  close), moved to [completed.md](completed.md) as one grouped section.
 
 - **The movement-palette browse UX** is worth doing once the curation sweep has
   run and the core set has reached its real size — at which point a flat scroll

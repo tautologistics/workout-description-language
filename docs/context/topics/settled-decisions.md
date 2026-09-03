@@ -1855,6 +1855,25 @@ the suite was not exercised because nothing it covers moves.*
     — a user owns their own rows, and an admin may write the `global` tier.
     `down` deletes the collection in one step.
 
+    *Correction 2026-09-03, found while verifying G4's prod deploy: these rules
+    as written are missing an `@request.auth.id != ""` guard. An unauthenticated
+    caller has `@request.auth.id == ""`, so `user = @request.auth.id` is
+    `"" = ""` — an anonymous `POST` of `{scope:"user"}` with no `user` field
+    passes the create rule and lands an ownerless `user` row, and the same
+    `"" = ""` lets an anonymous caller read ownerless rows through the list
+    rule. The exposure is narrow (a `global` row, or a `user` row attributed to
+    a real uid, is still `400`), so it is collection spam rather than privilege
+    escalation, but it is a gap the sibling collections do not have —
+    `movement_sets` and `workouts` both guard create with `@request.auth.id !=
+    ""`. The fix is a follow-up migration adding that guard to the goals
+    create / update / delete rules and re-checking the list rule; until it
+    lands, the create / update / delete rules should be read as
+    `@request.auth.id != "" && ((scope = "user" && user = @request.auth.id) ||
+    @request.auth.admin = true)`. G1's local up/down verification checked the
+    schema, not anonymous-write rule semantics, and G3's mock `/api` is stricter
+    than the live rule (it 403s an unauthenticated write outright), which is why
+    it surfaced only at the prod deploy.*
+
 - **Two scopes — `global` and `user` — and there *is* a `scope` column.** This
   is the [DEC-025](#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump)
   vocabulary model (`scope: global | user` plus a nullable `user` relation),

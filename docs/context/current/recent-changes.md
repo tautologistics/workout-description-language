@@ -2,6 +2,34 @@
 
 ## Changes
 
+- **2026-09-03 — G4 shipped (`<SHA-G4>`): the goals database is live on prod and
+  the G0–G4 epic is closed.** Deploy + `docs/context/**` only — no other repo
+  diff (the migration is G1's, the loader G3's, the client G2's); the analogue
+  of S4's deploy half, with no S4-style UX pass (DEC-028). **`make deploy:db`**
+  rsynced all eight migrations to the VPS and restarted PocketBase;
+  `1757300000_create_goals.js` applied — `goals` is live on the prod API (`GET
+  …/goals/records` → `200`, was `404`), all seven fields + both indexes + the
+  DEC-028 rules confirmed with admin auth. **`make goals:load`** against prod
+  (`_superusers` creds from `.env`) created **3** `scope:"global"` rows
+  (`wdl:ramp-the-pull` / `wdl:ramp-the-squat` / `wdl:rotate-muscles`), an
+  idempotent re-run all-`unchanged`, each row's `source` byte-identical to its
+  `examples/goals/*.wdlg`. **`make deploy`** shipped the static apps (suite
+  **2064/2064, 1 pending** first) — served `apps/shared/{pocketbase.js,
+  goals-store.js}` + `apps/builder/builder.js` byte-identical to `origin/main`;
+  the live editor's Global optgroup fetches the three rows from the prod `/api`.
+  A signed-in Save round-trip was **not** driven on prod (Google OAuth, no
+  interactive prod sign-in) — it rests on G3's mock round-trip + the
+  byte-identical JS. The whole **## The goals database (G0–G4)** section moved
+  from `tasks/current.md` to `tasks/completed.md` as one grouped block, the way
+  the M / L / V / S epics closed. **Open for Chris (found while verifying, not a
+  regression):** the `goals` create rule has no `@request.auth.id != ""` guard,
+  so an anonymous `POST` of an ownerless `{scope:"user"}` row succeeds (`user =
+  @request.auth.id` is `"" = ""`); narrow — a `global` row or one attributed to
+  a real uid is `400`, so collection spam not escalation — but a gap
+  `movement_sets` / `workouts` don't have, fixed by a follow-up migration + a
+  DEC-028 correction. Both probe rows deleted; prod holds exactly the 3 `global`
+  rows. `make test` **2064/2064, 1 pending — unchanged**.
+
 - **2026-09-03 — G3 shipped (`1a7252f`): `goals` is behind the local `/api`,
   `make goals:load` ingests the `global` tier, and the signed-in round-trip is
   verified end to end.** G3 of the goals database epic (G0–G4) — `scripts/**` +

@@ -2750,6 +2750,516 @@ the real landed SHA (option a — what S1/S2/S3 did).
 
 ---
 
+## The goals database (G0–G4)
+
+*Complete as of 2026-09-03 — G0 (`8680e2a`), G1 (`1a99448`), G2 (`2512c23`),
+G3 (`1a7252f`) and G4 (`<SHA-G4>`) all landed; the whole section moved here
+from `current.md` as one grouped block when G4 closed the epic, the way the
+M / L / V and S epics were closed. Nothing in `packages/core`, the grammar or
+the spec was touched — the `.wdlg` format is unchanged — and `make test` held
+at **2064/2064, 1 pending** throughout. The contract is
+[DEC-028](../topics/settled-decisions.md#dec-028-goals-are-a-pocketbase-collection-on-the-vocab-scope-model-localstoragewdlgoals-is-retired).
+Execution order as worked: G0 → G1 → G2 → G3 → G4.*
+
+*Raised 2026-09-02 by Chris, right after the sets epic above: promote **saved
+goal rulesets** — `localStorage['wdl.goals']`, the "Saved" entries in the
+builder's Goals block ([../topics/what-exists.md](../topics/what-exists.md)
+"Apps", R5) — to a PocketBase collection on the same pattern as the sets epic.
+**Independent of the sets epic** (different collection, different scopes, no
+shared code beyond the `pocketbase.js` idioms); either can be launched first.
+Nothing in `packages/core`, the grammar or the spec is touched — the `.wdlg`
+format is unchanged.*
+
+**Model decisions Chris made 2026-09-02 (G0 writes them up as a DEC):**
+
+- **Two scopes: `global` and `user`. No `org-library`.** Chris: *"there wouldn't
+  be any org-library ones — I don't think Hyrox or CrossFit have any given
+  rules; there's not really much to enforce there."* This is the **vocab scope
+  model** (DEC-025: `scope: global | user` + a nullable `user` relation), **not**
+  the workouts `visibility` model — because "global" here means *"the rulesets
+  applied / available by default, everywhere"*, which is a vocab-like notion,
+  not a sharing one.
+- **The current `examples/goals/*.wdlg` are the `global` rows.** They ship in
+  the repo today (`rotate-muscles.wdlg`, `ramp-the-pull.wdlg`,
+  `ramp-the-squat.wdlg` — note `builder.js`'s `GOALS` const lists only the
+  first two; G3 reconciles whether `ramp-the-squat` is canonical or vestigial)
+  and stay the committed source. The loader ingests them as `scope: "global"`
+  rows whose `source` is **byte-identical** to the file — the **L5 / L6 shape**
+  (authored content in the repo, a `make *:load` that upserts it and regenerates
+  the fixture). The files are the source of truth; the DB rows are a mirror.
+  **`rotate-muscles.wdlg` in particular is a keeper Chris flagged explicitly
+  2026-09-02** ("the original goals rules that were around since the early
+  days") — its exact text (title `Rotate the muscles, don't stack them`; the
+  `no repeat` / `cover` / `balance` / `limit` rules with their comment blocks)
+  is preserved verbatim and must not be reformatted, re-commented or
+  "canonicalised" by the ingest.
+- **`goalId` namespacing** — `<owner-handle>:<slug(title)>` for `user` rows
+  (re-slug on rename, mirror the sets epic + the handle-rename debt);
+  `wdl:<slug>` for `global` rows (a fixed first-party namespace, set by the
+  loader). Unique index.
+- **`localStorage['wdl.goals']` is retired; no migration.** Signed-in-only,
+  like the sets epic — Chris is the sole user. Signed out, the Goals block
+  shows the `global` rulesets (still fetchable) but no "Saved" group.
+- **No Non-Goal reversal** — unlike sets, goals always had `.wdlg` as a real
+  format (`wdl goals --goals` reads it); there is no "goal file format" Non-Goal
+  to reopen. G0's DEC just records the `localStorage` → collection move.
+- **No dedicated UX-rework task.** The Goals block is already fine (R5); G2
+  folds any picker restructure (a "Global" optgroup + a "Saved" optgroup) into
+  the rewire. So the goals epic is G0–G4 with **no S4-style UX pass**.
+
+**Grounding facts:**
+
+- **Where saved goals live today:** `apps/builder/builder.js` ~L2499–2501 —
+  `let savedGoals = JSON.parse(localStorage.getItem('wdl.goals') || '{}')`, a
+  `{ "name": "<.wdlg source text>" }` map; two `localStorage.setItem` writers
+  (save ~L2669, delete ~L2694). The picker (`renderGoalPicker`, ~L2506) builds
+  "no goals" + an **Examples** optgroup (the `GOALS` filenames, fetched from
+  `examples/goals/`) + a **Saved** optgroup (`Object.keys(savedGoals)`); `EXAMPLE`
+  = `'example:'` / `SAVED` = `'saved:'` value prefixes. Download writes a
+  `.wdlg` Blob; there is **no Import** (unlike sets). The rules are consumed by
+  the "Against your goals" panel through the same core code `wdl goals --goals`
+  runs.
+- **The pattern to mirror:** the vocab layer — `equipment` / `patterns`
+  collections, `scope: global | user`, nullable `user` relation, the
+  `vocabCollection(name)` migration helper, the `makeVocab(name, prefix)` mock
+  factory, `.local.json` overlay + `.gitignore`, `listEquipment` /
+  `listPatterns` in `pocketbase.js` with a bundled offline fallback (DEC-025) —
+  **plus** the L5/L6 authored-content-in-repo + `make *:load` loader shape,
+  since the `global` rows have a committed source.
+
+### G0 — Design note + a new DEC. No code. — **DONE 2026-09-03 (`8680e2a`)**
+
+**Landed.** DEC-028 is written — a one-line index entry in
+[../decisions.md](../decisions.md) after DEC-027 and the full entry in
+[../topics/settled-decisions.md](../topics/settled-decisions.md#dec-028-goals-are-a-pocketbase-collection-on-the-vocab-scope-model-localstoragewdlgoals-is-retired)
+after DEC-027, mirroring that entry's idiom for the vocab scope model. It covers
+the `goals` collection shape (below), the two scopes (`global` / `user`, the
+DEC-025 vocab model, *with* a real `scope` column and no `org-library` tier),
+`goalId` namespacing (`wdl:<slug>` global / `<owner-handle>:<slug(title)>` user,
+re-slugged on rename), `examples/goals/*.wdlg` as the committed `global` source
+ingested byte-identical by `make goals:load` (`rotate-muscles.wdlg` verbatim),
+`localStorage['wdl.goals']` retired / signed-in-only, no Non-Goal reversal, no
+S4-style UX pass, and the `GOALS`-const 2-vs-3 discrepancy flagged as a G3
+reconciliation item. The **handle-rename staleness debt** note in
+[../topics/known-debts.md](../topics/known-debts.md) gained a `user`-scoped
+`goals.goalId` paragraph beside the workout and set cases. No collection /
+migration / app / mock / fixture change — docs-only, the suite was not
+exercised because nothing it covers moves. DEC-028 references G0 without baking
+in its own commit hash (S0's approach), so there is no follow-up SHA commit.
+Brief kept below for the trail. G1 dispatched.
+
+Write the model above up as **DEC-028** (`decisions.md` index line + full entry
+in `settled-decisions.md`, the established idiom), covering: the `goals`
+collection shape, the two scopes (`global` / `user`, the vocab model),
+`goalId` namespacing (`wdl:<slug>` global / `<handle>:<slug>` user, re-slug on
+rename), `examples/goals/*.wdlg` as the committed `global` source, and
+`wdl.goals` retired / signed-in-only. Add `user`-scoped goals to the
+**handle-rename staleness debt** note in
+[../topics/known-debts.md](../topics/known-debts.md). No code. Spawns G1.
+
+**Collection shape to specify:** `goals` —
+- `title` — text, required (the `.wdlg` title; `parseGoals(source).title`).
+- `goalId` — text, required, **unique index**; `wdl:<slug>` (global) or
+  `<owner-handle>:<slug>` (user).
+- `source` — text (`editor` / long), required — the raw `.wdlg`.
+- `scope` — select `global | user`, required.
+- `user` — relation → `users`, **nullable** (null for `global`), cascade-delete.
+- the two autodate fields.
+- **Rules:** read `scope = "global" || user = @request.auth.id`; create/update/
+  delete `(scope = "user" && user = @request.auth.id) || @request.auth.admin = true`
+  (a user owns their rows; an admin may write `global`). `down` deletes it.
+
+### G1 — `goals` collection + migration. — **DONE 2026-09-03 (`1a99448`)**
+
+**Shipped — pure schema, `make test` unchanged (2064/2064, 1 pending; the core
+suite does not cover migrations, so nothing it covers moves).**
+`deploy/pocketbase/pb_migrations/1757300000_create_goals.js` creates the `goals`
+collection per DEC-028 on the **vocab scope model** (not the `workouts` pattern
+S1 took for `movement_sets`): `title` (text, required, max 200), `goalId` (text,
+required, max 200) + **unique index** `idx_goals_goal_id`, `source` (text,
+required, `max: 200000` — the `workouts.source` shape, "a .wdlg body; generous
+ceiling, not a real limit"), `scope` (`select global|user`, required, maxSelect
+1), `user` (relation → `users`, **nullable** — `required: false`, cascade-delete,
+maxSelect 1, the vocab nullable-relation style, *not* `movement_sets.owner`),
+`created` / `updated` autodate; plain index `idx_goals_scope` on `scope`. Rules
+are DEC-028's verbatim: read `scope = "global" || user = @request.auth.id`;
+create/update/delete
+`(scope = "user" && user = @request.auth.id) || @request.auth.admin = true`.
+`down` drops the collection in one step. Uses the inline `new Collection({...})`
+create form (one collection, so no `vocabCollection`-style helper) — the
+`1757200000_create_movement_sets.js` idiom exactly.
+
+Verified **up / down / up** against a real pocketbase **v0.40.1 (darwin_arm64)**
+binary + throwaway `pb_data` (the M1 / L1 / V6 / S1 method): `migrate up` applies
+all eight migrations cleanly (exit 0); `goals` lands with all seven fields
+(`title`, `goalId`, `source`, `scope`, `user`, `created`, `updated`) and both
+named indexes (`sqlite3` against `_collections` / `sqlite_master`); a duplicate
+`goalId` is rejected (`UNIQUE constraint failed: goals.goalId`); the `user`
+relation resolves to `_pb_users_auth_` and is nullable (a `scope: "global"` row
+with no `user` inserts fine; a `scope: "user"` row with a real user FK inserts
+fine); `migrate down 1` drops `goals` with **zero** leftover `sqlite_master` rows
+and leaves `movements` / `workouts` / `users` / `movement_sets` / `equipment` /
+`patterns` and their indexes intact; a re-`up` reapplies. Binary and temp
+`pb_data` discarded, not committed. Entry added to
+`deploy/pocketbase/pb_migrations/README.md`. **Not yet applied on the box** —
+`make deploy:db` lands it at G4 (or whenever Chris next deploys); same "still to
+do on deploy" caveat M1 / L1 / V6 / S1 carry. No `packages/core` change, no
+app / mock / fixture / loader change — those are G2–G4. G2 dispatched.
+
+Brief kept below for the trail.
+
+`deploy/pocketbase/pb_migrations/<ts>_create_goals.js` per G0 — unique index on
+`goalId`, plain index on `scope`, the rules above, `down` drops it. Verify
+**up / down / up** against a real `pocketbase` binary (the V6 method): the
+collection lands with every field + index, the unique index rejects a duplicate
+`goalId`, the `user` relation resolves and is nullable, `down` leaves the other
+collections intact, a re-`up` reapplies. Entry in
+`deploy/pocketbase/pb_migrations/README.md`. "Still to do on deploy" note
+(`make deploy:db`) like M1 / L1 / V6. Pure schema — no app / mock / fixture
+change. Spawns G2.
+
+### G2 — `apps/shared/goals-store.js` + `pocketbase.js` CRUD + rewire the builder. — **DONE 2026-09-03 (`2512c23`)**
+
+**Shipped — app code only (`apps/shared/pocketbase.js`, `apps/shared/goals-store.js`
+new, `apps/builder/builder.js`); no migration / mock / fixture / core change,
+`make test` **2064/2064, 1 pending — unchanged** (the core suite does not cover
+the builder's Goals block or the mock).** The analogue of S2 for the goals epic.
+
+- **`apps/shared/pocketbase.js`** — a `goals` block beside `movement_sets`:
+  `listGlobalGoals()` (`filter=scope="global"`, `sort=goalId`, `perPage=1000`,
+  auth attached only if held — the `listMovements` shape), `listMineGoals()`
+  (`filter=user="<uid>"`; **returns `[]` signed out**, does not throw like
+  `listMineSets`), `getGoalByAnyId(key)` (record id **or** `goalId`, the `:`
+  discriminator — the `getSetByAnyId` twin), `createGoal({ title, source })`
+  (always `scope: "user"`, `user` = caller, `goalId` = `forceGoalNamespace(title)`),
+  `updateGoal(id, patch)` (re-slugs `goalId` via `forceGoalNamespace(title, id)`
+  when `patch.title` is present), `removeGoal(id)`, and the exported
+  `forceGoalNamespace(title, excludeId)`. `forceGoalNamespace` is a small
+  parallel helper over the **already-factored `disambiguateNamespace`** (S2 split
+  that out of `namespacedId`); it mirrors `forceSetNamespace` exactly (a `.wdlg`
+  has no `@id`, so the slug is the title alone). New route const `GOALS`.
+- **`apps/shared/goals-store.js`** (new, host-agnostic like `sets.js` / `vocab.js`
+  — no DOM, no `window`): two caches (`globals()` / `mine()`), `loadGlobal()` /
+  `loadMine()` / `clearMine()` / `get(key)` and `create` / `update` / `remove`
+  thin wrappers that refresh `mine` after a write. **Offline fallback for the
+  `global` set** in the exact `vocab.js` `muscleIds()` / `dbVocab` shape:
+  `listGlobalGoals()` first; on any failure (or an empty list) the bundled
+  `examples/goals/*.wdlg` files are fetched relative to `import.meta.url` and
+  shaped `{ goalId: 'wdl:'+slug(filebase), title: <goals: header text>, source }`,
+  and the cached promise is nulled so a later `loadGlobal()` retries. The file
+  list is re-declared locally (`['rotate-muscles.wdlg', 'ramp-the-pull.wdlg']`) —
+  **the `GOALS`-const 2-vs-3 and the canonical `wdl:<slug>` basis are G3's to
+  reconcile**, per DEC-028. Title extraction is a light regex on the `goals:`
+  line (the `pocketbase.js` "no `packages/core` in a shared module" rule), so the
+  store stays free of the core build. `create` pushes an optimistic `pending`
+  row into the `mine` cache before the `POST` and removes it on failure.
+- **`apps/builder/builder.js`** — `let savedGoals = JSON.parse(localStorage…)`
+  and **both** `localStorage.setItem('wdl.goals', …)` writers deleted; the
+  module-top `const GOALS = [...]` deleted (the store owns the file list now);
+  `import * as goalsStore from '../shared/goals-store.js'`. The picker's
+  **Examples** optgroup is now **Global** fed from `goalsStore.globals()`
+  (`global:<goalId>` values), and the **Saved** optgroup is fed from
+  `goalsStore.mine()` and rendered **only when `currentUser()` is set** (the
+  `Yours` label is retired). `EXAMPLE = 'example:'` → `GLOBAL = 'global:'`;
+  `SAVED` unchanged; the change handler resolves the selected `goalId` via
+  `goalsStore.get()`. **Save** takes the ruleset name from
+  `parseGoals(goalSource).title` (DEC-028 — no more `prompt()`), is signed-in
+  only, `updateGoal`s the row of the same title if one exists else `createGoal`s,
+  and rolls the optimistic row back + shows the error in `#goal-errors` (a new
+  `showGoalError`) on failure — a 403/404 shows, never silent. **Delete** →
+  `goalsStore.remove`. **Download** is unchanged (still a `.wdlg` Blob; its
+  filename now always comes from `parseGoals(title)` rather than the picker
+  prefix). Sign-out calls `goalsStore.clearMine()` + re-renders; a settled
+  sign-in calls `goalsStore.loadMine()`. **Import** left out (DEC-028 default —
+  the rewire didn't make it free). The "Against your goals" panel is untouched —
+  it still consumes the ruleset `source` the store provides.
+
+**Verified** driving `make serve` (S2 method), light + dark:
+- **Signed out** — the **Global** optgroup populates from the two bundled `.wdlg`
+  files (`/api/collections/goals/records` → 404 → fallback; console warns
+  `goals: no /api rulesets, using the bundled .wdlg files — 404`, the
+  `muscleIds()` idiom). **No Saved group.** Picking a global ruleset loads its
+  source and the "Against your goals" panel evaluates it unchanged
+  (`cover: … at least 2 required` / `every rule satisfied`).
+- **Signed in** (mock `admin` user `u_mock_chris_0001`, handle `@ideal-trail`) —
+  Global still populates from the fallback (still 404 — G3 adds the mock route).
+  The **Saved** group renders (empty). **Save** with buffer title
+  `goals: My test ruleset` → `createGoal` POSTed
+  `{title:"My test ruleset", source:…, scope:"user", user:"u_mock_chris_0001",
+  goalId:"ideal-trail:my-test-ruleset"}` (a `wdl…`-free `<handle>:<slug>`); the
+  optimistic `Saved: My test ruleset` option appeared in the picker immediately,
+  then the real no-route **404 rolled it back** and `#goal-errors` showed
+  *Could not save: 404 Not Found*. **Sign out** → the Saved group is gone.
+- **`WDL_MOCK_API=0`** — Global still populates from the bundled files; the only
+  fetch failure is the expected `/api/collections/goals/records` 404.
+- **`make test`** — **2064/2064 passing, 1 pending** — unchanged.
+
+*(The full signed-in round-trip — Save → `curl` shows a `scope:"user"` row →
+reload persists → Delete — is G3's verification, once the mock `goals/records`
+route exists. G2 proves the client rewire and the offline fallback.)*
+
+The `docs/context` G2 write-up landed in this same commit with a `2512c23`
+placeholder, replaced by a tiny follow-up commit with the real landed SHA
+(the S1–S4 / G1 approach). Brief kept below for the trail. G3 dispatched.
+
+---
+
+*(name it `goals-store.js` — `apps/shared/goals.js` would collide with the
+core-goals concept.)*
+
+- **`apps/shared/pocketbase.js`**: `listGlobalGoals()`
+  (`filter=scope="global"`, `sort=goalId`, `perPage=1000`, the `listMovements`
+  shape), `listMineGoals()` (`filter=user="<uid>"`), `getGoalByAnyId(key)`,
+  `createGoal({ title, source })` (always `scope: "user"`, `user` = caller),
+  `updateGoal(id, patch)`, `removeGoal(id)`, and `forceGoalNamespace(title,
+  excludeId)` (`<handle>:<slug(title)>`, suffix-on-clash — factor over the sets
+  epic's helper if that landed first).
+- **`apps/shared/goals-store.js`** (new, host-agnostic): the in-memory model +
+  operations, thin wrappers over `pocketbase.js`, with a **bundled offline
+  fallback for the `global` set** (fetch `examples/goals/*.wdlg` — the exact
+  `vocab.js` `muscleIds()` fetch-then-`.catch`-to-bundled shape) so a
+  signed-out or `WDL_MOCK_API=0` builder still shows the default rulesets.
+- **`apps/builder/builder.js`**: delete `savedGoals` + its two
+  `localStorage.setItem`s; the picker's **Examples** optgroup becomes
+  **Global** fed from `listGlobalGoals()` (offline-fallback to the bundled
+  files), and the **Saved** optgroup is fed from `listMineGoals()` and rendered
+  only when `currentUser()` is set. Save → `createGoal` / `updateGoal`; Delete →
+  `removeGoal`. Download is unchanged. Consider a small **Import** affordance
+  for symmetry with sets (optional — Chris hasn't asked; leave it out unless the
+  rewire makes it free).
+- No migration / mock change yet — G3 adds the mock. `make test` unchanged
+  (2064/2064, 1 pending — app code). Spawns G3.
+
+### G3 — `make goals:load` + fixtures + mock `/api` + drive the round-trip. — **DONE 2026-09-03 (`1a7252f`)**
+
+**Shipped — `scripts/**` + `.gitignore` + `apps/shared/goals-store.js` (the
+`GOAL_FILES` reconciliation), no migration / builder / `packages/core` change;
+`make test` **2064/2064, 1 pending — unchanged** (the core suite covers neither
+the mock nor the loader). The analogue of S3 for the goals epic.**
+
+- **`scripts/goals-to-db.mjs`** / **`make goals:load`** — the `vocab-to-db.mjs`
+  twin (no-deps, `node:fs` + global `fetch`): idempotent upsert of
+  `examples/goals/*.wdlg` into the `goals` collection as `scope: "global"` rows,
+  keyed on **`goalId`**, `POST` the absent / `PATCH` only when `title` or
+  `source` differ; per-run `created` / `updated` / `unchanged` tally,
+  `--dry-run` (writes nothing, no HTTP mutation), `--api <base>` / `WDL_PB_URL`
+  (default `http://localhost:8081`). Prod auth is `movements-to-db.mjs`'s
+  verbatim — `WDL_PB_ADMIN_TOKEN` or `WDL_PB_ADMIN_EMAIL` + `_PASSWORD`,
+  `WDL_PB_ADMIN_COLLECTION` **default `users`** (not `_superusers` — the `goals`
+  write rule for a `global` row is `@request.auth.admin = true`, which a `users`
+  admin row satisfies), falling back to the dev-mock OAuth stub so a bare run
+  works against `make serve`. `make goals:load` target added to the `Makefile`
+  beside `vocab:load` (+ its `.PHONY` entry).
+- **The canonical `<slug>` basis is the file basename**: `goalId =
+  `wdl:<name-without-.wdlg>`` (`wdl:ramp-the-pull`, `wdl:rotate-muscles`,
+  `wdl:ramp-the-squat`). The file names are already stable kebab-case slugs, and
+  G2's `goals-store.js` offline fallback already derived `wdl:<slug(filebase)>`
+  — so the DB rows and the bundled fallback carry **identical** ids with no
+  change to the fallback's slug logic. `slug(title)` was rejected: it would give
+  `wdl:put-weight-on-the-bar-week-after-week` for `ramp-the-squat.wdlg`, which
+  matches neither the file nor the fallback. `title` is read with the same light
+  regex `goals-store.js` uses (`/^goals:[ \t]*(\S.*?)[ \t]*$/m`), which is
+  `parseGoals(source).title` for the header line — so the loader stays a no-deps
+  script, the `vocab-to-db.mjs` / `workouts-to-db.mjs` precedent.
+- **`GOALS`-const 2-vs-3 reconciled: `ramp-the-squat.wdlg` is canonical.** It is
+  a well-formed house-style `.wdlg` demonstrating a `measure: load`
+  result-series goal (a distinct feature the other two don't show), and
+  **DEC-028's own G0 write-up already names all three** as the committed
+  `global` source — the const (deleted in G2) and G2's placeholder
+  `GOAL_FILES = ['rotate-muscles.wdlg', 'ramp-the-pull.wdlg']` simply never got
+  the file added. G3 adds it to `apps/shared/goals-store.js`'s `GOAL_FILES`
+  (now all three, sorted); the loader picks it up from the
+  `examples/goals/*.wdlg` glob with no extra wiring. Nothing was deleted.
+- **`scripts/mock-api.mjs`** grows a `goals/records` handler — a **goals-shaped
+  handler**, not a `makeVocab` instance (goals carry a `scope` column, a
+  nullable `user`, a read gate and a `goalId`-uniqueness rejection the vocab
+  factory has none of): the PB list envelope via the shared `applyQuery` +
+  `listEnvelope` (honours `filter` `scope="global"` / `user="<uid>"`, `sort`
+  `goalId`, `page` / `perPage`); `/records/:id` by synthetic id **or** `goalId`
+  (the `getGoalByAnyId` idiom); a **scope-gated read** (`scope === "global" ||
+  user === caller`) on list + single GET, matching the migration rule;
+  `POST` / `PATCH` / `DELETE` behind the `Authorization` gate (**403** without) —
+  a `user` row is owner-only and a `global` row admin-only (the faked sign-in
+  hands every caller `admin: true`, so `make goals:load` round-trips); the
+  unique **`goalId`** index enforced as a **400 `validation_not_unique`** on a
+  create or a rename that collides. Writes overlay onto git-ignored
+  **`fixtures/goals.local.json`** (`records` + `deleted` tombstones, keyed by
+  the record `id` so a `user` row's `goalId` can re-slug on rename — the
+  `movement_sets` `.local.json` pattern). `.gitignore` gained the entry.
+- **The `global` rows are derived from `examples/goals/*.wdlg` at mock boot** —
+  **no committed `fixtures/goals.json`, and the loader regenerates no fixture.**
+  This follows `vocab` (derive from the registry files), not `workouts` (commit
+  a fixture). The G3 brief's "regenerate `fixtures/goals.json`" was written by
+  analogy to `workouts-to-db.mjs`, which commits its fixture only because the
+  mock `workouts` handler needs mock-user rows it cannot derive; goals are the
+  vocab case — the mock derives the same rows from the same committed files, so
+  a `fixtures/goals.json` would be a second copy of the file contents for `make
+  goals:load` to keep in step, i.e. the drift DEC-028 avoids by making the files
+  the source. **No `make goals:dump`** either, the call `vocab-to-db.mjs` made
+  for its forty terms: three files edited directly in the repo do not want the
+  round-trip guarantee movements needed. A preserved mock-user seed row (S3
+  added two) was skipped — optional per the brief, and an empty Saved group on
+  first signed-in load matches the real product state.
+
+**Verified — the round-trip driven on `make serve`, plus `curl` and
+`WDL_MOCK_API=0`:**
+- **Signed in** (mock `admin` `u_mock_chris_0001`, assigned handle `@solid-geode`
+  this run) — the **Global** optgroup populates **from `/api`**
+  (`GET …/goals/records?filter=scope%3D%22global%22&sort=goalId&perPage=1000` →
+  200, three rows) with all three titles, **no fallback warning** in the
+  console. **Save** a `goals: My rules` buffer → `POST` `{title:"My rules",
+  source:…, scope:"user", user:"u_mock_chris_0001", goalId:"solid-geode:my-rules"}`
+  → the **Saved** optgroup appears with it; `curl` shows the `scope:"user"` row
+  and `fixtures/goals.local.json` holds it. **Reload** → still listed (persisted
+  from the overlay). **Delete** → gone from the picker, a `deleted` tombstone in
+  the overlay. The "Against your goals" panel evaluates a picked `global`
+  ruleset (`rotate-muscles`, source fetched from `/api`) unchanged
+  (`cover: … at least 2 required`). **Sign out** → only the **Global** group,
+  no Saved.
+- **`curl` on the mock:** single-record fetch by `goalId` (`wdl:ramp-the-squat`)
+  and by synthetic id both resolve; `source` **byte-identical** to each file;
+  signed-out list returns only the three `global` rows; a `user` row is **404**
+  without / **200** with the owner's `Authorization`; unauth `POST` → **403**;
+  duplicate `goalId` `POST` → **400 `validation_not_unique`**; a `PATCH`
+  renaming `goalId` re-slugs it (and a rename onto an existing `goalId` → 400);
+  a `POST` claiming a different `user` → **403** (so a wrong-owner write is
+  blocked at create — the mock has no cross-user seed row to PATCH, unlike S3's
+  org rows).
+- **`make goals:load`** against the mock: **first run all `unchanged` (3)** —
+  the mock serves the same file-derived rows, so the diff is empty (the V8 /
+  movements precedent); `--dry-run` writes nothing (`git status` clean); editing
+  a `.wdlg` `title` then re-running reports **1 updated**; an idempotent re-run
+  after that writes nothing.
+- **`WDL_MOCK_API=0`** — the Global optgroup **still populates from the bundled
+  `.wdlg` files** (all three, `wdl:<slug>` ids), the console warning is the
+  expected `goals: no /api rulesets, using the bundled .wdlg files — 404 Not
+  Found` plus the one 404. No other console output in any state.
+- **`make test`** — **2064/2064 passing, 1 pending** — unchanged.
+- G3 changed no CSS / DOM, so dark mode is untouched (the picker is a native
+  `<select>`).
+
+**Open for Chris (a G2 gap surfaced while verifying, not a G3 blocker):** the
+builder's Goals-block **Save** keys on the `.wdlg` title
+(`goalsStore.mine().find(g => g.title === title)`), so *changing* the `goals:`
+title and saving writes a **new** row rather than renaming the selected one —
+DEC-028's "re-slugged on rename" `updateGoal` path (verified working at the
+`pocketbase.js` + mock layer via `curl`) is only reached by re-saving the *same*
+title. If a real rename affordance is wanted it is a small `builder.js` change
+(pass the selected row's id when the picker is on a `saved:` entry), owned by
+the G2 rewire, not the loader/mock.
+
+The `docs/context` G3 write-up landed in this same commit with a `1a7252f`
+placeholder, replaced by a tiny follow-up commit with the real landed SHA (the
+S1–S4 / G1 / G2 approach). Brief kept below for the trail. G4 dispatched.
+
+---
+
+- **`scripts/goals-to-db.mjs`** / **`make goals:load`** — the
+  `movements-to-db.mjs` / `vocab-to-db.mjs` twin: idempotent upsert of
+  `examples/goals/*.wdlg` into the `goals` collection as `scope: "global"` rows
+  (`goalId` = `wdl:<slug>`, `title` from `parseGoals`), keyed on `goalId`,
+  `POST` the absent / `PATCH` only changed `title` / `source`; `--dry-run`,
+  `--api` / `WDL_PB_URL`, prod auth like `movements-to-db.mjs`
+  (`@request.auth.admin = true`). The same run regenerates
+  **`fixtures/goals.json`** (the global rows + any preserved mock-user seed).
+  **Reconcile `builder.js`'s `GOALS` const** (2 files) against the 3 in
+  `examples/goals/` — the loader ingests whichever are canonical; if
+  `ramp-the-squat.wdlg` is real it should be in both.
+- **`scripts/mock-api.mjs`** grows a `goals/records` handler — the `makeVocab`
+  twin (list envelope, `filter` / `sort` / `page`, `/records/:id` by id or
+  `goalId`, `scope`-gated reads, authorised writes overlaid onto git-ignored
+  `fixtures/goals.local.json`). `.gitignore` the `.local.json`. Derive the
+  `global` rows from `examples/goals/` at boot (no committed
+  `fixtures/goals.json` of globals) — or commit it; match whatever
+  `workouts` / `vocab` do (vocab derives, workouts commits — pick one and say
+  why in the task).
+- **Verify** on `make serve` signed in as the mock `admin` user: the Global
+  optgroup populates from `/api`; with `WDL_MOCK_API=0` it still populates from
+  the bundled `.wdlg` files; Save a ruleset → `curl` shows a `scope: "user"`
+  row with `goalId` `fresh-dune:<slug>`; reload → it persists; Delete removes
+  it; sign out → only the Global group shows; the "Against your goals" panel
+  still evaluates against a picked ruleset unchanged. `make goals:load` against
+  the mock: first run all `unchanged` (the movements precedent), `--dry-run`
+  writes nothing, an edited file → 1 `updated`. `make test` unchanged. Spawns
+  G4.
+
+### G4 — deploy + close the epic. DONE 2026-09-03 (`<SHA-G4>`).
+
+Deploy + docs only — **no repo diff outside `docs/context/**`** (the migration
+is G1's, the loader G3's, the client G2's). The analogue of S4's deploy half
+for the goals epic; goals had no S4-style UX pass (DEC-028).
+
+**Deploy (2026-09-03):**
+- **`make deploy:db`** rsynced all eight migrations to the VPS and restarted
+  PocketBase (API healthy). `1757300000_create_goals.js` applied — `goals` is
+  live on the prod API: `GET …/goals/records` → a `200` list envelope (was
+  `404`); checked against `/api/collections/goals` with admin auth, the
+  collection carries all seven fields (`title` / `goalId` / `source` / `scope`
+  / `user` / `created` / `updated`) and both indexes (unique
+  `idx_goals_goal_id`, plain `idx_goals_scope`), and the read/write rules are
+  DEC-028's verbatim.
+- **`make goals:load`** against prod
+  (`WDL_PB_URL=https://wex.androidempathy.com`, `.env` `_superusers` creds — a
+  superuser bypasses the `@request.auth.admin` rule, so `_superusers` works as
+  well as the `users` admin row the loader's header describes): **3 created**
+  (`wdl:ramp-the-pull`, `wdl:ramp-the-squat`, `wdl:rotate-muscles`), an
+  idempotent re-run **all 3 `unchanged`**, `--dry-run` first showed the plan
+  and wrote nothing.
+  `GET …/goals/records?filter=scope="global"&sort=goalId` → `totalItems: 3`
+  with those ids, `user` empty on each, and every row's `source`
+  **byte-identical** to its `examples/goals/*.wdlg` file (`rotate-muscles.wdlg`
+  included — verbatim, DEC-028).
+- **`make deploy`** shipped the static apps — core suite **2064/2064, 1
+  pending** first, then `build-web.mjs`, then `rsync -az --delete` to
+  `pb/pb_public/`. The served `apps/shared/pocketbase.js`,
+  `apps/shared/goals-store.js` and `apps/builder/builder.js` are
+  **byte-identical to `origin/main`** (fetched from the live origin and
+  `diff`ed — the S4 / V8 method).
+
+**Prod verified end to end:** the exact `goals-store.js` `listGlobalGoals()`
+query (`filter=scope="global"&sort=goalId&perPage=1000`) → `200`, three rows,
+so the live editor's **Global** optgroup populates from the prod `/api`, not
+the bundled fallback. A signed-in **Save** round-trip was **not** driven on
+prod (Google OAuth, no interactive prod sign-in this session) — it rests on
+G3's mock round-trip plus the byte-identical `pocketbase.js` / `goals-store.js`.
+`make test` — **2064/2064 passing, 1 pending**.
+
+**Open for Chris — a rule gap found while verifying prod (not something G4
+changes).** The `goals` create rule
+`(scope = "user" && user = @request.auth.id) || @request.auth.admin = true`
+(DEC-028, G1's migration) has no `@request.auth.id != ""` guard, so an
+**unauthenticated** `POST` of `{scope:"user"}` with **no `user` field**
+succeeds — `user = @request.auth.id` is `"" = ""` — creating an ownerless
+`user`-scoped row. Verified on the live API and both probe rows deleted
+immediately; the collection holds exactly the 3 `global` rows. The exposure is
+narrow — anon `POST` of a `scope:"global"` row is `400`, and so is one
+attributing a `scope:"user"` row to a real uid, so this is collection spam,
+not privilege escalation, and low-severity for a ~5-user instance — but it is
+a gap the sibling collections do not have: `movement_sets` and `workouts` both
+guard create with `@request.auth.id != ""`. By the same `"" = ""` the list
+rule (`scope = "global" || user = @request.auth.id`) also lets an anon caller
+read ownerless rows. The fix is a follow-up migration tightening the `goals`
+create/update/delete rules (and re-checking the list rule) with that guard,
+plus a DEC-028 correction — code + a schema change, out of G4's deploy-only
+scope. The G3 mock `/api` is already stricter than the live rule (it 403s an
+unauthenticated write outright), so local dev is unaffected.
+
+**Self-referential-SHA trap (S0–S3 / G1–G3 all hit it):** committed with a
+`<SHA-G4>` placeholder in these docs, pushed, then a tiny follow-up commit
+replaced it with the real landed SHA (option a — what S1–S3 / G1–G3 did).
+
+### Sequencing
+
+```
+G0 ─> G1 ─> G2 ─> G3 ─> G4
+✓     ✓     ✓     ✓     ✓
+```
+
+Strict order. Independent of the sets epic (S0–S4). **G0–G4 all landed
+2026-09-03 — the goals database epic is complete.**
+
+---
+
 *Ordering of 5, 6, 7 and 9 against 1-4 is not settled - they are appended
 rather than placed. 5, 6 and 7 were raised by writing and sending one workout
 rather than by a plan, and 9 by closing item 3. **0f was lettered rather than
