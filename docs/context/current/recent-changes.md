@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-03 — S1 shipped (`005a514`): the `movement_sets` collection is now
+- **2026-09-03 — S1 shipped (`91e20d5`): the `movement_sets` collection is now
   schema.** S1 of the movement-sets database epic (S0–S4) — pure schema, no app
   / mock / fixture / core change.
   `deploy/pocketbase/pb_migrations/1757200000_create_movement_sets.js` creates

@@ -213,7 +213,7 @@ independent of each other:
   committed registry, no loader); `wdl.sets` retired, signed-in-only, no
   migration. **S0 done 2026-09-02 (`9f82f5f`, docs-only) —
   [DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)
-  written + the two topic-file edits. S1 done 2026-09-03 (`005a514`) —
+  written + the two topic-file edits. S1 done 2026-09-03 (`91e20d5`) —
   `deploy/pocketbase/pb_migrations/1757200000_create_movement_sets.js` creates
   the collection per the DEC-027 shape (all eight fields, unique `setId` index,
   the `workouts` rules), verified up/down/up against a real pocketbase v0.40.1

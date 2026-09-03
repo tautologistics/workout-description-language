@@ -993,7 +993,7 @@ Spawns S1.
   (the `workouts` rule); create/update/delete owner-only
   (`@request.auth.id = owner`). `down` deletes the collection.
 
-### S1 — `movement_sets` collection + migration. — **DONE 2026-09-03 (`005a514`)**
+### S1 — `movement_sets` collection + migration. — **DONE 2026-09-03 (`91e20d5`)**
 
 **Shipped — pure schema, `make test` unchanged (2064/2064, 1 pending; the core
 suite does not cover migrations).**
