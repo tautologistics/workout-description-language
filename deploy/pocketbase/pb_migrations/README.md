@@ -157,3 +157,36 @@ supersedes it. From then on the collection schema is reproducible: a fresh
   box** — `make deploy:db` lands it at S4 (or whenever Chris next deploys).
   Glance at the admin UI on the box after deploy, same caveat as the workouts
   migration.
+
+- `1757300000_create_goals.js` — creates the `goals` collection (queue task G1,
+  the *goals database* epic,
+  [DEC-028](../../../docs/context/topics/settled-decisions.md#dec-028-goals-are-a-pocketbase-collection-on-the-vocab-scope-model-localstoragewdlgoals-is-retired)):
+  one row per saved goal ruleset — a "Saved" entry in the builder's Analysis-tab
+  Goals block — moved off the `localStorage['wdl.goals']` blob. Modelled on the
+  vocab collections (`equipment` / `patterns`), **not** `workouts` /
+  `movement_sets`: `title` (text, required — the `.wdlg` title), `goalId` (text,
+  required — `wdl:<slug>` global / `<owner-handle>:<slug(title)>` user, the
+  `wdlId` / `setId` analog, **unique index**), `source` (text, required —
+  `max: 200000`, the raw `.wdlg` verbatim, the `workouts.source` shape), `scope`
+  (`select global|user`, required — the vocab model, *with* an explicit column,
+  no `org-library` tier), `user` (relation → `users`, **nullable**,
+  cascade-delete — the vocab nullable-relation style, *not* `movement_sets`'s
+  required `owner`), and the two autodate fields. Rules: read
+  `scope = "global" || user = @request.auth.id`; create/update/delete
+  `(scope = "user" && user = @request.auth.id) || @request.auth.admin = true`
+  (a user owns their rows, an admin may write the `global` tier). Unique index
+  `idx_goals_goal_id` on `goalId`, plain `idx_goals_scope` on `scope`. Uses the
+  `new Collection({...})` create form; `down` drops the collection in one step.
+  Verified against a real v0.40.1 (darwin_arm64) binary + throwaway `pb_data`:
+  `migrate up` applies all eight migrations cleanly, the collection lands with
+  all seven fields and both indexes (checked via `sqlite3` against
+  `_collections` / `sqlite_master`), the unique index rejects a duplicate
+  `goalId` (`UNIQUE constraint failed: goals.goalId`), the `user` relation
+  resolves to `users` and is nullable (a `scope: "global"` row with no `user`
+  inserts fine), `migrate down 1` drops `goals` and leaves `movements` /
+  `workouts` / `users` / `movement_sets` / `equipment` / `patterns` and their
+  indexes intact (zero leftover `sqlite_master` rows), and a re-`up` reapplies
+  cleanly. No rows are loaded — `examples/goals/*.wdlg` is the committed `global`
+  source and G3's `make goals:load` ingests it. **Not yet applied on the box** —
+  `make deploy:db` lands it at G4 (or whenever Chris next deploys). Glance at the
+  admin UI on the box after deploy, same caveat as the workouts migration.

@@ -985,7 +985,44 @@ rename), `examples/goals/*.wdlg` as the committed `global` source, and
   delete `(scope = "user" && user = @request.auth.id) || @request.auth.admin = true`
   (a user owns their rows; an admin may write `global`). `down` deletes it.
 
-### G1 — `goals` collection + migration.
+### G1 — `goals` collection + migration. — **DONE 2026-09-03 (`<SHA-G1>`)**
+
+**Shipped — pure schema, `make test` unchanged (2064/2064, 1 pending; the core
+suite does not cover migrations, so nothing it covers moves).**
+`deploy/pocketbase/pb_migrations/1757300000_create_goals.js` creates the `goals`
+collection per DEC-028 on the **vocab scope model** (not the `workouts` pattern
+S1 took for `movement_sets`): `title` (text, required, max 200), `goalId` (text,
+required, max 200) + **unique index** `idx_goals_goal_id`, `source` (text,
+required, `max: 200000` — the `workouts.source` shape, "a .wdlg body; generous
+ceiling, not a real limit"), `scope` (`select global|user`, required, maxSelect
+1), `user` (relation → `users`, **nullable** — `required: false`, cascade-delete,
+maxSelect 1, the vocab nullable-relation style, *not* `movement_sets.owner`),
+`created` / `updated` autodate; plain index `idx_goals_scope` on `scope`. Rules
+are DEC-028's verbatim: read `scope = "global" || user = @request.auth.id`;
+create/update/delete
+`(scope = "user" && user = @request.auth.id) || @request.auth.admin = true`.
+`down` drops the collection in one step. Uses the inline `new Collection({...})`
+create form (one collection, so no `vocabCollection`-style helper) — the
+`1757200000_create_movement_sets.js` idiom exactly.
+
+Verified **up / down / up** against a real pocketbase **v0.40.1 (darwin_arm64)**
+binary + throwaway `pb_data` (the M1 / L1 / V6 / S1 method): `migrate up` applies
+all eight migrations cleanly (exit 0); `goals` lands with all seven fields
+(`title`, `goalId`, `source`, `scope`, `user`, `created`, `updated`) and both
+named indexes (`sqlite3` against `_collections` / `sqlite_master`); a duplicate
+`goalId` is rejected (`UNIQUE constraint failed: goals.goalId`); the `user`
+relation resolves to `_pb_users_auth_` and is nullable (a `scope: "global"` row
+with no `user` inserts fine; a `scope: "user"` row with a real user FK inserts
+fine); `migrate down 1` drops `goals` with **zero** leftover `sqlite_master` rows
+and leaves `movements` / `workouts` / `users` / `movement_sets` / `equipment` /
+`patterns` and their indexes intact; a re-`up` reapplies. Binary and temp
+`pb_data` discarded, not committed. Entry added to
+`deploy/pocketbase/pb_migrations/README.md`. **Not yet applied on the box** —
+`make deploy:db` lands it at G4 (or whenever Chris next deploys); same "still to
+do on deploy" caveat M1 / L1 / V6 / S1 carry. No `packages/core` change, no
+app / mock / fixture / loader change — those are G2–G4. G2 dispatched.
+
+Brief kept below for the trail.
 
 `deploy/pocketbase/pb_migrations/<ts>_create_goals.js` per G0 — unique index on
 `goalId`, plain index on `scope`, the rules above, `down` drops it. Verify

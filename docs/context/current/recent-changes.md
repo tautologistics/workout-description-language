@@ -2,6 +2,35 @@
 
 ## Changes
 
+- **2026-09-03 — G1 shipped (`<SHA-G1>`): the `goals` collection is now
+  schema.** G1 of the goals database epic (G0–G4) — pure schema, no app / mock /
+  fixture / loader / core change.
+  `deploy/pocketbase/pb_migrations/1757300000_create_goals.js` creates the
+  `goals` collection per DEC-028 on the **vocab scope model** (not the
+  `workouts` pattern S1 took for `movement_sets`): `title` (text, required),
+  `goalId` (text, required) + unique index `idx_goals_goal_id`, `source` (text,
+  required, `max: 200000` — the `workouts.source` shape), `scope`
+  (`select global|user`, required) + plain index `idx_goals_scope`, `user`
+  (relation → `users`, **nullable**, cascade-delete — the vocab style, not
+  `movement_sets`'s required `owner`), `created` / `updated` autodate. Rules:
+  read `scope = "global" || user = @request.auth.id`; create/update/delete
+  `(scope = "user" && user = @request.auth.id) || @request.auth.admin = true`.
+  `down` drops the collection in one step. Verified **up / down / up** against a
+  real pocketbase **v0.40.1 (darwin_arm64)** binary + throwaway `pb_data` (the
+  M1 / L1 / V6 / S1 method): all eight migrations apply cleanly; the collection
+  lands with all seven fields and both named indexes (`sqlite3` against
+  `_collections` / `sqlite_master`); a duplicate `goalId` is rejected (`UNIQUE
+  constraint failed: goals.goalId`); the `user` relation resolves to
+  `_pb_users_auth_` and is nullable (a `scope: "global"` row with no `user`
+  inserts fine); `migrate down 1` drops `goals` with zero leftover
+  `sqlite_master` rows and leaves `movements` / `workouts` / `users` /
+  `movement_sets` / `equipment` / `patterns` and their indexes intact; a re-`up`
+  reapplies. Entry added to `deploy/pocketbase/pb_migrations/README.md`. **Not
+  yet applied on the VPS** — `make deploy:db` lands it at G4. `make test`
+  **2064/2064, 1 pending — unchanged** (the core suite does not cover
+  migrations). Next: G2 (`apps/shared/goals-store.js` + `pocketbase.js` CRUD +
+  builder rewire off `localStorage['wdl.goals']`).
+
 - **2026-09-03 — S4 shipped (`6ead525`): the movement-sets dialog reworked,
   prod deployed, and the S0–S4 epic closed.** Final task of the *movement-sets
   database* epic — `apps/builder/{builder.js,builder.css,index.html}` only, **no

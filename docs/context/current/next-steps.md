@@ -264,7 +264,14 @@ live on the prod API (nothing ships v1 — no loader, no seed). **The next scope
   collection on the **vocab** pattern (`scope: global | user`, nullable `user`
   relation). The current `examples/goals/*.wdlg` are the `global` rows;
   `make goals:load` ingests them (the L5/L6 authored-content shape). No
-  org-library scope, no dedicated UX task. G0 writes DEC-028; G1 migration; G2
+  org-library scope, no dedicated UX task. **G0 done 2026-09-03 (`8680e2a`)** —
+  DEC-028 written. **G1 done 2026-09-03 (`<SHA-G1>`)** —
+  `deploy/pocketbase/pb_migrations/1757300000_create_goals.js` creates the
+  collection per the DEC-028 shape (all seven fields, unique `goalId` index,
+  plain `scope` index, nullable `user` relation, the read/write rules), verified
+  up/down/up against a real pocketbase v0.40.1 binary + throwaway `pb_data`;
+  README entry added; not yet on the VPS (`make deploy:db` at G4). Pure schema —
+  `make test` 2064/2064, 1 pending, unchanged. Next: G2
   `apps/shared/goals-store.js` + CRUD + rewire; G3 loader + fixtures + mock; G4
   deploy + close.
 
