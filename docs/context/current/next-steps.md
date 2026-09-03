@@ -218,11 +218,21 @@ independent of each other:
   the collection per the DEC-027 shape (all eight fields, unique `setId` index,
   the `workouts` rules), verified up/down/up against a real pocketbase v0.40.1
   binary; README entry added; not yet on the VPS (`make deploy:db` at S4). No
-  app change.** **S2 is next** — the `apps/shared/sets.js` model +
-  `pocketbase.js` CRUD (`listMineSets` / `getSetByAnyId` / `createSet` /
-  `updateSet` / `removeSet` / `forceSetNamespace`) + builder rewire off
-  `localStorage['wdl.sets']`. Then S3 fixtures + mock; S4 the create/edit dialog
-  UX rework + deploy + close.
+  app change. S2 done 2026-09-03 (`<SHA-S2>`, app code only) — new host-agnostic
+  `apps/shared/sets.js` model (`load` / `list` / `clear` / `get` / `create` /
+  `rename` / `setMovements` / `remove`), a `movement_sets` block in
+  `pocketbase.js` (`listMineSets` / `listPublicSets` / `getSetByAnyId` /
+  `createSet` / `updateSet` / `removeSet` / `forceSetNamespace`, sharing a
+  factored `disambiguateNamespace` with the workout rule), and the builder
+  rewired off `localStorage['wdl.sets']` — Sets section + `#set-pick`
+  signed-in-only, non-owned sets read-only, movement edits debounced per set, no
+  `localStorage` fallback. Verified read-against-schema + signed-out `make
+  serve` (no Sets section, no console errors) + `make test` unchanged; the
+  signed-in round-trip waits on S3.** **S3 is next** — a `movement_sets/records`
+  handler in `scripts/mock-api.mjs` + a committed `fixtures/movement-sets.json`
+  seed (a couple of `user` rows + one `crossfit` `org-library` row) + drive the
+  full signed-in round-trip on `make serve`. Then S4 the create/edit dialog UX
+  rework + deploy + close.
 - **The goals database (G0–G4)** — `localStorage['wdl.goals']` → a `goals`
   collection on the **vocab** pattern (`scope: global | user`, nullable `user`
   relation). The current `examples/goals/*.wdlg` are the `global` rows;

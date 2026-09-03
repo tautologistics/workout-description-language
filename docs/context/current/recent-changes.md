@@ -2,6 +2,39 @@
 
 ## Changes
 
+- **2026-09-03 — S2 shipped (`<SHA-S2>`): movement sets now read/write the
+  `movement_sets` collection; `localStorage['wdl.sets']` retired.** S2 of the
+  movement-sets database epic (S0–S4) — app code only, no migration / mock /
+  fixture / core change.
+  **New `apps/shared/sets.js`** — a host-agnostic model (no DOM, no `window`,
+  like `vocab.js`): an in-memory cache with `load()` / `list()` / `clear()` /
+  `get()` / `create` / `rename` / `setMovements` / `remove`, each write a thin
+  wrapper over `pocketbase.js` that refreshes the cache.
+  **`apps/shared/pocketbase.js`** gained a `movement_sets` block beside
+  `workouts`: `listMineSets` / `listPublicSets` / `getSetByAnyId` (record id
+  *or* `setId`, the `:` discriminator) / `createSet` (forces `visibility:
+  "private"` + `owner` + `setId`) / `updateSet` (re-slugs `setId` on a `name`
+  change) / `removeSet` / the exported `forceSetNamespace(name, excludeId)`.
+  The `-2`/`-3` suffix loop was factored out of `namespacedId` into a shared
+  pure `disambiguateNamespace`; the rest of the workout rule did not generalise
+  (a set has no `@id`/title fallback) so `forceSetNamespace` is a small parallel
+  helper.
+  **`apps/builder/builder.js`** — `let sets = JSON.parse(localStorage['wdl.sets']
+  …)` and `saveSets()` deleted; `renderSets` / `renderSetList` / `renderSetCard`
+  / `composing` / `addSetToOutline` / the drag-onto-card handler / the
+  `#set-file` Export-Import rewired onto the model. Cards key on the record
+  `id`. The `#repertoire` section **and** `#set-pick` are hidden unless signed
+  in; a non-owned (`org-library` / another person's public) set renders
+  read-only. Movement-list edits go through a per-set trailing-edge debounce so
+  a compose session is one PATCH. Import now creates one new set per file entry.
+  **Signed-in-only, no `localStorage` fallback** (DEC-027).
+  **Verified:** every `pocketbase.js` call read against the S1 migration's field
+  list; signed-out `make serve` shows the palette modal with **no "Sets"
+  section and no `#set-pick`**, no console errors; `make test` **2064/2064, 1
+  pending — unchanged**. The signed-in round-trip waits on **S3**'s mock (not
+  faked here). Next: S3 — `movement_sets` mock `/api` + `fixtures/movement-sets.json`
+  + drive the round-trip on `make serve`.
+
 - **2026-09-03 — S1 shipped (`91e20d5`): the `movement_sets` collection is now
   schema.** S1 of the movement-sets database epic (S0–S4) — pure schema, no app
   / mock / fixture / core change.

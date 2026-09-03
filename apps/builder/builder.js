@@ -46,6 +46,7 @@ import {
 } from '../shared/pocketbase.js';
 import { createMovementEditor } from '../shared/movement-editor.js';
 import { equipmentVocab, patternVocab } from '../shared/vocab.js';
+import * as sets from '../shared/sets.js';
 
 const GRAMMAR = '../../spec/grammar-0.1.ohm';
 const REGISTRY = '../../registry/movements.json';
@@ -2009,23 +2010,74 @@ addEventListener('drop', async (e) => {
  * machine variants and rehab work nobody writes into a workout, and a palette
  * you have to fight is not a palette. Search reaches the whole registry.
  *
- * A "set" is a named list of movement ids — `{name: [ids]}` in `localStorage`,
- * which stays the live store: a repertoire is a working preference, not
- * something a workout depends on, so it does not want a place in the repository.
- * A set can be composed by hand (drag a movement onto it, or "compose" it from
- * the palette), reordered, renamed, dropped whole into the outline, and — so it
- * can move between machines or outlive a cleared browser — exported to and
- * imported from a plain JSON file. The file is a carrier for the same shape,
- * not a format a workout is ever written in.
+ * A "set" is a named, ordered list of movement ids. Since S2 (DEC-027) it is a
+ * row in the `movement_sets` PocketBase collection, reached through the
+ * host-agnostic `apps/shared/sets.js` model — `sets.list()` is the cache the
+ * three views below render from, and every edit is an async write through
+ * `sets.create` / `rename` / `setMovements` / `remove`. There is **no
+ * `localStorage` store and no signed-out path**: signed out, the "Sets" section
+ * and the `#set-pick` filter are hidden entirely (mirroring the *My workouts*
+ * panel). A set can be composed by hand (drag a movement onto it, or "compose"
+ * it from the palette), reordered, renamed, dropped whole into the outline, and
+ * — so it can move between accounts — exported to and imported from a plain JSON
+ * file (`movement-sets.json`, `{ format, version, sets }`). The file is a
+ * carrier for the same shape, not a format a workout is ever written in.
  */
 let catalogue = [];
 let vocabulary = [];
-let sets = JSON.parse(localStorage.getItem('wdl.sets') || '{}');
-const saveSets = () => localStorage.setItem('wdl.sets', JSON.stringify(sets));
-/** The set currently being composed from the palette, if any. */
+/** The record id of the set currently being composed from the palette, if any. */
 let composing = null;
-/** Which set cards are expanded, so a redraw keeps them that way. */
+/** Which set cards are expanded (by record id), so a redraw keeps them that way. */
 const openSets = new Set();
+
+/** One set from the model cache by record id (the `#set-pick` option value). */
+const setByKey = (key) => sets.list().find((s) => s.id === key) ?? null;
+
+// Movement-list edits (reorder, compose-toggle, drag-in, ⊕) are applied to an
+// in-memory overlay and re-rendered at once, then written on a trailing edge —
+// so clicking through a compose session or the ↑/↓ buttons does not fire a
+// PATCH per click. `sets.setMovements` refreshes the model cache on success.
+const pendingMovements = new Map();   // set id -> movements[] not yet written
+const movementTimers = new Map();     // set id -> trailing-flush timer
+
+/** A set's movement list, pending overlay first, then the last-loaded row. */
+const localMovements = (set) => pendingMovements.get(set.id) ?? set.movements ?? [];
+
+/** Re-render the three views of the repertoire from the model cache. */
+function renderRepertoire() {
+  renderSets();
+  renderSetList();
+  renderPalette();
+}
+
+/** Run a repertoire write, re-render regardless, and surface a failure inline-ish. */
+async function editSet(op) {
+  try { await op(); }
+  catch (e) { alert(`Could not save that change: ${e.message}`); }
+  renderRepertoire();
+}
+
+/** Optimistically set a set's movement list; flush the write on a trailing edge. */
+function queueMovements(set, next) {
+  pendingMovements.set(set.id, next);
+  renderRepertoire();
+  clearTimeout(movementTimers.get(set.id));
+  movementTimers.set(set.id, setTimeout(() => flushMovements(set.id), 500));
+}
+
+async function flushMovements(id) {
+  movementTimers.delete(id);
+  const next = pendingMovements.get(id);
+  if (!next) return;
+  try {
+    await sets.setMovements(id, next);
+  } catch (e) {
+    alert(`Could not save that change: ${e.message}`);
+  } finally {
+    if (pendingMovements.get(id) === next) pendingMovements.delete(id);
+    renderRepertoire();
+  }
+}
 /**
  * Muscles the movement must work — all of them, not any of them.
  *
@@ -2116,9 +2168,10 @@ const titleOf = (id) => catalogue.find((m) => m.id === id)?.title ?? id;
  */
 function shownMovements() {
   const q = el('search').value.trim();
-  const chosen = composing ? undefined : sets[el('set-pick').value];
-  return chosen
-    ? catalogue.filter((m) => chosen.includes(m.id))
+  const chosen = composing ? null : setByKey(el('set-pick').value);
+  const ids = chosen ? localMovements(chosen) : null;
+  return ids
+    ? catalogue.filter((m) => ids.includes(m.id))
     : catalogue.filter((m) => matches(m, q));
 }
 
@@ -2127,10 +2180,11 @@ function renderPalette() {
   const keepScroll = box.scrollTop;
   // While composing, the palette is a place to pick movements *into* a set, so
   // it ignores the set-pick filter and searches the whole catalogue.
-  const chosen = composing ? undefined : sets[el('set-pick').value];
+  const composed = composing ? setByKey(composing) : null;
+  const chosen = composing ? undefined : setByKey(el('set-pick').value);
   const shown = shownMovements();
 
-  const inComposed = composing ? new Set(sets[composing] ?? []) : null;
+  const inComposed = composed ? new Set(localMovements(composed)) : null;
 
   box.innerHTML = '';
   for (const m of shown.slice(0, 300)) {
@@ -2144,7 +2198,7 @@ function renderPalette() {
       (m.equipment ?? []).join(', '),
     ].filter(Boolean).join('  ·  ');
 
-    if (composing) {
+    if (composed) {
       const held = inComposed.has(m.id);
       item.classList.toggle('in-set', held);
       item.setAttribute('aria-pressed', String(held));
@@ -2164,7 +2218,7 @@ function renderPalette() {
 
     // M5: edit this movement's curated fields in the DB. Its own click stops the
     // card's "insert at caret" from also firing. Not shown while composing a set.
-    if (!composing) {
+    if (!composed) {
       const edit = document.createElement('span');
       edit.className = 'movement-edit';
       edit.setAttribute('role', 'button');
@@ -2181,11 +2235,11 @@ function renderPalette() {
     // Composing: a click toggles the movement in the set being built. Otherwise
     // a click lands it at the caret and closes the modal — "add this" where you
     // were last working. Dragging still says where explicitly.
-    item.onclick = composing
+    item.onclick = composed
       ? () => {
-          const cur = sets[composing] ?? [];
-          sets[composing] = cur.includes(m.id) ? cur.filter((x) => x !== m.id) : [...cur, m.id];
-          setsChanged();
+          const cur = localMovements(composed);
+          const next = cur.includes(m.id) ? cur.filter((x) => x !== m.id) : [...cur, m.id];
+          queueMovements(composed, next);
         }
       : () => pickFromPalette(m);
     item.addEventListener('dragstart', (e) => {
@@ -2204,69 +2258,74 @@ function renderPalette() {
     : `${shown.length} ${scope}`;
 
   const hint = el('compose-hint');
-  hint.hidden = !composing;
-  if (composing) {
-    hint.textContent = `Composing “${composing}” — click a movement to add or remove it. Esc when done.`;
+  hint.hidden = !composed;
+  if (composed) {
+    hint.textContent = `Composing “${composed.name}” — click a movement to add or remove it. Esc when done.`;
   }
   box.scrollTop = keepScroll;
 }
 
-/** The set-pick filter dropdown: choose a set to show only its movements. */
+/**
+ * The set-pick filter dropdown: choose a set to show only its movements.
+ * Hidden entirely when signed out (DEC-027 — sets are a signed-in feature).
+ */
 function renderSets() {
   const pick = el('set-pick');
+  if (!currentUser()) { pick.hidden = true; pick.innerHTML = ''; return; }
+  pick.hidden = false;
   const was = pick.value;
   pick.innerHTML = '';
   const none = document.createElement('option');
   none.value = '';
   none.textContent = 'All movements';
   pick.append(none);
-  for (const name of Object.keys(sets).sort()) {
+  for (const s of sets.list()) {
     const o = document.createElement('option');
-    o.value = name;
-    o.textContent = name;
+    o.value = s.id;
+    o.textContent = s.mine ? s.name : `${s.name} (library)`;
     pick.append(o);
   }
-  pick.value = sets[was] ? was : '';
+  pick.value = [...pick.options].some((o) => o.value === was) ? was : '';
 }
 
-/** Everything a set change touches: persist, then redraw the three views of it. */
-function setsChanged() {
-  saveSets();
-  renderSets();
-  renderSetList();
-  renderPalette();
-}
-
-/** The repertoire: one editable card per set. */
+/**
+ * The repertoire: one card per set. Hidden entirely when signed out. A set you
+ * do not own (an `org-library` set, or another person's public one) renders
+ * read-only — the movement list and `↧` only, no compose / rename / reorder.
+ */
 function renderSetList() {
   const box = el('set-list');
   box.innerHTML = '';
-  const names = Object.keys(sets).sort();
-  el('repertoire-count').textContent = names.length ? `· ${names.length}` : '';
-  if (!names.length) {
+  const section = el('repertoire');
+  if (!currentUser()) { if (section) section.hidden = true; return; }
+  if (section) section.hidden = false;
+  const all = sets.list();
+  el('repertoire-count').textContent = all.length ? `· ${all.length}` : '';
+  if (!all.length) {
     const p = document.createElement('p');
     p.className = 'hint';
     p.textContent = 'No sets yet. “New set”, or search then “Save showing”.';
     box.append(p);
     return;
   }
-  for (const name of names) box.append(renderSetCard(name));
+  for (const s of all) box.append(renderSetCard(s));
 }
 
-function renderSetCard(name) {
-  const ids = sets[name] ?? [];
+function renderSetCard(set) {
+  const ids = localMovements(set);
+  const editable = set.mine;
   const card = document.createElement('details');
   card.className = 'set-card';
-  card.dataset.name = name;
-  card.open = openSets.has(name) || composing === name;
+  card.dataset.setId = set.setId;
+  card.open = openSets.has(set.id) || composing === set.id;
   card.addEventListener('toggle', () => {
-    if (card.open) openSets.add(name); else openSets.delete(name);
+    if (card.open) openSets.add(set.id); else openSets.delete(set.id);
   });
 
   const summary = document.createElement('summary');
   const label = document.createElement('span');
   label.className = 'set-name';
-  label.textContent = name;
+  label.textContent = editable ? set.name : `${set.name} · library`;
   const count = document.createElement('span');
   count.className = 'set-n';
   count.textContent = ids.length;
@@ -2284,25 +2343,28 @@ function renderSetCard(name) {
     return b;
   };
 
-  act('+', composing === name ? 'Stop composing' : 'Compose — click palette movements to add or remove them',
-    () => {
-      composing = composing === name ? null : name;
-      if (composing) { el('set-pick').value = ''; openSets.add(name); }
-      renderSetList();
-      renderPalette();
-    }, composing === name);
-  act('⊕', 'Add the movements now showing in the palette to this set',
-    () => addShowingToSet(name));
-  act('↧', 'Add every movement in this set to the outline', () => addSetToOutline(name));
-  act('✎', 'Rename this set', () => renameSet(name));
-  act('✕', 'Delete this set', () => {
-    if (!confirm(`Delete the set “${name}”?`)) return;
-    delete sets[name];
-    openSets.delete(name);
-    if (composing === name) composing = null;
-    if (el('set-pick').value === name) el('set-pick').value = '';
-    setsChanged();
-  });
+  if (editable) {
+    act('+', composing === set.id ? 'Stop composing' : 'Compose — click palette movements to add or remove them',
+      () => {
+        composing = composing === set.id ? null : set.id;
+        if (composing) { el('set-pick').value = ''; openSets.add(set.id); }
+        renderSetList();
+        renderPalette();
+      }, composing === set.id);
+    act('⊕', 'Add the movements now showing in the palette to this set',
+      () => addShowingToSet(set));
+  }
+  act('↧', 'Add every movement in this set to the outline', () => addSetToOutline(set));
+  if (editable) {
+    act('✎', 'Rename this set', () => renameSet(set));
+    act('✕', 'Delete this set', () => {
+      if (!confirm(`Delete the set “${set.name}”?`)) return;
+      openSets.delete(set.id);
+      if (composing === set.id) composing = null;
+      if (el('set-pick').value === set.id) el('set-pick').value = '';
+      editSet(() => sets.remove(set.id));
+    });
+  }
 
   summary.append(label, count, actions);
   card.append(summary);
@@ -2312,58 +2374,67 @@ function renderSetCard(name) {
   if (!ids.length) {
     const li = document.createElement('li');
     li.className = 'empty';
-    li.textContent = 'Empty — drag a movement here, or use Compose.';
+    li.textContent = editable
+      ? 'Empty — drag a movement here, or use Compose.'
+      : 'Empty.';
     list.append(li);
   }
   ids.forEach((id, i) => {
     const li = document.createElement('li');
     const nm = document.createElement('span');
     nm.textContent = titleOf(id);
-    const up = document.createElement('button');
-    up.type = 'button'; up.textContent = '↑'; up.title = 'Move up'; up.disabled = i === 0;
-    up.onclick = () => { const a = sets[name]; [a[i - 1], a[i]] = [a[i], a[i - 1]]; setsChanged(); };
-    const down = document.createElement('button');
-    down.type = 'button'; down.textContent = '↓'; down.title = 'Move down'; down.disabled = i === ids.length - 1;
-    down.onclick = () => { const a = sets[name]; [a[i + 1], a[i]] = [a[i], a[i + 1]]; setsChanged(); };
-    const rm = document.createElement('button');
-    rm.type = 'button'; rm.textContent = '✕'; rm.title = 'Remove from this set';
-    rm.onclick = () => { sets[name] = sets[name].filter((x) => x !== id); setsChanged(); };
-    li.append(nm, up, down, rm);
+    li.append(nm);
+    if (editable) {
+      const up = document.createElement('button');
+      up.type = 'button'; up.textContent = '↑'; up.title = 'Move up'; up.disabled = i === 0;
+      up.onclick = () => {
+        const a = [...localMovements(set)];
+        [a[i - 1], a[i]] = [a[i], a[i - 1]];
+        queueMovements(set, a);
+      };
+      const down = document.createElement('button');
+      down.type = 'button'; down.textContent = '↓'; down.title = 'Move down'; down.disabled = i === ids.length - 1;
+      down.onclick = () => {
+        const a = [...localMovements(set)];
+        [a[i + 1], a[i]] = [a[i], a[i + 1]];
+        queueMovements(set, a);
+      };
+      const rm = document.createElement('button');
+      rm.type = 'button'; rm.textContent = '✕'; rm.title = 'Remove from this set';
+      rm.onclick = () => queueMovements(set, localMovements(set).filter((x) => x !== id));
+      li.append(up, down, rm);
+    }
     list.append(li);
   });
   card.append(list);
 
-  // A movement dragged from the palette lands in the set.
-  card.addEventListener('dragover', (e) => {
-    if (![...(e.dataTransfer?.types ?? [])].includes('text/wdl-movement-id')) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-    card.dataset.drop = '';
-  });
-  card.addEventListener('dragleave', () => delete card.dataset.drop);
-  card.addEventListener('drop', (e) => {
-    delete card.dataset.drop;
-    const id = e.dataTransfer.getData('text/wdl-movement-id');
-    if (!id) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const cur = sets[name] ?? [];
-    if (!cur.includes(id)) { sets[name] = [...cur, id]; openSets.add(name); setsChanged(); }
-  });
+  if (editable) {
+    // A movement dragged from the palette lands in the set.
+    card.addEventListener('dragover', (e) => {
+      if (![...(e.dataTransfer?.types ?? [])].includes('text/wdl-movement-id')) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      card.dataset.drop = '';
+    });
+    card.addEventListener('dragleave', () => delete card.dataset.drop);
+    card.addEventListener('drop', (e) => {
+      delete card.dataset.drop;
+      const id = e.dataTransfer.getData('text/wdl-movement-id');
+      if (!id) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const cur = localMovements(set);
+      if (!cur.includes(id)) { openSets.add(set.id); queueMovements(set, [...cur, id]); }
+    });
+  }
 
   return card;
 }
 
-function renameSet(name) {
-  const next = (prompt('Rename set', name) ?? '').trim();
-  if (!next || next === name) return;
-  if (sets[next] && !confirm(`Replace the existing set “${next}”?`)) return;
-  sets[next] = sets[name];
-  delete sets[name];
-  if (openSets.delete(name)) openSets.add(next);
-  if (composing === name) composing = next;
-  if (el('set-pick').value === name) el('set-pick').value = next;
-  setsChanged();
+function renameSet(set) {
+  const next = (prompt('Rename set', set.name) ?? '').trim();
+  if (!next || next === set.name) return;
+  editSet(() => sets.rename(set.id, next));
 }
 
 /**
@@ -2372,19 +2443,18 @@ function renameSet(name) {
  * checklist toggle. Order is preserved; movements already in the set are left
  * where they are, new ones are appended.
  */
-function addShowingToSet(name) {
+function addShowingToSet(set) {
   const ids = shownMovements().map((m) => m.id);
   if (!ids.length) return;
-  const merged = [...(sets[name] ?? [])];
+  const merged = [...localMovements(set)];
   for (const id of ids) if (!merged.includes(id)) merged.push(id);
-  sets[name] = merged;
-  openSets.add(name);
-  setsChanged();
+  openSets.add(set.id);
+  queueMovements(set, merged);
 }
 
 /** Drop every movement in a set into the outline as its own line, in order. */
-function addSetToOutline(name) {
-  const movs = (sets[name] ?? []).map((id) => catalogue.find((m) => m.id === id)).filter(Boolean);
+function addSetToOutline(set) {
+  const movs = localMovements(set).map((id) => catalogue.find((m) => m.id === id)).filter(Boolean);
   if (!movs.length) return;
   const after = focused ?? undefined;
   const self = after !== undefined ? spans(lines).get(after) : undefined;
@@ -2412,29 +2482,40 @@ addEventListener('keydown', (e) => {
   }
 });
 
-el('set-new').onclick = () => {
+el('set-new').onclick = async () => {
   const name = (prompt('Name the new set', 'My set') ?? '').trim();
   if (!name) return;
-  if (sets[name] && !confirm(`Replace the existing set “${name}”?`)) return;
-  sets[name] = sets[name] ?? [];
-  openSets.add(name);
-  composing = name;
-  el('set-pick').value = '';
-  setsChanged();
+  try {
+    const created = await sets.create({ name, movements: [] });
+    openSets.add(created.id);
+    composing = created.id;
+    el('set-pick').value = '';
+  } catch (e) {
+    alert(`Could not create that set: ${e.message}`);
+  }
+  renderRepertoire();
 };
 
-el('set-save').onclick = () => {
+el('set-save').onclick = async () => {
   const q = el('search').value.trim();
   const name = (prompt('Name this set', q || 'My set') ?? '').trim();
   if (!name) return;
-  if (sets[name] && !confirm(`Replace the existing set “${name}”?`)) return;
-  sets[name] = catalogue.filter((m) => matches(m, q)).map((m) => m.id);
-  openSets.add(name);
-  setsChanged();
+  const movements = catalogue.filter((m) => matches(m, q)).map((m) => m.id);
+  try {
+    const created = await sets.create({ name, movements });
+    openSets.add(created.id);
+  } catch (e) {
+    alert(`Could not create that set: ${e.message}`);
+  }
+  renderRepertoire();
 };
 
 el('set-export').onclick = () => {
-  const payload = JSON.stringify({ format: 'wdl-movement-sets', version: 1, sets }, null, 2);
+  // The `movement-sets.json` carrier (DEC-027) — a name-keyed `{ name: [ids] }`
+  // map inside `{ format, version, sets }`, the shape Import round-trips.
+  const map = {};
+  for (const s of sets.list()) map[s.name] = s.movements ?? [];
+  const payload = JSON.stringify({ format: 'wdl-movement-sets', version: 1, sets: map }, null, 2);
   const url = URL.createObjectURL(new Blob([payload], { type: 'application/json' }));
   const a = document.createElement('a');
   a.href = url;
@@ -2448,6 +2529,7 @@ el('set-file').addEventListener('change', async () => {
   const file = el('set-file').files?.[0];
   el('set-file').value = '';
   if (!file) return;
+  if (!currentUser()) { alert('Sign in to import sets to your account.'); return; }
   let data;
   try {
     data = JSON.parse(await file.text());
@@ -2463,17 +2545,23 @@ el('set-file').addEventListener('change', async () => {
     alert('No movement sets found in that file.');
     return;
   }
-  // Merge: a name in the file overwrites the local set, new names are added,
-  // and local sets the file does not mention are left alone.
-  let added = 0, replaced = 0, skipped = 0;
+  // Each entry becomes a *new* set of your own (DEC-027 — the carrier moves a
+  // set between accounts; `setId` disambiguates a name clash with `-2`/`-3`).
+  let created = 0, skipped = 0, failed = 0;
   for (const [name, ids] of Object.entries(incoming)) {
     if (!Array.isArray(ids) || !ids.every((x) => typeof x === 'string')) { skipped++; continue; }
-    if (name in sets) replaced++; else added++;
-    sets[name] = [...new Set(ids)];
+    try {
+      await sets.create({ name, movements: [...new Set(ids)] });
+      created++;
+    } catch {
+      failed++;
+    }
   }
-  setsChanged();
-  alert(`Imported ${added} new, replaced ${replaced}${skipped ? `, skipped ${skipped} malformed` : ''}. `
-    + `${Object.keys(sets).length} sets now; any not in the file were kept.`);
+  await sets.load();
+  renderRepertoire();
+  alert(`Imported ${created} new set${created === 1 ? '' : 's'}`
+    + `${skipped ? `, skipped ${skipped} malformed` : ''}`
+    + `${failed ? `, ${failed} failed to save` : ''}.`);
 });
 
 // --- goals -------------------------------------------------------------------
@@ -2982,8 +3070,12 @@ function renderIdentity() {
     mineSearchResults = null;
     mineSearchQuery = '';
     mineSearchInput = null;
+    sets.clear();
+    composing = null;
+    openSets.clear();
     renderIdentity();
     renderMinePanel();
+    renderRepertoire();
   };
   box.append(who, renderHandle(user), out);
 }
@@ -3330,7 +3422,10 @@ const wParam = new URLSearchParams(location.search).get('w');
 
 refreshAuth().then(async (user) => {
   renderIdentity();
-  if (user) refreshMineList().then(renderMinePanel);
+  if (user) {
+    refreshMineList().then(renderMinePanel);
+    sets.load().then(renderRepertoire).catch(() => {});
+  }
   if (wParam) {
     try {
       const rec = await getByAnyId(wParam);

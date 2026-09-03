@@ -89,7 +89,9 @@ The active queue is now **two `localStorage` → PocketBase epics Chris scoped
   + `user`; `setId` re-slugged on rename; nothing ships v1, no loader), then
   rework the create/edit dialog. Model decisions all settled — **S0 wrote
   [DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)
-  2026-09-02; S1 (the migration) is next.**
+  2026-09-02; S1 (the migration) landed 2026-09-03 (`91e20d5`); S2 (the
+  `sets.js` model + `pocketbase.js` CRUD + builder rewire) landed 2026-09-03
+  (`<SHA-S2>`). S3 (fixtures + mock + the signed-in round-trip) is next.**
 - **## The goals database (G0–G4)** — promote `localStorage['wdl.goals']` to a
   `goals` collection on the vocab pattern (scopes: `global` + `user`;
   `examples/goals/*.wdlg` are the `global` rows; `make goals:load` ingests
@@ -1039,8 +1041,9 @@ verified but **not yet applied on the VPS** — `make deploy:db` lands it, at S4
 (or whenever Chris next deploys). Same "still to do on deploy" caveat M1 / L1 /
 V6 carry.
 
-**S2 is next** — `apps/shared/sets.js` + `pocketbase.js` CRUD + rewire the
-builder off `localStorage['wdl.sets']`. Spawned as its own chip.
+**S2 shipped 2026-09-03 (`<SHA-S2>`)** — `apps/shared/sets.js` + the
+`pocketbase.js` CRUD + the builder rewire off `localStorage['wdl.sets']`; see
+the **### S2** subsection below. **S3 is next.**
 
 Original brief kept below for the trail.
 
@@ -1056,7 +1059,76 @@ reapplies. Add the entry to `deploy/pocketbase/pb_migrations/README.md`. Carry a
 **"still to do on deploy"** note (apply on the VPS via `make deploy:db`) exactly
 like M1 / L1 / V6. No app / mock / fixture change — S1 is pure schema. Spawns S2.
 
-### S2 — `apps/shared/sets.js` + `pocketbase.js` CRUD + rewire the builder.
+### S2 — `apps/shared/sets.js` + `pocketbase.js` CRUD + rewire the builder. — **DONE 2026-09-03 (`<SHA-S2>`)**
+
+**Shipped — app code only, `make test` unchanged (2064/2064, 1 pending; the
+core suite does not cover the builder's set panel).** The movement-set model
+moved server-side and out of `builder.js`:
+
+- **`apps/shared/pocketbase.js`** — new `movement_sets` block beside `workouts`:
+  `listMineSets()` (owner = current uid), `listPublicSets()` (every non-`private`
+  set — the `org-library` rows plus other people's public ones; `sets.js` drops
+  its own and treats the rest read-only), `getSetByAnyId(key)` (record id *or*
+  `setId`, the `:` discriminator — the `getByAnyId` twin), `createSet({ name,
+  movements, visibility })` (forces `visibility: "private"` when unset — the S1
+  client contract — sets `owner` + `setId`), `updateSet(id, patch)` (recomputes
+  `setId` via `forceSetNamespace(name, id)` when `patch.name` is present, so a
+  rename re-slugs), `removeSet(id)`, and the exported `forceSetNamespace(name,
+  excludeId)`. **Factoring:** the `-2`/`-3` suffix loop was pulled out of
+  `namespacedId` into a pure `disambiguateNamespace(handle, base, taken)` shared
+  by both rules; the rest of `forceNamespace` did **not** generalise (a set has
+  no `@id`/title fallback chain — its slug is `slugify(name)` alone), so
+  `forceSetNamespace` is a small parallel helper over the shared core.
+- **`apps/shared/sets.js`** (new, host-agnostic like `vocab.js` /
+  `movement-editor.js` — no DOM, no `window`): an in-memory cache plus `load()`
+  (fetch `listMineSets` + `listPublicSets`, merge, each degrading to `[]` on its
+  own failure), `list()` (sync — the panel iterates this), `clear()` (sign-out),
+  `get(key)` (cache then `getSetByAnyId`), `create` / `rename` / `setMovements`
+  / `remove` (each a thin wrapper that refreshes the cache after the write).
+  Rows carry a `mine` boolean. **No `localStorage` path.**
+- **`apps/builder/builder.js`** — `let sets = JSON.parse(localStorage['wdl.sets']
+  …)` and `saveSets()` deleted; `import * as sets from '../shared/sets.js'`.
+  `renderSets` / `renderSetList` / `renderSetCard` / `composing` /
+  `addSetToOutline` / `addShowingToSet` / the drag-onto-card handler / the
+  `#set-file` Export-Import all read the model. Cards key on the record `id`
+  (stable across rename); `composing` and `openSets` hold ids; `#set-pick`
+  option values are record ids. The `#repertoire` section **and** `#set-pick`
+  are `hidden` unless `currentUser()` is set; sign-out calls `sets.clear()` +
+  clears `composing` / `openSets` and re-renders (mirrors `renderMinePanel`'s
+  signed-out branch). A **non-owned** set (an `org-library` set, another
+  person's public one) renders read-only — movement list + `↧` only, no
+  compose / rename / reorder / delete. Movement-list edits (reorder, compose
+  toggle, drag-in, `⊕`, remove) go through a per-set **trailing-edge debounce**
+  (`queueMovements` → optimistic overlay + re-render, `flushMovements` writes
+  `sets.setMovements` 500ms later) so a compose session or `↑`/`↓` clicking is
+  one PATCH, not one per click. Export writes the same `movement-sets.json`
+  (`{ format, version, sets: { name: [ids] } }`); Import now `sets.create(...)`s
+  one new set per entry (DEC-027 — the carrier moves a set between accounts,
+  `setId` disambiguates a name clash). `movements` stays an ordered id array end
+  to end, so `addSetToOutline` / `lineFor` are untouched.
+
+**Verified** (S3's mock is not built, so a signed-in round-trip is **not**
+available — that is S3's job and this write-up does not fake one):
+- **Read against the S1 schema** — every `pocketbase.js` call matches
+  `deploy/pocketbase/pb_migrations/1757200000_create_movement_sets.js`: fields
+  `owner` / `name` / `setId` / `movements` / `visibility` / `description`;
+  `createSet` sends `owner` + `visibility` + `setId`; no call names a field the
+  migration does not define; the `setId` `:` discriminator matches the unique
+  index's role.
+- **`make serve` signed out** — builder loads with no console errors; ⌘K opens
+  the palette modal; the **"Sets" section is absent** (`#repertoire`
+  `display:none`) and `#set-pick` is `display:none`; no dead dropdown between
+  the search box and "＋ new movement". Screenshot taken.
+- **`make test`** — **2064/2064 passing, 1 pending**, unchanged.
+
+**Self-referential-SHA trap (S0/S1 both hit it):** committed with a
+`<SHA-S2>` placeholder in these docs, pushed, then a tiny follow-up commit
+replaces it with the real landed SHA (option a — what S1 did, `fdaf9b4`).
+
+**S3 is next** — fixtures + mock `/api` for `movement_sets` + the signed-in
+round-trip. Spawned as its own chip.
+
+Original brief kept below for the trail.
 
 The model moves server-side and out of `builder.js`.
 

@@ -53,6 +53,7 @@ const API = '/api';
 const USERS = '/collections/users';
 const USER_RECORDS = '/collections/users/records';
 const RECORDS = '/collections/workouts/records';
+const SETS = '/collections/movement_sets/records';
 const MOVEMENTS = '/collections/movements/records';
 const EQUIPMENT = '/collections/equipment/records';
 const PATTERNS = '/collections/patterns/records';
@@ -427,6 +428,18 @@ async function requireHandle() {
 }
 
 /**
+ * `<handle>:<base>` unless `taken` (this owner's other namespaced keys) already
+ * holds it, in which case `-2`, `-3`, … until free. Pure — the caller decides
+ * what "taken" means and excludes the record being written. Shared by the
+ * workout `@id` rule (DEC-021) and the movement-set `setId` rule (DEC-027).
+ */
+function disambiguateNamespace(handle, base, taken) {
+  let slug = base;
+  for (let n = 2; taken.has(`${handle}:${slug}`); n++) slug = `${base}-${n}`;
+  return `${handle}:${slug}`;
+}
+
+/**
  * `<handle>:<base>` unless another of this owner's workouts already holds it,
  * in which case `-2`, `-3`, … until free. Stable across re-saves: the scan
  * skips only *other* records, and `base` is re-derived from the stored `@id`,
@@ -438,9 +451,7 @@ async function namespacedId(handle, base, excludeId) {
     const mine = await listMine();
     taken = new Set(mine.filter((w) => w.id !== excludeId && w.wdlId).map((w) => w.wdlId));
   } catch { /* not signed in / offline — no siblings to clash with */ }
-  let slug = base;
-  for (let n = 2; taken.has(`${handle}:${slug}`); n++) slug = `${base}-${n}`;
-  return `${handle}:${slug}`;
+  return disambiguateNamespace(handle, base, taken);
 }
 
 /**
@@ -452,6 +463,26 @@ async function forceNamespace(source, excludeId) {
   const handle = await requireHandle();
   const wdlId = await namespacedId(handle, baseSlug(source), excludeId);
   return { source: writeIdLine(source, wdlId), wdlId };
+}
+
+/**
+ * The `setId` for a movement set (DEC-027): `<owner-handle>:<slug(name)>`, with
+ * a deterministic `-2` / `-3` … suffix on a same-owner slug clash. `excludeId`
+ * is the set being updated so it cannot clash with itself — omit it for a
+ * create. Simpler than `forceNamespace`: a set is not a text document and has
+ * no `@id` directive, so the slug comes from `name` alone (no title / `@id`
+ * tail fallback chain) — the `disambiguateNamespace` suffix logic is the only
+ * part shared with the workout rule.
+ */
+export async function forceSetNamespace(name, excludeId) {
+  const handle = await requireHandle();
+  const base = slugify(name) || 'untitled';
+  let taken = new Set();
+  try {
+    const mine = await listMineSets();
+    taken = new Set(mine.filter((s) => s.id !== excludeId && s.setId).map((s) => s.setId));
+  } catch { /* not signed in / offline — no siblings to clash with */ }
+  return disambiguateNamespace(handle, base, taken);
 }
 
 // --- workouts ------------------------------------------------------------------
@@ -588,6 +619,113 @@ export function remove(id) {
 /** The stable share URL for a workout id — a real file path, so no rewrite. */
 export function shareUrl(id) {
   return `${location.origin}/apps/display/?w=${encodeURIComponent(id)}`;
+}
+
+// --- movement sets (DEC-027, S2) -------------------------------------------
+// The `movement_sets` collection — the palette modal's compose-by-hand
+// repertoire, promoted out of the flat `localStorage['wdl.sets']` blob. Same
+// collection pattern as `workouts`: `owner`-scoped, `visibility` list/view
+// rules, a namespaced natural key (`setId` = `<owner-handle>:<slug(name)>`, the
+// `wdlId` analog but unique). `apps/shared/sets.js` is the host-agnostic model
+// over these calls; the builder renders from that cache. Signed-in only —
+// DEC-027 declines a `localStorage` fallback.
+
+/** The signed-in user's movement sets, newest edit first. */
+export async function listMineSets() {
+  const uid = currentUser()?.id;
+  if (!uid) throw new Error('not signed in');
+  const q = new URLSearchParams({
+    filter: `owner="${uid}"`,
+    sort: '-updated',
+    perPage: '200',
+  });
+  const data = await call(`${SETS}?${q}`);
+  return data.items ?? [];
+}
+
+/**
+ * Every non-`private` movement set — the `org-library` sets (owned by the
+ * `crossfit` / `hyrox` / `tabata` rows at `visibility: "public"`, DEC-027) plus
+ * any other person's `unlisted` / `public` set. The collection's list rule
+ * (`visibility != "private"`) is the gate; the caller (`sets.js`) drops its own
+ * rows and treats the rest as read-only. Sends the auth header only when signed
+ * in, like `getById`.
+ */
+export async function listPublicSets() {
+  const q = new URLSearchParams({
+    filter: 'visibility!="private"',
+    sort: '-updated',
+    perPage: '200',
+  });
+  const data = await call(`${SETS}?${q}`, { auth: !!authToken() });
+  return data.items ?? [];
+}
+
+/**
+ * Resolve *either* a 15-char PocketBase record id *or* a `<handle>:<slug>`
+ * `setId` to one movement set — the `getByAnyId` twin (DEC-027). The colon is
+ * the discriminator: a `setId` always carries one, a record id never does.
+ */
+export async function getSetByAnyId(x) {
+  const key = String(x ?? '');
+  const bySetId = async () => {
+    const q = new URLSearchParams({ filter: `setId="${key}"`, perPage: '1' });
+    const data = await call(`${SETS}?${q}`, { auth: !!authToken() });
+    return data.items?.[0] ?? null;
+  };
+  if (key.includes(':')) {
+    const hit = await bySetId();
+    if (hit) return hit;
+    const e = new Error("The requested resource wasn't found.");
+    e.status = 404;
+    throw e;
+  }
+  try {
+    return await call(`${SETS}/${encodeURIComponent(key)}`, { auth: !!authToken() });
+  } catch (e) {
+    if (e.status === 404) {
+      const hit = await bySetId();
+      if (hit) return hit;
+    }
+    throw e;
+  }
+}
+
+/**
+ * Create a movement set. Forces `visibility: "private"` when not given (the
+ * client contract — S1 set no schema default, exactly as `create` does for
+ * `workouts`) and `setId` from `forceSetNamespace(name)` so the key and the
+ * name never disagree. `movements` is an ordered array of registry movement ids.
+ */
+export async function createSet({ name, movements = [], visibility = 'private' }) {
+  const uid = currentUser()?.id;
+  if (!uid) throw new Error('not signed in');
+  const setId = await forceSetNamespace(name);
+  return call(SETS, {
+    method: 'POST',
+    body: { owner: uid, name, setId, movements, visibility },
+  });
+}
+
+/**
+ * Patch a movement set — pass only the fields that change (`name`, `movements`,
+ * `visibility`, `description`). When `name` is in the patch the `setId` is
+ * recomputed via `forceSetNamespace(name, id)` (self excluded from the clash
+ * check) and written alongside it, so a rename re-slugs (DEC-027); a patch
+ * without `name` leaves `setId` untouched.
+ */
+export async function updateSet(id, patch) {
+  let body = patch;
+  if (patch && typeof patch.name === 'string') {
+    const setId = await forceSetNamespace(patch.name, id);
+    body = { ...patch, setId };
+  }
+  return call(`${SETS}/${encodeURIComponent(id)}`, { method: 'PATCH', body });
+}
+
+/** Delete a movement set. */
+export function removeSet(id) {
+  return call(`${SETS}/${encodeURIComponent(id)}`, { method: 'DELETE' });
 }
 
 // --- movements (curated layer, DEC-020) --------------------------------------
