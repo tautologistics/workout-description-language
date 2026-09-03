@@ -2,6 +2,43 @@
 
 ## Changes
 
+- **2026-09-03 — G3 shipped (`<SHA-G3>`): `goals` is behind the local `/api`,
+  `make goals:load` ingests the `global` tier, and the signed-in round-trip is
+  verified end to end.** G3 of the goals database epic (G0–G4) — `scripts/**` +
+  `.gitignore` + `apps/shared/goals-store.js` (the `GOAL_FILES` reconciliation),
+  no migration / builder / `packages/core` change; the analogue of S3 for the
+  sets epic. **`scripts/goals-to-db.mjs`** / **`make goals:load`** is the
+  `vocab-to-db.mjs` twin: a no-deps idempotent upsert of `examples/goals/*.wdlg`
+  into `goals` as `scope: "global"` rows keyed on `goalId` (`wdl:<file-basename>`
+  — the basis that matches G2's offline fallback with no change to it),
+  `POST` / `PATCH`-changed-only, `--dry-run`, `--api` / `WDL_PB_URL`, prod auth
+  identical to `movements-to-db.mjs` (default collection `users`, the `global`
+  write rule being `@request.auth.admin = true`). It regenerates **no fixture**
+  and there is **no `make goals:dump`** — the vocab call, not the workouts one:
+  the mock derives the `global` rows from the same committed `.wdlg` files at
+  boot, so a `fixtures/goals.json` would only be a second copy to keep in step.
+  **`scripts/mock-api.mjs`** grew a `goals/records` handler on the vocab scope
+  model (a `scope` column + nullable `user`, not `makeVocab`): list envelope via
+  `applyQuery` / `listEnvelope`, `/records/:id` by synthetic id or `goalId`,
+  scope-gated reads (`scope = "global" || user = caller`), `Authorization`-gated
+  writes (`user` rows owner-only, `global` rows admin-only), the unique `goalId`
+  index as a 400 `validation_not_unique`, an overlay on git-ignored
+  `fixtures/goals.local.json` keyed by record id. The **`GOALS`-const 2-vs-3**
+  is reconciled — `ramp-the-squat.wdlg` is canonical (DEC-028's G0 write-up
+  already names all three; the const just never got it), added to
+  `goals-store.js`'s `GOAL_FILES`. **Verified** driving `make serve` signed in
+  (Global optgroup from `/api`, no fallback warning; Save → a `scope:"user"` row
+  with `goalId` `solid-geode:my-rules`; reload persists; Delete tombstones; sign
+  out drops the Saved group; the "Against your goals" panel evaluates a
+  `/api`-sourced global ruleset unchanged), by `curl` (fetch by `goalId` and by
+  synthetic id; `source` byte-identical to each file; 403 unauth POST, 400
+  duplicate/collision, 404/200 read gate), with `WDL_MOCK_API=0` (Global still
+  from the bundled files, the expected `goals: no /api rulesets …` warning), and
+  `make goals:load` against the mock (first run all `unchanged`, `--dry-run`
+  clean, an edited `.wdlg` → 1 `updated`). `make test` **2064/2064, 1 pending —
+  unchanged**. Next: G4 (`make deploy:db` + `make goals:load` against prod +
+  `make deploy`, then close the epic).
+
 - **2026-09-03 — G2 shipped (`2512c23`): saved goal rulesets are rewired onto
   the `goals` collection; the builder no longer touches
   `localStorage['wdl.goals']`.** G2 of the goals database epic (G0–G4) — app

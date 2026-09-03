@@ -281,12 +281,28 @@ live on the prod API (nothing ships v1 — no loader, no seed). **The next scope
   `localStorage['wdl.goals']` — Examples→**Global** optgroup from the store,
   **Saved** optgroup signed-in-only, Save/Delete on the collection with an
   optimistic add + inline error surface, Download unchanged. Verified driving
-  `make serve` signed out + signed in + `WDL_MOCK_API=0` (Global falls back to
-  the bundled files — the `goals/records` route 404s until G3); `make test`
-  2064/2064, 1 pending, unchanged. **Next: G3** — `scripts/goals-to-db.mjs` +
-  `make goals:load` + a `scripts/mock-api.mjs` `goals/records` handler +
-  `fixtures/goals*.json` + drive the signed-in round-trip end to end; then G4
-  deploy + close.
+  `make serve` signed out + signed in + `WDL_MOCK_API=0`; `make test` unchanged.
+  **G3 done 2026-09-03 (`<SHA-G3>`)** — `scripts/**` + `.gitignore` +
+  `goals-store.js`'s `GOAL_FILES`, the S3 analogue: `scripts/goals-to-db.mjs` /
+  `make goals:load` (the `vocab-to-db.mjs` twin — idempotent upsert of
+  `examples/goals/*.wdlg` as `scope:"global"` rows keyed on `goalId`
+  `wdl:<file-basename>`, `--dry-run`, `movements-to-db.mjs` auth; **no fixture
+  regenerated, no `goals:dump`** — the mock derives the `global` rows from the
+  files at boot, the vocab call not the workouts one), a `goals/records` handler
+  in `scripts/mock-api.mjs` (vocab scope model: `scope` + nullable `user`,
+  scope-gated reads, `Authorization`-gated owner/admin writes, unique `goalId`
+  400, `fixtures/goals.local.json` overlay `.gitignore`d), and the `GOALS`-const
+  2-vs-3 reconciled — `ramp-the-squat.wdlg` is canonical (DEC-028 already names
+  all three), added to `GOAL_FILES`. Verified the round-trip on `make serve`
+  signed in (Global from `/api`, Save → `scope:"user"` row `goalId`
+  `solid-geode:my-rules`, reload persists, Delete tombstones, sign-out drops
+  Saved), by `curl` (read gate, 403/400 paths, byte-identical `source`), with
+  `WDL_MOCK_API=0` (bundled fallback + expected warning), and `make goals:load`
+  against the mock (first run all `unchanged`, `--dry-run` clean, edited file →
+  1 `updated`). `make test` 2064/2064, 1 pending — unchanged. **Next: G4** —
+  `make deploy:db` (the G1 migration) + `make goals:load` against prod + `make
+  deploy` (the static apps), then close the epic (move G0–G4 to
+  `completed.md`).
 
 The `localStorage` audit that produced these: only `wdl.sets` and `wdl.goals`
 hold real content; `wdl.editor-tab` / `wdl.analysis-tab` / `wdl.right-col-w` are

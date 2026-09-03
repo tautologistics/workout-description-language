@@ -30,12 +30,18 @@ import {
 } from './pocketbase.js';
 
 /**
- * The bundled `global` rulesets, by filename — the builder's `GOALS` const
- * before G2. `examples/goals/` holds a third file (`ramp-the-squat.wdlg`) that
- * this list omits, exactly as the const did; reconciling the 2-vs-3 (and the
- * canonical `wdl:<slug>` basis) is G3's, not G2's.
+ * The bundled `global` rulesets, by filename — the offline fallback for the
+ * Global optgroup, kept in step with `examples/goals/*.wdlg` and with the G3
+ * loader's input. G2 shipped this with two entries (the pre-G2 `GOALS` const);
+ * G3 reconciled the 2-vs-3 discrepancy in favour of `ramp-the-squat.wdlg` being
+ * canonical — it is a well-formed house-style `.wdlg` demonstrating a
+ * `measure: load` result-series goal, and DEC-028 already names all three as the
+ * committed `global` source. `goalId` is `wdl:<file-basename>` (the file names
+ * are already stable kebab-case slugs), which is exactly what
+ * `scripts/goals-to-db.mjs` writes, so the fallback rows and the DB rows share
+ * ids.
  */
-const GOAL_FILES = ['rotate-muscles.wdlg', 'ramp-the-pull.wdlg'];
+const GOAL_FILES = ['ramp-the-pull.wdlg', 'ramp-the-squat.wdlg', 'rotate-muscles.wdlg'];
 
 /** lower-case; non-alnum runs collapse to one `-`; ends trimmed (cf. `pocketbase.js`). */
 function slug(s) {

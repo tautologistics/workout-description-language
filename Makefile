@@ -43,7 +43,7 @@ WDL_BACKUP_DIR ?= db-backups
 
 .PHONY: help install test build serve registry goldens aliases corpora \
         curation\:sheet curation\:check curation\:apply movements\:load movements\:dump \
-        workouts\:load vocab\:load deploy deploy\:dry deploy\:db backups\:pull clean
+        workouts\:load vocab\:load goals\:load deploy deploy\:dry deploy\:db backups\:pull clean
 
 help: ## List the targets
 	@grep -hE '^[a-z][a-z:\\-]*:.*## ' $(MAKEFILE_LIST) \
@@ -98,6 +98,9 @@ workouts\:load: ## Ingest examples/workouts/**/*.wdl -> the workouts collection 
 
 vocab\:load: ## Ingest registry/{equipment,patterns}.json -> the equipment + patterns collections over /api  (idempotent; ARGS=--dry-run; WDL_PB_URL / admin creds for prod)
 	node scripts/vocab-to-db.mjs $(ARGS)
+
+goals\:load: ## Ingest examples/goals/*.wdlg -> the goals collection over /api as global rows  (idempotent; ARGS=--dry-run; WDL_PB_URL / admin creds for prod)
+	node scripts/goals-to-db.mjs $(ARGS)
 
 deploy: ## Deploy the static apps  (WDL_DEPLOY_SSH defaults to dreamhost.ae.wex)
 	node scripts/deploy-web.mjs

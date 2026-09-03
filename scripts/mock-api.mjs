@@ -45,6 +45,11 @@
  *   POST   /api/collections/movement_sets/records     — create, needs an Authorization header (else 403); 400 validation_not_unique on a duplicate setId
  *   PATCH  /api/collections/movement_sets/records/:id — update, owner-only (403 otherwise); 400 validation_not_unique if it changes setId onto an existing one
  *   DELETE /api/collections/movement_sets/records/:id — delete, owner-only; 403 without an Authorization header, 204 with
+ *   GET    /api/collections/goals/records            — list, `global` seed derived from examples/goals/*.wdlg + local writes; read-gated (scope="global" or user==caller) (task G3, DEC-028)
+ *   GET    /api/collections/goals/records/:id        — one ruleset (by synthetic id or goalId); 404 if the read gate fails
+ *   POST   /api/collections/goals/records            — create, needs an Authorization header (else 403); `user` rows owner-only, `global` rows admin-only; 400 validation_not_unique on a duplicate goalId
+ *   PATCH  /api/collections/goals/records/:id        — update, owner/admin-only (403 otherwise); 400 validation_not_unique if a rename moves goalId onto an existing one
+ *   DELETE /api/collections/goals/records/:id        — delete, owner/admin-only; 403 without an Authorization header, 204 with
  *
  * Query params honoured on the list routes, only as far as the client uses
  * them: `filter` (a pattern-matcher for the exact strings the client emits —
@@ -64,7 +69,8 @@
  *
  * Fixture write state (`fixtures/workouts.local.json`, `fixtures/movements.local.json`,
  * `fixtures/users.local.json`, `fixtures/equipment.local.json`,
- * `fixtures/patterns.local.json`, `fixtures/movement-sets.local.json`) is
+ * `fixtures/patterns.local.json`, `fixtures/movement-sets.local.json`,
+ * `fixtures/goals.local.json`) is
  * git-ignored — delete it to reset to the committed seed / `registry/*.json`. Movement writes (task M3's
  * `make movements:load`, and the M5 editor) land in
  * `fixtures/movements.local.json` and are merged over the registry-derived list
@@ -95,6 +101,21 @@
  * L1/DEC-021 random-handle assignment path fully exercised rather than pinning
  * chris to a fixed handle.
  *
+ * **Goals (task G3, DEC-028).** The `goals` collection follows the **vocab
+ * scope model** (DEC-025), not the `workouts` / `movement_sets` pattern: a
+ * `scope` column (`global | user`) and a nullable `user` relation. The `global`
+ * rows are **derived from `examples/goals/*.wdlg` at boot** — the committed
+ * files are the source of truth (DEC-028), exactly as `equipment` / `patterns`
+ * derive from `registry/*.json`, so there is **no committed `fixtures/goals.json`**.
+ * Runtime writes overlay from git-ignored `fixtures/goals.local.json` (`records`
+ * + `deleted` tombstones, keyed by the record `id` so a `user` row's `goalId`
+ * can re-slug on rename). Reads are gated by the collection's list/view rule
+ * (`scope = "global" || user = @request.auth.id`); writes need an `Authorization`
+ * header — a `user` row is owner-only and a `global` row admin-only (every faked
+ * sign-in is `admin: true`, so `make goals:load` round-trips locally). The
+ * unique `goalId` index is enforced — a create or a rename onto an existing
+ * `goalId` is a 400 `validation_not_unique`.
+ *
  * **`handle` (task L1, DEC-021).** `fixtures/users.json`'s mock signed-in user
  * (`users[0]`) is committed **without** a `handle`, on purpose: the first
  * sign-in exercises `apps/shared/pocketbase.js`'s random `adjective-noun`
@@ -106,7 +127,7 @@
  * ids matching the L1 migration) so `handle` collisions against them are
  * exercisable locally (edit your handle to `crossfit` → rejected).
  */
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 const M_JSON = ['aliases', 'muscles', 'pattern', 'laterality', 'measures', 'implements', 'equipment', 'related', 'sameAs'];
@@ -320,6 +341,72 @@ export function createMockApi(root) {
   /** `true` iff some other set already holds `setId` (the unique-index check). */
   const setIdTaken = (setId, exceptId) =>
     currentSets().some((s) => s.id !== exceptId && s.setId === setId);
+
+  // -- goals (task G3, DEC-028) -----------------------------------------
+  // The saved goal rulesets of the builder's Analysis-tab Goals block, promoted
+  // out of `localStorage['wdl.goals']`. This follows the **vocab scope model**
+  // (DEC-025), not the `workouts` / `movement_sets` pattern: a real `scope`
+  // column (`global | user`) and a nullable `user` relation. The `global` rows
+  // are **derived from `examples/goals/*.wdlg` at boot** — the committed files
+  // are the source of truth (DEC-028), exactly as the vocab collections derive
+  // from `registry/{equipment,patterns}.json`, so there is no committed
+  // `fixtures/goals.json`. Runtime writes overlay from git-ignored
+  // `fixtures/goals.local.json` (`records` + `deleted` tombstones, keyed by the
+  // record `id` so a `user` row's `goalId` can re-slug on rename), merged over
+  // the derived seed on read. Reads honour `scope = "global" || user =
+  // @request.auth.id`; writes need an Authorization header — a `user` row is
+  // owner-only, and a `global` row needs admin (the faked sign-in hands every
+  // caller `admin: true`). The unique `goalId` index is enforced as a 400
+  // `validation_not_unique`, the way the sets / users handlers reject a
+  // duplicate key.
+  const goalsLocalPath = P('fixtures/goals.local.json');
+  const goalsLocal = existsSync(goalsLocalPath) ? readJson(goalsLocalPath) : {};
+  let goalsOverlay = Array.isArray(goalsLocal.records) ? goalsLocal.records : [];
+  let goalsDeleted = Array.isArray(goalsLocal.deleted) ? goalsLocal.deleted : [];
+  let goalsSeed = null;
+  const loadGoalsSeed = () => {
+    if (!goalsSeed) {
+      const dir = P('examples/goals');
+      goalsSeed = existsSync(dir)
+        ? readdirSync(dir)
+            .filter((n) => n.endsWith('.wdlg'))
+            .sort()
+            .map((name) => toGoalRecord(name, readFileSync(join(dir, name), 'utf8')))
+        : [];
+    }
+    return goalsSeed;
+  };
+
+  const persistGoals = () => {
+    try {
+      writeFileSync(goalsLocalPath, JSON.stringify({
+        $comment: 'Runtime write state for the local dev mock /api (goals). Git-ignored. Delete to reset to the examples/goals/*.wdlg-derived global seed.',
+        records: goalsOverlay,
+        deleted: goalsDeleted,
+      }, null, 2) + '\n');
+    } catch (e) {
+      console.error(`  mock /api: could not persist goals — ${e.message}`);
+    }
+  };
+
+  /** The derived `global` seed with runtime writes merged over it, keyed by record id. */
+  const currentGoals = () => {
+    const byId = new Map(loadGoalsSeed().map((g) => [g.id, g]));
+    for (const rec of goalsOverlay) byId.set(rec.id, rec);
+    for (const id of goalsDeleted) byId.delete(id);
+    return [...byId.values()];
+  };
+
+  const upsertGoal = (rec) => {
+    const i = goalsOverlay.findIndex((g) => g.id === rec.id);
+    if (i >= 0) goalsOverlay[i] = rec; else goalsOverlay.push(rec);
+    goalsDeleted = goalsDeleted.filter((id) => id !== rec.id);
+    persistGoals();
+  };
+
+  /** `true` iff some other row already holds `goalId` (the unique-index check). */
+  const goalIdTaken = (goalId, exceptId) =>
+    currentGoals().some((g) => g.id !== exceptId && g.goalId === goalId);
 
   return async function handle(req, res, url) {
     const { pathname } = url;
@@ -578,6 +665,71 @@ export function createMockApi(root) {
         }
       }
 
+      // -- goals (task G3, DEC-028) ------------------------------------
+      // The vocab scope model: a `scope` column + nullable `user` relation.
+      // Reads honour `scope = "global" || user = @request.auth.id`; writes need
+      // an Authorization header — `user` rows owner-only, `global` rows
+      // admin-only (every faked sign-in is `admin: true`). Overlay ->
+      // fixtures/goals.local.json. The `global` seed is derived from
+      // examples/goals/*.wdlg at boot — no committed fixture.
+      {
+        const caller = req.headers.authorization ? fixtureUser.id : null;
+        const isAdmin = caller ? !!fixtureUser.admin : false;
+        const canReadGoal = (g) => g.scope === 'global' || (g.user && g.user === caller);
+        const mayWriteGoal = (g) => g.scope === 'user' ? g.user === caller : isAdmin;
+        const goalWriteDenied = () => json(res, 403, err(403, 'Only the ruleset owner (or an admin, for a global ruleset) may write it.'));
+        const base = '/api/collections/goals/records';
+        if (pathname === base) {
+          if (method === 'GET') {
+            const rows = applyQuery(currentGoals(), url).filter(canReadGoal);
+            return json(res, 200, listEnvelope(rows, url));
+          }
+          if (method === 'POST') {
+            if (!caller) return goalWriteDenied();
+            const body = await readBody(req);
+            const rec = mkGoalRecord(body);
+            if (!rec.goalId) return json(res, 400, err(400, 'Failed to create record.', { goalId: { code: 'validation_required', message: 'Missing required value.' } }));
+            if (!mayWriteGoal(rec)) return goalWriteDenied();
+            if (goalIdTaken(rec.goalId)) return json(res, 400, err(400, 'Failed to create record.', { goalId: { code: 'validation_not_unique', message: 'Value must be unique.' } }));
+            upsertGoal(rec);
+            return json(res, 200, rec);
+          }
+          return goalWriteDenied();
+        }
+        if (pathname.startsWith(base + '/')) {
+          const key = decodeURIComponent(pathname.slice((base + '/').length));
+          const rec = currentGoals().find((g) => g.id === key || g.goalId === key);
+          if (method === 'GET') {
+            return rec && canReadGoal(rec) ? json(res, 200, rec) : json(res, 404, err(404, "The requested resource wasn't found."));
+          }
+          if (!caller) return goalWriteDenied();
+          if (method === 'PATCH') {
+            if (!rec) return json(res, 404, err(404, "The requested resource wasn't found."));
+            if (!mayWriteGoal(rec)) return goalWriteDenied();
+            const body = await readBody(req);
+            const patch = pickGoalFields(body);
+            if ('goalId' in patch && patch.goalId !== rec.goalId && goalIdTaken(patch.goalId, rec.id)) {
+              return json(res, 400, err(400, 'Failed to update record.', { goalId: { code: 'validation_not_unique', message: 'Value must be unique.' } }));
+            }
+            const next = { ...rec, ...patch, updated: pbNow() };
+            upsertGoal(next);
+            return json(res, 200, next);
+          }
+          if (method === 'DELETE') {
+            if (rec) {
+              if (!mayWriteGoal(rec)) return goalWriteDenied();
+              goalsOverlay = goalsOverlay.filter((g) => g.id !== rec.id);
+              if (!goalsDeleted.includes(rec.id)) goalsDeleted.push(rec.id);
+              persistGoals();
+            }
+            res.writeHead(204);
+            res.end();
+            return true;
+          }
+          return goalWriteDenied();
+        }
+      }
+
       return false; // some other /api path — not mocked; caller falls through
     } catch (e) {
       json(res, 500, err(500, `mock /api: ${e.message}`));
@@ -761,6 +913,61 @@ function mkSetRecord(body) {
 function pickSetFields(body) {
   const out = {};
   for (const k of ['owner', 'name', 'setId', 'movements', 'visibility', 'description']) {
+    if (k in body) out[k] = body[k];
+  }
+  return out;
+}
+
+// --- goal-ruleset shapes (task G3, DEC-028) ----------------------------
+// The migration's `goals` columns: title, goalId (the namespaced natural key,
+// unique across both scope tiers), source (the raw .wdlg), scope (select
+// global|user), user (relation -> users, nullable — null for a `global` row),
+// created, updated. The `global` seed is derived from examples/goals/*.wdlg:
+// `goalId` = `wdl:<file-basename>` (the file names are stable kebab-case slugs,
+// and `apps/shared/goals-store.js`'s offline fallback derives the same id).
+
+const gSlug = (s) => String(s ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+const gTitle = (src) => (String(src ?? '').match(/^goals:[ \t]*(\S.*?)[ \t]*$/m) || [, ''])[1];
+
+/** One `examples/goals/<name>.wdlg` file as a `global` `goals` record. */
+function toGoalRecord(name, source) {
+  const base = name.replace(/\.wdlg$/, '');
+  const goalId = `wdl:${gSlug(base)}`;
+  return {
+    id: 'gl' + hash36(goalId),
+    collectionId: 'mock_goals',
+    collectionName: 'goals',
+    title: gTitle(source) || base,
+    goalId,
+    source,
+    scope: 'global',
+    user: '',
+    created: '',
+    updated: '',
+  };
+}
+
+/** A create body -> a full `goals` record (missing fields at their empty). */
+function mkGoalRecord(body) {
+  const now = pbNow();
+  return {
+    id: mkId('gl'),
+    collectionId: 'mock_goals',
+    collectionName: 'goals',
+    title: body.title ?? '',
+    goalId: body.goalId ?? '',
+    source: body.source ?? '',
+    scope: body.scope ?? 'user',
+    user: body.user ?? '',
+    created: now,
+    updated: now,
+  };
+}
+
+/** The subset of an update body that maps to a `goals` column. */
+function pickGoalFields(body) {
+  const out = {};
+  for (const k of ['title', 'goalId', 'source', 'scope', 'user']) {
     if (k in body) out[k] = body[k];
   }
   return out;

@@ -101,8 +101,10 @@ The remaining scoped epic on the active queue is:
 - **## The goals database (G0–G4)** — promote `localStorage['wdl.goals']` to a
   `goals` collection on the vocab pattern (scopes: `global` + `user`;
   `examples/goals/*.wdlg` are the `global` rows; `make goals:load` ingests
-  them). Model decisions all settled — G0 writes DEC-028. Independent of the
-  now-closed sets epic; broken into tasks below.
+  them). Model decisions all settled — G0 wrote DEC-028. Independent of the
+  now-closed sets epic. **G0 (`8680e2a`), G1 (`1a99448`), G2 (`2512c23`) and G3
+  (`<SHA-G3>` — the loader, the mock `goals/records` route and the signed-in
+  round-trip) have landed; only G4 (deploy + close the epic) is left.**
 
 Also queued / deferred, unchanged:
 - the **flat 129-row palette browse UX** — deferred pending the curation sweep
@@ -1146,7 +1148,129 @@ core-goals concept.)*
 - No migration / mock change yet — G3 adds the mock. `make test` unchanged
   (2064/2064, 1 pending — app code). Spawns G3.
 
-### G3 — `make goals:load` + fixtures + mock `/api` + drive the round-trip.
+### G3 — `make goals:load` + fixtures + mock `/api` + drive the round-trip. — **DONE 2026-09-03 (`<SHA-G3>`)**
+
+**Shipped — `scripts/**` + `.gitignore` + `apps/shared/goals-store.js` (the
+`GOAL_FILES` reconciliation), no migration / builder / `packages/core` change;
+`make test` **2064/2064, 1 pending — unchanged** (the core suite covers neither
+the mock nor the loader). The analogue of S3 for the goals epic.**
+
+- **`scripts/goals-to-db.mjs`** / **`make goals:load`** — the `vocab-to-db.mjs`
+  twin (no-deps, `node:fs` + global `fetch`): idempotent upsert of
+  `examples/goals/*.wdlg` into the `goals` collection as `scope: "global"` rows,
+  keyed on **`goalId`**, `POST` the absent / `PATCH` only when `title` or
+  `source` differ; per-run `created` / `updated` / `unchanged` tally,
+  `--dry-run` (writes nothing, no HTTP mutation), `--api <base>` / `WDL_PB_URL`
+  (default `http://localhost:8081`). Prod auth is `movements-to-db.mjs`'s
+  verbatim — `WDL_PB_ADMIN_TOKEN` or `WDL_PB_ADMIN_EMAIL` + `_PASSWORD`,
+  `WDL_PB_ADMIN_COLLECTION` **default `users`** (not `_superusers` — the `goals`
+  write rule for a `global` row is `@request.auth.admin = true`, which a `users`
+  admin row satisfies), falling back to the dev-mock OAuth stub so a bare run
+  works against `make serve`. `make goals:load` target added to the `Makefile`
+  beside `vocab:load` (+ its `.PHONY` entry).
+- **The canonical `<slug>` basis is the file basename**: `goalId =
+  `wdl:<name-without-.wdlg>`` (`wdl:ramp-the-pull`, `wdl:rotate-muscles`,
+  `wdl:ramp-the-squat`). The file names are already stable kebab-case slugs, and
+  G2's `goals-store.js` offline fallback already derived `wdl:<slug(filebase)>`
+  — so the DB rows and the bundled fallback carry **identical** ids with no
+  change to the fallback's slug logic. `slug(title)` was rejected: it would give
+  `wdl:put-weight-on-the-bar-week-after-week` for `ramp-the-squat.wdlg`, which
+  matches neither the file nor the fallback. `title` is read with the same light
+  regex `goals-store.js` uses (`/^goals:[ \t]*(\S.*?)[ \t]*$/m`), which is
+  `parseGoals(source).title` for the header line — so the loader stays a no-deps
+  script, the `vocab-to-db.mjs` / `workouts-to-db.mjs` precedent.
+- **`GOALS`-const 2-vs-3 reconciled: `ramp-the-squat.wdlg` is canonical.** It is
+  a well-formed house-style `.wdlg` demonstrating a `measure: load`
+  result-series goal (a distinct feature the other two don't show), and
+  **DEC-028's own G0 write-up already names all three** as the committed
+  `global` source — the const (deleted in G2) and G2's placeholder
+  `GOAL_FILES = ['rotate-muscles.wdlg', 'ramp-the-pull.wdlg']` simply never got
+  the file added. G3 adds it to `apps/shared/goals-store.js`'s `GOAL_FILES`
+  (now all three, sorted); the loader picks it up from the
+  `examples/goals/*.wdlg` glob with no extra wiring. Nothing was deleted.
+- **`scripts/mock-api.mjs`** grows a `goals/records` handler — a **goals-shaped
+  handler**, not a `makeVocab` instance (goals carry a `scope` column, a
+  nullable `user`, a read gate and a `goalId`-uniqueness rejection the vocab
+  factory has none of): the PB list envelope via the shared `applyQuery` +
+  `listEnvelope` (honours `filter` `scope="global"` / `user="<uid>"`, `sort`
+  `goalId`, `page` / `perPage`); `/records/:id` by synthetic id **or** `goalId`
+  (the `getGoalByAnyId` idiom); a **scope-gated read** (`scope === "global" ||
+  user === caller`) on list + single GET, matching the migration rule;
+  `POST` / `PATCH` / `DELETE` behind the `Authorization` gate (**403** without) —
+  a `user` row is owner-only and a `global` row admin-only (the faked sign-in
+  hands every caller `admin: true`, so `make goals:load` round-trips); the
+  unique **`goalId`** index enforced as a **400 `validation_not_unique`** on a
+  create or a rename that collides. Writes overlay onto git-ignored
+  **`fixtures/goals.local.json`** (`records` + `deleted` tombstones, keyed by
+  the record `id` so a `user` row's `goalId` can re-slug on rename — the
+  `movement_sets` `.local.json` pattern). `.gitignore` gained the entry.
+- **The `global` rows are derived from `examples/goals/*.wdlg` at mock boot** —
+  **no committed `fixtures/goals.json`, and the loader regenerates no fixture.**
+  This follows `vocab` (derive from the registry files), not `workouts` (commit
+  a fixture). The G3 brief's "regenerate `fixtures/goals.json`" was written by
+  analogy to `workouts-to-db.mjs`, which commits its fixture only because the
+  mock `workouts` handler needs mock-user rows it cannot derive; goals are the
+  vocab case — the mock derives the same rows from the same committed files, so
+  a `fixtures/goals.json` would be a second copy of the file contents for `make
+  goals:load` to keep in step, i.e. the drift DEC-028 avoids by making the files
+  the source. **No `make goals:dump`** either, the call `vocab-to-db.mjs` made
+  for its forty terms: three files edited directly in the repo do not want the
+  round-trip guarantee movements needed. A preserved mock-user seed row (S3
+  added two) was skipped — optional per the brief, and an empty Saved group on
+  first signed-in load matches the real product state.
+
+**Verified — the round-trip driven on `make serve`, plus `curl` and
+`WDL_MOCK_API=0`:**
+- **Signed in** (mock `admin` `u_mock_chris_0001`, assigned handle `@solid-geode`
+  this run) — the **Global** optgroup populates **from `/api`**
+  (`GET …/goals/records?filter=scope%3D%22global%22&sort=goalId&perPage=1000` →
+  200, three rows) with all three titles, **no fallback warning** in the
+  console. **Save** a `goals: My rules` buffer → `POST` `{title:"My rules",
+  source:…, scope:"user", user:"u_mock_chris_0001", goalId:"solid-geode:my-rules"}`
+  → the **Saved** optgroup appears with it; `curl` shows the `scope:"user"` row
+  and `fixtures/goals.local.json` holds it. **Reload** → still listed (persisted
+  from the overlay). **Delete** → gone from the picker, a `deleted` tombstone in
+  the overlay. The "Against your goals" panel evaluates a picked `global`
+  ruleset (`rotate-muscles`, source fetched from `/api`) unchanged
+  (`cover: … at least 2 required`). **Sign out** → only the **Global** group,
+  no Saved.
+- **`curl` on the mock:** single-record fetch by `goalId` (`wdl:ramp-the-squat`)
+  and by synthetic id both resolve; `source` **byte-identical** to each file;
+  signed-out list returns only the three `global` rows; a `user` row is **404**
+  without / **200** with the owner's `Authorization`; unauth `POST` → **403**;
+  duplicate `goalId` `POST` → **400 `validation_not_unique`**; a `PATCH`
+  renaming `goalId` re-slugs it (and a rename onto an existing `goalId` → 400);
+  a `POST` claiming a different `user` → **403** (so a wrong-owner write is
+  blocked at create — the mock has no cross-user seed row to PATCH, unlike S3's
+  org rows).
+- **`make goals:load`** against the mock: **first run all `unchanged` (3)** —
+  the mock serves the same file-derived rows, so the diff is empty (the V8 /
+  movements precedent); `--dry-run` writes nothing (`git status` clean); editing
+  a `.wdlg` `title` then re-running reports **1 updated**; an idempotent re-run
+  after that writes nothing.
+- **`WDL_MOCK_API=0`** — the Global optgroup **still populates from the bundled
+  `.wdlg` files** (all three, `wdl:<slug>` ids), the console warning is the
+  expected `goals: no /api rulesets, using the bundled .wdlg files — 404 Not
+  Found` plus the one 404. No other console output in any state.
+- **`make test`** — **2064/2064 passing, 1 pending** — unchanged.
+- G3 changed no CSS / DOM, so dark mode is untouched (the picker is a native
+  `<select>`).
+
+**Open for Chris (a G2 gap surfaced while verifying, not a G3 blocker):** the
+builder's Goals-block **Save** keys on the `.wdlg` title
+(`goalsStore.mine().find(g => g.title === title)`), so *changing* the `goals:`
+title and saving writes a **new** row rather than renaming the selected one —
+DEC-028's "re-slugged on rename" `updateGoal` path (verified working at the
+`pocketbase.js` + mock layer via `curl`) is only reached by re-saving the *same*
+title. If a real rename affordance is wanted it is a small `builder.js` change
+(pass the selected row's id when the picker is on a `saved:` entry), owned by
+the G2 rewire, not the loader/mock.
+
+The `docs/context` G3 write-up landed in this same commit with a `<SHA-G3>`
+placeholder, replaced by a tiny follow-up commit with the real landed SHA (the
+S1–S4 / G1 / G2 approach). Brief kept below for the trail. G4 dispatched.
+
+---
 
 - **`scripts/goals-to-db.mjs`** / **`make goals:load`** — the
   `movements-to-db.mjs` / `vocab-to-db.mjs` twin: idempotent upsert of
@@ -1192,12 +1316,11 @@ collection), [../current/next-steps.md](../current/next-steps.md), and
 
 ```
 G0 ─> G1 ─> G2 ─> G3 ─> G4
-(DEC) (mig) (model+  (loader+  (deploy
-             rewire)  mock+     + close)
-                      verify)
+✓     ✓     ✓     ✓     (deploy + close)
 ```
 
 Strict order. Independent of the sets epic (S0–S4) — run either first.
+**G0–G3 landed 2026-09-03; G4 is the only open task.**
 
 ---
 
