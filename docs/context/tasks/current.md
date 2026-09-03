@@ -92,7 +92,7 @@ The active queue is now **two `localStorage` → PocketBase epics Chris scoped
   2026-09-02; S1 (the migration) landed 2026-09-03 (`91e20d5`); S2 (the
   `sets.js` model + `pocketbase.js` CRUD + builder rewire) landed 2026-09-03
   (`4b3b796`); S3 (fixtures + mock + the signed-in round-trip) landed 2026-09-03
-  (`<SHA-S3>`). S4 (the create/edit dialog UX rework + deploy + close the epic)
+  (`7e18879`). S4 (the create/edit dialog UX rework + deploy + close the epic)
   is next.**
 - **## The goals database (G0–G4)** — promote `localStorage['wdl.goals']` to a
   `goals` collection on the vocab pattern (scopes: `global` + `user`;
@@ -1045,7 +1045,7 @@ V6 carry.
 
 **S2 shipped 2026-09-03 (`4b3b796`)** — `apps/shared/sets.js` + the
 `pocketbase.js` CRUD + the builder rewire off `localStorage['wdl.sets']`; see
-the **### S2** subsection below. **S3 shipped 2026-09-03 (`<SHA-S3>`)** — the
+the **### S2** subsection below. **S3 shipped 2026-09-03 (`7e18879`)** — the
 mock handler + the committed fixture seed; see **### S3**. **S4 is next.**
 
 Original brief kept below for the trail.
@@ -1128,7 +1128,7 @@ available — that is S3's job and this write-up does not fake one):
 `4b3b796` placeholder in these docs, pushed, then a tiny follow-up commit
 replaces it with the real landed SHA (option a — what S1 did, `fdaf9b4`).
 
-**S3 shipped 2026-09-03 (`<SHA-S3>`)** — fixtures + mock `/api` for
+**S3 shipped 2026-09-03 (`7e18879`)** — fixtures + mock `/api` for
 `movement_sets` + the signed-in round-trip; see the **### S3** subsection below.
 **S4 is next.**
 
@@ -1165,7 +1165,7 @@ The model moves server-side and out of `builder.js`.
   `make test` suite (2064/2064, 1 pending — unchanged, app code) holds. Spawns
   S3.
 
-### S3 — Fixtures + mock `/api` for `movement_sets` + drive the round-trip. — **DONE 2026-09-03 (`<SHA-S3>`)**
+### S3 — Fixtures + mock `/api` for `movement_sets` + drive the round-trip. — **DONE 2026-09-03 (`7e18879`)**
 
 **Shipped — `scripts/**` + `fixtures/**` + `.gitignore` only; `make test`
 unchanged (2064/2064, 1 pending — the core suite does not cover the mock or the
@@ -1260,7 +1260,7 @@ to end on `make serve`.
   with the same rows.
 - **`make test`** — **2064/2064 passing, 1 pending** — unchanged.
 
-**Self-referential-SHA trap (S0/S1/S2 all hit it):** committed with a `<SHA-S3>`
+**Self-referential-SHA trap (S0/S1/S2 all hit it):** committed with a `7e18879`
 placeholder in these docs, pushed, then a tiny follow-up commit replaces it with
 the real landed SHA (option a — what S1/S2 did).
 

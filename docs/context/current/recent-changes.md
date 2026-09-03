@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-03 — S3 shipped (`<SHA-S3>`): `movement_sets` is now behind the
+- **2026-09-03 — S3 shipped (`7e18879`): `movement_sets` is now behind the
   local dev mock `/api`, with a committed fixture seed; the signed-in round-trip
   is verified end to end.** S3 of the movement-sets database epic (S0–S4) —
   `scripts/**` + `fixtures/**` + `.gitignore` only, no `apps/**` / core / migration

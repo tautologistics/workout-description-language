@@ -228,7 +228,7 @@ independent of each other:
   signed-in-only, non-owned sets read-only, movement edits debounced per set, no
   `localStorage` fallback. Verified read-against-schema + signed-out `make
   serve` (no Sets section, no console errors) + `make test` unchanged; the
-  signed-in round-trip waits on S3. S3 done 2026-09-03 (`<SHA-S3>`, `scripts/**`
+  signed-in round-trip waits on S3. S3 done 2026-09-03 (`7e18879`, `scripts/**`
   + `fixtures/**` + `.gitignore` only) — a `movement_sets/records` handler in
   `scripts/mock-api.mjs` in the `workouts` mould (read gate, `setId` uniqueness
   400, owner-only writes, `Authorization` gate, `.local.json` overlay; the shared
