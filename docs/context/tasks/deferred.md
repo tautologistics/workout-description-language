@@ -99,48 +99,6 @@ ready to start, with what it touches, is in [current.md](current.md).
   any code. Blocked on the curation sweep (so the real core-set size is known)
   and on that review. See "## Reconsider when".
 
-- **~~The movement-"sets" feature needs a model + UX rework.~~ PROMOTED to a
-  live epic 2026-09-02 — see "## The movement-sets database (S0–S4)" in
-  [current.md](current.md).** Chris settled the model decisions (scopes:
-  `org-library` + `user`; `setId` re-slugged on rename; nothing ships v1, no
-  loader; `localStorage['wdl.sets']` retired, signed-in-only, no migration) and
-  it was broken into S0–S4. A companion epic **## The goals database (G0–G4)**
-  promotes `localStorage['wdl.goals']` on the same pattern (scopes `global` +
-  `user`). The original stub is kept below for the trail.
-
-  *Captured 2026-09-02 (Chris) — "right now it's totally fucked."* The "Sets"
-  section of the Movements modal (compose-by-hand repertoire, landed 2026-08-28 —
-  [../topics/builder-ux.md](../topics/builder-ux.md) "## Movements") has three
-  problems Chris wants addressed together:
-  - **Storage / model.** Sets live **only** in `localStorage['wdl.sets']` as a
-    flat `{ "Set name": ["movement-id", …] }` blob (`apps/builder/builder.js`
-    ~L2023–2024; `saveSets` is the sole writer). **No PocketBase collection, no
-    server persistence, no cross-device sync** — a cleared browser loses them;
-    the only portability is the builder's Export/Import to a `movement-sets.json`
-    (`{format, version, sets}`) carrier file. Chris: "where the fuck are these
-    sets being stored — I don't see a collection." The
-    ["file format for palette sets" Non-Goal in
-    ../topics/deliberately-not-done.md](../topics/deliberately-not-done.md) is
-    **reopened** by this: it has now "earned more."
-  - **Scopes.** No notion of **global** sets vs **library/org** sets (a Hyrox
-    set, a CrossFit set, …) vs **personal** sets. Chris wants the same
-    three-way split the workouts + vocab layers have.
-  - **Namespaced IDs.** Sets should get their own **`<handle>:<slug>` namespaced
-    ids** and follow **the same flow and pattern as workouts** (a PocketBase
-    collection, `owner`, `visibility`, a `wdlId`-style key, the
-    `make workouts:load` ingest shape, org-owned public rows) — see the L-series
-    ([../topics/settled-decisions.md](../topics/settled-decisions.md) DEC-021,
-    [../topics/what-exists.md](../topics/what-exists.md) "Example library").
-  - **Dialog UX.** Column alignments and formatting in the set cards are broken
-    ("total dog shit"). When **editing** a set, the set should be **at the top**
-    of the dialog and the **movement search below it**, so the search is
-    scoped-feeling to "add to this set" — currently the order and hierarchy are
-    backwards. Needs a real UX review of the create/edit flow, not a CSS patch.
-
-  A DB-backed model will drive the UX rework, so scope the model first. Mirrors
-  the M-series (movements) / V-series (vocab) / L-series (workouts) shape. See
-  "## Reconsider when".
-
 - **A full security audit / hardening sweep.** *Captured 2026-09-02 (Chris) —
   explicitly a "once the current queue is exhausted and functionality has
   settled down" item, **not** a next task.* A sweep across the hosted stack on
@@ -229,9 +187,9 @@ ready to start, with what it touches, is in [current.md](current.md).
   grown the corpus enough that a title substring is no longer enough to find
   what you want, and once equipment is real data (V6–V8).
 
-- **~~The movement-"sets" model + UX rework~~ — promoted to a live epic
-  2026-09-02** (S0–S4 in [current.md](current.md)), with a companion **goals**
-  epic (G0–G4) on the same pattern. No longer deferred.
+- **~~The movement-"sets" model + UX rework~~ — shipped as the S0–S4 epic,
+  complete 2026-09-03** ([completed.md](completed.md)). The companion **goals**
+  epic (G0–G4) on the same pattern is still open in [current.md](current.md).
 
 - **The movement-palette browse UX** is worth doing once the curation sweep has
   run and the core set has reached its real size — at which point a flat scroll

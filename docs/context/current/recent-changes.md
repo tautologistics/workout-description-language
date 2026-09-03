@@ -2,6 +2,38 @@
 
 ## Changes
 
+- **2026-09-03 — S4 shipped (`<SHA-S4>`): the movement-sets dialog reworked,
+  prod deployed, and the S0–S4 epic closed.** Final task of the *movement-sets
+  database* epic — `apps/builder/{builder.js,builder.css,index.html}` only, **no
+  model change** (S2 landed it), nothing in `packages/core` / grammar / spec /
+  migration / mock / fixture, `sets.js` / `pocketbase.js` untouched, `movements`
+  still an ordered id array. **The dialog rework:** the `#repertoire` section
+  moved to the **top** of the palette modal (above the movement search), so a set
+  being composed is the subject and the search below it reads as "add movements
+  to this set" (the `#search` placeholder switches to *Add movements to "<name>"*
+  while composing, and the composed card floats to the top of `#set-list` with an
+  accent border). The **set card is a stable grid** — name ellipsises, count in
+  its own right-aligned column, the action cluster (`＋` compose / `⊕`
+  add-showing / `↧` to-outline / `✎` rename / `✕` delete) lined up straight down
+  the list with ≥1.6rem hit targets; the movement list is a numbered `<ol>` with
+  a fixed reorder/remove column. A **read-only library set is visibly distinct** —
+  recessed `color-mix` ground, dimmed name, a `LIBRARY` pill. The tools are one
+  hierarchy: `New set` / `Save showing` primary, `Import` · `Export` a low-key
+  link pair (DEC-027's call on the carrier's prominence). **Verified** driving
+  `make serve` signed in, light + dark, at 1440 / 900 / 820 / 400px: create /
+  compose (one coalesced PATCH) / reorder / remove / rename (`setId` re-slugged) /
+  `↧` / `⊕` / delete all work; no console errors; no clipping or horizontal
+  overflow inside the modal's scroll container. **Deployed:** `make deploy:db`
+  applied the S1 migration on the VPS (API healthy), `movement_sets` is live on
+  the prod API (`200`, `totalItems: 0` — nothing ships v1); `make deploy` pushed
+  the static apps (served builder + shared assets byte-identical to `origin/main`).
+  **The whole S0–S4 section moved to
+  [../tasks/completed.md](../tasks/completed.md)** as one grouped section (the
+  M / L / V precedent); `what-exists.md` / `deferred.md` / `next-steps.md`
+  updated. `make test` **2064/2064, 1 pending — unchanged**. **The
+  movement-sets epic is closed; the next scoped `localStorage` → PocketBase epic
+  is the goals database (G0–G4).**
+
 - **2026-09-03 — S3 shipped (`7e18879`): `movement_sets` is now behind the
   local dev mock `/api`, with a committed fixture seed; the signed-in round-trip
   is verified end to end.** S3 of the movement-sets database epic (S0–S4) —

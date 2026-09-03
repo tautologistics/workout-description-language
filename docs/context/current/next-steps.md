@@ -202,9 +202,19 @@ contact with the source (obsolete premise, and its two follow-ons are now
 declined / deferred); N3 shipped standalone (`fecf6b3`). **The three-task set is
 closed.**
 
-**The active queue is now two `localStorage` → PocketBase epics Chris scoped
-2026-09-02**, each broken into tasks in [../tasks/current.md](../tasks/current.md),
-independent of each other:
+**The *movement-sets database* epic (S0–S4) is complete as of 2026-09-03** —
+all five tasks landed (S4 = the dialog UX rework + prod deploy, `<SHA-S4>`) and
+the whole S-section moved to [../tasks/completed.md](../tasks/completed.md) as one
+grouped section. Movement sets are now a `movement_sets` PocketBase collection
+(`apps/shared/sets.js` over `pocketbase.js`), signed-in only, `org-library` +
+`user` scopes, `setId = <handle>:<slug(name)>` re-slugged on rename; the S4 pass
+put the repertoire at the top of the palette modal, fixed the set-card grid, and
+made read-only sets distinct. The migration is on the VPS and `movement_sets` is
+live on the prod API (nothing ships v1 — no loader, no seed). **The next scoped
+`localStorage` → PocketBase epic is the goals database (G0–G4)**, still open in
+[../tasks/current.md](../tasks/current.md):
+
+<details><summary>Historical — the S0–S4 trail (kept for the record)</summary>
 
 - **The movement-sets database (S0–S4)** — `localStorage['wdl.sets']` → a
   `movement_sets` collection on the workouts pattern. Scopes `org-library` +
@@ -239,9 +249,17 @@ independent of each other:
   runs). Verified the full signed-in round-trip on `make serve` — create /
   compose (burst coalesced to one PATCH) / reorder / remove / rename (`setId`
   re-slugged) / reload-persists / `↧`-splices / delete / read-gate / dup-`setId`
-  400 / sign-out-hides — and `make test` unchanged.** **S4 is next** — the
-  create/edit dialog UX rework, then `make deploy:db` + `make deploy`, then close
-  the S0–S4 epic.
+  400 / sign-out-hides — and `make test` unchanged.** **S4 done 2026-09-03
+  (`<SHA-S4>`, `apps/builder/{builder.js,builder.css,index.html}` only)** — the
+  dialog rework (repertoire on top, stable set-card grid, read-only set distinct,
+  tools in one hierarchy, `Import`/`Export` a low-key pair), driven `make serve`
+  signed in light + dark at 1440 / 900 / 820 / 400px; `make deploy:db` +
+  `make deploy` run (migration on the VPS, `movement_sets` live at `totalItems:
+  0`, served assets byte-identical to `origin/main`); the S0–S4 section moved to
+  `completed.md`. `make test` 2064/2064, 1 pending — unchanged.
+
+</details>
+
 - **The goals database (G0–G4)** — `localStorage['wdl.goals']` → a `goals`
   collection on the **vocab** pattern (`scope: global | user`, nullable `user`
   relation). The current `examples/goals/*.wdlg` are the `global` rows;

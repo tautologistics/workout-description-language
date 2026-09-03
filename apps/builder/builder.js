@@ -2262,6 +2262,8 @@ function renderPalette() {
   if (composed) {
     hint.textContent = `Composing “${composed.name}” — click a movement to add or remove it. Esc when done.`;
   }
+  // While composing, the search below the set reads as "add movements to it".
+  el('search').placeholder = composed ? `Add movements to “${composed.name}”` : 'Search movements';
   box.scrollTop = keepScroll;
 }
 
@@ -2308,7 +2310,11 @@ function renderSetList() {
     box.append(p);
     return;
   }
-  for (const s of all) box.append(renderSetCard(s));
+  // The set being composed is the subject of the dialog — float it to the top.
+  const ordered = composing
+    ? [...all].sort((a, b) => (b.id === composing) - (a.id === composing))
+    : all;
+  for (const s of ordered) box.append(renderSetCard(s));
 }
 
 function renderSetCard(set) {
@@ -2316,6 +2322,8 @@ function renderSetCard(set) {
   const editable = set.mine;
   const card = document.createElement('details');
   card.className = 'set-card';
+  card.classList.toggle('readonly', !editable);
+  card.classList.toggle('composing', composing === set.id);
   card.dataset.setId = set.setId;
   card.open = openSets.has(set.id) || composing === set.id;
   card.addEventListener('toggle', () => {
@@ -2325,32 +2333,45 @@ function renderSetCard(set) {
   const summary = document.createElement('summary');
   const label = document.createElement('span');
   label.className = 'set-name';
-  label.textContent = editable ? set.name : `${set.name} · library`;
+  label.textContent = set.name;
+  if (!editable) {
+    const tag = document.createElement('span');
+    tag.className = 'set-tag';
+    tag.textContent = 'Library';
+    label.append(tag);
+  }
   const count = document.createElement('span');
   count.className = 'set-n';
   count.textContent = ids.length;
+  count.title = `${ids.length} movement${ids.length === 1 ? '' : 's'}`;
   const actions = document.createElement('span');
   actions.className = 'set-actions';
 
-  const act = (glyph, title, fn, pressed) => {
+  const act = (glyph, title, fn, { pressed, danger } = {}) => {
     const b = document.createElement('button');
     b.type = 'button';
     b.textContent = glyph;
     b.title = title;
+    b.setAttribute('aria-label', title);
+    if (danger) b.className = 'danger';
     if (pressed !== undefined) b.setAttribute('aria-pressed', String(pressed));
     b.onclick = (e) => { e.preventDefault(); e.stopPropagation(); fn(); };
     actions.append(b);
     return b;
   };
 
+  // "Act on this set" — the per-card cluster, ordered edit-first: compose,
+  // add-showing, then drop-into-outline, rename, delete. A read-only library
+  // set gets only the one action that makes sense on it (drop into outline).
   if (editable) {
-    act('+', composing === set.id ? 'Stop composing' : 'Compose — click palette movements to add or remove them',
+    act('＋',
+      composing === set.id ? 'Stop composing' : 'Compose — click palette movements to add or remove them',
       () => {
         composing = composing === set.id ? null : set.id;
         if (composing) { el('set-pick').value = ''; openSets.add(set.id); }
         renderSetList();
         renderPalette();
-      }, composing === set.id);
+      }, { pressed: composing === set.id });
     act('⊕', 'Add the movements now showing in the palette to this set',
       () => addShowingToSet(set));
   }
@@ -2363,7 +2384,7 @@ function renderSetCard(set) {
       if (composing === set.id) composing = null;
       if (el('set-pick').value === set.id) el('set-pick').value = '';
       editSet(() => sets.remove(set.id));
-    });
+    }, { danger: true });
   }
 
   summary.append(label, count, actions);
@@ -2382,9 +2403,12 @@ function renderSetCard(set) {
   ids.forEach((id, i) => {
     const li = document.createElement('li');
     const nm = document.createElement('span');
+    nm.className = 'mv-name';
     nm.textContent = titleOf(id);
     li.append(nm);
     if (editable) {
+      const tools = document.createElement('span');
+      tools.className = 'mv-tools';
       const up = document.createElement('button');
       up.type = 'button'; up.textContent = '↑'; up.title = 'Move up'; up.disabled = i === 0;
       up.onclick = () => {
@@ -2402,7 +2426,8 @@ function renderSetCard(set) {
       const rm = document.createElement('button');
       rm.type = 'button'; rm.textContent = '✕'; rm.title = 'Remove from this set';
       rm.onclick = () => queueMovements(set, localMovements(set).filter((x) => x !== id));
-      li.append(up, down, rm);
+      tools.append(up, down, rm);
+      li.append(tools);
     }
     list.append(li);
   });

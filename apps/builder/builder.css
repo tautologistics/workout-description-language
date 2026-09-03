@@ -746,36 +746,78 @@ button:hover, .button:hover { border-color: var(--dim); }
 
 /* --- the repertoire of sets --------------------------------------------- */
 
-/* A first-class section of the modal, not a buried <details>: a full-bleed
-   "Sets" bar in the same treatment as the "Movements" head, then an inset
-   tool strip and the (scrolling) list of set cards. */
+/* A first-class section at the top of the modal: a full-bleed "Sets" bar in the
+   same treatment as the "Movements" head, its whole-repertoire tools inline on
+   the right, then the (scrolling) list of set cards. When a set is open it is
+   the subject of the dialog; the movement search sits below it. */
 #palette-modal > #repertoire {
   margin: 0;
-  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
   font-size: .85em;
 }
-.repertoire h2 { margin: 0; }
+.repertoire-head {
+  display: flex; align-items: center; flex-wrap: wrap; gap: .3rem .5rem;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: .35rem;
+}
+.repertoire-head h2 {
+  margin: 0; flex: 1 1 6rem; border: 0;   /* the section border is on .repertoire-head */
+  padding-bottom: 0;
+}
 .repertoire h2 span { color: var(--dim); font-weight: 400; letter-spacing: 0; }
-.repertoire-tools { margin: .5rem 1rem .35rem; }
-.repertoire-tools button { font: inherit; font-size: .75rem; padding: .15rem .45rem; }
+
+/* "Act on the whole repertoire" — New set / Save showing as primary buttons,
+   Import · Export as a low-key pair (DEC-027: the movement-sets.json carrier
+   stays, kept understated). */
+.repertoire-tools { display: flex; align-items: center; flex-wrap: wrap; gap: .3rem; padding-right: 1rem; }
+.repertoire-tools > button {
+  font: inherit; font-size: .72rem; line-height: 1;
+  padding: .28rem .5rem; border-radius: 3px;
+}
+.repertoire-file { display: flex; gap: .5rem; margin-left: .3rem; padding-left: .5rem; border-left: 1px solid var(--rule); }
+.repertoire-file .link { font-size: .72rem; }
 
 .set-list {
-  display: grid; gap: .25rem;
-  margin: 0 1rem .5rem;
-  max-height: 12rem; overflow-y: auto;
+  display: grid; gap: .3rem;
+  margin: .5rem 1rem;
+  max-height: 13rem; overflow-y: auto;
 }
-.set-card { border: 1px solid var(--rule); border-radius: 3px; }
+.set-card { border: 1px solid var(--rule); border-radius: 4px; background: var(--panel); }
 .set-card[data-drop] { outline: 2px solid var(--accent); outline-offset: -2px; }
+.set-card.composing { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+/* A set you cannot edit (org-library, or another person's public one) reads as
+   reference, not a workbench: recessed ground, dimmed name, a LIBRARY tag. */
+.set-card.readonly { background: color-mix(in srgb, var(--ink) 4%, var(--panel)); }
+.set-card.readonly .set-name { color: var(--dim); font-weight: 500; }
+
+/* Fixed count + action columns so the numbers and the glyph cluster line up
+   straight down the list — an editable card (five actions) and a read-only one
+   (just ↧) share the same right-hand geometry. */
 .set-card > summary {
-  display: flex; align-items: baseline; gap: .35rem;
-  padding: .25rem .4rem; cursor: pointer; list-style: none;
+  display: grid; align-items: center;
+  grid-template-columns: minmax(0, 1fr) 1.6rem 8.6rem;
+  column-gap: .4rem;
+  padding: .35rem .5rem; cursor: pointer; list-style: none;
 }
 .set-card > summary::-webkit-details-marker { display: none; }
-.set-card .set-name { font-weight: 600; }
-.set-card .set-n { color: var(--dim); font-size: .75rem; }
-.set-actions { margin-left: auto; display: flex; gap: .1rem; }
+.set-card .set-name {
+  font-weight: 600; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.set-tag {
+  font-size: .62rem; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--dim); border: 1px solid var(--rule); border-radius: 3px;
+  padding: 0 .3rem; margin-left: .4rem; font-weight: 600;
+}
+.set-card .set-n {
+  color: var(--dim); font-size: .72rem; font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.set-actions { display: flex; gap: .1rem; justify-content: flex-end; }
 .set-actions button, .set-movements button {
-  font: inherit; font-size: .75rem; line-height: 1; padding: .1rem .3rem;
+  font: inherit; font-size: .8rem; line-height: 1;
+  min-width: 1.6rem; height: 1.6rem; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
   background: none; border: 1px solid transparent; border-radius: 3px;
   cursor: pointer; color: var(--dim);
 }
@@ -783,14 +825,30 @@ button:hover, .button:hover { border-color: var(--dim); }
   border-color: var(--dim); color: var(--ink);
 }
 .set-actions button[aria-pressed="true"] { border-color: currentColor; color: var(--accent); }
+.set-actions .danger:hover { border-color: var(--error); color: var(--error); }
 .set-movements button:disabled { opacity: .3; cursor: default; }
+
+/* The movement list: a numbered rail on the left, name flexing, the
+   reorder/remove cluster in a fixed column so it lines up down the card. */
 .set-movements {
-  list-style: none; margin: 0; padding: .1rem .4rem .35rem;
-  display: grid; gap: .15rem;
+  list-style: none; margin: 0; padding: .15rem .5rem .4rem;
+  border-top: 1px solid var(--rule);
+  display: grid; gap: .1rem;
+  counter-reset: setmv;
 }
-.set-movements li { display: flex; align-items: baseline; gap: .3rem; }
-.set-movements li > span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.set-movements li.empty { color: var(--dim); font-style: italic; }
+.set-movements li {
+  display: grid; align-items: center;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: .35rem;
+}
+.set-movements li > .mv-name { counter-increment: setmv; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.set-movements li > .mv-name::before {
+  content: counter(setmv) ".";
+  display: inline-block; width: 1.5rem;
+  color: var(--dim); font-variant-numeric: tabular-nums;
+}
+.set-movements li > .mv-tools { display: flex; gap: .1rem; justify-content: flex-end; }
+.set-movements li.empty { grid-template-columns: 1fr; color: var(--dim); font-style: italic; padding: .1rem 0 .1rem 1.5rem; }
 
 /* --- drag and drop -------------------------------------------------------- */
 

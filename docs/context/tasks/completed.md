@@ -2500,6 +2500,255 @@ is unchanged (`fran` → `Fran @crossfit` beside `Fran mine`, clearing restores 
 plain list). **This task closes the epic** — the L0–L7 section moved here from
 `current.md` as one grouped block.
 
+---
+
+## The movement-sets database (S0–S4)
+
+*Raised 2026-09-02 by Chris: promote **movement sets** — the compose-by-hand
+repertoire in the palette modal's "Sets" section (landed 2026-08-28,
+[../topics/builder-ux.md](../topics/builder-ux.md) "## Movements") — from a
+`localStorage['wdl.sets']` blob to a `movement_sets` PocketBase collection on the
+workouts pattern, then rework the create/edit dialog on top of it. Was a stub in
+[deferred.md](deferred.md); moved to `current.md` and broken into five tasks
+2026-09-02 after Chris settled the model decisions. The contract is
+[DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired).
+Five tasks (S0–S4), each a landable branch sized for its own session, each
+spawning the next — kept together in `current.md` while in flight, moved here as
+one section when **S4 landed 2026-09-03** and closed the epic. Execution order
+as worked: S0 → S1 → S2 → S3 → S4. Nothing in `packages/core`, the grammar or
+the spec was touched by any of them, and `make test` held at **2064/2064, 1
+pending** throughout (app code; the core suite does not cover the builder's set
+panel or the mock).*
+
+**Model decisions Chris made 2026-09-02, written up as
+[DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)
+(`9f82f5f`):**
+
+- **Two scopes only: `org-library` and `user`.** No `global` scope, and **no
+  `scope` column** — scope is derived from `owner` + `visibility` the way
+  `workouts` does it (deliberately unlike the vocab collections, DEC-025).
+  Org-library sets are owned by the `crossfit` / `hyrox` / `tabata` `users` rows
+  at `visibility: "public"` (DEC-021); user sets are owned by a person.
+- **`setId` namespacing = `<owner-handle>:<slug(name)>`, re-slugged on rename.** A
+  set has no `@id` directive, so the slug comes from `name`. Forced on every
+  create/update like `workouts.wdlId`; `-2` / `-3` suffix on a same-owner slug
+  clash. A set inherits the **handle-rename staleness debt**
+  ([../topics/known-debts.md](../topics/known-debts.md)) — S0 added sets to that
+  note, it does not solve it.
+- **Nothing ships at v1.** No committed `registry/movement-sets.json`, no
+  `make sets:load` loader, no authored first-party content. A set is builder
+  *repertoire*, not a workout — the whiteboard at-rest constraint does **not**
+  bind it.
+- **`localStorage['wdl.sets']` is retired; no migration.** Chris had created no
+  sets. Sets are **signed-in-only** (like Save to workouts): signed out, the
+  palette modal's "Sets" section and `#set-pick` are hidden. **No `localStorage`
+  fallback interface.**
+- **The `movement-sets.json` Export / Import carrier stays** — the reversal of
+  the "file format for palette sets" Non-Goal
+  ([../topics/deliberately-not-done.md](../topics/deliberately-not-done.md)),
+  "earned more". S4's UX pass decided its prominence (a low-key `Import` /
+  `Export` pair in the repertoire-level tool group).
+
+### S0 — Design note + DEC-027. DONE 2026-09-02 (`9f82f5f`).
+
+Docs-only. DEC-027 written in full in `topics/settled-decisions.md` (+ the index
+entry in `decisions.md`): the `movement_sets` collection shape and S1 contract,
+the two scopes and why there is no `global` tier, `setId` forced on create *and*
+update and re-slugged on rename, the inherited handle-rename debt, "nothing ships
+v1", `wdl.sets` retired / signed-in-only / no fallback, and the
+`movement-sets.json` carrier reversing the Non-Goal. The two topic-file edits
+landed with it: the **"Corrected 2026-09-02."** paragraph on the "A file format
+for palette 'sets'" entry in `deliberately-not-done.md`, and the **"Extended
+2026-09-02 (DEC-027)"** paragraph folding `movement_sets.setId` into the
+handle-rename entry in `known-debts.md`. Anchor check clean.
+
+**Collection shape (S1 built this):** `movement_sets` — `owner` (relation →
+`users`, required, cascade-delete), `name` (text, required), `setId` (text,
+required, **unique index**), `movements` (json — an **ordered** array of registry
+movement ids, the `text/wdl-movement-id` drag payload value), `visibility`
+(select `private|unlisted|public`, required, default `private` as a client
+contract), `description` (text, optional — carried against a later migration),
+the two autodate fields. Rules: list/view
+`owner = @request.auth.id || visibility != "private"`; create/update/delete
+owner-only. `down` deletes the collection.
+
+### S1 — `movement_sets` collection + migration. DONE 2026-09-03 (`91e20d5`).
+
+Pure schema. `deploy/pocketbase/pb_migrations/1757200000_create_movement_sets.js`
+creates the collection per DEC-027: `owner` (relation → `users`, required,
+cascade-delete), `name` (text, max 200), `setId` (text, max 200, unique index
+`idx_movement_sets_set_id`), `movements` (json, maxSize 20000), `visibility`
+(`select private|unlisted|public`, required — the `workouts` field verbatim),
+`description` (text, optional, max 2000), `created` / `updated` autodate; plain
+index `idx_movement_sets_owner`. Rules are the `workouts` rules. **No `scope`
+column.** `down` drops the collection in one step.
+
+**One wrinkle, recorded in the file header:** PocketBase's `select` field has no
+per-field default in the v0.40.x migration API, so — exactly as `workouts` does
+(`deploy/README.md` §7) — DEC-027's "default `private`" is a **client contract**
+enforced by S2's `createSet()`, not a schema default. Adding an `onRecordCreate`
+hook would diverge from the `workouts` pattern DEC-027 says to copy verbatim, so
+it was not added.
+
+Verified **up / down / up** against a real pocketbase **v0.40.1 (darwin_arm64)**
+binary + throwaway `pb_data` (the M1 / L1 / V6 method): all seven migrations
+apply cleanly; `movement_sets` lands with all eight fields and both named
+indexes (`sqlite3` against `_collections` / `sqlite_master`); a duplicate `setId`
+is rejected (`UNIQUE constraint failed: movement_sets.setId`); the `owner`
+relation resolves to `_pb_users_auth_`; `migrate down 1` drops it with zero
+leftover `sqlite_master` rows, leaving `movements` / `workouts` / `users` /
+`equipment` / `patterns` intact; a re-`up` reapplies. Entry added to
+`deploy/pocketbase/pb_migrations/README.md`. **Applied on the VPS at S4** (see
+below).
+
+### S2 — `apps/shared/sets.js` + `pocketbase.js` CRUD + rewire the builder. DONE 2026-09-03 (`4b3b796`).
+
+App code only. The movement-set model moved server-side and out of `builder.js`:
+
+- **`apps/shared/pocketbase.js`** — a `movement_sets` block beside `workouts`:
+  `listMineSets()` (owner = current uid), `listPublicSets()` (every non-`private`
+  set), `getSetByAnyId(key)` (record id *or* `setId`, the `:` discriminator — the
+  `getByAnyId` twin), `createSet({ name, movements, visibility })` (forces
+  `visibility: "private"` when unset, sets `owner` + `setId`), `updateSet(id,
+  patch)` (recomputes `setId` via `forceSetNamespace(name, id)` when
+  `patch.name` is present, so a rename re-slugs), `removeSet(id)`, and the
+  exported `forceSetNamespace(name, excludeId)`. The `-2`/`-3` suffix loop was
+  factored out of `namespacedId` into a pure `disambiguateNamespace(handle,
+  base, taken)` shared by both rules; the rest of `forceNamespace` did not
+  generalise (a set has no `@id`/title fallback chain), so `forceSetNamespace` is
+  a small parallel helper.
+- **`apps/shared/sets.js`** (new, host-agnostic like `vocab.js` /
+  `movement-editor.js` — no DOM, no `window`): an in-memory cache plus `load()`
+  (fetch `listMineSets` + `listPublicSets`, merge, each degrading to `[]` on its
+  own failure), `list()` (sync), `clear()` (sign-out), `get(key)`, `create` /
+  `rename` / `setMovements` / `remove` (each a thin wrapper that refreshes the
+  cache after the write). Rows carry a `mine` boolean. **No `localStorage`
+  path.**
+- **`apps/builder/builder.js`** — `let sets = JSON.parse(localStorage['wdl.sets']
+  …)` and `saveSets()` deleted; `import * as sets from '../shared/sets.js'`.
+  `renderSets` / `renderSetList` / `renderSetCard` / `composing` /
+  `addSetToOutline` / `addShowingToSet` / the drag-onto-card handler / the
+  `#set-file` Export-Import all read the model. Cards key on the record `id`
+  (stable across rename). The `#repertoire` section **and** `#set-pick` are
+  `hidden` unless `currentUser()`; sign-out calls `sets.clear()` and re-renders.
+  A **non-owned** set renders read-only — movement list + `↧` only. Movement-list
+  edits go through a per-set **trailing-edge debounce** (`queueMovements` →
+  optimistic overlay + re-render, `flushMovements` writes `sets.setMovements`
+  500ms later) so a compose session or `↑`/`↓` clicking is one PATCH. Import now
+  `sets.create(...)`s one new set per entry. `movements` stays an ordered id
+  array end to end, so `addSetToOutline` / `lineFor` are untouched.
+
+**Verified** (S3's mock not yet built, so no signed-in round-trip): every
+`pocketbase.js` call matches the S1 schema; `make serve` signed out — builder
+loads with no console errors, ⌘K opens the palette modal, the "Sets" section and
+`#set-pick` are absent; `make test` unchanged.
+
+### S3 — Fixtures + mock `/api` for `movement_sets` + the signed-in round-trip. DONE 2026-09-03 (`7e18879`).
+
+`scripts/**` + `fixtures/**` + `.gitignore` only.
+
+- **`scripts/mock-api.mjs`** — a `movement_sets/records` handler, a **parallel
+  handler in the `workouts` mould** rather than a `makeVocab` instance (sets carry
+  an owner, a read gate, a `setId` uniqueness rejection and a handle-prefix
+  rewrite): the PB list envelope via the shared `applyQuery` + `listEnvelope`;
+  `/records/:id` by synthetic id **or** `setId`; a **read gate**
+  (`visibility != "private" || owner == caller`) on list + single GET;
+  `POST` / `PATCH` / `DELETE` behind the `Authorization` gate (**403**) and
+  **owner-only** (403 on the wrong owner); the unique **`setId`** index enforced
+  as a **400 `validation_not_unique`** on a create or a rename that collides;
+  writes overlay onto git-ignored `fixtures/movement-sets.local.json`. Also
+  extended the shared filter matcher (`matchesAtom`) to understand
+  `field!="value"` — the operator `listPublicSets` emits; every existing caller
+  is unaffected.
+- **`fixtures/movement-sets.json` (committed)** — no registry source to derive
+  from, so committed: two `user`-scoped rows owned by `u_mock_chris_0001`
+  (`private` — *Squat strength*, *Gymnastics skills*) and one `org-library` row
+  owned by `crossfit` (`public`, `setId:
+  "crossfit:crossfit-benchmark-staples"`), each with real `registry/movements.json`
+  ids in order.
+- **The handle wrinkle (call made + recorded in the commit + the mock header):**
+  `u_mock_chris_0001` has **no handle at rest** (the random `adjective-noun`
+  assignment path is deliberately exercised on first sign-in). Taken: **(c),
+  self-healing** — the chris seed rows carry a `chris:` *placeholder* `setId`
+  prefix, and the mock's `withOwnerHandle` rewrites the prefix to the owner's
+  **current** handle on read (the `forceWdlId` philosophy applied on read).
+  `users.json` is untouched, so the random-handle exercise still runs.
+- **`.gitignore`** — `fixtures/movement-sets.local.json` added.
+
+**Verified — the full signed-in round-trip on `make serve`, mock as
+`u_mock_chris_0001`:** palette modal → "Sets" section present (two editable chris
+cards, `CrossFit benchmark staples` read-only, `#set-pick` lists all three);
+**Create** → row POSTed with the re-slugged `setId`; **Compose** a burst by
+clicking palette rows → the per-set debounce coalesced it into one PATCH in click
+order; **Reorder** + **remove** → order preserved; **Rename** → `curl` confirms
+`setId` **re-slugged** with movement order preserved; **Reload** → persists;
+**`↧`** splices the movements into the outline in order; **Delete** → overlay
+record gone + `deleted` tombstone; single-record fetch by `setId` and by
+synthetic id; **read gate** — a signed-out list returns only the `crossfit`
+public row, a private `GET` is 404 without / 200 with `Authorization`; unauth
+`POST` → 403, duplicate `setId` → 400, wrong-owner `PATCH` → 403; **sign out** →
+"Sets" section and `#set-pick` gone; **sign back in** → they return. `make test`
+unchanged.
+
+### S4 — Create/edit dialog UX rework + deploy + close the epic. DONE 2026-09-03 (`<SHA-S4>`).
+
+`apps/builder/{builder.js, builder.css, index.html}` — a browser-driven UX
+rework of the palette modal's "Sets" create/edit surface. **No model change**
+(S2 landed it); nothing in `packages/core` / grammar / spec / migration / mock /
+fixture; `sets.js` / `pocketbase.js` unchanged; `movements` stays an ordered id
+array; `make test` **2064/2064, 1 pending** — unchanged.
+
+- **The repertoire moved to the top of the modal** (`index.html`) — `#repertoire`
+  now sits directly under the `Movements` head, above `.palette-controls`. When
+  a set is open it is the subject of the dialog; the movement search reads as
+  "add movements to this set", and while composing the `#search` placeholder
+  changes to *Add movements to "<name>"* and the composed card floats to the top
+  of `#set-list` with an accent border.
+- **The set card is a stable grid** (`renderSetCard` + `.set-card` CSS) —
+  `summary` is `grid-template-columns: minmax(0,1fr) 1.6rem 8.6rem`, so the name
+  ellipsises, the count sits in its own right-aligned column and the action
+  cluster lines up straight down the list, an editable card (five actions) and a
+  read-only one (just `↧`) sharing the same right-hand geometry. Each action
+  button is a ≥1.6rem square with an `aria-label`. The movement list is a
+  numbered `<ol>` (`1.` `2.` … via a CSS counter) with the reorder/remove cluster
+  in a fixed right column; empty state keeps the numeral gutter.
+- **A read-only (`!set.mine`) card is visibly distinct** — a recessed
+  `color-mix` ground, a dimmed lighter-weight name, and a `LIBRARY` pill in the
+  summary, in place of the old ` · library` text suffix.
+- **The tools are one hierarchy** — a `.repertoire-head` bar carries the `Sets`
+  label on the left and, on the right, the whole-repertoire group: `New set` and
+  `Save showing` as primary buttons, then `Import` · `Export` as a low-key
+  link-styled pair (DEC-027's call on the carrier's prominence). The per-card
+  glyphs (`＋` compose, `⊕` add-showing, `↧` to-outline, `✎` rename, `✕` delete)
+  are the "act on this set" group; every capability is kept. `.repertoire-head` /
+  `.repertoire-tools` wrap gracefully at narrow widths.
+
+**Verified** driving `make serve` signed in (mock `u_mock_chris_0001`, `admin:
+true`; S3's seed gives two editable chris sets + one read-only `crossfit` set),
+**light + dark, at 1440 / 900 / 820 / 400px**: open the modal, create a set
+(*Conditioning finishers*), compose a burst by clicking palette rows (one
+coalesced PATCH), reorder (`↑`), remove, rename (→ *Engine finishers*, `setId`
+re-slugged to `grand-cove:engine-finishers`), `↧` into the outline (movements
+spliced in set order), `⊕` from a filtered palette (all shown movements
+appended), delete (`.danger` button). No console errors (a `favicon.ico` 404 and
+a headless-only `prompt() is not supported` are environment, not code — the real
+browser supports `prompt`). No clipping or horizontal overflow inside the
+modal's own scroll container; `#set-list` and `#palette` each scroll internally;
+hit targets ≥1.6rem; nothing below `.72rem`.
+
+**Deploy (2026-09-03):** `make deploy:db` synced all seven migrations to the VPS
+and restarted PocketBase (API healthy); `movement_sets` is live on the prod API
+(`GET …/movement_sets/records` → `200`, `totalItems: 0` — nothing ships v1, no
+`make sets:load`, no seed content). `make deploy` pushed the static apps (suite
+green, `build/web/core` rebuilt, `rsync -az --delete` to `pb/pb_public/`); the
+served `apps/builder/{builder.js,builder.css,index.html}` and
+`apps/shared/{pocketbase.js,sets.js}` are byte-identical to `origin/main`.
+
+**Self-referential-SHA trap (S0–S3 all hit it):** committed with a `<SHA-S4>`
+placeholder in these docs, pushed, then a tiny follow-up commit replaced it with
+the real landed SHA (option a — what S1/S2/S3 did).
+
+---
 
 *Ordering of 5, 6, 7 and 9 against 1-4 is not settled - they are appended
 rather than placed. 5, 6 and 7 were raised by writing and sending one workout

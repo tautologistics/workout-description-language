@@ -132,21 +132,30 @@
 
 <dialog id="palette-modal" class="palette-modal" aria-label="Movements">
   <h2>Movements <button type="button" id="palette-close" class="palette-close" title="Close">✕</button></h2>
+
+  <!-- The repertoire sits at the top: when a set is open it is the subject of
+       the dialog, and the movement search below reads as "add movements to
+       this set". Signed out the whole section is hidden (DEC-027). -->
+  <section id="repertoire" class="repertoire">
+    <div class="repertoire-head">
+      <h2>Sets <span id="repertoire-count"></span></h2>
+      <div class="repertoire-tools">
+        <button id="set-new" title="Start a new, empty set">New set</button>
+        <button id="set-save" title="Save the movements now showing in the palette as a new set">Save showing</button>
+        <span class="repertoire-file">
+          <button id="set-import" class="link" title="Load sets from a movement-sets.json file, one new set per entry">Import</button>
+          <button id="set-export" class="link" title="Download every set as a movement-sets.json file">Export</button>
+        </span>
+      </div>
+    </div>
+    <div id="set-list" class="set-list"></div>
+  </section>
+
   <div class="palette-controls">
     <input id="search" type="search" placeholder="Search movements" autocomplete="off">
     <select id="set-pick" title="Show only the movements in a saved set"></select>
     <button type="button" id="movement-new" title="Create a new global movement">＋ new movement</button>
   </div>
-  <section id="repertoire" class="repertoire">
-    <h2>Sets <span id="repertoire-count"></span></h2>
-    <div class="row tight repertoire-tools">
-      <button id="set-new" title="Start a new, empty set">New set</button>
-      <button id="set-save" title="Save the movements now showing as a new set">Save showing</button>
-      <button id="set-export" title="Download every set as a file">Export</button>
-      <button id="set-import" title="Load sets from a file, merging into these">Import</button>
-    </div>
-    <div id="set-list" class="set-list"></div>
-  </section>
   <details id="muscle-filter" class="muscles">
     <summary>Muscles <span id="muscle-chosen"></span></summary>
     <div id="muscle-chips" class="chips"></div>
