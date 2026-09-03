@@ -213,11 +213,16 @@ independent of each other:
   committed registry, no loader); `wdl.sets` retired, signed-in-only, no
   migration. **S0 done 2026-09-02 (`9f82f5f`, docs-only) —
   [DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)
-  written + the two topic-file edits.** **S1 (the migration) is next** —
-  `deploy/pocketbase/pb_migrations/<ts>_create_movement_sets.js` per the DEC-027
-  shape, verified up/down/up against a real `pocketbase` binary. Then S2 the
-  `apps/shared/sets.js` model + `pocketbase.js` CRUD + builder rewire; S3
-  fixtures + mock; S4 the create/edit dialog UX rework + deploy + close.
+  written + the two topic-file edits. S1 done 2026-09-03 (`005a514`) —
+  `deploy/pocketbase/pb_migrations/1757200000_create_movement_sets.js` creates
+  the collection per the DEC-027 shape (all eight fields, unique `setId` index,
+  the `workouts` rules), verified up/down/up against a real pocketbase v0.40.1
+  binary; README entry added; not yet on the VPS (`make deploy:db` at S4). No
+  app change.** **S2 is next** — the `apps/shared/sets.js` model +
+  `pocketbase.js` CRUD (`listMineSets` / `getSetByAnyId` / `createSet` /
+  `updateSet` / `removeSet` / `forceSetNamespace`) + builder rewire off
+  `localStorage['wdl.sets']`. Then S3 fixtures + mock; S4 the create/edit dialog
+  UX rework + deploy + close.
 - **The goals database (G0–G4)** — `localStorage['wdl.goals']` → a `goals`
   collection on the **vocab** pattern (`scope: global | user`, nullable `user`
   relation). The current `examples/goals/*.wdlg` are the `global` rows;

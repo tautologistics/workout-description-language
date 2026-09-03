@@ -125,3 +125,35 @@ supersedes it. From then on the collection schema is reproducible: a fresh
   `registry/{equipment,patterns}.json` is the committed dump and V8's
   `make vocab:load` is what ingests it. Glance at the admin UI on the box after
   deploy, same caveat as the workouts migration.
+
+- `1757200000_create_movement_sets.js` — creates the `movement_sets` collection
+  (queue task S1, the *movement-sets database* epic,
+  [DEC-027](../../../docs/context/topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)):
+  one row per movement set — the builder palette's compose-by-hand repertoire —
+  moved off the `localStorage['wdl.sets']` blob. Modelled on `workouts`, **not**
+  the vocab collections: `owner` (relation → `users`, required, cascade-delete),
+  `name` (text), `setId` (text — `<owner-handle>:<slug(name)>`, the `wdlId`
+  analog, **unique index**), `movements` (json — an ordered array of registry
+  movement ids), `visibility` (`select private|unlisted|public`, required — the
+  `workouts` field verbatim; "default private" is the client contract, no
+  schema default, same as `workouts`), `description` (text, optional — carried
+  now against a later migration), and the two autodate fields. Rules are the
+  `workouts` rules: list/view `owner = @request.auth.id || visibility !=
+  "private"`, create/update/delete `@request.auth.id = owner`. There is
+  deliberately **no `scope` column** — scope (org-library vs user) is derived
+  from `owner` + `visibility`, unlike `equipment` / `patterns`. Unique index
+  `idx_movement_sets_set_id` on `setId`, plain `idx_movement_sets_owner` on
+  `owner`. Uses the `new Collection({...})` create form; `down` drops the
+  collection in one step. Verified against a real v0.40.1 (darwin_arm64) binary
+  + throwaway `pb_data`: `migrate up` applies all seven migrations cleanly, the
+  collection lands with all eight fields and both indexes (checked via `sqlite3`
+  against `_collections` / `sqlite_master`), the unique index rejects a
+  duplicate `setId` (`UNIQUE constraint failed: movement_sets.setId`), the
+  `owner` relation resolves to `users`, `migrate down 1` drops `movement_sets`
+  and leaves `movements` / `workouts` / `users` / `equipment` / `patterns` and
+  their indexes intact (zero leftover `sqlite_master` rows), and a re-`up`
+  reapplies cleanly. No rows are loaded — sets are created by users through the
+  app (S2), there is no committed dump or loader. **Not yet applied on the
+  box** — `make deploy:db` lands it at S4 (or whenever Chris next deploys).
+  Glance at the admin UI on the box after deploy, same caveat as the workouts
+  migration.

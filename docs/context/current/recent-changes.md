@@ -2,6 +2,40 @@
 
 ## Changes
 
+- **2026-09-03 — S1 shipped (`005a514`): the `movement_sets` collection is now
+  schema.** S1 of the movement-sets database epic (S0–S4) — pure schema, no app
+  / mock / fixture / core change.
+  `deploy/pocketbase/pb_migrations/1757200000_create_movement_sets.js` creates
+  the collection per
+  [DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired):
+  `owner` (relation → `users`, required, cascade-delete), `name` (text), `setId`
+  (text, **unique index** `idx_movement_sets_set_id`), `movements` (json —
+  ordered id array), `visibility` (`select private|unlisted|public`, required —
+  the `workouts` field verbatim), `description` (text, optional — carried now
+  against a later migration), `created` / `updated` autodate; plain
+  `idx_movement_sets_owner` on `owner`. Rules are the `workouts` rules
+  (list/view `owner = @request.auth.id || visibility != "private"`,
+  create/update/delete `@request.auth.id = owner`). **No `scope` column** —
+  scope is derived from `owner` + `visibility`. `down` drops the collection in
+  one step. **Wrinkle (in the file header):** PocketBase's `select` field has no
+  per-field default in the v0.40.x migration API, so DEC-027's "default
+  `private`" is a **client contract** (S2's `createSet()`), exactly as
+  `workouts` does it — not a schema default; no `onRecordCreate` hook was added,
+  to stay on the `workouts` pattern. Verified **up / down / up** against a real
+  pocketbase v0.40.1 (darwin_arm64) binary + throwaway `pb_data`: all seven
+  migrations apply cleanly, the collection lands with all eight fields and both
+  indexes (`sqlite3` against `_collections` / `sqlite_master`), the unique index
+  rejects a duplicate `setId`, the `owner` relation resolves to `users`,
+  `migrate down 1` drops it with zero leftover `sqlite_master` rows and leaves
+  `movements` / `workouts` / `users` / `equipment` / `patterns` + their indexes
+  intact, a re-`up` reapplies. Entry added to
+  `deploy/pocketbase/pb_migrations/README.md`. **Still to do on deploy (Chris):**
+  **not yet applied on the VPS** — `make deploy:db` lands it at S4 (or whenever
+  Chris next deploys); same caveat M1 / L1 / V6 carry. `make test` unchanged
+  (2064/2064, 1 pending — the core suite does not cover migrations). S2 (the
+  `apps/shared/sets.js` model + `pocketbase.js` CRUD + builder rewire off
+  `localStorage['wdl.sets']`) is next.
+
 - **2026-09-02 — DEC-027 settled (`9f82f5f`, docs-only): movement sets become a
   `movement_sets` PocketBase collection; `localStorage['wdl.sets']` retired.**
   S0 of the movement-sets database epic (S0–S4) — the design/DEC task, no code.

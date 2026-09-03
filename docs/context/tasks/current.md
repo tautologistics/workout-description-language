@@ -993,7 +993,56 @@ Spawns S1.
   (the `workouts` rule); create/update/delete owner-only
   (`@request.auth.id = owner`). `down` deletes the collection.
 
-### S1 — `movement_sets` collection + migration. DONE / next after S0.
+### S1 — `movement_sets` collection + migration. — **DONE 2026-09-03 (`005a514`)**
+
+**Shipped — pure schema, `make test` unchanged (2064/2064, 1 pending; the core
+suite does not cover migrations).**
+`deploy/pocketbase/pb_migrations/1757200000_create_movement_sets.js` creates the
+`movement_sets` collection per
+[DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired):
+`owner` (relation → `users`, required, cascade-delete, min/maxSelect 1), `name`
+(text, max 200), `setId` (text, max 200, **unique index**
+`idx_movement_sets_set_id`), `movements` (json, maxSize 20000 — ordered id
+array), `visibility` (`select private|unlisted|public`, required — the
+`workouts` field verbatim), `description` (text, optional, max 2000 — carried
+now against a later migration), `created` / `updated` autodate; plain index
+`idx_movement_sets_owner` on `owner`. Rules are the `workouts` rules: list/view
+`owner = @request.auth.id || visibility != "private"`, create/update/delete
+`@request.auth.id = owner`. **No `scope` column** — scope is derived from
+`owner` + `visibility`, deliberately unlike the vocab collections. `down` drops
+the collection in one step.
+
+**One wrinkle, recorded in the file header:** PocketBase's `select` field has no
+per-field default in the v0.40.x migration API, so — exactly as `workouts` does
+(`deploy/README.md` §7: "The client always sends `visibility: \"private\"` on
+create") — DEC-027's "default `private`" is a **client contract** enforced by
+S2's `createSet()`, not a schema default. A create with no `visibility` is
+rejected by `required`, which is the intended behaviour. Adding an
+`onRecordCreate` hook would diverge from the `workouts` pattern DEC-027 says to
+copy verbatim, so it was not added.
+
+Verified **up / down / up** against a real pocketbase **v0.40.1 (darwin_arm64)**
+binary + throwaway `pb_data` (the M1 / L1 / V6 method): `migrate up` applies all
+seven migrations cleanly (exit 0); `movement_sets` lands with all eight fields
+(owner, name, setId, movements, visibility, description, created, updated) and
+both named indexes (`sqlite3` against `_collections` / `sqlite_master`); a
+second row with the same `setId` is rejected (`UNIQUE constraint failed:
+movement_sets.setId`); the `owner` relation resolves to the `users` collection
+id (`_pb_users_auth_`); `echo y | migrate down 1` drops `movement_sets` with
+zero leftover `sqlite_master` rows and leaves `movements` / `workouts` /
+`users` / `equipment` / `patterns` and all their `idx_*` indexes intact; a
+re-`up` reapplies cleanly. Binary + temp `pb_data` discarded, not committed.
+Entry added to `deploy/pocketbase/pb_migrations/README.md`.
+
+**Still to do on deploy (Chris):** the migration is written and locally
+verified but **not yet applied on the VPS** — `make deploy:db` lands it, at S4
+(or whenever Chris next deploys). Same "still to do on deploy" caveat M1 / L1 /
+V6 carry.
+
+**S2 is next** — `apps/shared/sets.js` + `pocketbase.js` CRUD + rewire the
+builder off `localStorage['wdl.sets']`. Spawned as its own chip.
+
+Original brief kept below for the trail.
 
 `deploy/pocketbase/pb_migrations/<ts>_create_movement_sets.js` building the
 collection per S0 — unique index on `setId`, plain index on `owner`, the rules
