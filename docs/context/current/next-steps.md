@@ -203,7 +203,7 @@ declined / deferred); N3 shipped standalone (`fecf6b3`). **The three-task set is
 closed.**
 
 **The *movement-sets database* epic (S0–S4) is complete as of 2026-09-03** —
-all five tasks landed (S4 = the dialog UX rework + prod deploy, `<SHA-S4>`) and
+all five tasks landed (S4 = the dialog UX rework + prod deploy, `6ead525`) and
 the whole S-section moved to [../tasks/completed.md](../tasks/completed.md) as one
 grouped section. Movement sets are now a `movement_sets` PocketBase collection
 (`apps/shared/sets.js` over `pocketbase.js`), signed-in only, `org-library` +
@@ -250,7 +250,7 @@ live on the prod API (nothing ships v1 — no loader, no seed). **The next scope
   compose (burst coalesced to one PATCH) / reorder / remove / rename (`setId`
   re-slugged) / reload-persists / `↧`-splices / delete / read-gate / dup-`setId`
   400 / sign-out-hides — and `make test` unchanged.** **S4 done 2026-09-03
-  (`<SHA-S4>`, `apps/builder/{builder.js,builder.css,index.html}` only)** — the
+  (`6ead525`, `apps/builder/{builder.js,builder.css,index.html}` only)** — the
   dialog rework (repertoire on top, stable set-card grid, read-only set distinct,
   tools in one hierarchy, `Import`/`Export` a low-key pair), driven `make serve`
   signed in light + dark at 1440 / 900 / 820 / 400px; `make deploy:db` +

@@ -2690,7 +2690,7 @@ public row, a private `GET` is 404 without / 200 with `Authorization`; unauth
 "Sets" section and `#set-pick` gone; **sign back in** → they return. `make test`
 unchanged.
 
-### S4 — Create/edit dialog UX rework + deploy + close the epic. DONE 2026-09-03 (`<SHA-S4>`).
+### S4 — Create/edit dialog UX rework + deploy + close the epic. DONE 2026-09-03 (`6ead525`).
 
 `apps/builder/{builder.js, builder.css, index.html}` — a browser-driven UX
 rework of the palette modal's "Sets" create/edit surface. **No model change**
@@ -2744,7 +2744,7 @@ green, `build/web/core` rebuilt, `rsync -az --delete` to `pb/pb_public/`); the
 served `apps/builder/{builder.js,builder.css,index.html}` and
 `apps/shared/{pocketbase.js,sets.js}` are byte-identical to `origin/main`.
 
-**Self-referential-SHA trap (S0–S3 all hit it):** committed with a `<SHA-S4>`
+**Self-referential-SHA trap (S0–S3 all hit it):** committed with a `6ead525`
 placeholder in these docs, pushed, then a tiny follow-up commit replaced it with
 the real landed SHA (option a — what S1/S2/S3 did).
 

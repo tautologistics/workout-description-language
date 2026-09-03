@@ -87,7 +87,7 @@ struck.
 S0 (`9f82f5f`, DEC-027), S1 (`91e20d5`, the migration), S2 (`4b3b796`, the
 `apps/shared/sets.js` model + `pocketbase.js` CRUD + builder rewire off
 `localStorage['wdl.sets']`), S3 (`7e18879`, the mock `/api` + fixture seed +
-signed-in round-trip) and **S4 (`<SHA-S4>`, the create/edit dialog UX rework +
+signed-in round-trip) and **S4 (`6ead525`, the create/edit dialog UX rework +
 prod deploy)** all landed, and the whole S-section moved to
 [completed.md](completed.md) as one grouped section, the way the M / L / V epics
 were closed. Movement sets are now a `movement_sets` PocketBase collection

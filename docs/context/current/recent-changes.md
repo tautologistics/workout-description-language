@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-03 — S4 shipped (`<SHA-S4>`): the movement-sets dialog reworked,
+- **2026-09-03 — S4 shipped (`6ead525`): the movement-sets dialog reworked,
   prod deployed, and the S0–S4 epic closed.** Final task of the *movement-sets
   database* epic — `apps/builder/{builder.js,builder.css,index.html}` only, **no
   model change** (S2 landed it), nothing in `packages/core` / grammar / spec /
