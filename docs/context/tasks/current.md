@@ -943,7 +943,26 @@ format is unchanged.*
   **plus** the L5/L6 authored-content-in-repo + `make *:load` loader shape,
   since the `global` rows have a committed source.
 
-### G0 — Design note + a new DEC. No code.
+### G0 — Design note + a new DEC. No code. — **DONE 2026-09-03 (`8680e2a`)**
+
+**Landed.** DEC-028 is written — a one-line index entry in
+[../decisions.md](../decisions.md) after DEC-027 and the full entry in
+[../topics/settled-decisions.md](../topics/settled-decisions.md#dec-028-goals-are-a-pocketbase-collection-on-the-vocab-scope-model-localstoragewdlgoals-is-retired)
+after DEC-027, mirroring that entry's idiom for the vocab scope model. It covers
+the `goals` collection shape (below), the two scopes (`global` / `user`, the
+DEC-025 vocab model, *with* a real `scope` column and no `org-library` tier),
+`goalId` namespacing (`wdl:<slug>` global / `<owner-handle>:<slug(title)>` user,
+re-slugged on rename), `examples/goals/*.wdlg` as the committed `global` source
+ingested byte-identical by `make goals:load` (`rotate-muscles.wdlg` verbatim),
+`localStorage['wdl.goals']` retired / signed-in-only, no Non-Goal reversal, no
+S4-style UX pass, and the `GOALS`-const 2-vs-3 discrepancy flagged as a G3
+reconciliation item. The **handle-rename staleness debt** note in
+[../topics/known-debts.md](../topics/known-debts.md) gained a `user`-scoped
+`goals.goalId` paragraph beside the workout and set cases. No collection /
+migration / app / mock / fixture change — docs-only, the suite was not
+exercised because nothing it covers moves. DEC-028 references G0 without baking
+in its own commit hash (S0's approach), so there is no follow-up SHA commit.
+Brief kept below for the trail. G1 dispatched.
 
 Write the model above up as **DEC-028** (`decisions.md` index line + full entry
 in `settled-decisions.md`, the established idiom), covering: the `goals`
