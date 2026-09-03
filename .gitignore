@@ -22,3 +22,4 @@ fixtures/movements.local.json
 fixtures/users.local.json
 fixtures/equipment.local.json
 fixtures/patterns.local.json
+fixtures/movement-sets.local.json

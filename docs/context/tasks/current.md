@@ -91,7 +91,9 @@ The active queue is now **two `localStorage` → PocketBase epics Chris scoped
   [DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)
   2026-09-02; S1 (the migration) landed 2026-09-03 (`91e20d5`); S2 (the
   `sets.js` model + `pocketbase.js` CRUD + builder rewire) landed 2026-09-03
-  (`4b3b796`). S3 (fixtures + mock + the signed-in round-trip) is next.**
+  (`4b3b796`); S3 (fixtures + mock + the signed-in round-trip) landed 2026-09-03
+  (`<SHA-S3>`). S4 (the create/edit dialog UX rework + deploy + close the epic)
+  is next.**
 - **## The goals database (G0–G4)** — promote `localStorage['wdl.goals']` to a
   `goals` collection on the vocab pattern (scopes: `global` + `user`;
   `examples/goals/*.wdlg` are the `global` rows; `make goals:load` ingests
@@ -1043,7 +1045,8 @@ V6 carry.
 
 **S2 shipped 2026-09-03 (`4b3b796`)** — `apps/shared/sets.js` + the
 `pocketbase.js` CRUD + the builder rewire off `localStorage['wdl.sets']`; see
-the **### S2** subsection below. **S3 is next.**
+the **### S2** subsection below. **S3 shipped 2026-09-03 (`<SHA-S3>`)** — the
+mock handler + the committed fixture seed; see **### S3**. **S4 is next.**
 
 Original brief kept below for the trail.
 
@@ -1125,8 +1128,9 @@ available — that is S3's job and this write-up does not fake one):
 `4b3b796` placeholder in these docs, pushed, then a tiny follow-up commit
 replaces it with the real landed SHA (option a — what S1 did, `fdaf9b4`).
 
-**S3 is next** — fixtures + mock `/api` for `movement_sets` + the signed-in
-round-trip. Spawned as its own chip.
+**S3 shipped 2026-09-03 (`<SHA-S3>`)** — fixtures + mock `/api` for
+`movement_sets` + the signed-in round-trip; see the **### S3** subsection below.
+**S4 is next.**
 
 Original brief kept below for the trail.
 
@@ -1161,7 +1165,109 @@ The model moves server-side and out of `builder.js`.
   `make test` suite (2064/2064, 1 pending — unchanged, app code) holds. Spawns
   S3.
 
-### S3 — Fixtures + mock `/api` for `movement_sets` + drive the round-trip.
+### S3 — Fixtures + mock `/api` for `movement_sets` + drive the round-trip. — **DONE 2026-09-03 (`<SHA-S3>`)**
+
+**Shipped — `scripts/**` + `fixtures/**` + `.gitignore` only; `make test`
+unchanged (2064/2064, 1 pending — the core suite does not cover the mock or the
+builder's set panel).** `movement_sets` is now behind the local dev mock `/api`,
+with a committed fixture seed, and the full signed-in round-trip is verified end
+to end on `make serve`.
+
+- **`scripts/mock-api.mjs` — a `movement_sets/records` handler**, a **parallel
+  handler in the `workouts` mould** rather than a `makeVocab` instance (stated in
+  the commit message, the S2 precedent): sets carry an owner, a read gate, a
+  `setId` uniqueness rejection and a handle-prefix rewrite, none of which the
+  vocab factory has, so factoring over `makeVocab` would have been forcing it.
+  What it serves:
+  - `GET …/movement_sets/records` — PB list-envelope via the shared `applyQuery`
+    + `listEnvelope`, so `listMineSets`'s `filter=owner="<uid>"&sort=-updated`
+    and `listPublicSets`'s `filter=visibility!="private"` both return the right
+    rows, then a **read gate** (`visibility != "private" || owner == caller`)
+    drops any `private` row a signed-out / non-owner caller should not see.
+  - `GET …/movement_sets/records/:id` — resolves a synthetic record id **or** a
+    `setId` (the `:` discriminator, the `wdlId` path); 404 when the read gate
+    fails.
+  - `POST` / `PATCH` / `DELETE` — behind the `Authorization` header gate (**403**
+    without), and **owner-only** (403 when an authed caller targets a row it does
+    not own — the org-library rows), standing in for `@request.auth.id = owner`.
+    Writes overlay onto git-ignored **`fixtures/movement-sets.local.json`**
+    (`records` + `deleted` tombstones, keyed by record `id`), merged over the
+    committed seed on read. Synthetic id `mkId('ms')`. The **unique `setId`
+    index** is enforced — a `POST`, or a `PATCH` that moves `setId` onto an
+    existing one, returns **400** with a `validation_not_unique` field error on
+    `setId`, the way the `users` handler rejects a duplicate `handle`. The client
+    sends `setId` (S2 forces it); the mock stores + uniqueness-checks it, it does
+    not compute it.
+  - `collectionId` / `collectionName` = `mock_movement_sets` / `movement_sets`;
+    autodates on created / updated rows. Routes added to the file header block.
+  - **Also extended the shared filter matcher** (`matchesAtom`) to understand
+    `field!="value"` (exact-negated) — the operator `listPublicSets` emits and
+    the file had no support for; every existing caller is unaffected (none emit
+    `!=`). Header comment updated.
+
+- **`fixtures/movement-sets.json` (committed)** — no registry source to derive
+  from, so it is committed (the S3 brief's call): two `user`-scoped rows owned by
+  `u_mock_chris_0001` (`visibility: "private"` — *Squat strength*, *Gymnastics
+  skills*) and one `org-library` row owned by `org0crossfit001` (`visibility:
+  "public"`, `setId: "crossfit:crossfit-benchmark-staples"` — *CrossFit benchmark
+  staples*), each with 4–6 real `registry/movements.json` ids in order. A fresh
+  `make serve` shows both scopes.
+
+- **The handle wrinkle (call made + recorded here and in the commit + the mock
+  header):** `u_mock_chris_0001` has **no handle at rest** (`fixtures/users.json`,
+  L1/DEC-021 — the random `adjective-noun` assignment path is deliberately
+  exercised on first sign-in). Options (a) fix a handle in `users.json` — kills
+  that exercise; (b) seed only the `crossfit` row; (c) tolerate a stale prefix.
+  **Taken: (c), self-healing** — the chris seed rows carry a `chris:` *placeholder*
+  `setId` prefix, and the mock's `withOwnerHandle` rewrites the prefix to the
+  owner's **current** handle on read (the `forceWdlId` philosophy — keep the
+  namespaced key in step with the handle — applied on read, since a set's key is
+  required + unique and cannot be absent from the seed the way a pre-L3 workout's
+  `wdlId` is). `users.json` is untouched, so the random-handle exercise still
+  runs; the `crossfit` row's prefix is already correct (that org row has a fixed
+  handle).
+
+- **`.gitignore`** — `fixtures/movement-sets.local.json` added beside the other
+  `fixtures/*.local.json` entries.
+
+**Verified — the full signed-in round-trip on `make serve`, mock as
+`u_mock_chris_0001` (`admin: true`, assigned handle `tan-ash` this run):**
+- Palette modal → **"Sets" section present**: the two seeded chris sets as
+  editable cards, `CrossFit benchmark staples · library` as a **read-only** card
+  (movement list + `↧` only), `#set-pick` lists all three.
+- **Create** ("Conditioning finishers") → row `POST`ed, `setId
+  tan-ash:conditioning-finishers`. **Compose** a 5-movement burst by clicking
+  palette rows → the per-set **debounce coalesced it into one PATCH**, final
+  array `[burpee, kettlebell-swing, wall-ball, row, double-under]` in click
+  order. **Reorder** (`↑` on *Row*, twice) + **remove** (*Wall Ball*) →
+  `[burpee, row, kettlebell-swing, double-under]`. **Rename** → *Engine
+  finishers*, and `curl` confirms `setId` **re-slugged to
+  `tan-ash:engine-finishers`** with the movement order preserved.
+- **Reload** → the set persists (served from `fixtures/movement-sets.local.json`).
+- **`↧`** on the card splices its 4 movements into the outline in order.
+- **Delete** → overlay record gone + `deleted` tombstone; a `GET` of the id 404s.
+- `curl` single record **by `setId`** (`crossfit:crossfit-benchmark-staples`)
+  **and by synthetic id** (`ms_seed_crossfit_ben1`) — both resolve.
+- **Read gate:** a signed-out list returns only the `crossfit` public row; a
+  `GET …/records/tan-ash:squat-strength` is **404 without** an `Authorization`
+  header, **200 with** it.
+- **Writes:** unauthenticated `POST` → **403**; a `POST` with a duplicate
+  `setId` → **400** `validation_not_unique`; `curl -X PATCH` of the `crossfit`
+  set **without** auth → **403**, **with** auth as chris (wrong owner) → **403**.
+- **Sign out** → the "Sets" section and `#set-pick` are gone, no console errors
+  (one pre-existing `prompt() is not supported` line is the headless browser, not
+  a code defect — the real browser supports it). **Sign back in** → they return
+  with the same rows.
+- **`make test`** — **2064/2064 passing, 1 pending** — unchanged.
+
+**Self-referential-SHA trap (S0/S1/S2 all hit it):** committed with a `<SHA-S3>`
+placeholder in these docs, pushed, then a tiny follow-up commit replaces it with
+the real landed SHA (option a — what S1/S2 did).
+
+**S4 is next** — the create/edit dialog UX rework, then `make deploy:db` +
+`make deploy` + close the epic. Spawned as its own chip.
+
+Original brief kept below for the trail.
 
 - **`scripts/mock-api.mjs`** grows a `movement_sets/records` handler — the
   `workouts` / `makeVocab` twin: PB list-envelope shape, `filter` / `sort` /

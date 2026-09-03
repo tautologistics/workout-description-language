@@ -40,12 +40,18 @@
  *   POST   /api/collections/patterns/records         — create, same Authorization gate
  *   PATCH  /api/collections/patterns/records/:id     — update, same Authorization gate
  *   DELETE /api/collections/patterns/records/:id     — delete, same Authorization gate; 204 with
+ *   GET    /api/collections/movement_sets/records     — list, from fixtures/movement-sets.json + local writes; read-gated (owner or non-private) (task S3, DEC-027)
+ *   GET    /api/collections/movement_sets/records/:id — one set (by synthetic id or setId); 404 if the read gate fails
+ *   POST   /api/collections/movement_sets/records     — create, needs an Authorization header (else 403); 400 validation_not_unique on a duplicate setId
+ *   PATCH  /api/collections/movement_sets/records/:id — update, owner-only (403 otherwise); 400 validation_not_unique if it changes setId onto an existing one
+ *   DELETE /api/collections/movement_sets/records/:id — delete, owner-only; 403 without an Authorization header, 204 with
  *
- * Query params honoured on the two list routes, only as far as the client uses
+ * Query params honoured on the list routes, only as far as the client uses
  * them: `filter` (a pattern-matcher for the exact strings the client emits —
- * `field="value"` / `field~"value"` comparisons joined by `&&`, plus the one
- * parenthesised `(A || B) && (C || D)` shape `searchWorkouts` sends, L4; see
- * `matchesFilter` below), `sort` (`-updated` etc.), `page`, `perPage`. Not a
+ * `field="value"` / `field!="value"` / `field~"value"` comparisons joined by
+ * `&&`, plus the one parenthesised `(A || B) && (C || D)` shape `searchWorkouts`
+ * sends, L4, and the `visibility!="private"` shape `listPublicSets` sends, S3;
+ * see `matchesFilter` below), `sort` (`-updated` etc.), `page`, `perPage`. Not a
  * query engine.
  *
  * **`wdlId` (task L3, DEC-021).** `workouts` create/update run the same
@@ -58,8 +64,8 @@
  *
  * Fixture write state (`fixtures/workouts.local.json`, `fixtures/movements.local.json`,
  * `fixtures/users.local.json`, `fixtures/equipment.local.json`,
- * `fixtures/patterns.local.json`) is git-ignored — delete it to reset to the
- * committed seed / `registry/*.json`. Movement writes (task M3's
+ * `fixtures/patterns.local.json`, `fixtures/movement-sets.local.json`) is
+ * git-ignored — delete it to reset to the committed seed / `registry/*.json`. Movement writes (task M3's
  * `make movements:load`, and the M5 editor) land in
  * `fixtures/movements.local.json` and are merged over the registry-derived list
  * on read, keyed by `movementId`. Equipment and pattern vocabulary (task V7)
@@ -67,6 +73,27 @@
  * writes overlay from `fixtures/{equipment,patterns}.local.json`, keyed by
  * `termId`. No `fixtures/{equipment,patterns}.json` is committed — the seed is
  * always the registry file, mirroring movements.
+ *
+ * **Movement sets (task S3, DEC-027).** `fixtures/movement-sets.json` IS
+ * committed (there is no registry source to derive from) and holds a small seed:
+ * a couple of `user`-scoped sets owned by `u_mock_chris_0001` and one
+ * `org-library` set owned by `crossfit` at `visibility: "public"`. Runtime
+ * writes overlay from `fixtures/movement-sets.local.json` (`records` + `deleted`
+ * tombstones, keyed by the record `id`), merged over the seed on read. Reads are
+ * gated by the collection's list/view rule (`owner = @request.auth.id ||
+ * visibility != "private"`); writes need an `Authorization` header and are
+ * owner-only, standing in for the `@request.auth.id = owner` rule. The unique
+ * `setId` index is enforced — a create or a rename onto an existing `setId` is a
+ * 400 `validation_not_unique`, the way the `users` handler rejects a duplicate
+ * `handle`. **Handle wrinkle:** `u_mock_chris_0001` has no handle at rest (see
+ * below), so a committed chris-owned seed row cannot bake a correct
+ * `<handle>:<slug>` `setId`. The seed carries a `chris:` placeholder prefix and
+ * `withOwnerHandle` rewrites the prefix to the owner's *current* handle on read
+ * (the `forceWdlId` philosophy — keep the namespaced key in step with the
+ * handle — applied on read, since a set's key is required + unique and cannot be
+ * absent from the seed the way a pre-L3 workout's `wdlId` is). This keeps the
+ * L1/DEC-021 random-handle assignment path fully exercised rather than pinning
+ * chris to a fixed handle.
  *
  * **`handle` (task L1, DEC-021).** `fixtures/users.json`'s mock signed-in user
  * (`users[0]`) is committed **without** a `handle`, on purpose: the first
@@ -230,6 +257,69 @@ export function createMockApi(root) {
     };
   };
   const vocabs = [makeVocab('equipment', 'eq'), makeVocab('patterns', 'pt')];
+
+  // -- movement sets (task S3, DEC-027) ----------------------------------
+  // Same collection pattern as `workouts` (not the vocab pattern): owner-scoped,
+  // `visibility` list/view rule, a namespaced natural key (`setId` =
+  // `<owner-handle>:<slug(name)>`, unique). Committed seed at
+  // `fixtures/movement-sets.json`, runtime writes overlaid from git-ignored
+  // `fixtures/movement-sets.local.json` (`records` + `deleted` tombstones, keyed
+  // by record `id`). A parallel handler in the workouts mould, not a `makeVocab`
+  // instance — sets have an owner, a read gate, a uniqueness rejection and the
+  // handle-prefix rewrite, none of which the vocab factory carries.
+  const setsSeedPath = P('fixtures/movement-sets.json');
+  const setsLocalPath = P('fixtures/movement-sets.local.json');
+  const setsLocal = existsSync(setsLocalPath) ? readJson(setsLocalPath) : {};
+  let setsOverlay = Array.isArray(setsLocal.records) ? setsLocal.records : [];
+  let setsDeleted = Array.isArray(setsLocal.deleted) ? setsLocal.deleted : [];
+  let setsSeed = null;
+  const loadSetsSeed = () => {
+    if (!setsSeed) setsSeed = (readJson(setsSeedPath).movement_sets ?? []).map(toSetRecord);
+    return setsSeed;
+  };
+
+  const persistSets = () => {
+    try {
+      writeFileSync(setsLocalPath, JSON.stringify({
+        $comment: 'Runtime write state for the local dev mock /api (movement_sets). Git-ignored. Delete to reset to fixtures/movement-sets.json.',
+        records: setsOverlay,
+        deleted: setsDeleted,
+      }, null, 2) + '\n');
+    } catch (e) {
+      console.error(`  mock /api: could not persist movement sets — ${e.message}`);
+    }
+  };
+
+  // Keep a row's `setId` handle-prefix in step with the owner's current handle —
+  // the `forceWdlId` philosophy applied on read. A chris-owned seed row carries
+  // a `chris:` placeholder because `u_mock_chris_0001` has no handle at rest
+  // (users.json, L1) and the real handle is assigned randomly on first sign-in.
+  const withOwnerHandle = (rec) => {
+    if (!rec.setId || !rec.setId.includes(':')) return rec;
+    const handle = users.find((u) => u.id === rec.owner)?.handle;
+    if (!handle) return rec;
+    const fixed = `${handle}:${rec.setId.slice(rec.setId.indexOf(':') + 1)}`;
+    return fixed === rec.setId ? rec : { ...rec, setId: fixed };
+  };
+
+  /** The seed with runtime writes merged over it, keyed by record id. */
+  const currentSets = () => {
+    const byId = new Map(loadSetsSeed().map((s) => [s.id, s]));
+    for (const rec of setsOverlay) byId.set(rec.id, rec);
+    for (const id of setsDeleted) byId.delete(id);
+    return [...byId.values()].map(withOwnerHandle);
+  };
+
+  const upsertSet = (rec) => {
+    const i = setsOverlay.findIndex((s) => s.id === rec.id);
+    if (i >= 0) setsOverlay[i] = rec; else setsOverlay.push(rec);
+    setsDeleted = setsDeleted.filter((id) => id !== rec.id);
+    persistSets();
+  };
+
+  /** `true` iff some other set already holds `setId` (the unique-index check). */
+  const setIdTaken = (setId, exceptId) =>
+    currentSets().some((s) => s.id !== exceptId && s.setId === setId);
 
   return async function handle(req, res, url) {
     const { pathname } = url;
@@ -427,6 +517,67 @@ export function createMockApi(root) {
         }
       }
 
+      // -- movement sets (task S3, DEC-027) -----------------------------
+      // The `workouts` twin: owner-scoped, `visibility` list rule. Reads honour
+      // `owner = @request.auth.id || visibility != "private"`; writes need an
+      // Authorization header and are owner-only (the mock signs everyone in as
+      // the one fixture user, so "wrong owner" means the org-library rows).
+      // Overlay -> fixtures/movement-sets.local.json.
+      {
+        const caller = req.headers.authorization ? fixtureUser.id : null;
+        const canReadSet = (r) => r.visibility !== 'private' || r.owner === caller;
+        const setWriteDenied = () => json(res, 403, err(403, 'Only the set owner may write it.'));
+        const base = '/api/collections/movement_sets/records';
+        if (pathname === base) {
+          if (method === 'GET') {
+            const rows = applyQuery(currentSets(), url).filter(canReadSet);
+            return json(res, 200, listEnvelope(rows, url));
+          }
+          if (method === 'POST') {
+            if (!caller) return setWriteDenied();
+            const body = await readBody(req);
+            const rec = mkSetRecord(body);
+            if (!rec.setId) return json(res, 400, err(400, 'Failed to create record.', { setId: { code: 'validation_required', message: 'Missing required value.' } }));
+            if (setIdTaken(rec.setId)) return json(res, 400, err(400, 'Failed to create record.', { setId: { code: 'validation_not_unique', message: 'Value must be unique.' } }));
+            upsertSet(rec);
+            return json(res, 200, rec);
+          }
+          return setWriteDenied();
+        }
+        if (pathname.startsWith(base + '/')) {
+          const key = decodeURIComponent(pathname.slice((base + '/').length));
+          const rec = currentSets().find((s) => s.id === key || s.setId === key);
+          if (method === 'GET') {
+            return rec && canReadSet(rec) ? json(res, 200, rec) : json(res, 404, err(404, "The requested resource wasn't found."));
+          }
+          if (!caller) return setWriteDenied();
+          if (method === 'PATCH') {
+            if (!rec) return json(res, 404, err(404, "The requested resource wasn't found."));
+            if (rec.owner !== caller) return setWriteDenied();
+            const body = await readBody(req);
+            const patch = pickSetFields(body);
+            if ('setId' in patch && patch.setId !== rec.setId && setIdTaken(patch.setId, rec.id)) {
+              return json(res, 400, err(400, 'Failed to update record.', { setId: { code: 'validation_not_unique', message: 'Value must be unique.' } }));
+            }
+            const next = { ...rec, ...patch, updated: pbNow() };
+            upsertSet(next);
+            return json(res, 200, next);
+          }
+          if (method === 'DELETE') {
+            if (rec) {
+              if (rec.owner !== caller) return setWriteDenied();
+              setsOverlay = setsOverlay.filter((s) => s.id !== rec.id);
+              if (!setsDeleted.includes(rec.id)) setsDeleted.push(rec.id);
+              persistSets();
+            }
+            res.writeHead(204);
+            res.end();
+            return true;
+          }
+          return setWriteDenied();
+        }
+      }
+
       return false; // some other /api path — not mocked; caller falls through
     } catch (e) {
       json(res, 500, err(500, `mock /api: ${e.message}`));
@@ -564,6 +715,65 @@ function vocabId(prefix, key) {
   return prefix + h.toString(36).padStart(9, '0');
 }
 
+// --- movement-set shapes (task S3, DEC-027) ------------------------------
+// The migration's `movement_sets` columns: owner (relation -> users), name,
+// setId (the namespaced natural key, unique), movements (json, an ordered array
+// of registry movement ids), visibility (select private|unlisted|public),
+// description, created, updated. No `scope` column — scope is derived from the
+// owner + visibility, exactly as for `workouts` (DEC-027).
+
+/** One `fixtures/movement-sets.json` seed entry as a `movement_sets` record. */
+function toSetRecord(e) {
+  return {
+    id: e.id || ('ms' + hash36(e.setId || e.name)),
+    collectionId: 'mock_movement_sets',
+    collectionName: 'movement_sets',
+    owner: e.owner ?? '',
+    name: e.name ?? '',
+    setId: e.setId ?? '',
+    movements: Array.isArray(e.movements) ? e.movements : [],
+    visibility: e.visibility ?? 'private',
+    description: e.description ?? '',
+    created: e.created ?? '',
+    updated: e.updated ?? '',
+  };
+}
+
+/** A create body -> a full `movement_sets` record (missing fields at their empty). */
+function mkSetRecord(body) {
+  const now = pbNow();
+  return {
+    id: mkId('ms'),
+    collectionId: 'mock_movement_sets',
+    collectionName: 'movement_sets',
+    owner: body.owner ?? '',
+    name: body.name ?? '',
+    setId: body.setId ?? '',
+    movements: Array.isArray(body.movements) ? body.movements : [],
+    visibility: body.visibility ?? 'private',
+    description: body.description ?? '',
+    created: now,
+    updated: now,
+  };
+}
+
+/** The subset of an update body that maps to a `movement_sets` column. */
+function pickSetFields(body) {
+  const out = {};
+  for (const k of ['owner', 'name', 'setId', 'movements', 'visibility', 'description']) {
+    if (k in body) out[k] = body[k];
+  }
+  return out;
+}
+
+/** djb2 -> base36, the shared stable-hash used for synthetic seed ids. */
+function hash36(key) {
+  let h = 5381;
+  const s = String(key);
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+  return h.toString(36).padStart(9, '0');
+}
+
 // --- query + envelope -----------------------------------------------------
 
 function applyQuery(items, url) {
@@ -584,9 +794,11 @@ function applyQuery(items, url) {
 // --- filter matcher -------------------------------------------------------
 // NOT a general expression engine — a pattern-matcher for exactly the filter
 // strings `apps/shared/pocketbase.js` emits:
-//   • one or more `field="value"` / `field~"value"` comparisons joined by `&&`
-//     (`owner="…"`, `wdlId="…"`, `handle="…"`, `id="…"`, `scope="global"`, …) —
-//     `=` is exact, `~` is a case-insensitive substring (task L4);
+//   • one or more `field="value"` / `field!="value"` / `field~"value"`
+//     comparisons joined by `&&` (`owner="…"`, `wdlId="…"`, `handle="…"`,
+//     `id="…"`, `scope="global"`, `visibility!="private"`, …) — `=` is exact,
+//     `!=` is exact-negated (task S3, `listPublicSets`), `~` is a
+//     case-insensitive substring (task L4);
 //   • the single parenthesised search shape from `searchWorkouts` (L4):
 //       (visibility="public" || owner="<uid>") && (title~"<q>" || wdlId~"<q>")
 //     and its signed-out form with no `owner` clause.
@@ -610,13 +822,15 @@ function splitTop(s, sep) {
   return parts;
 }
 
-/** One `field="v"` (exact) or `field~"v"` (case-insensitive substring) atom. */
+/** One `field="v"` (exact), `field!="v"` (exact-negated) or `field~"v"` (substring) atom. */
 function matchesAtom(rec, atom) {
-  const m = atom.trim().match(/^([a-zA-Z_][\w.]*)\s*(=|~)\s*["']([^"']*)["']$/);
+  const m = atom.trim().match(/^([a-zA-Z_][\w.]*)\s*(!=|=|~)\s*["']([^"']*)["']$/);
   if (!m) return true; // unrecognised — don't let it exclude anything
   const [, field, op, value] = m;
   const have = String(rec[field] ?? '');
-  return op === '~' ? have.toLowerCase().includes(value.toLowerCase()) : have === value;
+  if (op === '~') return have.toLowerCase().includes(value.toLowerCase());
+  if (op === '!=') return have !== value;
+  return have === value;
 }
 
 /** Every `&&` conjunct holds; a conjunct is an atom or a parenthesised `||` group. */

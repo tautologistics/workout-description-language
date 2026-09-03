@@ -2,6 +2,35 @@
 
 ## Changes
 
+- **2026-09-03 — S3 shipped (`<SHA-S3>`): `movement_sets` is now behind the
+  local dev mock `/api`, with a committed fixture seed; the signed-in round-trip
+  is verified end to end.** S3 of the movement-sets database epic (S0–S4) —
+  `scripts/**` + `fixtures/**` + `.gitignore` only, no `apps/**` / core / migration
+  change. **`scripts/mock-api.mjs`** gained a `movement_sets/records` handler
+  built in the `workouts` mould (not a `makeVocab` instance — sets have an owner,
+  a read gate, a `setId` uniqueness rejection and a handle-prefix rewrite): the PB
+  list envelope via the shared `applyQuery` + `listEnvelope`; `/records/:id` by
+  synthetic id **or** `setId`; a **read gate** (`visibility != "private" || owner
+  == caller`) on list + single GET; `POST` / `PATCH` / `DELETE` behind the
+  `Authorization` gate (**403**) and **owner-only** (403 on the wrong owner); the
+  unique **`setId`** index enforced as a **400 `validation_not_unique`** on a
+  create or a rename that collides; writes overlay onto git-ignored
+  `fixtures/movement-sets.local.json`. The shared filter matcher learned
+  `field!="value"` (the operator `listPublicSets` emits). **`fixtures/movement-sets.json`
+  (committed)** seeds two `user`-scoped chris sets + one `org-library` `crossfit`
+  set. **Handle wrinkle:** `u_mock_chris_0001` has no handle at rest, so the chris
+  seed rows carry a `chris:` placeholder `setId` prefix and `withOwnerHandle`
+  rewrites it to the owner's current handle on read (the `forceWdlId` philosophy,
+  on read) — `users.json` untouched so the L1 random-handle exercise still runs.
+  **Verified** the full round-trip on `make serve` signed in: create / compose
+  (a 5-click burst coalesced to one PATCH) / reorder / remove / rename (`setId`
+  re-slugged) → `curl` confirms `setId` + ordered `movements`; reload persists;
+  `↧` splices; delete tombstones; single-record fetch by `setId` and by id;
+  read gate 404s a private set for an anon caller; unauth `POST` 403; duplicate
+  `setId` 400; sign-out hides the "Sets" section, sign-in restores it. `make test`
+  **2064/2064, 1 pending — unchanged**. **Next: S4** — the create/edit dialog UX
+  rework, then `make deploy:db` + `make deploy`, then close the S0–S4 epic.
+
 - **2026-09-03 — S2 shipped (`4b3b796`): movement sets now read/write the
   `movement_sets` collection; `localStorage['wdl.sets']` retired.** S2 of the
   movement-sets database epic (S0–S4) — app code only, no migration / mock /

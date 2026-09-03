@@ -1,0 +1,44 @@
+{
+  "$comment": "Seed for the local dev mock /api `movement_sets` collection (scripts/mock-api.mjs), task S3 / DEC-027. Committed because there is no registry source to derive from (unlike movements / equipment / patterns). Two `user`-scoped sets owned by u_mock_chris_0001 (visibility private) and one `org-library` set owned by crossfit (visibility public) so a fresh `make serve` shows both scopes. HANDLE WRINKLE: u_mock_chris_0001 has NO handle at rest (fixtures/users.json, task L1) — a random adjective-noun one is assigned on first sign-in. So the chris rows carry a `chris:` PLACEHOLDER setId prefix; the mock's `withOwnerHandle` rewrites it to the owner's current handle on read (the forceWdlId philosophy applied on read). The crossfit row's `crossfit:` prefix is already correct (that org row has a fixed handle). Runtime writes overlay from git-ignored fixtures/movement-sets.local.json; delete it to reset to this seed.",
+  "movement_sets": [
+    {
+      "id": "ms_seed_squat_strength1",
+      "collectionId": "mock_movement_sets",
+      "collectionName": "movement_sets",
+      "owner": "u_mock_chris_0001",
+      "name": "Squat strength",
+      "setId": "chris:squat-strength",
+      "movements": ["back-squat", "front-squat", "goblet-squat", "walking-lunge"],
+      "visibility": "private",
+      "description": "",
+      "created": "2026-09-03 00:00:00.000Z",
+      "updated": "2026-09-03 00:00:00.000Z"
+    },
+    {
+      "id": "ms_seed_gymnastics_sk1",
+      "collectionId": "mock_movement_sets",
+      "collectionName": "movement_sets",
+      "owner": "u_mock_chris_0001",
+      "name": "Gymnastics skills",
+      "setId": "chris:gymnastics-skills",
+      "movements": ["pull-up", "chin-up", "ring-dip", "handstand-push-up", "toes-to-bar"],
+      "visibility": "private",
+      "description": "",
+      "created": "2026-09-03 00:00:01.000Z",
+      "updated": "2026-09-03 00:00:01.000Z"
+    },
+    {
+      "id": "ms_seed_crossfit_ben1",
+      "collectionId": "mock_movement_sets",
+      "collectionName": "movement_sets",
+      "owner": "org0crossfit001",
+      "name": "CrossFit benchmark staples",
+      "setId": "crossfit:crossfit-benchmark-staples",
+      "movements": ["air-squat", "pull-up", "push-up", "burpee", "box-jump", "wall-ball"],
+      "visibility": "public",
+      "description": "The movements that recur across the classic girl WODs.",
+      "created": "2026-09-03 00:00:02.000Z",
+      "updated": "2026-09-03 00:00:02.000Z"
+    }
+  ]
+}

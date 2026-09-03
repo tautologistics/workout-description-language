@@ -228,11 +228,20 @@ independent of each other:
   signed-in-only, non-owned sets read-only, movement edits debounced per set, no
   `localStorage` fallback. Verified read-against-schema + signed-out `make
   serve` (no Sets section, no console errors) + `make test` unchanged; the
-  signed-in round-trip waits on S3.** **S3 is next** — a `movement_sets/records`
-  handler in `scripts/mock-api.mjs` + a committed `fixtures/movement-sets.json`
-  seed (a couple of `user` rows + one `crossfit` `org-library` row) + drive the
-  full signed-in round-trip on `make serve`. Then S4 the create/edit dialog UX
-  rework + deploy + close.
+  signed-in round-trip waits on S3. S3 done 2026-09-03 (`<SHA-S3>`, `scripts/**`
+  + `fixtures/**` + `.gitignore` only) — a `movement_sets/records` handler in
+  `scripts/mock-api.mjs` in the `workouts` mould (read gate, `setId` uniqueness
+  400, owner-only writes, `Authorization` gate, `.local.json` overlay; the shared
+  filter matcher learned `field!="value"`), a committed `fixtures/movement-sets.json`
+  seed (two chris `user` rows + one `crossfit` `org-library` row; chris rows
+  carry a `chris:` placeholder `setId` prefix that `withOwnerHandle` rewrites to
+  the current handle on read, so `users.json`'s L1 random-handle exercise still
+  runs). Verified the full signed-in round-trip on `make serve` — create /
+  compose (burst coalesced to one PATCH) / reorder / remove / rename (`setId`
+  re-slugged) / reload-persists / `↧`-splices / delete / read-gate / dup-`setId`
+  400 / sign-out-hides — and `make test` unchanged.** **S4 is next** — the
+  create/edit dialog UX rework, then `make deploy:db` + `make deploy`, then close
+  the S0–S4 epic.
 - **The goals database (G0–G4)** — `localStorage['wdl.goals']` → a `goals`
   collection on the **vocab** pattern (`scope: global | user`, nullable `user`
   relation). The current `examples/goals/*.wdlg` are the `global` rows;
