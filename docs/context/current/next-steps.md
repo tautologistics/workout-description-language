@@ -211,7 +211,7 @@ independent of each other:
   `user` (no `scope` column — derived from owner + `visibility`); `setId` =
   `<handle>:<slug(name)>` re-slugged on rename; **nothing ships v1** (no
   committed registry, no loader); `wdl.sets` retired, signed-in-only, no
-  migration. **S0 done 2026-09-02 (`8826d80`, docs-only) —
+  migration. **S0 done 2026-09-02 (`9f82f5f`, docs-only) —
   [DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)
   written + the two topic-file edits.** **S1 (the migration) is next** —
   `deploy/pocketbase/pb_migrations/<ts>_create_movement_sets.js` per the DEC-027

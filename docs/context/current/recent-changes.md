@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-02 — DEC-027 settled (`8826d80`, docs-only): movement sets become a
+- **2026-09-02 — DEC-027 settled (`9f82f5f`, docs-only): movement sets become a
   `movement_sets` PocketBase collection; `localStorage['wdl.sets']` retired.**
   S0 of the movement-sets database epic (S0–S4) — the design/DEC task, no code.
   [DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)

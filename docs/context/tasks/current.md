@@ -882,7 +882,7 @@ branch sized for its own session; each spawns the next. **Nothing in
 
 **Model decisions Chris made 2026-09-02 — S0 wrote them up as
 [DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)
-(`8826d80`, 2026-09-02):**
+(`9f82f5f`, 2026-09-02):**
 
 - **Two scopes only: `org-library` and `user`.** No `global` scope — Chris:
   "if it simplifies things, it can be org-library and user only." Org-library
@@ -942,7 +942,7 @@ goals database (G0–G4)" below. Not folded in here; the two are independent.*
   `.local.json` overlay + `.gitignore` entry, `listEquipment` / `listPatterns`
   in `pocketbase.js`. DEC-025.
 
-### S0 — Design note + a new DEC. No code. — **DONE 2026-09-02 (`8826d80`)**
+### S0 — Design note + a new DEC. No code. — **DONE 2026-09-02 (`9f82f5f`)**
 
 **Shipped — docs-only, suite not exercised (nothing `make test` covers moved).**
 [DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)
