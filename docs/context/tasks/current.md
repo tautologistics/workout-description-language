@@ -101,7 +101,7 @@ seed content).
 (`8680e2a`, DEC-028), G1 (`1a99448`, the migration), G2 (`2512c23`, the
 `apps/shared/goals-store.js` model + `pocketbase.js` CRUD + builder rewire off
 `localStorage['wdl.goals']`), G3 (`1a7252f`, the `make goals:load` loader + the
-mock `goals/records` route + the signed-in round-trip) and **G4 (`<SHA-G4>`,
+mock `goals/records` route + the signed-in round-trip) and **G4 (`6d8a9b5`,
 deploy + close)** all landed, and the whole G-section moved to
 [completed.md](completed.md) as one grouped section, the way the M / L / V / S
 epics were closed. Saved goal rulesets are now a `goals` PocketBase collection

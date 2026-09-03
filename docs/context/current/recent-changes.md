@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-03 — G4 shipped (`<SHA-G4>`): the goals database is live on prod and
+- **2026-09-03 — G4 shipped (`6d8a9b5`): the goals database is live on prod and
   the G0–G4 epic is closed.** Deploy + `docs/context/**` only — no other repo
   diff (the migration is G1's, the loader G3's, the client G2's); the analogue
   of S4's deploy half, with no S4-style UX pass (DEC-028). **`make deploy:db`**

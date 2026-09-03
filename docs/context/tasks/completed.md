@@ -2753,7 +2753,7 @@ the real landed SHA (option a — what S1/S2/S3 did).
 ## The goals database (G0–G4)
 
 *Complete as of 2026-09-03 — G0 (`8680e2a`), G1 (`1a99448`), G2 (`2512c23`),
-G3 (`1a7252f`) and G4 (`<SHA-G4>`) all landed; the whole section moved here
+G3 (`1a7252f`) and G4 (`6d8a9b5`) all landed; the whole section moved here
 from `current.md` as one grouped block when G4 closed the epic, the way the
 M / L / V and S epics were closed. Nothing in `packages/core`, the grammar or
 the spec was touched — the `.wdlg` format is unchanged — and `make test` held
@@ -3183,7 +3183,7 @@ S1–S4 / G1 / G2 approach). Brief kept below for the trail. G4 dispatched.
   writes nothing, an edited file → 1 `updated`. `make test` unchanged. Spawns
   G4.
 
-### G4 — deploy + close the epic. DONE 2026-09-03 (`<SHA-G4>`).
+### G4 — deploy + close the epic. DONE 2026-09-03 (`6d8a9b5`).
 
 Deploy + docs only — **no repo diff outside `docs/context/**`** (the migration
 is G1's, the loader G3's, the client G2's). The analogue of S4's deploy half
@@ -3245,7 +3245,7 @@ scope. The G3 mock `/api` is already stricter than the live rule (it 403s an
 unauthenticated write outright), so local dev is unaffected.
 
 **Self-referential-SHA trap (S0–S3 / G1–G3 all hit it):** committed with a
-`<SHA-G4>` placeholder in these docs, pushed, then a tiny follow-up commit
+`6d8a9b5` placeholder in these docs, pushed, then a tiny follow-up commit
 replaced it with the real landed SHA (option a — what S1–S3 / G1–G3 did).
 
 ### Sequencing

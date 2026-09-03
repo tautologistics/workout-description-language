@@ -212,7 +212,7 @@ put the repertoire at the top of the palette modal, fixed the set-card grid, and
 made read-only sets distinct. The migration is on the VPS and `movement_sets` is
 live on the prod API (nothing ships v1 — no loader, no seed). **The goals
 database epic (G0–G4) that followed it is also complete as of 2026-09-03** (G4
-`<SHA-G4>`, deploy + close) and moved to
+`6d8a9b5`, deploy + close) and moved to
 [../tasks/completed.md](../tasks/completed.md) as one grouped section — see the
 bullet below. With both done there is **no `localStorage` → PocketBase epic left
 to queue**: the audit that produced S and G found only `wdl.sets` and
@@ -304,7 +304,7 @@ to queue**: the audit that produced S and G found only `wdl.sets` and
   `WDL_MOCK_API=0` (bundled fallback + expected warning), and `make goals:load`
   against the mock (first run all `unchanged`, `--dry-run` clean, edited file →
   1 `updated`). `make test` 2064/2064, 1 pending — unchanged. **G4 done
-  2026-09-03 (`<SHA-G4>`) — epic complete.** `make deploy:db` applied the G1
+  2026-09-03 (`6d8a9b5`) — epic complete.** `make deploy:db` applied the G1
   migration on the VPS (`goals` live on the prod API), `make goals:load` created
   the 3 `global` rows (`source` byte-identical), `make deploy` shipped the
   static apps (served JS byte-identical to `origin/main`); the G0–G4 section
