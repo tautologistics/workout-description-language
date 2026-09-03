@@ -985,7 +985,7 @@ rename), `examples/goals/*.wdlg` as the committed `global` source, and
   delete `(scope = "user" && user = @request.auth.id) || @request.auth.admin = true`
   (a user owns their rows; an admin may write `global`). `down` deletes it.
 
-### G1 — `goals` collection + migration. — **DONE 2026-09-03 (`<SHA-G1>`)**
+### G1 — `goals` collection + migration. — **DONE 2026-09-03 (`1a99448`)**
 
 **Shipped — pure schema, `make test` unchanged (2064/2064, 1 pending; the core
 suite does not cover migrations, so nothing it covers moves).**

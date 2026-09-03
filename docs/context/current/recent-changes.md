@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-03 — G1 shipped (`<SHA-G1>`): the `goals` collection is now
+- **2026-09-03 — G1 shipped (`1a99448`): the `goals` collection is now
   schema.** G1 of the goals database epic (G0–G4) — pure schema, no app / mock /
   fixture / loader / core change.
   `deploy/pocketbase/pb_migrations/1757300000_create_goals.js` creates the

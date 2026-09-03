@@ -265,7 +265,7 @@ live on the prod API (nothing ships v1 — no loader, no seed). **The next scope
   relation). The current `examples/goals/*.wdlg` are the `global` rows;
   `make goals:load` ingests them (the L5/L6 authored-content shape). No
   org-library scope, no dedicated UX task. **G0 done 2026-09-03 (`8680e2a`)** —
-  DEC-028 written. **G1 done 2026-09-03 (`<SHA-G1>`)** —
+  DEC-028 written. **G1 done 2026-09-03 (`1a99448`)** —
   `deploy/pocketbase/pb_migrations/1757300000_create_goals.js` creates the
   collection per the DEC-028 shape (all seven fields, unique `goalId` index,
   plain `scope` index, nullable `user` relation, the read/write rules), verified
