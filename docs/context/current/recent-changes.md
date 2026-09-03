@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-09-03 — G2 shipped (`<SHA-G2>`): saved goal rulesets are rewired onto
+- **2026-09-03 — G2 shipped (`2512c23`): saved goal rulesets are rewired onto
   the `goals` collection; the builder no longer touches
   `localStorage['wdl.goals']`.** G2 of the goals database epic (G0–G4) — app
   code only (`apps/shared/pocketbase.js`, `apps/shared/goals-store.js` new,

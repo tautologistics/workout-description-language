@@ -271,7 +271,7 @@ live on the prod API (nothing ships v1 — no loader, no seed). **The next scope
   plain `scope` index, nullable `user` relation, the read/write rules), verified
   up/down/up against a real pocketbase v0.40.1 binary + throwaway `pb_data`;
   README entry added; not yet on the VPS (`make deploy:db` at G4). **G2 done
-  2026-09-03 (`<SHA-G2>`)** — app code only, the S2 analogue: a `goals` block in
+  2026-09-03 (`2512c23`)** — app code only, the S2 analogue: a `goals` block in
   `apps/shared/pocketbase.js` (`listGlobalGoals` / `listMineGoals` /
   `getGoalByAnyId` / `createGoal` / `updateGoal` / `removeGoal` /
   `forceGoalNamespace` over the factored `disambiguateNamespace`), a new

@@ -1034,7 +1034,7 @@ collections intact, a re-`up` reapplies. Entry in
 (`make deploy:db`) like M1 / L1 / V6. Pure schema — no app / mock / fixture
 change. Spawns G2.
 
-### G2 — `apps/shared/goals-store.js` + `pocketbase.js` CRUD + rewire the builder. — **DONE 2026-09-03 (`<SHA-G2>`)**
+### G2 — `apps/shared/goals-store.js` + `pocketbase.js` CRUD + rewire the builder. — **DONE 2026-09-03 (`2512c23`)**
 
 **Shipped — app code only (`apps/shared/pocketbase.js`, `apps/shared/goals-store.js`
 new, `apps/builder/builder.js`); no migration / mock / fixture / core change,
@@ -1114,7 +1114,7 @@ the builder's Goals block or the mock).** The analogue of S2 for the goals epic.
 reload persists → Delete — is G3's verification, once the mock `goals/records`
 route exists. G2 proves the client rewire and the offline fallback.)*
 
-The `docs/context` G2 write-up landed in this same commit with a `<SHA-G2>`
+The `docs/context` G2 write-up landed in this same commit with a `2512c23`
 placeholder, replaced by a tiny follow-up commit with the real landed SHA
 (the S1–S4 / G1 approach). Brief kept below for the trail. G3 dispatched.
 
