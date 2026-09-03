@@ -54,6 +54,7 @@ const USERS = '/collections/users';
 const USER_RECORDS = '/collections/users/records';
 const RECORDS = '/collections/workouts/records';
 const SETS = '/collections/movement_sets/records';
+const GOALS = '/collections/goals/records';
 const MOVEMENTS = '/collections/movements/records';
 const EQUIPMENT = '/collections/equipment/records';
 const PATTERNS = '/collections/patterns/records';
@@ -485,6 +486,27 @@ export async function forceSetNamespace(name, excludeId) {
   return disambiguateNamespace(handle, base, taken);
 }
 
+/**
+ * The `goalId` for a `user` goal ruleset (DEC-028): `<owner-handle>:<slug(title)>`,
+ * with a deterministic `-2` / `-3` … suffix on a same-owner clash. `excludeId`
+ * is the row being updated so a rename cannot clash with itself — omit it for a
+ * create. Like `forceSetNamespace` (and unlike `forceNamespace`): a `.wdlg` has
+ * no `@id` directive, so the slug comes from the ruleset title alone;
+ * `disambiguateNamespace` is the only piece shared with the workout `@id` rule.
+ * `global` rows carry a fixed `wdl:<slug>` set by the loader (G3) and never pass
+ * through here.
+ */
+export async function forceGoalNamespace(title, excludeId) {
+  const handle = await requireHandle();
+  const base = slugify(title) || 'untitled';
+  let taken = new Set();
+  try {
+    const mine = await listMineGoals();
+    taken = new Set(mine.filter((g) => g.id !== excludeId && g.goalId).map((g) => g.goalId));
+  } catch { /* not signed in / offline — no siblings to clash with */ }
+  return disambiguateNamespace(handle, base, taken);
+}
+
 // --- workouts ------------------------------------------------------------------
 
 /** The signed-in user's workouts, newest edit first. */
@@ -726,6 +748,103 @@ export async function updateSet(id, patch) {
 /** Delete a movement set. */
 export function removeSet(id) {
   return call(`${SETS}/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+// --- goals (DEC-028, G2) --------------------------------------------------
+// The `goals` collection — the builder's Analysis-tab "Against your goals"
+// saved rulesets, promoted out of the flat `localStorage['wdl.goals']` blob.
+// Unlike `movement_sets` (the `workouts` pattern) this follows the **vocab
+// scope model** (DEC-025): a real `scope` column (`global | user`) and a
+// nullable `user` relation. `global` rows are ownerless first-party defaults —
+// `examples/goals/*.wdlg` ingested by `make goals:load` (G3), `goalId`
+// `wdl:<slug>`; a `user` row is owned, `goalId` `<owner-handle>:<slug(title)>`
+// re-slugged on rename. `apps/shared/goals-store.js` is the host-agnostic model
+// over these calls, with a bundled offline fallback for the `global` list.
+
+/** Every `global` goal ruleset, in `goalId` order. Reads need no auth. */
+export async function listGlobalGoals() {
+  const q = new URLSearchParams({ filter: 'scope="global"', sort: 'goalId', perPage: '1000' });
+  const data = await call(`${GOALS}?${q}`, { auth: !!authToken() });
+  return data.items ?? [];
+}
+
+/**
+ * The signed-in user's goal rulesets, in `goalId` order. Returns `[]` when
+ * signed out (not an error — the Saved group just does not render).
+ */
+export async function listMineGoals() {
+  const uid = currentUser()?.id;
+  if (!uid) return [];
+  const q = new URLSearchParams({ filter: `user="${uid}"`, sort: 'goalId', perPage: '1000' });
+  const data = await call(`${GOALS}?${q}`);
+  return data.items ?? [];
+}
+
+/**
+ * Resolve *either* a 15-char PocketBase record id *or* a `<ns>:<slug>` `goalId`
+ * to one goal ruleset — the `getByAnyId` / `getSetByAnyId` twin (DEC-028). The
+ * colon is the discriminator: `wdl:…` and `<handle>:…` both carry one, a record
+ * id never does.
+ */
+export async function getGoalByAnyId(x) {
+  const key = String(x ?? '');
+  const byGoalId = async () => {
+    const q = new URLSearchParams({ filter: `goalId="${key}"`, perPage: '1' });
+    const data = await call(`${GOALS}?${q}`, { auth: !!authToken() });
+    return data.items?.[0] ?? null;
+  };
+  if (key.includes(':')) {
+    const hit = await byGoalId();
+    if (hit) return hit;
+    const e = new Error("The requested resource wasn't found.");
+    e.status = 404;
+    throw e;
+  }
+  try {
+    return await call(`${GOALS}/${encodeURIComponent(key)}`, { auth: !!authToken() });
+  } catch (e) {
+    if (e.status === 404) {
+      const hit = await byGoalId();
+      if (hit) return hit;
+    }
+    throw e;
+  }
+}
+
+/**
+ * Create a goal ruleset. Always `scope: "user"` with `user` = the caller
+ * (DEC-028 — the builder never writes a `global` row); `goalId` from
+ * `forceGoalNamespace(title)` so the key and the title never disagree.
+ */
+export async function createGoal({ title, source }) {
+  const uid = currentUser()?.id;
+  if (!uid) throw new Error('not signed in');
+  const goalId = await forceGoalNamespace(title);
+  return call(GOALS, {
+    method: 'POST',
+    body: { title, source, scope: 'user', user: uid, goalId },
+  });
+}
+
+/**
+ * Patch a goal ruleset — pass only what changes (`title`, `source`). When
+ * `title` is in the patch the `goalId` is recomputed via
+ * `forceGoalNamespace(title, id)` (self excluded from the clash check) and
+ * written alongside it, so a rename re-slugs (DEC-028); a patch without `title`
+ * leaves `goalId` untouched.
+ */
+export async function updateGoal(id, patch) {
+  let body = patch;
+  if (patch && typeof patch.title === 'string') {
+    const goalId = await forceGoalNamespace(patch.title, id);
+    body = { ...patch, goalId };
+  }
+  return call(`${GOALS}/${encodeURIComponent(id)}`, { method: 'PATCH', body });
+}
+
+/** Delete a goal ruleset. */
+export function removeGoal(id) {
+  return call(`${GOALS}/${encodeURIComponent(id)}`, { method: 'DELETE' });
 }
 
 // --- movements (curated layer, DEC-020) --------------------------------------

@@ -1034,7 +1034,91 @@ collections intact, a re-`up` reapplies. Entry in
 (`make deploy:db`) like M1 / L1 / V6. Pure schema — no app / mock / fixture
 change. Spawns G2.
 
-### G2 — `apps/shared/goals-store.js` + `pocketbase.js` CRUD + rewire the builder.
+### G2 — `apps/shared/goals-store.js` + `pocketbase.js` CRUD + rewire the builder. — **DONE 2026-09-03 (`<SHA-G2>`)**
+
+**Shipped — app code only (`apps/shared/pocketbase.js`, `apps/shared/goals-store.js`
+new, `apps/builder/builder.js`); no migration / mock / fixture / core change,
+`make test` **2064/2064, 1 pending — unchanged** (the core suite does not cover
+the builder's Goals block or the mock).** The analogue of S2 for the goals epic.
+
+- **`apps/shared/pocketbase.js`** — a `goals` block beside `movement_sets`:
+  `listGlobalGoals()` (`filter=scope="global"`, `sort=goalId`, `perPage=1000`,
+  auth attached only if held — the `listMovements` shape), `listMineGoals()`
+  (`filter=user="<uid>"`; **returns `[]` signed out**, does not throw like
+  `listMineSets`), `getGoalByAnyId(key)` (record id **or** `goalId`, the `:`
+  discriminator — the `getSetByAnyId` twin), `createGoal({ title, source })`
+  (always `scope: "user"`, `user` = caller, `goalId` = `forceGoalNamespace(title)`),
+  `updateGoal(id, patch)` (re-slugs `goalId` via `forceGoalNamespace(title, id)`
+  when `patch.title` is present), `removeGoal(id)`, and the exported
+  `forceGoalNamespace(title, excludeId)`. `forceGoalNamespace` is a small
+  parallel helper over the **already-factored `disambiguateNamespace`** (S2 split
+  that out of `namespacedId`); it mirrors `forceSetNamespace` exactly (a `.wdlg`
+  has no `@id`, so the slug is the title alone). New route const `GOALS`.
+- **`apps/shared/goals-store.js`** (new, host-agnostic like `sets.js` / `vocab.js`
+  — no DOM, no `window`): two caches (`globals()` / `mine()`), `loadGlobal()` /
+  `loadMine()` / `clearMine()` / `get(key)` and `create` / `update` / `remove`
+  thin wrappers that refresh `mine` after a write. **Offline fallback for the
+  `global` set** in the exact `vocab.js` `muscleIds()` / `dbVocab` shape:
+  `listGlobalGoals()` first; on any failure (or an empty list) the bundled
+  `examples/goals/*.wdlg` files are fetched relative to `import.meta.url` and
+  shaped `{ goalId: 'wdl:'+slug(filebase), title: <goals: header text>, source }`,
+  and the cached promise is nulled so a later `loadGlobal()` retries. The file
+  list is re-declared locally (`['rotate-muscles.wdlg', 'ramp-the-pull.wdlg']`) —
+  **the `GOALS`-const 2-vs-3 and the canonical `wdl:<slug>` basis are G3's to
+  reconcile**, per DEC-028. Title extraction is a light regex on the `goals:`
+  line (the `pocketbase.js` "no `packages/core` in a shared module" rule), so the
+  store stays free of the core build. `create` pushes an optimistic `pending`
+  row into the `mine` cache before the `POST` and removes it on failure.
+- **`apps/builder/builder.js`** — `let savedGoals = JSON.parse(localStorage…)`
+  and **both** `localStorage.setItem('wdl.goals', …)` writers deleted; the
+  module-top `const GOALS = [...]` deleted (the store owns the file list now);
+  `import * as goalsStore from '../shared/goals-store.js'`. The picker's
+  **Examples** optgroup is now **Global** fed from `goalsStore.globals()`
+  (`global:<goalId>` values), and the **Saved** optgroup is fed from
+  `goalsStore.mine()` and rendered **only when `currentUser()` is set** (the
+  `Yours` label is retired). `EXAMPLE = 'example:'` → `GLOBAL = 'global:'`;
+  `SAVED` unchanged; the change handler resolves the selected `goalId` via
+  `goalsStore.get()`. **Save** takes the ruleset name from
+  `parseGoals(goalSource).title` (DEC-028 — no more `prompt()`), is signed-in
+  only, `updateGoal`s the row of the same title if one exists else `createGoal`s,
+  and rolls the optimistic row back + shows the error in `#goal-errors` (a new
+  `showGoalError`) on failure — a 403/404 shows, never silent. **Delete** →
+  `goalsStore.remove`. **Download** is unchanged (still a `.wdlg` Blob; its
+  filename now always comes from `parseGoals(title)` rather than the picker
+  prefix). Sign-out calls `goalsStore.clearMine()` + re-renders; a settled
+  sign-in calls `goalsStore.loadMine()`. **Import** left out (DEC-028 default —
+  the rewire didn't make it free). The "Against your goals" panel is untouched —
+  it still consumes the ruleset `source` the store provides.
+
+**Verified** driving `make serve` (S2 method), light + dark:
+- **Signed out** — the **Global** optgroup populates from the two bundled `.wdlg`
+  files (`/api/collections/goals/records` → 404 → fallback; console warns
+  `goals: no /api rulesets, using the bundled .wdlg files — 404`, the
+  `muscleIds()` idiom). **No Saved group.** Picking a global ruleset loads its
+  source and the "Against your goals" panel evaluates it unchanged
+  (`cover: … at least 2 required` / `every rule satisfied`).
+- **Signed in** (mock `admin` user `u_mock_chris_0001`, handle `@ideal-trail`) —
+  Global still populates from the fallback (still 404 — G3 adds the mock route).
+  The **Saved** group renders (empty). **Save** with buffer title
+  `goals: My test ruleset` → `createGoal` POSTed
+  `{title:"My test ruleset", source:…, scope:"user", user:"u_mock_chris_0001",
+  goalId:"ideal-trail:my-test-ruleset"}` (a `wdl…`-free `<handle>:<slug>`); the
+  optimistic `Saved: My test ruleset` option appeared in the picker immediately,
+  then the real no-route **404 rolled it back** and `#goal-errors` showed
+  *Could not save: 404 Not Found*. **Sign out** → the Saved group is gone.
+- **`WDL_MOCK_API=0`** — Global still populates from the bundled files; the only
+  fetch failure is the expected `/api/collections/goals/records` 404.
+- **`make test`** — **2064/2064 passing, 1 pending** — unchanged.
+
+*(The full signed-in round-trip — Save → `curl` shows a `scope:"user"` row →
+reload persists → Delete — is G3's verification, once the mock `goals/records`
+route exists. G2 proves the client rewire and the offline fallback.)*
+
+The `docs/context` G2 write-up landed in this same commit with a `<SHA-G2>`
+placeholder, replaced by a tiny follow-up commit with the real landed SHA
+(the S1–S4 / G1 approach). Brief kept below for the trail. G3 dispatched.
+
+---
 
 *(name it `goals-store.js` — `apps/shared/goals.js` would collide with the
 core-goals concept.)*

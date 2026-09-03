@@ -270,9 +270,22 @@ live on the prod API (nothing ships v1 — no loader, no seed). **The next scope
   collection per the DEC-028 shape (all seven fields, unique `goalId` index,
   plain `scope` index, nullable `user` relation, the read/write rules), verified
   up/down/up against a real pocketbase v0.40.1 binary + throwaway `pb_data`;
-  README entry added; not yet on the VPS (`make deploy:db` at G4). Pure schema —
-  `make test` 2064/2064, 1 pending, unchanged. Next: G2
-  `apps/shared/goals-store.js` + CRUD + rewire; G3 loader + fixtures + mock; G4
+  README entry added; not yet on the VPS (`make deploy:db` at G4). **G2 done
+  2026-09-03 (`<SHA-G2>`)** — app code only, the S2 analogue: a `goals` block in
+  `apps/shared/pocketbase.js` (`listGlobalGoals` / `listMineGoals` /
+  `getGoalByAnyId` / `createGoal` / `updateGoal` / `removeGoal` /
+  `forceGoalNamespace` over the factored `disambiguateNamespace`), a new
+  host-agnostic `apps/shared/goals-store.js` model with a bundled offline
+  fallback for the `global` set (the `vocab.js` `muscleIds()` shape, fetching
+  `examples/goals/*.wdlg`), and the builder rewired off
+  `localStorage['wdl.goals']` — Examples→**Global** optgroup from the store,
+  **Saved** optgroup signed-in-only, Save/Delete on the collection with an
+  optimistic add + inline error surface, Download unchanged. Verified driving
+  `make serve` signed out + signed in + `WDL_MOCK_API=0` (Global falls back to
+  the bundled files — the `goals/records` route 404s until G3); `make test`
+  2064/2064, 1 pending, unchanged. **Next: G3** — `scripts/goals-to-db.mjs` +
+  `make goals:load` + a `scripts/mock-api.mjs` `goals/records` handler +
+  `fixtures/goals*.json` + drive the signed-in round-trip end to end; then G4
   deploy + close.
 
 The `localStorage` audit that produced these: only `wdl.sets` and `wdl.goals`

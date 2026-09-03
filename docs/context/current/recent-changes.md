@@ -2,6 +2,45 @@
 
 ## Changes
 
+- **2026-09-03 — G2 shipped (`<SHA-G2>`): saved goal rulesets are rewired onto
+  the `goals` collection; the builder no longer touches
+  `localStorage['wdl.goals']`.** G2 of the goals database epic (G0–G4) — app
+  code only (`apps/shared/pocketbase.js`, `apps/shared/goals-store.js` new,
+  `apps/builder/builder.js`), no migration / mock / fixture / core change, the
+  analogue of S2 for the movement-sets epic. **`pocketbase.js`** grew a `goals`
+  block beside `movement_sets`: `listGlobalGoals` (`filter=scope="global"`,
+  `sort=goalId`, `perPage=1000`), `listMineGoals` (`filter=user="<uid>"`, `[]`
+  signed out), `getGoalByAnyId` (record id or `goalId`), `createGoal` (always
+  `scope:"user"`, `user` = caller, `goalId` = `forceGoalNamespace(title)`),
+  `updateGoal` (re-slugs `goalId` on a title change), `removeGoal`, and the
+  exported `forceGoalNamespace` — a small parallel helper over the
+  `disambiguateNamespace` S2 already factored out, mirroring `forceSetNamespace`.
+  **`goals-store.js`** (new, host-agnostic like `sets.js`) is the in-memory
+  model: `globals()` / `mine()` caches, `loadGlobal` / `loadMine` / `clearMine` /
+  `get` and `create` / `update` / `remove` wrappers, with a **bundled offline
+  fallback for the `global` set** in the exact `vocab.js` `muscleIds()`
+  fetch-then-`.catch`-to-bundled shape (fetch `examples/goals/*.wdlg`, shape each
+  `{ goalId:'wdl:'+slug, title:<goals: header>, source }`, null the cached
+  promise on failure); the `GOALS`-const 2-vs-3 stays G3's to reconcile. **The
+  builder** deletes `savedGoals` and both `localStorage.setItem('wdl.goals')`
+  writers and the module-top `const GOALS`; the picker's **Examples** optgroup
+  becomes **Global** (fed from the store, offline-fallback to the bundled files)
+  and **Saved** is fed from `listMineGoals()` and rendered only when signed in;
+  Save takes the ruleset name from `parseGoals(source).title` (no `prompt()`),
+  is signed-in only, PATCHes the same-title row or POSTs a new one, and rolls
+  the optimistic row back + shows the failure in `#goal-errors` (never silent);
+  Delete → `removeGoal`; Download unchanged. **Verified** driving `make serve`
+  signed out + signed in (mock `admin`) + `WDL_MOCK_API=0`, light + dark: Global
+  populates from the bundled files (the `goals/records` route 404s until G3 —
+  console warns like `muscleIds()` does), no Saved group signed out, a signed-in
+  Save POSTs `scope:"user"` + `goalId` `ideal-trail:my-test-ruleset` and the
+  no-route 404 rolls the optimistic picker entry back with the error inline, the
+  "Against your goals" panel evaluates a picked ruleset unchanged. `make test`
+  **2064/2064, 1 pending — unchanged**. Next: G3
+  (`scripts/goals-to-db.mjs` + `make goals:load` + `scripts/mock-api.mjs`
+  `goals/records` handler + `fixtures/goals*.json` + the signed-in round-trip
+  end to end).
+
 - **2026-09-03 — G1 shipped (`1a99448`): the `goals` collection is now
   schema.** G1 of the goals database epic (G0–G4) — pure schema, no app / mock /
   fixture / loader / core change.

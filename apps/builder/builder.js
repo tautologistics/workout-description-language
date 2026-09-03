@@ -47,12 +47,12 @@ import {
 import { createMovementEditor } from '../shared/movement-editor.js';
 import { equipmentVocab, patternVocab } from '../shared/vocab.js';
 import * as sets from '../shared/sets.js';
+import * as goalsStore from '../shared/goals-store.js';
 
 const GRAMMAR = '../../spec/grammar-0.1.ohm';
 const REGISTRY = '../../registry/movements.json';
 const CANONICAL = '../../registry/movements.canonical.json';
 const MUSCLES = '../../registry/muscles.json';
-const GOALS = ['rotate-muscles.wdlg', 'ramp-the-pull.wdlg'];
 const el = (id) => document.getElementById(id);
 
 // The grammar, before anything else and with a top-level `await`, because
@@ -2599,22 +2599,33 @@ el('set-file').addEventListener('change', async () => {
  * the question continuously instead of when you remember to.
  */
 /**
- * The rules the workout is measured against — yours, not only the examples.
+ * The rules the workout is measured against — the shipped defaults, and yours.
  *
- * The examples ship with the repository; anything you write lives in
- * `localStorage` next to the palette sets, for the same reason: a set of rules
- * you are still shaping is a working document, and making it a file in the
- * repository before it settles means committing drafts.
+ * Since the goals database epic ([DEC-028]) both live in the `goals` PocketBase
+ * collection, reached through `apps/shared/goals-store.js`: the `global`
+ * rulesets (the `examples/goals/*.wdlg` defaults, ingested as ownerless rows —
+ * with the bundled files as an offline fallback) and, signed in, your own
+ * `Saved` rulesets. `localStorage['wdl.goals']` is retired with no migration;
+ * Saved is a signed-in-only feature, like Save to workouts.
  *
- * `Download` writes it out as a `.wdlg` when it does settle, and that file is
- * the same one `wdl goals --goals` reads. Nothing here is a private format.
+ * `Download` still writes the buffer out as a `.wdlg`, the same file
+ * `wdl goals --goals` reads. Nothing here is a private format.
  */
 let goals = null;
 let goalSource = '';
-let savedGoals = JSON.parse(localStorage.getItem('wdl.goals') || '{}');
 
-const EXAMPLE = 'example:';
+const GLOBAL = 'global:';
 const SAVED = 'saved:';
+
+/** Surface a one-off goals error in the block's diagnostics list (cleared by the next parse). */
+function showGoalError(message) {
+  const li = document.createElement('li');
+  const body = document.createElement('span');
+  body.className = 'error';
+  body.textContent = message;
+  li.append(body);
+  el('goal-errors').prepend(li);
+}
 
 function renderGoalPicker(select) {
   const pick = el('goal-pick');
@@ -2626,16 +2637,18 @@ function renderGoalPicker(select) {
     (into ?? pick).append(o);
   };
   add('', 'no goals');
-  const examples = document.createElement('optgroup');
-  examples.label = 'Examples';
-  for (const name of GOALS) add(EXAMPLE + name, name.replace(/\.wdlg$/, '').replace(/-/g, ' '), examples);
-  pick.append(examples);
-  const mine = Object.keys(savedGoals).sort();
-  if (mine.length) {
-    const group = document.createElement('optgroup');
-    group.label = 'Yours';
-    for (const name of mine) add(SAVED + name, name, group);
-    pick.append(group);
+  const global = document.createElement('optgroup');
+  global.label = 'Global';
+  for (const g of goalsStore.globals()) add(GLOBAL + g.goalId, g.title, global);
+  if (global.childElementCount) pick.append(global);
+  if (currentUser()) {
+    const mine = goalsStore.mine();
+    if (mine.length) {
+      const group = document.createElement('optgroup');
+      group.label = 'Saved';
+      for (const g of mine) add(SAVED + g.goalId, g.title, group);
+      pick.append(group);
+    }
   }
   add('custom', 'unsaved rules');
   pick.value = [...pick.options].some((o) => o.value === was) ? was : '';
@@ -2736,10 +2749,10 @@ el('goal-pick').addEventListener('change', async () => {
   const value = el('goal-pick').value;
   el('goal-drop').hidden = !value.startsWith(SAVED);
   if (!value || value === 'custom') return setGoalSource(value === 'custom' ? goalSource : '');
-  if (value.startsWith(SAVED)) return setGoalSource(savedGoals[value.slice(SAVED.length)] ?? '');
+  const key = value.startsWith(SAVED) ? value.slice(SAVED.length) : value.slice(GLOBAL.length);
   try {
-    const r = await fetch(new URL(`../../examples/goals/${value.slice(EXAMPLE.length)}`, location.href));
-    setGoalSource(await r.text());
+    const entry = await goalsStore.get(key);
+    setGoalSource(entry?.source ?? '');
   } catch (e) {
     console.warn('no goals:', e.message);
     setGoalSource('');
@@ -2774,23 +2787,37 @@ el('goal-file').addEventListener('change', async () => {
   el('goal-drop').hidden = true;
 });
 
-el('goal-save').onclick = () => {
+// A ruleset's name is its `.wdlg` `goals:` title (DEC-028 — `title` is
+// `parseGoals(source).title`), not a prompted label; the collection needs it.
+// Signed-in only, like Save to workouts. Re-saving the same title PATCHes the
+// row it already resolves to rather than colliding on the unique `goalId`.
+el('goal-save').onclick = async () => {
   if (!goalSource.trim()) return;
-  const name = prompt('Name these rules', el('goal-pick').value.replace(/^saved:/, '') || 'My goals');
-  if (!name) return;
-  savedGoals[name] = goalSource;
-  localStorage.setItem('wdl.goals', JSON.stringify(savedGoals));
-  renderGoalPicker(SAVED + name);
+  if (!currentUser()) { showGoalError('Sign in to save rules to your account.'); return; }
+  const title = (parseGoals(goalSource).title ?? '').trim();
+  if (!title) { showGoalError('Add a `goals: <name>` header line before saving.'); return; }
+  const existing = goalsStore.mine().find((g) => g.title === title);
+  try {
+    if (existing) {
+      await goalsStore.update(existing.id, { title, source: goalSource });
+    } else {
+      const wait = goalsStore.create({ title, source: goalSource });
+      renderGoalPicker();                       // the optimistic row is in the cache now
+      await wait;
+    }
+    const saved = goalsStore.mine().find((g) => g.title === title);
+    renderGoalPicker(saved ? SAVED + saved.goalId : '');
+  } catch (e) {
+    renderGoalPicker('custom');                 // roll the optimistic row back
+    showGoalError(`Could not save: ${e.message}`);
+  }
 };
 
 // The file this writes is the one `wdl goals --goals` reads. Rules drafted here
 // are not in a private format; they are the same artifact, earlier.
 el('goal-download').onclick = () => {
   if (!goalSource.trim()) return;
-  const chosen = el('goal-pick').value;
-  const base = chosen.startsWith(SAVED) ? chosen.slice(SAVED.length)
-    : chosen.startsWith(EXAMPLE) ? chosen.slice(EXAMPLE.length).replace(/\.wdlg$/, '')
-    : (parseGoals(goalSource).title ?? 'goals');
+  const base = parseGoals(goalSource).title ?? 'goals';
   const name = base.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'goals';
   const url = URL.createObjectURL(new Blob([goalSource], { type: 'text/plain' }));
   const a = document.createElement('a');
@@ -2800,11 +2827,17 @@ el('goal-download').onclick = () => {
   URL.revokeObjectURL(url);
 };
 
-el('goal-drop').onclick = () => {
-  const name = el('goal-pick').value.slice(SAVED.length);
-  if (!name || !confirm(`Delete the rules "${name}"?`)) return;
-  delete savedGoals[name];
-  localStorage.setItem('wdl.goals', JSON.stringify(savedGoals));
+el('goal-drop').onclick = async () => {
+  const value = el('goal-pick').value;
+  if (!value.startsWith(SAVED)) return;
+  const entry = goalsStore.mine().find((g) => g.goalId === value.slice(SAVED.length));
+  if (!entry || !confirm(`Delete the rules "${entry.title}"?`)) return;
+  try {
+    await goalsStore.remove(entry.id);
+  } catch (e) {
+    showGoalError(`Could not delete: ${e.message}`);
+    return;
+  }
   renderGoalPicker('');
   setGoalSource('');
 };
@@ -3096,11 +3129,13 @@ function renderIdentity() {
     mineSearchQuery = '';
     mineSearchInput = null;
     sets.clear();
+    goalsStore.clearMine();
     composing = null;
     openSets.clear();
     renderIdentity();
     renderMinePanel();
     renderRepertoire();
+    renderGoalPicker();
   };
   box.append(who, renderHandle(user), out);
 }
@@ -3426,11 +3461,19 @@ const analysis = Promise.all([load(CANONICAL), load(MUSCLES)])
     el('palette-count').textContent = 'movement data unavailable';
   });
 
-renderGoalPicker(EXAMPLE + GOALS[0]);
+renderGoalPicker();
 renderSets();
 renderSetList();
 curated.finally(render);
-analysis.then(() => el('goal-pick').dispatchEvent(new Event('change')));
+
+// The Global rulesets come from the `goals` collection, with the bundled
+// `.wdlg` files as the offline fallback; select the first once it resolves, and
+// load + check it once the muscle data is in too (the check needs both).
+const goalsReady = goalsStore.loadGlobal()
+  .then(() => renderGoalPicker(GLOBAL + (goalsStore.globals()[0]?.goalId ?? '')))
+  .catch(() => {});
+Promise.all([analysis.catch(() => {}), goalsReady])
+  .then(() => el('goal-pick').dispatchEvent(new Event('change')));
 
 // Accounts: paint the signed-out state immediately (a stored token, if any, is
 // still unverified), then revalidate it against the server and, if it holds,
@@ -3450,6 +3493,7 @@ refreshAuth().then(async (user) => {
   if (user) {
     refreshMineList().then(renderMinePanel);
     sets.load().then(renderRepertoire).catch(() => {});
+    goalsStore.loadMine().then(() => renderGoalPicker()).catch(() => {});
   }
   if (wParam) {
     try {
