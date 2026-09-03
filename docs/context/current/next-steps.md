@@ -208,9 +208,14 @@ independent of each other:
 
 - **The movement-sets database (S0–S4)** — `localStorage['wdl.sets']` → a
   `movement_sets` collection on the workouts pattern. Scopes `org-library` +
-  `user`; `setId` = `<handle>:<slug(name)>` re-slugged on rename; **nothing
-  ships v1** (no committed registry, no loader); `wdl.sets` retired,
-  signed-in-only, no migration. S0 writes DEC-027; S1 migration; S2 the
+  `user` (no `scope` column — derived from owner + `visibility`); `setId` =
+  `<handle>:<slug(name)>` re-slugged on rename; **nothing ships v1** (no
+  committed registry, no loader); `wdl.sets` retired, signed-in-only, no
+  migration. **S0 done 2026-09-02 (`8826d80`, docs-only) —
+  [DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)
+  written + the two topic-file edits.** **S1 (the migration) is next** —
+  `deploy/pocketbase/pb_migrations/<ts>_create_movement_sets.js` per the DEC-027
+  shape, verified up/down/up against a real `pocketbase` binary. Then S2 the
   `apps/shared/sets.js` model + `pocketbase.js` CRUD + builder rewire; S3
   fixtures + mock; S4 the create/edit dialog UX rework + deploy + close.
 - **The goals database (G0–G4)** — `localStorage['wdl.goals']` → a `goals`

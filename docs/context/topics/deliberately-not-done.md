@@ -73,6 +73,18 @@ has a reason it is not one here. Check this before proposing one of them.
   [../tasks/deferred.md](../tasks/deferred.md) ("The movement-'sets' feature
   needs a model + UX rework"). `localStorage['wdl.sets']` stays the *only* store
   until that lands; this entry is kept for the trail of how the call moved.
+
+  **Corrected 2026-09-02.** The reopening is now settled, not just queued:
+  [DEC-027](settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)
+  (movement-sets database epic, S0) makes movement sets a `movement_sets`
+  PocketBase collection on the workouts pattern — `owner` / `name` / `setId`
+  (`<owner-handle>:<slug(name)>`, unique) / `movements` / `visibility`, scopes
+  `org-library` + `user` — with `localStorage['wdl.sets']` retired. So the
+  Non-Goal is **fully reversed**: the `movement-sets.json` carrier
+  (`{ format, version, sets }`) is now a *supported* export / import format for
+  moving a set between accounts, not a rejected one, and S4's UX pass decides
+  its prominence rather than its existence. Kept above for the trail; the live
+  disposition is DEC-027.
 - **Strength Level as a sixth registry source.** *Declined 2026-08-22 on terms.
   Measured 2026-08-22 anyway, at the author's direction, to size what was being
   given up; the measurement did not change the answer.*

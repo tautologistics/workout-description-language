@@ -87,7 +87,9 @@ The active queue is now **two `localStorage` → PocketBase epics Chris scoped
 - **## The movement-sets database (S0–S4)** — promote `localStorage['wdl.sets']`
   to a `movement_sets` collection on the workouts pattern (scopes: `org-library`
   + `user`; `setId` re-slugged on rename; nothing ships v1, no loader), then
-  rework the create/edit dialog. Model decisions all settled — S0 writes DEC-027.
+  rework the create/edit dialog. Model decisions all settled — **S0 wrote
+  [DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)
+  2026-09-02; S1 (the migration) is next.**
 - **## The goals database (G0–G4)** — promote `localStorage['wdl.goals']` to a
   `goals` collection on the vocab pattern (scopes: `global` + `user`;
   `examples/goals/*.wdlg` are the `global` rows; `make goals:load` ingests
@@ -878,7 +880,9 @@ shared model, a mock, then the UX pass + deploy. Each task is one landable
 branch sized for its own session; each spawns the next. **Nothing in
 `packages/core`, the grammar or the spec is touched.***
 
-**Model decisions Chris made 2026-09-02 (S0 writes them up as a DEC):**
+**Model decisions Chris made 2026-09-02 — S0 wrote them up as
+[DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)
+(`8826d80`, 2026-09-02):**
 
 - **Two scopes only: `org-library` and `user`.** No `global` scope — Chris:
   "if it simplifies things, it can be org-library and user only." Org-library
@@ -938,7 +942,28 @@ goals database (G0–G4)" below. Not folded in here; the two are independent.*
   `.local.json` overlay + `.gitignore` entry, `listEquipment` / `listPatterns`
   in `pocketbase.js`. DEC-025.
 
-### S0 — Design note + a new DEC. No code.
+### S0 — Design note + a new DEC. No code. — **DONE 2026-09-02 (`8826d80`)**
+
+**Shipped — docs-only, suite not exercised (nothing `make test` covers moved).**
+[DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)
+is written in full in `topics/settled-decisions.md` (after DEC-026) with an index
+entry in `decisions.md` (after DEC-026): the `movement_sets` collection shape and
+S1 contract, the two scopes (`org-library` + `user`, no `scope` column — derived
+from owner + `visibility` like `workouts`, and why there is no `global` tier
+unlike DEC-025), `setId` = `<owner-handle>:<slug(name)>` forced on create *and*
+update and **re-slugged on rename**, the handle-rename staleness debt it inherits,
+"nothing ships v1 / no `registry/movement-sets.json` / no `make sets:load`",
+`localStorage['wdl.sets']` retired with no migration / signed-in-only / no
+`localStorage` fallback, and the `movement-sets.json` carrier reversing the
+"file format for palette sets" Non-Goal. The two topic-file edits landed with it:
+the **"Corrected 2026-09-02."** paragraph on the "A file format for palette
+'sets'" entry in `topics/deliberately-not-done.md`, and the
+**"Extended 2026-09-02 (DEC-027)"** paragraph folding `movement_sets.setId` into
+the handle-rename entry in `topics/known-debts.md`. Anchor check over
+`docs/context/**.md` clean (0 broken). **S1 (the migration) is next** — spawned
+as its own chip.
+
+Original brief kept below for the trail.
 
 Write the model above up as **DEC-027** (following the
 [../topics/settled-decisions.md](../topics/settled-decisions.md) +

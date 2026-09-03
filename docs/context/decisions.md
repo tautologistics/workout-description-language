@@ -283,3 +283,42 @@ underscore stripped) to an existing term, so the looser slug only ever governs
 what is written, not whether writing is offered; the `termId` unique index is
 the real guard.
 -> [topics/settled-decisions.md](topics/settled-decisions.md#dec-026-the-inline--new-term-slugs-by-lowercase--trim--collapse-whitespace-keeping-typed-hyphens)
+
+## DEC-027 — Movement sets are a PocketBase collection on the workouts pattern; `localStorage['wdl.sets']` is retired
+Status: active. Settled 2026-09-02 with the movement-sets database epic (S0).
+The builder's compose-by-hand movement **sets** — a flat `{name: [ids]}` map in
+`localStorage['wdl.sets']`, written only by `saveSets()` in `builder.js` — become
+a `movement_sets` PocketBase collection built on the `workouts` pattern, not the
+vocab pattern: `owner` (relation, required, cascade), `name`, `setId` (text,
+unique index — the `<owner-handle>:<slug(name)>` namespaced key, the
+`workouts.wdlId` analog), `movements` (ordered json array of registry ids, the
+value the `text/wdl-movement-id` drag payload carries), `visibility`
+(`private|unlisted|public`, default `private`), an optional `description` column
+carried now against a later migration, the two autodates; rules are the
+`workouts` rules (list/view `owner = @request.auth.id || visibility != "private"`,
+owner-only writes), `down` drops the collection. **Two scopes only —
+`org-library` and `user` — and no `scope` column:** scope is derived from the
+owner (an L1 org row vs a person) plus `visibility`, exactly as for `workouts`.
+There is no `global` tier, the one place this differs from
+[DEC-025](#dec-025--equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump):
+a vocabulary term is applied everywhere by default and needs an ownerless
+first-party row, whereas a set is always a named list attributable to its maker,
+so nothing is ownerless. `setId` is forced on every create *and* update like
+`workouts.wdlId` ([DEC-021](#dec-021--an-accounts-handle-is-the-id-namespace-forced-onto-every-workout-on-save-workoutswdlid-mirrors-it)),
+with a `-2`/`-3` suffix on a same-owner clash, and — Chris's explicit call — is
+**re-slugged on rename** rather than frozen at create; a set therefore inherits
+the handle-rename staleness debt DEC-021 already carries for workout `@id`s
+([topics/known-debts.md](topics/known-debts.md)). **Nothing ships at v1:** no
+committed `registry/movement-sets.json`, no `make sets:load` loader, no authored
+first-party sets — a repertoire is reference you compose from, so the
+whiteboard-at-rest constraint does not bind it and the registry-dump machinery
+is built only if first-party sets ever appear. `localStorage['wdl.sets']` is
+retired with no migration (zero rows to carry); sets become signed-in-only, the
+palette modal's "Sets" section hidden when signed out, no `localStorage`
+fallback. The `movement-sets.json` export/import carrier stays — this decision
+**reopens** the "file format for palette 'sets'" Non-Goal
+([topics/deliberately-not-done.md](topics/deliberately-not-done.md)) in full, the
+way DEC-020 / 021 / 025 recorded their reversals. The goals epic (DEC-028,
+G0–G4) promotes `localStorage['wdl.goals']` on the parallel vocab pattern with a
+`global` scope — a sibling decision, not this one.
+-> [topics/settled-decisions.md](topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)

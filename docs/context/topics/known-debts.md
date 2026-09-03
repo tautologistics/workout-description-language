@@ -1055,6 +1055,16 @@ when something looks odd before treating it as a discovery.
   exists under the handle. Recorded so the first session to hit a broken share
   link knows it is expected, not a bug.
 
+  **Extended 2026-09-02 (DEC-027) — `movement_sets.setId` shares this debt.** The
+  movement-sets database epic (S0,
+  [decisions.md](../decisions.md) DEC-027) makes a set's `setId` the same kind of
+  key: `<owner-handle>:<slug(name)>`, forced on save and **re-slugged on rename**
+  like `workouts.wdlId`. So renaming an account handle re-slugs every
+  `user`-scoped set's `setId` too, stranding any link built on the old one — the
+  identical failure mode, with the identical options above. S0 does not solve it;
+  it is recorded here so the first session to hit a stale `setId` after a handle
+  change knows it is expected.
+
 The ones with a plan attached are queued in
 [tasks.md](../tasks.md); the ones found by driving the
 builder are in [builder-ux.md](builder-ux.md).

@@ -2,6 +2,42 @@
 
 ## Changes
 
+- **2026-09-02 — DEC-027 settled (`8826d80`, docs-only): movement sets become a
+  `movement_sets` PocketBase collection; `localStorage['wdl.sets']` retired.**
+  S0 of the movement-sets database epic (S0–S4) — the design/DEC task, no code.
+  [DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)
+  is written in full in `topics/settled-decisions.md` (after DEC-026) with an
+  index entry in `decisions.md`. **What it fixes for S1 — the collection
+  contract:** `movement_sets` with `owner` (relation → `users`, required,
+  cascade), `name` (text, required), `setId` (text, required, **unique index** —
+  the `<owner-handle>:<slug(name)>` namespaced key, the `workouts.wdlId` analog),
+  `movements` (json, ordered array of registry ids), `visibility`
+  (`private|unlisted|public`, required, default `private`), `description` (text,
+  optional — carried now against a later migration), the two autodates; rules
+  are the `workouts` rules (list/view
+  `owner = @request.auth.id || visibility != "private"`, owner-only
+  create/update/delete), `down` drops the collection. **Two scopes only —
+  `org-library` and `user`, with no `scope` column:** scope is derived from the
+  owner (an L1 org row vs a person) plus `visibility`, exactly as for `workouts`;
+  there is no `global` tier (the one difference from DEC-025's vocab layer — a
+  set is always attributable to its maker, so nothing is ownerless). **`setId` is
+  forced on every create *and* update like `workouts.wdlId` (DEC-021), with a
+  `-2`/`-3` suffix on a same-owner clash, and re-slugged on rename** (Chris's
+  explicit call — mirror workouts, do not freeze it) — so a set inherits the
+  handle-rename staleness debt now recorded in `topics/known-debts.md` alongside
+  the workout `@id` case. **`localStorage['wdl.sets']` is retired with no
+  migration** (zero rows to carry); sets become **signed-in-only** (the palette
+  modal's "Sets" section hidden when signed out) with **no `localStorage`
+  fallback**. **Nothing ships at v1** — no `registry/movement-sets.json`, no
+  `make sets:load`, no authored first-party sets. The `movement-sets.json`
+  export/import carrier stays: DEC-027 **reopens** the "file format for palette
+  'sets'" Non-Goal in full (a "Corrected 2026-09-02." paragraph added to
+  `topics/deliberately-not-done.md`). Sibling epic: the goals database (DEC-028,
+  G0–G4) promotes `localStorage['wdl.goals']` on the vocab pattern with a
+  `global` scope. **Docs-only — `make test` not run and not claimed** (nothing it
+  covers moved); anchor check over `docs/context/**.md` clean. S1 (the migration)
+  is next.
+
 - **2026-09-02 — N3 shipped (`fecf6b3`): the board's *Edit* button round-trips
   into the builder.** The board footer's *Edit* button used to call
   `showEmpty()` — drop the hash/query and reload the board to its empty
