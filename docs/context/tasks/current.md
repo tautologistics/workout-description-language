@@ -113,26 +113,27 @@ byte-identical) are loaded on the prod API; the served
 `apps/shared/{pocketbase.js,goals-store.js}` + `apps/builder/builder.js` are
 byte-identical to `origin/main`.
 
-**Goals-rules hardening (found while verifying G4's prod deploy — fix written
-2026-09-03, one deploy step left).** G1's `goals` rules had no
-`@request.auth.id != ""` guard, and `goals.user` is a nullable relation, so an
-unauthenticated `POST` of `{scope:"user"}` with no `user` field created an
-ownerless `user`-scoped row (`user = @request.auth.id` is `"" = ""`; the same
-`"" = ""` let an anon caller read ownerless rows). Narrow — an anon `global`
-write, or one attributing a `user` row to a real uid, was still `400` — so
-collection spam, not escalation, but a gap `movement_sets` / `workouts` do not
-have. **Fixed by
+**Goals-rules hardening (found while verifying G4's prod deploy — fixed and
+deployed 2026-09-03).** G1's `goals` rules had no `@request.auth.id != ""`
+guard, and `goals.user` is a nullable relation, so an unauthenticated `POST` of
+`{scope:"user"}` with no `user` field created an ownerless `user`-scoped row
+(`user = @request.auth.id` is `"" = ""`; the same `"" = ""` let an anon caller
+read ownerless rows). Narrow — an anon `global` write, or one attributing a
+`user` row to a real uid, was still rejected — so collection spam, not
+escalation, but a gap `movement_sets` / `workouts` do not have. **Fixed by
 `deploy/pocketbase/pb_migrations/1757400000_harden_goals_rules.js`** — edits the
 existing collection's five rules to the guarded forms
 (list/view `scope = "global" || (@request.auth.id != "" && user = @request.auth.id)`;
 create/update/delete
 `@request.auth.id != "" && ((scope = "user" && user = @request.auth.id) || @request.auth.admin = true)`),
 verified up/down/up against a real pocketbase v0.40.1 binary; DEC-028's
-correction note records the guarded forms as settled. **Still to do:
-`make deploy:db`** applies it on the VPS — the same "still to do on deploy"
-caveat every migration carries; until then the live API still has the gap. The
-G3 mock `/api` is already stricter (it 403s the anonymous write), so local dev
-is unaffected.
+correction note records the guarded forms as settled. **Applied on prod
+2026-09-03 (`make deploy:db`)** — the five live rules read back guarded, and the
+anonymous ownerless `{scope:"user"}` `POST` now returns `400 "Failed to create
+record"` with no row (PocketBase's shape for a guest failing a non-null rule —
+not `403`; before the fix this exact request returned `200` and created a row).
+The 3 `global` rows are unaffected. The G3 mock `/api` is already stricter (it
+403s the anonymous write), so local dev is unaffected.
 
 Also queued / deferred, unchanged:
 - the **flat 129-row palette browse UX** — deferred pending the curation sweep

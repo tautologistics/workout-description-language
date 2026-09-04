@@ -1879,11 +1879,18 @@ the suite was not exercised because nothing it covers moves.*
     @request.auth.id)`; create / update / delete
     `@request.auth.id != "" && ((scope = "user" && user = @request.auth.id) ||
     @request.auth.admin = true)`. Verified up / down / up against a real
-    pocketbase v0.40.1 binary; `down` restores G1's original strings. **The
-    guarded forms above are now the settled `goals` rules**; the G1 strings at
-    the top of this bullet are kept for the trail. A superuser bypasses rules so
-    `make goals:load` is unaffected, and a `users` admin row is authenticated so
-    the `global`-tier admin write still works.*
+    pocketbase v0.40.1 binary; `down` restores G1's original strings. **Applied
+    on prod 2026-09-03** (`make deploy:db`) — the five live rules read back as
+    these guarded forms, and an anonymous `POST` of an ownerless
+    `{ scope: "user" }` row is now rejected (PocketBase answers a guest that
+    fails a non-null rule with `400 "Failed to create record"`, not `403` — the
+    same shape it already gave an anonymous `scope: "global"` write; the point
+    is no row is created, where before the fix this exact request returned `200`
+    and created one). The 3 `global` rows are unaffected. **The guarded forms
+    above are now the settled `goals` rules**; the G1 strings at the top of this
+    bullet are kept for the trail. A superuser bypasses rules so `make
+    goals:load` is unaffected, and a `users` admin row is authenticated so the
+    `global`-tier admin write still works.*
 
 - **Two scopes — `global` and `user` — and there *is* a `scope` column.** This
   is the [DEC-025](#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump)

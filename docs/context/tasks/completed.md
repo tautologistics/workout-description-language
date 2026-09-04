@@ -3247,9 +3247,12 @@ create/update/delete
 `@request.auth.id != "" && ((scope = "user" && user = @request.auth.id) || @request.auth.admin = true)`),
 verified up/down/up against a real pocketbase v0.40.1 binary; `down` restores
 G1's strings, and DEC-028's correction note records the guarded forms as the
-settled rules. **`make deploy:db` applies it on the VPS** — the same "still to
-do on deploy" caveat every migration carries; until it runs the live API still
-has the gap. The G3 mock `/api` is already stricter than the live rule (it 403s
+settled rules. **Applied on prod 2026-09-03 (`make deploy:db`)** — the five live
+`goals` rules read back guarded, and the anonymous ownerless `{scope:"user"}`
+`POST` now returns `400 "Failed to create record"` with no row (PocketBase's
+shape for a guest failing a non-null rule — not `403`; before the fix this
+exact request returned `200` and created a row). The 3 `global` rows are
+unaffected. The G3 mock `/api` is already stricter than the live rule (it 403s
 an unauthenticated write outright), so local dev is unaffected.
 
 **Self-referential-SHA trap (S0–S3 / G1–G3 all hit it):** committed with a

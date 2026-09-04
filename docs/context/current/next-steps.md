@@ -309,15 +309,16 @@ to queue**: the audit that produced S and G found only `wdl.sets` and
   the 3 `global` rows (`source` byte-identical), `make deploy` shipped the
   static apps (served JS byte-identical to `origin/main`); the G0–G4 section
   moved to [../tasks/completed.md](../tasks/completed.md). **Rules-hardening
-  follow-up, fix written 2026-09-03:** G1's `goals` rules lacked an
+  follow-up, fixed + deployed 2026-09-03:** G1's `goals` rules lacked an
   `@request.auth.id != ""` guard, so an anonymous `POST` of an ownerless
   `{scope:"user"}` row succeeded (collection spam, not escalation — a `global`
-  row or one attributed to a real uid is `400`).
+  row or one attributed to a real uid is rejected).
   `deploy/pocketbase/pb_migrations/1757400000_harden_goals_rules.js` tightens all
   five `goals` rules, verified up/down/up against a real pocketbase v0.40.1
-  binary; DEC-028's correction note records the guarded forms as settled.
-  **`make deploy:db` applies it on the VPS** — the one step left; until it runs
-  the live API still has the gap.
+  binary and **applied on prod via `make deploy:db`** — the live rules read back
+  guarded and the anonymous ownerless write now returns `400` with no row (it
+  was `200` + a row before). DEC-028's correction note records the guarded forms
+  as settled.
 
 The `localStorage` audit that produced these: only `wdl.sets` and `wdl.goals`
 held real content, **and both are now PocketBase collections** (S0–S4 and
@@ -335,8 +336,9 @@ audit** is [../tasks/deferred.md](../tasks/deferred.md) ("once functionality has
 settled"). Most [../topics/known-debts.md](../topics/known-debts.md) items are
 core / spec / grammar, not app-only.
 
-**Deploy state, 2026-09-03** (checked against the live API): all **eight**
-migrations applied, every loader has run against prod (`movements` **972**,
+**Deploy state, 2026-09-03** (checked against the live API): all **nine**
+migrations applied (the ninth, `1757400000_harden_goals_rules.js`, tightens the
+`goals` rules), every loader has run against prod (`movements` **972**,
 `workouts` **45**, `equipment` **29**, `patterns` **11**, `movement_sets` **0**,
 `goals` **3** `global` rows), and the **V8 + S0–S4 + G0–G4 static apps are `make
 deploy`'d** — the served `apps/shared/*.js` and `apps/builder/builder.js` are
@@ -345,12 +347,13 @@ DB goal rulesets. The **M6 nightly-backup cron is installed, running, and pulled
 off-box** — cron writes `~/pb/pb_backups/data-YYYY-MM-DD.db` at 03:17 UTC
 (`backup.log` clean), and `make backups:pull` copies them into the repo-relative
 `db-backups/` (git-ignored contents), verified 2026-09-02 with both snapshots
-landing. **One migration is staged for deploy** (found at G4, 2026-09-03):
-`1757400000_harden_goals_rules.js` adds the `@request.auth.id != ""` guard G1's
-`goals` rules lacked (anonymous callers could otherwise create ownerless
-`{scope:"user"}` rows — collection spam, not escalation). Verified up/down/up
-locally against a real pocketbase v0.40.1 binary; **`make deploy:db` applies it
-on the box.** (Deferred, not open: PocketBase upgrades, and the DreamHost
+landing. **The goals-rules hardening migration is deployed** (found at G4,
+2026-09-03): `1757400000_harden_goals_rules.js` added the `@request.auth.id != ""`
+guard G1's `goals` rules lacked (anonymous callers could otherwise create
+ownerless `{scope:"user"}` rows — collection spam, not escalation); verified
+up/down/up locally and applied via `make deploy:db` — the live rules read back
+guarded, the anonymous ownerless write now returns `400` with no row. **Nothing
+is open on deploy.** (Deferred, not open: PocketBase upgrades, and the DreamHost
 firewall ticket for the port-8090 exposure.)
 
 *Corrected 2026-09-02, twice the same day: this first said the prod

@@ -2,8 +2,9 @@
 
 ## Changes
 
-- **2026-09-03 — goals-rules hardening migration written
-  (`1757400000_harden_goals_rules.js`).** The follow-up to the gap G4 surfaced:
+- **2026-09-03 — goals-rules hardening migration written and deployed
+  (`1757400000_harden_goals_rules.js`, commit `080a924`).** The follow-up to the
+  gap G4 surfaced:
   G1's `goals` rules had no `@request.auth.id != ""` guard, and `goals.user` is
   a nullable relation, so an unauthenticated `POST` of `{scope:"user"}` with no
   `user` field satisfied `scope = "user" && user = @request.auth.id` (`"" = ""`)
@@ -20,8 +21,13 @@
   applies all nine migrations cleanly, the five rules read back guarded,
   `migrate down 1` restores the exact G1 strings, a re-`up` reapplies.
   README entry added; DEC-028 carries a `*Fixed 2026-09-03*` note with the
-  guarded forms as the settled rules. **Still to apply on the box —
-  `make deploy:db`;** until then the live API still has the gap.
+  guarded forms as the settled rules. **Applied on prod 2026-09-03
+  (`make deploy:db`)** — the five live `goals` rules read back guarded, and the
+  anonymous ownerless `{scope:"user"}` `POST` now returns `400 "Failed to create
+  record"` with no row (PocketBase's shape for a guest failing a non-null rule,
+  not `403` — the same response it already gave an anonymous `scope: "global"`
+  write; before the fix this exact request returned `200` and created a row).
+  The 3 `global` rows are unaffected.
 
 - **2026-09-03 — G4 shipped (`6d8a9b5`): the goals database is live on prod and
   the G0–G4 epic is closed.** Deploy + `docs/context/**` only — no other repo

@@ -213,6 +213,9 @@ supersedes it. From then on the collection schema is reproducible: a fresh
   real v0.40.1 (darwin_arm64) binary + throwaway `pb_data`: `migrate up` applies
   all nine migrations cleanly, the five `goals` rules read back as the guarded
   forms (`sqlite3` against `_collections`), `migrate down 1` restores the exact
-  G1 strings with every collection/index intact, a re-`up` reapplies. **Still to
-  apply on the box** — `make deploy:db`. Glance at the admin UI on the box after
-  deploy, same caveat as the workouts migration.
+  G1 strings with every collection/index intact, a re-`up` reapplies. Applied on
+  the box 2026-09-03 (`make deploy:db`) — the five live `goals` rules read back
+  as the guarded forms, an anonymous `POST` of an ownerless `{ scope: "user" }`
+  row is now rejected (was 200 + a row), the 3 `global` rows unaffected. Glance
+  at the admin UI on the box after deploy, same caveat as the workouts
+  migration.
