@@ -22,13 +22,11 @@ const snapshot = JSON.parse(readFileSync(join(here, 'golden/vocabulary.json'), '
 
 /** Forms whose pinned reading is known to be wrong. Pinned so a fix is visible. */
 const KNOWN_WRONG: Record<string, string> = {
-  // Found 2026-08-15 beside the leading `sets x reps` defect and deliberately not
-  // folded into its fix: `10x` is a rep spelling spec §3's unit table documents
-  // and nothing has ever read, but it is a different form from `NxM` and reading
-  // it means deciding whether a bare `Nx` is reps everywhere or only in a leading
-  // position. Recorded rather than guessed at.
-  'sets-by-reps :: 10x Curl':
-    '`10x` is a documented rep spelling (spec §3) that no rule reads — it becomes part of the movement name',
+  // `10x Curl` lived here from 2026-08-15 (found beside the leading `sets x reps`
+  // defect, deliberately not folded into that fix because it is a different form).
+  // Closed 2026-09-03: Chris settled that a bare leading `Nx` reads as the plain
+  // number — `10x Curl` is `10 Curl`, no `sets` — so the grammar's `leadQuantity`
+  // grew an `xReps` alternative and this form now has the right pinned reading.
 };
 
 /**

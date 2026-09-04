@@ -116,6 +116,7 @@ WDL {
                | durationQty spaces maxWord ~letter spaces              -- clockMax
                | maxWord ~letter spaces                                 -- max
                | setsByReps spaces                                      -- setsByReps
+               | integer caseInsensitive<"x"> ~wordChar spaces          -- xReps
                | unreadableRange spaces                                 -- unreadableRange
                | anyQuantity spaces                                     -- plain
 
@@ -145,6 +146,16 @@ WDL {
   // after the second number, so it is not this — a target's `2x35lb` is two
   // thirty-five-pound dumbbells and has nothing to do with sets.
   setsByReps = integer caseInsensitive<"x"> integer ~wordChar
+
+  // `10x Curl` — a bare leading `Nx`, which spec §3's unit table lists as a rep
+  // spelling (`Reps | 10 | 10 reps, 10x`). It says exactly what the plain `10`
+  // says and carries no `sets`, so it is *not* `setsByReps` (that needs a second
+  // integer, and is matched first, so `10x5` never reaches here). The `~wordChar`
+  // after the `x` is the whole guard: `10x` must be a complete token, so a load's
+  // `2x35lb` (letter after) and the sets-by-reps `10x5` (digit after) are both
+  // excluded. Only the *leading* position — a trailing `x3` is a `sets` count
+  // (`trailingQualifier_sets`), not reps. Chris, 2026-09-03: a leading run of
+  // digits then `x` reads as the plain number.
 
   // A quantity is a whole whitespace-delimited token, or `3/4 Sit-Up` reads
   // its leading `3` as three reps of a movement called `/4 Sit-Up`.

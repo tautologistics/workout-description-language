@@ -90,6 +90,15 @@ export function installStep(semantics: Semantics): void {
       this.args.step.sets = num(n);
       this.args.step.quantity = { kind: 'reps', value: num(reps) };
     },
+    /**
+     * `10x Curl` — a bare leading `Nx`. Spec §3's unit table lists `10x` as a
+     * rep spelling; it says exactly what the plain `10` says and carries no
+     * `sets`, so the tree is the same one `10 Curl` produces. `NxM` is matched
+     * ahead of this (`setsByReps`). Chris, 2026-09-03.
+     */
+    leadQuantity_xReps(n, _x, _s) {
+      this.args.step.quantity = { kind: 'reps', value: num(n) };
+    },
     leadQuantity_plain(q, _s) { this.args.step.quantity = q.unit(); },
     // `100-150ft` — a range wearing a unit the language does not read (spec §3
     // gives a range to reps and nothing else). Held the way an unrecognized

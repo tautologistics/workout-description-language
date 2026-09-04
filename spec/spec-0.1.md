@@ -135,7 +135,7 @@ strength:
 
 **`SxR` before the movement says the same thing, sets first.** `3x10 Curl` is `10 Curl x3` — three sets of ten — and `5x5 Back Squat @ 225lb` is design rule 4's own one-liner. Both spellings produce the same reading, so a tool never has to know which was written. Written both ways at once (`5x5 Back Squat x3`), the trailing count wins, on the general rule that a step's later part overrides an earlier one. *Read as of 2026-08-15; before that a leading `5x5` fell into the movement name, so the step matched no registry entry and dropped out of muscle and volume analysis. Canonical output still writes the trailing spelling — which of the two should be canonical is open, see `docs/context/topics/known-debts.md`.*
 
-A bare `Nx` — `10x Curl`, which §3's unit table lists as a rep spelling — is **not** read yet, and falls into the movement name. Recorded, not fixed.
+A bare `Nx` before the movement — `10x Curl`, which §3's unit table lists as a rep spelling — reads as the plain rep count: `10x Curl` is `10 Curl`, with no `sets` (that is `NxM`, matched first). Only in the leading position; a trailing `x3` is a set count. Canonical output writes the plain form (`10 Curls`). *Read as of 2026-09-03; before that it fell into the movement name.*
 
 **Laterality and side attach to the movement and precede the target**; team words trail it, because they qualify the whole prescription:
 

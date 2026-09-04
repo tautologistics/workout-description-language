@@ -7828,17 +7828,18 @@
   "fixpoint": true
  },
  "sets-by-reps :: 10x Curl": {
-  "canonical": "for time:\n  - 10x Curl",
+  "canonical": "for time:\n  - 10 Curls",
   "errors": [],
   "ast": {
    "body": [
     {
      "children": [
       {
-       "movement": "10x Curl",
+       "movement": "Curl",
        "node": "step",
        "quantity": {
-        "kind": "open"
+        "kind": "reps",
+        "value": 10
        }
       }
      ],

@@ -484,12 +484,11 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     // leading quantity has to leave the rest of the line alone.
     '3x10 Curl each arm',
     '3x10 Curl, unbroken',
-    // **Not read, and pinned that way.** `10x` is a rep spelling spec §3's unit
-    // table documents (`Reps | 10 | 10 reps, 10x`) and no implementation has ever
-    // read it either — it is the same family and was found beside this one, but
-    // it is a *different* form and not what queue item 0e scoped. Adding it means
-    // deciding whether a bare `Nx` is reps everywhere or only here, so it is
-    // recorded rather than folded in. See known-debts.md.
+    // A bare leading `Nx` — `10x` is a rep spelling spec §3's unit table
+    // documents (`Reps | 10 | 10 reps, 10x`). Unread until 2026-09-03, when Chris
+    // settled that it reads as the plain number: `10x Curl` is `10 Curl`, no
+    // `sets` (unlike `3x10`, which is matched first). `leadQuantity` grew an
+    // `xReps` alternative; canonical output writes the plain `10 Curls`.
     '10x Curl',
   ] },
   { group: 'whitespace-and-case', lines: [

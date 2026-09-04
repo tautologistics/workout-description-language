@@ -2,6 +2,31 @@
 
 ## Changes
 
+- **2026-09-03 — a leading bare `Nx` reads as reps (`10x Curl` = `10 Curl`).**
+  Closes the last pending test in the suite. Spec §3's unit table has always
+  listed `10x` as a rep spelling, but no implementation read it — `10x Curl`
+  fell into the movement name (`quantity: open`, no registry match), exactly as
+  `3x10` used to before item 0e. Chris settled it: a *leading* run of digits
+  then `x` is the plain number — `10x Curl` is `10 Curl`, carrying no `sets`
+  (that is `NxM`, the sets-by-reps form, which is matched first, so `10x5` is
+  unaffected); a *trailing* `x3` stays a set count. `leadQuantity` in
+  `spec/grammar-0.1.ohm` grew an `xReps` alternative
+  (`integer "x" ~wordChar spaces`), `leadQuantity_xReps` in
+  `packages/core/src/grammar/step-semantics.ts` maps it to
+  `{kind:'reps', value:N}`, spec §3's "SxR before the movement" prose updated,
+  and the `sets-by-reps :: 10x Curl` vocabulary golden was re-pinned to the
+  correct reading with its `KNOWN_WRONG` entry removed. A trailing bare `10x`
+  (`Curl 10x`, no movement after) is still left in the name — degenerate, out
+  of the leading-position scope. No corpus movement uses `10x`, so
+  `interpretations.json` / `registry/workouts.canonical.json` did not move.
+  `make test` **2064/2064, 0 pending** (was 1). *Still open (Chris deferred):
+  whether the leading `NxM` spelling should be the canonical `format` output —
+  the semantic is confirmed, the output spelling is not.* *Touched:
+  `spec/grammar-0.1.ohm`, `spec/spec-0.1.md`,
+  `packages/core/src/grammar/step-semantics.ts`,
+  `packages/core/test/{vocabulary.test.ts, golden/vocabulary.ts,
+  golden/vocabulary.json}`.*
+
 - **2026-09-03 — goals-rules hardening migration written and deployed
   (`1757400000_harden_goals_rules.js`, commit `080a924`).** The follow-up to the
   gap G4 surfaced:

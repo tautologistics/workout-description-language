@@ -289,15 +289,23 @@ when something looks odd before treating it as a discovery.
   step stated twice; it is pinned because leaving it to fall out of rule ordering
   is how a fixture ends up deciding a language question.
 
-- **Open, and found while closing the one above: `10x Curl` is not read.** Spec
-  §3's unit table documents `10x` as a rep spelling (`Reps | 10 | 10 reps, 10x`)
-  and no implementation has ever read it — it falls into the movement name exactly
-  as `3x10` used to. It is the same family and was deliberately *not* folded into
-  that fix, because it is a different form: reading it means deciding whether a
-  bare `Nx` is reps everywhere a quantity is expected or only in a leading
-  position, and `Nx` sits one character away from `NxM`. Pinned 2026-08-15 under
-  `sets-by-reps` and marked pending. Small, and it wants the decision written down
-  first.
+- ~~**Found while closing the one above: `10x Curl` is not read.**~~ **Closed
+  2026-09-03.** Spec §3's unit table documents `10x` as a rep spelling (`Reps |
+  10 | 10 reps, 10x`) and no implementation had ever read it — it fell into the
+  movement name exactly as `3x10` used to. It was deliberately not folded into
+  that fix because reading it meant deciding whether a bare `Nx` is reps
+  everywhere or only in a leading position, and `Nx` sits one character from
+  `NxM`. **Chris settled it 2026-09-03: a *leading* `Nx` reads as the plain
+  number** — `10x Curl` is `10 Curl`, no `sets` (`NxM` is the sets-by-reps form
+  and is matched first, so `10x5` is unaffected); a *trailing* `x3` stays a set
+  count. `leadQuantity` in `spec/grammar-0.1.ohm` grew an `xReps` alternative,
+  `leadQuantity_xReps` in `step-semantics.ts` maps it to `{kind:'reps'}`, spec
+  §3's prose (§ "SxR before the movement") updated, the `sets-by-reps :: 10x
+  Curl` vocabulary golden re-pinned to the right reading and its `KNOWN_WRONG`
+  entry removed — `make test` **2064/2064, 0 pending** (was 1). A trailing bare
+  `10x` (`Curl 10x`, no movement after) is still left in the name: degenerate,
+  and out of the leading-position scope Chris named. No corpus movement, so
+  `interpretations.json` / `registry/workouts.canonical.json` did not move.
 
 - ~~**`for time, 3 rounds:` drops the three rounds in silence.**~~ **Closed
   2026-08-16** by queue item 0f's second half. It used to parse to a plain
@@ -399,7 +407,11 @@ when something looks odd before treating it as a discovery.
 - **Open: whether the leading `NxM` spelling should be the *canonical* one.**
   Deliberately not decided while closing the parse defect above, because it is a
   question about `format` rather than about `parse` and it applies just as much to
-  steps that already parsed. Today `5x5 Back Squat @ 225lb` reads correctly and
+  steps that already parsed. *Chris confirmed the **semantic** 2026-09-03 —
+  `NxM` before the movement is sets × reps, same reading as the trailing `xN` —
+  but explicitly deferred the canonical-`format` question ("the rest we'll
+  discuss again later"). So this entry stays open: only the output spelling is
+  undecided.* Today `5x5 Back Squat @ 225lb` reads correctly and
   then formats to `5 Back Squats @ 225lb x5` — lossless, a fixpoint, and *not what
   anybody writes*. The whiteboard constraint is the argument for changing it:
   `5x5 Back Squat @ 225lb` is the gym standard and is the exact string spec §1

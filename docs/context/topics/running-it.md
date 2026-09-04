@@ -9,7 +9,7 @@ discoverability, not new build logic. Choice recorded in
 lockfile.
 
 ```bash
-make test        # npm --prefix packages/core test — ~2050 tests, 1 pending, ~10s
+make test        # npm --prefix packages/core test — ~2064 tests, 0 pending, ~10s
 make build       # node scripts/build-web.mjs — emit the core as browser modules
 make serve       # build, then node scripts/serve.mjs 8081  (override PORT=NNNN; WDL_MOCK_API=0 to disable the mock /api)
 make registry    # node scripts/build-canonical.ts — rebuild registry/ from its sources
