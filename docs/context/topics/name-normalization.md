@@ -5,7 +5,7 @@ wired into [../INDEX.md](../INDEX.md) pending discussion. Answers "when a name i
 looked up or an alias is saved, what gets normalized, by which normalizer, and do
 the two sides agree?"*
 
-> **Correction 2026-09-05 (P1, `<SHA-P1>`).** The two builder matchers described
+> **Correction 2026-09-05 (P1, `327b8c6`).** The two builder matchers described
 > below as "plain `.toLowerCase()`" — `matches()` (palette, `builder.js:~2103`)
 > and `movementSuggestions()` (row type-ahead, `builder.js:~233`) — **no longer
 > use plain `.toLowerCase()`**. Both now fold query *and* candidate text through

@@ -136,7 +136,7 @@ The 3 `global` rows are unaffected. The G3 mock `/api` is already stricter (it
 403s the anonymous write), so local dev is unaffected.
 
 **Two epics queued 2026-09-05 (Chris) — this is the active queue. `P1` landed
-2026-09-05 (`<SHA-P1>`); `P2` is next.**
+2026-09-05 (`327b8c6`); `P2` is next.**
 *Palette search normalization* (**P1–P3**, section below) makes the builder's
 movement search fold separators, depluralize, and expand `bb`/`db`-style
 shorthand the way core `resolve()` already does — until P1 it matched on raw
@@ -1113,7 +1113,7 @@ record carries aliases `["bent-over row", "bent over row"]`, equipment
 `defaultRegistry` from `build/web/core/registry.js`). Full read/write
 normalization trace: [../topics/name-normalization.md](../topics/name-normalization.md).
 
-### P1 — one normalizer for builder movement search; rewire both matchers — **DONE 2026-09-05 (`<SHA-P1>`)**
+### P1 — one normalizer for builder movement search; rewire both matchers — **DONE 2026-09-05 (`327b8c6`)**
 
 **Shipped.** `apps/builder/builder.js` gained a shared `searchKey(s)` helper next
 to `movementSuggestions` — `depluralize(foldTokens(s).tokens.map(t => TOKEN_EXPANSIONS[t] ?? t).join(''))`,
