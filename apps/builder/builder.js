@@ -34,6 +34,7 @@ import { validate } from '../../build/web/core/validate.js';
 import { run, roundLabel } from '../../build/web/core/run.js';
 import { provide, has } from '../../build/web/core/env.js';
 import { defaultRegistry } from '../../build/web/core/registry.js';
+import { foldTokens, depluralize, TOKEN_EXPANSIONS } from '../../build/web/core/fold.js';
 import { parseGoals, check } from '../../build/web/core/goals.js';
 import { exposures, muscleLoad, musclesFor, muscles } from '../../build/web/core/muscles.js';
 import { mountBody, paintBody, aggregateStates, highlightStates, heatStates, heatColor, attachZoom } from '../shared/body-map.js';
@@ -229,13 +230,37 @@ const movementFragment = (value) => value
   .replace(/^-\s+/, '')
   .replace(/^[\d:./x%]+\s*/i, '');
 
+/**
+ * Normalize a string for a builder-side movement *search* — a substring / prefix
+ * test, not core's exact-key lookup — by reusing the core primitives so the
+ * palette agrees with `Registry.resolve()` about what counts as the same name:
+ *
+ *   - `foldTokens()` — NFKD, lowercase, split on every non-alphanumeric run, and
+ *     drop the same stopwords core drops (`and/or/the/a/of/to/with`). So
+ *     `bent-over row`, `bent over row` and `bent  over row` fold together, and
+ *     `clean and jerk` == `clean jerk`.
+ *   - `TOKEN_EXPANSIONS` — `bb`→`barbell`, `db`→`dumbbell`, `t2b`→`toestobar`, …
+ *     mapped per folded token exactly as `resolve()` layer 2 does, so a typed
+ *     `bb bent over row` reaches the full-word haystack. Applied on both the
+ *     query and the candidate text, so it stays symmetric — a stored `bb row`
+ *     alias is also reachable by typing `barbell`.
+ *   - `depluralize()` — the folded-key plural rules, so `bent over rows` folds
+ *     to the same key as `bent over row`.
+ *
+ * Joins with nothing; the caller does `includes` / `startsWith` on the result,
+ * so partial-word matching (`thrust` → `Thruster`) still works — this does not
+ * become an exact match.
+ */
+const searchKey = (s) =>
+  depluralize(foldTokens(s).tokens.map((t) => TOKEN_EXPANSIONS[t] ?? t).join(''));
+
 /** Curated movements whose name plausibly matches what is being typed, either way. */
 const movementSuggestions = (fragment) => {
-  const q = fragment.trim().toLowerCase();
+  const q = searchKey(fragment);
   if (!q) return [];
   return curatedMovements
     .filter((m) => {
-      const t = m.title.toLowerCase();
+      const t = searchKey(m.title);
       return t.startsWith(q) || q.startsWith(t) || t.includes(q);
     })
     .slice(0, 20);
@@ -2106,14 +2131,20 @@ const matches = (m, q) => {
   // the whole registry — picking a filter and getting *more* than you had is a
   // thing no filter should ever do. Typing is how you reach past the core.
   if (!q) return m.core;
-  // Lowercased over the whole thing, not just the tail: `.toLowerCase()` binds
-  // to the literal it follows, so titles kept their capitals and searching for
-  // `weighted` found nothing called `Weighted Chin-up`.
+  // Fold both sides through `searchKey` so the palette matches names the way
+  // core `resolve()` does — separators collapse, plurals and `bb`/`db`-style
+  // shorthand expand — instead of raw-lowercase substring (which is why
+  // `bb bent over row` used to find nothing). Each haystack piece is folded on
+  // its own and the pieces are space-joined, so a needle can't bridge two of
+  // them; each query word is folded on its own, so a multi-word query still
+  // ANDs its parts and `thrust` → `Thruster` still matches on `includes`.
+  const needles = q.split(/\s+/).map(searchKey).filter(Boolean);
+  if (!needles.length) return m.core;
   const hay = [
     m.title, ...(m.pattern ?? []), ...(m.equipment ?? []),
     ...(m.muscles?.primary ?? []), ...(m.aliases ?? []),
-  ].join(' ').toLowerCase();
-  return q.toLowerCase().split(/\s+/).filter(Boolean).every((t) => hay.includes(t));
+  ].map(searchKey).filter(Boolean).join(' ');
+  return needles.every((n) => hay.includes(n));
 };
 
 function renderMuscleChips() {

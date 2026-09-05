@@ -135,13 +135,17 @@ not `403`; before the fix this exact request returned `200` and created a row).
 The 3 `global` rows are unaffected. The G3 mock `/api` is already stricter (it
 403s the anonymous write), so local dev is unaffected.
 
-**Two epics queued 2026-09-05 (Chris) — this is the active queue, `P1` first.**
+**Two epics queued 2026-09-05 (Chris) — this is the active queue. `P1` landed
+2026-09-05 (`<SHA-P1>`); `P2` is next.**
 *Palette search normalization* (**P1–P3**, section below) makes the builder's
 movement search fold separators, depluralize, and expand `bb`/`db`-style
-shorthand the way core `resolve()` already does — today it matches on raw
-lowercase substring, which is why `bb bent over row` in the palette returns
+shorthand the way core `resolve()` already does — until P1 it matched on raw
+lowercase substring, which is why `bb bent over row` in the palette returned
 nothing and why the curated `barbell-row` has to carry two aliases
-(`"bent-over row"`, `"bent over row"`) that fold identically in core. *Soft
+(`"bent-over row"`, `"bent over row"`) that fold identically in core. **P1 shipped
+the shared `searchKey()` helper and rewired both matchers** (see the P1 subsection);
+P2 (pin the `resolve()` winner to the top) and P3 (the redundant-alias data
+cleanup, now unblocked) remain open. *Soft
 delete across records* (**D0–D6**, section below) gives workouts / movements /
 movement sets / goals a nullable `deleted` **timestamp** (`null` = live, a value
 = when it was deleted), flips the existing hard-`DELETE` buttons to soft-delete,
@@ -1109,7 +1113,50 @@ record carries aliases `["bent-over row", "bent over row"]`, equipment
 `defaultRegistry` from `build/web/core/registry.js`). Full read/write
 normalization trace: [../topics/name-normalization.md](../topics/name-normalization.md).
 
-### P1 — one normalizer for builder movement search; rewire both matchers
+### P1 — one normalizer for builder movement search; rewire both matchers — **DONE 2026-09-05 (`<SHA-P1>`)**
+
+**Shipped.** `apps/builder/builder.js` gained a shared `searchKey(s)` helper next
+to `movementSuggestions` — `depluralize(foldTokens(s).tokens.map(t => TOKEN_EXPANSIONS[t] ?? t).join(''))`,
+importing `foldTokens` / `depluralize` / `TOKEN_EXPANSIONS` from
+`../../build/web/core/fold.js` (no core change). Both `matches()` (palette modal
+`#search`) and `movementSuggestions()` (outline row type-ahead) now fold query
+**and** candidate text through it. `matches()` folds each haystack piece on its
+own and space-joins them (a needle can't bridge two pieces), folds each
+whitespace-split query word on its own, and keeps `needles.every(n => hay.includes(n))`
+— so the multi-word AND, the muscle-filter AND, the empty-query→`m.core`
+behaviour, and partial-word matching (`thrust` → `Thruster`) all survive; it is
+still fold-then-`includes`, not an exact lookup. If a query folds to nothing
+(only stopwords / punctuation) it falls back to `m.core`.
+
+**Decisions made:**
+- **Drop stopwords in the search helper — yes.** Falls out of reusing
+  core's `foldTokens` (drops `and/or/the/a/of/to/with`), and is the wanted
+  behaviour: `clean and jerk` == `clean jerk`.
+- **Expand the haystack as well as the query — yes.** `TOKEN_EXPANSIONS` is
+  applied to both sides, so it stays symmetric — a typed `bb bent over row`
+  reaches the full-word `Barbell Row`, and a stored `bb row`-style alias is
+  reachable by typing `barbell`. The expansion table only maps a small set of
+  unambiguous short tokens, so expanding stored text is safe.
+- **`catalogue` holds the full canonical corpus (3109), not the core 129** —
+  confirmed: it is `registry/movements.canonical.json` `.movements`, fetched
+  straight from the file (not `/api`); an empty query shows the 129 `core:true`
+  subset via `m.core`, a typed query reaches all 3109. "Search reaches the whole
+  registry" is accurate; `what-exists.md`'s Apps row updated with the new
+  folding behaviour.
+
+**Verified** by driving `make serve` (light + dark, no console errors):
+`bent over row` → 14 hits, **Barbell Row** first; `bb bent over row` → 8 hits
+(barbell rows only), Barbell Row first — was **nothing** before; `db bent over
+row` → 3 dumbbell rows — was nothing before; `bent-over rows` (hyphen + plural)
+→ 14 hits, Barbell Row first. Outline type-ahead: `- 10 db snatch` suggests
+**Dumbbell Snatch** (was nothing); `- 10 bent over` suggests the bent-over row
+family. Trimmed `barbell-row`'s canonical aliases to just `["bent-over row"]`
+and reloaded — `bent over rows` still surfaced Barbell Row first (the P3
+premise); fixture restored with `git checkout`. `make test` 2064/2064 passing,
+unchanged (app code; the core suite does not cover the palette). `make aliases`
+baseline unchanged — `curated — 972 records, 0 contended names`.
+
+Original brief kept below for the trail.
 
 - Add a small shared helper in `apps/builder/builder.js` (near `movementFragment`)
   that normalizes a string for **substring/prefix** matching by reusing the core

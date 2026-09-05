@@ -5,6 +5,25 @@ wired into [../INDEX.md](../INDEX.md) pending discussion. Answers "when a name i
 looked up or an alias is saved, what gets normalized, by which normalizer, and do
 the two sides agree?"*
 
+> **Correction 2026-09-05 (P1, `<SHA-P1>`).** The two builder matchers described
+> below as "plain `.toLowerCase()`" — `matches()` (palette, `builder.js:~2103`)
+> and `movementSuggestions()` (row type-ahead, `builder.js:~233`) — **no longer
+> use plain `.toLowerCase()`**. Both now fold query *and* candidate text through
+> a shared `searchKey()` helper (`depluralize(foldTokens(s).tokens.map(t =>
+> TOKEN_EXPANSIONS[t] ?? t).join(''))`, importing the three core primitives from
+> `build/web/core/fold.js`). So separators fold, plurals fold, stopwords drop,
+> and `bb`/`db`-style shorthand expands — on both sides — for palette search and
+> the type-ahead. They still fold-then-`includes`/`startsWith` (partial-word
+> matching preserved), so they remain non-authoritative discoverability helpers,
+> not identity — the parsed line is still re-resolved by core `resolve()`. The
+> `.toLowerCase()` rows in the normalizer table and the two "`matches`" /
+> "`movementSuggestions`" rows in the Q1 table are stale from here on; the
+> `TOKEN_EXPANSIONS` "the app-side matchers never reach it" claim in Q4 is
+> likewise now false for these two. Everything else in this file still holds —
+> core paths are unchanged, no `packages/core` edit. See
+> [../tasks/current.md](../tasks/current.md) `## Palette search normalization`
+> → `### P1`.
+
 ## TL;DR
 
 - **Every *authoritative* movement lookup goes through core `fold()` / `resolve()`,
