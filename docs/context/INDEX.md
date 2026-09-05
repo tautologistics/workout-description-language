@@ -71,6 +71,7 @@ task touches.
 | [topics/settled-decisions.md](topics/settled-decisions.md) | Every design decision that is closed, and what each one buys — full detail behind [decisions.md](decisions.md). | About to change how something is structured — check it is not settled first. |
 | [topics/lessons-learned.md](topics/lessons-learned.md) | What cost real time, and the correction each one bought. | Before a change to parsing, analysis, the registry pipeline, or anything with a clock. |
 | [topics/known-debts.md](topics/known-debts.md) | Things that are wrong and known to be wrong. | Hitting something odd — it may already be written down. |
+| [topics/name-normalization.md](topics/name-normalization.md) | How a movement name is folded and matched on the read side and the write side, across `packages/core` and the apps — and where the builder's palette search diverges from core. | Touching movement lookup, alias matching/storage, `fold()` / `TOKEN_EXPANSIONS`, or the builder palette search. |
 | [topics/deliberately-not-done.md](topics/deliberately-not-done.md) | Things not built *on purpose*, with the reason — the detail behind [goals.md](goals.md)'s Non-Goals. | Tempted by an obvious-looking feature. Check here before proposing it. |
 | [topics/running-it.md](topics/running-it.md) | Test, build, serve, and the CLI verbs. | Running anything. |
 

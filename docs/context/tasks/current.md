@@ -135,6 +135,22 @@ not `403`; before the fix this exact request returned `200` and created a row).
 The 3 `global` rows are unaffected. The G3 mock `/api` is already stricter (it
 403s the anonymous write), so local dev is unaffected.
 
+**Two epics queued 2026-09-05 (Chris) — this is the active queue, `P1` first.**
+*Palette search normalization* (**P1–P3**, section below) makes the builder's
+movement search fold separators, depluralize, and expand `bb`/`db`-style
+shorthand the way core `resolve()` already does — today it matches on raw
+lowercase substring, which is why `bb bent over row` in the palette returns
+nothing and why the curated `barbell-row` has to carry two aliases
+(`"bent-over row"`, `"bent over row"`) that fold identically in core. *Soft
+delete across records* (**D0–D6**, section below) gives workouts / movements /
+movement sets / goals a nullable `deleted` **timestamp** (`null` = live, a value
+= when it was deleted), flips the existing hard-`DELETE` buttons to soft-delete,
+filters deleted rows out of every read and the `movements:dump`, and adds the
+one missing delete button (movements, in the editor). Both are app + DB only —
+**no `packages/core` change.** Background for the palette work:
+[../topics/name-normalization.md](../topics/name-normalization.md) and the
+2026-09-05 discussion it came from.
+
 Also queued / deferred, unchanged:
 - the **flat 129-row palette browse UX** — deferred pending the curation sweep
   + a dedicated UX review ([deferred.md](deferred.md));
@@ -1062,6 +1078,248 @@ what catches the resolver direction.*
 
 ---
 
+## Palette search normalization (P1–P3)
+
+Queued 2026-09-05 (Chris). The builder's movement palette search (`matches()`,
+`apps/builder/builder.js:~2103`) and the outline row type-ahead
+(`movementSuggestions()`, `:~233`) match on **raw `.toLowerCase()` substring** —
+no separator folding, no depluralization, no abbreviation expansion. Core
+already does all three correctly: `fold()` collapses `[\s_\-]+` and other
+non-alphanumerics and drops stopwords, `depluralize()` handles plurals, and
+`TOKEN_EXPANSIONS` (`bb→barbell`, `db→dumbbell`, `t2b→toestobar`, …) is applied
+in `Registry.resolve()`. The palette reaches **none** of it — it never calls
+core resolve for search.
+
+Two concrete symptoms Chris hit on *bent over row* (the curated `barbell-row`
+record carries aliases `["bent-over row", "bent over row"]`, equipment
+`barbell`, full muscle data):
+
+- **`bb bent over row` / `db bent over row` in the palette return nothing.**
+  `bb` is not a substring of any haystack, and the `bb→barbell` expansion lives
+  only in core `resolve()`.
+- **`barbell-row` needs two aliases that fold to one key.** `fold("bent-over
+  row") === fold("bent over row") === "bentoverrow"`, so in core the second is
+  dead weight — but the raw-substring palette needs the literal hyphen *and* the
+  literal space present to match either spelling, and a plural query
+  (`bent over rows`) still misses.
+
+**Scope: builder / palette search only — no `packages/core` change.** `fold`,
+`foldTokens`, `depluralize` and `TOKEN_EXPANSIONS` are all exported from
+`build/web/core/fold.js`, which the builder already imports from (it imports
+`defaultRegistry` from `build/web/core/registry.js`). Full read/write
+normalization trace: [../topics/name-normalization.md](../topics/name-normalization.md).
+
+### P1 — one normalizer for builder movement search; rewire both matchers
+
+- Add a small shared helper in `apps/builder/builder.js` (near `movementFragment`)
+  that normalizes a string for **substring/prefix** matching by reusing the core
+  primitives: lowercase → NFKD → collapse separators the way `fold()` does →
+  (decide: drop stopwords, as core `fold` does) → `depluralize`. It is not a new
+  algorithm — it is "apply `fold` / `depluralize` for a contains/startsWith test
+  instead of an exact-key lookup". Import them from `../../build/web/core/fold.js`.
+- **Shorthand expansion:** map each whitespace-split query token through
+  `TOKEN_EXPANSIONS` (import it from `fold.js`) *before* normalizing —
+  `bb`→`barbell`, `db`→`dumbbell`, etc. Consider expanding the candidate
+  haystack tokens too, so a stored alias `"bb row"` is reachable by typing
+  `barbell` (cheap, symmetric).
+- Rewire **`matches()`** (palette modal) and **`movementSuggestions()`** (row
+  type-ahead) to build their searchable text and test the query through the
+  shared helper. Keep the "empty query → `m.core`" behaviour, the muscle-filter
+  AND semantics, and partial-word matching (`thrust` → `Thruster`) — the helper
+  normalizes then does `includes` / `startsWith`, it does **not** switch to
+  exact match.
+- Confirm which list `catalogue` holds (canonical vs the core 129) so the
+  "search reaches the whole registry" claim stays accurate.
+- **Decisions for the session:** drop stopwords in the search helper? (core
+  `fold` does — makes `clean and jerk` == `clean jerk`, likely wanted); expand
+  the haystack as well as the query?
+- **Verify** by driving `make serve`: `bent over row` surfaces Barbell Row among
+  the matches; `bb bent over row` and `db bent over row` return barbell / dumbbell
+  rows instead of **nothing**; `bent-over rows` (hyphen + plural) matches;
+  removing one of `barbell-row`'s two aliases from the mock fixture still leaves
+  both spellings of the query matching. `make test` unchanged (app code; the
+  core suite does not cover the palette).
+- **Scope:** `apps/builder/builder.js` (+ `builder.css` only if P2's marker
+  needs it). No core.
+
+### P2 — pin the `resolve()` winner to the top of palette results
+
+- When the search box has text, also call `defaultRegistry().resolve(query)`
+  (the builder already uses `defaultRegistry()` in `movementEntry`). On
+  `status: 'ok'`, float that entry to the head of the rendered palette list with
+  a small marker (e.g. `↳ matches "<query>"`), so the standard movement for a
+  typed name — `bent over row` → **Barbell Row** via its alias, via core's
+  alias-over-id ranking (DEC-014) — reads as *the* answer, not one of eight
+  near-matches.
+- On `ambiguous` / `unregistered`, pin nothing; show the P1 expanded-substring
+  list as-is.
+- **Decision for the session:** consult `canonicalRegistry().resolve()` too? The
+  palette shows canonical movements; a name may resolve in canonical but not
+  curated.
+- **Verify:** `bent over row` puts Barbell Row first with the marker; `squat`
+  puts Air Squat first (its `squat` alias); a nonsense query pins nothing and
+  does not throw.
+- **Scope:** `apps/builder/builder.js`, `apps/builder/builder.css`. No core.
+
+### P3 — data cleanup: drop redundant spelling-variant aliases (gated on P1)
+
+- Once the palette folds separators and plurals, a curated record no longer
+  needs to enumerate hyphen / space / plural variants of one alias.
+  `barbell-row`'s `["bent-over row", "bent over row"]` → keep one. Sweep
+  `registry/movements.json` for other within-record alias pairs that fold to the
+  same key (reuse `check-aliases.mjs`'s folding, or a ~10-line script) and list
+  them for Chris before removing.
+- This is a **DB edit** — the curated layer is DB-primary (DEC-020), so the
+  removals are made in the `movements` collection (or via the editor) and land
+  through `make movements:dump`; a hand-edit of the JSON is reverted by the next
+  dump.
+- **Verify:** the `make movements:dump` diff shows only the intended alias
+  removals; `make aliases` still reports `curated — 0 contended names`;
+  `make test` unchanged; the palette still finds every removed spelling (the P1
+  guarantee, now relied on).
+- **Scope:** `registry/movements.json` via dump, maybe a one-off `scripts/`
+  helper. No core, no app.
+- **Not in P3:** the near-duplicate *records* `bent-over-barbell-row` /
+  `bent-over-row-barbell` vs the curated `barbell-row` — that is a separate
+  curation question (merge / `sameAs` / id-redirect), see the loose bullet.
+
+---
+
+## Soft delete across records (D0–D6)
+
+Queued 2026-09-05 (Chris). Every user-facing record type — **workouts,
+movements, movement sets, goals** — gets a nullable **timestamp** column
+`deleted`: `null` = live, a timestamp = soft-deleted and *when*. The existing
+delete buttons (workouts `deleteMine`, set cards `✕`, goals `✕`) issue a hard
+`DELETE` today; they become soft-deletes, and the one surface with no delete
+button — movements, in the editor — gets one. App + DB only, **no
+`packages/core` change** (D4 keeps soft-deleted movements out of the dump core
+reads).
+
+### D0 — settle the soft-delete contract (short DEC)
+
+Decide and record in
+[../topics/settled-decisions.md](../topics/settled-decisions.md) +
+[../decisions.md](../decisions.md):
+
+- **Field name / type.** `deleted` (Chris's wording) vs `deletedAt`; type
+  `date`, nullable, **no default**.
+- **Where the filter lives.** Server list/view rules exclude `deleted != null`
+  (enforced, but blocks a later trash/restore view without an admin path) —
+  *or* rules stay permissive and every client read filters `deleted = null`
+  (keeps "when it was deleted" queryable for a future trash UI).
+  *Recommendation: permissive rules + client filter.*
+- **Hard delete.** Retained as an admin-only `purge*`, or removed entirely.
+- **The dump.** `make movements:dump` (and any goals / vocab dump) **must**
+  exclude `deleted != null` rows — `packages/core` reads the committed
+  `registry/movements.json`, and a soft-deleted movement left in it would still
+  resolve and still carry muscle data.
+- **Unique keys.** Whether a soft-deleted row releases its `wdlId` / `setId` /
+  `goalId` (so the name can be reused) — likely yes; note if the unique index
+  forces a rule change or a suffix.
+- **Collection scope.** The 4 named now; `equipment` / `patterns` follow later
+  or join now — Chris's call.
+
+### D1 — migration: add `deleted` to the four collections
+
+- One migration file in `deploy/pocketbase/pb_migrations/` (next timestamp
+  prefix) adding `deleted` (`date`, nullable, no default) to `workouts`,
+  `movements`, `movement_sets`, `goals` via one helper over the collection list
+  so they cannot drift (the `1757100000_create_vocab.js` pattern). `down`
+  removes it from all four.
+- **Verify up and down against a real pocketbase v0.40.1 binary** + throwaway
+  `pb_data` (the M1 / M2 / G1 method): `migrate up` clean; column present on all
+  four (`sqlite3` against `_collections`); existing rows read back `deleted`
+  null; `migrate down 1` drops it with zero leftover schema; re-`up` reapplies.
+  Discard the binary + temp data (do not commit).
+- Add the row to `deploy/pocketbase/pb_migrations/README.md`.
+- **Scope:** `deploy/pocketbase/pb_migrations/`. No app, no core. `make test`
+  unchanged.
+
+### D2 — client: `pocketbase.js` reads filter out soft-deleted; `remove*` becomes soft-delete
+
+- Add `deleted = null` to the filter of every read in
+  `apps/shared/pocketbase.js`: `listMine`, `searchWorkouts`, `getById` /
+  `getByAnyId`, `listMovements`, `getMovementByMovementId`, `listMineSets`,
+  `listPublicSets`, `getSetByAnyId`, `listMineGoals`, `listGlobalGoals`,
+  `getGoalByAnyId`. A soft-deleted record fetched by direct id/link → the
+  existing not-found (404) shape callers already handle.
+- `remove` / `removeSet` / `removeGoal` (and the movements delete path) change
+  from `DELETE` to `PATCH { deleted: <ISO now> }`. If D0 keeps a hard purge, add
+  `purge*` beside them.
+- The builder's existing delete buttons call these, so they become soft-deletes
+  with no UI change (D5 adjusts the "cannot be undone" copy and adds the
+  movements button).
+- **Pairs with D3** for a drivable test (mock must honour the field first).
+- **Verify** (with D3): a deleted workout / set / goal leaves its list but the
+  row still exists with `deleted` set; re-creating with the same natural key
+  still works (per D0's unique-key decision).
+- **Scope:** `apps/shared/pocketbase.js`; `apps/shared/{sets.js,goals-store.js}`
+  only if they cache. No core.
+
+### D3 — mock `/api`: honour `deleted`
+
+- `scripts/mock-api.mjs`: the shared `applyQuery` / filter path understands
+  `deleted = null`; `PATCH { deleted }` persists to the same `.local.json`
+  overlays; keep the existing hard-delete tombstone path if D0 retains purge.
+  **Do not conflate** the mock's internal `deleted` tombstone arrays
+  (`mvDeleted` etc.) with the new record field.
+- **Verify** by driving `make serve`: soft-delete each record type from the UI,
+  confirm it leaves the list, confirm `curl` without the filter still returns
+  the row with `deleted` set, restart the server and confirm persistence.
+- **Scope:** `scripts/mock-api.mjs`. No core.
+
+### D4 — dump path excludes soft-deleted
+
+- `make movements:dump` (the M4 dump side — `scripts/movements-to-db.mjs` dump
+  path or its script) filters out `deleted != null` rows so
+  `registry/movements.json` — and therefore `packages/core` — never sees a
+  soft-deleted movement. Same for any goals / vocab dump.
+- **Verify:** soft-delete a movement, run `make movements:dump`, confirm only
+  that movement is removed from `registry/movements.json`; `make test`
+  unchanged; `make aliases` baseline (`curated — 972 records, 0 contended`)
+  holds — recompute if the deleted movement changes the count, and record the
+  new baseline.
+- **Scope:** `scripts/`. No core, no app.
+
+### D5 — UI: the missing delete button (movements) + confirm copy
+
+- Add an **admin-only Delete** button to the movement editor
+  (`apps/shared/movement-editor.js`, wired in `apps/builder/builder.js`) calling
+  the D2 soft-delete, with a `confirm()` like the set / goal / workout ones. A
+  soft-deleted movement drops from the palette via the D2 filter.
+- Audit the three existing delete buttons — `deleteMine`
+  (`builder.js:~3417`, copy: *"This cannot be undone."*), the set card `✕`
+  (`:~2381`), the goals `✕` (`:~2834`) — they already `confirm()` and now
+  soft-delete via D2; update any "cannot be undone" wording since a trash view
+  is now possible.
+- **Verify** each of the four surfaces by driving `make serve` signed in as the
+  mock admin.
+- **Scope:** `apps/shared/movement-editor.js`, `apps/builder/builder.js`,
+  `apps/builder/builder.css`. No core.
+
+### D6 — deploy
+
+- `make deploy:db` (the D1 migration onto the VPS), then `make deploy` for the
+  served app JS. Verify the four live collections read back the `deleted`
+  column, a soft-delete from the prod UI leaves the list, and the served
+  `apps/shared/*.js` is byte-identical to `origin/main`.
+- **Scope:** deploy only.
+
+### Sequencing
+
+```
+P1 ─> P2 ─> P3            (P3 gated on P1; the palette normalizer must exist first)
+D0 ─> D1 ─> (D2 + D3) ─> D4 ─> D5 ─> D6
+```
+
+P-series first (Chris's order), then D-series. `D2`+`D3` land together so the
+change is drivable; `D4` before `D5` so a dump-affecting change is proven before
+the UI leans on it; `D6` last. Each item is its own session and spawns the next
+when it lands, per [../../CLAUDE.md](../../CLAUDE.md).
+
+---
+
 ## Loose bullets
 
 - **A full laterality curation sweep — Chris's manual step, not a coding task.**
@@ -1081,6 +1339,21 @@ what catches the resolver direction.*
   `per-side` describe) — the sweep should resolve what that entry is. The CSV is
   now the **bulk** path; per the rethink below, one-at-a-time movement edits are
   headed into an in-app GUI.
+
+- **Near-duplicate movement records: `barbell-row` vs `bent-over-barbell-row` /
+  `bent-over-row-barbell`** (surfaced 2026-09-05 during the palette discussion).
+  The curated `barbell-row` (aliases `bent-over row`, full muscle data) is the
+  standard "bent over row"; the two `free-exercise-db` records
+  `bent-over-barbell-row` (thin — `mid-back` primary only) and
+  `bent-over-row-barbell` (id + title only) look like duplicates of it. Under
+  the current pipeline the fix is `sameAs: ["bent-over-barbell-row",
+  "bent-over-row-barbell"]` on `barbell-row` + rebuild + dedupe. Under the
+  **DB-as-single-source-of-truth** direction Chris named (external-catalogue
+  merge retired, `sameAs` and the split directive retire with it, dedup becomes
+  an ordinary DB edit + an id-redirect / merge-log), it is just "merge the rows,
+  leave a redirect". Needs Chris to pick the model before this is a task — it is
+  a curation decision, not dev work, and it is *not* blocking the P-series
+  (which resolves the search-side symptom without touching the records).
 
 - **Post-redesign rethinks** — the board's **Edit** button round-tripping into
   the builder is now **scheduled as N3** in **## Next builder-UX work** above
