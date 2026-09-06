@@ -1316,6 +1316,22 @@ Phase 1* epic (queue task M0).*
   ([DEC-003](#dec-003-src-is-portable-and-is-handed-its-data)) — the layering is
   a builder concern only.
 
+  *X1 landed `<SHA-X1>` — the layered read is live in the builder.* On
+  bootstrap `apps/builder/builder.js` fetches `listMovements()` alongside the
+  two static-file loads and `applyDbLayer` merges the DB list into the in-memory
+  `curatedMovements` (DB row **replaces** the static curated record of the same
+  id; DB-only appended) and `catalogue` (DB entry **overlaid** onto the
+  canonical record; DB-only appended). Every merged entry carries `inDb:
+  boolean` for X2 (the "not in the DB" marker) and X3 (editor pre-fill). `/api`
+  absent → the file-only list stands, with a `console.warn`. Accepted X1
+  limitation: a soft-delete only stays hidden across reloads for a movement with
+  no static-file record — one also present in `registry/movements.json` reverts
+  to the static version on the next reload; suppressing that needs a tombstone
+  the merge can see, flagged as a follow-up. The layered-read decision **stays
+  under DEC-020** rather than getting its own DEC — it is the mechanism by which
+  "production apps read movements from PocketBase" becomes true of the palette,
+  not a new structural choice. X2 and X3 remain open.
+
 ### DEC-021 An account's handle is the `@id` namespace, forced onto every workout on save; `workouts.wdlId` mirrors it
 *Status: active. Settled 2026-09-01, opening the *workout library* epic (queue
 task L0). Absorbs and closes most of the deferred "account namespacing" /

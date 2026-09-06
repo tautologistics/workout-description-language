@@ -168,8 +168,11 @@ etc.). Standalone gym acronyms core also expands (`hspu`, `ohs`, `sdhp`, `du`,
 `wb`, …) were **kept** as aliases on Chris's call — they are whiteboard
 vocabulary and would vanish if `TOKEN_EXPANSIONS` were ever trimmed.
 
-**One epic is queued: *Movement palette — static + DB layered, DB wins* (X1–X3,
-Chris 2026-09-06), its own section below.** Otherwise the numbered queue is
+**One epic is in flight: *Movement palette — static + DB layered, DB wins*
+(X1–X3, Chris 2026-09-06), its own section below. X1 landed `<SHA-X1>` — the
+layered read is live in the builder; X2 (the "not in the database" visual
+indicator) is next, then X3 (editor pre-fill from the static record).**
+Otherwise the numbered queue is
 empty; further work comes off the deferred / loose lists below, or a
 self-contained defect from
 [../topics/known-debts.md](../topics/known-debts.md) or one found by driving the
@@ -316,7 +319,50 @@ wins over the older static source, on every reload. Plus two things:
   promoting a movement means retyping everything. They should be pre-filled from
   the static record.
 
-### X1 — Layer the two sources (foundation; X2 and X3 read its provenance flag)
+### ~~X1 — Layer the two sources~~ — landed `<SHA-X1>` (foundation; X2 and X3 read its provenance flag)
+
+**Shipped `<SHA-X1>`.** `apps/builder/builder.js` only; no `packages/core`,
+no grammar/spec, `make test` unchanged (2064/2064). On bootstrap the builder now
+fetches `listMovements()` alongside the two static-file loads and, once all
+three settle, `applyDbLayer` merges the DB list into the in-memory movement
+lists keyed on `movementId` / `id`:
+
+- **Curated list** (`curatedMovements`, fed to `provide({ movements })` for
+  `validate` / `resolve`): a DB row **replaces** the static curated record of
+  the same id (DB wins per DEC-020 as corrected 2026-09-06); DB-only rows are
+  appended.
+- **Canonical corpus** (`catalogue`, read by `renderPalette` and
+  `canonicalRegistry()` / `musclesFor`): the DB entry is **overlaid** onto the
+  canonical record (`{ ...canonical, ...db }`) so canonical-only search fields
+  survive while curated fields win — the same shape `absorbMovement` already
+  used in-session. DB-only rows are appended; they carry no `core` flag, so a
+  fresh movement surfaces on a **title search**, not in the default 129-card
+  view (X2 renders the marker). `registry/movements.canonical.json` itself stays
+  a static build artefact.
+- **Provenance:** every merged entry carries `inDb: boolean` (`true` iff a live
+  DB row backs it). Not rendered here — X2 renders it, X3 reads it. `inDb`, not
+  a `source: 'db' | 'static-*'` enum, because `source` is already a movement
+  field (the upstream dataset name); the static-curated vs static-canonical tier
+  X2 wants is derivable from whether the id is in `curatedMovements`.
+  `absorbMovement` stamps `inDb:true` on a just-saved row; `markStaticProvenance`
+  stamps `inDb:false` when `/api` is absent.
+- **`/api` absent or failing** → `console.warn` + the file-only list stands
+  (mirrors `apps/shared/vocab.js`). `listMovements()`'s read rule is open, so it
+  works signed out. Verified with `WDL_MOCK_API=0`: palette populates from the
+  static files, one warn line, no crash.
+
+**Open question — resolved to the smaller scope.** A D5 soft-delete drops the
+row from `listMovements()` but the static file still carries the movement, so a
+naive merge shows the static version again on reload. X1 takes the accepted
+limitation: **a soft-delete only stays hidden across reloads for a movement
+with no static-file record** (one created through the editor). A soft-deleted
+movement that *also* exists in `registry/movements.json` is spliced out for the
+session but reverts to the static-curated record on the next reload (verified).
+Hiding a static-file movement for good needs a tombstone the merge can see —
+likely the D5 delete writing a marker, or an X-series follow-up stage.
+**Flagged to Chris as a follow-up; not built in X1.**
+
+*Original X1 spec follows, kept for the trail.*
 
 *Confirmed 2026-09-06, against production:* X1 is **not** implemented today.
 Served prod `apps/builder/builder.js` is byte-identical to `origin/main` and

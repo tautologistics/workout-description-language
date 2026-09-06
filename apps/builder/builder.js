@@ -42,10 +42,10 @@ import {
   currentUser, beginGoogleSignIn, refreshAuth, signOut, updateHandle,
   listMine, getById as pbGetById, getByAnyId, create as pbCreate, update as pbUpdate,
   remove as pbRemove, shareUrl, searchWorkouts, getHandle,
-  createMovement, updateMovement, getMovementByMovementId, removeMovement,
+  listMovements, createMovement, updateMovement, getMovementByMovementId, removeMovement,
   createEquipmentTerm, createPatternTerm,
 } from '../shared/pocketbase.js';
-import { createMovementEditor } from '../shared/movement-editor.js';
+import { createMovementEditor, movementRecordToEntry } from '../shared/movement-editor.js';
 import { equipmentVocab, patternVocab } from '../shared/vocab.js';
 import * as sets from '../shared/sets.js';
 import * as goalsStore from '../shared/goals-store.js';
@@ -1873,8 +1873,10 @@ function absorbMovement(entry) {
   const merge = (arr) => {
     const i = arr.findIndex((m) => m.id === entry.id);
     const next = arr.slice();
-    if (i >= 0) next[i] = { ...next[i], ...entry };
-    else next.push({ ...entry });
+    // X1: a just-saved movement now has a live DB row — stamp the provenance flag
+    // so it matches what `applyDbLayer` would set on the next reload.
+    if (i >= 0) next[i] = { ...next[i], ...entry, inDb: true };
+    else next.push({ ...entry, inDb: true });
     return next;
   };
   if (Array.isArray(curatedMovements)) {
@@ -1900,6 +1902,15 @@ function absorbMovement(entry) {
  * this only reaches the splice once the row is actually tombstoned. A fresh
  * page load would have dropped it anyway via the D2 `listMovements` filter and,
  * after `make movements:dump`, out of `registry/movements.json`.
+ *
+ * X1 soft-delete limitation (the accepted smaller scope): a movement that also
+ * exists in `registry/movements.json` is spliced out here for the session, but a
+ * reload rebuilds the static layer and `applyDbLayer` — seeing no DB row — keeps
+ * the static-curated record (with `inDb:false`). So a soft-delete only *stays*
+ * hidden across reloads for a movement that has **no** static-file record (one
+ * created through the editor). Hiding a static-file movement for good needs a
+ * tombstone the merge can see, or an X-series follow-up — flagged to Chris, not
+ * built here.
  */
 async function dropMovement(pbId, movementId) {
   await removeMovement(pbId);
@@ -1915,6 +1926,96 @@ async function dropMovement(pbId, movementId) {
   closeMovementEditor();
   renderPalette();
   render();
+}
+
+/**
+ * X1 (Chris, 2026-09-06) — layer the DB movement list over the static curated
+ * file. See DEC-020's *Corrected/extended 2026-09-06* note: the builder's
+ * palette + analysis read `registry/movements.json` and
+ * `registry/movements.canonical.json` as static files and never called
+ * `listMovements()`, so the `movements` DB collection was invisible to them —
+ * an editor create / edit / soft-delete showed for the session (via
+ * `absorbMovement` / `dropMovement`) but reverted on a hard reload.
+ *
+ * Now `listMovements()` is fetched on bootstrap and merged into the in-memory
+ * lists, keyed on `movementId` / `id`:
+ *
+ *   - **Curated list** (`curatedMovements`, what `provide({ movements })` hands
+ *     core for `validate` name-checks and `resolve()`): a DB row **replaces**
+ *     the static curated record of the same id — the DB is authoritative for the
+ *     curated layer. DB-only rows are appended. Static records with no DB row
+ *     keep their file values.
+ *   - **Canonical corpus** (`catalogue`, what `renderPalette` and
+ *     `canonicalRegistry()` / `musclesFor` read): the DB entry is **overlaid**
+ *     onto the canonical record (`{ ...canonical, ...db }`) so canonical-only
+ *     search fields (`external`, cross-source `aliases`, `muscleClaims`) survive
+ *     while the curated fields win — the same shape `absorbMovement` already
+ *     used for an in-session save. DB-only rows are appended; they carry no
+ *     `core` flag, so they surface on a title search rather than in the default
+ *     palette view. `registry/movements.canonical.json` itself stays a static
+ *     build artefact (DEC-020) — only the in-memory array is layered.
+ *
+ * Provenance: every merged entry carries `inDb: boolean` — `true` iff a live DB
+ * row backs it. X2 renders a "not in the database" marker off this; X3 pre-fills
+ * the editor from the static record when it is `false`. X1 only has to set it
+ * correctly and does not render it. (`inDb`, not a `source: 'db' | 'static-*'`
+ * enum, because `source` is already a movement field — the upstream dataset
+ * name; the static-curated vs static-canonical tier X2 wants is derivable from
+ * whether the id is in `curatedMovements`.)
+ *
+ * `/api` absent or failing → `markStaticProvenance()` stamps `inDb:false` and
+ * the static files stand unchanged (mirrors `apps/shared/vocab.js`'s
+ * degrade-to-bundled-list pattern). `listMovements()`'s read rule is open
+ * (`scope = "global" && deleted = null`), so this works signed out too.
+ */
+function applyDbLayer(rows) {
+  const dbById = new Map();
+  for (const row of rows) {
+    // `movementRecordToEntry` maps a PB row to the registry-entry shape and
+    // drops the canonical-only sub-objects (`support` / `sources` / `origin` /
+    // `muscleClaims`) — only the fields the curated layer owns.
+    const entry = movementRecordToEntry(row);
+    entry.inDb = true;
+    dbById.set(entry.id, entry);
+  }
+
+  if (Array.isArray(curatedMovements)) {
+    const seen = new Set();
+    const merged = curatedMovements.map((m) => {
+      const db = dbById.get(m.id);
+      if (db) { seen.add(m.id); return db; }          // DB wins — replace outright
+      return { ...m, inDb: false };
+    });
+    for (const [id, entry] of dbById) if (!seen.has(id)) merged.push(entry);
+    curatedMovements = merged;
+    provide({ movements: () => curatedMovements });
+  }
+
+  if (Array.isArray(catalogue) && catalogue.length) {
+    const seen = new Set();
+    const merged = catalogue.map((m) => {
+      const db = dbById.get(m.id);
+      if (db) { seen.add(m.id); return { ...m, ...db, inDb: true }; }   // overlay — keep canonical-only fields
+      return { ...m, inDb: false };
+    });
+    for (const [id, entry] of dbById) if (!seen.has(id)) merged.push({ ...entry, inDb: true });
+    catalogue = merged;
+    provide({ canonicalMovements: () => catalogue });
+  }
+
+  renderPalette();
+  render();
+}
+
+/**
+ * The `/api`-absent fallback for `applyDbLayer`: stamp `inDb:false` on every
+ * static entry so X2 / X3 always find the flag, without re-providing or
+ * re-rendering — core reads nothing off `inDb`, and the palette is already
+ * painted from these same objects.
+ */
+function markStaticProvenance() {
+  for (const m of (curatedMovements ?? [])) if (m.inDb === undefined) m.inDb = false;
+  for (const m of (catalogue ?? [])) if (m.inDb === undefined) m.inDb = false;
 }
 
 el('movement-new').onclick = () => openMovementEditor(null);
@@ -3574,6 +3675,20 @@ const analysis = Promise.all([load(CANONICAL), load(MUSCLES)])
     console.warn('no analysis data:', e.message);
     el('palette-count').textContent = 'movement data unavailable';
   });
+
+// X1: the DB movement list, layered over the static curated file once both file
+// loads have settled (so `curatedMovements` / `catalogue` are populated to merge
+// into). Fetched now, in parallel with the files, so a slow `/api` never blanks
+// the palette the files already filled. `/api` absent or failing → keep the
+// file-only list, with `inDb:false` stamped for X2 / X3. See `applyDbLayer`.
+const dbMovements = listMovements().catch((e) => {
+  console.warn('no /api movement list — palette shows the static files only:', e.message);
+  return null;
+});
+Promise.all([curated, analysis, dbMovements]).then(([, , rows]) => {
+  if (Array.isArray(rows)) applyDbLayer(rows);
+  else markStaticProvenance();
+});
 
 renderGoalPicker();
 renderSets();
