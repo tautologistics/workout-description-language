@@ -136,7 +136,7 @@ The 3 `global` rows are unaffected. The G3 mock `/api` is already stricter (it
 403s the anonymous write), so local dev is unaffected.
 
 **Two epics queued 2026-09-05 (Chris) — this is the active queue. `P1` landed
-2026-09-05 (`327b8c6`), `P2` landed 2026-09-05 (`<SHA-P2>`); `P3` is next.**
+2026-09-05 (`327b8c6`), `P2` landed 2026-09-05 (`e55a302`); `P3` is next.**
 *Palette search normalization* (**P1–P3**, section below) makes the builder's
 movement search fold separators, depluralize, and expand `bb`/`db`-style
 shorthand the way core `resolve()` already does — until P1 it matched on raw
@@ -1190,7 +1190,7 @@ Original brief kept below for the trail.
 - **Scope:** `apps/builder/builder.js` (+ `builder.css` only if P2's marker
   needs it). No core.
 
-### P2 — pin the `resolve()` winner to the top of palette results — **DONE 2026-09-05 (`<SHA-P2>`)**
+### P2 — pin the `resolve()` winner to the top of palette results — **DONE 2026-09-05 (`e55a302`)**
 
 **Shipped.** `apps/builder/builder.js` gained `resolvedMovement(query)` next to
 `matches()` — guards on `has('movements')`, calls `defaultRegistry().resolve(query)`

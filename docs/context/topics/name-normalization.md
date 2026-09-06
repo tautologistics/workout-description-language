@@ -24,7 +24,7 @@ the two sides agree?"*
 > [../tasks/current.md](../tasks/current.md) `## Palette search normalization`
 > → `### P1`.
 >
-> **P2 (`<SHA-P2>`, 2026-09-05)** added a second, *authoritative* path to the
+> **P2 (`e55a302`, 2026-09-05)** added a second, *authoritative* path to the
 > palette on top of P1's fuzzy `matches()`: when `#search` has text the builder
 > now also calls `defaultRegistry().resolve(query)` (curated only, via a new
 > `resolvedMovement()` next to `matches()`) and, on `status: 'ok'`, pins that one
