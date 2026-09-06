@@ -1332,7 +1332,7 @@ Phase 1* epic (queue task M0).*
   "production apps read movements from PocketBase" becomes true of the palette,
   not a new structural choice.
 
-  *X2 landed `<SHA-X2>` — a quiet marker off `inDb`.* A falsy `inDb` draws `●`
+  *X2 landed `a3d1a68` — a quiet marker off `inDb`.* A falsy `inDb` draws `●`
   (curated-static — in `registry/movements.json`, no DB row) or `○`
   (canonical-only — only in the 5-source merge) on the palette card, the step
   `»` panel and the editor header. Two tiers, told apart by glyph and a slight

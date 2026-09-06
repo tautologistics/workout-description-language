@@ -560,7 +560,7 @@ themes) — R9's Text-tab highlighter consumes them.
 ## Movements
 
 **A quiet "not in the movement database" marker on the palette card and the `»`
-panel** *(X2 of the *Movement palette — static + DB layered* epic, `<SHA-X2>`,
+panel** *(X2 of the *Movement palette — static + DB layered* epic, `a3d1a68`,
 Chris 2026-09-06).* A movement with no live DB row (`!inDb`, the flag X1 put on
 every merged entry) shows a small dim glyph: **`●`** if the id is in
 `curatedMovements` (`registry/movements.json`) — a curated-static movement worth
@@ -854,7 +854,7 @@ no row, opens create mode with id/title only. X3 is the stage that changes that
 `null` branch to pre-fill from the full static record; it consumes the `inDb`
 flag X1 put on every entry.
 
-*X2 landed `<SHA-X2>`* — the editor now shows a dim `.me-provenance` line under
+*X2 landed `a3d1a68`* — the editor now shows a dim `.me-provenance` line under
 the title when it was opened on a movement with no DB row, via a new
 `provenance` opt on `createMovementEditor` (`{ notInDb, tier }`). Wording:
 curated-static *"Not in the movement database yet — Saving commits it."*,

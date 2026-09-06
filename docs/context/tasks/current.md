@@ -170,7 +170,7 @@ vocabulary and would vanish if `TOKEN_EXPANSIONS` were ever trimmed.
 
 **One epic is in flight: *Movement palette — static + DB layered, DB wins*
 (X1–X3, Chris 2026-09-06), its own section below. X1 landed `096d72f` (the
-layered read) and X2 landed `<SHA-X2>` (the quiet "not in the database" marker
+layered read) and X2 landed `a3d1a68` (the quiet "not in the database" marker
 — `●` curated-static / `○` canonical-only — on the palette card, the `»` panel
 and the editor header). X3 (editor pre-fill from the static record) is next.**
 Otherwise the numbered queue is
@@ -393,9 +393,9 @@ tombstoned DB row suppress the static record too (needs the delete to leave a
 marker the merge can see), or is "soft-delete only hides a DB-only movement"
 the accepted scope? Flag to Chris in the session.
 
-### ~~X2 — "not in the database" indicator~~ — landed `<SHA-X2>`
+### ~~X2 — "not in the database" indicator~~ — landed `a3d1a68`
 
-**Shipped `<SHA-X2>`.** `apps/builder/builder.js` + `builder.css` +
+**Shipped `a3d1a68`.** `apps/builder/builder.js` + `builder.css` +
 `apps/shared/movement-editor.js`; no `packages/core`, no grammar/spec, `make
 test` unchanged (2064/2064). A quiet marker on every palette card whose movement
 has no live DB row (`!inDb`, from X1's flag), and the same on the step `»` panel
