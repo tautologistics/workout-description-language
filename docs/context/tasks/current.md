@@ -143,7 +143,7 @@ epic (P1–P3) is complete as of 2026-09-05 — `P1` (`327b8c6`), `P2` (`e55a302
 `## Soft delete across records (D0–D6)` epic below. **D0 landed 2026-09-05
 (`ae6c469`) as [DEC-029](../topics/settled-decisions.md#dec-029-soft-delete-is-a-nullable-deleted-timestamp-hidden-by-server-rules-hard-delete-is-retired),
 D1 landed 2026-09-05 (`487668e`), and **D2 + D3 landed together 2026-09-05
-(`<SHA-D2>`)** — `pocketbase.js` reads all carry `&& deleted = null`, `remove*`
+(`f0895c0`)** — `pocketbase.js` reads all carry `&& deleted = null`, `remove*`
 soft-delete via `PATCH`, and the mock `/api` honours the field (filter, direct-id
 404, freed natural key, overlay persistence). **The queue starts at `### D4`**
 (dump path excludes soft-deleted).**
@@ -1217,7 +1217,7 @@ Original brief kept below for the trail.
 - **Scope:** `deploy/pocketbase/pb_migrations/`. No app, no core. `make test`
   unchanged.
 
-### D2 — client: `pocketbase.js` reads filter out soft-deleted; `remove*` becomes soft-delete — **DONE 2026-09-05 (`<SHA-D2>`)**
+### D2 — client: `pocketbase.js` reads filter out soft-deleted; `remove*` becomes soft-delete — **DONE 2026-09-05 (`f0895c0`)**
 
 `apps/shared/pocketbase.js`: a `liveOnly(filter)` helper ANDs `&& deleted = null`
 onto **every** record read — `listMine`, `getByAnyId`'s `wdlId` sub-query,
@@ -1255,7 +1255,7 @@ Original brief kept below for the trail.
 - **Scope:** `apps/shared/pocketbase.js`; `apps/shared/{sets.js,goals-store.js}`
   only if they cache. No core.
 
-### D3 — mock `/api`: honour `deleted` — **DONE 2026-09-05 (`<SHA-D2>`, with D2 in one commit)**
+### D3 — mock `/api`: honour `deleted` — **DONE 2026-09-05 (`f0895c0`, with D2 in one commit)**
 
 `scripts/mock-api.mjs`: `matchesAtom` gained a `field = null` / `field != null`
 branch (unset = `''` / `null` / `undefined`) — the one unquoted RHS the client
