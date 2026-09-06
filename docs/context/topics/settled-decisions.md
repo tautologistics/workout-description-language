@@ -1330,7 +1330,21 @@ Phase 1* epic (queue task M0).*
   the merge can see, flagged as a follow-up. The layered-read decision **stays
   under DEC-020** rather than getting its own DEC — it is the mechanism by which
   "production apps read movements from PocketBase" becomes true of the palette,
-  not a new structural choice. X2 and X3 remain open.
+  not a new structural choice.
+
+  *X2 landed `<SHA-X2>` — a quiet marker off `inDb`.* A falsy `inDb` draws `●`
+  (curated-static — in `registry/movements.json`, no DB row) or `○`
+  (canonical-only — only in the 5-source merge) on the palette card, the step
+  `»` panel and the editor header. Two tiers, told apart by glyph and a slight
+  opacity step, not by colour and not by a new field — the tier is
+  `curatedMovements` membership (a DB-only row there is `inDb:true`, so it never
+  reaches the tier check). `.db-mark` is `var(--dim)` at `.75rem`, `aria-hidden`
+  with the words in the card `title`; no new colour token, non-interactive so
+  the ≥2rem-hit rule does not apply. `apps/builder/**` +
+  `apps/shared/movement-editor.js` only; `make test` unchanged. The `●` / `○`
+  glyphs and the exact wording are the session's defensible default, flagged to
+  Chris for confirmation. X3 (editor pre-fill from the static record) remains
+  open.
 
 ### DEC-021 An account's handle is the `@id` namespace, forced onto every workout on save; `workouts.wdlId` mirrors it
 *Status: active. Settled 2026-09-01, opening the *workout library* epic (queue

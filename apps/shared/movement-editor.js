@@ -158,6 +158,10 @@ export function movementRecordToEntry(rec) {
  *                                    each `async ({ termId, name }) => void`. Only the fields the host
  *                                    supplies get the affordance; the builder wires `equipment` /
  *                                    `pattern` for an admin (V9) and nothing else.
+ * @param {object}   [opts.provenance] X2: `{ notInDb: true, tier: 'curated-static' | 'canonical-only' }`
+ *                                    when the host opened this editor on a movement with no live DB
+ *                                    row. Renders a dim line under the title saying so; omitted for
+ *                                    `＋ new movement` and for a real DB row.
  * @param {Function} [opts.onSaved]   called with the saved record in registry-entry shape
  * @param {Function} [opts.onCancel]  called when the user cancels
  * @param {Function} [opts.onDelete]  `async () => void` — soft-deletes this movement (DEC-029).
@@ -167,7 +171,7 @@ export function movementRecordToEntry(rec) {
  *                                    handler does the `PATCH` and closes/refreshes the host.
  * @returns {{ destroy(): void, focus(): void }}
  */
-export function createMovementEditor({ container, record = null, api, vocab = {}, onCreateTerm = {}, onSaved, onCancel, onDelete }) {
+export function createMovementEditor({ container, record = null, api, vocab = {}, onCreateTerm = {}, provenance = null, onSaved, onCancel, onDelete }) {
   const state = readRecord(record);
   container.innerHTML = '';
 
@@ -289,6 +293,12 @@ export function createMovementEditor({ container, record = null, api, vocab = {}
   const form = h(
     'form', { class: 'movement-editor' },
     h('h3', { class: 'me-title', text: state.mode === 'create' ? 'New movement' : `Edit ${state.movementId}` }),
+    // X2: opened on a movement with no DB row — say which static source it is in.
+    provenance?.notInDb
+      ? h('p', { class: 'me-provenance', text: provenance.tier === 'canonical-only'
+          ? 'Not in the movement database — only in the merged corpus. Saving adds it.'
+          : 'Not in the movement database yet — Saving commits it.' })
+      : null,
     field('Movement id', controls.movementId,
       state.mode === 'create' ? 'lowercase, words joined by hyphens (dumbbell-snatch)' : 'the registry id — fixed once created'),
     field('Title', controls.title, 'how the movement reads on a line'),

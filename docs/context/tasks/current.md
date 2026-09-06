@@ -169,9 +169,10 @@ etc.). Standalone gym acronyms core also expands (`hspu`, `ohs`, `sdhp`, `du`,
 vocabulary and would vanish if `TOKEN_EXPANSIONS` were ever trimmed.
 
 **One epic is in flight: *Movement palette — static + DB layered, DB wins*
-(X1–X3, Chris 2026-09-06), its own section below. X1 landed `096d72f` — the
-layered read is live in the builder; X2 (the "not in the database" visual
-indicator) is next, then X3 (editor pre-fill from the static record).**
+(X1–X3, Chris 2026-09-06), its own section below. X1 landed `096d72f` (the
+layered read) and X2 landed `<SHA-X2>` (the quiet "not in the database" marker
+— `●` curated-static / `○` canonical-only — on the palette card, the `»` panel
+and the editor header). X3 (editor pre-fill from the static record) is next.**
 Otherwise the numbered queue is
 empty; further work comes off the deferred / loose lists below, or a
 self-contained defect from
@@ -392,17 +393,64 @@ tombstoned DB row suppress the static record too (needs the delete to leave a
 marker the merge can see), or is "soft-delete only hides a DB-only movement"
 the accepted scope? Flag to Chris in the session.
 
-### X2 — "not in the database" indicator
+### ~~X2 — "not in the database" indicator~~ — landed `<SHA-X2>`
 
-A quiet marker on every palette card — and the `»` panel and the editor header —
-whose movement has no DB row. Likely two tiers, since Chris asked to tell
-"something I need to vs want to commit": a **curated-static** movement (in
-`movements.json`, no DB row yet) vs a **canonical-only** movement (only in the
-5-source merge — never curated at all, e.g. `sandbag-bear-hug-squat`). Exact
-wording / glyph / whether both tiers get a marker is Chris's to confirm when the
-session drives it. Reuse the dim-secondary treatment the palette already uses (no
-new colour tokens); ≥2rem hit target if it is interactive, no text < .75rem
-(the builder.css rules from the 2026-09-02 contrast pass).
+**Shipped `<SHA-X2>`.** `apps/builder/builder.js` + `builder.css` +
+`apps/shared/movement-editor.js`; no `packages/core`, no grammar/spec, `make
+test` unchanged (2064/2064). A quiet marker on every palette card whose movement
+has no live DB row (`!inDb`, from X1's flag), and the same on the step `»` panel
+and the movement-editor header.
+
+**Both tiers get a marker, distinguished by glyph (not colour, not a new
+field):**
+
+- **`●` curated-static** — the id is in `curatedMovements`
+  (`registry/movements.json`), no DB row yet. Chris's "need to commit" tier.
+  `title`: *"Not in the movement database yet — edit and Save to commit it"*.
+- **`○` canonical-only** — only in the 5-source merge, never curated (e.g.
+  `sandbag-bear-hug-squat`). `title`: *"Not curated — only in the merged movement
+  corpus"*. Rendered at `opacity:.55` so it reads fainter than `●`.
+
+The tier is `curatedMovements` membership — a `Set` built once per
+`renderPalette` — not a new `source` enum (a DB-only row in `curatedMovements`
+carries `inDb:true`, so it never reaches the tier branch). New helper
+`movementDbState(id)` → `{ inDb, tier }` serves the `»` panel and the editor;
+the palette card loop uses `m.inDb` + the prebuilt `Set` directly.
+
+**Treatment:** `.db-mark` is `color: var(--dim)` at `.75rem` — no new colour
+token; a glyph, `aria-hidden`, non-interactive (the card `title` carries the
+words), so the ≥2rem-hit-target rule does not apply and `.75rem` is the floor
+the 2026-09-02 contrast pass allows. The `»`-panel line reuses `.modifier-info`;
+the editor line is `.me-provenance`, same dim treatment as `.me-hint`.
+
+**`markStaticProvenance` wrinkle (X1 note):** handled **both** ways — the marker
+logic treats a falsy `inDb` (`undefined` *or* `false`) as "no DB row" (the layer
+never confirmed one — semantically correct), **and** `markStaticProvenance()`
+now ends with a `renderPalette()` so the `WDL_MOCK_API=0` first paint settles on
+the explicit flag (cheap: ≤300 cards, no `provide()` / core round-trip, which is
+what X1 was avoiding there).
+
+**Editor header — not redundant, contrary to the X2 spec's guess.** Every
+`!inDb` movement opens the editor as **"Edit <id>"** (a643824 gives
+`openMovementEditor` a `{id,title}` object → `readRecord` → `mode:'edit',
+pbId:null`), *not* "New movement" — that title is only for `＋ new movement`
+(`ref` null). So the header line adds real signal for both tiers. Wording:
+curated-static *"Not in the movement database yet — Saving commits it."*,
+canonical-only *"Not in the movement database — only in the merged corpus.
+Saving adds it."*
+
+**For Chris to confirm when he drives it:** the `●` / `○` glyph choice and the
+exact wording. Everything else (both tiers marked, dim treatment, the three
+surfaces) is the defensible default and is shipped. If he wants the editor-header
+line dropped as noise, it is one `provenance` opt to stop passing.
+
+*Verified by driving `make serve` (mock `/api`, signed-in mock admin): default
+view shows 13 `○` on the canonical-only core movements and no `●` (every curated
+movement is `inDb:true` via the mock, mirroring prod); `curl -X DELETE` one
+movement from the mock → reload → it shows `●`; the `»` panel and editor header
+reflect the same; a DB-backed movement (`back-squat`) shows none anywhere.
+`WDL_MOCK_API=0` → all 129 cards marked (116 `●` + 13 `○`), one console warn, no
+crash. Dark + light both legible. `make test` 2064/2064.*
 
 ### X3 — the editor pre-fills from the static-file record when there is no DB row
 

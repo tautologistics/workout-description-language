@@ -860,6 +860,16 @@ function renderOutline() {
         // Even with no modifiers to offer, the panel still opens for the M5
         // "edit this movement" control below.
         modifiers.innerHTML = '';
+        // X2: flag a movement with no live DB row, at the top of the panel.
+        const prov = movementDbState(entry.id);
+        if (!prov.inDb) {
+          const note = document.createElement('div');
+          note.className = 'modifier-info db-note';
+          note.textContent = prov.tier === 'curated-static'
+            ? '● Not in the movement database yet — edit and save to commit it'
+            : '○ Not curated — only in the merged movement corpus';
+          modifiers.append(note);
+        }
         for (const it of items) {
           const b = document.createElement('button');
           b.type = 'button';
@@ -1810,11 +1820,19 @@ async function openMovementEditor(ref = null) {
     record ??= { id: ref.id, title: ref.title ?? '' };
   }
 
+  // X2: opened on a movement with no DB row. The title already reads "New
+  // movement"; this adds which static source it came from — and distinguishes
+  // the two tiers X3 will pre-fill from. `null` for `＋ new movement` (no ref)
+  // and for a real DB row.
+  const noDbRow = Boolean(ref?.id) && !(record && 'movementId' in record);
+  const provenance = noDbRow ? { notInDb: true, tier: movementDbState(ref.id).tier } : null;
+
   host.textContent = '';
   host.className = '';
   movementEditorHandle = createMovementEditor({
     container: host,
     record,
+    provenance,
     api: { createMovement, updateMovement, getMovementByMovementId },
     // V5: the two id-valued token fields type-ahead over the movement lists this
     // page already holds — `related` over the curated registry, `sameAs` over the
@@ -2016,6 +2034,12 @@ function applyDbLayer(rows) {
 function markStaticProvenance() {
   for (const m of (curatedMovements ?? [])) if (m.inDb === undefined) m.inDb = false;
   for (const m of (catalogue ?? [])) if (m.inDb === undefined) m.inDb = false;
+  // X2: the first `renderPalette()` on the `/api`-absent path ran before these
+  // flags were stamped. The marker logic already treats a falsy `inDb` as
+  // "no row" (so that first paint is not wrong), but re-render so the DOM
+  // settles on the explicit `false` — cheap (≤300 cards, no `provide()` /
+  // core round-trip, which is what X1 was avoiding here).
+  renderPalette();
 }
 
 el('movement-new').onclick = () => openMovementEditor(null);
@@ -2366,6 +2390,29 @@ function shownMovements() {
     : catalogue.filter((m) => matches(m, q));
 }
 
+/**
+ * X2 (Chris, 2026-09-06): provenance of a movement id against the X1 layered
+ * lists — for the "not in the database" marker on the palette card, the step
+ * `»` panel and the editor header.
+ *
+ *   - `inDb` — a live DB row backs this movement. Falsy also covers the
+ *     `WDL_MOCK_API=0` window before `markStaticProvenance()` stamps the flag:
+ *     the layer never confirmed a row, so "not in the DB" is the right reading
+ *     either way (`m.inDb === undefined` and `=== false` are treated alike).
+ *   - `tier` (only meaningful when `!inDb`) — `'curated-static'` if the id is in
+ *     `curatedMovements` (i.e. `registry/movements.json`; a movement worth
+ *     promoting), else `'canonical-only'` (only in the 5-source merge, never
+ *     curated — e.g. `sandbag-bear-hug-squat`). Derived from curated-list
+ *     membership, not a new `source` field: a DB-only row in `curatedMovements`
+ *     carries `inDb:true`, so it never reaches the `tier` branch.
+ */
+function movementDbState(id) {
+  const cat = catalogue.find((m) => m.id === id);
+  const cur = curatedMovements.find((m) => m.id === id);
+  const inDb = Boolean(cat?.inDb || cur?.inDb);
+  return { inDb, tier: (!inDb && cur) ? 'curated-static' : 'canonical-only' };
+}
+
 function renderPalette() {
   const box = el('palette');
   const keepScroll = box.scrollTop;
@@ -2376,6 +2423,12 @@ function renderPalette() {
   const shown = shownMovements();
 
   const inComposed = composed ? new Set(localMovements(composed)) : null;
+
+  // X2: which ids are in the curated layer (`registry/movements.json`), so a
+  // card with no DB row can say whether it is a curated-static movement (worth
+  // promoting) or a canonical-only one. A DB-only row here is `inDb:true`, so it
+  // never reaches the marker. Built once per render.
+  const curatedIds = new Set(curatedMovements.map((m) => m.id));
 
   box.innerHTML = '';
 
@@ -2409,6 +2462,24 @@ function renderPalette() {
     meta.className = 'meta';
     meta.textContent = (m.muscles?.primary ?? []).slice(0, 3).join(' ');
     item.append(name, meta);
+
+    // X2: a quiet marker when no live DB row backs this movement — so Chris can
+    // see at a glance what he still needs / wants to commit. `●` curated-static
+    // (in `registry/movements.json`, no DB row — edit + Save promotes it), `○`
+    // canonical-only (only in the 5-source merge). Falsy `inDb` (incl. the
+    // `WDL_MOCK_API=0` window before `markStaticProvenance()` runs) counts as
+    // "no row". A glyph, `aria-hidden`; the `title` carries the words.
+    if (!m.inDb) {
+      const curated = curatedIds.has(m.id);
+      const mark = document.createElement('span');
+      mark.className = curated ? 'db-mark' : 'db-mark db-mark--canonical-only';
+      mark.textContent = curated ? '●' : '○';
+      mark.setAttribute('aria-hidden', 'true');
+      mark.title = curated
+        ? 'Not in the movement database yet — edit and Save to commit it'
+        : 'Not curated — only in the merged movement corpus';
+      name.after(mark);
+    }
 
     // M5: edit this movement's curated fields in the DB. Its own click stops the
     // card's "insert at caret" from also firing. Not shown while composing a set.

@@ -559,6 +559,28 @@ themes) — R9's Text-tab highlighter consumes them.
 
 ## Movements
 
+**A quiet "not in the movement database" marker on the palette card and the `»`
+panel** *(X2 of the *Movement palette — static + DB layered* epic, `<SHA-X2>`,
+Chris 2026-09-06).* A movement with no live DB row (`!inDb`, the flag X1 put on
+every merged entry) shows a small dim glyph: **`●`** if the id is in
+`curatedMovements` (`registry/movements.json`) — a curated-static movement worth
+committing — or **`○`** (fainter, `opacity:.55`) if it is canonical-only (only
+in the 5-source merge, e.g. `sandbag-bear-hug-squat`). On the palette card the
+glyph sits right after the name with the words in the card `title`; the step `»`
+panel shows the same as a `.modifier-info` line at the top. `.db-mark` is
+`color: var(--dim)` at `.75rem`, `aria-hidden`, non-interactive — no new colour
+token, no hit-target rule. The tier is a `Set` of `curatedMovements` ids built
+once per `renderPalette`, not a new `source` field. `markStaticProvenance()`
+(the `/api`-absent path) now ends with a `renderPalette()` so the
+`WDL_MOCK_API=0` first paint shows the marker; the marker logic also treats a
+falsy `inDb` (`undefined` *or* `false`) as "no row" so that first paint is not
+wrong either way. Locally under mock `/api` every curated movement is
+`inDb:true`, so only the 13 canonical-only core movements show `○` in the
+default view — `curl -X DELETE` one from the mock to see a `●`. Glyph choice +
+wording are the session's default, flagged for Chris. *`apps/builder/builder.js`
++ `builder.css` (and `movement-editor.js` for the editor-header line — see
+"### The movement editor"); no core; `make test` 2064/2064.*
+
 **~~Movement sets cannot be composed by hand — a "set" is a saved search.~~
 Fixed 2026-08-28.** Was: `set-save` snapshotted whatever the search text and
 muscle filter matched, froze it as a list of ids, and a set could then be
@@ -831,6 +853,18 @@ static files (DB wins per id), and every merged movement carries `inDb: boolean`
 no row, opens create mode with id/title only. X3 is the stage that changes that
 `null` branch to pre-fill from the full static record; it consumes the `inDb`
 flag X1 put on every entry.
+
+*X2 landed `<SHA-X2>`* — the editor now shows a dim `.me-provenance` line under
+the title when it was opened on a movement with no DB row, via a new
+`provenance` opt on `createMovementEditor` (`{ notInDb, tier }`). Wording:
+curated-static *"Not in the movement database yet — Saving commits it."*,
+canonical-only *"Not in the movement database — only in the merged corpus.
+Saving adds it."* Note the spec's guess that this is redundant with a "New
+movement" title is **wrong** — a `!inDb` movement opened from the palette `✎` or
+the `»` panel carries a `{id,title}` object, which `readRecord` maps to
+`mode:'edit'` (`pbId:null`), so the header reads *"Edit <id>"*, never "New
+movement" (that is only `＋ new movement`, `ref` null). If Chris wants the line
+gone it is one opt to stop passing.
 
 **An admin can add a vocabulary term from the editor** *(2026-09-02, N1 / V9,
 `2a534b6`).* The token-input picker for `equipment` / `pattern` — and only those

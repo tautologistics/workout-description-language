@@ -419,6 +419,14 @@ body.col-resizing { cursor: col-resize; user-select: none; }
   margin-top: .2rem;
 }
 
+/* X2: the "not in the database" flag at the top of the `»` panel — reuses
+   `.modifier-info`'s dim treatment but anchors to the top, not the bottom. */
+.node .suggestions .db-note {
+  border-top: 0;
+  border-bottom: 1px solid var(--rule);
+  margin: 0 0 .2rem;
+}
+
 /* Reorder / indent / clone / delete. Persistent at the shared low opacity (the
    reveal rule is up by `.caret`); ≥32px targets for WCAG 2.2. */
 .node .tools { display: flex; gap: .1rem; flex: none; }
@@ -745,6 +753,17 @@ button:hover, .button:hover { border-color: var(--dim); }
    list. The `↳ matches "…"` marker sits between the name and the muscle meta. */
 .movement.pinned { border-color: var(--accent); }
 .movement .pin-mark { flex: none; font-size: .7rem; color: var(--accent); white-space: nowrap; }
+
+/* X2: a quiet "not in the movement database" marker. A DB-backed movement has
+   none. `●` curated-static (in registry/movements.json, no DB row yet — worth
+   promoting); `○` canonical-only (only in the 5-source merge). Dimmed by
+   colour, not a new token; a glyph rather than body text, and aria-hidden (the
+   card `title` carries the words), so .75rem is a fine floor and the opacity on
+   the fainter tier is the same class of use as `.tick`. `margin-right:auto`
+   keeps it tight to the name; a card without one is unchanged. Non-interactive
+   — no hit-target rule applies. */
+.movement .db-mark { flex: none; margin-right: auto; font-size: .75rem; line-height: 1; color: var(--dim); }
+.movement .db-mark--canonical-only { opacity: .55; }
 
 .compose-hint { color: var(--accent); }
 
@@ -1128,6 +1147,10 @@ button:hover, .button:hover { border-color: var(--dim); }
 
 .movement-editor { display: flex; flex-direction: column; gap: .7rem; padding: 1rem 1.1rem 1.1rem; }
 .movement-editor .me-title { margin: 0; font-size: 1rem; }
+/* X2: dim line under the title when the editor opened on a movement with no DB
+   row (both the static-registry and merged-corpus cases). Same treatment as
+   `.me-hint`. */
+.movement-editor .me-provenance { margin: -.2rem 0 0; font-size: .8rem; color: var(--dim); }
 .movement-editor .me-row { display: flex; flex-wrap: wrap; gap: .7rem; }
 .movement-editor .me-row > .me-field { flex: 1 1 10rem; min-width: 0; }
 /* The container a token input is mounted into — a plain flex item, but one that
