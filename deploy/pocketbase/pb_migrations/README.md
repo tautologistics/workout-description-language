@@ -219,3 +219,37 @@ supersedes it. From then on the collection schema is reproducible: a fresh
   row is now rejected (was 200 + a row), the 3 `global` rows unaffected. Glance
   at the admin UI on the box after deploy, same caveat as the workouts
   migration.
+
+- `1757500000_add_soft_delete.js` — adds soft delete to the four user-facing
+  record collections — `workouts`, `movements`, `movement_sets`, `goals` (queue
+  task D1, the *Soft delete across records* epic,
+  [DEC-029](../../../docs/context/topics/settled-decisions.md#dec-029-soft-delete-is-a-nullable-deleted-timestamp-hidden-by-server-rules-hard-delete-is-retired)).
+  Three things, all schema / config (no app code, no `packages/core`): (1) a
+  `deleted` field on each — `date`, nullable, no default; `null`/empty = live, an
+  ISO-8601 timestamp = soft-deleted and *when* — added by one helper over the
+  collection list so the four cannot drift; (2) `&& deleted = null` ANDed onto
+  the **list and view** rules of all four (create/update/delete left untouched so
+  the owner still `PATCH`es `deleted` set→timestamp and back); (3) the three
+  unique natural-key indexes `idx_movement_sets_set_id` / `idx_goals_goal_id` /
+  `idx_movements_movement_id` rebuilt **partial** so a soft-deleted row releases
+  its key. **Correction to DEC-029's letter:** the decision says
+  `WHERE deleted IS NULL`, but PocketBase stores an unset `date` as `''` under a
+  `NOT NULL` column, so `IS NULL` would match nothing — the working predicate is
+  `WHERE deleted = ''` (also the form PocketBase emits for optional unique
+  fields). `workouts.wdlId` is already plain non-unique — untouched. Edits
+  *existing* collections the `add_users_admin.js` / `add_workouts_wdlid.js` idiom
+  (`findCollectionByNameOrId` → `fields.add` / assign `*Rule` / rewrite
+  `indexes` → `app.save`); `down` is the exact inverse (restore plain indexes
+  first, then rules + drop the field). Verified up / down / up against a real
+  v0.40.1 (darwin_arm64) binary + throwaway `pb_data`: `migrate up` applies all
+  ten migrations cleanly, `deleted` lands on all four (`sqlite3` against
+  `_collections` / `PRAGMA table_info`, empty for fresh rows), the four list /
+  view rules read back with the `&& deleted = null` clause, the three indexes
+  read back with the `WHERE deleted = ''` predicate, a second live row with a
+  duplicate natural key is rejected (`UNIQUE constraint failed`) while the same
+  key inserts fine once the first row is tombstoned (proven for all three
+  collections), `migrate down 1` drops the field, restores the plain unique
+  indexes and the original rule strings with zero leftover `sqlite_master` rows,
+  a re-`up` reapplies cleanly. `make test` 2064/2064, unchanged. **Not yet
+  applied on the box** — `make deploy:db` lands it at D6. Glance at the admin UI
+  on the box after deploy, same caveat as the workouts migration.

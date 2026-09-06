@@ -2094,6 +2094,18 @@ the spec moves.**
     the name is still free; a name collision on restore is a D-epic non-goal
     (it surfaces as the same unique-constraint error, which the unbuilt restore
     UI would handle).
+  - **Correction (D1, `<SHA-D1>`, 2026-09-05).** The predicate above is wrong in
+    the letter: PocketBase stores an unset `date` field as the empty string `''`
+    in a `NOT NULL` column (`"deleted" TEXT DEFAULT '' NOT NULL`), never SQL
+    `NULL`, so `WHERE deleted IS NULL` matches no rows and the partial index
+    enforces nothing. The migration
+    (`1757500000_add_soft_delete.js`) uses **`WHERE deleted = ''`** — same
+    intent (a tombstone, `deleted` = an ISO timestamp, leaves the uniqueness
+    scope; a live row, `deleted = ''`, stays in it), and the exact form
+    PocketBase itself emits for an optional unique field (`WHERE `f` != ''`).
+    Verified: a second live row with a duplicate `setId` / `goalId` /
+    `movementId` is rejected, the same key inserts once the first row is
+    tombstoned.
 
 - **Scope: the four named collections only.** `equipment` / `patterns` do
   **not** get `deleted` in this epic — Chris's call, 2026-09-05. They are

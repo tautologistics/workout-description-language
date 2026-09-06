@@ -141,8 +141,9 @@ epic (P1–P3) is complete as of 2026-09-05 — `P1` (`327b8c6`), `P2` (`e55a302
 (P1–P3)` section moved to [completed.md](completed.md) as one grouped section
 (the way the M / L / V / S / G epics were closed). The active queue is now the
 `## Soft delete across records (D0–D6)` epic below. **D0 landed 2026-09-05
-(`ae6c469`) as [DEC-029](../topics/settled-decisions.md#dec-029-soft-delete-is-a-nullable-deleted-timestamp-hidden-by-server-rules-hard-delete-is-retired)
-— the queue starts at `### D1`.**
+(`ae6c469`) as [DEC-029](../topics/settled-decisions.md#dec-029-soft-delete-is-a-nullable-deleted-timestamp-hidden-by-server-rules-hard-delete-is-retired),
+D1 landed 2026-09-05 (`<SHA-D1>`) — the queue starts at `### D2` (D2 + D3
+together).**
 P1 shipped the shared `searchKey()` helper (fold separators, depluralize,
 expand `bb`/`db`/`kb` shorthand) and rewired both builder matchers; P2 pinned
 the `resolve()` winner to the head of the palette list with a marker; **P3
@@ -1162,7 +1163,42 @@ Decide and record in
 - **Collection scope.** The 4 named now; `equipment` / `patterns` follow later
   or join now — Chris's call.
 
-### D1 — migration: add `deleted` to the four collections
+### D1 — migration: add `deleted` to the four collections — **DONE 2026-09-05 (`<SHA-D1>`)**
+
+`deploy/pocketbase/pb_migrations/1757500000_add_soft_delete.js` — one migration,
+edits the four *existing* collections (`add_users_admin.js` idiom):
+
+1. Adds a `deleted` field (`date`, `required: false`, no default) to `workouts`,
+   `movements`, `movement_sets`, `goals` via one helper over the collection list.
+2. ANDs `&& deleted = null` onto the **list + view** rules of all four
+   (create/update/delete untouched). Pre-D1 rule strings taken verbatim from the
+   migrations that last set them (`goals` from `1757400000_harden_goals_rules.js`)
+   and restored exactly by `down`.
+3. Rebuilds `idx_movement_sets_set_id` / `idx_goals_goal_id` /
+   `idx_movements_movement_id` as **partial unique** so a soft-deleted row frees
+   its natural key. `workouts.wdlId` already plain non-unique — untouched.
+
+**Correction to DEC-029's letter:** the DEC specifies `WHERE deleted IS NULL`,
+but PocketBase stores an unset `date` as `''` in a `NOT NULL` column, so
+`IS NULL` matches nothing and the partial index would enforce nothing. The
+migration uses **`WHERE deleted = ''`** — DEC-029's intent (tombstone leaves the
+uniqueness scope, live row stays in it), and the form PocketBase itself emits for
+optional unique fields. Recorded on DEC-029 too.
+
+Verified up / down / up against a real pocketbase **v0.40.1 (darwin_arm64)**
+binary + throwaway `pb_data` (M1 / M2 / G1 method): `migrate up` applies all ten
+migrations clean (exit 0); `deleted` present on all four (`PRAGMA table_info`,
+empty for fresh rows); the four list/view rules read back with the
+`&& deleted = null` clause; the three indexes read back with `WHERE deleted = ''`;
+a second live row with a duplicate natural key is rejected
+(`UNIQUE constraint failed`) while the same key inserts once the first row is
+tombstoned — proven for all three collections; `migrate down 1` drops the field,
+restores the plain unique indexes and original rule strings, zero leftover
+`sqlite_master` rows; re-`up` clean. Binary + temp `pb_data` discarded (not
+committed). `make test` **2064/2064**, unchanged. README row added. **Not
+deployed** — `make deploy:db` lands it at D6.
+
+Original brief kept below for the trail.
 
 - One migration file in `deploy/pocketbase/pb_migrations/` (next timestamp
   prefix) adding `deleted` (`date`, nullable, no default) to `workouts`,
