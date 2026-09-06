@@ -712,6 +712,43 @@ type with no delete control; that gap is closed. **All four delete confirms**
 admin."* — the epic ships no self-serve restore UI, so the copy no longer says
 *"cannot be undone"* but does not promise a one-click undo either.
 
+**Wanted — "Duplicate" a movement: open the editor pre-filled from an existing
+record, as a new row.** Raised by Chris 2026-09-06, driving the editor. Today
+the only way to base a new movement on an existing one is to open the existing
+one (palette `✎`), read its fields, `Cancel`, open `＋ new movement`, and retype
+them. A **Duplicate** (or **Copy**) action would open the editor in **create
+mode** with every field copied from the source record *except* the **MOVEMENT
+ID**, which is blank (or seeded from the title) and must be set fresh — the id
+is fixed-on-create and unique-indexed (`movementId`), so a copy cannot share it.
+`title` could seed as `"<title> (copy)"` or stay verbatim for the curator to
+change; the id derives from the title on first save the way `＋ new movement`
+already does.
+
+The natural home is the editor's actions row, beside Save / Cancel / Delete (the
+D5 pattern) — a `.me-copy` button shown whenever a `record` with a real
+`movementId` is loaded, gated on `currentUser()?.admin` like the others (the
+`@request.auth.admin = true` server rule is the real boundary for a `scope:
+"global"` write). It hands `createMovementEditor` the source record but flips
+`state.mode` to `'create'` and clears `movementId`; `onSaved` / `absorbMovement`
+already fold a new row into the in-memory lists and re-render the palette. A
+palette-card affordance (a second glyph beside `✎`) is the alternative, but the
+actions-row button reuses the editor chrome that already exists.
+
+Distinct from promoting a **merged-corpus** entry: `sandbag-bear-hug-squat` and
+its ~3000 uncurated siblings in `registry/movements.canonical.json` already open
+in create mode via the palette `✎` (no curated row → `openMovementEditor`
+carries id/title only). This is the twin for a movement that *already has* a
+curated row and you want a *second* record seeded from it.
+
+*Scope: `apps/shared/movement-editor.js` (the button + a `mode: 'create'` path
+that keeps the copied field values), `apps/builder/builder.js` (`openMovementEditor`
+gains a "duplicate from this record" entry or flag), `apps/builder/builder.css`
+(`.me-copy`). No `packages/core`. Verify by driving `make serve` signed in: open
+a curated movement, Duplicate, confirm every field is copied and the id is
+empty/required, set a new id + title, Save, confirm a new row `POST`s and the
+original is untouched (`curl` both `movementId`s), and that saving without
+changing the id is refused.*
+
 **~~Clicking a grouped field's caption silently ticks its first checkbox.~~
 Fixed 2026-09-02 (`10a2b8a`, carried by V5).** Found 2026-09-02 while building
 V3; **pre-existing, and not caused by that attempt.**
@@ -772,6 +809,21 @@ canonical-only movement opens blank; an unedited `deadlift` save round-trips
 `make movements:dump` with 0 changes; `make aliases` still reports the pinned
 baseline (curated — 972 records, 0 contended names). *`apps/builder/builder.js`
 + `builder.css`; no core change; `make test` 2064/2064, 1 pending, unchanged.*
+
+**Correction 2026-09-06, partial — the "no curated row → open with id/title
+only, inventing nothing" behaviour is being reversed for that one case.** Chris,
+driving the editor to promote static-file movements into the DB, found that
+retyping every field (muscles / equipment / pattern / force / mechanic / load /
+laterality / aliases) is the whole cost of curating one. The **X3** stage of the
+*Movement palette — static + DB layered* epic
+([../tasks/current.md](../tasks/current.md)) changes `openMovementEditor`'s
+`null` branch to pre-fill the form from the **full static record**
+(`registry/movements.json` first, else `movements.canonical.json`), mapping only
+the fields the editor owns. **a643824's core finding stands where a DB row
+exists** — fetch that row, never overlay the file, so the editor never PATCHes
+canonical `support` / `sources` sub-objects or alias collisions back into the
+DB. What changes is only the fallback when there is nothing in the DB to fetch:
+the static file is real curated data, not the "invention" a643824 was avoiding.
 
 **An admin can add a vocabulary term from the editor** *(2026-09-02, N1 / V9,
 `2a534b6`).* The token-input picker for `equipment` / `pattern` — and only those

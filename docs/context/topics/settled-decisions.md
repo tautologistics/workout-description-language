@@ -1293,6 +1293,29 @@ Phase 1* epic (queue task M0).*
   undecided — this ships no pre-commit hook, only a `--check` flag that a hook
   or the deploy step could call.*
 
+- **Corrected/extended 2026-09-06 — "production apps read movements from
+  PocketBase" was never true of the builder palette, and the fix is a *layered*
+  read, not a DB-only one.** Chris found `sandbag-bear-hug-squat` in the palette
+  with no DB record behind it and asked why the palette was not reading the DB.
+  It never was: `apps/builder/builder.js` fetches `registry/movements.json` and
+  `registry/movements.canonical.json` as **static files** and never calls
+  `apps/shared/pocketbase.js`'s `listMovements()` (dead in the builder, one
+  comment reference). The `movements` collection is touched only by the editor's
+  single-record fetch and its writes — so an editor create / edit / D5
+  soft-delete shows for the session but a reload reverts to the file until
+  `make movements:dump` + commit + deploy. **Chris's call: load the files first,
+  then layer the DB on top so a DB record takes precedence over the static
+  record of the same id.** A movement he curates through the editor then wins on
+  every reload; a static-only movement carries a visual "not in the DB" marker;
+  and the editor pre-fills its whole form from the static record when there is
+  no DB row (correcting the a643824 "id/title only" behaviour for that case —
+  a643824 still stands when a DB row exists). `movements.canonical.json` stays a
+  file and stays search-only; it is a build artefact, not in the DB. Queued as
+  the **X1–X3** epic in [../tasks/current.md](../tasks/current.md). This does not
+  touch `packages/core`, which still reads `registry/movements.json` as a file
+  ([DEC-003](#dec-003-src-is-portable-and-is-handed-its-data)) — the layering is
+  a builder concern only.
+
 ### DEC-021 An account's handle is the `@id` namespace, forced onto every workout on save; `workouts.wdlId` mirrors it
 *Status: active. Settled 2026-09-01, opening the *workout library* epic (queue
 task L0). Absorbs and closes most of the deferred "account namespacing" /
