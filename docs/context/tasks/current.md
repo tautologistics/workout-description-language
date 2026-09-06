@@ -148,7 +148,7 @@ soft-delete via `PATCH`, and the mock `/api` honours the field (filter, direct-i
 404, freed natural key, overlay persistence) — and **D4 landed 2026-09-05
 (`b45629e`)**: `scripts/movements-from-db.mjs`'s dump filter now carries
 `&& deleted = null`, so `registry/movements.json` / `packages/core` never see a
-soft-deleted movement. **D5 landed 2026-09-05 (`<SHA-D5>`)** — `pocketbase.js`
+soft-deleted movement. **D5 landed 2026-09-05 (`b72b358`)** — `pocketbase.js`
 gained `removeMovement(id)` (a `PATCH { deleted }` twin of `updateMovement`), the
 movement editor gained an admin-only **Delete movement** button, and all four
 delete confirms (movements / workouts / sets / goals) now say *"It can be
@@ -1336,7 +1336,7 @@ Original brief kept below for the trail.
   new baseline.
 - **Scope:** `scripts/`. No core, no app.
 
-### D5 — UI: the missing delete button (movements) + confirm copy — **DONE 2026-09-05 (`<SHA-D5>`)**
+### D5 — UI: the missing delete button (movements) + confirm copy — **DONE 2026-09-05 (`b72b358`)**
 
 `apps/shared/pocketbase.js` gained **`removeMovement(id)`** — `updateMovement(id,
 { deleted: deletedNow() })`, the exact `PATCH` twin of D2's `remove` /

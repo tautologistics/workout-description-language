@@ -699,7 +699,7 @@ direction.** Recorded in [../tasks/deferred.md](../tasks/deferred.md)
 
 ### The movement editor
 
-**Admin-only Delete button (D5, 2026-09-05 `<SHA-D5>`).** The editor now carries
+**Admin-only Delete button (D5, 2026-09-05 `b72b358`).** The editor now carries
 a **Delete movement** button in its actions row, to the right of Save / Cancel,
 `.me-delete` (red on hover). It renders only when the builder passes an
 `onDelete` callback into `createMovementEditor` — done only for
