@@ -171,10 +171,11 @@ row (json→`null`, scalar→`""`), so the M4 dump round-trips.
 
 **Dumping the DB back to `registry/movements.json`** *(since 2026-09-01, queue
 task M4, DEC-020)*. `make movements:dump` (`scripts/movements-from-db.mjs`, no
-deps) is the egress half. It reads every `scope = "global"` row over
+deps) is the egress half. It reads every live `scope = "global"` row over
 `/api/collections/movements/records`
-(`filter=scope="global"&perPage=500&sort=movementId`, paged) — **no auth step**,
-the collection's list/view rule is `scope = "global"` — and rewrites
+(`filter=scope="global" && deleted = null&perPage=500&sort=movementId`, paged) —
+**no auth step**, the collection's list/view rule is
+`scope = "global" && deleted = null` — and rewrites
 `registry/movements.json` in its **current formatting**:
 `JSON.stringify(obj, null, 1) + "\n"`, each entry's keys walked in the order that
 entry already uses on disk, a column empty on the row (json→`null`/`[]`/`{}`,
@@ -184,7 +185,10 @@ edit shows up as exactly the changed fields. `$comment` / `version` / `$sources`
 are copied from disk untouched; `scope` / `user` / the record `id` / `created` /
 `updated` are never written. Existing entries keep file order; a movement in the
 DB but not the file is appended at the end sorted by `id`; a movement gone from
-the DB is dropped (the diff shows the removal).
+the DB — or soft-deleted (DEC-029) — is dropped (the diff shows the removal).
+The explicit `&& deleted = null` in the fetch filter (added D4) is defence for a
+future *authenticated* dump where the list rule is bypassed: `packages/core`
+must never see a soft-deleted movement.
 
 - **Target** — `--api <base>` or `WDL_PB_URL`, default `http://localhost:8081`
   (matches `make serve`); `--api` also lets a dump be taken from prod.

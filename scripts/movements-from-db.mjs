@@ -37,7 +37,15 @@
  *
  * **Target** — `--api <base>` or `WDL_PB_URL`, default `http://localhost:8081`
  * (matches `make serve`). Reads need **no auth**: the collection's list/view
- * rule is `scope = "global"`. `--api` still lets a dump be taken from prod.
+ * rule is `scope = "global" && deleted = null`. `--api` still lets a dump be
+ * taken from prod.
+ *
+ * **Soft-deleted rows are excluded** (DEC-029, D1–D4). The fetch filter carries
+ * an explicit `&& deleted = null` on top of the list rule that already hides
+ * tombstones on this unauthenticated read, so a future *authenticated* dump
+ * (list rule bypassed) still cannot pull a soft-deleted movement into
+ * `registry/movements.json` — and therefore into `packages/core`. A movement
+ * tombstoned in the DB drops from the file exactly as a hard-deleted one would.
  *
  * **Flags**
  *   --dry-run   report the tally + `git diff --stat` of what would change; write nothing.
@@ -84,7 +92,7 @@ async function main() {
   console.log(`movements:dump: ${BASE} -> registry/movements.json${DRY_RUN ? '  (dry run — no writes)' : ''}`);
 
   const rows = await fetchGlobal();
-  console.log(`  ${rows.length} scope="global" row(s) read`);
+  console.log(`  ${rows.length} live scope="global" row(s) read`);
   const byId = new Map(rows.map((r) => [r.movementId, r]));
 
   // Existing entries keep file order; a DB row with no file entry is new.
@@ -153,7 +161,7 @@ async function fetchGlobal() {
   const all = [];
   let page = 1;
   for (;;) {
-    const url = `${COLL}?filter=${encodeURIComponent('scope="global"')}&perPage=500&page=${page}&sort=movementId`;
+    const url = `${COLL}?filter=${encodeURIComponent('scope="global" && deleted = null')}&perPage=500&page=${page}&sort=movementId`;
     const env = await send('GET', url);
     for (const rec of env.items ?? []) all.push(rec);
     if (!env.totalPages || page >= env.totalPages) break;

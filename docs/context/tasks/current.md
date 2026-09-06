@@ -142,11 +142,14 @@ epic (P1–P3) is complete as of 2026-09-05 — `P1` (`327b8c6`), `P2` (`e55a302
 (the way the M / L / V / S / G epics were closed). The active queue is now the
 `## Soft delete across records (D0–D6)` epic below. **D0 landed 2026-09-05
 (`ae6c469`) as [DEC-029](../topics/settled-decisions.md#dec-029-soft-delete-is-a-nullable-deleted-timestamp-hidden-by-server-rules-hard-delete-is-retired),
-D1 landed 2026-09-05 (`487668e`), and **D2 + D3 landed together 2026-09-05
+D1 landed 2026-09-05 (`487668e`), **D2 + D3 landed together 2026-09-05
 (`f0895c0`)** — `pocketbase.js` reads all carry `&& deleted = null`, `remove*`
 soft-delete via `PATCH`, and the mock `/api` honours the field (filter, direct-id
-404, freed natural key, overlay persistence). **The queue starts at `### D4`**
-(dump path excludes soft-deleted).**
+404, freed natural key, overlay persistence) — and **D4 landed 2026-09-05
+(`<SHA-D4>`)**: `scripts/movements-from-db.mjs`'s dump filter now carries
+`&& deleted = null`, so `registry/movements.json` / `packages/core` never see a
+soft-deleted movement. **The queue starts at `### D5`** (the missing movements
+delete button + soften the confirm copy).**
 P1 shipped the shared `searchKey()` helper (fold separators, depluralize,
 expand `bb`/`db`/`kb` shorthand) and rewired both builder matchers; P2 pinned
 the `resolve()` winner to the head of the palette list with a marker; **P3
@@ -1297,7 +1300,26 @@ Original brief kept below for the trail.
   the row with `deleted` set, restart the server and confirm persistence.
 - **Scope:** `scripts/mock-api.mjs`. No core.
 
-### D4 — dump path excludes soft-deleted
+### D4 — dump path excludes soft-deleted — **DONE 2026-09-05 (`<SHA-D4>`)**
+
+`scripts/movements-from-db.mjs`: `fetchGlobal()`'s filter literal is now
+`scope="global" && deleted = null` (still through `encodeURIComponent`,
+`perPage` / `page` / `sort` untouched) — the spelling DEC-029 / D1 / D2 use. The
+tightened list rule already hides tombstones on this unauthenticated read; the
+explicit clause is defence for a future *authenticated* dump where the list rule
+is bypassed, so `registry/movements.json` — and therefore `packages/core` — can
+never see a soft-deleted movement. The `  N live scope="global" row(s) read` log
+line reworded to stay true; header docstring updated. **Only file changed:**
+`scripts/movements-from-db.mjs` (plus docs). There is no goals dump and no vocab
+dump (`goals:load` / `vocab:load` are ingest-only, `vocab:dump` declined at V8);
+`movements-to-db.mjs` is the ingest half and was not touched. Verified driving
+`make serve`: clean load→dump round-trip empty; tombstone `squat` via the mock →
+dump removes exactly that one entry, nothing else moved; `make test`
+**2064/2064** unchanged; `make aliases` baseline `curated — 972 records, 0
+contended names` holds after restore; `registry/movements.json` ends
+byte-identical to `origin/main`.
+
+Original brief kept below for the trail.
 
 - `make movements:dump` (the M4 dump side — `scripts/movements-to-db.mjs` dump
   path or its script) filters out `deleted != null` rows so
