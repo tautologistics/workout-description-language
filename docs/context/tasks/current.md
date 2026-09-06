@@ -142,8 +142,11 @@ epic (P1–P3) is complete as of 2026-09-05 — `P1` (`327b8c6`), `P2` (`e55a302
 (the way the M / L / V / S / G epics were closed). The active queue is now the
 `## Soft delete across records (D0–D6)` epic below. **D0 landed 2026-09-05
 (`ae6c469`) as [DEC-029](../topics/settled-decisions.md#dec-029-soft-delete-is-a-nullable-deleted-timestamp-hidden-by-server-rules-hard-delete-is-retired),
-D1 landed 2026-09-05 (`487668e`) — the queue starts at `### D2` (D2 + D3
-together).**
+D1 landed 2026-09-05 (`487668e`), and **D2 + D3 landed together 2026-09-05
+(`<SHA-D2>`)** — `pocketbase.js` reads all carry `&& deleted = null`, `remove*`
+soft-delete via `PATCH`, and the mock `/api` honours the field (filter, direct-id
+404, freed natural key, overlay persistence). **The queue starts at `### D4`**
+(dump path excludes soft-deleted).**
 P1 shipped the shared `searchKey()` helper (fold separators, depluralize,
 expand `bb`/`db`/`kb` shorthand) and rewired both builder matchers; P2 pinned
 the `resolve()` winner to the head of the palette list with a marker; **P3
@@ -1214,7 +1217,24 @@ Original brief kept below for the trail.
 - **Scope:** `deploy/pocketbase/pb_migrations/`. No app, no core. `make test`
   unchanged.
 
-### D2 — client: `pocketbase.js` reads filter out soft-deleted; `remove*` becomes soft-delete
+### D2 — client: `pocketbase.js` reads filter out soft-deleted; `remove*` becomes soft-delete — **DONE 2026-09-05 (`<SHA-D2>`)**
+
+`apps/shared/pocketbase.js`: a `liveOnly(filter)` helper ANDs `&& deleted = null`
+onto **every** record read — `listMine`, `getByAnyId`'s `wdlId` sub-query,
+`searchWorkouts`, `listMineSets`, `listPublicSets`, `getSetByAnyId`'s `setId`
+sub-query, `listGlobalGoals`, `listMineGoals`, `getGoalByAnyId`'s `goalId`
+sub-query, `listMovements`, `getMovementByMovementId` (the `equipment` / `patterns`
+vocab reads deliberately untouched — no `deleted` field, DEC-029 scope).
+`getById` / the direct-id `getSetByAnyId` / `getGoalByAnyId` fetches take no
+filter and rely on the tightened view rule's 404 (the existing not-found shape).
+`remove` / `removeSet` / `removeGoal` now delegate to `update` / `updateSet` /
+`updateGoal` with `{ deleted: new Date().toISOString() }` — no hand-rolled
+`call()`, no hard `DELETE`, no `purge*`. `apps/shared/{sets.js,goals-store.js}`
+needed no change: `sets.remove` reloads from the (now-filtered) list,
+`goals-store.remove` optimistically splices then awaits. `make test`
+**2064/2064**, unchanged (no test covers `pocketbase.js`).
+
+Original brief kept below for the trail.
 
 - Add `deleted = null` to the filter of every read in
   `apps/shared/pocketbase.js`: `listMine`, `searchWorkouts`, `getById` /
@@ -1235,7 +1255,37 @@ Original brief kept below for the trail.
 - **Scope:** `apps/shared/pocketbase.js`; `apps/shared/{sets.js,goals-store.js}`
   only if they cache. No core.
 
-### D3 — mock `/api`: honour `deleted`
+### D3 — mock `/api`: honour `deleted` — **DONE 2026-09-05 (`<SHA-D2>`, with D2 in one commit)**
+
+`scripts/mock-api.mjs`: `matchesAtom` gained a `field = null` / `field != null`
+branch (unset = `''` / `null` / `undefined`) — the one unquoted RHS the client
+emits; `applyQuery` / `matchesFilter` route through it unchanged, so the
+`&& deleted = null` conjunct filters every list. `deleted` is carried on every
+record shape (`'deleted'` added to `M_SCALAR`, to `toSetRecord` / `mkSetRecord`
+/ `pickSetFields`, and the goal / workout equivalents), so `PATCH { deleted }`
+persists to the same `fixtures/*.local.json` overlays and survives a restart.
+A module-level `isDeleted(r)` gates the four collections' direct-id `GET`s to
+404 (mirroring the tightened view rule) and drops tombstoned rows from
+`setIdTaken` / `goalIdTaken` (mirroring the partial unique index — a freed
+`setId` / `goalId` is mintable again) and from the mock's `forceWdlId` sibling
+scan. The pre-existing `mvDeleted` / `setsDeleted` / `goalsDeleted` hard-tombstone
+arrays and the still-wired hard-`DELETE` routes are untouched (harmless — the
+client no longer calls them).
+
+**Verified** by driving `make serve` signed in as the mock admin (and `curl`):
+- workout (`deleteMine`), movement set (card `✕`), goal (`Delete`) each
+  soft-deleted from the builder UI → the row **leaves its list**;
+- `curl` without the `deleted = null` clause → the row **still exists** with
+  `deleted` set to an ISO timestamp; direct-id `GET` → **404**;
+- restart `make serve` → the tombstone **persisted** (still absent from the
+  filtered list, still present unfiltered);
+- re-create a set / goal with the **same natural key** as a tombstoned one →
+  **succeeds** (partial-index parity);
+- movements palette still loads **129 core / 972 global** — the `listMovements`
+  filter change did not regress it; no console errors.
+- `make test` **2064/2064**, unchanged.
+
+Original brief kept below for the trail.
 
 - `scripts/mock-api.mjs`: the shared `applyQuery` / filter path understands
   `deleted = null`; `PATCH { deleted }` persists to the same `.local.json`

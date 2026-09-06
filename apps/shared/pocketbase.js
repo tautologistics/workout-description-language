@@ -19,8 +19,7 @@
  *   GET    /api/collections/workouts/records         — list (filter by owner)
  *   GET    /api/collections/workouts/records/:id     — one record
  *   POST   /api/collections/workouts/records         — create
- *   PATCH  /api/collections/workouts/records/:id     — update
- *   DELETE /api/collections/workouts/records/:id     — delete
+ *   PATCH  /api/collections/workouts/records/:id     — update, and soft-delete (`{ deleted }`, DEC-029)
  *   GET    /api/collections/movements/records        — list / lookup by movementId (open)
  *   POST   /api/collections/movements/records        — create a global movement (admin)
  *   PATCH  /api/collections/movements/records/:id    — update a global movement (admin)
@@ -242,6 +241,23 @@ export function signOut() {
  * an inconclusive check (blocked by the list rule, or a network error) reads
  * as "not visibly taken", leaving the `PATCH` 400 as the real guard.
  */
+// --- soft delete (DEC-029) ------------------------------------------------
+//
+// Every user-facing record type carries a nullable `deleted` timestamp: unset
+// = live, an ISO-8601 string = soft-deleted and *when*. D1's migration already
+// ANDs `deleted = null` into the four collections' list/view rules, so the
+// server hides tombstones from every reader. The `&& deleted = null` clause
+// repeated in each read filter below is defence-in-depth: a caller that ever
+// lists with superuser auth (rules bypassed) still gets live-only rows. The
+// three `remove*` methods `PATCH` a timestamp rather than issuing a `DELETE` —
+// hard delete is retired (no `purge*`).
+
+/** The ISO timestamp a soft-delete stamps onto `deleted`. */
+const deletedNow = () => new Date().toISOString();
+
+/** AND `deleted = null` onto an existing PocketBase filter string. */
+const liveOnly = (filter) => `${filter} && deleted = null`;
+
 async function handleTaken(h) {
   try {
     const q = new URLSearchParams({ filter: `handle="${h}"`, perPage: '1' });
@@ -514,7 +530,7 @@ export async function listMine() {
   const uid = currentUser()?.id;
   if (!uid) throw new Error('not signed in');
   const q = new URLSearchParams({
-    filter: `owner="${uid}"`,
+    filter: liveOnly(`owner="${uid}"`),
     sort: '-updated',
     perPage: '200',
   });
@@ -543,7 +559,7 @@ export function getById(id) {
 export async function getByAnyId(x) {
   const key = String(x ?? '');
   const byWdlId = async () => {
-    const q = new URLSearchParams({ filter: `wdlId="${key}"`, perPage: '1' });
+    const q = new URLSearchParams({ filter: liveOnly(`wdlId="${key}"`), perPage: '1' });
     const data = await call(`${RECORDS}?${q}`, { auth: !!authToken() });
     return data.items?.[0] ?? null;
   };
@@ -593,7 +609,7 @@ export async function searchWorkouts(q, { page = 1 } = {}) {
   if (!term) return [];
   const uid = currentUser()?.id;
   const scope = uid ? `(visibility="public" || owner="${uid}")` : 'visibility="public"';
-  const filter = `${scope} && (title~"${term}" || wdlId~"${term}")`;
+  const filter = liveOnly(`${scope} && (title~"${term}" || wdlId~"${term}")`);
   const search = new URLSearchParams({
     filter,
     sort: '-updated',
@@ -633,9 +649,9 @@ export async function update(id, patch) {
   return call(`${RECORDS}/${encodeURIComponent(id)}`, { method: 'PATCH', body });
 }
 
-/** Delete a workout. */
+/** Soft-delete a workout — `PATCH` a `deleted` timestamp (DEC-029). */
 export function remove(id) {
-  return call(`${RECORDS}/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  return update(id, { deleted: deletedNow() });
 }
 
 /** The stable share URL for a workout id — a real file path, so no rewrite. */
@@ -657,7 +673,7 @@ export async function listMineSets() {
   const uid = currentUser()?.id;
   if (!uid) throw new Error('not signed in');
   const q = new URLSearchParams({
-    filter: `owner="${uid}"`,
+    filter: liveOnly(`owner="${uid}"`),
     sort: '-updated',
     perPage: '200',
   });
@@ -675,7 +691,7 @@ export async function listMineSets() {
  */
 export async function listPublicSets() {
   const q = new URLSearchParams({
-    filter: 'visibility!="private"',
+    filter: liveOnly('visibility!="private"'),
     sort: '-updated',
     perPage: '200',
   });
@@ -691,7 +707,7 @@ export async function listPublicSets() {
 export async function getSetByAnyId(x) {
   const key = String(x ?? '');
   const bySetId = async () => {
-    const q = new URLSearchParams({ filter: `setId="${key}"`, perPage: '1' });
+    const q = new URLSearchParams({ filter: liveOnly(`setId="${key}"`), perPage: '1' });
     const data = await call(`${SETS}?${q}`, { auth: !!authToken() });
     return data.items?.[0] ?? null;
   };
@@ -745,9 +761,9 @@ export async function updateSet(id, patch) {
   return call(`${SETS}/${encodeURIComponent(id)}`, { method: 'PATCH', body });
 }
 
-/** Delete a movement set. */
+/** Soft-delete a movement set — `PATCH` a `deleted` timestamp (DEC-029). */
 export function removeSet(id) {
-  return call(`${SETS}/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  return updateSet(id, { deleted: deletedNow() });
 }
 
 // --- goals (DEC-028, G2) --------------------------------------------------
@@ -763,7 +779,7 @@ export function removeSet(id) {
 
 /** Every `global` goal ruleset, in `goalId` order. Reads need no auth. */
 export async function listGlobalGoals() {
-  const q = new URLSearchParams({ filter: 'scope="global"', sort: 'goalId', perPage: '1000' });
+  const q = new URLSearchParams({ filter: liveOnly('scope="global"'), sort: 'goalId', perPage: '1000' });
   const data = await call(`${GOALS}?${q}`, { auth: !!authToken() });
   return data.items ?? [];
 }
@@ -775,7 +791,7 @@ export async function listGlobalGoals() {
 export async function listMineGoals() {
   const uid = currentUser()?.id;
   if (!uid) return [];
-  const q = new URLSearchParams({ filter: `user="${uid}"`, sort: 'goalId', perPage: '1000' });
+  const q = new URLSearchParams({ filter: liveOnly(`user="${uid}"`), sort: 'goalId', perPage: '1000' });
   const data = await call(`${GOALS}?${q}`);
   return data.items ?? [];
 }
@@ -789,7 +805,7 @@ export async function listMineGoals() {
 export async function getGoalByAnyId(x) {
   const key = String(x ?? '');
   const byGoalId = async () => {
-    const q = new URLSearchParams({ filter: `goalId="${key}"`, perPage: '1' });
+    const q = new URLSearchParams({ filter: liveOnly(`goalId="${key}"`), perPage: '1' });
     const data = await call(`${GOALS}?${q}`, { auth: !!authToken() });
     return data.items?.[0] ?? null;
   };
@@ -842,9 +858,9 @@ export async function updateGoal(id, patch) {
   return call(`${GOALS}/${encodeURIComponent(id)}`, { method: 'PATCH', body });
 }
 
-/** Delete a goal ruleset. */
+/** Soft-delete a goal ruleset — `PATCH` a `deleted` timestamp (DEC-029). */
 export function removeGoal(id) {
-  return call(`${GOALS}/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  return updateGoal(id, { deleted: deletedNow() });
 }
 
 // --- movements (curated layer, DEC-020) --------------------------------------
@@ -855,14 +871,14 @@ export function removeGoal(id) {
 
 /** Every global movement, in `movementId` order. Reads need no auth. */
 export async function listMovements() {
-  const q = new URLSearchParams({ filter: 'scope="global"', sort: 'movementId', perPage: '1000' });
+  const q = new URLSearchParams({ filter: liveOnly('scope="global"'), sort: 'movementId', perPage: '1000' });
   const data = await call(`${MOVEMENTS}?${q}`, { auth: !!authToken() });
   return data.items ?? [];
 }
 
 /** One global movement by its registry id (`movementId`), or `null` if absent. */
 export async function getMovementByMovementId(movementId) {
-  const q = new URLSearchParams({ filter: `movementId="${movementId}"`, perPage: '1' });
+  const q = new URLSearchParams({ filter: liveOnly(`movementId="${movementId}"`), perPage: '1' });
   const data = await call(`${MOVEMENTS}?${q}`, { auth: !!authToken() });
   return data.items?.[0] ?? null;
 }

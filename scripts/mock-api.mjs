@@ -55,9 +55,22 @@
  * them: `filter` (a pattern-matcher for the exact strings the client emits —
  * `field="value"` / `field!="value"` / `field~"value"` comparisons joined by
  * `&&`, plus the one parenthesised `(A || B) && (C || D)` shape `searchWorkouts`
- * sends, L4, and the `visibility!="private"` shape `listPublicSets` sends, S3;
+ * sends, L4, the `visibility!="private"` shape `listPublicSets` sends, S3, and
+ * the `&& deleted = null` soft-delete clause every record read carries since D2;
  * see `matchesFilter` below), `sort` (`-updated` etc.), `page`, `perPage`. Not a
  * query engine.
+ *
+ * **Soft delete (task D3, DEC-029).** `workouts` / `movements` / `movement_sets`
+ * / `goals` records carry a nullable `deleted` timestamp — unset (`''`) = live,
+ * an ISO string = soft-deleted and *when*. `matchesAtom` understands the
+ * unquoted `deleted = null` / `deleted != null` atom; the client's `remove*`
+ * methods `PATCH { deleted: <ISO> }` (no hard `DELETE` — that route stays wired
+ * but unused). A soft-deleted row drops from every list filter and 404s on a
+ * direct-id / natural-key fetch (the tightened view rule), and it frees its
+ * `setId` / `goalId` so the same key can be minted again — `setIdTaken` /
+ * `goalIdTaken` ignore tombstoned rows, mirroring the partial unique index.
+ * This is unrelated to the internal `mvDeleted` / `setsDeleted` / `goalsDeleted`
+ * hard-tombstone arrays, which hide a *seed* row an overlay has removed.
  *
  * **`wdlId` (task L3, DEC-021).** `workouts` create/update run the same
  * force-`@id` + set-`wdlId` logic as `apps/shared/pocketbase.js` (`forceWdlId`
@@ -131,7 +144,15 @@ import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 const M_JSON = ['aliases', 'muscles', 'pattern', 'laterality', 'measures', 'implements', 'equipment', 'related', 'sameAs'];
-const M_SCALAR = ['force', 'mechanic', 'load', 'lateralityAxis', 'defaultLaterality', 'source'];
+const M_SCALAR = ['force', 'mechanic', 'load', 'lateralityAxis', 'defaultLaterality', 'source', 'deleted'];
+
+/**
+ * `true` iff a record is soft-deleted (DEC-029) — its nullable `deleted`
+ * timestamp carries a value. An unset field is `''` / `null` / `undefined`
+ * (the mock never writes SQL NULL). Mirrors the four collections' tightened
+ * list/view rules and their partial unique indexes (`WHERE deleted = ''`).
+ */
+const isDeleted = (r) => !!(r && r.deleted);
 
 /**
  * Build the mock handler. `root` is the repo root (`process.cwd()` in serve.mjs).
@@ -338,9 +359,13 @@ export function createMockApi(root) {
     persistSets();
   };
 
-  /** `true` iff some other set already holds `setId` (the unique-index check). */
+  /**
+   * `true` iff some other *live* set already holds `setId` (the unique-index
+   * check). A soft-deleted row has freed its natural key — the partial unique
+   * index is `WHERE deleted = ''` (DEC-029) — so it does not count.
+   */
   const setIdTaken = (setId, exceptId) =>
-    currentSets().some((s) => s.id !== exceptId && s.setId === setId);
+    currentSets().some((s) => s.id !== exceptId && s.setId === setId && !isDeleted(s));
 
   // -- goals (task G3, DEC-028) -----------------------------------------
   // The saved goal rulesets of the builder's Analysis-tab Goals block, promoted
@@ -404,9 +429,13 @@ export function createMockApi(root) {
     persistGoals();
   };
 
-  /** `true` iff some other row already holds `goalId` (the unique-index check). */
+  /**
+   * `true` iff some other *live* row already holds `goalId` (the unique-index
+   * check). A soft-deleted row has freed its key — partial unique index
+   * `WHERE deleted = ''` (DEC-029).
+   */
   const goalIdTaken = (goalId, exceptId) =>
-    currentGoals().some((g) => g.id !== exceptId && g.goalId === goalId);
+    currentGoals().some((g) => g.id !== exceptId && g.goalId === goalId && !isDeleted(g));
 
   return async function handle(req, res, url) {
     const { pathname } = url;
@@ -484,6 +513,7 @@ export function createMockApi(root) {
             source: body.source ?? '',
             wdlId: body.wdlId ?? null,
             visibility: body.visibility ?? 'private',
+            deleted: body.deleted ?? '',
             created: now, updated: now,
           };
           forceWdlId(rec, workouts, users);
@@ -496,12 +526,15 @@ export function createMockApi(root) {
         const id = decodeURIComponent(pathname.slice('/api/collections/workouts/records/'.length));
         const idx = workouts.findIndex((w) => w.id === id);
         if (method === 'GET') {
-          return idx < 0 ? json(res, 404, err(404, "The requested resource wasn't found.")) : json(res, 200, workouts[idx]);
+          // A soft-deleted row fails the tightened view rule → 404 (DEC-029).
+          return idx < 0 || isDeleted(workouts[idx])
+            ? json(res, 404, err(404, "The requested resource wasn't found."))
+            : json(res, 200, workouts[idx]);
         }
         if (method === 'PATCH') {
           if (idx < 0) return json(res, 404, err(404, "The requested resource wasn't found."));
           const body = await readBody(req);
-          for (const k of ['title', 'source', 'visibility', 'owner', 'wdlId']) if (k in body) workouts[idx][k] = body[k];
+          for (const k of ['title', 'source', 'visibility', 'owner', 'wdlId', 'deleted']) if (k in body) workouts[idx][k] = body[k];
           if ('source' in body) forceWdlId(workouts[idx], workouts, users);
           workouts[idx].updated = pbNow();
           persist();
@@ -538,7 +571,8 @@ export function createMockApi(root) {
         const id = decodeURIComponent(pathname.slice('/api/collections/movements/records/'.length));
         const rec = currentMovements().find((m) => m.id === id || m.movementId === id);
         if (method === 'GET') {
-          return rec ? json(res, 200, rec) : json(res, 404, err(404, "The requested resource wasn't found."));
+          // A soft-deleted movement fails the tightened view rule → 404 (DEC-029).
+          return rec && !isDeleted(rec) ? json(res, 200, rec) : json(res, 404, err(404, "The requested resource wasn't found."));
         }
         if (!req.headers.authorization) return mvWriteDenied();
         if (method === 'PATCH') {
@@ -635,7 +669,9 @@ export function createMockApi(root) {
           const key = decodeURIComponent(pathname.slice((base + '/').length));
           const rec = currentSets().find((s) => s.id === key || s.setId === key);
           if (method === 'GET') {
-            return rec && canReadSet(rec) ? json(res, 200, rec) : json(res, 404, err(404, "The requested resource wasn't found."));
+            return rec && canReadSet(rec) && !isDeleted(rec)
+              ? json(res, 200, rec)
+              : json(res, 404, err(404, "The requested resource wasn't found."));
           }
           if (!caller) return setWriteDenied();
           if (method === 'PATCH') {
@@ -700,7 +736,9 @@ export function createMockApi(root) {
           const key = decodeURIComponent(pathname.slice((base + '/').length));
           const rec = currentGoals().find((g) => g.id === key || g.goalId === key);
           if (method === 'GET') {
-            return rec && canReadGoal(rec) ? json(res, 200, rec) : json(res, 404, err(404, "The requested resource wasn't found."));
+            return rec && canReadGoal(rec) && !isDeleted(rec)
+              ? json(res, 200, rec)
+              : json(res, 404, err(404, "The requested resource wasn't found."));
           }
           if (!caller) return goalWriteDenied();
           if (method === 'PATCH') {
@@ -886,6 +924,7 @@ function toSetRecord(e) {
     movements: Array.isArray(e.movements) ? e.movements : [],
     visibility: e.visibility ?? 'private',
     description: e.description ?? '',
+    deleted: e.deleted ?? '',
     created: e.created ?? '',
     updated: e.updated ?? '',
   };
@@ -904,6 +943,7 @@ function mkSetRecord(body) {
     movements: Array.isArray(body.movements) ? body.movements : [],
     visibility: body.visibility ?? 'private',
     description: body.description ?? '',
+    deleted: body.deleted ?? '',
     created: now,
     updated: now,
   };
@@ -912,7 +952,7 @@ function mkSetRecord(body) {
 /** The subset of an update body that maps to a `movement_sets` column. */
 function pickSetFields(body) {
   const out = {};
-  for (const k of ['owner', 'name', 'setId', 'movements', 'visibility', 'description']) {
+  for (const k of ['owner', 'name', 'setId', 'movements', 'visibility', 'description', 'deleted']) {
     if (k in body) out[k] = body[k];
   }
   return out;
@@ -942,6 +982,7 @@ function toGoalRecord(name, source) {
     source,
     scope: 'global',
     user: '',
+    deleted: '',
     created: '',
     updated: '',
   };
@@ -959,6 +1000,7 @@ function mkGoalRecord(body) {
     source: body.source ?? '',
     scope: body.scope ?? 'user',
     user: body.user ?? '',
+    deleted: body.deleted ?? '',
     created: now,
     updated: now,
   };
@@ -967,7 +1009,7 @@ function mkGoalRecord(body) {
 /** The subset of an update body that maps to a `goals` column. */
 function pickGoalFields(body) {
   const out = {};
-  for (const k of ['title', 'goalId', 'source', 'scope', 'user']) {
+  for (const k of ['title', 'goalId', 'source', 'scope', 'user', 'deleted']) {
     if (k in body) out[k] = body[k];
   }
   return out;
@@ -1029,9 +1071,20 @@ function splitTop(s, sep) {
   return parts;
 }
 
-/** One `field="v"` (exact), `field!="v"` (exact-negated) or `field~"v"` (substring) atom. */
+/**
+ * One `field="v"` (exact), `field!="v"` (exact-negated), `field~"v"` (substring)
+ * or `field=null` / `field!=null` (soft-delete, DEC-029 — the one unquoted RHS
+ * the client emits) atom.
+ */
 function matchesAtom(rec, atom) {
-  const m = atom.trim().match(/^([a-zA-Z_][\w.]*)\s*(!=|=|~)\s*["']([^"']*)["']$/);
+  const t = atom.trim();
+  const nul = t.match(/^([a-zA-Z_][\w.]*)\s*(!=|=)\s*null$/);
+  if (nul) {
+    const [, field, op] = nul;
+    const unset = rec[field] === undefined || rec[field] === null || rec[field] === '';
+    return op === '=' ? unset : !unset;
+  }
+  const m = t.match(/^([a-zA-Z_][\w.]*)\s*(!=|=|~)\s*["']([^"']*)["']$/);
   if (!m) return true; // unrecognised — don't let it exclude anything
   const [, field, op, value] = m;
   const have = String(rec[field] ?? '');
@@ -1165,7 +1218,9 @@ function forceWdlId(rec, allWorkouts, users) {
   if (!handle || typeof rec.source !== 'string') return;
   const base = mBaseSlug(rec.source);
   const taken = new Set(
-    allWorkouts.filter((w) => w.owner === rec.owner && w.id !== rec.id && w.wdlId).map((w) => w.wdlId),
+    allWorkouts
+      .filter((w) => w.owner === rec.owner && w.id !== rec.id && w.wdlId && !isDeleted(w))
+      .map((w) => w.wdlId),
   );
   let slug = base;
   for (let n = 2; taken.has(`${handle}:${slug}`); n++) slug = `${base}-${n}`;

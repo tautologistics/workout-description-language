@@ -113,6 +113,16 @@ fall back to the `registry/*.json` seed. **On by default**;
 git-ignored). Nothing here touches `packages/core`, the grammar, the spec or the
 PocketBase migrations, and the mock never runs in production.
 
+*Since 2026-09-05 (D2 + D3, DEC-029)* the four record collections carry a
+nullable `deleted` timestamp. `apps/shared/pocketbase.js` ANDs `deleted = null`
+onto every record read and its `remove` / `removeSet` / `removeGoal` now
+`PATCH { deleted: <ISO now> }` instead of issuing a `DELETE` (hard delete is
+retired — no `purge*`); the mock's filter matcher understands the unquoted
+`deleted = null` / `deleted != null` atom, drops a tombstoned row from every
+list, 404s it on a direct-id / natural-key fetch, and lets its freed `setId` /
+`goalId` be minted again. This is unrelated to the mock's internal
+`mvDeleted` / `setsDeleted` / `goalsDeleted` hard-tombstone arrays.
+
 **The mock user starts with no `handle`** *(since 2026-09-01, task L1,
 DEC-021)*. `fixtures/users.json`'s signed-in mock user is committed without a
 `handle` on purpose, so a fresh `make serve` + first sign-in exercises
