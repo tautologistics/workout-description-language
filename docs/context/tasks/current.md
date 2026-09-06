@@ -137,14 +137,14 @@ The 3 `global` rows are unaffected. The G3 mock `/api` is already stricter (it
 
 **Two epics queued 2026-09-05 (Chris). The *Palette search normalization*
 epic (P1–P3) is complete as of 2026-09-05 — `P1` (`327b8c6`), `P2` (`e55a302`),
-`P3` (`<SHA-P3>`) all landed, and the whole `## Palette search normalization
+`P3` (`d8f592a`) all landed, and the whole `## Palette search normalization
 (P1–P3)` section moved to [completed.md](completed.md) as one grouped section
 (the way the M / L / V / S / G epics were closed). The active queue is now the
 `## Soft delete across records (D0–D6)` epic below, starting at `### D0`.**
 P1 shipped the shared `searchKey()` helper (fold separators, depluralize,
 expand `bb`/`db`/`kb` shorthand) and rewired both builder matchers; P2 pinned
 the `resolve()` winner to the head of the palette list with a marker; **P3
-(`<SHA-P3>`) dropped 58 now-redundant within-record aliases across 51 curated
+(`d8f592a`) dropped 58 now-redundant within-record aliases across 51 curated
 records** — plural-of-own-name, hyphen/space/`&` variants, and `bb`/`kb`/`db`
 implement-prefix shorthand whose full equipment word is already the id/title
 (`barbell-row` → just `["bent over row"]`, `dumbbell-curl` drops `"db curl"`,

@@ -3449,7 +3449,7 @@ Original brief kept below for the trail.
 - **Scope:** `apps/builder/builder.js`, `apps/builder/builder.css`. No core.
 
 
-### P3 — data cleanup: drop redundant spelling-variant aliases — **DONE 2026-09-05 (`<SHA-P3>`)**
+### P3 — data cleanup: drop redundant spelling-variant aliases — **DONE 2026-09-05 (`d8f592a`)**
 
 **Shipped.** `scripts/find-dup-aliases.mjs` (new, no deps — imports `fold` /
 `foldTokens` / `depluralize` / `TOKEN_EXPANSIONS` from `packages/core/src/fold.ts`
@@ -3527,7 +3527,7 @@ P1 ─> P2 ─> P3
 ```
 
 P3 gated on P1 (the palette normalizer had to exist first). **P1–P3 all landed
-2026-09-05 — the *Palette search normalization* epic is complete.** `<SHA-P3>`
+2026-09-05 — the *Palette search normalization* epic is complete.** `d8f592a`
 committed with the placeholder, then a follow-up commit replaced it with the
 landed SHA (the S1–S3 / G1–G3 pattern).
 

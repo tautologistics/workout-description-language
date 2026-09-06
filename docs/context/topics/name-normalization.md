@@ -33,7 +33,7 @@ the two sides agree?"*
 > filter, and beside it a real `Registry.resolve()` call now decides the pinned
 > row. `ambiguous` / `unregistered` pins nothing. Still no `packages/core` edit.
 >
-> **P3 (`<SHA-P3>`, 2026-09-05)** acted on Q2's observation that a stored alias
+> **P3 (`d8f592a`, 2026-09-05)** acted on Q2's observation that a stored alias
 > is only *safe* dead weight when it folds to the same key as something else the
 > record already answers to. With P1 in place, 58 such aliases across 51 curated
 > records were dropped from `registry/movements.json` — plural-of-own-name,
