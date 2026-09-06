@@ -146,7 +146,7 @@ D1 landed 2026-09-05 (`487668e`), **D2 + D3 landed together 2026-09-05
 (`f0895c0`)** — `pocketbase.js` reads all carry `&& deleted = null`, `remove*`
 soft-delete via `PATCH`, and the mock `/api` honours the field (filter, direct-id
 404, freed natural key, overlay persistence) — and **D4 landed 2026-09-05
-(`<SHA-D4>`)**: `scripts/movements-from-db.mjs`'s dump filter now carries
+(`b45629e`)**: `scripts/movements-from-db.mjs`'s dump filter now carries
 `&& deleted = null`, so `registry/movements.json` / `packages/core` never see a
 soft-deleted movement. **The queue starts at `### D5`** (the missing movements
 delete button + soften the confirm copy).**
@@ -1300,7 +1300,7 @@ Original brief kept below for the trail.
   the row with `deleted` set, restart the server and confirm persistence.
 - **Scope:** `scripts/mock-api.mjs`. No core.
 
-### D4 — dump path excludes soft-deleted — **DONE 2026-09-05 (`<SHA-D4>`)**
+### D4 — dump path excludes soft-deleted — **DONE 2026-09-05 (`b45629e`)**
 
 `scripts/movements-from-db.mjs`: `fetchGlobal()`'s filter literal is now
 `scope="global" && deleted = null` (still through `encodeURIComponent`,
