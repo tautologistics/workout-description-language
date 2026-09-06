@@ -1157,6 +1157,11 @@ button:hover, .button:hover { border-color: var(--dim); }
 
 .me-actions { display: flex; gap: .5rem; margin-top: .2rem; }
 .me-save { border-color: var(--accent); color: var(--accent); }
+/* Admin-only soft-delete (D5). Set off to the right, away from Save/Cancel, and
+   destructive on hover — the same red-on-hover the set-card `✕` uses. */
+.me-delete { margin-left: auto; color: var(--dim); }
+.me-delete:hover { border-color: var(--error); color: var(--error); }
+.me-delete:disabled { opacity: .4; cursor: default; }
 
 /* The per-card "edit this movement" affordance in the palette, and the
    "edit its curated fields" row in the step `»` panel. */

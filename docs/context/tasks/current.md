@@ -148,8 +148,12 @@ soft-delete via `PATCH`, and the mock `/api` honours the field (filter, direct-i
 404, freed natural key, overlay persistence) — and **D4 landed 2026-09-05
 (`b45629e`)**: `scripts/movements-from-db.mjs`'s dump filter now carries
 `&& deleted = null`, so `registry/movements.json` / `packages/core` never see a
-soft-deleted movement. **The queue starts at `### D5`** (the missing movements
-delete button + soften the confirm copy).**
+soft-deleted movement. **D5 landed 2026-09-05 (`<SHA-D5>`)** — `pocketbase.js`
+gained `removeMovement(id)` (a `PATCH { deleted }` twin of `updateMovement`), the
+movement editor gained an admin-only **Delete movement** button, and all four
+delete confirms (movements / workouts / sets / goals) now say *"It can be
+restored by an admin."* instead of *"This cannot be undone."*. **The queue
+starts at `### D6`** (deploy).**
 P1 shipped the shared `searchKey()` helper (fold separators, depluralize,
 expand `bb`/`db`/`kb` shorthand) and rewired both builder matchers; P2 pinned
 the `resolve()` winner to the head of the palette list with a marker; **P3
@@ -1332,7 +1336,51 @@ Original brief kept below for the trail.
   new baseline.
 - **Scope:** `scripts/`. No core, no app.
 
-### D5 — UI: the missing delete button (movements) + confirm copy
+### D5 — UI: the missing delete button (movements) + confirm copy — **DONE 2026-09-05 (`<SHA-D5>`)**
+
+`apps/shared/pocketbase.js` gained **`removeMovement(id)`** — `updateMovement(id,
+{ deleted: deletedNow() })`, the exact `PATCH` twin of D2's `remove` /
+`removeSet` / `removeGoal`; no hard `DELETE`. `createMovementEditor` gained an
+optional **`onDelete`** callback (host-agnostic, like `onCreateTerm`): when it is
+supplied *and* the editor is in edit mode, a **Delete movement** button renders
+in `.me-actions`, set off to the right with a red-on-hover `.me-delete` style
+(`apps/builder/builder.css`). The editor owns the `confirm()`; `onDelete` does
+the network call. `apps/builder/builder.js` passes `onDelete` only when
+`currentUser()?.admin` **and** `record` is a real DB row (`'movementId' in
+record` — a not-yet-curated movement opens in create mode and has nothing to
+delete); its `dropMovement(pbId, movementId)` awaits `removeMovement`, then
+splices the id out of `curatedMovements` / `catalogue` and re-`provide`s them
+(the mirror of `absorbMovement`) so the palette / `»` panel lose it without a
+reload, then closes the modal. **Note:** the builder palette is built from the
+static `registry/movements*.json` files, not `listMovements()`, so a *fresh page
+load* only drops a tombstoned movement once `make movements:dump` (D4/D6) has
+rewritten those files — the in-session splice covers the interim.
+
+All four delete confirms now carry one consistent softened clause —
+***"It can be restored by an admin."*** — replacing `deleteMine`'s *"This cannot
+be undone."* and adding a permanence note to the set / goal / new-movement
+confirms that had none. DEC-029 ships no self-serve restore UI, so the wording
+does not promise one (an admin PATCHing `deleted` back to `""` is the path).
+
+**Verified** by driving `make serve` signed in as the mock admin (and `curl` /
+the network panel):
+- movement editor (`air-squat`) → **Delete movement** button visible (admin),
+  `confirm()` reads the softened copy, accept → `PATCH
+  /api/collections/movements/records/<id>` with `deleted` an ISO string (**not**
+  a `DELETE`), editor closes, movement gone from the palette (re-search
+  confirms);
+- **signed out** → the editor opens in edit mode with **no** Delete button
+  (Save / Cancel only) — the `currentUser()?.admin` gate;
+- workout (`deleteMine`), set card `✕`, goal `✕` → each shows the softened
+  confirm and issues a `PATCH { deleted: <ISO> }` on its collection, the row
+  leaves its list; no console errors.
+- `make test` **2064/2064**, unchanged (no test covers `pocketbase.js` or the
+  builder JS).
+
+Mock overlays (`fixtures/*.local.json`, git-ignored) restored after the run.
+**Not deployed** — `make deploy` / `make deploy:db` land at D6.
+
+Original brief kept below for the trail.
 
 - Add an **admin-only Delete** button to the movement editor
   (`apps/shared/movement-editor.js`, wired in `apps/builder/builder.js`) calling

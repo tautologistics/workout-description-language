@@ -699,6 +699,19 @@ direction.** Recorded in [../tasks/deferred.md](../tasks/deferred.md)
 
 ### The movement editor
 
+**Admin-only Delete button (D5, 2026-09-05 `<SHA-D5>`).** The editor now carries
+a **Delete movement** button in its actions row, to the right of Save / Cancel,
+`.me-delete` (red on hover). It renders only when the builder passes an
+`onDelete` callback into `createMovementEditor` — done only for
+`currentUser()?.admin` on an existing DB row. Click → `confirm()` → the D2
+soft-delete path (`removeMovement(id)` = `PATCH { deleted: <ISO> }`, DEC-029) →
+`dropMovement` splices the id out of the in-memory movement lists so the palette
+loses it without a reload, then closes the modal. Movements were the last record
+type with no delete control; that gap is closed. **All four delete confirms**
+(movements / workouts / sets / goals) now read *"… It can be restored by an
+admin."* — the epic ships no self-serve restore UI, so the copy no longer says
+*"cannot be undone"* but does not promise a one-click undo either.
+
 **~~Clicking a grouped field's caption silently ticks its first checkbox.~~
 Fixed 2026-09-02 (`10a2b8a`, carried by V5).** Found 2026-09-02 while building
 V3; **pre-existing, and not caused by that attempt.**

@@ -160,9 +160,14 @@ export function movementRecordToEntry(rec) {
  *                                    `pattern` for an admin (V9) and nothing else.
  * @param {Function} [opts.onSaved]   called with the saved record in registry-entry shape
  * @param {Function} [opts.onCancel]  called when the user cancels
+ * @param {Function} [opts.onDelete]  `async () => void` — soft-deletes this movement (DEC-029).
+ *                                    Supplied only for an existing row and only by an admin host
+ *                                    (the builder gates on `currentUser()?.admin`); when absent no
+ *                                    Delete button renders. The `confirm()` is the editor's; the
+ *                                    handler does the `PATCH` and closes/refreshes the host.
  * @returns {{ destroy(): void, focus(): void }}
  */
-export function createMovementEditor({ container, record = null, api, vocab = {}, onCreateTerm = {}, onSaved, onCancel }) {
+export function createMovementEditor({ container, record = null, api, vocab = {}, onCreateTerm = {}, onSaved, onCancel, onDelete }) {
   const state = readRecord(record);
   container.innerHTML = '';
 
@@ -274,6 +279,12 @@ export function createMovementEditor({ container, record = null, api, vocab = {}
   // --- buttons ------------------------------------------------------
   const saveBtn = h('button', { type: 'button', class: 'me-save', text: state.mode === 'create' ? 'Create movement' : 'Save movement' });
   const cancelBtn = h('button', { type: 'button', class: 'me-cancel', text: 'Cancel' });
+  // Admin-only, existing rows only: the movement editor was the one record
+  // surface with no delete control (D5). Soft-delete via DEC-029 — recoverable
+  // in principle by an admin, so the confirm does not say "cannot be undone".
+  const deleteBtn = (onDelete && state.mode === 'edit')
+    ? h('button', { type: 'button', class: 'me-delete', text: 'Delete movement' })
+    : null;
 
   const form = h(
     'form', { class: 'movement-editor' },
@@ -302,7 +313,7 @@ export function createMovementEditor({ container, record = null, api, vocab = {}
       group('Muscles — secondary', controls.musclesSecondary)),
     errorBox,
     status,
-    h('div', { class: 'me-actions' }, saveBtn, cancelBtn),
+    h('div', { class: 'me-actions' }, saveBtn, cancelBtn, deleteBtn),
   );
   form.addEventListener('submit', (e) => { e.preventDefault(); save(); });
   container.append(form);
@@ -418,8 +429,29 @@ export function createMovementEditor({ container, record = null, api, vocab = {}
     }
   }
 
+  async function del() {
+    if (busy) return;
+    if (!confirm(`Delete the movement “${state.movementId}”? It can be restored by an admin.`)) return;
+    busy = true;
+    saveBtn.disabled = true;
+    cancelBtn.disabled = true;
+    deleteBtn.disabled = true;
+    setStatus('Deleting…', 'busy');
+    try {
+      await onDelete();
+      // The host closes and refreshes on success; nothing more to do here.
+    } catch (e) {
+      setStatus(e?.message || 'The delete failed.', 'error');
+      busy = false;
+      saveBtn.disabled = false;
+      cancelBtn.disabled = false;
+      deleteBtn.disabled = false;
+    }
+  }
+
   saveBtn.onclick = () => save();
   cancelBtn.onclick = () => onCancel?.();
+  if (deleteBtn) deleteBtn.onclick = () => del();
 
   return {
     destroy() {

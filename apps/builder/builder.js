@@ -42,7 +42,7 @@ import {
   currentUser, beginGoogleSignIn, refreshAuth, signOut, updateHandle,
   listMine, getById as pbGetById, getByAnyId, create as pbCreate, update as pbUpdate,
   remove as pbRemove, shareUrl, searchWorkouts, getHandle,
-  createMovement, updateMovement, getMovementByMovementId,
+  createMovement, updateMovement, getMovementByMovementId, removeMovement,
   createEquipmentTerm, createPatternTerm,
 } from '../shared/pocketbase.js';
 import { createMovementEditor } from '../shared/movement-editor.js';
@@ -1835,6 +1835,16 @@ async function openMovementEditor(ref = null) {
       equipment: (f) => createVocabTermLive(createEquipmentTerm, equipmentVocab, f),
       pattern: (f) => createVocabTermLive(createPatternTerm, patternVocab, f),
     } : undefined,
+    // D5: an admin can soft-delete an existing movement from the editor — the
+    // one record surface that never had a delete control. Gated on
+    // `currentUser()?.admin` and on `record` being a real DB row (a movement
+    // with no curated row yet opens in create mode and has nothing to delete);
+    // the `@request.auth.admin = true` server rule is the real boundary. On
+    // success `dropMovement` splices it out of the in-memory lists so the
+    // palette loses it without a reload, then closes the modal.
+    onDelete: (currentUser()?.admin && record && 'movementId' in record)
+      ? () => dropMovement(record.id, record.movementId)
+      : undefined,
     onSaved: (entry) => { absorbMovement(entry); },
     onCancel: () => closeMovementEditor(),
   });
@@ -1878,6 +1888,31 @@ function absorbMovement(entry) {
   closeMovementEditor();
   const search = el('search');
   if (search && paletteModal.open) { search.value = entry.title; }
+  renderPalette();
+  render();
+}
+
+/**
+ * Soft-delete a movement (DEC-029), then splice it out of the two in-memory
+ * movement lists and re-provide them — the mirror of `absorbMovement` — so the
+ * palette / `»` panel lose it without a page reload. The server `PATCH` runs
+ * first; on failure the editor keeps the modal open and shows the message, so
+ * this only reaches the splice once the row is actually tombstoned. A fresh
+ * page load would have dropped it anyway via the D2 `listMovements` filter and,
+ * after `make movements:dump`, out of `registry/movements.json`.
+ */
+async function dropMovement(pbId, movementId) {
+  await removeMovement(pbId);
+  const without = (arr) => arr.filter((m) => m.id !== movementId);
+  if (Array.isArray(curatedMovements)) {
+    curatedMovements = without(curatedMovements);
+    provide({ movements: () => curatedMovements });
+  }
+  if (Array.isArray(catalogue) && catalogue.length) {
+    catalogue = without(catalogue);
+    provide({ canonicalMovements: () => catalogue });
+  }
+  closeMovementEditor();
   renderPalette();
   render();
 }
@@ -2458,7 +2493,7 @@ function renderSetCard(set) {
   if (editable) {
     act('✎', 'Rename this set', () => renameSet(set));
     act('✕', 'Delete this set', () => {
-      if (!confirm(`Delete the set “${set.name}”?`)) return;
+      if (!confirm(`Delete the set “${set.name}”? It can be restored by an admin.`)) return;
       openSets.delete(set.id);
       if (composing === set.id) composing = null;
       if (el('set-pick').value === set.id) el('set-pick').value = '';
@@ -2910,7 +2945,7 @@ el('goal-drop').onclick = async () => {
   const value = el('goal-pick').value;
   if (!value.startsWith(SAVED)) return;
   const entry = goalsStore.mine().find((g) => g.goalId === value.slice(SAVED.length));
-  if (!entry || !confirm(`Delete the rules "${entry.title}"?`)) return;
+  if (!entry || !confirm(`Delete the rules "${entry.title}"? It can be restored by an admin.`)) return;
   try {
     await goalsStore.remove(entry.id);
   } catch (e) {
@@ -3494,7 +3529,7 @@ async function renameMine(w) {
 }
 
 async function deleteMine(w) {
-  if (!confirm(`Delete “${w.title || 'Untitled workout'}”? This cannot be undone.`)) return;
+  if (!confirm(`Delete “${w.title || 'Untitled workout'}”? It can be restored by an admin.`)) return;
   try {
     await pbRemove(w.id);
     if (openWorkout?.id === w.id) openWorkout = null;

@@ -249,8 +249,9 @@ export function signOut() {
 // server hides tombstones from every reader. The `&& deleted = null` clause
 // repeated in each read filter below is defence-in-depth: a caller that ever
 // lists with superuser auth (rules bypassed) still gets live-only rows. The
-// three `remove*` methods `PATCH` a timestamp rather than issuing a `DELETE` —
-// hard delete is retired (no `purge*`).
+// `remove*` methods (`remove`, `removeSet`, `removeGoal`, `removeMovement`)
+// `PATCH` a timestamp rather than issuing a `DELETE` — hard delete is retired
+// (no `purge*`).
 
 /** The ISO timestamp a soft-delete stamps onto `deleted`. */
 const deletedNow = () => new Date().toISOString();
@@ -895,6 +896,11 @@ export function createMovement(fields) {
 /** Patch a movement by its PocketBase record id. Admin-only, server-enforced. */
 export function updateMovement(id, patch) {
   return call(`${MOVEMENTS}/${encodeURIComponent(id)}`, { method: 'PATCH', body: patch });
+}
+
+/** Soft-delete a movement — `PATCH` a `deleted` timestamp (DEC-029). Admin-only. */
+export function removeMovement(id) {
+  return updateMovement(id, { deleted: deletedNow() });
 }
 
 // --- vocabularies (equipment + patterns, DEC-025) --------------------------
