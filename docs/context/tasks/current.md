@@ -318,6 +318,16 @@ wins over the older static source, on every reload. Plus two things:
 
 ### X1 — Layer the two sources (foundation; X2 and X3 read its provenance flag)
 
+*Confirmed 2026-09-06, against production:* X1 is **not** implemented today.
+Served prod `apps/builder/builder.js` is byte-identical to `origin/main` and
+**never calls `listMovements()`** — every `provide({ movements })` uses the
+static file (`data.movements`) or `curatedMovements` after an `absorbMovement` /
+`dropMovement` splice. Prod DB `movements` = **973**, prod static
+`/registry/movements.json` = **972** (Chris created one in prod); it shows in his
+palette only via the in-session splice and disappears on a hard reload. So the
+observed "it persists from then on" is the splice living as long as the tab
+stays loaded — not a DB read.
+
 After the file loads land, fetch `listMovements()` from `/api` and **merge by
 `movementId` / `id`**: a DB record replaces the static record of the same id;
 DB-only records are added. The merged list is what `provide({ movements })` and
