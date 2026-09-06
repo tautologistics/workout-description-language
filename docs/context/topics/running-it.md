@@ -413,22 +413,34 @@ detail — the MIME finding (`.ohm`/`.wdlg` land as `text/plain`, and are
 - **Migrations onto the box:** `make deploy:db` — `rsync` of
   `deploy/pocketbase/pb_migrations/*.js` to `~/pb/pb_migrations/` (no `--delete`)
   then a PocketBase restart so any new migration applies. Run it whenever a
-  migration is added; `deploy/README.md` §3 / §7a–b. **All six migrations are
-  applied on the box as of 2026-09-02** (verified by hitting the live API — the
-  `workouts` / `movements` / `equipment` / `patterns` collections all respond).
-  *Corrected 2026-09-02: this bullet said `1757100000_create_vocab.js` (V6,
-  [DEC-025](settled-decisions.md#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump))
-  was "not yet run on the box" — Chris ran `make deploy:db` on 2026-09-02 and
-  the vocab collections landed.*
-- **Prod data + app state, 2026-09-02** (checked against the live API):
+  migration is added; `deploy/README.md` §3 / §7a–b. **All ten repo migrations
+  are applied on the box as of 2026-09-06** (verified by hitting the live API).
+  The box also holds an admin-UI-generated snapshot migration
+  (`1788125462_updated_users.js`) that is not in the repo — expected, `make
+  deploy:db` uses no `--delete`. *Corrected over time: this bullet has said "six"
+  (through 2026-09-02, V6 `1757100000_create_vocab.js`), then implicitly "eight"
+  (S1 `1757200000_create_movement_sets.js` + G1 `1757300000_create_goals.js`,
+  2026-09-03), then "nine" (G4's `1757400000_harden_goals_rules.js`); D6
+  (2026-09-06) added `1757500000_add_soft_delete.js`
+  ([DEC-029](settled-decisions.md#dec-029-soft-delete-is-a-nullable-deleted-timestamp-hidden-by-server-rules-hard-delete-is-retired))
+  — ten. The count is what keeps going stale; the reflex is `make deploy:db`
+  after every migration, then check the live API.*
+- **Prod data + app state, 2026-09-06** (checked against the live API):
   `movements` **972 rows**, `workouts` **45**, `equipment` **29**, `patterns`
-  **11** — `make movements:load` / `make workouts:load` / `make vocab:load` have
-  all been run against prod. The **V8 static apps are deployed too** (`make
-  deploy` landed 21:38 UTC; the served `apps/shared/{pocketbase.js, vocab.js,
-  movement-editor.js}` are byte-identical to `origin/main`, and the exact call
-  `listEquipment()` makes — `?filter=scope="global"&sort=termId&perPage=1000` —
-  returns 29 on prod, `listPatterns()` 11), so the live editor now reads the DB
-  vocab with the bundled literals as the offline fallback. **V8 is fully live.**
+  **11**, `goals` **3**, `movement_sets` **0** — `make movements:load` /
+  `make workouts:load` / `make vocab:load` / `make goals:load` have all been run
+  against prod (movement sets ship no seed content). **D6 (2026-09-06): the D1
+  soft-delete migration is on the box** — the four record collections read back a
+  `deleted` `date` column (`""` for every live row), their list/view rules carry
+  `&& deleted = null`, and the three natural-key unique indexes are partial
+  (`WHERE deleted = ''`); a superuser soft-delete round-trip on prod behaves per
+  DEC-029 (`PATCH { deleted }` → row leaves the list, direct-id 404, freed key
+  re-mints). The **D2 + D5 static apps are deployed** — the served
+  `apps/shared/*.js` and `apps/builder/*.{js,css}` are byte-identical to
+  `origin/main`. **V8 remains fully live** (`listEquipment()` /
+  `listPatterns()` — `?filter=scope="global"&sort=termId&perPage=1000` — return
+  29 / 11 on prod), so the editor reads the DB vocab with the bundled literals
+  as the offline fallback.
 - **DB backup / restore:** [`deploy/README.md`](../../../deploy/README.md) §9
   "Back up (SQLite)" is the runbook — *since 2026-09-01 (task M6)* a nightly
   `sqlite3 .backup` cron line in

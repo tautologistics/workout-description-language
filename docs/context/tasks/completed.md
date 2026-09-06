@@ -3533,6 +3533,181 @@ landed SHA (the S1–S3 / G1–G3 pattern).
 
 ---
 
+## Soft delete across records (D0–D6)
+
+Queued 2026-09-05 (Chris), complete 2026-09-06. Every user-facing record type —
+**workouts, movements, movement sets, goals** — gained a nullable **timestamp**
+column `deleted`: `null` / `""` = live, an ISO string = soft-deleted and *when*.
+The existing hard-`DELETE` buttons (workouts `deleteMine`, set cards `✕`, goals
+`✕`) became soft-deletes; the one surface with no delete button — movements, in
+the editor — got one (admin-only). App + DB only, **no `packages/core` change**
+(D4 keeps soft-deleted movements out of the dump core reads). Contract:
+[DEC-029](../topics/settled-decisions.md#dec-029-soft-delete-is-a-nullable-deleted-timestamp-hidden-by-server-rules-hard-delete-is-retired).
+
+### D0 — settle the soft-delete contract (short DEC). DONE 2026-09-05 (`ae6c469`).
+
+Settled as [DEC-029](../topics/settled-decisions.md#dec-029-soft-delete-is-a-nullable-deleted-timestamp-hidden-by-server-rules-hard-delete-is-retired)
+and indexed in [../decisions.md](../decisions.md). Docs-only; `make test`
+2064/2064. The six points: field `deleted` (PB `date`, nullable, no default);
+filter **enforced in the collection list/view rules**, not client-side (Chris's
+call over the brief's permissive-rules option) — `pocketbase.js` keeps the same
+clause in its filter strings only as defence for a rules-bypassed superuser read;
+hard delete **retired entirely**, no `purge*` (a retention/erasure job is a
+separate future server task); the dump gets `&& deleted = null` (D4); the three
+natural-key unique indexes become **partial** so a tombstone frees its key, no id
+suffix; `equipment` / `patterns` deferred (admin-only global vocab, low delete
+pressure).
+
+### D1 — migration: add `deleted` to the four collections. DONE 2026-09-05 (`487668e`).
+
+`deploy/pocketbase/pb_migrations/1757500000_add_soft_delete.js` — one migration
+over the four existing collections (`add_users_admin.js` idiom): adds `deleted`
+(`date`, `required: false`, no default); ANDs `&& deleted = null` onto the
+**list + view** rules of all four (create/update/delete untouched, so the owner
+still `PATCH`es `deleted` set→timestamp and timestamp→`""` to restore); rebuilds
+`idx_movement_sets_set_id` / `idx_goals_goal_id` / `idx_movements_movement_id` as
+**partial unique**. `workouts.wdlId` was already plain non-unique — untouched.
+
+**Correction to DEC-029's letter:** the DEC specifies `WHERE deleted IS NULL`,
+but PocketBase stores an unset `date` as `''` in a `NOT NULL` column, so
+`IS NULL` matches nothing. The migration uses **`WHERE deleted = ''`** — DEC-029's
+intent, and the form PocketBase itself emits for optional unique fields. Recorded
+on DEC-029.
+
+Verified up / down / up against a real pocketbase **v0.40.1 (darwin_arm64)**
+binary + throwaway `pb_data` (M1 / M2 / G1 method): all ten migrations apply
+clean; `deleted` present on all four; the four rules read back with the clause;
+the three indexes read back partial; a duplicate natural key is rejected while
+live and inserts once the first row is tombstoned (proven for all three
+collections); `down 1` restores the plain indexes + original rule strings with
+zero leftover schema; re-`up` clean. `make test` **2064/2064**. README row added.
+
+### D2 — `pocketbase.js` reads filter out soft-deleted; `remove*` becomes soft-delete. DONE 2026-09-05 (`f0895c0`).
+
+`apps/shared/pocketbase.js`: a `liveOnly(filter)` helper ANDs `&& deleted = null`
+onto **every** record read — `listMine`, `getByAnyId`'s `wdlId` sub-query,
+`searchWorkouts`, `listMineSets`, `listPublicSets`, `getSetByAnyId`'s `setId`
+sub-query, `listGlobalGoals`, `listMineGoals`, `getGoalByAnyId`'s `goalId`
+sub-query, `listMovements`, `getMovementByMovementId` (the `equipment` /
+`patterns` vocab reads deliberately untouched — no `deleted` field, DEC-029
+scope). Direct-id `getById` / `getSetByAnyId` / `getGoalByAnyId` take no filter
+and rely on the tightened view rule's 404. `remove` / `removeSet` / `removeGoal`
+delegate to `update` / `updateSet` / `updateGoal` with
+`{ deleted: new Date().toISOString() }` — no hard `DELETE`, no `purge*`.
+`apps/shared/{sets.js,goals-store.js}` needed no change. `make test`
+**2064/2064**.
+
+### D3 — mock `/api`: honour `deleted`. DONE 2026-09-05 (`f0895c0`, with D2 in one commit).
+
+`scripts/mock-api.mjs`: `matchesAtom` gained a `field = null` / `field != null`
+branch (unset = `''` / `null` / `undefined`) — the one unquoted RHS the client
+emits — so the `&& deleted = null` conjunct filters every list. `deleted` is
+carried on every record shape (`M_SCALAR`, the set / goal / workout field
+pickers) so `PATCH { deleted }` persists to the `fixtures/*.local.json` overlays
+and survives a restart. A module-level `isDeleted(r)` gates the four collections'
+direct-id `GET`s to 404 and drops tombstoned rows from `setIdTaken` /
+`goalIdTaken` and the `forceWdlId` sibling scan (a freed natural key re-mints).
+The pre-existing `mvDeleted` / `setsDeleted` / `goalsDeleted` hard-tombstone
+arrays are untouched (harmless — the client no longer calls the hard-`DELETE`
+routes). Verified driving `make serve` signed in as the mock admin: workout / set
+/ goal each soft-deleted from the UI leaves its list; `curl` unfiltered still
+shows it with an ISO `deleted`; direct-id `GET` → 404; the tombstone survives a
+restart; re-creating a set / goal with the same natural key succeeds; palette
+still loads 129 core / 972 global. `make test` **2064/2064**.
+
+### D4 — dump path excludes soft-deleted. DONE 2026-09-05 (`b45629e`).
+
+`scripts/movements-from-db.mjs`: `fetchGlobal()`'s filter literal is now
+`scope="global" && deleted = null`. The tightened list rule already hides
+tombstones on this unauthenticated read; the explicit clause is defence for a
+future *authenticated* dump where the list rule is bypassed, so
+`registry/movements.json` — and therefore `packages/core` — can never see a
+soft-deleted movement. Only `scripts/movements-from-db.mjs` changed (plus docs);
+there is no goals dump and no vocab dump. Verified driving `make serve`: clean
+load→dump round-trip empty; tombstone `squat` via the mock → dump removes exactly
+that one entry; `make test` **2064/2064**; `make aliases` baseline
+(`curated — 972 records, 0 contended names`) holds after restore;
+`registry/movements.json` ends byte-identical to `origin/main`.
+
+### D5 — the missing delete button (movements) + confirm copy. DONE 2026-09-05 (`b72b358`).
+
+`apps/shared/pocketbase.js` gained **`removeMovement(id)`** —
+`updateMovement(id, { deleted: deletedNow() })`, the `PATCH` twin of D2's
+`remove*`. `createMovementEditor` gained an optional **`onDelete`** callback
+(host-agnostic, like `onCreateTerm`): when supplied *and* the editor is in edit
+mode, a **Delete movement** button renders in `.me-actions` with a red-on-hover
+`.me-delete` style (`apps/builder/builder.css`); the editor owns the `confirm()`,
+`onDelete` does the network call. `apps/builder/builder.js` passes `onDelete`
+only when `currentUser()?.admin` **and** `record` is a real DB row
+(`'movementId' in record`); its `dropMovement(pbId, movementId)` awaits
+`removeMovement`, then splices the id out of `curatedMovements` / `catalogue` and
+re-`provide`s them so the palette / `»` panel lose it without a reload. *(The
+builder palette is built from the static `registry/movements*.json` files, so a
+fresh page load only drops a tombstoned movement once `make movements:dump`
+(D4/D6) has rewritten those files — the in-session splice covers the interim.)*
+
+All four delete confirms now carry one softened clause —
+***"It can be restored by an admin."*** — replacing `deleteMine`'s *"This cannot
+be undone."* and adding a permanence note to the set / goal / new-movement
+confirms that had none. DEC-029 ships no self-serve restore UI, so the wording
+does not promise one. Verified driving `make serve` signed in as the mock admin:
+`air-squat` editor shows the button (gone when signed out), accept → `PATCH` with
+an ISO `deleted` (not a `DELETE`), editor closes, movement gone from the palette;
+workout / set / goal confirms show the softened copy and issue
+`PATCH { deleted }`. `make test` **2064/2064**.
+
+### D6 — deploy + close the epic. DONE 2026-09-06.
+
+Deploy + docs only — **no repo diff outside `docs/context/**`** (the migration is
+D1's, the client D2/D5's, the mock D3's, the dump D4's). The analogue of G4's
+deploy half for the goals epic.
+
+**Deploy (2026-09-06):**
+- **`make deploy:db`** rsynced all ten migrations to the VPS and restarted
+  PocketBase (API healthy). `1757500000_add_soft_delete.js` applied — the four
+  prod collections read back the `deleted` column (`""` for every live row;
+  `workouts` 45, `movements` 972, `goals` 3, `movement_sets` 0 — all unchanged).
+- **`make deploy`** shipped the static apps — core suite **2064/2064** first,
+  then `build-web.mjs`, then `rsync -az --delete` to `pb/pb_public/`. The served
+  `apps/shared/{pocketbase.js, movement-editor.js, sets.js, goals-store.js,
+  vocab.js, token-input.js}` and `apps/builder/{builder.js, builder.css}` are
+  **byte-identical to `origin/main`** (fetched from the live origin and
+  `diff`ed — the S4 / V8 / G4 method).
+
+**Prod verified** (superuser-authed API reads + a round-trip; the G4 precedent —
+no interactive Google prod sign-in this session, so the signed-in UI path rests
+on D2/D3/D5's mock round-trips + the byte-identical served JS):
+- all four collections' **list + view rules** read back ANDed with
+  `&& deleted = null` (`workouts` / `movement_sets`:
+  `(owner = @request.auth.id || visibility != "private") && deleted = null`;
+  `movements`: `scope = "global" && deleted = null`; `goals`:
+  `(scope = "global" || (@request.auth.id != "" && user = @request.auth.id)) && deleted = null`);
+- `deleted` is a `date` field on all four;
+- the three natural-key unique indexes read back **partial** —
+  `CREATE UNIQUE INDEX idx_movements_movement_id ON movements (movementId) WHERE deleted = ''`
+  and the `movement_sets` / `goals` equivalents;
+- a superuser soft-delete round-trip on a **throwaway goal**: `PATCH { deleted:
+  <ISO> }` → 200, row leaves the anon list, direct-id `GET` → 404, re-create with
+  the same `goalId` → 200 (the partial index freed the key); both throwaway rows
+  hard-deleted afterwards — prod back to exactly the 3 `global` goals, nothing
+  left tombstoned on any production collection.
+
+`make test` — **2064/2064 passing**.
+
+### Sequencing
+
+```
+D0 ─> D1 ─> (D2 + D3) ─> D4 ─> D5 ─> D6
+✓     ✓      ✓    ✓       ✓     ✓     ✓
+```
+
+`D2`+`D3` landed together so the change was drivable (the mock had to honour the
+field first); `D4` before `D5` so a dump-affecting change was proven before the
+UI leaned on it; `D6` last. **D0–D6 all landed — the *Soft delete across
+records* epic is complete.**
+
+---
+
 *Ordering of 5, 6, 7 and 9 against 1-4 is not settled - they are appended
 rather than placed. 5, 6 and 7 were raised by writing and sending one workout
 rather than by a plan, and 9 by closing item 3. **0f was lettered rather than
