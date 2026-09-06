@@ -142,7 +142,7 @@ epic (P1–P3) is complete as of 2026-09-05 — `P1` (`327b8c6`), `P2` (`e55a302
 (the way the M / L / V / S / G epics were closed). The active queue is now the
 `## Soft delete across records (D0–D6)` epic below. **D0 landed 2026-09-05
 (`ae6c469`) as [DEC-029](../topics/settled-decisions.md#dec-029-soft-delete-is-a-nullable-deleted-timestamp-hidden-by-server-rules-hard-delete-is-retired),
-D1 landed 2026-09-05 (`<SHA-D1>`) — the queue starts at `### D2` (D2 + D3
+D1 landed 2026-09-05 (`487668e`) — the queue starts at `### D2` (D2 + D3
 together).**
 P1 shipped the shared `searchKey()` helper (fold separators, depluralize,
 expand `bb`/`db`/`kb` shorthand) and rewired both builder matchers; P2 pinned
@@ -1163,7 +1163,7 @@ Decide and record in
 - **Collection scope.** The 4 named now; `equipment` / `patterns` follow later
   or join now — Chris's call.
 
-### D1 — migration: add `deleted` to the four collections — **DONE 2026-09-05 (`<SHA-D1>`)**
+### D1 — migration: add `deleted` to the four collections — **DONE 2026-09-05 (`487668e`)**
 
 `deploy/pocketbase/pb_migrations/1757500000_add_soft_delete.js` — one migration,
 edits the four *existing* collections (`add_users_admin.js` idiom):

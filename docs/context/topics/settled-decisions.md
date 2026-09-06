@@ -2094,7 +2094,7 @@ the spec moves.**
     the name is still free; a name collision on restore is a D-epic non-goal
     (it surfaces as the same unique-constraint error, which the unbuilt restore
     UI would handle).
-  - **Correction (D1, `<SHA-D1>`, 2026-09-05).** The predicate above is wrong in
+  - **Correction (D1, `487668e`, 2026-09-05).** The predicate above is wrong in
     the letter: PocketBase stores an unset `date` field as the empty string `''`
     in a `NOT NULL` column (`"deleted" TEXT DEFAULT '' NOT NULL`), never SQL
     `NULL`, so `WHERE deleted IS NULL` matches no rows and the partial index
