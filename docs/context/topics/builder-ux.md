@@ -825,7 +825,7 @@ canonical `support` / `sources` sub-objects or alias collisions back into the
 DB. What changes is only the fallback when there is nothing in the DB to fetch:
 the static file is real curated data, not the "invention" a643824 was avoiding.
 
-*X1 landed `<SHA-X1>`* — the palette + analysis now read the DB layered over the
+*X1 landed `096d72f`* — the palette + analysis now read the DB layered over the
 static files (DB wins per id), and every merged movement carries `inDb: boolean`.
 `openMovementEditor` is **unchanged by X1** — it still fetches the DB row and, on
 no row, opens create mode with id/title only. X3 is the stage that changes that

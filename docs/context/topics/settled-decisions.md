@@ -1316,7 +1316,7 @@ Phase 1* epic (queue task M0).*
   ([DEC-003](#dec-003-src-is-portable-and-is-handed-its-data)) — the layering is
   a builder concern only.
 
-  *X1 landed `<SHA-X1>` — the layered read is live in the builder.* On
+  *X1 landed `096d72f` — the layered read is live in the builder.* On
   bootstrap `apps/builder/builder.js` fetches `listMovements()` alongside the
   two static-file loads and `applyDbLayer` merges the DB list into the in-memory
   `curatedMovements` (DB row **replaces** the static curated record of the same

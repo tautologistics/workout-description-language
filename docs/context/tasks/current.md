@@ -169,7 +169,7 @@ etc.). Standalone gym acronyms core also expands (`hspu`, `ohs`, `sdhp`, `du`,
 vocabulary and would vanish if `TOKEN_EXPANSIONS` were ever trimmed.
 
 **One epic is in flight: *Movement palette — static + DB layered, DB wins*
-(X1–X3, Chris 2026-09-06), its own section below. X1 landed `<SHA-X1>` — the
+(X1–X3, Chris 2026-09-06), its own section below. X1 landed `096d72f` — the
 layered read is live in the builder; X2 (the "not in the database" visual
 indicator) is next, then X3 (editor pre-fill from the static record).**
 Otherwise the numbered queue is
@@ -319,9 +319,9 @@ wins over the older static source, on every reload. Plus two things:
   promoting a movement means retyping everything. They should be pre-filled from
   the static record.
 
-### ~~X1 — Layer the two sources~~ — landed `<SHA-X1>` (foundation; X2 and X3 read its provenance flag)
+### ~~X1 — Layer the two sources~~ — landed `096d72f` (foundation; X2 and X3 read its provenance flag)
 
-**Shipped `<SHA-X1>`.** `apps/builder/builder.js` only; no `packages/core`,
+**Shipped `096d72f`.** `apps/builder/builder.js` only; no `packages/core`,
 no grammar/spec, `make test` unchanged (2064/2064). On bootstrap the builder now
 fetches `listMovements()` alongside the two static-file loads and, once all
 three settle, `applyDbLayer` merges the DB list into the in-memory movement
