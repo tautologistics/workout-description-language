@@ -3271,6 +3271,268 @@ Strict order. Independent of the sets epic (S0–S4). **G0–G4 all landed
 
 ---
 
+## Palette search normalization (P1–P3)
+
+Queued 2026-09-05 (Chris). The builder's movement palette search (`matches()`,
+`apps/builder/builder.js:~2103`) and the outline row type-ahead
+(`movementSuggestions()`, `:~233`) match on **raw `.toLowerCase()` substring** —
+no separator folding, no depluralization, no abbreviation expansion. Core
+already does all three correctly: `fold()` collapses `[\s_\-]+` and other
+non-alphanumerics and drops stopwords, `depluralize()` handles plurals, and
+`TOKEN_EXPANSIONS` (`bb→barbell`, `db→dumbbell`, `t2b→toestobar`, …) is applied
+in `Registry.resolve()`. The palette reaches **none** of it — it never calls
+core resolve for search.
+
+Two concrete symptoms Chris hit on *bent over row* (the curated `barbell-row`
+record carries aliases `["bent-over row", "bent over row"]`, equipment
+`barbell`, full muscle data):
+
+- **`bb bent over row` / `db bent over row` in the palette return nothing.**
+  `bb` is not a substring of any haystack, and the `bb→barbell` expansion lives
+  only in core `resolve()`.
+- **`barbell-row` needs two aliases that fold to one key.** `fold("bent-over
+  row") === fold("bent over row") === "bentoverrow"`, so in core the second is
+  dead weight — but the raw-substring palette needs the literal hyphen *and* the
+  literal space present to match either spelling, and a plural query
+  (`bent over rows`) still misses.
+
+**Scope: builder / palette search only — no `packages/core` change.** `fold`,
+`foldTokens`, `depluralize` and `TOKEN_EXPANSIONS` are all exported from
+`build/web/core/fold.js`, which the builder already imports from (it imports
+`defaultRegistry` from `build/web/core/registry.js`). Full read/write
+normalization trace: [../topics/name-normalization.md](../topics/name-normalization.md).
+
+### P1 — one normalizer for builder movement search; rewire both matchers — **DONE 2026-09-05 (`327b8c6`)**
+
+**Shipped.** `apps/builder/builder.js` gained a shared `searchKey(s)` helper next
+to `movementSuggestions` — `depluralize(foldTokens(s).tokens.map(t => TOKEN_EXPANSIONS[t] ?? t).join(''))`,
+importing `foldTokens` / `depluralize` / `TOKEN_EXPANSIONS` from
+`../../build/web/core/fold.js` (no core change). Both `matches()` (palette modal
+`#search`) and `movementSuggestions()` (outline row type-ahead) now fold query
+**and** candidate text through it. `matches()` folds each haystack piece on its
+own and space-joins them (a needle can't bridge two pieces), folds each
+whitespace-split query word on its own, and keeps `needles.every(n => hay.includes(n))`
+— so the multi-word AND, the muscle-filter AND, the empty-query→`m.core`
+behaviour, and partial-word matching (`thrust` → `Thruster`) all survive; it is
+still fold-then-`includes`, not an exact lookup. If a query folds to nothing
+(only stopwords / punctuation) it falls back to `m.core`.
+
+**Decisions made:**
+- **Drop stopwords in the search helper — yes.** Falls out of reusing
+  core's `foldTokens` (drops `and/or/the/a/of/to/with`), and is the wanted
+  behaviour: `clean and jerk` == `clean jerk`.
+- **Expand the haystack as well as the query — yes.** `TOKEN_EXPANSIONS` is
+  applied to both sides, so it stays symmetric — a typed `bb bent over row`
+  reaches the full-word `Barbell Row`, and a stored `bb row`-style alias is
+  reachable by typing `barbell`. The expansion table only maps a small set of
+  unambiguous short tokens, so expanding stored text is safe.
+- **`catalogue` holds the full canonical corpus (3109), not the core 129** —
+  confirmed: it is `registry/movements.canonical.json` `.movements`, fetched
+  straight from the file (not `/api`); an empty query shows the 129 `core:true`
+  subset via `m.core`, a typed query reaches all 3109. "Search reaches the whole
+  registry" is accurate; `what-exists.md`'s Apps row updated with the new
+  folding behaviour.
+
+**Verified** by driving `make serve` (light + dark, no console errors):
+`bent over row` → 14 hits, **Barbell Row** first; `bb bent over row` → 8 hits
+(barbell rows only), Barbell Row first — was **nothing** before; `db bent over
+row` → 3 dumbbell rows — was nothing before; `bent-over rows` (hyphen + plural)
+→ 14 hits, Barbell Row first. Outline type-ahead: `- 10 db snatch` suggests
+**Dumbbell Snatch** (was nothing); `- 10 bent over` suggests the bent-over row
+family. Trimmed `barbell-row`'s canonical aliases to just `["bent-over row"]`
+and reloaded — `bent over rows` still surfaced Barbell Row first (the P3
+premise); fixture restored with `git checkout`. `make test` 2064/2064 passing,
+unchanged (app code; the core suite does not cover the palette). `make aliases`
+baseline unchanged — `curated — 972 records, 0 contended names`.
+
+Original brief kept below for the trail.
+
+- Add a small shared helper in `apps/builder/builder.js` (near `movementFragment`)
+  that normalizes a string for **substring/prefix** matching by reusing the core
+  primitives: lowercase → NFKD → collapse separators the way `fold()` does →
+  (decide: drop stopwords, as core `fold` does) → `depluralize`. It is not a new
+  algorithm — it is "apply `fold` / `depluralize` for a contains/startsWith test
+  instead of an exact-key lookup". Import them from `../../build/web/core/fold.js`.
+- **Shorthand expansion:** map each whitespace-split query token through
+  `TOKEN_EXPANSIONS` (import it from `fold.js`) *before* normalizing —
+  `bb`→`barbell`, `db`→`dumbbell`, etc. Consider expanding the candidate
+  haystack tokens too, so a stored alias `"bb row"` is reachable by typing
+  `barbell` (cheap, symmetric).
+- Rewire **`matches()`** (palette modal) and **`movementSuggestions()`** (row
+  type-ahead) to build their searchable text and test the query through the
+  shared helper. Keep the "empty query → `m.core`" behaviour, the muscle-filter
+  AND semantics, and partial-word matching (`thrust` → `Thruster`) — the helper
+  normalizes then does `includes` / `startsWith`, it does **not** switch to
+  exact match.
+- Confirm which list `catalogue` holds (canonical vs the core 129) so the
+  "search reaches the whole registry" claim stays accurate.
+- **Decisions for the session:** drop stopwords in the search helper? (core
+  `fold` does — makes `clean and jerk` == `clean jerk`, likely wanted); expand
+  the haystack as well as the query?
+- **Verify** by driving `make serve`: `bent over row` surfaces Barbell Row among
+  the matches; `bb bent over row` and `db bent over row` return barbell / dumbbell
+  rows instead of **nothing**; `bent-over rows` (hyphen + plural) matches;
+  removing one of `barbell-row`'s two aliases from the mock fixture still leaves
+  both spellings of the query matching. `make test` unchanged (app code; the
+  core suite does not cover the palette).
+- **Scope:** `apps/builder/builder.js` (+ `builder.css` only if P2's marker
+  needs it). No core.
+
+### P2 — pin the `resolve()` winner to the top of palette results — **DONE 2026-09-05 (`e55a302`)**
+
+**Shipped.** `apps/builder/builder.js` gained `resolvedMovement(query)` next to
+`matches()` — guards on `has('movements')`, calls `defaultRegistry().resolve(query)`
+in a `try`, and on `status: 'ok'` returns `catalogue.find(m => m.id === entry.id)`
+(the curated `entry.id` maps into the canonical `catalogue` — shared id space,
+curated is the first merge source). `renderPalette()` extracts its per-card
+builder into a `movementCard(m)` closure so the pin and the folded-list body
+render identically; when the search box has text (and neither a set-pick filter
+nor a set composition is the palette's subject) it prepends the resolved card
+with class `.pinned` and a `.pin-mark` span (`↳ matches "<query>"`) inserted
+before the muscle `.meta`, and filters that id out of the list body so it never
+shows twice. `builder.css` adds `.movement.pinned { border-color: var(--accent) }`
+and the `.pin-mark` type rule (both `--accent` values are theme-defined).
+
+**Decisions made:**
+- **Which registry — curated only (`defaultRegistry()`), not `canonicalRegistry()`.**
+  The alias-over-id ranking that makes the pin read as *the* answer
+  ([DEC-014](../topics/settled-decisions.md#dec-014-an-explicit-alias-outranks-a-records-own-id))
+  is a curated-layer property; `resolve()` over the full 3109-row canonical
+  corpus carries a much larger collision surface (e.g. the deliberate
+  `assault bike` → `Bike`, DEC-015) with nothing a "the answer is…" marker can
+  honestly claim on top. `movementEntry()` already establishes curated-only as
+  the builder's resolve path. Cost: a name that lives *only* in the canonical
+  corpus gets no pin and stays in the folded list — acceptable, since that is
+  exactly where "the standard answer" is least well-defined. `canonicalRegistry`
+  *is* provided in the builder (line ~1876), so a fallback is available later if
+  Chris wants the reach.
+- **Marker style — a pinned row, not a separate banner.** Same `.movement` card,
+  accent border, small accent `↳ matches "<query>"` label between the name and
+  the muscle meta. Reads as "this card is the resolved one" without a layout
+  break.
+- **Correction to the brief.** The brief's second verify case said
+  `squat` → **Air Squat** "via its `squat` alias". That is stale — the curated
+  registry now has its **own `squat` record** (`resolve('squat')` → `{id:'squat',
+  title:'Squat', via:'id'}`), so the pin correctly shows **Squat**, not Air
+  Squat. The implementation pins the real resolve winner; the DEC-014 mechanism
+  is still demonstrated by `bent over row` → Barbell Row (`via:'alias'`).
+
+**Verified** by driving `make serve` (light + dark, no console errors):
+`bent over row` → 14 hits, **Barbell Row** pinned first with the marker and
+accent border, not duplicated in the body; `bb bent-over rows` (shorthand +
+hyphen + plural) → 8 hits, Barbell Row pinned first; `squat` → **Squat** pinned
+first (own id, per the correction above); `deadlift` → **Deadlift** pinned;
+`thrust` (partial word) → 16 hits, **nothing pinned** (`resolve` →
+`unregistered`), Thruster still in the list; `zzxq nonsense` → 0 hits, nothing
+pinned, no throw; empty query → 129 core set, no pin; muscle-filter chips still
+AND (`Abs` + `Obliques` → 2). `make test` **2064/2064 passing**, unchanged (app
+code; the core suite does not cover the palette). `make aliases` baseline
+unchanged — `curated — 972 records, 0 contended names`.
+
+Original brief kept below for the trail.
+
+- When the search box has text, also call `defaultRegistry().resolve(query)`
+  (the builder already uses `defaultRegistry()` in `movementEntry`). On
+  `status: 'ok'`, float that entry to the head of the rendered palette list with
+  a small marker (e.g. `↳ matches "<query>"`), so the standard movement for a
+  typed name — `bent over row` → **Barbell Row** via its alias, via core's
+  alias-over-id ranking (DEC-014) — reads as *the* answer, not one of eight
+  near-matches.
+- On `ambiguous` / `unregistered`, pin nothing; show the P1 expanded-substring
+  list as-is.
+- **Decision for the session:** consult `canonicalRegistry().resolve()` too? The
+  palette shows canonical movements; a name may resolve in canonical but not
+  curated.
+- **Verify:** `bent over row` puts Barbell Row first with the marker; `squat`
+  puts Air Squat first (its `squat` alias); a nonsense query pins nothing and
+  does not throw.
+- **Scope:** `apps/builder/builder.js`, `apps/builder/builder.css`. No core.
+
+
+### P3 — data cleanup: drop redundant spelling-variant aliases — **DONE 2026-09-05 (`<SHA-P3>`)**
+
+**Shipped.** `scripts/find-dup-aliases.mjs` (new, no deps — imports `fold` /
+`foldTokens` / `depluralize` / `TOKEN_EXPANSIONS` from `packages/core/src/fold.ts`
+the way `check-aliases.mjs` does) sweeps `registry/movements.json` for aliases
+that are dead weight after P1: an alias whose normalized key equals the record's
+own id/title key, or another alias's key. Its `key()` is builder.js `searchKey()`
+**restricted to the three standard-equipment `TOKEN_EXPANSIONS` prefixes
+`bb` / `kb` / `db`** — the rest of the expansion table (`hspu`, `ohs`, `sdhp`,
+`bmu`, `gtoh`, `hpc`, `du`, `wb`, …) is left alone on Chris's call: those are
+gym-whiteboard names, and if `TOKEN_EXPANSIONS` were ever trimmed
+([name-normalization.md](../topics/name-normalization.md) Q4 lists that as a live
+question) a movement carrying only the acronym would lose its common name.
+
+**58 aliases removed across 51 curated records**, 33 of which lose their
+`aliases` key entirely. Three shapes:
+- **plural of the record's own name** — `bear crawls`, `rope climbs`,
+  `walking lunges`, `Pushups`, `pull ups`, `Ring Dips`, `db thrusters`,
+  `wall ball shots`, `reverse crunches`, `flutter kick` (singular of a plural
+  id), … (P1 depluralizes both sides).
+- **hyphen / space / `&` variant of the id/title** — `barbell-row` →
+  `["bent over row"]` (drop `"bent-over row"`); `bike` drops `"bikeerg"`
+  (keeps `"bike erg"`); `chinup`, `situp`, `pushup`, `pullup`, `wallball`,
+  `clean & jerk`, `ski erg`, `knees to elbows`.
+- **`bb` / `kb` / `db` implement-prefix shorthand whose full word is already the
+  id/title** — `db curl` (→ `dumbbell-curl`), `bb lunge` (→ `barbell-lunge`),
+  `kb swing` (→ `kettlebell-swing`), `db squat clean(s)`, `incline db fly`,
+  `lateral burpee over db`, … (27).
+
+Kept, though they also collide under the *full* expansion table: the standalone
+acronyms above, plus genuinely distinct aliases in the same record (`c&j`,
+`press-up`, `ski`, `wb`, `supinated pull-up`, `medicine ball thruster`, …).
+
+**Landed through the DB-dump path (DEC-020), local round-trip only — no prod
+creds in this environment.** With `make serve` up: baseline `make movements:load`
++ `make movements:dump` → empty diff (round-trip clean); applied the 58 removals
+to `registry/movements.json`; `make movements:load` (mock reported *51 updated*)
+then `make movements:dump` reproduced the edited file **byte-for-byte**
+(`--check` clean). The committed file therefore matches what a dump produces.
+**Chris must reconcile prod:** `make movements:load` (prod creds in `.env`) then
+`make movements:dump` against the live box, so the `movements` collection matches
+the committed file — until then the committed file is ahead of prod for these
+51 rows (the mock/dev path is fully consistent).
+
+**Verified:**
+- `make movements:dump ARGS=--check` — clean, round-trip stable.
+- `make aliases` — `curated — 972 records, 0 contended names`, `0 names no rule
+  can answer`, no plural shadows, no `validate()` problems. **Baseline
+  unchanged** (removing within-record duplicates changes no name's resolution).
+- `make test` — **2064/2064 passing**, unchanged (data-only; core suite does not
+  cover the palette, but `fold.test.ts` exercises the registry it reads).
+- `re-running find-dup-aliases.mjs` against the edited file → **0 redundant**
+  (idempotent).
+- Drove `make serve`, palette modal: every removed spelling still surfaces its
+  record — `bent-over row` / `bent over rows` → **Barbell Row** pinned;
+  `db curl` → **Dumbbell Curl** pinned; `db thrusters` → **Dumbbell Thruster**
+  pinned; `pushups` / `pull ups` / `bb lunge` / `kb swing` / `ski erg` /
+  `wallball` / `wall ball shots` / `bikeerg` all pin the right record. One case,
+  `clean & jerk`, resolves in core (`via:'id'`) but **does not pin** — the
+  canonical `catalogue` has no `clean-and-jerk` id (it is `clean-jerk` there),
+  so `resolvedMovement()` finds nothing to pin. This is the **pre-existing** P2
+  "a name that lives only in curated gets no pin" cost, not a P3 regression
+  (before the edit `resolve('clean & jerk')` returned the same id via the alias
+  and `catalogue.find` failed identically). The record still appears in the
+  list. No console errors.
+
+**Not in P3** (unchanged, see [current.md](current.md) loose bullet): the
+near-duplicate *records* `bent-over-barbell-row` / `bent-over-row-barbell` vs
+the curated `barbell-row` — a separate merge / `sameAs` / id-redirect call.
+
+### Sequencing
+
+```
+P1 ─> P2 ─> P3
+✓     ✓     ✓
+```
+
+P3 gated on P1 (the palette normalizer had to exist first). **P1–P3 all landed
+2026-09-05 — the *Palette search normalization* epic is complete.** `<SHA-P3>`
+committed with the placeholder, then a follow-up commit replaced it with the
+landed SHA (the S1–S3 / G1–G3 pattern).
+
+---
+
 *Ordering of 5, 6, 7 and 9 against 1-4 is not settled - they are appended
 rather than placed. 5, 6 and 7 were raised by writing and sending one workout
 rather than by a plan, and 9 by closing item 3. **0f was lettered rather than

@@ -32,6 +32,22 @@ the two sides agree?"*
 > gain a companion: `matches()` stays the non-authoritative fold-then-`includes`
 > filter, and beside it a real `Registry.resolve()` call now decides the pinned
 > row. `ambiguous` / `unregistered` pins nothing. Still no `packages/core` edit.
+>
+> **P3 (`<SHA-P3>`, 2026-09-05)** acted on Q2's observation that a stored alias
+> is only *safe* dead weight when it folds to the same key as something else the
+> record already answers to. With P1 in place, 58 such aliases across 51 curated
+> records were dropped from `registry/movements.json` — plural-of-own-name,
+> hyphen/space/`&` variants, and `bb`/`kb`/`db` implement-prefix shorthand whose
+> full equipment word is already the id/title (`barbell-row` now carries just
+> `["bent over row"]`; `dumbbell-curl` no longer carries `"db curl"`; etc.).
+> Standalone acronyms core also expands (`hspu`, `ohs`, `sdhp`, `du`, `wb`, …)
+> were **kept** — they are whiteboard vocabulary and rely on nothing but the
+> `TOKEN_EXPANSIONS` entry, so Q4's "should the table be trimmed?" question would
+> orphan them. `make aliases` (`0 contended`) and `make test` (2064/2064) both
+> unchanged — a within-record duplicate carries no resolution weight. Data only;
+> no `packages/core` edit. Helper: `scripts/find-dup-aliases.mjs`. See
+> [../tasks/completed.md](../tasks/completed.md) `## Palette search normalization
+> (P1–P3)` → `### P3`.
 
 ## TL;DR
 
