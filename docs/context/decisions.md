@@ -344,3 +344,20 @@ is retired with no migration; saved rulesets become signed-in-only. No Non-Goal
 reversal — `.wdlg` was always a real format; nothing in `packages/core`, the
 grammar or the spec moves.
 -> [topics/settled-decisions.md](topics/settled-decisions.md#dec-028-goals-are-a-pocketbase-collection-on-the-vocab-scope-model-localstoragewdlgoals-is-retired)
+
+## DEC-029 — Soft delete is a nullable `deleted` timestamp, hidden by server rules; hard delete is retired
+Status: active. Settled 2026-09-05 (`<SHA-D0>`), opening the *Soft delete across
+records* epic (queue task D0). Docs-only; no code shipped.
+`workouts` / `movements` / `movement_sets` / `goals` each get a nullable
+`deleted` `date` (`null` = live, a timestamp = when it was soft-deleted). The
+four collections' **list/view rules** AND in `deleted = null` so a tombstone is
+invisible to every reader — Chris's call over a client-only filter; create /
+update / delete rules are untouched so the owner can set and clear `deleted`.
+Hard `DELETE` is retired — `remove*` and the new movements delete path become
+`PATCH { deleted }`, no `purge*`. The dump (`scripts/movements-from-db.mjs`)
+must exclude `deleted != null` so `packages/core` never sees a soft-deleted
+movement. `movement_sets.setId` / `goals.goalId` / `movements.movementId` unique
+indexes become **partial** (`WHERE deleted IS NULL`) so a deleted row frees its
+natural key; `workouts.wdlId` is already non-unique. `equipment` / `patterns`
+deferred. D1–D6 implement it.
+-> [topics/settled-decisions.md](topics/settled-decisions.md#dec-029-soft-delete-is-a-nullable-deleted-timestamp-hidden-by-server-rules-hard-delete-is-retired)

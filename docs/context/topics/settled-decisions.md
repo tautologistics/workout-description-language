@@ -4,7 +4,7 @@ Closed questions, and what each answer buys. Read this before changing how
 something is structured: reopening one of these needs a reason better than "it
 would be tidier".
 
-The twenty-seven structurally significant decisions carry a `DEC-NNN` heading and
+The twenty-nine structurally significant decisions carry a `DEC-NNN` heading and
 are indexed with a one-line summary in [../decisions.md](../decisions.md);
 every decision below — headed or not — is equally settled, the heading only
 marks the ones worth a top-level pointer.
@@ -1995,6 +1995,137 @@ the suite was not exercised because nothing it covers moves.*
   `scope` column, no first-party content. The two epics are independent (different
   collection, different scope model, no shared code beyond the `pocketbase.js`
   idioms) and landed as separate decisions; either could run first.
+
+What was *tried* and turned out wrong is in
+[lessons-learned.md](lessons-learned.md); what is not built on purpose is in
+[deliberately-not-done.md](deliberately-not-done.md).
+
+### DEC-029 Soft delete is a nullable `deleted` timestamp, hidden by server rules; hard delete is retired
+*Status: active. Settled 2026-09-05 (`<SHA-D0>`), opening the *Soft delete
+across records* epic (queue task D0). Docs-only design note — no code shipped;
+the suite was not exercised because nothing it covers moves. D1–D6 implement
+this contract.*
+
+Every user-facing record type — `workouts`, `movements`, `movement_sets`,
+`goals` — gets a nullable `deleted` column. The existing hard-`DELETE` buttons
+(`workouts` `deleteMine`, the set card `✕`, the goals `✕`) become soft-deletes,
+and `movements` — the one surface with no delete control — gains an admin-only
+one in the editor. **App + DB only; nothing in `packages/core`, the grammar or
+the spec moves.**
+
+- **Field.** `deleted` — PocketBase `date`, **nullable, no schema default**.
+  `null` = live; an ISO-8601 timestamp = soft-deleted, and the value records
+  *when*. Chris's wording (`deleted`, not `deletedAt`) — a bare column name is
+  enough because the `date` type already says it is a time. One D1 migration
+  adds it to the four collections through a single helper over the collection
+  list (the `1757100000_create_vocab.js` `vocabCollection` pattern) so the four
+  cannot drift; `down` removes it from all four.
+
+- **The filter is enforced in the collection rules, not left to the client.**
+  Chris's call, 2026-09-05 — **overriding the brief's "permissive rules +
+  client filter" recommendation.** D1's migration ANDs `deleted = null` into the
+  **list and view** rules of all four collections:
+  - `workouts` / `movement_sets`:
+    `(owner = @request.auth.id || visibility != "private") && deleted = null`
+  - `movements`: `scope = "global" && deleted = null`
+  - `goals`:
+    `(scope = "global" || (@request.auth.id != "" && user = @request.auth.id)) && deleted = null`
+
+  A soft-deleted row is then invisible to **every** reader — the mock `/api`
+  (D3) mirrors the same rule — so a tombstone cannot leak through a read that
+  forgot a clause. **Create / update / delete rules are left untouched:** the
+  owner still `PATCH`es `deleted` to a timestamp (the soft-delete) and back to
+  `null` (a restore) under the existing write rule, which does not test
+  `deleted`.
+  - *Consequence:* fetching a soft-deleted row by direct record id or a `?w=`
+    link fails the view rule and 404s — the not-found shape `getById` /
+    `getByAnyId` / `getSetByAnyId` / `getGoalByAnyId` and the board's `catch`
+    already handle, so D2 needs no new error path.
+  - *Consequence / still open:* a future trash/restore *view* cannot list
+    tombstones through the normal rules — it needs a superuser/admin read path
+    or a dedicated endpoint. No trash UI ships in this epic; D5 only softens the
+    "cannot be undone" confirm copy because a restore is now possible *in
+    principle*.
+  - D2's read work shrinks accordingly: the server enforces exclusion, so D2 is
+    `remove*` → `PATCH { deleted }` plus, defensively, the same `&& deleted=null`
+    clause added to the `apps/shared/pocketbase.js` filter strings so a caller
+    that ever reads a list with superuser auth (rules bypassed) still gets
+    live-only rows.
+
+- **Hard delete is retired entirely.** Chris's call — no `purge*`. `remove` /
+  `removeSet` / `removeGoal` and the new movements delete path all become
+  `PATCH { deleted: <ISO now> }` (D2). Nothing in the app issues a true
+  `DELETE`. A real retention / erasure job (purge tombstones older than N days,
+  honour a delete request) is a separate future task — better as a server-side
+  cron or migration than a client method; an unused superuser-gated `purge*` was
+  declined as dead code with a dangerous signature. The collections' `delete`
+  rules stay as they are (harmless once nothing calls them); D1 *may* optionally
+  tighten them to `@request.auth.admin = true` as hardening — not required.
+
+- **The dump must exclude soft-deleted rows — hard requirement, D4.**
+  `make movements:dump` (`scripts/movements-from-db.mjs`) reads
+  `filter=scope="global"` **unauthenticated**, so the tightened list rule
+  *already* filters tombstones out; D4 additionally adds an explicit
+  `&& deleted=null` to that query so a future authenticated dump (rules
+  bypassed) cannot regress. `registry/movements.json` — and therefore
+  `packages/core`, its tests and `build-canonical.ts` — must never see a
+  soft-deleted movement, which would otherwise still resolve and still carry
+  muscle data. Any later goals / vocab dump inherits the rule. The `make
+  aliases` baseline (`curated — 972 records, 0 contended`) is re-checked after
+  D4 and the new baseline recorded if a deletion moves the count.
+
+- **A soft-deleted row releases its natural key.** Verified against the
+  migrations:
+  - `workouts.wdlId` is **already a plain, non-unique index**
+    (`1757000000_add_workouts_wdlid.js` — "the index is plain, not unique"), so
+    two owners share a slug today and nothing changes; a re-created workout with
+    the same `@id` just works.
+  - `movement_sets.setId`, `goals.goalId` and `movements.movementId` are
+    **unique indexes**. Once the list rule hides the tombstone, the client
+    clash-check (`forceSetNamespace` reading `listMineSets()`,
+    `forceGoalNamespace` reading `listMineGoals()`, the movement editor's
+    `movementId` check) will not see it, mint the same key, and hit `UNIQUE
+    constraint failed` at the DB.
+  - **Fix (D1):** rebuild those three as **partial unique indexes** —
+    `CREATE UNIQUE INDEX … WHERE deleted IS NULL` (SQLite supports the partial
+    form; the migrations already emit raw `CREATE … INDEX` SQL). The key stays
+    clean — no suffix, no mutation — and a soft-deleted row no longer occupies
+    its `setId` / `goalId` / `movementId`. A restore then succeeds only while
+    the name is still free; a name collision on restore is a D-epic non-goal
+    (it surfaces as the same unique-constraint error, which the unbuilt restore
+    UI would handle).
+
+- **Scope: the four named collections only.** `equipment` / `patterns` do
+  **not** get `deleted` in this epic — Chris's call, 2026-09-05. They are
+  admin-only global vocabulary with low delete pressure, and V6's
+  `vocabCollection` helper can add the column in a later migration the same way
+  if it is ever wanted.
+
+**Why.** [DEC-020](#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump)
+makes `registry/movements.json` a dump of the DB that `packages/core` reads
+offline; a hard `DELETE` of a curated movement is unrecoverable and, worse,
+indistinguishable from a bug that dropped a row. A nullable timestamp is the
+minimal reversible record — it says *whether* and *when* in one column, needs no
+second table, and leaves the whiteboard-at-rest constraint untouched (nothing
+about the `.wdl` / `.wdlg` at-rest formats moves). Enforcing the filter in the
+collection rules rather than the client was Chris's preference over the brief:
+it is one edit per collection in the same migration that adds the column, both
+verified together against a real binary, and it makes a leaked tombstone
+*impossible* rather than merely unlikely — the cost, an admin-authed path for a
+future trash view, is deferred work that view needs anyway.
+
+**Consequences / still open.**
+- No trash / restore UI ships in D0–D6; D5 only softens delete-confirm copy.
+- A future trash view needs a superuser / admin read path — the rules hide
+  tombstones from everyone, including the owner.
+- `equipment` / `patterns` soft-delete is deferred; a later migration mirrors
+  this contract if it is wanted.
+- Retention / purge of old tombstones is unspecified — a separate future
+  server-side task, not a client method.
+- D1 carries more than the brief's "just the column": it also edits the four
+  list / view rules and rebuilds three unique indexes as partial. All three are
+  schema / config and share one real-binary up / down verification (the M1 / M2
+  / G1 method).
 
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in

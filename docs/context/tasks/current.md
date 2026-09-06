@@ -140,7 +140,9 @@ epic (P1–P3) is complete as of 2026-09-05 — `P1` (`327b8c6`), `P2` (`e55a302
 `P3` (`d8f592a`) all landed, and the whole `## Palette search normalization
 (P1–P3)` section moved to [completed.md](completed.md) as one grouped section
 (the way the M / L / V / S / G epics were closed). The active queue is now the
-`## Soft delete across records (D0–D6)` epic below, starting at `### D0`.**
+`## Soft delete across records (D0–D6)` epic below. **D0 landed 2026-09-05
+(`<SHA-D0>`) as [DEC-029](../topics/settled-decisions.md#dec-029-soft-delete-is-a-nullable-deleted-timestamp-hidden-by-server-rules-hard-delete-is-retired)
+— the queue starts at `### D1`.**
 P1 shipped the shared `searchKey()` helper (fold separators, depluralize,
 expand `bb`/`db`/`kb` shorthand) and rewired both builder matchers; P2 pinned
 the `resolve()` winner to the head of the palette list with a marker; **P3
@@ -1099,7 +1101,44 @@ button — movements, in the editor — gets one. App + DB only, **no
 `packages/core` change** (D4 keeps soft-deleted movements out of the dump core
 reads).
 
-### D0 — settle the soft-delete contract (short DEC)
+### D0 — settle the soft-delete contract (short DEC) — **DONE 2026-09-05 (`<SHA-D0>`)**
+
+Settled as
+[DEC-029](../topics/settled-decisions.md#dec-029-soft-delete-is-a-nullable-deleted-timestamp-hidden-by-server-rules-hard-delete-is-retired)
+and indexed in [../decisions.md](../decisions.md). Docs-only; `make test`
+2064/2064, unchanged. The six bullets resolved:
+
+1. **Field** — `deleted`, PocketBase `date`, nullable, **no default**. `null` =
+   live, an ISO timestamp = soft-deleted and *when*.
+2. **Filter placement** — **enforced in the collection rules**, Chris's call
+   *over* the brief's "permissive rules + client filter". D1's migration ANDs
+   `deleted = null` into the **list/view** rules of all four collections;
+   create/update/delete rules untouched so the owner still `PATCH`es `deleted`
+   set→timestamp and timestamp→null (restore). D2 keeps the same clause in the
+   `pocketbase.js` filter strings only as defence for a rules-bypassed
+   superuser read.
+3. **Hard delete** — **retired entirely**, no `purge*`. `remove` / `removeSet` /
+   `removeGoal` + the new movements delete all become `PATCH { deleted: <ISO> }`.
+   A retention/erasure job is a separate future server-side task.
+4. **The dump** — hard requirement for D4: `scripts/movements-from-db.mjs` adds
+   `&& deleted=null` to its `filter=scope="global"` query (the tightened list
+   rule already excludes tombstones on the unauthenticated read; the explicit
+   clause guards a future authed dump). `packages/core` must never see a
+   soft-deleted movement.
+5. **Unique keys** — `workouts.wdlId` is already a plain non-unique index →
+   nothing to do. `movement_sets.setId` / `goals.goalId` / `movements.movementId`
+   unique indexes become **partial** — `CREATE UNIQUE INDEX … WHERE deleted IS
+   NULL` (D1) — so a soft-deleted row frees its natural key; no id suffix.
+6. **Collection scope** — the four named now. `equipment` / `patterns`
+   **deferred** (admin-only global vocab, low delete pressure; V6's
+   `vocabCollection` helper can add the column later).
+
+Consequences carried into D1: the migration also edits the four list/view rules
+and rebuilds three unique indexes as partial — all schema/config, one
+real-binary up/down verification. No trash/restore UI in this epic; D5 only
+softens delete-confirm copy.
+
+Original brief kept below for the trail.
 
 Decide and record in
 [../topics/settled-decisions.md](../topics/settled-decisions.md) +
