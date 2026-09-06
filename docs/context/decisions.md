@@ -346,7 +346,7 @@ grammar or the spec moves.
 -> [topics/settled-decisions.md](topics/settled-decisions.md#dec-028-goals-are-a-pocketbase-collection-on-the-vocab-scope-model-localstoragewdlgoals-is-retired)
 
 ## DEC-029 — Soft delete is a nullable `deleted` timestamp, hidden by server rules; hard delete is retired
-Status: active. Settled 2026-09-05 (`<SHA-D0>`), opening the *Soft delete across
+Status: active. Settled 2026-09-05 (`ae6c469`), opening the *Soft delete across
 records* epic (queue task D0). Docs-only; no code shipped.
 `workouts` / `movements` / `movement_sets` / `goals` each get a nullable
 `deleted` `date` (`null` = live, a timestamp = when it was soft-deleted). The

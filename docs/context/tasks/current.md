@@ -141,7 +141,7 @@ epic (P1–P3) is complete as of 2026-09-05 — `P1` (`327b8c6`), `P2` (`e55a302
 (P1–P3)` section moved to [completed.md](completed.md) as one grouped section
 (the way the M / L / V / S / G epics were closed). The active queue is now the
 `## Soft delete across records (D0–D6)` epic below. **D0 landed 2026-09-05
-(`<SHA-D0>`) as [DEC-029](../topics/settled-decisions.md#dec-029-soft-delete-is-a-nullable-deleted-timestamp-hidden-by-server-rules-hard-delete-is-retired)
+(`ae6c469`) as [DEC-029](../topics/settled-decisions.md#dec-029-soft-delete-is-a-nullable-deleted-timestamp-hidden-by-server-rules-hard-delete-is-retired)
 — the queue starts at `### D1`.**
 P1 shipped the shared `searchKey()` helper (fold separators, depluralize,
 expand `bb`/`db`/`kb` shorthand) and rewired both builder matchers; P2 pinned
@@ -1101,7 +1101,7 @@ button — movements, in the editor — gets one. App + DB only, **no
 `packages/core` change** (D4 keeps soft-deleted movements out of the dump core
 reads).
 
-### D0 — settle the soft-delete contract (short DEC) — **DONE 2026-09-05 (`<SHA-D0>`)**
+### D0 — settle the soft-delete contract (short DEC) — **DONE 2026-09-05 (`ae6c469`)**
 
 Settled as
 [DEC-029](../topics/settled-decisions.md#dec-029-soft-delete-is-a-nullable-deleted-timestamp-hidden-by-server-rules-hard-delete-is-retired)

@@ -2001,7 +2001,7 @@ What was *tried* and turned out wrong is in
 [deliberately-not-done.md](deliberately-not-done.md).
 
 ### DEC-029 Soft delete is a nullable `deleted` timestamp, hidden by server rules; hard delete is retired
-*Status: active. Settled 2026-09-05 (`<SHA-D0>`), opening the *Soft delete
+*Status: active. Settled 2026-09-05 (`ae6c469`), opening the *Soft delete
 across records* epic (queue task D0). Docs-only design note — no code shipped;
 the suite was not exercised because nothing it covers moves. D1–D6 implement
 this contract.*
