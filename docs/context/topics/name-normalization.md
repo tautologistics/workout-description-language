@@ -23,6 +23,15 @@ the two sides agree?"*
 > core paths are unchanged, no `packages/core` edit. See
 > [../tasks/current.md](../tasks/current.md) `## Palette search normalization`
 > → `### P1`.
+>
+> **P2 (`<SHA-P2>`, 2026-09-05)** added a second, *authoritative* path to the
+> palette on top of P1's fuzzy `matches()`: when `#search` has text the builder
+> now also calls `defaultRegistry().resolve(query)` (curated only, via a new
+> `resolvedMovement()` next to `matches()`) and, on `status: 'ok'`, pins that one
+> movement to the head of the list with a marker. So the palette's Q1-table rows
+> gain a companion: `matches()` stays the non-authoritative fold-then-`includes`
+> filter, and beside it a real `Registry.resolve()` call now decides the pinned
+> row. `ambiguous` / `unregistered` pins nothing. Still no `packages/core` edit.
 
 ## TL;DR
 

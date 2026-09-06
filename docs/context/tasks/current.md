@@ -136,16 +136,17 @@ The 3 `global` rows are unaffected. The G3 mock `/api` is already stricter (it
 403s the anonymous write), so local dev is unaffected.
 
 **Two epics queued 2026-09-05 (Chris) — this is the active queue. `P1` landed
-2026-09-05 (`327b8c6`); `P2` is next.**
+2026-09-05 (`327b8c6`), `P2` landed 2026-09-05 (`<SHA-P2>`); `P3` is next.**
 *Palette search normalization* (**P1–P3**, section below) makes the builder's
 movement search fold separators, depluralize, and expand `bb`/`db`-style
 shorthand the way core `resolve()` already does — until P1 it matched on raw
 lowercase substring, which is why `bb bent over row` in the palette returned
 nothing and why the curated `barbell-row` has to carry two aliases
 (`"bent-over row"`, `"bent over row"`) that fold identically in core. **P1 shipped
-the shared `searchKey()` helper and rewired both matchers** (see the P1 subsection);
-P2 (pin the `resolve()` winner to the top) and P3 (the redundant-alias data
-cleanup, now unblocked) remain open. *Soft
+the shared `searchKey()` helper and rewired both matchers**; **P2 pinned the
+`resolve()` winner to the head of the palette list with a marker** (see those
+subsections). P3 (the redundant-alias data cleanup, now unblocked) remains open.
+*Soft
 delete across records* (**D0–D6**, section below) gives workouts / movements /
 movement sets / goals a nullable `deleted` **timestamp** (`null` = live, a value
 = when it was deleted), flips the existing hard-`DELETE` buttons to soft-delete,
@@ -1189,7 +1190,58 @@ Original brief kept below for the trail.
 - **Scope:** `apps/builder/builder.js` (+ `builder.css` only if P2's marker
   needs it). No core.
 
-### P2 — pin the `resolve()` winner to the top of palette results
+### P2 — pin the `resolve()` winner to the top of palette results — **DONE 2026-09-05 (`<SHA-P2>`)**
+
+**Shipped.** `apps/builder/builder.js` gained `resolvedMovement(query)` next to
+`matches()` — guards on `has('movements')`, calls `defaultRegistry().resolve(query)`
+in a `try`, and on `status: 'ok'` returns `catalogue.find(m => m.id === entry.id)`
+(the curated `entry.id` maps into the canonical `catalogue` — shared id space,
+curated is the first merge source). `renderPalette()` extracts its per-card
+builder into a `movementCard(m)` closure so the pin and the folded-list body
+render identically; when the search box has text (and neither a set-pick filter
+nor a set composition is the palette's subject) it prepends the resolved card
+with class `.pinned` and a `.pin-mark` span (`↳ matches "<query>"`) inserted
+before the muscle `.meta`, and filters that id out of the list body so it never
+shows twice. `builder.css` adds `.movement.pinned { border-color: var(--accent) }`
+and the `.pin-mark` type rule (both `--accent` values are theme-defined).
+
+**Decisions made:**
+- **Which registry — curated only (`defaultRegistry()`), not `canonicalRegistry()`.**
+  The alias-over-id ranking that makes the pin read as *the* answer
+  ([DEC-014](../topics/settled-decisions.md#dec-014-an-explicit-alias-outranks-a-records-own-id))
+  is a curated-layer property; `resolve()` over the full 3109-row canonical
+  corpus carries a much larger collision surface (e.g. the deliberate
+  `assault bike` → `Bike`, DEC-015) with nothing a "the answer is…" marker can
+  honestly claim on top. `movementEntry()` already establishes curated-only as
+  the builder's resolve path. Cost: a name that lives *only* in the canonical
+  corpus gets no pin and stays in the folded list — acceptable, since that is
+  exactly where "the standard answer" is least well-defined. `canonicalRegistry`
+  *is* provided in the builder (line ~1876), so a fallback is available later if
+  Chris wants the reach.
+- **Marker style — a pinned row, not a separate banner.** Same `.movement` card,
+  accent border, small accent `↳ matches "<query>"` label between the name and
+  the muscle meta. Reads as "this card is the resolved one" without a layout
+  break.
+- **Correction to the brief.** The brief's second verify case said
+  `squat` → **Air Squat** "via its `squat` alias". That is stale — the curated
+  registry now has its **own `squat` record** (`resolve('squat')` → `{id:'squat',
+  title:'Squat', via:'id'}`), so the pin correctly shows **Squat**, not Air
+  Squat. The implementation pins the real resolve winner; the DEC-014 mechanism
+  is still demonstrated by `bent over row` → Barbell Row (`via:'alias'`).
+
+**Verified** by driving `make serve` (light + dark, no console errors):
+`bent over row` → 14 hits, **Barbell Row** pinned first with the marker and
+accent border, not duplicated in the body; `bb bent-over rows` (shorthand +
+hyphen + plural) → 8 hits, Barbell Row pinned first; `squat` → **Squat** pinned
+first (own id, per the correction above); `deadlift` → **Deadlift** pinned;
+`thrust` (partial word) → 16 hits, **nothing pinned** (`resolve` →
+`unregistered`), Thruster still in the list; `zzxq nonsense` → 0 hits, nothing
+pinned, no throw; empty query → 129 core set, no pin; muscle-filter chips still
+AND (`Abs` + `Obliques` → 2). `make test` **2064/2064 passing**, unchanged (app
+code; the core suite does not cover the palette). `make aliases` baseline
+unchanged — `curated — 972 records, 0 contended names`.
+
+Original brief kept below for the trail.
 
 - When the search box has text, also call `defaultRegistry().resolve(query)`
   (the builder already uses `defaultRegistry()` in `movementEntry`). On

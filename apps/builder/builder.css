@@ -741,6 +741,10 @@ button:hover, .button:hover { border-color: var(--dim); }
 .movement .tick { flex: none; width: 1em; text-align: center; opacity: .4; font-size: .8em; }
 .movement.in-set { border-color: currentColor; }
 .movement.in-set .tick { opacity: 1; }
+/* P2: the card for the movement a search resolves to, pinned above the folded
+   list. The `↳ matches "…"` marker sits between the name and the muscle meta. */
+.movement.pinned { border-color: var(--accent); }
+.movement .pin-mark { flex: none; font-size: .7rem; color: var(--accent); white-space: nowrap; }
 
 .compose-hint { color: var(--accent); }
 

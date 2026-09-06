@@ -2147,6 +2147,30 @@ const matches = (m, q) => {
   return needles.every((n) => hay.includes(n));
 };
 
+/**
+ * The single movement a typed query resolves to through core `Registry.resolve()`,
+ * mapped into `catalogue` for rendering — or `undefined` when the name is
+ * ambiguous, unregistered, or the registry has not loaded yet.
+ *
+ * Consults the **curated** registry only, like `movementEntry`. That is
+ * deliberate: the alias-over-id ranking that makes this pin meaningful
+ * (`bent over row` → Barbell Row, `squat` → Air Squat, both via an alias —
+ * DEC-014) is a curated-layer property, and resolving over the full 3109-row
+ * canonical corpus carries a much larger collision surface (e.g. the deliberate
+ * `assault bike` → `Bike`, DEC-015) with no upside a "the answer is…" marker
+ * could honestly claim. A name that lives only in the canonical corpus simply
+ * gets no pin and stays in the folded list. Curated ids are a subset of
+ * canonical ids (curated is the first source in the canonical merge), so
+ * `entry.id` always maps into `catalogue`.
+ */
+function resolvedMovement(query) {
+  if (!query || !has('movements')) return undefined;
+  let res;
+  try { res = defaultRegistry().resolve(query); } catch { return undefined; }
+  if (res.status !== 'ok') return undefined;
+  return catalogue.find((m) => m.id === res.entry.id);
+}
+
 function renderMuscleChips() {
   const box = el('muscle-chips');
   box.innerHTML = '';
@@ -2218,7 +2242,10 @@ function renderPalette() {
   const inComposed = composed ? new Set(localMovements(composed)) : null;
 
   box.innerHTML = '';
-  for (const m of shown.slice(0, 300)) {
+
+  // P2: build one palette card. Extracted so the resolve-winner pin and the
+  // folded-list body render identically.
+  const movementCard = (m) => {
     const item = document.createElement('button');
     item.className = 'movement';
     item.type = 'button';
@@ -2281,8 +2308,29 @@ function renderPalette() {
     item.addEventListener('mouseenter', () =>
       hoverBody({ primary: m.muscles?.primary ?? [], secondary: m.muscles?.secondary ?? [] }));
     item.addEventListener('mouseleave', unhoverBody);
-    box.append(item);
+    return item;
+  };
+
+  // P2: the movement this query resolves to through core `Registry.resolve()` —
+  // pinned above the folded list with a marker so a name with one standard
+  // answer (`bent over row` → Barbell Row, `squat` → Air Squat, both via an
+  // alias — DEC-014) reads as that answer, not one of a dozen near-matches.
+  // Plain free-text search only: a set-pick filter or a set being composed is a
+  // different question. De-duplicated from the list body so it never shows twice.
+  const query = el('search').value.trim();
+  const pinned = (!composed && !chosen && query) ? resolvedMovement(query) : undefined;
+  const body = pinned ? shown.filter((m) => m.id !== pinned.id) : shown;
+  if (pinned) {
+    const card = movementCard(pinned);
+    card.classList.add('pinned');
+    const mark = document.createElement('span');
+    mark.className = 'pin-mark';
+    mark.textContent = `↳ matches “${query}”`;
+    card.insertBefore(mark, card.querySelector('.meta'));
+    box.append(card);
   }
+  for (const m of body.slice(0, 300 - (pinned ? 1 : 0))) box.append(movementCard(m));
+
   const scope = chosen ? 'in this set' : el('search').value.trim() ? 'of all movements' : 'of the core set';
   el('palette-count').textContent = shown.length > 300
     ? `${shown.length} ${scope}, showing 300`
