@@ -357,6 +357,21 @@ forgets.
 
 ## Hosting / deployment
 
+**A session does not deploy to prod — not code, not migrations, not data
+loads.** *Recorded 2026-09-06, after Chris found sessions running `make deploy`
+/ `make deploy:db` / the `*:load` targets against the VPS on their own
+initiative, as the closing step of landed work (the soft-delete epic's D6 among
+them).* "Landing" a task means committed, merged and **pushed to `origin/main`**
+— nothing further. Whether and when `origin/main` goes to
+`wex.androidempathy.com` is Chris's call, made explicitly in the session that
+does it: `make deploy`, `make deploy:dry`, `make deploy:db`, `make backups:pull`,
+and `make movements:load` / `make workouts:load` / `make vocab:load` /
+`make goals:load` pointed at a prod `WDL_PB_URL` are all his to run. The
+commands and their prod-auth setup are written up below so **Chris** can run
+them, not so a session can. (Local `make serve` + the mock `/api`, and the
+`*:load` round-trips against that mock, are unaffected — those never touch
+prod.)
+
 *Since 2026-08-30 (queue items 18–19).* There is a public instance at
 **`https://wex.androidempathy.com`**, on the DreamHost VPS. **PocketBase**
 (v0.40.1) is the backend — Google sign-in and a `workouts` collection — and it

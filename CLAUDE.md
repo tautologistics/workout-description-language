@@ -45,7 +45,14 @@ asking him to repeat the detail:
    <branch>:main` onto `main` directly — confirm the SHA moved with `git
    ls-remote origin main`, don't assume). Regenerate whatever the change
    requires, run the suite, update the owning file(s) in `docs/context/`.
-   Nothing half-done is left behind.
+   Nothing half-done is left behind. **Landing stops at `origin/main`.** A
+   session does **not** deploy to prod — not `make deploy`, not `make
+   deploy:db`, not any `*:load` against the live PocketBase — even as the
+   closing step of finished work. Pushing `wex.androidempathy.com` is Chris's
+   call and Chris's hand; a session runs those targets only when Chris says so
+   in that session, in as many words. See
+   [docs/context/topics/running-it.md](docs/context/topics/running-it.md)
+   "## Hosting / deployment".
 2. **Pick the top-prioritized next task.** Read
    [docs/context/tasks/current.md](docs/context/tasks/current.md) first and take
    its highest-priority open item. If every numbered item is closed, fall back
