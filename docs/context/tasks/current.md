@@ -188,7 +188,7 @@ self-contained defect from
 builder ([../topics/builder-ux.md](../topics/builder-ux.md)).
 
 The **movement editor "Duplicate" action** raised by Chris 2026-09-06 **landed
-`<SHA>` (2026-09-06)** — a `.me-copy` button (admin + real DB rows only) re-opens
+`71f591d` (2026-09-06)** — a `.me-copy` button (admin + real DB rows only) re-opens
 the editor in create mode pre-filled from the source row with a fresh required
 `movementId`; the mode-flip lives builder-side (`openMovementEditor` grew a
 `{ id, title, duplicate: true }` ref shape) and a same-id save is refused inline.

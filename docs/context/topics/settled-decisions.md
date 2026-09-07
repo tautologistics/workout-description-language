@@ -1364,7 +1364,7 @@ Phase 1* epic (queue task M0).*
   `apps/builder/builder.js` + `apps/shared/movement-editor.js` only; no
   `packages/core`; `make test` 2064/2064.
 
-  *Follow-up `<SHA>` (2026-09-06) — the editor can now seed a new `scope:
+  *Follow-up `71f591d` (2026-09-06) — the editor can now seed a new `scope:
   "global"` row from an existing one.* A **Duplicate movement** action
   (`.me-copy`, admin + real DB-backed rows only) re-opens the editor in create
   mode carrying every field of the source row except `movementId`, which is

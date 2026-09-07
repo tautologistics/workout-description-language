@@ -735,7 +735,7 @@ admin."* — the epic ships no self-serve restore UI, so the copy no longer says
 *"cannot be undone"* but does not promise a one-click undo either.
 
 **~~Wanted — "Duplicate" a movement: open the editor pre-filled from an existing
-record, as a new row.~~ Landed `<SHA>` (2026-09-06).** A **Duplicate movement**
+record, as a new row.~~ Landed `71f591d` (2026-09-06).** A **Duplicate movement**
 button now sits in the editor's actions row, `.me-copy` — between Cancel and
 Delete, plain (dim) treatment, accent hint on hover, *not* red: it is
 constructive, not destructive. It renders only when `onDuplicate` is passed and
