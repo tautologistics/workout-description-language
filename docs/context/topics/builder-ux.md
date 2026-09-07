@@ -866,7 +866,7 @@ the `»` panel carries a `{id,title}` object, which `readRecord` maps to
 movement" (that is only `＋ new movement`, `ref` null). If Chris wants the line
 gone it is one opt to stop passing.
 
-*X3 landed `<SHA-X3>`* — `openMovementEditor`'s `null` branch now pre-fills from
+*X3 landed `13c2831`* — `openMovementEditor`'s `null` branch now pre-fills from
 the full static record. On no DB row it uses
 `curatedMovements.find(id)` (curated `registry/movements.json`) else
 `catalogue.find(id)` (merged `registry/movements.canonical.json`), run through a

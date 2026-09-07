@@ -172,7 +172,7 @@ vocabulary and would vanish if `TOKEN_EXPANSIONS` were ever trimmed.
 2026-09-06) is complete as of 2026-09-06 — no epic is in flight.** X1
 (`096d72f`, the layered read), X2 (`a3d1a68`, the quiet "not in the database"
 marker — `●` curated-static / `○` canonical-only — on the palette card, the `»`
-panel and the editor header) and **X3 (`<SHA-X3>`, the editor pre-fills its
+panel and the editor header) and **X3 (`13c2831`, the editor pre-fills its
 whole form from the static registry record when there is no DB row — new
 `movementEntryToRecord` mapper, editor-owned keys only, a643824 still stands
 where a DB row exists)** all landed, and the whole

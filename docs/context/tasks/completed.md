@@ -3916,9 +3916,9 @@ reflect the same; a DB-backed movement (`back-squat`) shows none anywhere.
 `WDL_MOCK_API=0` → all 129 cards marked (116 `●` + 13 `○`), one console warn, no
 crash. Dark + light both legible. `make test` 2064/2064.*
 
-### ~~X3 — the editor pre-fills from the static-file record when there is no DB row~~ — landed `<SHA-X3>`
+### ~~X3 — the editor pre-fills from the static-file record when there is no DB row~~ — landed `13c2831`
 
-**Shipped `<SHA-X3>`.** `apps/builder/builder.js` + `apps/shared/movement-editor.js`;
+**Shipped `13c2831`.** `apps/builder/builder.js` + `apps/shared/movement-editor.js`;
 no `packages/core`, no grammar/spec, `make test` unchanged (2064/2064).
 `openMovementEditor`'s `null` branch (no DB row) now falls back to the full
 static registry entry — `curatedMovements.find(id)` (curated

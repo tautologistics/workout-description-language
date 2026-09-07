@@ -1345,7 +1345,7 @@ Phase 1* epic (queue task M0).*
   glyphs and the exact wording are the session's defensible default, flagged to
   Chris for confirmation.
 
-  *X3 landed `<SHA-X3>` — the editor pre-fills from the static record, and the
+  *X3 landed `13c2831` — the editor pre-fills from the static record, and the
   X1–X3 epic is complete.* `openMovementEditor`'s `null` branch (no DB row) now
   falls back to the full static registry entry — `curatedMovements.find(id)`
   first, else `catalogue.find(id)` — mapped through a new exported
