@@ -1343,8 +1343,26 @@ Phase 1* epic (queue task M0).*
   the ≥2rem-hit rule does not apply. `apps/builder/**` +
   `apps/shared/movement-editor.js` only; `make test` unchanged. The `●` / `○`
   glyphs and the exact wording are the session's defensible default, flagged to
-  Chris for confirmation. X3 (editor pre-fill from the static record) remains
-  open.
+  Chris for confirmation.
+
+  *X3 landed `<SHA-X3>` — the editor pre-fills from the static record, and the
+  X1–X3 epic is complete.* `openMovementEditor`'s `null` branch (no DB row) now
+  falls back to the full static registry entry — `curatedMovements.find(id)`
+  first, else `catalogue.find(id)` — mapped through a new exported
+  `movementEntryToRecord(entry)` in `apps/shared/movement-editor.js` (the
+  inverse of `movementRecordToEntry`) that carries only editor-owned keys and
+  rebuilds `muscles` as `{primary, secondary}` only, so the canonical file's
+  `support` / `sources` / `origin` / `muscleClaims` cannot be PATCHed back into
+  the DB (the a643824 failure mode). **a643824 stands wholly where a DB row
+  exists** — that row is fetched and used untouched; only the no-row fallback
+  changed, and the static file is real curated data, not the "invention"
+  a643824 guarded against. A `/api` read failure also falls through to the
+  static pre-fill, but only when `movementDbState(id).inDb` is false (no known
+  row, or `WDL_MOCK_API=0` where every id is stamped false) — a known live row
+  keeps the "Could not read …" dead-end so a transient error can't open a stale
+  form over it. An unchanged Save round-trips `make movements:dump` with 0 diff.
+  `apps/builder/builder.js` + `apps/shared/movement-editor.js` only; no
+  `packages/core`; `make test` 2064/2064.
 
 ### DEC-021 An account's handle is the `@id` namespace, forced onto every workout on save; `workouts.wdlId` mirrors it
 *Status: active. Settled 2026-09-01, opening the *workout library* epic (queue

@@ -866,6 +866,33 @@ the `»` panel carries a `{id,title}` object, which `readRecord` maps to
 movement" (that is only `＋ new movement`, `ref` null). If Chris wants the line
 gone it is one opt to stop passing.
 
+*X3 landed `<SHA-X3>`* — `openMovementEditor`'s `null` branch now pre-fills from
+the full static record. On no DB row it uses
+`curatedMovements.find(id)` (curated `registry/movements.json`) else
+`catalogue.find(id)` (merged `registry/movements.canonical.json`), run through a
+new exported `movementEntryToRecord(entry)` in `apps/shared/movement-editor.js`
+— the inverse of `movementRecordToEntry`. That mapper carries only editor-owned
+keys (`aliases` / `equipment` / `pattern` / `related` / `sameAs`, the `ENUMS`
+`force` / `mechanic` / `load` / `defaultLaterality` / `lateralityAxis`, the
+`MULTIS` `laterality` / `measures`, `implements`, `title`) and **rebuilds
+`muscles` as `{primary, secondary}` only** — so the canonical file's nested
+`muscles.support` / `muscles.sources`, and top-level `origin` / `sources` /
+`muscleClaims` / `external` / `core` / …, cannot reach a later PATCH (the
+a643824 failure mode, still guarded). a643824 stands wholly for the DB-row case:
+when `getMovementByMovementId` returns a row it is used untouched. One extra
+change to the `catch`: an `/api` read failure now falls through to the static
+pre-fill **only when `movementDbState(id).inDb` is false** (no known row, or
+`WDL_MOCK_API=0` where every id is stamped false) — if the X1 layer knows a live
+row backs the id, the "Could not read …" dead-end is kept so a transient error
+can't open a stale form over a real row. Verified by driving: canonical-only
+(`sandbag-bear-hug-squat`) and curated-static (`air-squat`, DB row deleted) both
+open fully pre-filled with the `»`/header provenance line; `air-squat` unchanged
+→ Save → `make movements:dump` shows **0 diff**; `back-squat` (DB-backed) still
+fetches its row, no provenance line; `＋ new movement` still blank create mode;
+`WDL_MOCK_API=0` opens the editor pre-filled from the file with a console warn,
+no crash. `apps/builder/builder.js` + `apps/shared/movement-editor.js`; no core;
+`make test` 2064/2064.
+
 **An admin can add a vocabulary term from the editor** *(2026-09-02, N1 / V9,
 `2a534b6`).* The token-input picker for `equipment` / `pattern` — and only those
 two — shows a **"＋ new term"** row while the filter box holds text that folds to

@@ -168,12 +168,20 @@ etc.). Standalone gym acronyms core also expands (`hspu`, `ohs`, `sdhp`, `du`,
 `wb`, …) were **kept** as aliases on Chris's call — they are whiteboard
 vocabulary and would vanish if `TOKEN_EXPANSIONS` were ever trimmed.
 
-**One epic is in flight: *Movement palette — static + DB layered, DB wins*
-(X1–X3, Chris 2026-09-06), its own section below. X1 landed `096d72f` (the
-layered read) and X2 landed `a3d1a68` (the quiet "not in the database" marker
-— `●` curated-static / `○` canonical-only — on the palette card, the `»` panel
-and the editor header). X3 (editor pre-fill from the static record) is next.**
-Otherwise the numbered queue is
+**The *Movement palette — static + DB layered, DB wins* epic (X1–X3, Chris
+2026-09-06) is complete as of 2026-09-06 — no epic is in flight.** X1
+(`096d72f`, the layered read), X2 (`a3d1a68`, the quiet "not in the database"
+marker — `●` curated-static / `○` canonical-only — on the palette card, the `»`
+panel and the editor header) and **X3 (`<SHA-X3>`, the editor pre-fills its
+whole form from the static registry record when there is no DB row — new
+`movementEntryToRecord` mapper, editor-owned keys only, a643824 still stands
+where a DB row exists)** all landed, and the whole
+`## Movement palette — static + DB layered, DB wins (X1–X3)` section moved to
+[completed.md](completed.md) as one grouped section (the way the M / L / V / S /
+G / D epics were closed). See
+[../topics/what-exists.md](../topics/what-exists.md) and
+[DEC-020](../topics/settled-decisions.md#dec-020-the-curated-movement-layer-lives-in-pocketbase-registrymovementsjson-is-its-committed-dump)
+(corrected/extended 2026-09-06). Otherwise the numbered queue is
 empty; further work comes off the deferred / loose lists below, or a
 self-contained defect from
 [../topics/known-debts.md](../topics/known-debts.md) or one found by driving the
@@ -288,211 +296,6 @@ Recently closed (kept here briefly for the trail):
   type the weight: @ 2x35lb`) and a transient inline hint appears by the caret
   after the pick. Full write-up in
   [../topics/builder-ux.md](../topics/builder-ux.md) under the `»`-panel entry.
-
----
-
-## Movement palette — static + DB layered, DB wins (X1–X3, Chris 2026-09-06)
-
-**The problem Chris hit.** The builder's palette and analysis read
-`registry/movements.json` (the curated dump) and `registry/movements.canonical.json`
-(the 5-source merge) as **static files** — `builder.js` never calls
-`listMovements()` (it exists in `apps/shared/pocketbase.js`, referenced only in a
-comment). The `movements` DB collection is touched **only** by the editor's
-single-record fetch and its writes. So a movement created / edited / soft-deleted
-through the editor shows this session (in-memory splice via `absorbMovement` /
-`dropMovement`) but a **reload reverts to the file** — the DB is invisible to the
-palette until someone runs `make movements:dump`, commits, and deploys. DEC-020's
-"production apps read movements from PocketBase" is not what the code does.
-
-**Chris's design (2026-09-06), verbatim intent.** Load the static files first,
-then **layer the DB on top so a DB record takes precedence** over the static
-record of the same id. This makes the workflow: come upon a movement worth
-curating → edit it → save → a DB record is created → from then on that record
-wins over the older static source, on every reload. Plus two things:
-
-- **A visual indicator for movements that are only in the static file** — so
-  Chris can see at a glance which ones he still needs / wants to commit to the
-  DB.
-- **Fix: the editor does not populate all fields when the source is the static
-  file.** Opening a static-only movement's `✎` today gives create mode with
-  **id + title only** (a643824, "inventing nothing"); muscles, equipment,
-  pattern, force, mechanic, load, laterality, aliases are all blank, so
-  promoting a movement means retyping everything. They should be pre-filled from
-  the static record.
-
-### ~~X1 — Layer the two sources~~ — landed `096d72f` (foundation; X2 and X3 read its provenance flag)
-
-**Shipped `096d72f`.** `apps/builder/builder.js` only; no `packages/core`,
-no grammar/spec, `make test` unchanged (2064/2064). On bootstrap the builder now
-fetches `listMovements()` alongside the two static-file loads and, once all
-three settle, `applyDbLayer` merges the DB list into the in-memory movement
-lists keyed on `movementId` / `id`:
-
-- **Curated list** (`curatedMovements`, fed to `provide({ movements })` for
-  `validate` / `resolve`): a DB row **replaces** the static curated record of
-  the same id (DB wins per DEC-020 as corrected 2026-09-06); DB-only rows are
-  appended.
-- **Canonical corpus** (`catalogue`, read by `renderPalette` and
-  `canonicalRegistry()` / `musclesFor`): the DB entry is **overlaid** onto the
-  canonical record (`{ ...canonical, ...db }`) so canonical-only search fields
-  survive while curated fields win — the same shape `absorbMovement` already
-  used in-session. DB-only rows are appended; they carry no `core` flag, so a
-  fresh movement surfaces on a **title search**, not in the default 129-card
-  view (X2 renders the marker). `registry/movements.canonical.json` itself stays
-  a static build artefact.
-- **Provenance:** every merged entry carries `inDb: boolean` (`true` iff a live
-  DB row backs it). Not rendered here — X2 renders it, X3 reads it. `inDb`, not
-  a `source: 'db' | 'static-*'` enum, because `source` is already a movement
-  field (the upstream dataset name); the static-curated vs static-canonical tier
-  X2 wants is derivable from whether the id is in `curatedMovements`.
-  `absorbMovement` stamps `inDb:true` on a just-saved row; `markStaticProvenance`
-  stamps `inDb:false` when `/api` is absent.
-- **`/api` absent or failing** → `console.warn` + the file-only list stands
-  (mirrors `apps/shared/vocab.js`). `listMovements()`'s read rule is open, so it
-  works signed out. Verified with `WDL_MOCK_API=0`: palette populates from the
-  static files, one warn line, no crash.
-
-**Open question — resolved to the smaller scope.** A D5 soft-delete drops the
-row from `listMovements()` but the static file still carries the movement, so a
-naive merge shows the static version again on reload. X1 takes the accepted
-limitation: **a soft-delete only stays hidden across reloads for a movement
-with no static-file record** (one created through the editor). A soft-deleted
-movement that *also* exists in `registry/movements.json` is spliced out for the
-session but reverts to the static-curated record on the next reload (verified).
-Hiding a static-file movement for good needs a tombstone the merge can see —
-likely the D5 delete writing a marker, or an X-series follow-up stage.
-**Flagged to Chris as a follow-up; not built in X1.**
-
-*Original X1 spec follows, kept for the trail.*
-
-*Confirmed 2026-09-06, against production:* X1 is **not** implemented today.
-Served prod `apps/builder/builder.js` is byte-identical to `origin/main` and
-**never calls `listMovements()`** — every `provide({ movements })` uses the
-static file (`data.movements`) or `curatedMovements` after an `absorbMovement` /
-`dropMovement` splice. Prod DB `movements` = **973**, prod static
-`/registry/movements.json` = **972** (Chris created one in prod); it shows in his
-palette only via the in-session splice and disappears on a hard reload. So the
-observed "it persists from then on" is the splice living as long as the tab
-stays loaded — not a DB read.
-
-After the file loads land, fetch `listMovements()` from `/api` and **merge by
-`movementId` / `id`**: a DB record replaces the static record of the same id;
-DB-only records are added. The merged list is what `provide({ movements })` and
-`renderPalette` render from. `/api` absent or failing → keep the file-only list
-(the V8 `apps/shared/vocab.js` fallback pattern: `.catch` → `console.warn`, null
-the cached promise so a later refresh retries). Keep **per-record provenance** on
-each entry (`inDb` boolean, or `source: 'db' | 'static-curated' | 'static-canonical'`)
-for X2 / X3 to read. `registry/movements.canonical.json` **stays a file and stays
-search-only** — it is a build artifact, not in the DB, by DEC-020; layering
-applies to the curated set.
-
-*Open question for X1:* a D5 soft-delete removes the row from `listMovements()`
-(server filters `deleted = null`), but the static file still has that movement —
-so a naive merge would show the static version again after reload. Decide: does a
-tombstoned DB row suppress the static record too (needs the delete to leave a
-marker the merge can see), or is "soft-delete only hides a DB-only movement"
-the accepted scope? Flag to Chris in the session.
-
-### ~~X2 — "not in the database" indicator~~ — landed `a3d1a68`
-
-**Shipped `a3d1a68`.** `apps/builder/builder.js` + `builder.css` +
-`apps/shared/movement-editor.js`; no `packages/core`, no grammar/spec, `make
-test` unchanged (2064/2064). A quiet marker on every palette card whose movement
-has no live DB row (`!inDb`, from X1's flag), and the same on the step `»` panel
-and the movement-editor header.
-
-**Both tiers get a marker, distinguished by glyph (not colour, not a new
-field):**
-
-- **`●` curated-static** — the id is in `curatedMovements`
-  (`registry/movements.json`), no DB row yet. Chris's "need to commit" tier.
-  `title`: *"Not in the movement database yet — edit and Save to commit it"*.
-- **`○` canonical-only** — only in the 5-source merge, never curated (e.g.
-  `sandbag-bear-hug-squat`). `title`: *"Not curated — only in the merged movement
-  corpus"*. Rendered at `opacity:.55` so it reads fainter than `●`.
-
-The tier is `curatedMovements` membership — a `Set` built once per
-`renderPalette` — not a new `source` enum (a DB-only row in `curatedMovements`
-carries `inDb:true`, so it never reaches the tier branch). New helper
-`movementDbState(id)` → `{ inDb, tier }` serves the `»` panel and the editor;
-the palette card loop uses `m.inDb` + the prebuilt `Set` directly.
-
-**Treatment:** `.db-mark` is `color: var(--dim)` at `.75rem` — no new colour
-token; a glyph, `aria-hidden`, non-interactive (the card `title` carries the
-words), so the ≥2rem-hit-target rule does not apply and `.75rem` is the floor
-the 2026-09-02 contrast pass allows. The `»`-panel line reuses `.modifier-info`;
-the editor line is `.me-provenance`, same dim treatment as `.me-hint`.
-
-**`markStaticProvenance` wrinkle (X1 note):** handled **both** ways — the marker
-logic treats a falsy `inDb` (`undefined` *or* `false`) as "no DB row" (the layer
-never confirmed one — semantically correct), **and** `markStaticProvenance()`
-now ends with a `renderPalette()` so the `WDL_MOCK_API=0` first paint settles on
-the explicit flag (cheap: ≤300 cards, no `provide()` / core round-trip, which is
-what X1 was avoiding there).
-
-**Editor header — not redundant, contrary to the X2 spec's guess.** Every
-`!inDb` movement opens the editor as **"Edit <id>"** (a643824 gives
-`openMovementEditor` a `{id,title}` object → `readRecord` → `mode:'edit',
-pbId:null`), *not* "New movement" — that title is only for `＋ new movement`
-(`ref` null). So the header line adds real signal for both tiers. Wording:
-curated-static *"Not in the movement database yet — Saving commits it."*,
-canonical-only *"Not in the movement database — only in the merged corpus.
-Saving adds it."*
-
-**For Chris to confirm when he drives it:** the `●` / `○` glyph choice and the
-exact wording. Everything else (both tiers marked, dim treatment, the three
-surfaces) is the defensible default and is shipped. If he wants the editor-header
-line dropped as noise, it is one `provenance` opt to stop passing.
-
-*Verified by driving `make serve` (mock `/api`, signed-in mock admin): default
-view shows 13 `○` on the canonical-only core movements and no `●` (every curated
-movement is `inDb:true` via the mock, mirroring prod); `curl -X DELETE` one
-movement from the mock → reload → it shows `●`; the `»` panel and editor header
-reflect the same; a DB-backed movement (`back-squat`) shows none anywhere.
-`WDL_MOCK_API=0` → all 129 cards marked (116 `●` + 13 `○`), one console warn, no
-crash. Dark + light both legible. `make test` 2064/2064.*
-
-### X3 — the editor pre-fills from the static-file record when there is no DB row
-
-`openMovementEditor` currently does `record ??= { id: ref.id, title: ref.title ?? '' }`
-when `getMovementByMovementId(id)` returns null. Change: fall back to the **full
-static record** — the `registry/movements.json` entry first, else the
-`movements.canonical.json` entry — mapped into the editor's field shape
-(`movementRecordToEntry`'s inverse, or a small static→form mapper), so muscles /
-equipment / pattern / force / mechanic / load / laterality / implements /
-aliases all populate. Saving is then a review-and-commit, and a
-`make movements:dump` right after should show exactly the curated record already
-on disk (0 diff) if nothing was changed in the form.
-
-**This is a deliberate correction to a643824's "id/title only, inventing
-nothing" call — for the no-DB-row case only.** When a DB row *does* exist,
-a643824 stands unchanged: fetch it, never overlay the file (that fix stopped the
-editor PATCHing canonical `support` / `sources` sub-objects and alias collisions
-into the DB). The static file is real curated data, not an invention, so filling
-the form from it when there is nothing else is safe — but map only the fields the
-editor owns (drop canonical `support` / `sources` / `origin` / `muscleClaims`).
-
-### Scope / sequencing
-
-`apps/builder/builder.js` (X1 merge + provenance, X2 marker render, X3
-fallback), `apps/shared/movement-editor.js` (X3 field mapping + maybe an X2
-header marker), `apps/builder/builder.css` (X2). `apps/shared/pocketbase.js`
-already has `listMovements()`. **No `packages/core`.** The mock `/api` already
-serves `movements/records` as a list. `make test` should not move (app code).
-Verify by driving `make serve` signed in: (X1) create a movement, reload, it is
-still in the palette; edit a curated movement, reload, the edit persists; (X2)
-an uncurated / un-DB'd movement shows the marker and a DB-backed one does not;
-(X3) open a static-only movement's `✎` and every field is populated from the
-file. **X1 first**, then X2 and X3 (independent of each other).
-
-**Relation to the queued "Duplicate a movement" bullet:** once X3 lands, opening
-any movement gives a full form, so "duplicate" is mostly "open, change the id,
-save" — but duplicating a movement that *already has* a DB row into a *second*
-row is still its own small affordance. Keep both; do X1–X3 first.
-
-**Decision record:** DEC-020 gets a *Corrected/extended 2026-09-06* note (the
-layered read; production no longer means "DB only"), and the a643824 entry in
-[../topics/builder-ux.md](../topics/builder-ux.md) gets a correction pointer.
 
 ---
 

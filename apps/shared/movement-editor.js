@@ -126,6 +126,45 @@ function readRecord(record) {
   return { mode: 'edit', pbId: isPb ? record.id : null, movementId, fields };
 }
 
+/**
+ * A static registry entry → the field set this form edits — the inverse
+ * direction of `movementRecordToEntry` (X3, 2026-09-06).
+ *
+ * A host opening the editor on a movement with **no DB row** hands this the
+ * curated `registry/movements.json` entry (else the merged
+ * `registry/movements.canonical.json` one), so the form pre-fills from real
+ * curated data rather than opening near-blank on id + title. This is the
+ * deliberate partial reversal of a643824's "id/title only, inventing nothing"
+ * — for the no-DB-row case only; when a DB row exists a643824 stands and the
+ * row is used untouched.
+ *
+ * Only the fields the editor owns are carried across. Canonical-only cruft is
+ * dropped: `support` / `sources` nested inside `muscles` (which a643824 caught
+ * the old code PATCHing into the DB), and top-level `origin` / `sources` /
+ * `muscleClaims` / `external` / `family` / `core` / `commonality*` / … which
+ * `readRecord` never reads anyway but are dropped here so intent is explicit.
+ * `id` is the identity; the result keeps registry-entry shape (`id`, no
+ * `movementId`), so `readRecord` still yields `mode:'edit', pbId:null` and the
+ * host's X2 provenance line still renders.
+ */
+export function movementEntryToRecord(entry) {
+  if (!entry || typeof entry !== 'object') return null;
+  const out = { id: entry.id, title: entry.title ?? '' };
+  for (const k of LIST_FIELDS) if (Array.isArray(entry[k]) && entry[k].length) out[k] = entry[k];
+  for (const k of Object.keys(MULTIS)) if (Array.isArray(entry[k]) && entry[k].length) out[k] = entry[k];
+  for (const k of Object.keys(ENUMS)) if (typeof entry[k] === 'string' && entry[k]) out[k] = entry[k];
+  const impl = Number(entry.implements);
+  if (Number.isInteger(impl) && impl > 0) out.implements = impl;
+  const m = entry.muscles;
+  if (m && typeof m === 'object') {
+    const muscles = {};
+    if (Array.isArray(m.primary) && m.primary.length) muscles.primary = m.primary;
+    if (Array.isArray(m.secondary) && m.secondary.length) muscles.secondary = m.secondary;
+    if (Object.keys(muscles).length) out.muscles = muscles;
+  }
+  return out;
+}
+
 /** A saved PocketBase record → the registry-entry shape a host keeps in memory. */
 export function movementRecordToEntry(rec) {
   const entry = { id: rec.movementId, title: rec.title ?? '' };

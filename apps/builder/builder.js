@@ -45,7 +45,7 @@ import {
   listMovements, createMovement, updateMovement, getMovementByMovementId, removeMovement,
   createEquipmentTerm, createPatternTerm,
 } from '../shared/pocketbase.js';
-import { createMovementEditor, movementRecordToEntry } from '../shared/movement-editor.js';
+import { createMovementEditor, movementRecordToEntry, movementEntryToRecord } from '../shared/movement-editor.js';
 import { equipmentVocab, patternVocab } from '../shared/vocab.js';
 import * as sets from '../shared/sets.js';
 import * as goalsStore from '../shared/goals-store.js';
@@ -1762,10 +1762,19 @@ addEventListener('keydown', (e) => {
 // The fix is structural rather than per-call-site: this function takes an
 // **identity** — `null` to create, or `{ id, title }` — and nothing else. It
 // cannot be handed a record to display, so no caller can leak merge output into
-// the form again by passing the object it happened to be holding. What fills the
-// fields is always `getMovementByMovementId`, i.e. exactly the row a save will
-// `PATCH` against. `id` / `title` are identity, not curated claims, so seeding a
-// not-yet-curated movement with them invents nothing.
+// the form again by passing the object it happened to be holding. When a DB row
+// exists, what fills the fields is always `getMovementByMovementId`, i.e.
+// exactly the row a save will `PATCH` against.
+//
+// **X3 (2026-09-06) — the no-DB-row branch now pre-fills from the static file.**
+// a643824's "id/title only, inventing nothing" was too austere for that case:
+// promoting a movement meant retyping muscles / equipment / pattern / … that the
+// curated `registry/movements.json` already holds. The static file is real
+// curated data, not merge output, so when there is no DB row the form pre-fills
+// from `movementEntryToRecord(curated ?? canonical)` — editor-owned fields only,
+// canonical `support` / `sources` / `origin` / `muscleClaims` dropped, so a Save
+// still cannot PATCH merge metadata in. a643824 stands unchanged where a DB row
+// *does* exist.
 const movementEditorModal = el('movement-editor-modal');
 let movementEditorHandle = null;
 /** Guards against a second open racing the first one's fetch. */
@@ -1777,9 +1786,9 @@ let movementEditorSeq = 0;
  * @param {null | {id: string, title?: string}} ref
  *   `null` creates a blank movement. Otherwise the row for `ref.id` is fetched
  *   and edited; if there is no row — the movement is in the merged corpus but
- *   not yet in the curated layer, which is true of most of it — the form opens
- *   in create mode carrying only the id and title, so every curated field is an
- *   assertion the curator makes rather than one the merge made for them.
+ *   not yet in the curated layer, which is true of most of it — the form
+ *   pre-fills from the static registry record (X3), editor-owned fields only,
+ *   and a Save commits it as a real DB row.
  */
 /**
  * V9: persist a curator's "＋ new term" from a token-input picker, then bust the
@@ -1812,12 +1821,32 @@ async function openMovementEditor(ref = null) {
       record = await getMovementByMovementId(ref.id);
     } catch (e) {
       if (seq !== movementEditorSeq || !movementEditorModal.open) return;
-      host.textContent = `Could not read ${ref.id} from the movement database: ${e.message}`;
-      return;
+      // The read failed. If the X1 layer knows a live DB row backs this id, we
+      // must not open a form off the static file — a Save would re-find that row
+      // and PATCH file-derived values over it (the a643824 failure mode). So
+      // keep the dead-end only then. Otherwise (`inDb` false — no row, or `/api`
+      // absent entirely under `WDL_MOCK_API=0`, where `markStaticProvenance`
+      // stamped every id false) fall through to the X3 static pre-fill below.
+      if (movementDbState(ref.id).inDb) {
+        host.textContent = `Could not read ${ref.id} from the movement database: ${e.message}`;
+        return;
+      }
+      console.warn(`no /api movement row for ${ref.id} — opening the editor from the static file:`, e.message);
     }
     if (seq !== movementEditorSeq || !movementEditorModal.open) return;
-    // No row yet: create it, carrying identity only.
-    record ??= { id: ref.id, title: ref.title ?? '' };
+    // No DB row yet (X3, 2026-09-06): pre-fill from the full static registry
+    // record — the curated `registry/movements.json` entry first, else the
+    // merged `registry/movements.canonical.json` one — mapped down to the fields
+    // the editor owns (`movementEntryToRecord` drops canonical `support` /
+    // `sources` / `origin` / `muscleClaims` etc.). The static file is real
+    // curated data, so Saving is a review-and-commit and a `make movements:dump`
+    // straight after shows 0 diff. This is the deliberate partial reversal of
+    // a643824's "id/title only" — for the no-DB-row case only; a real row is
+    // still fetched and used untouched above. Falls back to identity if the
+    // movement is in neither static list.
+    record ??= movementEntryToRecord(
+      curatedMovements.find((m) => m.id === ref.id) ?? catalogue.find((m) => m.id === ref.id),
+    ) ?? { id: ref.id, title: ref.title ?? '' };
   }
 
   // X2: opened on a movement with no DB row. The title already reads "New
