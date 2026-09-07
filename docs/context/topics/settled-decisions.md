@@ -1364,6 +1364,19 @@ Phase 1* epic (queue task M0).*
   `apps/builder/builder.js` + `apps/shared/movement-editor.js` only; no
   `packages/core`; `make test` 2064/2064.
 
+  *Follow-up `<SHA>` (2026-09-06) — the editor can now seed a new `scope:
+  "global"` row from an existing one.* A **Duplicate movement** action
+  (`.me-copy`, admin + real DB-backed rows only) re-opens the editor in create
+  mode carrying every field of the source row except `movementId`, which is
+  blank + required; a Save `POST`s a brand-new row and the source is untouched.
+  Same admin boundary as every other `scope: "global"` write
+  ([DEC-025](#dec-025-equipment--movement-patterns-are-a-db-backed-vocabulary-layer-registryequipmentpatternsjson-is-the-committed-dump)'s
+  `@request.auth.admin = true` server rule); the source
+  row is sanitised through the X3 `movementEntryToRecord` mapper so canonical
+  cruft can't ride along. `apps/shared/movement-editor.js` +
+  `apps/builder/builder.js` + `apps/builder/builder.css`; no `packages/core`, no
+  mock `/api` change; `make test` 2064/2064.
+
 ### DEC-021 An account's handle is the `@id` namespace, forced onto every workout on save; `workouts.wdlId` mirrors it
 *Status: active. Settled 2026-09-01, opening the *workout library* epic (queue
 task L0). Absorbs and closes most of the deferred "account namespacing" /

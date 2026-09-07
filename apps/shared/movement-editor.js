@@ -110,9 +110,17 @@ const h = (tag, attrs = {}, ...kids) => {
  * Normalise whatever the caller passed as `record` to the field set this form
  * edits. Accepts a PocketBase record (`{ id, movementId, … }`), a registry
  * entry (`{ id, title, … }`), or `null` (create mode).
+ *
+ * `opts.duplicate` (2026-09-06): the record is edit-shaped but the editor must
+ * open in **create** mode carrying its field values — the "Duplicate movement"
+ * action. `readRecord` otherwise derives `mode` from the record shape alone, so
+ * this is the one deliberate override: `mode:'create'`, `pbId:null`, and
+ * `movementId` cleared (a copy cannot share the unique id), while every other
+ * field — `title` included, verbatim — is kept. `duplicateFromId` remembers the
+ * source id so `save()` can refuse a copy that never changed it.
  */
-function readRecord(record) {
-  if (!record) return { mode: 'create', pbId: null, movementId: '', fields: {} };
+function readRecord(record, { duplicate = false } = {}) {
+  if (!record) return { mode: 'create', pbId: null, movementId: '', duplicateFromId: null, fields: {} };
   const isPb = 'movementId' in record;
   const movementId = isPb ? record.movementId : record.id;
   const fields = {};
@@ -123,7 +131,8 @@ function readRecord(record) {
     : record.implements ? Number(record.implements) : null;
   fields.title = record.title ?? '';
   fields.muscles = (record.muscles && typeof record.muscles === 'object') ? record.muscles : null;
-  return { mode: 'edit', pbId: isPb ? record.id : null, movementId, fields };
+  if (duplicate) return { mode: 'create', pbId: null, movementId: '', duplicateFromId: movementId, fields };
+  return { mode: 'edit', pbId: isPb ? record.id : null, movementId, duplicateFromId: null, fields };
 }
 
 /**
@@ -208,10 +217,17 @@ export function movementRecordToEntry(rec) {
  *                                    (the builder gates on `currentUser()?.admin`); when absent no
  *                                    Delete button renders. The `confirm()` is the editor's; the
  *                                    handler does the `PATCH` and closes/refreshes the host.
+ * @param {boolean}  [opts.duplicate] open the editor in create mode carrying every field value from
+ *                                    `record` except `movementId` (blank + required + `ID_RE`) — the
+ *                                    "Duplicate movement" action. `readRecord` handles the mode flip.
+ * @param {Function} [opts.onDuplicate] `() => void` — the host re-opens the editor as a duplicate of
+ *                                    the current row. Supplied only for an existing DB-backed row and
+ *                                    only by an admin host (same gate as `onDelete`); when absent no
+ *                                    Duplicate button renders. Not destructive — no `confirm()`.
  * @returns {{ destroy(): void, focus(): void }}
  */
-export function createMovementEditor({ container, record = null, api, vocab = {}, onCreateTerm = {}, provenance = null, onSaved, onCancel, onDelete }) {
-  const state = readRecord(record);
+export function createMovementEditor({ container, record = null, api, vocab = {}, onCreateTerm = {}, provenance = null, duplicate = false, onSaved, onCancel, onDelete, onDuplicate }) {
+  const state = readRecord(record, { duplicate });
   container.innerHTML = '';
 
   const controls = {};
@@ -328,6 +344,14 @@ export function createMovementEditor({ container, record = null, api, vocab = {}
   const deleteBtn = (onDelete && state.mode === 'edit')
     ? h('button', { type: 'button', class: 'me-delete', text: 'Delete movement' })
     : null;
+  // Admin-only, real DB rows only (`state.pbId`): seed a brand-new row from this
+  // one. Not offered in create mode (nothing to copy) nor for a static-only
+  // movement opened create-ish with `pbId:null` — the X3 static pre-fill already
+  // is the "seed a new row from static data" path. Not destructive, so no red
+  // and no confirm; the host does the re-open.
+  const duplicateBtn = (onDuplicate && state.mode === 'edit' && state.pbId)
+    ? h('button', { type: 'button', class: 'me-copy', text: 'Duplicate movement' })
+    : null;
 
   const form = h(
     'form', { class: 'movement-editor' },
@@ -362,7 +386,7 @@ export function createMovementEditor({ container, record = null, api, vocab = {}
       group('Muscles — secondary', controls.musclesSecondary)),
     errorBox,
     status,
-    h('div', { class: 'me-actions' }, saveBtn, cancelBtn, deleteBtn),
+    h('div', { class: 'me-actions' }, saveBtn, cancelBtn, duplicateBtn, deleteBtn),
   );
   form.addEventListener('submit', (e) => { e.preventDefault(); save(); });
   container.append(form);
@@ -452,6 +476,30 @@ export function createMovementEditor({ container, record = null, api, vocab = {}
     busy = true;
     saveBtn.disabled = true;
     cancelBtn.disabled = true;
+    if (duplicateBtn) duplicateBtn.disabled = true;
+
+    // A duplicate must never overwrite an existing row. Production PocketBase
+    // 400s on the unique `movementId` index, but the mock `/api` upserts, so the
+    // guard lives here: re-find the id before the `POST` and refuse if it is
+    // taken (whether the curator left it as the source id or typed another that
+    // already exists). A clean inline message beats a silent clobber or a raw
+    // 400. `state.duplicateFromId` is only set in Duplicate mode.
+    if (state.duplicateFromId != null) {
+      try {
+        const clash = await api.getMovementByMovementId(movementId);
+        if (clash) {
+          showErrors([`A movement with id “${movementId}” already exists — give the copy a new id.`]);
+          setStatus('', '');
+          busy = false;
+          saveBtn.disabled = false;
+          cancelBtn.disabled = false;
+          if (duplicateBtn) duplicateBtn.disabled = false;
+          controls.movementId.focus();
+          return;
+        }
+      } catch { /* the read failing is not proof the id is free — fall through and let the write decide */ }
+    }
+
     setStatus('Saving…', 'busy');
     try {
       let saved;
@@ -475,6 +523,7 @@ export function createMovementEditor({ container, record = null, api, vocab = {}
       busy = false;
       saveBtn.disabled = false;
       cancelBtn.disabled = false;
+      if (duplicateBtn) duplicateBtn.disabled = false;
     }
   }
 
@@ -485,6 +534,7 @@ export function createMovementEditor({ container, record = null, api, vocab = {}
     saveBtn.disabled = true;
     cancelBtn.disabled = true;
     deleteBtn.disabled = true;
+    if (duplicateBtn) duplicateBtn.disabled = true;
     setStatus('Deleting…', 'busy');
     try {
       await onDelete();
@@ -495,12 +545,14 @@ export function createMovementEditor({ container, record = null, api, vocab = {}
       saveBtn.disabled = false;
       cancelBtn.disabled = false;
       deleteBtn.disabled = false;
+      if (duplicateBtn) duplicateBtn.disabled = false;
     }
   }
 
   saveBtn.onclick = () => save();
   cancelBtn.onclick = () => onCancel?.();
   if (deleteBtn) deleteBtn.onclick = () => del();
+  if (duplicateBtn) duplicateBtn.onclick = () => { if (!busy) onDuplicate(); };
 
   return {
     destroy() {

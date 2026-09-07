@@ -1185,6 +1185,12 @@ button:hover, .button:hover { border-color: var(--dim); }
 .me-delete { margin-left: auto; color: var(--dim); }
 .me-delete:hover { border-color: var(--error); color: var(--error); }
 .me-delete:disabled { opacity: .4; cursor: default; }
+/* Admin-only "Duplicate movement" (real DB rows only). Sits with Save/Cancel on
+   the left; not destructive, so a plain button treatment — dim by default, an
+   accent hint on hover to mark it as the constructive shortcut it is. */
+.me-copy { color: var(--dim); }
+.me-copy:hover { border-color: var(--accent); color: var(--accent); }
+.me-copy:disabled { opacity: .4; cursor: default; }
 
 /* The per-card "edit this movement" affordance in the palette, and the
    "edit its curated fields" row in the step `»` panel. */

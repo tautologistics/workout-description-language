@@ -187,12 +187,19 @@ self-contained defect from
 [../topics/known-debts.md](../topics/known-debts.md) or one found by driving the
 builder ([../topics/builder-ux.md](../topics/builder-ux.md)).
 
+The **movement editor "Duplicate" action** raised by Chris 2026-09-06 **landed
+`<SHA>` (2026-09-06)** — a `.me-copy` button (admin + real DB rows only) re-opens
+the editor in create mode pre-filled from the source row with a fresh required
+`movementId`; the mode-flip lives builder-side (`openMovementEditor` grew a
+`{ id, title, duplicate: true }` ref shape) and a same-id save is refused inline.
+Full write-up in [../topics/builder-ux.md](../topics/builder-ux.md) "### The
+movement editor". With that closed, **no epic is in flight and the standalone
+queue is empty**; further work comes off the deferred / loose lists below, or a
+self-contained defect from
+[../topics/known-debts.md](../topics/known-debts.md) or one found by driving the
+builder ([../topics/builder-ux.md](../topics/builder-ux.md)).
+
 Also queued / deferred, unchanged:
-- **movement editor: a "Duplicate" action** — open the editor in create mode
-  pre-filled from an existing curated record, new `movementId` required. Raised
-  by Chris 2026-09-06; full write-up in
-  [../topics/builder-ux.md](../topics/builder-ux.md) "### The movement editor".
-  Self-contained, `apps/**` only, no core.
 - the **flat 129-row palette browse UX** — deferred pending the curation sweep
   + a dedicated UX review ([deferred.md](deferred.md));
 - the **laterality curation sweep** — Chris's manual CSV step (`make

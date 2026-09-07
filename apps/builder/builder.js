@@ -1783,12 +1783,21 @@ let movementEditorSeq = 0;
 /**
  * Open the editor on a movement's **database row**.
  *
- * @param {null | {id: string, title?: string}} ref
+ * @param {null | {id: string, title?: string, duplicate?: boolean}} ref
  *   `null` creates a blank movement. Otherwise the row for `ref.id` is fetched
  *   and edited; if there is no row — the movement is in the merged corpus but
  *   not yet in the curated layer, which is true of most of it — the form
  *   pre-fills from the static registry record (X3), editor-owned fields only,
  *   and a Save commits it as a real DB row.
+ *
+ *   `ref.duplicate` (2026-09-06): the DB row for `ref.id` is fetched as the
+ *   *source* for a brand-new movement — the "Duplicate movement" action. The row
+ *   is sanitised through `movementRecordToEntry` → `movementEntryToRecord` (the
+ *   X3 mappers: editor-owned keys only, `muscles` rebuilt as `{primary,
+ *   secondary}`, canonical `support` / `sources` / `origin` dropped) and handed
+ *   to the editor with `duplicate: true`, which opens create mode with every
+ *   field kept and `movementId` blank + required. The source row is never
+ *   touched; a Save `POST`s a new row.
  */
 /**
  * V9: persist a curator's "＋ new term" from a token-input picker, then bust the
@@ -1847,13 +1856,25 @@ async function openMovementEditor(ref = null) {
     record ??= movementEntryToRecord(
       curatedMovements.find((m) => m.id === ref.id) ?? catalogue.find((m) => m.id === ref.id),
     ) ?? { id: ref.id, title: ref.title ?? '' };
+
+    // Duplicate: the fetched row is the *source* for a new movement, not the row
+    // to edit. Run it through the same X3 mappers the no-DB-row branch uses so
+    // canonical cruft and nested `muscles` metadata can't ride along, and drop
+    // the identity — the editor (`duplicate: true`) opens create mode with a
+    // blank id. If the row is somehow missing, `record` stays as the static
+    // pre-fill / identity and the editor still opens a sane create form.
+    if (ref.duplicate && record && 'movementId' in record) {
+      record = movementEntryToRecord(movementRecordToEntry(record));
+    }
   }
 
   // X2: opened on a movement with no DB row. The title already reads "New
   // movement"; this adds which static source it came from — and distinguishes
   // the two tiers X3 will pre-fill from. `null` for `＋ new movement` (no ref)
   // and for a real DB row.
-  const noDbRow = Boolean(ref?.id) && !(record && 'movementId' in record);
+  // A duplicate opens in create mode from a real row — it is not a "no DB row"
+  // case even though the sanitised source carries no `movementId`.
+  const noDbRow = Boolean(ref?.id) && !ref?.duplicate && !(record && 'movementId' in record);
   const provenance = noDbRow ? { notInDb: true, tier: movementDbState(ref.id).tier } : null;
 
   host.textContent = '';
@@ -1862,6 +1883,7 @@ async function openMovementEditor(ref = null) {
     container: host,
     record,
     provenance,
+    duplicate: Boolean(ref?.duplicate),
     api: { createMovement, updateMovement, getMovementByMovementId },
     // V5: the two id-valued token fields type-ahead over the movement lists this
     // page already holds — `related` over the curated registry, `sameAs` over the
@@ -1891,6 +1913,17 @@ async function openMovementEditor(ref = null) {
     // palette loses it without a reload, then closes the modal.
     onDelete: (currentUser()?.admin && record && 'movementId' in record)
       ? () => dropMovement(record.id, record.movementId)
+      : undefined,
+    // Duplicate: same gate as Delete (admin + real DB row). Re-opens the editor
+    // as a copy of this row — `openMovementEditor` re-fetches so the seed is the
+    // authoritative current row, not the (possibly edited) open form. The editor
+    // also gates the button on `state.pbId`, so this is belt-and-braces.
+    onDuplicate: (currentUser()?.admin && record && 'movementId' in record)
+      ? () => {
+          const { movementId, title } = record;
+          closeMovementEditor();
+          openMovementEditor({ id: movementId, title, duplicate: true });
+        }
       : undefined,
     onSaved: (entry) => { absorbMovement(entry); },
     onCancel: () => closeMovementEditor(),

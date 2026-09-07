@@ -734,42 +734,58 @@ type with no delete control; that gap is closed. **All four delete confirms**
 admin."* — the epic ships no self-serve restore UI, so the copy no longer says
 *"cannot be undone"* but does not promise a one-click undo either.
 
-**Wanted — "Duplicate" a movement: open the editor pre-filled from an existing
-record, as a new row.** Raised by Chris 2026-09-06, driving the editor. Today
-the only way to base a new movement on an existing one is to open the existing
-one (palette `✎`), read its fields, `Cancel`, open `＋ new movement`, and retype
-them. A **Duplicate** (or **Copy**) action would open the editor in **create
-mode** with every field copied from the source record *except* the **MOVEMENT
-ID**, which is blank (or seeded from the title) and must be set fresh — the id
-is fixed-on-create and unique-indexed (`movementId`), so a copy cannot share it.
-`title` could seed as `"<title> (copy)"` or stay verbatim for the curator to
-change; the id derives from the title on first save the way `＋ new movement`
-already does.
+**~~Wanted — "Duplicate" a movement: open the editor pre-filled from an existing
+record, as a new row.~~ Landed `<SHA>` (2026-09-06).** A **Duplicate movement**
+button now sits in the editor's actions row, `.me-copy` — between Cancel and
+Delete, plain (dim) treatment, accent hint on hover, *not* red: it is
+constructive, not destructive. It renders only when `onDuplicate` is passed and
+`state.mode === 'edit' && state.pbId` — i.e. a **real DB-backed row** loaded by
+an admin. Not shown for `＋ new movement`, nor for a static-only movement opened
+create-ish with `pbId:null` (the X3 static pre-fill already *is* the "seed a new
+row from static data" path), nor for a non-admin.
 
-The natural home is the editor's actions row, beside Save / Cancel / Delete (the
-D5 pattern) — a `.me-copy` button shown whenever a `record` with a real
-`movementId` is loaded, gated on `currentUser()?.admin` like the others (the
-`@request.auth.admin = true` server rule is the real boundary for a `scope:
-"global"` write). It hands `createMovementEditor` the source record but flips
-`state.mode` to `'create'` and clears `movementId`; `onSaved` / `absorbMovement`
-already fold a new row into the in-memory lists and re-render the palette. A
-palette-card affordance (a second glyph beside `✎`) is the alternative, but the
-actions-row button reuses the editor chrome that already exists.
+**Mode-flip lives builder-side.** `openMovementEditor` grew a
+`{ id, title, duplicate: true }` ref shape; the button's handler calls
+`closeMovementEditor()` then `openMovementEditor({ id, title, duplicate: true })`.
+That path **re-fetches** the DB row (so the seed is the authoritative current
+row, never the possibly-edited open form — a643824's principle), sanitises it
+through `movementRecordToEntry` → `movementEntryToRecord` (the X3 mappers:
+editor-owned keys only, `muscles` rebuilt as `{primary, secondary}`, canonical
+`support` / `sources` / `origin` dropped), and hands it to `createMovementEditor`
+with a new `duplicate: true` opt. `readRecord(record, { duplicate })` is the one
+deliberate override of its shape-derived `mode`: `mode:'create'`, `pbId:null`,
+`movementId` cleared, every other field kept — `title` **verbatim** (lower
+surprise; the curator renames if they want `"(copy)"`). The chosen option over
+an editor-side `onDuplicate`-remounts-itself handler: the editor stays a pure
+function of its opts, no stale closure over `container` / `api` / `vocab`.
 
-Distinct from promoting a **merged-corpus** entry: `sandbag-bear-hug-squat` and
-its ~3000 uncurated siblings in `registry/movements.canonical.json` already open
-in create mode via the palette `✎` (no curated row → `openMovementEditor`
-carries id/title only). This is the twin for a movement that *already has* a
-curated row and you want a *second* record seeded from it.
+**Same-id save refused inline.** Production PocketBase 400s on the unique
+`movementId` index, but the mock `/api` *upserts* (no `validation_not_unique` on
+movements) — so a same-id "duplicate" would silently clobber the original. The
+guard is in `save()`: when `state.duplicateFromId` is set, re-find the id before
+the `POST` and refuse with *"A movement with id "…" already exists — give the
+copy a new id."* if taken (covers both "left it as the source id" and "typed
+another existing id"). Source row is never mutated.
 
-*Scope: `apps/shared/movement-editor.js` (the button + a `mode: 'create'` path
-that keeps the copied field values), `apps/builder/builder.js` (`openMovementEditor`
-gains a "duplicate from this record" entry or flag), `apps/builder/builder.css`
-(`.me-copy`). No `packages/core`. Verify by driving `make serve` signed in: open
-a curated movement, Duplicate, confirm every field is copied and the id is
-empty/required, set a new id + title, Save, confirm a new row `POST`s and the
-original is untouched (`curl` both `movementId`s), and that saving without
-changing the id is refused.*
+Drive-tested `make serve` signed in as the mock admin: duplicated `back-squat` →
+header "New movement", every field populated (force/mechanic unset, load total,
+laterality both, implements 1, aliases `bs`, equipment `barbell`/`rack`, pattern
+`squat`, muscles primary `quads`/`glutes` secondary `erectors`/`core`),
+`movementId` empty + editable, Save button "Create movement". Saved as
+`back-squat-copy`; `curl` of both `movementId`s → `back-squat` untouched (no
+`created`/`updated`), `back-squat-copy` carries the copied fields with `muscles`
+a clean `{primary, secondary}` (no `support`/`sources`, no `origin`).
+`absorbMovement` folded it into the palette without a reload. Same-id save
+refused as above (modal stays open, no second row, no console error).
+`＋ new movement`, canonical-only `sandbag-bear-hug-squat` (`pbId:null`), and the
+`WDL_MOCK_API=0` signed-out case → no Duplicate button, no crash. `make test`
+2064/2064, unchanged. Light + dark checked.
+
+*Scope was `apps/shared/movement-editor.js` (button + `duplicate` opt +
+`readRecord` override + `save()` guard), `apps/builder/builder.js`
+(`openMovementEditor` `duplicate` ref shape + `onDuplicate` wiring),
+`apps/builder/builder.css` (`.me-copy`). No `packages/core`, no mock `/api`
+change.*
 
 **~~Clicking a grouped field's caption silently ticks its first checkbox.~~
 Fixed 2026-09-02 (`10a2b8a`, carried by V5).** Found 2026-09-02 while building
