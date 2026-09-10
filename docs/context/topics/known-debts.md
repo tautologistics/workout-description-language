@@ -3,6 +3,82 @@
 Things that are wrong, known to be wrong, and left that way for now. Check here
 when something looks odd before treating it as a discovery.
 
+## Security-audit findings (2026-09-10, `<SHA>`)
+
+From the hardening sweep — full context, exploitability and recommended fixes
+in [security-audit.md](security-audit.md). Every one below needs a PocketBase
+migration + `make deploy:db` against the VPS, which a session does not do, so
+all are **Chris's call**. The one fix that did land (H-2, `filter=` injection
+in `apps/shared/pocketbase.js`) is not a debt — it is in commit `<SHA>`.
+
+- **CRITICAL — the `users` collection has no access rules in version control.**
+  No `deploy/pocketbase/pb_migrations/*.js` file sets `users` list/view/create/
+  update/delete rules or any field-level guard on the M2 `admin` / L1 `org` /
+  L1 `handle` fields; the live rules are PocketBase's auth-collection defaults
+  plus a box-only snapshot (`1788125462_updated_users.js`) that is not in the
+  repo. On the stock defaults a signed-in user can `PATCH` their own row
+  `{ admin: true }` and gain write to `movements` / `equipment` / `patterns` /
+  the `global` goals tier; if `createRule` is also stock-open and password auth
+  is on, an anonymous `POST users/records { email, password, admin: true }`
+  mints an admin outright. Fix: a migration that sets the `users` rules
+  explicitly with `@request.body.admin`/`org` "can't change" guards, **and**
+  commit the box's `1788125462_updated_users.js` snapshot so the schema is
+  reviewable. Verify current box behaviour first (admin UI → `users` → API
+  rules + Options).
+  *Touches: `deploy/pocketbase/pb_migrations/` (a new migration),
+  `deploy/README.md` §7a. DEC-020 / DEC-025 / DEC-028 assume admin is not
+  self-assignable.*
+
+- **HIGH — namespace keys (`wdlId` / `setId` / `goalId`) are client-forced
+  only.** The `<owner-handle>:<slug>` rule (DEC-021 / DEC-027 / DEC-028) is
+  enforced only in `apps/shared/pocketbase.js`; no collection rule constrains
+  the value on write, and `workouts.wdlId` is a non-unique index. A raw
+  `POST`/`PATCH` can set `wdlId: "crossfit:fran"` on an attacker-owned public
+  row, which then appears in the builder's **Libraries** listing and can shadow
+  the real row for `?w=crossfit:fran`. Content/attribution spoofing, not data
+  theft. Fix: bind the key to `@request.auth.handle` in the create/update rule,
+  or recompute it in a `pb_hooks` `onRecordCreate`/`onRecordUpdate`.
+  *Touches: `1756600000_create_workouts.js`, `1757200000_create_movement_sets.js`,
+  `1757400000_harden_goals_rules.js`. DEC-021 / DEC-027 / DEC-028 —
+  implementation diverges, model is fine.*
+
+- **MEDIUM — no mutating rule guards which fields change; `owner`/`user` can be
+  reassigned on update.** `workouts` / `movement_sets` / `goals` update rules
+  check *who* writes, never *what*. A user can `PATCH` their own row
+  `{ owner: <org id> }` (compounds the HIGH above), and a `goals`
+  `scope:"user"` owner may be able to `PATCH { scope: "global", user: null }`
+  to inject into the ownerless `global` list — **needs a runtime check on the
+  box** (pre- vs post-change rule evaluation). Fix: append
+  `&& (@request.body.owner:isset = false || @request.body.owner = owner)`
+  (and `user` / `scope` for `goals`) to each update rule.
+  *Touches: the three create/harden migrations. DEC-028 (goals scope tiers).*
+
+- **MEDIUM — handle shape / reserved-word validation is client-only.** The
+  server enforces only the unique index and `max: 63`; `validateHandle` in
+  `apps/shared/handle.js` (`^[a-z0-9-]+$`, 3–63, not all-digits, no `-` ends,
+  reserved `api`/`admin`/`_`) has no server mirror. A raw `PATCH` can claim
+  `handle: "admin"` (platform impersonation), a 1-char handle, an all-digits
+  handle, or one containing `:` (poisons `<handle>:<slug>` parsing —
+  `getByAnyId` splits on the first colon). Fix: regex + reserved-word guard in
+  the same `users` migration as the CRITICAL, or a `pb_hooks` validator.
+  *Touches: `apps/shared/handle.js` (client) + the absent `users` rule.
+  DEC-021 says "rejected client- and server-side"; the server half was never
+  built.*
+
+- **LOW — `movement_sets` create rule relies on field validation, not an
+  explicit `!= ""` guard.** `createRule = "@request.auth.id = owner"` is safe
+  only because `owner` is `required` — the same shape that bit `goals` at G1
+  when `user` was nullable. One schema change reopens it silently. Fix: align
+  with `workouts` / `goals` — `@request.auth.id != "" && @request.auth.id =
+  owner`.
+  *Touches: `1757200000_create_movement_sets.js`. DEC-027.*
+
+(The port-8090 plaintext exposure is a pre-existing entry — see
+`deploy/README.md` "Known issue" and [what-exists.md](what-exists.md); the
+audit confirms it still holds. Two Informational items — permissive default
+CORS, `updateMovement` passing the patch body through under admin trust — are
+in the audit doc only, not filed here.)
+
 - Three singular/plural duplicates remain in the registry's long tail
   (`Hindu Push-up`, `Rack Pull`, `Squat with Bands`). Pinned by a test so the
   count cannot grow; none used by the corpus.

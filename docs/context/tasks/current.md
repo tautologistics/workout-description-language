@@ -204,8 +204,21 @@ Also queued / deferred, unchanged:
   + a dedicated UX review ([deferred.md](deferred.md));
 - the **laterality curation sweep** — Chris's manual CSV step (`make
   curation:sheet`), not dev work (loose bullet at the end);
-- a **full security audit** — recorded in [deferred.md](deferred.md) as a "once
-  functionality has settled" item.
+- the **mobile-usability pass** — deferred, same "once the surface has settled"
+  trigger ([deferred.md](deferred.md)); needs Chris to start.
+
+The **full security audit landed 2026-09-10 (`<SHA>`)** —
+[../topics/security-audit.md](../topics/security-audit.md). It was a written
+sweep, not a code epic: one High fix (the `filter=` injection in
+`apps/shared/pocketbase.js`) went in the same commit; the Critical (`users`
+collection has no version-controlled rules → admin self-escalation on
+PocketBase defaults) and the rest are **open [known-debts.md](../topics/known-debts.md)
+entries and Chris's call**, because each needs a migration re-applied on the
+VPS. **The standalone queue is still empty** — the audit's own findings are the
+nearest self-contained defects, but they are prod-migration work a session
+does not do. Next dispatchable work: a defect from
+[../topics/known-debts.md](../topics/known-debts.md) that is *app/doc* code, or
+one found by driving the builder/board.
 
 Recently closed (kept here briefly for the trail):
 

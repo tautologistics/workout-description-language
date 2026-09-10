@@ -259,9 +259,21 @@ const deletedNow = () => new Date().toISOString();
 /** AND `deleted = null` onto an existing PocketBase filter string. */
 const liveOnly = (filter) => `${filter} && deleted = null`;
 
+/**
+ * Strip the two characters that could break out of a `"…"` literal in the
+ * hand-built `filter=` strings below — a double-quote and a backslash. Those
+ * strings interpolate values (record ids, `[a-z0-9-]` handles/slugs, search
+ * substrings) straight into `field="<value>"`; a legitimate value never
+ * contains either character, so this only ever bites a crafted one (a `?w=` /
+ * `setId` / `goalId` that carries `"` to inject filter DSL). Not a general
+ * escaper — this is a single-instance tool, not a query builder (the same
+ * stance `searchWorkouts` already took for its term).
+ */
+const filterValue = (v) => String(v ?? '').replace(/["\\]/g, '');
+
 async function handleTaken(h) {
   try {
-    const q = new URLSearchParams({ filter: `handle="${h}"`, perPage: '1' });
+    const q = new URLSearchParams({ filter: `handle="${filterValue(h)}"`, perPage: '1' });
     const data = await call(`${USER_RECORDS}?${q}`, { auth: !!authToken() });
     const hit = data.items?.[0];
     return !!hit && hit.id !== currentUser()?.id;
@@ -329,7 +341,7 @@ export async function getHandle(uid) {
   if (handleByUid.has(uid)) return handleByUid.get(uid);
   let handle = null;
   try {
-    const q = new URLSearchParams({ filter: `id="${uid}"`, perPage: '1' });
+    const q = new URLSearchParams({ filter: `id="${filterValue(uid)}"`, perPage: '1' });
     const data = await call(`${USER_RECORDS}?${q}`, { auth: !!authToken() });
     handle = data.items?.[0]?.handle ?? null;
   } catch { /* blocked by the list rule, or offline — the caller degrades */ }
@@ -558,7 +570,7 @@ export function getById(id) {
  * `getById`, so the board's existing `catch` is unchanged.
  */
 export async function getByAnyId(x) {
-  const key = String(x ?? '');
+  const key = filterValue(x);
   const byWdlId = async () => {
     const q = new URLSearchParams({ filter: liveOnly(`wdlId="${key}"`), perPage: '1' });
     const data = await call(`${RECORDS}?${q}`, { auth: !!authToken() });
@@ -606,10 +618,10 @@ const SEARCH_PER_PAGE = 50;
  * first — the same row shape `listMine` / `getById` return, `wdlId` included.
  */
 export async function searchWorkouts(q, { page = 1 } = {}) {
-  const term = String(q ?? '').trim().replace(/"/g, '');
+  const term = filterValue(String(q ?? '').trim());
   if (!term) return [];
   const uid = currentUser()?.id;
-  const scope = uid ? `(visibility="public" || owner="${uid}")` : 'visibility="public"';
+  const scope = uid ? `(visibility="public" || owner="${filterValue(uid)}")` : 'visibility="public"';
   const filter = liveOnly(`${scope} && (title~"${term}" || wdlId~"${term}")`);
   const search = new URLSearchParams({
     filter,
@@ -706,7 +718,7 @@ export async function listPublicSets() {
  * the discriminator: a `setId` always carries one, a record id never does.
  */
 export async function getSetByAnyId(x) {
-  const key = String(x ?? '');
+  const key = filterValue(x);
   const bySetId = async () => {
     const q = new URLSearchParams({ filter: liveOnly(`setId="${key}"`), perPage: '1' });
     const data = await call(`${SETS}?${q}`, { auth: !!authToken() });
@@ -804,7 +816,7 @@ export async function listMineGoals() {
  * id never does.
  */
 export async function getGoalByAnyId(x) {
-  const key = String(x ?? '');
+  const key = filterValue(x);
   const byGoalId = async () => {
     const q = new URLSearchParams({ filter: liveOnly(`goalId="${key}"`), perPage: '1' });
     const data = await call(`${GOALS}?${q}`, { auth: !!authToken() });
@@ -879,7 +891,7 @@ export async function listMovements() {
 
 /** One global movement by its registry id (`movementId`), or `null` if absent. */
 export async function getMovementByMovementId(movementId) {
-  const q = new URLSearchParams({ filter: liveOnly(`movementId="${movementId}"`), perPage: '1' });
+  const q = new URLSearchParams({ filter: liveOnly(`movementId="${filterValue(movementId)}"`), perPage: '1' });
   const data = await call(`${MOVEMENTS}?${q}`, { auth: !!authToken() });
   return data.items?.[0] ?? null;
 }

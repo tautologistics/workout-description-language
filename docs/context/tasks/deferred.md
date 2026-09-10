@@ -99,35 +99,21 @@ ready to start, with what it touches, is in [current.md](current.md).
   any code. Blocked on the curation sweep (so the real core-set size is known)
   and on that review. See "## Reconsider when".
 
-- **A full security audit / hardening sweep.** *Captured 2026-09-02 (Chris) —
-  explicitly a "once the current queue is exhausted and functionality has
-  settled down" item, **not** a next task.* A sweep across the hosted stack on
-  the assumption that **nothing from the client is ever trusted**:
-  - **`admin` / user identity verified server-side on every mutating
-    endpoint**, not just where the UI decides what to show. Audit every
-    PocketBase collection's **create / update / delete** rules (`movements`,
-    `workouts`, `equipment`, `patterns`, `users`) in
-    `deploy/pocketbase/pb_migrations/*.js` — confirm `@request.auth.admin = true`
-    or owner-only actually holds on the write path, and a crafted `POST` /
-    `PATCH` from an unprivileged or unauthenticated session is rejected by the
-    server. (The mock `/api` in `scripts/mock-api.mjs` is **not** the boundary —
-    its `admin: true` fixture user and permissive writes are dev-only by design.)
-  - **No cross-user editing** — a signed-in non-org user cannot `PATCH` another
-    user's `workouts` row, set `owner` to someone else, claim an `org` handle,
-    or flip their own `admin` / `org` flag.
-  - **No secret / PII leakage** — `users` list/view rules don't expose other
-    users' rows/fields; no admin token, `.env` value or superuser credential is
-    reachable from a served asset or an API response.
-  - **The usual** — injection into the `filter=` strings the apps build
-    (`searchWorkouts`, `listEquipment`, …), the OAuth redirect URIs, the
-    static-asset MIME/path handling, the port-8090 exposure already tracked in
-    [../topics/known-debts.md](../topics/known-debts.md) / `deploy/README.md`.
-
-  Cross-check against
-  [../topics/settled-decisions.md](../topics/settled-decisions.md) (DEC-020
-  movements, DEC-021 handles/namespace, DEC-025 vocab). First pass is likely a
-  written findings doc (`docs/context/topics/security-audit.md`), not a code
-  change. See "## Reconsider when" below.
+- **~~A full security audit / hardening sweep.~~** — **done `<SHA>`**, see
+  [../topics/security-audit.md](../topics/security-audit.md). Static-analysis
+  sweep of the PocketBase collection rules, the client `filter=` builders, auth
+  and the deploy surface. **10 findings — 1 Critical, 2 High (1 fixed in the
+  same commit), 3 Medium (1 pre-existing: port 8090), 2 Low, 2 Informational.**
+  The Critical (**C-1**): the `users` collection has *no* access rules in
+  version control, so on PocketBase's defaults a signed-in user can `PATCH`
+  their own `{ admin: true }` and escalate. Fixed in-commit: **H-2**, the
+  `?w=` / `setId` / `goalId` filter-string injection in
+  `apps/shared/pocketbase.js` (`filterValue()` helper). Everything else —
+  the `users`-rules migration, `@request.body` field guards on
+  `owner`/`wdlId`/`handle`, server-side handle-shape validation — needs a
+  migration re-apply on the VPS and is **Chris's call**; each is a
+  [known-debts.md](../topics/known-debts.md) entry. `make test` 2064/2064,
+  unmoved.
 
 - **A mobile-usability pass across the builder and board.** *Captured 2026-09-03
   (Chris) — the same "once functionality and UI have settled" framing as the
@@ -201,13 +187,11 @@ ready to start, with what it touches, is in [current.md](current.md).
   the bottleneck — for generation quality, for search being useful, or just for
   coverage. No dependency; it can run in parallel with the V-series.
 
-- **The security audit / hardening sweep** is worth doing once the active
-  functional queue is exhausted and the surface has stopped moving — Chris's
-  framing: "when everything is kind of settled down as far as functionality,
-  should a sweep be done." Not before: auditing collection rules and client
-  queries while the accounts / vocab / library surface is still changing under
-  it means auditing it twice. When the builder-UX and format work has quieted,
-  this is the natural hardening pass before leaning on the hosted instance.
+- **~~The security audit / hardening sweep~~** — done 2026-09-10 (`<SHA>`),
+  [../topics/security-audit.md](../topics/security-audit.md). The written sweep
+  is landed; the substantive fixes it surfaced (the `users`-rules migration and
+  the `@request.body` field guards) are open [known-debts.md](../topics/known-debts.md)
+  entries and Chris's call, since each needs `make deploy:db` against the VPS.
 
 - **The mobile-usability pass** is worth doing on the same trigger as the
   security audit — once the functional queue is exhausted and the builder/board
