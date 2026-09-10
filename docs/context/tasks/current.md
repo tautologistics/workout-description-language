@@ -199,6 +199,104 @@ self-contained defect from
 [../topics/known-debts.md](../topics/known-debts.md) or one found by driving the
 builder ([../topics/builder-ux.md](../topics/builder-ux.md)).
 
+## Movement-sets editing — two bug fixes landed, one model question pending Chris
+
+*Raised by Chris 2026-09-10 while driving the movement-sets feature (S0–S4).
+Two concrete bugs were fixed and landed `<SHA>` (2026-09-10); the third item is
+a model decision that **needs Chris** and is written up below — nothing was
+built for it.*
+
+**Landed `<SHA>` (2026-09-10) — `apps/builder/{builder.js,builder.css,index.html}`
+only, `make test` 2064/2064 unchanged:**
+
+- **Palette movement names rendered centred while composing a set.**
+  `.movement` was `display: flex; justify-content: space-between`, so with the
+  compose-mode row being `tick · name · meta` the slack landed *around* the
+  name and it floated dead-centre (Chris's screenshot; Firefox 154, but the
+  mechanism is engine-agnostic — non-compose rows drifted too, with `.meta`
+  mid-row between the name and the `✎`). Fix: drop `space-between`; the name
+  hugs the left and `.movement .meta { margin-left: auto }` pushes the muscle
+  meta + trailing glyphs right. `.movement .name` also gained
+  `overflow:hidden; text-overflow:ellipsis; white-space:nowrap` so a long name
+  can't shove the meta off. `.db-mark`'s now-redundant `margin-right:auto`
+  removed (it would have split the slack with `.meta`). The **set cards**
+  (`.set-card > summary` grid, `.set-movements li` grid) were already correct
+  and unchanged.
+- **"New set" then "Save showing" spawned a second set + a second name prompt.**
+  They were two independent `sets.create()` calls; "Save showing" ignored the
+  set being composed. Fixes: (a) **"New set" no longer `prompt()`s** — it
+  creates an empty *"New set"*, drops into compose mode, and the name is an
+  **inline field on the card** (`.set-name-input`, focused once; the in-progress
+  value is held in a `composeName` module var so a compose-click re-render keeps
+  it, committed via `sets.rename` on Enter / blur / Done). (b) While composing,
+  **"Save showing" becomes "Add showing"** and folds the shown palette movements
+  into the composing set (the `⊕` behaviour) instead of making a parallel set.
+  (c) A **"Done"** button (`#set-done`, shown only while composing) is the
+  signposted end of composing; the per-card `＋` toggle now reads "Done
+  composing" and Esc still works. Rename (`✎` prompt) / reorder / remove /
+  delete / `↧`-to-outline all re-confirmed by driving the app.
+
+### PENDING DECISION (needs Chris) — should a movement set carry per-movement count / weight / modifiers?
+
+Chris, 2026-09-10: *"I can't edit — it's just a set of exercises. I was
+imagining sets to be building blocks of a workout, where it would include
+things like the count or the weight or the modifiers."* Today
+`movement_sets.movements` is a `json` **array of id strings** (DEC-027,
+deliberate), and `↧` "to outline" splices each id as a bare default cue
+(`lineFor` → `- 10 <Title>`, or `- 400m` / `- 20cal` for a measured movement).
+Chris wants splicing a set to drop in **ready cue lines** (`- 10 Back Squat @
+100kg`), i.e. a set element is a reusable workout chunk, not just a shortlist.
+
+**This reopens two settled positions** —
+[DEC-027](../topics/settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)'s
+"`movements` stays an **ordered id array** end to end", and the *"A file format
+for palette 'sets'"* Non-Goal in
+[../topics/deliberately-not-done.md](../topics/deliberately-not-done.md) (already
+half-reopened for the `movement-sets.json` carrier).
+
+**Shape options (Chris to pick one):**
+
+1. **Array of objects.**
+   `movements: Array<{ id: string, quantity?: string, load?: string, modifiers?: string[] }>`.
+   Cleanest to read/extend; each element is a partial cue. `↧` renders
+   `- {quantity ?? default} {Title}{ @load}{ (modifiers…)}`.
+2. **Parallel arrays.** Keep `movements: string[]`, add `quantities?: string[]`,
+   `loads?: string[]`, `modifiers?: string[][]`, index-aligned. Least
+   disruptive to code that only reads ids (it still reads `movements`), but
+   fragile — every edit has to keep four arrays in lockstep.
+3. **Raw WDL cue-line fragments.**
+   `movements: string[]` where each entry is a WDL fragment (`"10 Back Squat @
+   100kg"` or just `"Back Squat"`). Maximally flexible, at-rest-legible, and `↧`
+   becomes near-trivial (prefix `- `, re-indent). Cost: the palette/reorder/
+   "in this set" filter UIs now have to parse a fragment back to an id to
+   resolve a movement, and a fragment can be malformed. Arguably closest to the
+   whiteboard constraint.
+
+**Blast radius (any option):**
+`apps/shared/sets.js` (the model wrappers + cache shape, `localMovements`),
+`apps/shared/pocketbase.js` (`createSet` / `updateSet` payloads),
+`scripts/mock-api.mjs` (the `movement_sets/records` handler validates/echoes
+`movements`), `fixtures/movement-sets.json` (3 seed rows, incl. the `crossfit`
+org-library one) + `fixtures/movement-sets.local.json` overlay, a **migration**
+(a new field, or a maxSize bump + shape change on `movements`;
+`deploy/pocketbase/pb_migrations/`), the builder's `renderSetCard` /
+`queueMovements` / compose toggles / drag-drop / `addShowingToSet`, the `↧`
+`addSetToOutline` splice (today `lineFor`), and the `movement-sets.json`
+Export/Import carrier format + its bare-`{name:[ids]}` back-compat path.
+
+**Migration / back-compat constraint:** existing id-array rows (the 3 fixture
+rows, plus whatever Chris has created on prod — `GET
+…/movement_sets/records` was `totalItems:0` at S4 but is not now) **must still
+read**. Options 1 and 3 need a read-time normaliser (`"back-squat"` → `{id:
+"back-squat"}` / `"Back Squat"`); option 2 is natural back-compat (absent
+sidecar arrays = no per-movement data).
+
+**Recommendation to frame the decision, not pre-empt it:** option 1
+(array-of-objects) if the set stays a structured builder artifact; option 3
+(raw fragments) if Chris wants the set itself to read on a whiteboard like
+everything else at rest. Option 2 is not recommended (lockstep-array fragility).
+**Do not implement until Chris rules.**
+
 Also queued / deferred, unchanged:
 - the **flat 129-row palette browse UX** — deferred pending the curation sweep
   + a dedicated UX review ([deferred.md](deferred.md));

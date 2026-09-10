@@ -639,20 +639,34 @@ Worth keeping in view: a curated set is also an input to *generation* — the
 second of the two things the project is for — so a hand-composed repertoire is
 closer to that pillar than to a palette convenience.
 
-**The whole "sets" feature is queued for a model + UX rework (Chris,
-2026-09-02) — captured in [../tasks/deferred.md](../tasks/deferred.md).** Where
-sets are stored today: **only** `localStorage['wdl.sets']`, a flat
-`{ "Set name": ["movement-id", …] }` blob (`apps/builder/builder.js` ~L2023;
-`saveSets` the sole writer). No PocketBase collection, no server row, no
-cross-device sync, no per-scope model — a cleared browser loses them; Export /
-Import to `movement-sets.json` is the only carry-off. Chris's asks: a DB
-collection with **namespaced `<handle>:<slug>` ids** and the **workouts flow**
-(owner / visibility / ingest); **global vs org-library vs personal** scopes; and
-a reworked create/edit dialog — **set on top, movement search below it**, and
-the card column alignment / formatting fixed (it is badly broken today). Do the
-model first; it drives the UX. This reopens the "file format for palette sets"
-Non-Goal in
-[deliberately-not-done.md](deliberately-not-done.md).
+**~~The whole "sets" feature is queued for a model + UX rework (Chris,
+2026-09-02).~~ Mostly shipped as the S0–S4 epic (2026-09-03); the remaining
+piece is a pending decision.** The model rework landed: `movement_sets` is now a
+PocketBase collection on the workouts flow (owner / visibility, namespaced
+`<handle>:<slug>` `setId`, `org-library` + `user` scopes —
+[DEC-027](settled-decisions.md#dec-027-movement-sets-are-a-pocketbase-collection-on-the-workouts-pattern-localstoragewdlsets-is-retired)),
+`localStorage['wdl.sets']` retired, and S4 reworked the dialog (repertoire on
+top, search below, stable card grid). Then Chris drove it 2026-09-10 and hit
+three things:
+- ~~**movement text centred, not left-aligned** (`.movement` palette rows,
+  worst while composing).~~ **Fixed `<SHA>` (2026-09-10)** — `justify-content:
+  space-between` on `.movement` floated the middle child (the name) to centre;
+  now the name hugs left and `.meta { margin-left:auto }` pushes the trailing
+  cluster right. See the *Movement-sets editing* section in
+  [../tasks/current.md](../tasks/current.md).
+- ~~**"New set" → "Save showing" made a second set + a second name prompt.**~~
+  **Fixed `<SHA>` (2026-09-10)** — "New set" now inline-names on the card (no
+  `prompt()`), "Save showing" while composing becomes "Add showing" into the
+  composing set, and a "Done" button ends composing. Same section in
+  [../tasks/current.md](../tasks/current.md).
+- **A set element carries only an id — no count / weight / modifiers**, so `↧`
+  splices bare default cues, not `10 Back Squat @ 100kg`. **This is the unstruck
+  part**: a model extension that reopens DEC-027's "ordered id array" and the
+  "file format for palette sets" Non-Goal in
+  [deliberately-not-done.md](deliberately-not-done.md). Written up with shape
+  options + blast radius as a **PENDING DECISION (needs Chris)** in
+  [../tasks/current.md](../tasks/current.md) → *"should a movement set carry
+  per-movement count / weight / modifiers?"*. Not built.
 
 From the **design-critique pass, 2026-08-30.**
 

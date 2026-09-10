@@ -1900,6 +1900,17 @@ for the vocabulary layer, minus a first-party tier. No code shipped with S0.*
   landed as separate decisions; a reader here should know they are siblings, not
   one call.
 
+**Proposed extension, pending Chris (2026-09-10).** Chris wants a set element to
+carry **per-movement quantity / load / modifiers** so `↧` "to outline" splices
+ready cue lines, not bare defaults — which reopens the "`movements` stays an
+ordered id array" call above (and the `movement-sets.json` Non-Goal again).
+Shape options (array-of-objects / parallel arrays / raw WDL fragments), blast
+radius, and the id-array back-compat constraint are written up as a
+**PENDING DECISION (needs Chris)** in
+[../tasks/current.md](../tasks/current.md) → *"should a movement set carry
+per-movement count / weight / modifiers?"*. The decision above is unchanged
+until Chris rules.
+
 What was *tried* and turned out wrong is in
 [lessons-learned.md](lessons-learned.md); what is not built on purpose is in
 [deliberately-not-done.md](deliberately-not-done.md).

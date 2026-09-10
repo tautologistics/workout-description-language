@@ -1721,7 +1721,7 @@ function pickFromPalette(m) {
 // the modal open.
 paletteModal.addEventListener('cancel', (e) => {
   e.preventDefault();
-  if (composing) { composing = null; renderSetList(); renderPalette(); return; }
+  if (composing) { commitComposeName(); composing = null; renderSetList(); renderPalette(); return; }
   closePalette();
 });
 paletteModal.addEventListener('click', (e) => {
@@ -2274,6 +2274,15 @@ let catalogue = [];
 let vocabulary = [];
 /** The record id of the set currently being composed from the palette, if any. */
 let composing = null;
+// While a set is being composed its name is edited inline on the card, not
+// through a `prompt()`. Held here (rather than read straight off the <input>) so
+// a compose-click re-render — every palette pick calls `renderSetList` — keeps
+// an uncommitted edit instead of snapping back to the stored name. Committed to
+// the row on Enter / blur / "Done" via `commitComposeName`.
+let composeName = null;
+// One-shot: focus the name field the first render after "New set", and never
+// again — a later refocus would steal the caret from the palette mid-compose.
+let focusComposeName = false;
 /** Which set cards are expanded (by record id), so a redraw keeps them that way. */
 const openSets = new Set();
 
@@ -2295,6 +2304,37 @@ function renderRepertoire() {
   renderSets();
   renderSetList();
   renderPalette();
+}
+
+/**
+ * Write the in-progress compose name to its row, if it changed. Called on every
+ * deliberate end of composing (the ＋ toggle, "Done", Esc) — not on the delete
+ * path, which drops the name unwritten.
+ */
+function commitComposeName() {
+  if (composeName == null) return;
+  const set = composing ? setByKey(composing) : null;
+  const next = composeName.trim();
+  composeName = null;
+  if (set && next && next !== set.name) editSet(() => sets.rename(set.id, next));
+}
+
+/**
+ * Keep the repertoire-level tools in step with compose mode: while a set is
+ * being composed, "Save showing" would spawn a *second* set, so it becomes
+ * "Add showing" (fold the shown movements into the set you are on), and an
+ * explicit "Done" appears to end composing without hunting for Esc.
+ */
+function syncRepertoireTools() {
+  const done = el('set-done');
+  if (done) done.hidden = !composing;
+  const save = el('set-save');
+  if (save) {
+    save.textContent = composing ? 'Add showing' : 'Save showing';
+    save.title = composing
+      ? 'Add the movements now showing in the palette to the set you are composing'
+      : 'Save the movements now showing in the palette as a new set';
+  }
 }
 
 /** Run a repertoire write, re-render regardless, and surface a failure inline-ish. */
@@ -2644,6 +2684,7 @@ function renderSets() {
  * read-only — the movement list and `↧` only, no compose / rename / reorder.
  */
 function renderSetList() {
+  syncRepertoireTools();
   const box = el('set-list');
   box.innerHTML = '';
   const section = el('repertoire');
@@ -2679,14 +2720,40 @@ function renderSetCard(set) {
   });
 
   const summary = document.createElement('summary');
-  const label = document.createElement('span');
-  label.className = 'set-name';
-  label.textContent = set.name;
-  if (!editable) {
-    const tag = document.createElement('span');
-    tag.className = 'set-tag';
-    tag.textContent = 'Library';
-    label.append(tag);
+  // The set being composed carries its name as an inline field — "New set" drops
+  // straight here, no modal prompt. Clicks/keys are kept off the <summary> so
+  // typing does not toggle the card open/shut.
+  const editingName = editable && composing === set.id;
+  let label;
+  if (editingName) {
+    label = document.createElement('input');
+    label.className = 'set-name set-name-input';
+    label.value = composeName ?? set.name;
+    label.placeholder = 'Set name';
+    label.setAttribute('aria-label', 'Set name');
+    label.addEventListener('pointerdown', (e) => e.stopPropagation());
+    label.addEventListener('click', (e) => e.stopPropagation());
+    label.addEventListener('input', () => { composeName = label.value; });
+    label.addEventListener('keydown', (e) => {
+      e.stopPropagation();
+      if (e.key === 'Enter') { e.preventDefault(); label.blur(); }
+      else if (e.key === 'Escape') { e.preventDefault(); composeName = null; label.value = set.name; label.blur(); }
+    });
+    label.addEventListener('blur', commitComposeName);
+    if (focusComposeName) {
+      focusComposeName = false;
+      setTimeout(() => { label.focus(); label.select(); }, 0);
+    }
+  } else {
+    label = document.createElement('span');
+    label.className = 'set-name';
+    label.textContent = set.name;
+    if (!editable) {
+      const tag = document.createElement('span');
+      tag.className = 'set-tag';
+      tag.textContent = 'Library';
+      label.append(tag);
+    }
   }
   const count = document.createElement('span');
   count.className = 'set-n';
@@ -2713,10 +2780,10 @@ function renderSetCard(set) {
   // set gets only the one action that makes sense on it (drop into outline).
   if (editable) {
     act('＋',
-      composing === set.id ? 'Stop composing' : 'Compose — click palette movements to add or remove them',
+      composing === set.id ? 'Done composing' : 'Compose — click palette movements to add or remove them',
       () => {
-        composing = composing === set.id ? null : set.id;
-        if (composing) { el('set-pick').value = ''; openSets.add(set.id); }
+        if (composing === set.id) { commitComposeName(); composing = null; }
+        else { commitComposeName(); composing = set.id; composeName = null; el('set-pick').value = ''; openSets.add(set.id); }
         renderSetList();
         renderPalette();
       }, { pressed: composing === set.id });
@@ -2729,7 +2796,7 @@ function renderSetCard(set) {
     act('✕', 'Delete this set', () => {
       if (!confirm(`Delete the set “${set.name}”? It can be restored by an admin.`)) return;
       openSets.delete(set.id);
-      if (composing === set.id) composing = null;
+      if (composing === set.id) { composing = null; composeName = null; }
       if (el('set-pick').value === set.id) el('set-pick').value = '';
       editSet(() => sets.remove(set.id));
     }, { danger: true });
@@ -2849,19 +2916,24 @@ addEventListener('keydown', (e) => {
   // While the modal is open its own `cancel` handler owns Esc (exit compose,
   // else close). This covers the edge case of compose mode outliving a close.
   if (e.key === 'Escape' && composing && !paletteModal.open) {
+    commitComposeName();
     composing = null;
     renderSetList();
     renderPalette();
   }
 });
 
+// New set → an empty set, straight into compose mode with the name field
+// focused. One path: name it, click palette movements to add them, "Done".
+// No modal prompt, and no separate "now save it" step (each add live-PATCHes).
 el('set-new').onclick = async () => {
-  const name = (prompt('Name the new set', 'My set') ?? '').trim();
-  if (!name) return;
+  commitComposeName();
   try {
-    const created = await sets.create({ name, movements: [] });
+    const created = await sets.create({ name: 'New set', movements: [] });
     openSets.add(created.id);
     composing = created.id;
+    composeName = created.name;
+    focusComposeName = true;
     el('set-pick').value = '';
   } catch (e) {
     alert(`Could not create that set: ${e.message}`);
@@ -2869,7 +2941,16 @@ el('set-new').onclick = async () => {
   renderRepertoire();
 };
 
+// Not composing: snapshot the shown movements as a *new* named set (a prompt is
+// fine — it is the only name entry). Composing: the same button reads "Add
+// showing" and folds the shown movements into the set you are on, rather than
+// spawning a parallel set with a second name prompt.
 el('set-save').onclick = async () => {
+  if (composing) {
+    const set = setByKey(composing);
+    if (set) addShowingToSet(set);
+    return;
+  }
   const q = el('search').value.trim();
   const name = (prompt('Name this set', q || 'My set') ?? '').trim();
   if (!name) return;
@@ -2880,6 +2961,14 @@ el('set-save').onclick = async () => {
   } catch (e) {
     alert(`Could not create that set: ${e.message}`);
   }
+  renderRepertoire();
+};
+
+// Explicit end to composing — commit the name, drop out of compose mode. The
+// per-card ＋ toggle and Esc do the same; this is the signposted one.
+el('set-done').onclick = () => {
+  commitComposeName();
+  composing = null;
   renderRepertoire();
 };
 
@@ -3479,6 +3568,7 @@ function renderIdentity() {
     sets.clear();
     goalsStore.clearMine();
     composing = null;
+    composeName = null;
     openSets.clear();
     renderIdentity();
     renderMinePanel();

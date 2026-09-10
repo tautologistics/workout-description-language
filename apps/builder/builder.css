@@ -737,14 +737,20 @@ button:hover, .button:hover { border-color: var(--dim); }
 
 .palette { flex: 1; min-height: 0; overflow-y: auto; display: grid; gap: 2px; align-content: start; padding: 0 1rem 1rem; }
 
+/* The name hugs the left; the muscle meta and any trailing glyphs are pushed to
+   the right by `.meta { margin-left: auto }` — NOT by `justify-content:
+   space-between`, which distributed the slack *around* the name and left it
+   floating mid-row (dead-centre in compose mode, where the row is tick · name ·
+   meta). See `.meta` / `.db-mark` below. */
 .movement {
-  display: flex; justify-content: space-between; align-items: baseline; gap: .5rem;
+  display: flex; align-items: baseline; gap: .5rem;
   text-align: left; font: inherit; padding: .25rem .45rem;
   border: 1px solid transparent; border-radius: 3px; background: none; cursor: grab;
 }
 .movement:hover { border-color: currentColor; }
 .movement:active { cursor: grabbing; }
-.movement .meta { font-size: .75rem; color: var(--dim); white-space: nowrap; }
+.movement .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.movement .meta { margin-left: auto; padding-left: .5rem; font-size: .75rem; color: var(--dim); white-space: nowrap; }
 /* `.tick` is a state glyph (＋ / ✓), not text — opacity is its off/on. */
 .movement .tick { flex: none; width: 1em; text-align: center; opacity: .4; font-size: .8em; }
 .movement.in-set { border-color: currentColor; }
@@ -759,10 +765,10 @@ button:hover, .button:hover { border-color: var(--dim); }
    promoting); `○` canonical-only (only in the 5-source merge). Dimmed by
    colour, not a new token; a glyph rather than body text, and aria-hidden (the
    card `title` carries the words), so .75rem is a fine floor and the opacity on
-   the fainter tier is the same class of use as `.tick`. `margin-right:auto`
-   keeps it tight to the name; a card without one is unchanged. Non-interactive
-   — no hit-target rule applies. */
-.movement .db-mark { flex: none; margin-right: auto; font-size: .75rem; line-height: 1; color: var(--dim); }
+   the fainter tier is the same class of use as `.tick`. It packs tight to the
+   name on its own (the right cluster is pushed away by `.meta`'s auto margin);
+   a card without one is unchanged. Non-interactive — no hit-target rule. */
+.movement .db-mark { flex: none; font-size: .75rem; line-height: 1; color: var(--dim); }
 .movement .db-mark--canonical-only { opacity: .55; }
 
 .compose-hint { color: var(--accent); }
@@ -827,6 +833,16 @@ button:hover, .button:hover { border-color: var(--dim); }
   font-weight: 600; min-width: 0;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+/* The composing card edits its name in place — "New set" lands here, not in a
+   prompt(). Fills the name column of the summary grid. */
+.set-card > summary .set-name-input {
+  font: inherit; font-weight: 600;
+  width: 100%; min-width: 0;
+  margin: -.15rem 0; padding: .1rem .35rem;
+  border: 1px solid var(--accent); border-radius: 3px;
+  background: var(--panel); color: var(--ink);
+}
+#set-done { border-color: var(--accent); color: var(--accent); }
 .set-tag {
   font-size: .62rem; letter-spacing: .08em; text-transform: uppercase;
   color: var(--dim); border: 1px solid var(--rule); border-radius: 3px;
