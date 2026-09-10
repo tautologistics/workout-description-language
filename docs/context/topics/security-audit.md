@@ -1,6 +1,6 @@
 # Security audit — hosted stack
 
-*Written 2026-09-10 (`<SHA>`), the deferred "full security audit / hardening
+*Written 2026-09-10 (`b76deb8`), the deferred "full security audit / hardening
 sweep" bullet ([../tasks/deferred.md](../tasks/deferred.md)) pulled into the
 active queue. **Static analysis only** — the migration rule strings in
 `deploy/pocketbase/pb_migrations/*.js`, the hand-built client in

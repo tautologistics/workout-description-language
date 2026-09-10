@@ -3,13 +3,13 @@
 Things that are wrong, known to be wrong, and left that way for now. Check here
 when something looks odd before treating it as a discovery.
 
-## Security-audit findings (2026-09-10, `<SHA>`)
+## Security-audit findings (2026-09-10, `b76deb8`)
 
 From the hardening sweep — full context, exploitability and recommended fixes
 in [security-audit.md](security-audit.md). Every one below needs a PocketBase
 migration + `make deploy:db` against the VPS, which a session does not do, so
 all are **Chris's call**. The one fix that did land (H-2, `filter=` injection
-in `apps/shared/pocketbase.js`) is not a debt — it is in commit `<SHA>`.
+in `apps/shared/pocketbase.js`) is not a debt — it is in commit `b76deb8`.
 
 - **CRITICAL — the `users` collection has no access rules in version control.**
   No `deploy/pocketbase/pb_migrations/*.js` file sets `users` list/view/create/

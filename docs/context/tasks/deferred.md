@@ -99,7 +99,7 @@ ready to start, with what it touches, is in [current.md](current.md).
   any code. Blocked on the curation sweep (so the real core-set size is known)
   and on that review. See "## Reconsider when".
 
-- **~~A full security audit / hardening sweep.~~** — **done `<SHA>`**, see
+- **~~A full security audit / hardening sweep.~~** — **done `b76deb8`**, see
   [../topics/security-audit.md](../topics/security-audit.md). Static-analysis
   sweep of the PocketBase collection rules, the client `filter=` builders, auth
   and the deploy surface. **10 findings — 1 Critical, 2 High (1 fixed in the
@@ -187,7 +187,7 @@ ready to start, with what it touches, is in [current.md](current.md).
   the bottleneck — for generation quality, for search being useful, or just for
   coverage. No dependency; it can run in parallel with the V-series.
 
-- **~~The security audit / hardening sweep~~** — done 2026-09-10 (`<SHA>`),
+- **~~The security audit / hardening sweep~~** — done 2026-09-10 (`b76deb8`),
   [../topics/security-audit.md](../topics/security-audit.md). The written sweep
   is landed; the substantive fixes it surfaced (the `users`-rules migration and
   the `@request.body` field guards) are open [known-debts.md](../topics/known-debts.md)

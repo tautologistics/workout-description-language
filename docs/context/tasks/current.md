@@ -207,7 +207,7 @@ Also queued / deferred, unchanged:
 - the **mobile-usability pass** — deferred, same "once the surface has settled"
   trigger ([deferred.md](deferred.md)); needs Chris to start.
 
-The **full security audit landed 2026-09-10 (`<SHA>`)** —
+The **full security audit landed 2026-09-10 (`b76deb8`)** —
 [../topics/security-audit.md](../topics/security-audit.md). It was a written
 sweep, not a code epic: one High fix (the `filter=` injection in
 `apps/shared/pocketbase.js`) went in the same commit; the Critical (`users`
