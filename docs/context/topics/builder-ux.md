@@ -649,13 +649,13 @@ PocketBase collection on the workouts flow (owner / visibility, namespaced
 top, search below, stable card grid). Then Chris drove it 2026-09-10 and hit
 three things:
 - ~~**movement text centred, not left-aligned** (`.movement` palette rows,
-  worst while composing).~~ **Fixed `<SHA>` (2026-09-10)** — `justify-content:
+  worst while composing).~~ **Fixed `4501c6c` (2026-09-10)** — `justify-content:
   space-between` on `.movement` floated the middle child (the name) to centre;
   now the name hugs left and `.meta { margin-left:auto }` pushes the trailing
   cluster right. See the *Movement-sets editing* section in
   [../tasks/current.md](../tasks/current.md).
 - ~~**"New set" → "Save showing" made a second set + a second name prompt.**~~
-  **Fixed `<SHA>` (2026-09-10)** — "New set" now inline-names on the card (no
+  **Fixed `4501c6c` (2026-09-10)** — "New set" now inline-names on the card (no
   `prompt()`), "Save showing" while composing becomes "Add showing" into the
   composing set, and a "Done" button ends composing. Same section in
   [../tasks/current.md](../tasks/current.md).

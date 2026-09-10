@@ -202,11 +202,11 @@ builder ([../topics/builder-ux.md](../topics/builder-ux.md)).
 ## Movement-sets editing — two bug fixes landed, one model question pending Chris
 
 *Raised by Chris 2026-09-10 while driving the movement-sets feature (S0–S4).
-Two concrete bugs were fixed and landed `<SHA>` (2026-09-10); the third item is
+Two concrete bugs were fixed and landed `4501c6c` (2026-09-10); the third item is
 a model decision that **needs Chris** and is written up below — nothing was
 built for it.*
 
-**Landed `<SHA>` (2026-09-10) — `apps/builder/{builder.js,builder.css,index.html}`
+**Landed `4501c6c` (2026-09-10) — `apps/builder/{builder.js,builder.css,index.html}`
 only, `make test` 2064/2064 unchanged:**
 
 - **Palette movement names rendered centred while composing a set.**
