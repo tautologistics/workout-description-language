@@ -6,12 +6,17 @@ when something looks odd before treating it as a discovery.
 ## Security-audit findings (2026-09-10, `b76deb8`)
 
 From the hardening sweep — full context, exploitability and recommended fixes
-in [security-audit.md](security-audit.md). Every one below needs a PocketBase
-migration + `make deploy:db` against the VPS, which a session does not do, so
-all are **Chris's call**. The one fix that did land (H-2, `filter=` injection
-in `apps/shared/pocketbase.js`) is not a debt — it is in commit `b76deb8`.
+in [security-audit.md](security-audit.md). **Ticketed 2026-09-11** as
+`## Security hardening (SEC-1 … SEC-7)` in
+[current.md](../tasks/current.md#security-hardening-sec-1--sec-7--from-the-2026-09-10-audit),
+in priority order, each with its open question baked in rather than
+pre-answered. A session may write and locally verify a migration and land it
+on `origin/main`; `make deploy:db` against the VPS stays Chris's own explicit
+call. The one fix that did land already (H-2, `filter=` injection in
+`apps/shared/pocketbase.js`) is not a debt — it is in commit `b76deb8`.
 
 - **CRITICAL — the `users` collection has no access rules in version control.**
+  **→ SEC-1.**
   No `deploy/pocketbase/pb_migrations/*.js` file sets `users` list/view/create/
   update/delete rules or any field-level guard on the M2 `admin` / L1 `org` /
   L1 `handle` fields; the live rules are PocketBase's auth-collection defaults
@@ -30,7 +35,7 @@ in `apps/shared/pocketbase.js`) is not a debt — it is in commit `b76deb8`.
   self-assignable.*
 
 - **HIGH — namespace keys (`wdlId` / `setId` / `goalId`) are client-forced
-  only.** The `<owner-handle>:<slug>` rule (DEC-021 / DEC-027 / DEC-028) is
+  only.** **→ SEC-2.** The `<owner-handle>:<slug>` rule (DEC-021 / DEC-027 / DEC-028) is
   enforced only in `apps/shared/pocketbase.js`; no collection rule constrains
   the value on write, and `workouts.wdlId` is a non-unique index. A raw
   `POST`/`PATCH` can set `wdlId: "crossfit:fran"` on an attacker-owned public
@@ -43,7 +48,7 @@ in `apps/shared/pocketbase.js`) is not a debt — it is in commit `b76deb8`.
   implementation diverges, model is fine.*
 
 - **MEDIUM — no mutating rule guards which fields change; `owner`/`user` can be
-  reassigned on update.** `workouts` / `movement_sets` / `goals` update rules
+  reassigned on update.** **→ SEC-3.** `workouts` / `movement_sets` / `goals` update rules
   check *who* writes, never *what*. A user can `PATCH` their own row
   `{ owner: <org id> }` (compounds the HIGH above), and a `goals`
   `scope:"user"` owner may be able to `PATCH { scope: "global", user: null }`
@@ -53,7 +58,8 @@ in `apps/shared/pocketbase.js`) is not a debt — it is in commit `b76deb8`.
   (and `user` / `scope` for `goals`) to each update rule.
   *Touches: the three create/harden migrations. DEC-028 (goals scope tiers).*
 
-- **MEDIUM — handle shape / reserved-word validation is client-only.** The
+- **MEDIUM — handle shape / reserved-word validation is client-only.**
+  **→ SEC-4.** The
   server enforces only the unique index and `max: 63`; `validateHandle` in
   `apps/shared/handle.js` (`^[a-z0-9-]+$`, 3–63, not all-digits, no `-` ends,
   reserved `api`/`admin`/`_`) has no server mirror. A raw `PATCH` can claim
@@ -66,7 +72,8 @@ in `apps/shared/pocketbase.js`) is not a debt — it is in commit `b76deb8`.
   built.*
 
 - **LOW — `movement_sets` create rule relies on field validation, not an
-  explicit `!= ""` guard.** `createRule = "@request.auth.id = owner"` is safe
+  explicit `!= ""` guard.** **→ SEC-6** (trivial, no open question, dispatchable
+  as-is). `createRule = "@request.auth.id = owner"` is safe
   only because `owner` is `required` — the same shape that bit `goals` at G1
   when `user` was nullable. One schema change reopens it silently. Fix: align
   with `workouts` / `goals` — `@request.auth.id != "" && @request.auth.id =
@@ -75,9 +82,12 @@ in `apps/shared/pocketbase.js`) is not a debt — it is in commit `b76deb8`.
 
 (The port-8090 plaintext exposure is a pre-existing entry — see
 `deploy/README.md` "Known issue" and [what-exists.md](what-exists.md); the
-audit confirms it still holds. Two Informational items — permissive default
-CORS, `updateMovement` passing the patch body through under admin trust — are
-in the audit doc only, not filed here.)
+audit confirms it still holds. **→ SEC-5** — not a coding task, it's Chris
+following up the DreamHost firewall ticket directly; a session can't act on
+it. Permissive default CORS **→ SEC-7**, which may turn out to not be a code
+task either — see the ticket's open question. One Informational item —
+`updateMovement` passing the patch body through under admin trust — is in the
+audit doc only, not filed here.)
 
 - Three singular/plural duplicates remain in the registry's long tail
   (`Hindu Push-up`, `Rack Pull`, `Squat with Bands`). Pinned by a test so the

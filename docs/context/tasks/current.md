@@ -308,15 +308,204 @@ Also queued / deferred, unchanged:
 The **full security audit landed 2026-09-10 (`b76deb8`)** —
 [../topics/security-audit.md](../topics/security-audit.md). It was a written
 sweep, not a code epic: one High fix (the `filter=` injection in
-`apps/shared/pocketbase.js`) went in the same commit; the Critical (`users`
-collection has no version-controlled rules → admin self-escalation on
-PocketBase defaults) and the rest are **open [known-debts.md](../topics/known-debts.md)
-entries and Chris's call**, because each needs a migration re-applied on the
-VPS. **The standalone queue is still empty** — the audit's own findings are the
-nearest self-contained defects, but they are prod-migration work a session
-does not do. Next dispatchable work: a defect from
-[../topics/known-debts.md](../topics/known-debts.md) that is *app/doc* code, or
-one found by driving the builder/board.
+`apps/shared/pocketbase.js`) went in the same commit. **The rest are now
+ticketed below as `## Security hardening (SEC-1 … SEC-7)`, 2026-09-11, in
+priority order** — each is self-contained, and each bakes in the open question
+its fix depends on rather than waiting for it to be pre-answered. **A session
+may write, verify-locally and land a migration on `origin/main`; `make
+deploy:db` against the VPS stays Chris's own explicit call** (`CLAUDE.md`
+step 1) — every SEC ticket below stops at "landed", not "deployed".
+
+## Security hardening (SEC-1 … SEC-7) — from the 2026-09-10 audit
+
+Priority order. Full exploit detail, the exact current rule strings and the
+DEC each one touches are in
+[../topics/security-audit.md](../topics/security-audit.md) — load it before
+starting any of these. Each ticket is dispatchable on its own; **SEC-1+SEC-4**
+and **SEC-2+SEC-3** touch the same collections and are natural one-migration
+bundles (noted inline), but nothing requires bundling them.
+
+### SEC-1 (Critical, do first) — `users` collection: version-control its rules and lock the `admin`/`org` fields
+
+**Finding C-1.** No migration in `deploy/pocketbase/pb_migrations/*.js` sets
+the `users` collection's list/view/create/update/delete rules or guards the
+custom `admin`/`org`/`handle` fields. On PocketBase's stock auth-collection
+defaults a signed-in user can `PATCH` their own row `{admin:true}` and escalate
+to admin-gated writes (`movements`/`equipment`/`patterns`/the `global` goals
+tier); if `createRule` is also the stock-open `""` with password auth enabled,
+an anonymous `POST users/records` can mint an admin account outright.
+
+**Before writing anything, resolve on the box (read-only, safe):**
+admin UI → Collections → `users` → **API Rules** tab (what do
+list/view/create/update/delete actually say today?) and **Options** (is
+password/identity auth enabled on the collection, or is OAuth the only
+identity provider?). This needs only a look, or a superuser-authed `GET
+/api/collections/users` schema read (`.env` `WDL_PB_ADMIN_*`) — no write, no
+risk. Record the answer in the migration's header comment, the way every
+other migration here does ("verified locally against…").
+
+**Then:**
+1. **Commit the box's schema into the repo first.** Pull `1788125462_updated_users.js`
+   off the VPS (or have Chris export it — admin UI has an export, or
+   `./pocketbase migrate collections` on the box) so the real `users` schema is
+   reviewable and `pb_migrations/README.md`'s migration list is complete. This
+   is read-only and has no deploy risk.
+2. **Write a new migration** setting `users` rules explicitly and guarding the
+   privileged fields. Draft in the audit doc (C-1):
+   ```js
+   users.listRule   = '@request.auth.id = id';
+   users.viewRule   = '@request.auth.id = id';
+   users.createRule = null;               // OAuth creates records server-side
+   users.deleteRule = '@request.auth.id = id';
+   users.updateRule =
+     '@request.auth.id = id' +
+     ' && (@request.body.admin:isset = false || @request.body.admin = admin)' +
+     ' && (@request.body.org:isset = false   || @request.body.org = org)';
+   ```
+   **Open question to settle while writing this, not before:** confirm the
+   `@request.body.*` spelling (renamed from `@request.data.*` at PocketBase
+   v0.23 — the box runs v0.40.1, so `@request.body` should be right, but
+   verify against a throwaway local `pocketbase` binary + `pb_data` the same
+   way `1756700000_add_users_admin.js` and every migration since verified
+   theirs: `migrate up`, a `curl` `PATCH` probe with a non-admin token
+   attempting `{admin:true}` → expect rejection, `migrate down`, `migrate up`
+   again). **If `createRule: null` breaks OAuth sign-up** (some PocketBase
+   versions want `""` rather than `null` for "no create via this route, record
+   creation happens through the auth flow instead") — confirmed by driving a
+   local OAuth-mocked sign-up against the throwaway instance, or by reading the
+   PocketBase v0.40 docs for the auth-collection create-rule semantics —
+   adjust to whatever value actually permits the OAuth flow and blocks a direct
+   `POST`.
+3. **Consider folding SEC-4 (handle validation) into this same migration** —
+   same collection, same `app.save(users)` call, one `make deploy:db` round
+   instead of two.
+4. Land on `origin/main`, migration verified locally up/down/up. Tell Chris
+   it's ready for `make deploy:db` — do not run it yourself.
+
+*Touches: a new `deploy/pocketbase/pb_migrations/*.js`, `deploy/README.md` §7a,
+`deploy/pocketbase/pb_migrations/README.md`. DEC-020/025/028.*
+
+### SEC-2 (High) — bind `wdlId`/`setId`/`goalId` to the owner's handle server-side
+
+**Finding H-1.** The `<owner-handle>:<slug>` rule (DEC-021/027/028) is enforced
+only client-side in `apps/shared/pocketbase.js`. A raw `POST`/`PATCH` can set
+`wdlId: "crossfit:fran"` on an attacker-owned `workouts` row (or the
+`movement_sets`/`goals` twins), spoofing the builder's **Libraries** listing
+and potentially shadowing the real row for `?w=crossfit:fran`.
+
+**Open question to settle while implementing, not before:** does
+`@request.auth.handle` (the signed-in user's *own* custom field) resolve
+inside a PocketBase rule expression on v0.40.1? Verify against a throwaway
+local instance with a real `handle` set on a test user, probing a rule like
+`@request.body.wdlId:startsWith = @request.auth.handle + ":"` (confirm the
+exact `startsWith`/concatenation operator spelling the v0.40.x rule DSL
+actually accepts — the rule-filter docs in `deploy/README.md`'s links, or
+trial against the binary, settle it). **If it resolves and the operator
+exists:** add the bound clause to the `createRule`/`updateRule` of
+`workouts` (`1756600000_create_workouts.js`), `movement_sets`
+(`1757200000_create_movement_sets.js`), and `goals`'s `user`-scope branch
+(`1757400000_harden_goals_rules.js`'s rule, for the `<handle>:<slug>` case
+only — `goals`'s `global` tier uses a fixed `wdl:` prefix, not a handle).
+**If the rule DSL cannot express it** (string ops on `@request.auth.<field>`
+may not be supported): fall back to a `deploy/pocketbase/pb_hooks/` JS hook
+(`onRecordCreateRequest`/`onRecordUpdateRequest`) that recomputes the key
+server-side from the authenticated user's `handle` before the write commits —
+this is the robust form either way, so if the rule-level version feels fragile
+once written, prefer the hook outright rather than shipping something clever
+that breaks on the next PocketBase upgrade.
+
+*Touches: the three collections' migrations (new migration files — don't edit
+already-applied/shipped ones in place; follow the "existing collection" edit
+idiom the later migrations use), or a new `pb_hooks/`. DEC-021/027/028.*
+
+### SEC-3 (Medium) — guard `owner`/`user`/`scope` against reassignment on update
+
+**Finding M-1.** `workouts`/`movement_sets`/`goals` update rules check *who*
+writes, never *what* they set. A user can `PATCH` their own row
+`{owner: <org id>}` (compounds SEC-2); a `goals` owner of a `scope:"user"` row
+may be able to `PATCH {scope:"global", user:null}`.
+
+**Open question to settle while implementing, not before — and this one is a
+genuine unknown, not just an operator-spelling check:** does PocketBase
+evaluate an `updateRule` against the record's pre-change or post-change state?
+This decides whether the `goals` scope-flip is actually exploitable. Test it
+directly against a throwaway local instance seeded from all ten migrations:
+create a `scope:"user"` goal as a non-admin test user, `PATCH
+{scope:"global", user: null}` as that same user, and read back what landed.
+Record the answer in the new migration's header comment either way — if it
+turns out *not* exploitable, that still closes M-1's open half and the
+audit/known-debts entries should be updated to say so with the evidence.
+
+**The fix, once the field-guard syntax from SEC-1/SEC-2 is pinned:** append to
+each update rule
+`&& (@request.body.owner:isset = false || @request.body.owner = owner)` (and
+the `user`/`scope` equivalents for `goals`). **Natural to land as one migration
+with SEC-2** — both touch the same three collections' update rules.
+
+*Touches: `1756600000_create_workouts.js`, `1757200000_create_movement_sets.js`,
+`1757400000_harden_goals_rules.js` (new follow-up migrations, not in-place
+edits). DEC-028.*
+
+### SEC-4 (Medium) — server-side handle shape / reserved-word validation
+
+**Finding M-2.** `apps/shared/handle.js`'s `validateHandle` (shape, length,
+not-all-digits, reserved words `api`/`admin`/`_`) is client-only; the server
+enforces only the unique index and `max: 63`. A raw `PATCH` can claim
+`handle: "admin"` or one containing `:` (poisons `<handle>:<slug>` parsing).
+
+**Open question — and this one is a likely correction to the audit doc's own
+draft fix, settle it before writing the rule:** PocketBase's `~` filter
+operator is a case-insensitive **LIKE-style wildcard match**, not a regex —
+`@request.body.handle ~ '^[a-z0-9-]+$'` (the form the audit doc suggested) is
+probably **not** a valid shape check in the rule DSL as written. Confirm
+against the v0.40.x rule-filter syntax (or a throwaway-instance probe) before
+relying on it. **If rules genuinely cannot express the shape/reserved-word
+check, it isn't a smaller job that got skipped — move straight to a
+`pb_hooks/onRecordUpdateRequest` validator** that ports `validateHandle()`'s
+checks (or calls into an equivalent) server-side; that is likely the right
+answer from the start here, not a fallback.
+
+**Consider folding into SEC-1's `users` migration** — same collection.
+
+*Touches: `apps/shared/handle.js` (client, unchanged) + a new `users` rule or
+`pb_hooks/`. DEC-021.*
+
+### SEC-5 (Medium, not a coding task) — the port-8090 DreamHost firewall ticket
+
+**Finding M-3, pre-existing.** `deploy/README.md` "Known issue: port 8090
+exposure" — the support ticket asking DreamHost to firewall external inbound
+TCP 8090 is open and this audit found nothing new to add. **No session action
+possible** — there's no root on the box and no code change; this is Chris
+following up with DreamHost support directly. Not dispatchable as a session
+task; listed here only so the queue is the complete picture of open findings.
+
+### SEC-6 (Low, trivial — dispatchable as-is, no open question) — `movement_sets` create rule: explicit `!= ""` guard
+
+**Finding L-1.** `createRule = "@request.auth.id = owner"` is safe today only
+because `owner` is `required` — the same shape that bit `goals` at G1 when
+`user` was nullable. Align with `workouts`/`goals`:
+`@request.auth.id != "" && @request.auth.id = owner`. No decision needed —
+this is a one-line defence-in-depth change to
+`1757200000_create_movement_sets.js` (a new follow-up migration editing the
+existing collection's `createRule`, verified up/down/up against a throwaway
+instance the way the rest do). Safe to pick up and land without Chris's input
+beyond "go."
+
+### SEC-7 (Low) — restrict PocketBase's CORS to the known origin
+
+**Finding L-2.** Default CORS is permissive; low-impact since the token lives
+in `localStorage`/an `Authorization` header, not a cookie (no CSRF, no ambient
+credential), but nothing currently restricts the API to
+`https://wex.androidempathy.com`.
+
+**Open question to settle while picking this up:** does PocketBase v0.40.1
+expose a CORS-allowlist setting (admin UI → Settings) at all? If yes, this is
+a one-click admin-UI change Chris makes directly (no code, no migration,
+nothing to land). If v0.40.1 has no such setting, the alternative is a
+DreamHost panel proxy / reverse-proxy level restriction, which is operational
+like SEC-5, not a code task — in that case downgrade this to Informational and
+fold it into the audit doc's "checked and found OK, low-impact" note rather
+than keeping it open as a ticket.
 
 Recently closed (kept here briefly for the trail):
 
