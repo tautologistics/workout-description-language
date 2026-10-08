@@ -173,7 +173,7 @@ collapsible sub-panels are still open).
 ## Outline
 
 **~~In Firefox, clicking inside a row's text does not move the caret — only the
-arrow keys do.~~ Fixed 2026-10-06 (`<SHA>`).** Every outline row is
+arrow keys do.~~ Fixed 2026-10-06 (`85bf6e4`).** Every outline row is
 `draggable` (`attachRowDrag`), and Firefox will not place the caret or
 drag-select with the mouse in an `<input>` inside a draggable ancestor; the
 existing `dragstart` guard comes too late. A capturing `mousedown` on the row
@@ -950,7 +950,7 @@ get the row (closed set). *`apps/shared/{token-input,vocab,pocketbase,movement-e
 + `apps/builder/{builder.js,builder.css}`; no core; `make test` unchanged.*
 
 **~~A signed-out "Create movement" answered with a bare "Failed to create
-record."~~ Fixed 2026-10-06 (`<SHA>`).** Found on prod: the request went out
+record."~~ Fixed 2026-10-06 (`85bf6e4`).** Found on prod: the request went out
 with no `Authorization` header and PocketBase refused it on the
 `@request.auth.admin = true` create rule — as a **400 with empty `data`**, not
 the 403 every comment here assumed (see lessons-learned, *A failed PocketBase
@@ -978,7 +978,7 @@ it is an auth problem. Landed as:
   instead of a 403, so this path is exercised by `make serve`. Sets / goals /
   workouts in the mock still 403 — the client handles both shapes.
 
-**~~Create mode makes you type the id by hand.~~ Fixed 2026-10-06 (`<SHA>`).**
+**~~Create mode makes you type the id by hand.~~ Fixed 2026-10-06 (`85bf6e4`).**
 In create mode (＋ new movement and Duplicate) the id now follows the title,
 slugified (`slugifyTitle`: NFKD accent-fold, lowercase, non-alphanumeric runs →
 one hyphen — `3/4 Sit-Up` → `3-4-sit-up`), until the curator types an id of
@@ -988,7 +988,7 @@ title verbatim, and auto-filling from that would re-mint the source's taken id.
 The editor now focuses the title in both modes.
 
 **~~Duplicate is only reachable from inside the editor, and only for a DB
-row.~~ Fixed 2026-10-06 (`<SHA>`).** A ⧉ sits beside ✎ on every palette card
+row.~~ Fixed 2026-10-06 (`85bf6e4`).** A ⧉ sits beside ✎ on every palette card
 (the pair wrapped in one `.movement-actions` flex item so the card's
 `space-between` layout is unchanged), and the `»` panel gains *Duplicate "X" as
 a new movement* under its Edit row. Both call `openMovementEditor({ id, title,
