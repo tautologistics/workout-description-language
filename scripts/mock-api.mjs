@@ -27,14 +27,14 @@
  *   DELETE /api/collections/workouts/records/:id     — delete (persists), 204
  *   GET    /api/collections/movements/records        — list, from registry/movements.json + local writes, in the PB record shape
  *   GET    /api/collections/movements/records/:id    — one movement (by synthetic id or movementId)
- *   POST   /api/collections/movements/records        — create, IF the request carries an Authorization header (else 403 — mirrors the admin-only rule)
- *   PATCH  /api/collections/movements/records/:id     — update, same Authorization gate; 403 without it
- *   DELETE /api/collections/movements/records/:id     — delete, same Authorization gate; 403 without it, 204 with
+ *   POST   /api/collections/movements/records        — create, IF the request carries an Authorization header (else PocketBase's bare 400 "Failed to create record." — mirrors a failed admin-only rule)
+ *   PATCH  /api/collections/movements/records/:id     — update, same Authorization gate; 404 without it (as PocketBase)
+ *   DELETE /api/collections/movements/records/:id     — delete, same Authorization gate; 404 without it, 204 with
  *   GET    /api/collections/equipment/records        — list, from registry/equipment.json + local writes, in the PB record shape (task V7, DEC-025)
  *   GET    /api/collections/equipment/records/:id    — one term (by synthetic id or termId)
- *   POST   /api/collections/equipment/records        — create, same Authorization gate as movements (else 403)
- *   PATCH  /api/collections/equipment/records/:id    — update, same Authorization gate; 403 without it
- *   DELETE /api/collections/equipment/records/:id    — delete, same Authorization gate; 403 without it, 204 with
+ *   POST   /api/collections/equipment/records        — create, same Authorization gate as movements (else the bare 400)
+ *   PATCH  /api/collections/equipment/records/:id    — update, same Authorization gate; 404 without it
+ *   DELETE /api/collections/equipment/records/:id    — delete, same Authorization gate; 404 without it, 204 with
  *   GET    /api/collections/patterns/records         — list, from registry/patterns.json + local writes (same shape as equipment)
  *   GET    /api/collections/patterns/records/:id     — one term (by synthetic id or termId)
  *   POST   /api/collections/patterns/records         — create, same Authorization gate
@@ -554,7 +554,11 @@ export function createMockApi(root) {
       // for that (the auth short-circuit above hands every signed-in caller an
       // `admin: true` fixture user), so `make movements:load` and the M5 editor
       // round-trip locally. Writes persist to fixtures/movements.local.json.
-      const mvWriteDenied = () => json(res, 403, err(403, 'Only admins can write global movements.'));
+      // A refused write answers the way production PocketBase answers a failed
+      // API rule — NOT a 403: create → bare 400 "Failed to create record." with
+      // empty `data`, update/delete → 404 (2026-10-06; the old 403 here hid that
+      // the client could not tell a rule failure from a validation one).
+      const mvWriteDenied = () => ruleDenied(res, method);
       if (pathname === '/api/collections/movements/records') {
         if (method === 'GET') return json(res, 200, listEnvelope(applyQuery(currentMovements(), url), url));
         if (method === 'POST') {
@@ -601,7 +605,7 @@ export function createMockApi(root) {
       // the same gate the movements routes above use.
       for (const v of vocabs) {
         const base = `/api/collections/${v.name}/records`;
-        const vWriteDenied = () => json(res, 403, err(403, `Only admins can write the global ${v.name} vocabulary.`));
+        const vWriteDenied = () => ruleDenied(res, method);
         if (pathname === base) {
           if (method === 'GET') return json(res, 200, listEnvelope(applyQuery(v.current(), url), url));
           if (method === 'POST') {
@@ -1131,6 +1135,19 @@ function json(res, status, obj) {
 }
 
 /** PocketBase's error body shape: `{ status, code, message, data }`. */
+/**
+ * How production PocketBase refuses a write whose API rule fails for the caller
+ * (a guest, or a non-admin on an `@request.auth.admin = true` rule): a create is
+ * a bare 400 with empty `data`, an update/delete a 404. Mirrored for the
+ * admin-only collections so the client's rule-failure handling
+ * (`looksLikeRuleFailure` in apps/shared/pocketbase.js) is exercised locally.
+ */
+function ruleDenied(res, method) {
+  return method === 'POST'
+    ? json(res, 400, err(400, 'Failed to create record.'))
+    : json(res, 404, err(404, "The requested resource wasn't found."));
+}
+
 function err(code, message, data = {}) {
   return { status: code, code, message, data };
 }

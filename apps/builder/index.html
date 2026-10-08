@@ -171,6 +171,17 @@
   <div id="movement-editor-host"></div>
 </dialog>
 
+<!-- "This needs you signed in / an admin" — shown *instead of* sending a write
+     the server is bound to refuse (requireAccount in builder.js), and after a
+     write that came back as an auth failure anyway. -->
+<dialog id="auth-notice" class="auth-notice" aria-labelledby="auth-notice-msg">
+  <p id="auth-notice-msg"></p>
+  <div class="auth-notice-actions">
+    <button type="button" id="auth-notice-signin">Sign in with Google</button>
+    <button type="button" id="auth-notice-close">OK</button>
+  </div>
+</dialog>
+
 <input type="file" id="file" accept=".wdl,.txt" hidden>
 <input type="file" id="goal-file" accept=".wdlg,.txt" hidden>
 <input type="file" id="set-file" accept=".json,application/json" hidden>

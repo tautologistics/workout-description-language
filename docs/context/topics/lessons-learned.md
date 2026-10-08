@@ -953,3 +953,19 @@ own comment says in as many words.
 already neutralises the case you are pointing at — and check that the test you
 are naming as the guard actually asserts the property you mean.* Recorded
 2026-09-02.
+
+**A failed PocketBase API rule is not a 403.** Every comment and the mock said
+a signed-out or non-admin write "gets a 403 whose message the caller surfaces".
+PocketBase v0.40 actually answers a failed **create** rule with
+`400 "Failed to create record."` and an **empty** `data`, and a failed
+**update/delete** rule with a 404 — only a superuser-only (null) rule is a 403.
+The mock returned the 403 everyone expected, so the local round-trip never
+showed what prod does, and on 2026-10-06 Chris hit a contentless "Failed to
+create record." creating a movement while (silently) signed out. Reproduced in
+one line — an unauthenticated empty-body `POST` to prod gives the identical
+response, where a validation failure would have listed the missing fields.
+*A mock that encodes what you believe the server does cannot catch the belief
+being wrong; when a mock stands in for a rule, copy the server's observed
+response, not its documented intent.* The mock's admin-only collections now
+mirror the real shape (`ruleDenied`), and `call()` tells the two 400s apart by
+the empty `data`. Recorded 2026-10-06.

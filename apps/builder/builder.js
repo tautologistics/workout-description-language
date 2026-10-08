@@ -422,6 +422,15 @@ const measureMode = (token) =>
 function attachRowDrag(node, lineNo, followLine) {
   node.draggable = true;
   node.dataset.line = String(lineNo);
+  // Firefox will not place the caret (or drag-select) with the mouse inside an
+  // `<input>` whose ancestor is `draggable` — the click is swallowed and only
+  // the arrow keys move the cursor (2026-10-06). The `dragstart` guard below
+  // does not help: by then Firefox has already claimed the mousedown. So the row
+  // is only draggable while the press starts outside a text control, decided
+  // at the press itself, before the browser's default mousedown handling runs.
+  node.addEventListener('mousedown', (e) => {
+    node.draggable = !e.target.closest('input, textarea, select');
+  }, true);
   node.addEventListener('dragstart', (e) => {
     if (e.target.tagName === 'INPUT') return e.preventDefault();   // let text select
     e.dataTransfer.setData('text/wdl-line', String(lineNo));
@@ -892,8 +901,22 @@ function renderOutline() {
         edit.className = 'suggestion modifier-edit';
         edit.textContent = `Edit “${entry.title}” — its curated fields`;
         edit.onmousedown = (e) => e.preventDefault();
-        edit.onclick = () => { closeModifiers(); openMovementEditor({ id: entry.id, title: entry.title }); };
-        modifiers.append(edit);
+        edit.onclick = () => {
+          closeModifiers();
+          if (requireAccount('Editing a movement', { admin: true })) openMovementEditor({ id: entry.id, title: entry.title });
+        };
+        // …and seed a brand-new movement from this one (the editor's Duplicate,
+        // reachable without opening the source first).
+        const copy = document.createElement('button');
+        copy.type = 'button';
+        copy.className = 'suggestion modifier-edit';
+        copy.textContent = `Duplicate “${entry.title}” as a new movement`;
+        copy.onmousedown = (e) => e.preventDefault();
+        copy.onclick = () => {
+          closeModifiers();
+          if (requireAccount('Creating a movement', { admin: true })) openMovementEditor({ id: entry.id, title: entry.title, duplicate: true });
+        };
+        modifiers.append(edit, copy);
         modifiers.hidden = false;
       };
 
@@ -1742,7 +1765,8 @@ addEventListener('keydown', (e) => {
 // Reached from "＋ new movement" in the palette modal, an "edit" control on a
 // palette card, and "Edit this movement…" in the step row's `»` panel. It
 // writes a `scope: "global"` row via `/api` (`POST`/`PATCH`); signed out or
-// non-admin the write 403s and the form shows the message. On a successful save
+// non-admin, `requireAccount` answers with a notice before it opens, and a write
+// the server still refuses shows `call()`'s auth message inline. On a successful save
 // `absorbMovement` folds the row into the in-memory registries so it shows in
 // the palette / the `»` panel without a reload.
 //
@@ -1802,7 +1826,7 @@ let movementEditorSeq = 0;
 /**
  * V9: persist a curator's "＋ new term" from a token-input picker, then bust the
  * matching `dbVocab` cache so the next editor open re-fetches it. Throws on a
- * failed `POST` (e.g. a 403 for a non-admin) — `createTokenInput` catches that,
+ * failed `POST` (e.g. a non-admin's refused write) — `createTokenInput` catches that,
  * rolls its optimistic add back and shows the message inline.
  */
 async function createVocabTermLive(createTerm, vocabClosure, { termId, name }) {
@@ -1897,7 +1921,7 @@ async function openMovementEditor(ref = null) {
     // V9: an admin can mint a new global equipment / pattern term without leaving
     // the editor. Gated on `currentUser()?.admin` so a non-admin never sees the
     // row; the `@request.auth.admin = true` server rule (DEC-025) is the real
-    // boundary and a 403 surfaces inline in the picker if it is ever shown. After
+    // boundary and a refusal surfaces inline in the picker if it is ever shown. After
     // the POST the `dbVocab` cache is busted so the *next* editor open re-fetches
     // — the widget it was added from has already spliced it in live.
     onCreateTerm: currentUser()?.admin ? {
@@ -2104,7 +2128,9 @@ function markStaticProvenance() {
   renderPalette();
 }
 
-el('movement-new').onclick = () => openMovementEditor(null);
+el('movement-new').onclick = () => {
+  if (requireAccount('Creating a movement', { admin: true })) openMovementEditor(null);
+};
 
 // --- wiring ------------------------------------------------------------------
 
@@ -2592,11 +2618,37 @@ function renderPalette() {
       edit.tabIndex = 0;
       edit.title = `Edit “${m.title}”`;
       edit.textContent = '✎';
-      const openEdit = (e) => { e.stopPropagation(); e.preventDefault(); openMovementEditor({ id: m.id, title: m.title }); };
+      const openEdit = (e) => {
+        e.stopPropagation(); e.preventDefault();
+        if (requireAccount('Editing a movement', { admin: true })) openMovementEditor({ id: m.id, title: m.title });
+      };
       edit.addEventListener('click', openEdit);
       edit.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') openEdit(e); });
       edit.addEventListener('dragstart', (e) => { e.preventDefault(); e.stopPropagation(); });
-      item.append(edit);
+
+      // Duplicate: open "New movement" pre-filled from this one — every field
+      // but the id (2026-10-06). Works for a static-only movement too: the
+      // editor's own Duplicate needs a DB row, but `openMovementEditor` already
+      // falls back to the static record as the seed.
+      const copy = document.createElement('span');
+      copy.className = 'movement-edit movement-copy';
+      copy.setAttribute('role', 'button');
+      copy.tabIndex = 0;
+      copy.title = `Duplicate “${m.title}” as a new movement`;
+      copy.textContent = '⧉';
+      const openCopy = (e) => {
+        e.stopPropagation(); e.preventDefault();
+        if (requireAccount('Creating a movement', { admin: true })) openMovementEditor({ id: m.id, title: m.title, duplicate: true });
+      };
+      copy.addEventListener('click', openCopy);
+      copy.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') openCopy(e); });
+      copy.addEventListener('dragstart', (e) => { e.preventDefault(); e.stopPropagation(); });
+      // One flex item for the pair, so the card's `space-between` still lays
+      // out name · meta · actions the way it did with ✎ alone.
+      const actions = document.createElement('span');
+      actions.className = 'movement-actions';
+      actions.append(edit, copy);
+      item.append(actions);
     }
 
     // Composing: a click toggles the movement in the set being built. Otherwise
@@ -2991,7 +3043,7 @@ el('set-file').addEventListener('change', async () => {
   const file = el('set-file').files?.[0];
   el('set-file').value = '';
   if (!file) return;
-  if (!currentUser()) { alert('Sign in to import sets to your account.'); return; }
+  if (!requireAccount('Importing sets to your account')) return;
   let data;
   try {
     data = JSON.parse(await file.text());
@@ -3516,6 +3568,50 @@ function relTime(s) {
   return then.toLocaleDateString();
 }
 
+// --- "this needs an account" ---------------------------------------------------
+// 2026-10-06: a signed-out "Create movement" used to go all the way to the
+// server and come back as PocketBase's bare `400 "Failed to create record."`.
+// Every control that writes stays clickable, but checks first and answers with
+// this notice instead of a request the server is bound to refuse. The server
+// rules stay the real boundary; `call()` in pocketbase.js rewrites the error a
+// refused write still produces (expired session, revoked admin) into the same
+// words, and `e.auth` routes it back here.
+const authNotice = el('auth-notice');
+
+function showAuthNotice(message, { offerSignIn = !currentUser() } = {}) {
+  el('auth-notice-msg').textContent = message;
+  el('auth-notice-signin').hidden = !offerSignIn;
+  if (!authNotice.open) authNotice.showModal();
+  el(offerSignIn ? 'auth-notice-signin' : 'auth-notice-close').focus();
+}
+el('auth-notice-close').onclick = () => authNotice.close();
+el('auth-notice-signin').onclick = () => { authNotice.close(); startSignIn(); };
+authNotice.addEventListener('click', (e) => { if (e.target === authNotice) authNotice.close(); });
+
+/**
+ * True when the signed-in account may do `what` (a sentence-start gerund
+ * phrase — "Saving a workout"); otherwise shows the notice and returns false.
+ * `admin` is for the global layers (movements, vocabularies) whose write rule
+ * is `@request.auth.admin = true`.
+ */
+function requireAccount(what, { admin = false } = {}) {
+  const user = currentUser();
+  if (!user) {
+    showAuthNotice(`${what} requires being signed in.`);
+    return false;
+  }
+  if (admin && !user.admin) {
+    const who = user.name || user.email || 'this account';
+    showAuthNotice(`${what} requires an admin account — you are signed in as ${who}, which is not an admin.`, { offerSignIn: false });
+    return false;
+  }
+  return true;
+}
+
+// The session can end mid-page (`call()` finding the token expired on a
+// refused write) — repaint whatever shows who you are.
+window.addEventListener('wdl-auth-change', () => { renderIdentity(); renderMinePanel(); });
+
 async function startSignIn() {
   try {
     // The redirect leaves and re-enters the page; keep the buffer across it.
@@ -3533,8 +3629,9 @@ function renderIdentity() {
   box.innerHTML = '';
   const user = currentUser();
   if (!user) {
-    el('mine').hidden = true;
-    el('mine').open = false;
+    // The Workouts menu stays visible signed out (2026-10-06): its Save button
+    // explains that saving needs an account rather than the menu vanishing.
+    el('mine').hidden = false;
     const b = document.createElement('button');
     b.id = 'signin';
     b.textContent = 'Sign in with Google';
@@ -3681,7 +3778,15 @@ function renderMinePanel() {
   panel.innerHTML = '';
 
   if (!currentUser()) {
-    panel.append(hintP('Sign in to save workouts to your account.'));
+    // Signed out, Save still renders and is clickable — it answers with the
+    // sign-in notice, so the feature is discoverable instead of hidden.
+    const actions = document.createElement('div');
+    actions.className = 'menu-row';
+    const save = document.createElement('button');
+    save.textContent = 'Save to my workouts';
+    save.onclick = saveWorkout;
+    actions.append(save);
+    panel.append(actions, hintP('Sign in to save workouts to your account.'));
     return;
   }
 
@@ -3796,7 +3901,7 @@ function renderMineRow(w) {
 }
 
 async function saveWorkout() {
-  if (!currentUser()) return;
+  if (!requireAccount('Saving a workout')) return;
   const title = currentTitle() || openWorkout?.title || 'Untitled workout';
   try {
     const rec = openWorkout
@@ -3807,11 +3912,12 @@ async function saveWorkout() {
     flashMine('Saved.');
   } catch (e) {
     flashMine(`Could not save: ${e.message}`);
+    if (e.auth) showAuthNotice(e.message, { offerSignIn: e.auth !== 'forbidden' });
   }
 }
 
 async function saveAsCopy() {
-  if (!currentUser()) return;
+  if (!requireAccount('Saving a workout')) return;
   const base = currentTitle() || openWorkout?.title || 'Untitled workout';
   try {
     const rec = await pbCreate({ title: `${base} (copy)`, source: text() });
@@ -3820,6 +3926,7 @@ async function saveAsCopy() {
     flashMine('Saved as a new copy.');
   } catch (e) {
     flashMine(`Could not save a copy: ${e.message}`);
+    if (e.auth) showAuthNotice(e.message, { offerSignIn: e.auth !== 'forbidden' });
   }
 }
 

@@ -94,6 +94,20 @@ const TOKEN_FIELDS = {
  *  Matches how registry ids look (`dumbbell-snatch`, `3-4-sit-up`, `90-90-hamstring`). */
 const ID_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+/**
+ * A title → the id `ID_RE` accepts: accents folded, lowercased, every run of
+ * anything else collapsed to one hyphen. `"3/4 Sit-Up"` → `3-4-sit-up`,
+ * `"Reverse Lunge with Rotation"` → `reverse-lunge-with-rotation` — the shape
+ * the registry's own ids already have.
+ */
+export function slugifyTitle(title) {
+  return String(title ?? '')
+    .normalize('NFKD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 const h = (tag, attrs = {}, ...kids) => {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
@@ -284,6 +298,21 @@ export function createMovementEditor({ container, record = null, api, vocab = {}
     autocapitalize: 'off', autocomplete: 'off', spellcheck: false,
   });
 
+  // Create mode: the id follows the title (slugified) until the curator types
+  // an id of their own; clearing the id hands it back to the title. Only the
+  // title's `input` drives it, never the mount — a Duplicate opens with the
+  // source's title verbatim, and pre-filling from that would just re-mint the
+  // source's own (taken) id.
+  if (state.mode === 'create') {
+    let idFollowsTitle = !state.movementId;
+    controls.movementId.addEventListener('input', () => {
+      idFollowsTitle = controls.movementId.value.trim() === '';
+    });
+    controls.title.addEventListener('input', () => {
+      if (idFollowsTitle) controls.movementId.value = slugifyTitle(controls.title.value);
+    });
+  }
+
   // --- enum <select>s ---------------------------------------------------
   for (const [name, vocab] of Object.entries(ENUMS)) {
     const sel = h('select', { class: 'me-select' }, h('option', { value: '', text: '— unset —' }));
@@ -363,7 +392,7 @@ export function createMovementEditor({ container, record = null, api, vocab = {}
           : 'Not in the movement database yet — Saving commits it.' })
       : null,
     field('Movement id', controls.movementId,
-      state.mode === 'create' ? 'lowercase, words joined by hyphens (dumbbell-snatch)' : 'the registry id — fixed once created'),
+      state.mode === 'create' ? 'filled in from the title until you type your own — lowercase, words joined by hyphens (dumbbell-snatch)' : 'the registry id — fixed once created'),
     field('Title', controls.title, 'how the movement reads on a line'),
     h('div', { class: 'me-row' },
       field('Force', controls.force),
@@ -559,6 +588,7 @@ export function createMovementEditor({ container, record = null, api, vocab = {}
       for (const t of Object.values(tokens)) t.destroy();
       container.innerHTML = '';
     },
-    focus() { (state.mode === 'create' ? controls.movementId : controls.title).focus(); },
+    // The title, in both modes: in create mode the id fills itself from it.
+    focus() { controls.title.focus(); },
   };
 }

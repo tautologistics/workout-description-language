@@ -75,11 +75,18 @@ function readAuth() {
 }
 
 function writeAuth(next) {
+  const wasSignedIn = Boolean(auth?.token);
   auth = next;
   try {
     if (next) localStorage.setItem(AUTH_KEY, JSON.stringify(next));
     else localStorage.removeItem(AUTH_KEY);
   } catch { /* private mode — the session just won't persist */ }
+  // Tell the host when the session appears or disappears (a sign-out, or a
+  // token found expired mid-session by `explainAuthFailure`) so it can repaint
+  // its identity UI. A token refresh that keeps you signed in is not a change.
+  if (wasSignedIn !== Boolean(next?.token)) {
+    try { window.dispatchEvent(new CustomEvent('wdl-auth-change')); } catch { /* no window (tests) */ }
+  }
 }
 
 /** The signed-in `users` record, or `null`. Synchronous — reads the cached auth. */
@@ -121,9 +128,66 @@ async function call(path, { method = 'GET', body, auth: useAuth = true } = {}) {
     const err = new Error(data?.message || `${res.status} ${res.statusText}`);
     err.status = res.status;
     err.fields = data?.data ?? {};
+    if (looksLikeRuleFailure(method, res.status, err.fields)) await explainAuthFailure(err, useAuth);
     throw err;
   }
   return data;
+}
+
+/**
+ * Whether a failed write is PocketBase refusing it on an API rule rather than
+ * on the record's contents. PocketBase does **not** answer a failed rule with a
+ * 403 the way a reader would expect (found 2026-10-06 — a signed-out "create
+ * movement" on prod came back as a bare `400 "Failed to create record."`):
+ *
+ *   create → 400 "Failed to create record." with an empty `data`
+ *   update / delete → 404 "The requested resource wasn't found."
+ *   superuser-only (null) rule, or a route that needs auth → 403 / 401
+ *
+ * A field-validation 400 always carries per-field `data`, so an empty `data`
+ * is what tells the two 400s apart. A write 404 is ambiguous (the row may truly
+ * be gone), which `explainAuthFailure` says in its message.
+ */
+function looksLikeRuleFailure(method, status, fields) {
+  if (method === 'GET') return false;
+  if (status === 401 || status === 403) return true;
+  const noFields = !fields || Object.keys(fields).length === 0;
+  if (status === 400 && method === 'POST') return noFields;
+  if (status === 404) return noFields;
+  return false;
+}
+
+/**
+ * Rewrite a rule-failure error's message to say what is actually wrong, and tag
+ * it `err.auth` = `'signed-out' | 'expired' | 'forbidden'` so a host can offer a
+ * sign-in. With a stored token the server cannot tell us *why* the rule failed —
+ * an expired token is silently treated as a guest — so ask `auth-refresh`: a 401
+ * there means the session is gone (cleared here, which fires `wdl-auth-change`);
+ * anything else means the account itself is not allowed.
+ */
+async function explainAuthFailure(err, usedAuth) {
+  if (!usedAuth || !auth?.token) {
+    err.auth = 'signed-out';
+    err.message = 'You are not signed in — sign in to do this.';
+    return;
+  }
+  try {
+    await call(`${USERS}/auth-refresh`, { method: 'POST' });
+  } catch (e) {
+    if (e.status === 401 || e.status === 403) {
+      writeAuth(null);
+      err.auth = 'expired';
+      err.message = 'Your sign-in has expired — sign in again, then retry.';
+      return;
+    }
+    // The check itself failed (offline, server down) — fall through to the
+    // permission reading, which is the likelier one with a token that just
+    // refreshed fine on page load.
+  }
+  err.auth = 'forbidden';
+  err.message = err.status === 404
+    ? 'Not found — or your account does not have permission to change it.'
+    : 'Your account does not have permission to do this.';
 }
 
 // --- auth ------------------------------------------------------------------
@@ -898,8 +962,9 @@ export async function getMovementByMovementId(movementId) {
 
 /**
  * Create a global movement. Always `scope: "global"` (Phase 1). The server
- * enforces admin — a signed-out or non-admin caller gets a 403 whose message
- * the caller surfaces.
+ * enforces admin — a signed-out or non-admin caller gets PocketBase's bare
+ * `400 "Failed to create record."`, which `call()` rewrites into a sign-in /
+ * permission message (`err.auth`) the caller surfaces.
  */
 export function createMovement(fields) {
   return call(MOVEMENTS, { method: 'POST', body: { ...fields, scope: 'global' } });
@@ -942,7 +1007,8 @@ export async function listPatterns() {
  * Create a global vocabulary term (V9's inline "＋ new term"). Always
  * `scope: "global"`, `synonyms` defaulting to `[]` — the twin of `createMovement`.
  * The server enforces admin (`@request.auth.admin = true`); a signed-out or
- * non-admin caller gets a 403 whose message the caller surfaces inline.
+ * non-admin caller gets PocketBase's bare 400, which `call()` rewrites into a
+ * sign-in / permission message the caller surfaces inline.
  * `fields` is `{ termId, name }` (plus an optional `synonyms`).
  */
 const createVocabTerm = (route) => (fields) =>

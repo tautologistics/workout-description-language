@@ -172,6 +172,16 @@ collapsible sub-panels are still open).
 
 ## Outline
 
+**~~In Firefox, clicking inside a row's text does not move the caret — only the
+arrow keys do.~~ Fixed 2026-10-06 (`<SHA>`).** Every outline row is
+`draggable` (`attachRowDrag`), and Firefox will not place the caret or
+drag-select with the mouse in an `<input>` inside a draggable ancestor; the
+existing `dragstart` guard comes too late. A capturing `mousedown` on the row
+now sets `draggable = false` when the press lands in an input / textarea /
+select and back to `true` otherwise, so drag-to-reorder still works from the
+rails and controls. Chromium never showed the bug, so the browser-pane check
+only confirms the toggle and that dragging survives — **re-check in Firefox**.
+
 **~~The outline shows no row for a comment — they exist only in the Text tab.~~
 Fixed 2026-08-30** (R2 / chain item 12, `973d80a`). `renderOutline` now
 synthesises a `.node.comment` row for each own-line `//` comment, above the
@@ -938,6 +948,53 @@ lowercase + trim + collapse whitespace, typed hyphens kept), `POST`s
 `dbVocab()` cache (`.reset()`) so the next editor open re-fetches. Muscles never
 get the row (closed set). *`apps/shared/{token-input,vocab,pocketbase,movement-editor}.js`
 + `apps/builder/{builder.js,builder.css}`; no core; `make test` unchanged.*
+
+**~~A signed-out "Create movement" answered with a bare "Failed to create
+record."~~ Fixed 2026-10-06 (`<SHA>`).** Found on prod: the request went out
+with no `Authorization` header and PocketBase refused it on the
+`@request.auth.admin = true` create rule — as a **400 with empty `data`**, not
+the 403 every comment here assumed (see lessons-learned, *A failed PocketBase
+API rule is not a 403*). Chris's direction: write controls stay clickable but
+**check first** and say what is needed, and a refusal that still happens says
+it is an auth problem. Landed as:
+- `requireAccount(what, { admin })` in `builder.js` + an `#auth-notice`
+  `<dialog>` ("… requires being signed in." with a **Sign in with Google**
+  button, or "… requires an admin account — you are signed in as X"). Gates
+  **＋ new movement**, the palette ✎, the `»` panel's Edit / Duplicate, Save /
+  Save as copy, and set import (was an `alert`).
+- The **Workouts** menu no longer hides when signed out: it shows a clickable
+  **Save to my workouts** that answers with the notice.
+- `call()` in `pocketbase.js` recognises a rule failure on a write
+  (`looksLikeRuleFailure`: 401/403, POST 400 with empty `data`, write 404 with
+  empty `data`) and rewrites the message, tagging `err.auth`
+  `signed-out | expired | forbidden`. With a token it asks `auth-refresh`
+  whether the session is still alive — an expired token is silently a guest to
+  PocketBase — and on a 401 clears it (`writeAuth` now fires a
+  `wdl-auth-change` event the builder repaints the identity on). The editor's
+  inline status and the Workouts flash show the rewritten message; save
+  failures with `e.auth` also raise the notice.
+- The mock `/api` now refuses movement / vocabulary writes in prod's shape
+  (`ruleDenied`: POST → 400 "Failed to create record.", PATCH/DELETE → 404)
+  instead of a 403, so this path is exercised by `make serve`. Sets / goals /
+  workouts in the mock still 403 — the client handles both shapes.
+
+**~~Create mode makes you type the id by hand.~~ Fixed 2026-10-06 (`<SHA>`).**
+In create mode (＋ new movement and Duplicate) the id now follows the title,
+slugified (`slugifyTitle`: NFKD accent-fold, lowercase, non-alphanumeric runs →
+one hyphen — `3/4 Sit-Up` → `3-4-sit-up`), until the curator types an id of
+their own; clearing the id hands it back to the title. Driven only by the
+title's `input` event, never at mount — a Duplicate opens with the source's
+title verbatim, and auto-filling from that would re-mint the source's taken id.
+The editor now focuses the title in both modes.
+
+**~~Duplicate is only reachable from inside the editor, and only for a DB
+row.~~ Fixed 2026-10-06 (`<SHA>`).** A ⧉ sits beside ✎ on every palette card
+(the pair wrapped in one `.movement-actions` flex item so the card's
+`space-between` layout is unchanged), and the `»` panel gains *Duplicate "X" as
+a new movement* under its Edit row. Both call `openMovementEditor({ id, title,
+duplicate: true })`, which already seeds from the static record when there is
+no DB row — so a static-only movement can be duplicated too, which the
+in-editor button (DB rows only) still cannot.
 
 ---
 

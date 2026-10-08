@@ -1215,7 +1215,25 @@ button:hover, .button:hover { border-color: var(--dim); }
   color: var(--dim); font-size: .75rem; cursor: pointer; border-radius: 3px;
 }
 .movement-edit:hover { color: var(--accent); }
+/* The palette card's ✎ (edit) + ⧉ (duplicate) pair — the wrapper carries the gap. */
+.movement-actions { flex: none; display: inline-flex; margin-left: .35rem; }
+.movement-actions .movement-edit { margin-left: 0; }
 .suggestion.modifier-edit { border-top: 1px solid var(--rule); }
+.suggestion.modifier-edit + .suggestion.modifier-edit { border-top: none; }
+
+/* "This needs you signed in / an admin" — `requireAccount` in builder.js. */
+.auth-notice {
+  width: min(26rem, 92vw);
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, .3);
+}
+.auth-notice::backdrop { background: rgba(0, 0, 0, .3); }
+.auth-notice p { margin: 0 0 .9rem; font-size: .92rem; line-height: 1.4; }
+.auth-notice-actions { display: flex; gap: .5rem; justify-content: flex-end; }
 
 /* --- the token input (V4) ------------------------------------------------ */
 
