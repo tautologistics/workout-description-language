@@ -1176,7 +1176,7 @@ now selects `DEFAULT_GOAL = 'wdl:rotate-muscles'` when present (else the first
 global). *A "first in the list" default is an ordering decision in disguise —
 when the list's sort key changes, the default changes with it.*
 
-**The goal picker reopens on the last ruleset you chose (2026-10-08, `<SHA>`).**
+**The goal picker reopens on the last ruleset you chose (2026-10-08, `e35b066`).**
 Chris, right after: the last selected ruleset should show, with
 `rotate-muscles` only as the default when nothing is remembered. Per browser in
 `localStorage['wdl.goal-pick']` (a convenience, not shared state). Details that
