@@ -1164,6 +1164,18 @@ The entry assumed the pane would become collapsible sub-panels (the N2 palette
 drawer, now VOID); with only two sections per tab there is nothing to collapse
 and the repeated `<h2>` treatment is not worth restructuring. No task.
 
+**~~The default goal ruleset quietly changed from "Rotate the muscles" to "Build
+the pull".~~ Fixed 2026-10-08 (`<SHA>`).** Chris: "the original set of
+goals/rules seems to have disappeared" — the upper/lower balance + no repeated
+primary muscle ruleset. It had not gone anywhere: `rotate-muscles.wdlg` is
+unchanged since `c019fc0` and its `wdl:rotate-muscles` row is live in prod. What
+moved was the **default selection**. Pre-G2 the builder opened on `GOALS[0]` =
+`rotate-muscles.wdlg`; G2 (`2512c23`) replaced that with `globals()[0]`, and
+globals sort by `goalId`, so `wdl:ramp-the-pull` won alphabetically. The picker
+now selects `DEFAULT_GOAL = 'wdl:rotate-muscles'` when present (else the first
+global). *A "first in the list" default is an ordering decision in disguise —
+when the list's sort key changes, the default changes with it.*
+
 ## The board
 
 **~~A workout-level diagnostic renders as `line undefined:`.~~ Fixed 2026-08-20**

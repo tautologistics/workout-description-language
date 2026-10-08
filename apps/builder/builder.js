@@ -4026,10 +4026,20 @@ renderSetList();
 curated.finally(render);
 
 // The Global rulesets come from the `goals` collection, with the bundled
-// `.wdlg` files as the offline fallback; select the first once it resolves, and
-// load + check it once the muscle data is in too (the check needs both).
+// `.wdlg` files as the offline fallback; select the default once it resolves,
+// and load + check it once the muscle data is in too (the check needs both).
+//
+// The default is `rotate-muscles` — upper/lower balance and no primary muscle
+// twice in a row — as it was before goals moved to the DB (`GOALS[0]` pre-G2).
+// G2 (`2512c23`) switched to "the first global", and globals sort by `goalId`,
+// which silently made `ramp-the-pull` the default (restored 2026-10-08).
+const DEFAULT_GOAL = 'wdl:rotate-muscles';
 const goalsReady = goalsStore.loadGlobal()
-  .then(() => renderGoalPicker(GLOBAL + (goalsStore.globals()[0]?.goalId ?? '')))
+  .then(() => {
+    const globals = goalsStore.globals();
+    const pick = globals.find((g) => g.goalId === DEFAULT_GOAL) ?? globals[0];
+    renderGoalPicker(GLOBAL + (pick?.goalId ?? ''));
+  })
   .catch(() => {});
 Promise.all([analysis.catch(() => {}), goalsReady])
   .then(() => el('goal-pick').dispatchEvent(new Event('change')));
