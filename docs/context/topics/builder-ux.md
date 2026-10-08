@@ -1165,7 +1165,7 @@ drawer, now VOID); with only two sections per tab there is nothing to collapse
 and the repeated `<h2>` treatment is not worth restructuring. No task.
 
 **~~The default goal ruleset quietly changed from "Rotate the muscles" to "Build
-the pull".~~ Fixed 2026-10-08 (`<SHA>`).** Chris: "the original set of
+the pull".~~ Fixed 2026-10-08 (`da607a8`).** Chris: "the original set of
 goals/rules seems to have disappeared" — the upper/lower balance + no repeated
 primary muscle ruleset. It had not gone anywhere: `rotate-muscles.wdlg` is
 unchanged since `c019fc0` and its `wdl:rotate-muscles` row is live in prod. What
