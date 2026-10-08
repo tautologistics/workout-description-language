@@ -3106,6 +3106,46 @@ let goalSource = '';
 const GLOBAL = 'global:';
 const SAVED = 'saved:';
 
+// The picker reopens on the last ruleset you chose (2026-10-08), per browser —
+// a convenience, so `localStorage`, not the DB. With nothing remembered it opens
+// on `rotate-muscles` (upper/lower balance, no primary muscle twice in a row),
+// the default before goals moved to the DB. `unsaved rules` is never
+// remembered: its text is not persisted, so restoring it would restore nothing.
+const GOAL_PICK_KEY = 'wdl.goal-pick';
+const DEFAULT_GOAL = GLOBAL + 'wdl:rotate-muscles';
+/**
+ * The remembered pick, while it is still waiting for its option to exist — a
+ * Saved ruleset only appears once sign-in resolves and `loadMine` returns, well
+ * after the globals render. Cleared once applied or once you pick something
+ * yourself, so a late-arriving list never overrides a choice made meanwhile.
+ */
+let wantedGoal = (() => { try { return localStorage.getItem(GOAL_PICK_KEY); } catch { return null; } })();
+
+function rememberGoalPick(value) {
+  if (value === 'custom') return;
+  wantedGoal = null;
+  try { localStorage.setItem(GOAL_PICK_KEY, value); } catch { /* private mode */ }
+}
+
+function forgetGoalPick() {
+  wantedGoal = null;
+  try { localStorage.removeItem(GOAL_PICK_KEY); } catch { /* private mode */ }
+}
+
+/** The `change` the page fires itself to load a ruleset — not remembered as a choice. */
+const goalLoadEvent = () => new CustomEvent('change', { detail: { pageLoad: true } });
+
+/** Select the remembered pick if its option has turned up since the first render. */
+function restoreWantedGoal() {
+  const pick = el('goal-pick');
+  if (wantedGoal == null || pick.value === 'custom') return;
+  if (pick.value === wantedGoal) { wantedGoal = null; return; }
+  if (![...pick.options].some((o) => o.value === wantedGoal)) return;
+  pick.value = wantedGoal;
+  wantedGoal = null;
+  pick.dispatchEvent(goalLoadEvent());
+}
+
 /** Surface a one-off goals error in the block's diagnostics list (cleared by the next parse). */
 function showGoalError(message) {
   const li = document.createElement('li');
@@ -3234,8 +3274,11 @@ function renderFindings() {
   }
 }
 
-el('goal-pick').addEventListener('change', async () => {
+el('goal-pick').addEventListener('change', async (e) => {
   const value = el('goal-pick').value;
+  // Only a choice is remembered — not the `change` the page dispatches itself
+  // to load the initial / restored ruleset (`goalLoadEvent`, marked by `detail`).
+  if (!e.detail?.pageLoad) rememberGoalPick(value);
   el('goal-drop').hidden = !value.startsWith(SAVED);
   if (!value || value === 'custom') return setGoalSource(value === 'custom' ? goalSource : '');
   const key = value.startsWith(SAVED) ? value.slice(SAVED.length) : value.slice(GLOBAL.length);
@@ -3296,6 +3339,7 @@ el('goal-save').onclick = async () => {
     }
     const saved = goalsStore.mine().find((g) => g.title === title);
     renderGoalPicker(saved ? SAVED + saved.goalId : '');
+    if (saved) rememberGoalPick(SAVED + saved.goalId);
   } catch (e) {
     renderGoalPicker('custom');                 // roll the optimistic row back
     showGoalError(`Could not save: ${e.message}`);
@@ -3328,6 +3372,9 @@ el('goal-drop').onclick = async () => {
     return;
   }
   renderGoalPicker('');
+  // The remembered ruleset is gone; the next load falls back to the default
+  // rather than opening on "no goals" nobody chose.
+  forgetGoalPick();
   setGoalSource('');
 };
 
@@ -4029,20 +4076,23 @@ curated.finally(render);
 // `.wdlg` files as the offline fallback; select the default once it resolves,
 // and load + check it once the muscle data is in too (the check needs both).
 //
-// The default is `rotate-muscles` — upper/lower balance and no primary muscle
-// twice in a row — as it was before goals moved to the DB (`GOALS[0]` pre-G2).
-// G2 (`2512c23`) switched to "the first global", and globals sort by `goalId`,
+// The remembered pick wins if it is a global (or "no goals"); a remembered
+// Saved ruleset waits in `wantedGoal` for `loadMine`. Otherwise the default is
+// `rotate-muscles`, as before goals moved to the DB (`GOALS[0]` pre-G2). G2
+// (`2512c23`) switched to "the first global", and globals sort by `goalId`,
 // which silently made `ramp-the-pull` the default (restored 2026-10-08).
-const DEFAULT_GOAL = 'wdl:rotate-muscles';
 const goalsReady = goalsStore.loadGlobal()
   .then(() => {
-    const globals = goalsStore.globals();
-    const pick = globals.find((g) => g.goalId === DEFAULT_GOAL) ?? globals[0];
-    renderGoalPicker(GLOBAL + (pick?.goalId ?? ''));
+    const values = ['', ...goalsStore.globals().map((g) => GLOBAL + g.goalId)];
+    const initial = wantedGoal != null && values.includes(wantedGoal) ? wantedGoal
+      : values.includes(DEFAULT_GOAL) ? DEFAULT_GOAL
+      : values[1] ?? '';
+    if (initial === wantedGoal) wantedGoal = null;
+    renderGoalPicker(initial);
   })
   .catch(() => {});
 Promise.all([analysis.catch(() => {}), goalsReady])
-  .then(() => el('goal-pick').dispatchEvent(new Event('change')));
+  .then(() => el('goal-pick').dispatchEvent(goalLoadEvent()));
 
 // Accounts: paint the signed-out state immediately (a stored token, if any, is
 // still unverified), then revalidate it against the server and, if it holds,
@@ -4062,7 +4112,7 @@ refreshAuth().then(async (user) => {
   if (user) {
     refreshMineList().then(renderMinePanel);
     sets.load().then(renderRepertoire).catch(() => {});
-    goalsStore.loadMine().then(() => renderGoalPicker()).catch(() => {});
+    goalsStore.loadMine().then(() => { renderGoalPicker(); restoreWantedGoal(); }).catch(() => {});
   }
   if (wParam) {
     try {

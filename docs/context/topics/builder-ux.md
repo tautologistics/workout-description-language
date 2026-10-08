@@ -1176,6 +1176,23 @@ now selects `DEFAULT_GOAL = 'wdl:rotate-muscles'` when present (else the first
 global). *A "first in the list" default is an ordering decision in disguise —
 when the list's sort key changes, the default changes with it.*
 
+**The goal picker reopens on the last ruleset you chose (2026-10-08, `<SHA>`).**
+Chris, right after: the last selected ruleset should show, with
+`rotate-muscles` only as the default when nothing is remembered. Per browser in
+`localStorage['wdl.goal-pick']` (a convenience, not shared state). Details that
+matter:
+- Only a *choice* is remembered: a picker `change`, a Save (the saved ruleset),
+  and a Delete *forgets* the key so the next load gets the default rather than a
+  "no goals" nobody chose. `unsaved rules` is never remembered — its text is not
+  persisted. The page's own load-time `change` carries `detail.pageLoad` and is
+  skipped. (First cut used `e.isTrusted`; dropped because a scripted select —
+  the browser-pane test tool, any automation — is untrusted too and was not
+  remembered.)
+- A remembered **Saved** ruleset does not exist when the globals render; it only
+  appears after sign-in and `loadMine`. It waits in `wantedGoal` and
+  `restoreWantedGoal()` applies it then — unless you picked something yourself
+  meanwhile (which clears `wantedGoal`).
+
 ## The board
 
 **~~A workout-level diagnostic renders as `line undefined:`.~~ Fixed 2026-08-20**
