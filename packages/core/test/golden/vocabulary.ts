@@ -251,6 +251,7 @@ export const STEP_FORMS: { group: string; lines: string[] }[] = [
     '1min Row, count calories',
     '1 Burpee, +1 each round',
     '3 DB Hang Clean to Overhead @ 50lb, +3 each round',
+    '8 Jump Squat, -1 each round',
     '10 Back Squat @ 225lb, note: "pause at the bottom"',
     '10 Back Squat @ 225lb, note: pause at the bottom',
     '10min Bike, ramp 50% -> 75% FTP',

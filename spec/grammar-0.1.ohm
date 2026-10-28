@@ -348,7 +348,7 @@ WDL {
 
   modifier = caseInsensitive<"tempo"> spaces word                        -- tempo
            | caseInsensitive<"count"> spaces countWord                   -- count
-           | "+" integer spaces caseInsensitive<"each"> spaces caseInsensitive<"round">  -- perRound
+           | ("+" | "-") integer spaces caseInsensitive<"each"> spaces caseInsensitive<"round">  -- perRound
            | trailingQualifier                                           -- qualifier
            | caseInsensitive<"note:"> spaces quotedOrRest                -- note
            | modFlagWord ~wordChar                                       -- flag

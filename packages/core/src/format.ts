@@ -113,7 +113,7 @@ function stepText(s: Step, scheme?: Scheme): string {
   if (s.tempo) quals.push(`tempo ${s.tempo}`);
   if (s.measures === 'calories') quals.push('count cal');
   if (s.measures === 'reps' && !s.flags.includes('max')) quals.push('count reps');
-  if (s.perRound) quals.push(`+${s.perRound.delta} each round`);
+  if (s.perRound) quals.push(`${s.perRound.delta < 0 ? '' : '+'}${s.perRound.delta} each round`);
   for (const f of s.flags) if (f !== 'tiebreak' && f !== 'max') quals.push(f);
   for (const n of s.notes) quals.push(noteQual(n));
   // What the language understood, then what it did not. **Text survives; the

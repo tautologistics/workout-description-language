@@ -660,8 +660,15 @@ Whiteboard idiom preferred over arithmetic:
 ```
 - 3 Lateral Burpee over Dumbbell, +3 each round
 - 1 Burpee, +1 each round
+- 8 Jump Squat, -1 each round
 - 5 Back Squat, +10lb each round
 ```
+
+**A change runs either way.** `+N` climbs and `-N` descends, and the step's own count is round one's. So a counting-down step and a counting-up one can share a fixed-round block without a rep scheme — `8 rounds for time:` with `8 Jump Squat, -1 each round` and `1 Burpee, +1 each round` is eight jump squats and one burpee in round one, one and eight in round eight. It is the same workout a `8..1:` scheme with a `reversed` burpee writes (§5.3); both spellings read, and neither is rewritten into the other.
+
+**Only a descent can run out**, so only a descent is checked. Where the round count is known — a repeat, a rep scheme, or an interval with `x N` — a step that would reach zero or below by the last round is an **error** (`per-round-below-one`): `9 rounds:` over `8 Jump Squat, -1 each round` has a ninth round with nothing in it. Where it is not known — an AMRAP, `until failure` — the descent is legal but its floor is unstated, so it is a **warning** (`per-round-unbounded-descent`) naming the round it runs out after. *`-N` added 2026-10-27; before then the grammar read only `+`, and `-1 each round` was held as unrecognized text and did nothing.*
+
+*Only a whole number of reps is read today.* `+10lb each round` above is the spec's illustration of a load change, but the grammar reads `+N` / `-N` as reps only, and a unit after the number is not read.
 
 ### 8.2 Athlete-profile references
 

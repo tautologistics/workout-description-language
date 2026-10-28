@@ -4709,6 +4709,40 @@
   },
   "fixpoint": true
  },
+ "modifiers :: 8 Jump Squat, -1 each round": {
+  "canonical": "for time:\n  - 8 Jump Squats, -1 each round",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Jump Squat",
+       "node": "step",
+       "perRound": {
+        "delta": -1,
+        "unit": "reps"
+       },
+       "quantity": {
+        "kind": "reps",
+        "value": 8
+       }
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "modifiers :: 10 Back Squat @ 225lb, note: \"pause at the bottom\"": {
   "canonical": "for time:\n  - 10 Back Squats @ 225lb, note: \"pause at the bottom\"",
   "errors": [],

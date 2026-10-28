@@ -2,6 +2,27 @@
 
 ## Changes
 
+- **2026-10-27 — `-N each round` counts down (spec §8.1).** Chris asked for
+  per-round change in both directions, so a fixed-round workout can write a
+  descending ladder on one step (`8 rounds for time:` / `8 Jump Squats, -1 each
+  round` / `1 Burpee, +1 each round`) without moving to an `8..1:` scheme with
+  `reversed`. Before this the `modifier_perRound` rule read only `+`, and `-1
+  each round` was held as unrecognized text — noted, and inert. Now
+  `("+" | "-") integer` in `spec/grammar-0.1.ohm`; the semantics sign the delta;
+  `format` and the timeline label write `-N` back. A descent is the one change
+  that can run out, so `validate` gained `per-round-below-one` (error: a
+  repeat, rep scheme or `x N` interval whose last round reaches zero) and
+  `per-round-unbounded-descent` (warning: AMRAP / `until failure`, naming the
+  round it runs out after). *Found on the way, not fixed:* a rep run written
+  before a step's movement (`- 8..1 Jump Squats`) still falls into the movement
+  name with `quantity: open` and `wdl check` says ok — see known-debts; and
+  `+10lb each round` in §8.1 is still illustration only (reps-only grammar).
+  `make test` **2069/2069**. *Touched: `spec/grammar-0.1.ohm`,
+  `spec/spec-0.1.md`, `packages/core/src/{ast,format,timeline,validate}.ts`,
+  `packages/core/src/grammar/step-semantics.ts`,
+  `packages/core/test/{timeline,validate}.test.ts`,
+  `packages/core/test/golden/vocabulary.{ts,json}`.*
+
 - **2026-09-03 — a leading bare `Nx` reads as reps (`10x Curl` = `10 Curl`).**
   Closes the last pending test in the suite. Spec §3's unit table has always
   listed `10x` as a rep spelling, but no implementation read it — `10x Curl`

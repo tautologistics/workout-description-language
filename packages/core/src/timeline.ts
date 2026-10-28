@@ -221,7 +221,7 @@ function compileStep(s: Step, ctx: Ctx, enclosing: { clock?: boolean; capped?: b
       : ctx.schemeReps;
     quantity = schemeQuantity(value, ctx.schemeUnit);
   }
-  // `+N each round`, resolved when the round is known.
+  // `+N` / `-N each round`, resolved when the round is known.
   if (s.perRound && ctx.round !== undefined && quantity.kind === 'reps') {
     quantity = { kind: 'reps', value: quantity.value + s.perRound.delta * (ctx.round - 1) };
   }
@@ -264,7 +264,9 @@ function compileStep(s: Step, ctx: Ctx, enclosing: { clock?: boolean; capped?: b
   // see it, so `s.team` is only ever set by an explicit second word. Written
   // together (`each arm each`) both render, matching `format` line for line.
   if (s.team) label += ` ${s.team}`;
-  if (s.perRound && ctx.round === undefined) label += `, +${s.perRound.delta} each round`;
+  if (s.perRound && ctx.round === undefined) {
+    label += `, ${s.perRound.delta < 0 ? '' : '+'}${s.perRound.delta} each round`;
+  }
 
   return {
     kind: 'step',
@@ -397,7 +399,7 @@ function compileBlock(b: Block, parent: Ctx, enclosing: { clock?: boolean; cappe
       group.type = 'repeat';
       group.rounds = b.count;
       group.label = `${b.count} ${b.flags.includes('sets') ? 'sets' : 'rounds'}`;
-      // `+N each round` only expands when the round count is known.
+      // `+N` / `-N each round` only expands when the round count is known.
       const ascending = children.some((c) => c.node === 'step' && (c as Step).perRound);
       if (ascending && b.count) {
         group.type = 'sequence';

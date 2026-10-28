@@ -113,6 +113,36 @@ export function validate(w: Workout, opts: ValidateOptions = {}): Diagnostic[] {
                 message: `rep scheme ${n.scheme?.join('-')} has no effect — every movement already states its own count` });
         }
       }
+      /**
+       * `-N each round` counts down (§8.1), so unlike `+N` it can run out. Where
+       * the round count is known — a repeat or a rep scheme — the last round is
+       * known too, and a step that reaches zero there cannot be done as written.
+       * Where it is not known (an AMRAP, `until failure`), the descent is legal
+       * but has a floor nothing states, so it is said out loud rather than left
+       * for the athlete to discover on the round with no reps in it.
+       */
+      const rounds = n.type === 'repeat' ? n.count
+        : n.type === 'ladder' ? n.scheme?.length : undefined;
+      const bounded = n.type === 'repeat' || n.type === 'ladder' || (n.type === 'clock' && !!n.count);
+      for (const c of n.children) {
+        if (c.node !== 'step' || !c.perRound || c.perRound.delta >= 0 || c.quantity.kind !== 'reps') continue;
+        const { delta } = c.perRound;
+        const start = c.quantity.value;
+        const total = rounds ?? (n.type === 'clock' ? n.count : undefined);
+        if (total !== undefined) {
+          const last = start + delta * (total - 1);
+          if (last < 1) {
+            add({ severity: 'error', code: 'per-round-below-one', line: c.line,
+                  message: `${start} ${c.movement}, ${delta} each round reaches ${last} by round ${total} — `
+                    + `start at ${start - last + 1} or above, or run fewer rounds` });
+          }
+        } else if (!bounded) {
+          add({ severity: 'warning', code: 'per-round-unbounded-descent', line: c.line,
+                message: `${start} ${c.movement}, ${delta} each round has no round limit and runs out `
+                  + `after round ${Math.ceil(start / -delta)}` });
+        }
+      }
+
       for (const u of n.unknown ?? []) unread(u, n.line);
 
       if (n.children.length === 0 && n.type !== 'tally') {

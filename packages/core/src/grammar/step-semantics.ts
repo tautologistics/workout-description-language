@@ -193,8 +193,10 @@ export function installStep(semantics: Semantics): void {
       const w = word.sourceString.toLowerCase();
       this.args.step.measures = (w.startsWith('cal') ? 'calories' : w) as never;
     },
-    modifier_perRound(_plus, n, _s1, _each, _s2, _round) {
-      this.args.step.perRound = { delta: num(n), unit: 'reps' };
+    // `+N` climbs and `-N` descends; the sign is the only difference (§8.1).
+    modifier_perRound(sign, n, _s1, _each, _s2, _round) {
+      const delta = num(n) * (sign.sourceString === '-' ? -1 : 1);
+      this.args.step.perRound = { delta, unit: 'reps' };
     },
     modifier_qualifier(q) { q.addTo(this.args.step); },
     modifier_note(_note, _s, body) { this.args.step.notes.push(body.noteText()); },

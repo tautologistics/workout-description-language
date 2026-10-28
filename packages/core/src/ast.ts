@@ -113,7 +113,7 @@ export interface Step {
    *  Percentage waves are written this way everywhere strength work is
    *  programmed, and spelling out five identical lines is how errors get in. */
   sets?: number;
-  /** Per-round delta, e.g. `+3 each round` (spec §8.1). */
+  /** Per-round delta, e.g. `+3 each round` or `-1 each round` (spec §8.1). */
   perRound?: { delta: number; unit: string };
   team?: 'shared' | 'each' | 'synchronized';
   flags: string[];                                     // unbroken, building, tiebreak…

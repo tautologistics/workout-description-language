@@ -56,6 +56,21 @@ describe('timeline: desugaring', () => {
     eq(all.map((x) => x.quantity), [3, 6, 9].map((value) => ({ kind: 'reps', value })));
   });
 
+  it('resolves -N each round, counting down', () => {
+    const src = '8 rounds for time:\n  - 8 Jump Squat, -1 each round\n  - 1 Burpee, +1 each round';
+    const all = steps(compile(parse(src).workout).root);
+    eq(all.filter((x) => x.movement === 'Jump Squat').map((x) => (x.quantity as { value: number }).value),
+      [8, 7, 6, 5, 4, 3, 2, 1]);
+    eq(all.filter((x) => x.movement === 'Burpee').map((x) => (x.quantity as { value: number }).value),
+      [1, 2, 3, 4, 5, 6, 7, 8]);
+  });
+
+  it('labels an unresolved countdown with its sign', () => {
+    const all = steps(compile(parse('AMRAP 12min:\n  - 10 Burpee, -2 each round').workout).root);
+    eq(all[0].perRound, { delta: -2, unit: 'reps' });
+    ok(/, -2 each round$/.test(all[0].label), all[0].label);
+  });
+
   it('retains the rule when the round count is unbounded', () => {
     const all = steps(tl('24-open-25-1.wdl').root);
     eq(all[0].perRound, { delta: 3, unit: 'reps' });

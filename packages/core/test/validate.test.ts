@@ -22,6 +22,13 @@ describe('validation: errors', () => {
     ok(codes('for time:\n  - 0m Run').includes('non-positive-distance'));
   });
 
+  it('rejects a -N each round countdown that reaches zero', () => {
+    ok(!codes('8 rounds for time:\n  - 8 Jump Squat, -1 each round').includes('per-round-below-one'));
+    ok(codes('9 rounds for time:\n  - 8 Jump Squat, -1 each round').includes('per-round-below-one'));
+    ok(codes('for time:\n  1..5:\n    - 6 Push-Up, -2 each round').includes('per-round-below-one'));
+    ok(!codes('9 rounds:\n  - 1 Burpee, +1 each round').includes('per-round-below-one'));
+  });
+
   it('rejects a clock-driven block with no bound', () => {
     ok(codes('every 2min:\n  - 5 Burpee').includes('clock-unbounded'));
   });
@@ -115,6 +122,11 @@ describe('validation: questions', () => {
 });
 
 describe('validation: warnings', () => {
+  it('warns that a countdown with no round limit runs out', () => {
+    ok(codes('AMRAP 12min:\n  - 10 Burpee, -2 each round').includes('per-round-unbounded-descent'));
+    ok(!codes('AMRAP 12min:\n  - 10 Burpee, +2 each round').includes('per-round-unbounded-descent'));
+  });
+
   it('warns when a percentage has no reference max', () => {
     ok(codes('5 sets:\n  - 3 Back Squat @ 85%').includes('percent-no-reference'));
     eq(codes('5 sets:\n  - 3 Back Squat @ 85% 1RM').includes('percent-no-reference'), false);

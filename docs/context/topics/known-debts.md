@@ -1174,6 +1174,17 @@ audit doc only, not filed here.)
   (`wdl:<slug>`) carry no handle and are unaffected. G0 only records it here
   alongside the workout and set cases; it is not solved in that epic.
 
+- **A rep run before a step's movement is swallowed silently (found
+  2026-10-27).** `- 8..1 Jump Squats` and `- 1..8 Burpees` inside `8 rounds for
+  time:` parse with `movement: "8..1 Jump Squats"`, `quantity: open`, and
+  `wdl check` reports **ok with no note** — the same class as the leading `5x5`
+  (item 0e) and `10x` (2026-09-03) misreads, but this one is not even noted. The
+  timeline prints the literal text every round. A run is only read as a block
+  header (`8..1:`, §5.3). Fix is either to report it (`note`/`error`, keeping
+  the movement name clean) or to read it as a per-round scheme on the step —
+  undecided; the `-N each round` change the same day gives an author a working
+  spelling meanwhile.
+
 The ones with a plan attached are queued in
 [tasks.md](../tasks.md); the ones found by driving the
 builder are in [builder-ux.md](builder-ux.md).
