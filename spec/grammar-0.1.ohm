@@ -118,6 +118,7 @@ WDL {
                | setsByReps spaces                                      -- setsByReps
                | integer caseInsensitive<"x"> ~wordChar spaces          -- xReps
                | unreadableRange spaces                                 -- unreadableRange
+               | heldScheme spaces                                      -- heldScheme
                | anyQuantity spaces                                     -- plain
 
   maxWord = caseInsensitive<"max">
@@ -136,6 +137,18 @@ WDL {
   // Whether a range *should* carry a unit is queue item 5's other half, left
   // open in docs/context/ready-to-pick-up.md.
   unreadableRange = integer "-" integer letter+ ~wordChar
+
+  // `- 8..1 Jump Squats`, `- 21-15-9 Thruster` — a rep scheme written where a
+  // step's count goes. A scheme is a *block* header (`8..1:`, spec §5.3) and a
+  // step has no reading for one, so it is caught here for the same reason
+  // `unreadableRange` is: uncaught, the whole run became the front of the
+  // movement name, the step matched no registry entry, and `wdl check` said ok.
+  // Held in `Step.unknown` with `quantity: open`; `validate` reports it as a
+  // warning with the two spellings that do read. Two tiers is a rep range
+  // (`8-12`), so a `-` scheme needs three; any `..` run counts, and a unit
+  // after the run (`250-500-750m Row`) is caught with it.
+  heldScheme = integer runTail+ letter* ~wordChar               -- run
+             | integer tierTail tierTail+ letter* ~wordChar     -- tiers
 
   // `5x5 Back Squat`, `3x10 Curl` — **sets** times **reps**, in that order,
   // which is how a gym writes it and how spec §1's own design rule 4 writes it.

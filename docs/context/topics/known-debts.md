@@ -1174,8 +1174,12 @@ audit doc only, not filed here.)
   (`wdl:<slug>`) carry no handle and are unaffected. G0 only records it here
   alongside the workout and set cases; it is not solved in that epic.
 
-- **A rep run before a step's movement is swallowed silently (found
-  2026-10-27).** `- 8..1 Jump Squats` and `- 1..8 Burpees` inside `8 rounds for
+- ~~**A rep run before a step's movement is swallowed silently (found
+  2026-10-27).**~~ **Closed 2026-10-28 — reported, not read (Chris: "Report
+  it").** `heldScheme` in the grammar holds it in `Step.unknown`, the movement
+  name stays clean, and `validate` warns `step-rep-scheme` with the block form
+  and, where it applies, a `±N each round` hint. See recent-changes. *Original
+  entry:* `- 8..1 Jump Squats` and `- 1..8 Burpees` inside `8 rounds for
   time:` parse with `movement: "8..1 Jump Squats"`, `quantity: open`, and
   `wdl check` reports **ok with no note** — the same class as the leading `5x5`
   (item 0e) and `10x` (2026-09-03) misreads, but this one is not even noted. The

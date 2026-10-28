@@ -2,6 +2,24 @@
 
 ## Changes
 
+- **2026-10-28 — a rep scheme written as a step's count is reported (spec
+  §4).** `- 8..1 Jump Squats` / `- 21-15-9 Thruster` used to fold the run into
+  the movement name (`quantity: open`, no registry match) with `wdl check`
+  silent. Chris chose *report* over *read as a per-step scheme*. A
+  `heldScheme` alternative in `leadQuantity` (`spec/grammar-0.1.ohm`, after
+  `unreadableRange`) catches a `..` run or three-plus `-` tiers, optionally with
+  a unit; the step goes `open` with the run in `Step.unknown`, exactly like
+  `100-150ft`. `validate` reports it as a **warning** `step-rep-scheme`, not
+  the plain `unrecognized-text` note, because the step's whole count is lost:
+  the message offers the block form (`8..1:` + `reversed`) and, for an evenly
+  stepping reps scheme, `<first> <Movement>, ±N each round`. Two tiers
+  (`8-12`) stay a rep range. `wdl fmt` writes `- Jump Squat, 8..1` (fixpoint).
+  No corpus golden moved. `make test` **2072/2072**. *Touched:
+  `spec/grammar-0.1.ohm`, `spec/spec-0.1.md`,
+  `packages/core/src/grammar/step-semantics.ts`,
+  `packages/core/src/validate.ts`, `packages/core/test/validate.test.ts`,
+  `packages/core/test/golden/vocabulary.{ts,json}`.*
+
 - **2026-10-27 — `-N each round` counts down (spec §8.1).** Chris asked for
   per-round change in both directions, so a fixed-round workout can write a
   descending ladder on one step (`8 rounds for time:` / `8 Jump Squats, -1 each

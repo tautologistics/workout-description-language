@@ -111,6 +111,13 @@ export function installStep(semantics: Semantics): void {
       step.quantity = { kind: 'open' };
       (step.unknown ??= []).push(r.sourceString.trim());
     },
+    // `- 8..1 Jump Squats`: a block's rep scheme on a step, held the same way.
+    // See `heldScheme` in the grammar.
+    leadQuantity_heldScheme(r, _s) {
+      const step = this.args.step;
+      step.quantity = { kind: 'open' };
+      (step.unknown ??= []).push(r.sourceString.trim());
+    },
 
     // --- what may trail a movement ---
     targetGroup_flag(_at, name) { this.args.step.flags.push(name.sourceString); },

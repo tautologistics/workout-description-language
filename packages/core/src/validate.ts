@@ -34,6 +34,27 @@ export interface ValidateOptions {
 
 const SEX_SPLIT = /^\d+(?:\.\d+)?\/\d+(?:\.\d+)?$/;
 
+/** The text `heldScheme` keeps: a `..` run, or three or more `-` tiers. */
+const HELD_SCHEME = /^\d+(?:(?:\.\.\d+)+|(?:-\d+){2,})[a-z]*$/i;
+
+/**
+ * The `±N each round` spelling of a held scheme, when there is one: reps only
+ * (§8.1 reads no unit), and only a scheme that moves by one step size all the
+ * way — a `..` run that does not turn, or evenly spaced tiers. `21-15-9` is
+ * not, so it gets the block form alone rather than a hint that changes it.
+ */
+function perRoundHint(scheme: string, movement: string): string {
+  if (/[a-z]$/i.test(scheme)) return '';
+  const run = scheme.includes('..');
+  const ends = scheme.split(run ? '..' : '-').map(Number);
+  if (run && ends.length !== 2) return '';
+  const delta = run ? Math.sign(ends[1] - ends[0]) : ends[1] - ends[0];
+  if (delta === 0) return '';
+  if (!run && ends.some((v, i) => i > 0 && v - ends[i - 1] !== delta)) return '';
+  return `, or give the step its first count and a per-round change `
+    + `(\`${ends[0]} ${movement}, ${delta < 0 ? '' : '+'}${delta} each round\`)`;
+}
+
 /**
  * The fixed section vocabulary (`sectionWord` in `spec/grammar-0.1.ohm`), lower-
  * cased the way `blockKind_section` canonicalises it. A `type: 'section'` block
@@ -256,7 +277,22 @@ export function validate(w: Workout, opts: ValidateOptions = {}): Diagnostic[] {
     }
 
     checkTargets(s.targets, s.line);
-    for (const u of s.unknown ?? []) unread(u, s.line);
+    for (const u of s.unknown ?? []) {
+      /**
+       * A rep scheme where a step's count goes (`- 8..1 Jump Squats`, held by
+       * `heldScheme` in the grammar). A warning rather than the plain note other
+       * held text gets: what is lost here is the step's whole count, so the step
+       * runs open in every round — the author meant a number and has none.
+       */
+      if (HELD_SCHEME.test(u)) {
+        add({ severity: 'warning', code: 'step-rep-scheme', line: s.line,
+              message: `\`${u}\` is a rep scheme, which a step cannot carry — the step has no count. `
+                + `Put the scheme on a block (\`${u}:\`, with \`reversed\` on a step that runs the other way)`
+                + perRoundHint(u, s.movement) });
+        continue;
+      }
+      unread(u, s.line);
+    }
 
     if (!s.movement) return;
     const r = reg.resolve(s.movement);

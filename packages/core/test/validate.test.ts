@@ -122,6 +122,24 @@ describe('validation: questions', () => {
 });
 
 describe('validation: warnings', () => {
+  /**
+   * `- 8..1 Jump Squats` used to fold the run into the movement name and pass
+   * `wdl check` with nothing said. Now it is held, the name is left clean, and
+   * the warning offers the spellings that do read.
+   */
+  it('warns when a rep scheme is written where a step count goes', () => {
+    const src = '8 rounds for time:\n  - 8..1 Jump Squat\n  - 21-15-9 Thruster\n  - 8-12 Curl';
+    const steps = (parse(src).workout.body[0] as { children: { movement: string; quantity: { kind: string } }[] }).children;
+    eq(steps.map((x) => x.movement), ['Jump Squat', 'Thruster', 'Curl']);
+    eq(steps.map((x) => x.quantity.kind), ['open', 'open', 'range']);
+    const d = validate(parse(src).workout).filter((x) => x.code === 'step-rep-scheme');
+    eq(d.map((x) => x.line), [2, 3]);
+    ok(d[0].message.includes('`8 Jump Squat, -1 each round`'), d[0].message);
+    ok(!validate(parse('5 rounds:\n  - 1..5..1 Pull-Up').workout)[0].message.includes('each round'),
+      'a pyramid gets the block form only');
+    ok(!codes('5 rounds:\n  - 100-150ft Farmers Carry').includes('step-rep-scheme'), 'a unit range stays a note');
+  });
+
   it('warns that a countdown with no round limit runs out', () => {
     ok(codes('AMRAP 12min:\n  - 10 Burpee, -2 each round').includes('per-round-unbounded-descent'));
     ok(!codes('AMRAP 12min:\n  - 10 Burpee, +2 each round').includes('per-round-unbounded-descent'));

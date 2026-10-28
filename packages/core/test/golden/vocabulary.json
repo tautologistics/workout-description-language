@@ -4743,6 +4743,70 @@
   },
   "fixpoint": true
  },
+ "modifiers :: 8..1 Jump Squat": {
+  "canonical": "for time:\n  - Jump Squat, 8..1",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Jump Squat",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       },
+       "unknown": [
+        "8..1"
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
+ "modifiers :: 21-15-9 Thruster": {
+  "canonical": "for time:\n  - Thruster, 21-15-9",
+  "errors": [],
+  "ast": {
+   "body": [
+    {
+     "children": [
+      {
+       "movement": "Thruster",
+       "node": "step",
+       "quantity": {
+        "kind": "open"
+       },
+       "unknown": [
+        "21-15-9"
+       ]
+      }
+     ],
+     "node": "block",
+     "score": {
+      "implied": true,
+      "primary": "time",
+      "raw": "time"
+     },
+     "type": "sequence"
+    }
+   ],
+   "directives": {},
+   "node": "workout"
+  },
+  "fixpoint": true
+ },
  "modifiers :: 10 Back Squat @ 225lb, note: \"pause at the bottom\"": {
   "canonical": "for time:\n  - 10 Back Squats @ 225lb, note: \"pause at the bottom\"",
   "errors": [],
@@ -15275,7 +15339,7 @@
   "fixpoint": true
  },
  "adoption :: a container ends a flat block": {
-  "canonical": "AMRAP 12min:\n  - 5 Pull-Ups\nfor time:\n  - 21-15-9 Thruster",
+  "canonical": "AMRAP 12min:\n  - 5 Pull-Ups\nfor time:\n  - Thruster, 21-15-9",
   "errors": [],
   "ast": {
    "body": [
@@ -15305,11 +15369,14 @@
     {
      "children": [
       {
-       "movement": "21-15-9 Thruster",
+       "movement": "Thruster",
        "node": "step",
        "quantity": {
         "kind": "open"
-       }
+       },
+       "unknown": [
+        "21-15-9"
+       ]
       }
      ],
      "node": "block",
