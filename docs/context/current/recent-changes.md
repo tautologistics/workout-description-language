@@ -14,7 +14,7 @@
   the message offers the block form (`8..1:` + `reversed`) and, for an evenly
   stepping reps scheme, `<first> <Movement>, ±N each round`. Two tiers
   (`8-12`) stay a rep range. `wdl fmt` writes `- Jump Squat, 8..1` (fixpoint).
-  No corpus golden moved. `make test` **2072/2072**. *Touched:
+  No corpus golden moved. `make test` **2072/2072** (`1931753`). *Touched:
   `spec/grammar-0.1.ohm`, `spec/spec-0.1.md`,
   `packages/core/src/grammar/step-semantics.ts`,
   `packages/core/src/validate.ts`, `packages/core/test/validate.test.ts`,
