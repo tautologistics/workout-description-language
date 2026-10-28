@@ -17,7 +17,7 @@
   before a step's movement (`- 8..1 Jump Squats`) still falls into the movement
   name with `quantity: open` and `wdl check` says ok — see known-debts; and
   `+10lb each round` in §8.1 is still illustration only (reps-only grammar).
-  `make test` **2069/2069**. *Touched: `spec/grammar-0.1.ohm`,
+  `make test` **2069/2069** (`7bf7250`). *Touched: `spec/grammar-0.1.ohm`,
   `spec/spec-0.1.md`, `packages/core/src/{ast,format,timeline,validate}.ts`,
   `packages/core/src/grammar/step-semantics.ts`,
   `packages/core/test/{timeline,validate}.test.ts`,
