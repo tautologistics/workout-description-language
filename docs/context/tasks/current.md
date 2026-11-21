@@ -369,7 +369,7 @@ bundles (noted inline), but nothing requires bundling them.
 
 ### SEC-1 (Critical, do first) — `users` collection: version-control its rules and lock the `admin`/`org` fields
 
-**LANDED 2026-11-21, AWAITING `make deploy:db` (Chris).** The migration is
+**DEPLOYED 2026-11-21:** Chris ran `make deploy:db`, and PocketBase restarted healthy, which applies pending migrations. The admin-UI rule check (users → API Rules) is Chris's to eyeball; there was no production write probe, by design. *Previously: landed 2026-11-21, awaiting `make deploy:db`.* The migration is
 `deploy/pocketbase/pb_migrations/1757600000_lock_users_rules.js`. It was
 verified locally on v0.40.1: both exploits reproduced on stock rules and
 blocked after `up`, and up/down/up is clean (details in the header). The

@@ -150,13 +150,13 @@ settled decision the finding bears on.
   on the collection — if a public `POST` works today, that half is the more
   urgent one. **Also commit the box's `1788125462_updated_users.js` snapshot
   into the repo** so the real `users` schema is reviewable and reproducible.
-- **Status.** **Fix landed 2026-11-21, not yet deployed:**
+- **Status.** **Fixed and deployed 2026-11-21** (Chris ran `make deploy:db`, and the restart was healthy). *Earlier the same day: fix landed, not yet deployed:*
   `deploy/pocketbase/pb_migrations/1757600000_lock_users_rules.js` (SEC-1).
   Both exploits were reproduced locally on stock rules and are blocked by the
   migration (verification in its header). The create rule is
   `@request.body.admin != true && @request.body.org != true` rather than
-  `null`, so Google sign-up can't be broken. The prod box stays exposed until
-  Chris runs `make deploy:db`. Still open from the recommendation: committing
+  `null`, so Google sign-up can't be broken. The prod box stayed exposed until
+  that deploy. Still open from the recommendation: committing
   the box's `1788125462_updated_users.js` snapshot, and deciding whether to
   disable password auth on `users`. Earlier status: unfixed, because of the
   blast radius (auth collection, migration re-apply on prod). Filed in

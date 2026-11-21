@@ -27,9 +27,10 @@ call. The one fix that did land already (H-2, `filter=` injection in
   `1757500000_add_soft_delete.js` already established for optional unique
   fields. It's a natural companion to SEC-4 (handle validation).
 - **CRITICAL — the `users` collection has no access rules in version control.**
-  **→ SEC-1.** *Fix landed 2026-11-21 (`1757600000_lock_users_rules.js`),
-  verified locally. This stays a live debt until `make deploy:db` runs on the
-  box.*
+  **→ SEC-1.** ~~Live debt~~ **Closed 2026-11-21:**
+  `1757600000_lock_users_rules.js` was verified locally and deployed (`make
+  deploy:db`, healthy restart). The rest of this entry is kept as the record
+  of what was wrong.
   No `deploy/pocketbase/pb_migrations/*.js` file sets `users` list/view/create/
   update/delete rules or any field-level guard on the M2 `admin` / L1 `org` /
   L1 `handle` fields; the live rules are PocketBase's auth-collection defaults
