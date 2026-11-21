@@ -1,0 +1,9 @@
+{
+  "name": "wdl-skills",
+  "version": "0.1.0",
+  "description": "Skills for authoring workouts in the Workout Definition Language (WDL).",
+  "author": { "name": "Chris Winberry" },
+  "repository": "https://github.com/tautologistics/workout-description-language",
+  "homepage": "https://github.com/tautologistics/workout-description-language",
+  "keywords": ["wdl", "workout", "fitness"]
+}

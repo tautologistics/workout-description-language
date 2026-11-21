@@ -9,6 +9,8 @@ task named. When one lands, move it into `completed.md` and update
 
 ## Open
 
+**PENDING REVIEW (needs Chris), 2026-11-19: the `wdl-author` agent skill.** *Partly answered 2026-11-21: #3, #5, #7 and #11 are decided (see that doc); the rest stand.* Built without stopping for questions, at Chris's request; every guess is listed in [docs/agent-skills.md](../../agent-skills.md) "## Guesses made while building it, and open questions" (16 items). Three of them are self-contained defects worth their own queue items once Chris confirms: `wdl fmt` rewrites an unreadable `rest 2-3min` to a bare, unbounded `rest` (#14); the spec's `- Bike easy` example puts `easy` into the movement name (#15); `wdl check` does not report unregistered movements (#16).
+
 The deployment epic (items 18–20) **landed 2026-08-30** and the **builder
 layout redesign** — direction **C (Document + margin)**, the ten-stage chain
 **R1 → R10** — **landed 2026-08-31**. Both are in [completed.md](completed.md),
@@ -199,6 +201,46 @@ self-contained defect from
 [../topics/known-debts.md](../topics/known-debts.md) or one found by driving the
 builder ([../topics/builder-ux.md](../topics/builder-ux.md)).
 
+## Syntax gaps raised from real workouts
+
+Shortfalls found when a real workout (something someone actually wanted to
+train, not a design exercise) couldn't be written tersely and clearly in WDL.
+The `wdl-author` skill adds these (see `docs/agent-skills.md`). Each entry is
+the queue's handle, and the linked report in `docs/syntax-gaps/` holds the
+detail: the workout as intended, the closest WDL today, what it loses, and
+candidate notations. Taking one up is a syntax session. Settle it in the spec
+and grammar, record it in `settled-decisions.md` (or
+`deliberately-not-done.md` if declined), and set the report's **Status**.
+
+- **B1 (bug, do first): an unread score primary passes `wdl check` silently.**
+  `score: tonnage`, `score: wibble` and `score: rounds + rep` (a typo) all get
+  `wdl check: ok`. Spec §11 says held-and-inert must not also be silent.
+  `validate.ts` reports a *missing* primary (`score-without-primary`) but not
+  an *unread* one. Fix: report a primary outside the §9 vocabulary at `note`
+  severity, worded the same way as the unread-modifier note ("is not something
+  the language reads"). It stays held, not refused. Self-contained, and
+  independent of G1: once G1 lands, `tonnage` simply joins the vocabulary.
+  Queued by Chris, 2026-11-21. Found while writing "Gross Tonnage" →
+  [docs/syntax-gaps/2026-11-21-tonnage-score.md](../../syntax-gaps/2026-11-21-tonnage-score.md)
+  "A defect found on the way".
+- **G1: a tonnage score (reps × load), with unscored steps.** *Raised from a
+  real workout:* "Gross Tonnage", Chris's benchmark, 2026-11-21. Queued by Chris
+  as future syntax to implement. Inexpressible today: nothing scores reps ×
+  load, and nothing marks a step as excluded from the score. Unscored steps
+  are part of this same item: the pull-ups in Gross Tonnage pace the round but
+  add no tonnage. Until G1 lands, a `//` comment saying so is acceptable
+  (Chris). **Out of scope, by Chris's decision:** tonnage ÷ bodyweight (the
+  comparison score) stays a quoted comment on the workout. It isn't syntax,
+  and results don't need a `bodyweight:` field for it. →
+  [docs/syntax-gaps/2026-11-21-tonnage-score.md](../../syntax-gaps/2026-11-21-tonnage-score.md)
+- ~~**G2: a per-round change in load, distance or time**~~ — **not queued
+  (Chris, 2026-11-21).** It was added from "Gross Tonnage", where a mid-workout
+  load drop has to be recorded. Chris ruled that a comment noting the round
+  is acceptable there. Without that case, only the 2026-11-19 dry run backs
+  it, which on its own wouldn't queue it. The report stays open in the inbox,
+  waiting for a real case →
+  [docs/syntax-gaps/2026-11-19-per-round-change-beyond-reps.md](../../syntax-gaps/2026-11-19-per-round-change-beyond-reps.md)
+
 ## Movement-sets editing — two bug fixes landed, one model question pending Chris
 
 *Raised by Chris 2026-09-10 while driving the movement-sets feature (S0–S4).
@@ -326,6 +368,16 @@ and **SEC-2+SEC-3** touch the same collections and are natural one-migration
 bundles (noted inline), but nothing requires bundling them.
 
 ### SEC-1 (Critical, do first) — `users` collection: version-control its rules and lock the `admin`/`org` fields
+
+**LANDED 2026-11-21, AWAITING `make deploy:db` (Chris).** The migration is
+`deploy/pocketbase/pb_migrations/1757600000_lock_users_rules.js`. It was
+verified locally on v0.40.1: both exploits reproduced on stock rules and
+blocked after `up`, and up/down/up is clean (details in the header). The
+production read-only check was skipped at Chris's direction; the migration
+sets all five rules regardless of what's there now. Steps 1 (commit the box's
+snapshot) and 3 (fold in SEC-4) were not done. A new debt turned up along the
+way: the `handle` unique index makes every empty handle collide
+(known-debts.md).
 
 **Finding C-1.** No migration in `deploy/pocketbase/pb_migrations/*.js` sets
 the `users` collection's list/view/create/update/delete rules or guards the

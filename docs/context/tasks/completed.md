@@ -2048,7 +2048,7 @@ buried in PB's own DB that would still need a separate off-box cron anyway; the
 SQLite's online hot-copy (safe against the live DB; captures `pb_data/data.db`
 only — not `auxiliary.db` logs or `storage/`), 30-day prune on the box.
 **Off-box copy: a pull** from Chris's machine over the same `~/.ssh/config` alias
-`make deploy` uses (`rsync -av dreamhost.ae.wex:pb/pb_backups/ ~/wdl-pb-backups/`,
+`make deploy` uses (`rsync -av <ssh-alias>:pb/pb_backups/ ~/wdl-pb-backups/`,
 no `--delete` so local history outlives the VPS prune) — chosen over a VPS push
 cron, which would need an outbound keypair minted on the managed box and Chris's
 laptop reachable. *(Follow-up 2026-09-01, `2c1cdb0`: wrapped as

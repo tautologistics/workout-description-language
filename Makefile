@@ -25,11 +25,12 @@ endif
 
 PORT ?= 8081
 
-# Deploy target host.  `?=` defers to the environment when it is already set, so
-# `WDL_DEPLOY_SSH=other-host make deploy` still wins; `export` pushes the value
-# into the recipe so `scripts/deploy-web.mjs` sees it either way.  Safe to keep
-# in the repo — it is a `~/.ssh/config` alias, no host, user or secret in it.
-export WDL_DEPLOY_SSH ?= dreamhost.ae.wex
+# Deploy target host: set WDL_DEPLOY_SSH in `.env` (an `~/.ssh/config` alias or
+# user@host).  No default in the repo, which is public, so the server's address
+# stays out of it.  `export` pushes the value into the recipes so
+# `scripts/deploy-web.mjs` sees it.
+export WDL_DEPLOY_SSH
+need_ssh = @test -n "$(WDL_DEPLOY_SSH)" || { echo "WDL_DEPLOY_SSH is not set: add it to .env (see .env.example)"; exit 1; }
 
 # Where `make backups:pull` drops the DB snapshots it fetches off the VPS.
 # Repo-relative by default — `db-backups/` at the repo root, whose contents are
@@ -102,17 +103,19 @@ vocab\:load: ## Ingest registry/{equipment,patterns}.json -> the equipment + pat
 goals\:load: ## Ingest examples/goals/*.wdlg -> the goals collection over /api as global rows  (idempotent; ARGS=--dry-run; WDL_PB_URL / admin creds for prod)
 	node scripts/goals-to-db.mjs $(ARGS)
 
-deploy: ## Deploy the static apps  (WDL_DEPLOY_SSH defaults to dreamhost.ae.wex)
+deploy: ## Deploy the static apps  (needs WDL_DEPLOY_SSH in .env)
 	node scripts/deploy-web.mjs
 
 deploy\:dry: ## Same as deploy, but rsync runs with -n (no writes)
 	node scripts/deploy-web.mjs --dry-run
 
 deploy\:db: ## Sync deploy/pocketbase/pb_migrations/ to the VPS and restart PocketBase to apply
+	$(need_ssh)
 	rsync -av deploy/pocketbase/pb_migrations/*.js $(WDL_DEPLOY_SSH):pb/pb_migrations/
 	ssh $(WDL_DEPLOY_SSH) 'systemctl --user restart pocketbase && sleep 2 && curl -fsS http://127.0.0.1:8090/api/health && echo'
 
 backups\:pull: ## Pull the VPS DB backups off the box into db-backups/ (WDL_BACKUP_DIR; no --delete)
+	$(need_ssh)
 	mkdir -p $(WDL_BACKUP_DIR)
 	rsync -av $(WDL_DEPLOY_SSH):pb/pb_backups/ $(WDL_BACKUP_DIR)/
 

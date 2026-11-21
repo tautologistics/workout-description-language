@@ -22,7 +22,7 @@
  *   4. `rsync -az --delete build/deploy/pb_public/ <ssh>:<remote-dir>/`
  *
  * The SSH target is not baked in: pass `--ssh user@host` or set WDL_DEPLOY_SSH
- * (e.g. `androidempathy_wex@wex.androidempathy.com`). With neither, every step
+ * (e.g. `<ssh-user>@<vps-host>`). With neither, every step
  * up to the rsync runs and the exact rsync command is printed for a hand /
  * paired run. `--stage-only` stops after step 3; `--dry-run` runs rsync with
  * `-n`; `--skip-tests` is for iterating on the layout only — never for a real

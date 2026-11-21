@@ -1114,7 +1114,7 @@ marks the ones worth a top-level pointer.
   rebuild, see [lessons-learned.md](lessons-learned.md)).
 
 - **`deploy` host default (2026-08-31):** the Makefile sets
-  `export WDL_DEPLOY_SSH ?= dreamhost.ae.wex`, so a bare `make deploy` /
+  `export WDL_DEPLOY_SSH ?= <ssh-alias>`, so a bare `make deploy` /
   `make deploy:dry` works on Chris's box. `?=` still defers to the environment
   when it is set, and the value is a `~/.ssh/config` alias — no host, user or
   secret — so it is safe checked in. The raw `node scripts/deploy-web.mjs`

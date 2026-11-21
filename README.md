@@ -27,30 +27,11 @@ into `packages/core/src/grammar/vendor/` and imported by relative path: the core
 ships into a browser as plain modules, and a browser resolves relative paths and
 nothing else.
 
-```
-npm test --prefix packages/core        # 477 passing
-
-units            11/11   quantities, loads, targets, duration decomposition
-fold/registry    17/17   name normalization, aliases, abbreviations, ambiguity
-corpus round 2   15/15   structures found by growing the corpus to 114
-lines             9/9    indentation tree, comments, brace continuations
-structure        10/10   containers parse to what the workout means
-prescriptions     6/6    relative loads, labels, dynamic rest, paired implements
-laterality/teams  3/3    counting modes, side selectors, shared totals
-scoring           6/6    per-round, aggregates, tiebreaks, attempts
-corpus         114/114   parse, round-trip, and formatter idempotence
-timeline       130/130   desugaring, pacing, duration, and what can't be a timeline
-accepted input   13/13   documented variants canonicalize as specified
-errors            6/6    parse-level failures report file and line
-external truth   56/56   totals checked against facts outside this codebase
-golden         190/190   interpretation of every corpus file, snapshotted
-zwo interop     42/42    38 real Zwift files: XML duration sum == compiled duration
-sheiko interop  17/17    12 Sheiko days: published number-of-lifts == parsed reps
-erg interop      4/4     24 ERG/MRC courses: final timestamp == compiled duration
-fit interop      6/6     4 Garmin FIT binaries: declared step counts == parsed
-export          22/22    import -> export round trips, fidelity reported, FIT verified
-connect         17/17    Garmin Connect workout JSON against a known-accepted schema
-validation     130/130   errors, warnings, and never-guess questions
+```bash
+make            # list every routine task (thin wrappers over scripts/ and the CLI)
+make test       # 2072 passing: units, parsing, round-trips, the 190-workout corpus,
+                # timeline, validation, goals, results, and interop with real
+                # Zwift / ERG / FIT / Garmin Connect / Sheiko files
 ```
 
 ```bash
@@ -65,11 +46,13 @@ node packages/core/bin/wdl.ts export --to zwo examples/corpus/37-bike-intervals.
 | Path | What's there |
 |---|---|
 | [`spec/spec-0.1.md`](spec/spec-0.1.md) | The notation. §13 encodes all 40 corpus workouts; §14 records what that found. |
-| [`examples/corpus/`](examples/corpus) | 114 workouts as `.wdl` files — the conformance suite. |
+| [`examples/corpus/`](examples/corpus) | 190 workouts as `.wdl` files, each one parsed, round-tripped and snapshotted by the tests. |
 | [`examples/falsification-corpus.md`](examples/falsification-corpus.md) | The model test: what broke, and why. |
-| [`packages/core/`](packages/core) | Reference implementation: parser, formatter, timeline compiler, validator, `wdl` CLI. |
-| [`registry/movements.json`](registry/movements.json) | Movement registry — 82 entries covering the corpus. |
-| [`docs/`](docs) | Vision and roadmap, prior art, movement registry design, adversarial review. |
+| [`packages/core/`](packages/core) | Reference implementation: parser, formatter, timeline compiler, validator, goal checker, generator, exporters, `wdl` CLI. |
+| [`apps/`](apps) | The builder (write a workout, with live goal feedback) and the board (run it, and record the result). |
+| [`registry/`](registry) | Movement registry: 972 hand-curated entries in `movements.json`, merged with other sources into about 3,100 in `movements.canonical.json`. |
+| [`docs/`](docs) | Vision and roadmap, prior art, movement registry design, adversarial review. [`docs/context/`](docs/context/INDEX.md) is the project's working memory. |
+| [`.agents/skills/`](.agents/skills) | Agent skills, such as `wdl-author`, which writes workouts in WDL. See [docs/agent-skills.md](docs/agent-skills.md). |
 
 ## Reading order
 
@@ -82,6 +65,16 @@ node packages/core/bin/wdl.ts export --to zwo examples/corpus/37-bike-intervals.
 
 ## Next
 
-A tree-sitter grammar and a language-neutral conformance suite, so other languages get correctness
-rather than just a parser (roadmap §5.1). Then the builder and the display runtime, both of which
-consume the timeline that already exists.
+The language and its tools are in use. The builder and the board run on a
+small hosted instance for the author and a few training partners. From here,
+the work is driven by real workouts: when one can't be written tersely and
+clearly, it's written up in [`docs/syntax-gaps/`](docs/syntax-gaps/README.md)
+and queued. The live queue is
+[`docs/context/tasks/current.md`](docs/context/tasks/current.md).
+
+*Corrected 2026-11-21.* This section used to name a tree-sitter grammar and a
+language-neutral conformance suite as the next step. The formal grammar was
+built instead as [`spec/grammar-0.1.ohm`](spec/grammar-0.1.ohm), the file the
+parser actually runs. A conformance suite for third-party implementations was
+declined, because the format isn't seeking adoption (see
+[deliberately-not-done](docs/context/topics/deliberately-not-done.md)).

@@ -34,6 +34,12 @@ spec/                  spec-0.1.md (the format), goals-0.1.md (the rules),
                        results-0.1.md (what was done),
                        grammar-0.1.ohm (normative, every phase-2 line kind, no actions —
                        and the file the parser runs, handed to src/ by a host).
+.agents/skills/        agent skills (open Agent Skills format), one folder each; .claude/skills/
+                       holds symlinks to them. See docs/agent-skills.md.
+.claude-plugin/        marketplace.json: the Claude Code marketplace "wdl". Its one plugin
+                       is .agents/ itself (.agents/.claude-plugin/plugin.json); npx skills
+                       reads the same files.
+docs/syntax-gaps/      inbox of syntax-gap reports: workouts WDL cannot yet say cleanly.
 docs/context/          this directory: the project's memory. Start at README.md.
 docs/                  product_vision_and_roadmap.md, prior art, design notes.
 deploy/                hosting the public instance: the PocketBase process unit (user

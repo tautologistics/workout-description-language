@@ -488,7 +488,7 @@ as source; small polish). **L7 closes the epic — move L0–L7 to
 link, **M6** (`97f236f`), specified the nightly VPS SQLite backup + off-box
 copy in `deploy/README.md` + `deploy/pocketbase/crontab.fragment` (shell cron
 `sqlite3 .backup` + 30-day prune, 03:17 UTC; off-box `rsync` pull from Chris's
-machine over the `dreamhost.ae.wex` alias; PocketBase built-in backups as the
+machine over the `<ssh-alias>` alias; PocketBase built-in backups as the
 documented fallback; restore steps aligned). **The backup cron is installed and
 running** (`data-2026-09-02.db` written at 03:17 UTC, `backup.log` clean); only
 the off-box `make backups:pull` is left. *Corrected 2026-09-02, thrice: this

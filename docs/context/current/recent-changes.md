@@ -2,6 +2,14 @@
 
 ## Changes
 
+- **2026-11-21: SEC-1 landed (not deployed), and server identifiers were scrubbed from the now-public repo.** `deploy/pocketbase/pb_migrations/1757600000_lock_users_rules.js` puts the `users` rules under version control and makes `admin`/`org` client-unwritable. Verified on a local v0.40.1, where both C-1 exploits (self-PATCH to admin, and an anonymous admin sign-up) reproduced on stock rules and were blocked after `up`. **Prod stays exposed until Chris runs `make deploy:db`.** Found along the way: the `handle` unique index makes empty handles collide (known-debts.md). The VPS IP, private IP, SSH account, home path and SSH alias were replaced with placeholders in every tracked file, history excepted (Chris's call), and the Makefile no longer defaults `WDL_DEPLOY_SSH`. It comes from `.env`, and the deploy targets refuse to run without it. The public site domain stays.
+
+- **2026-11-21: installed copies fall back to the public GitHub mirror, and the README is refreshed.** `.agents/skills/wdl-author/scripts/wdl-home.sh` resolves a WDL checkout from `$WDL_HOME`, then the working directory, then a cached shallow, sparse clone of `github.com/tautologistics/workout-description-language` (read-only to the skill). The install docs now use that repo. In `README.md`, the stale "Next" section (a tree-sitter grammar and a conformance suite) is replaced and corrected, along with the stale test, corpus and registry counts.
+
+- **2026-11-21: `wdl-author` is installable, and real-workout gaps go on the queue.** Chris answered four of the skill's open questions. (1) Installable as a custom Claude Code marketplace (`.claude-plugin/marketplace.json` → plugin `./.agents`) and through `npx skills add <git URL>`. Both were validated, and the skills CLI caught an invalid-YAML `description:`, now a folded block. Installed copies find a WDL checkout through `$WDL_HOME` or the working directory. (2) Draft first. (3) Print the workout as a raw text block, then ask where to save it. (4) A gap from a real workout gets a queue entry marked **Raised from a real workout**, under the new `## Syntax gaps raised from real workouts` in `tasks/current.md`. G1 (tonnage score) and G2 (per-round change beyond reps) were queued, both from "Tonnage 40". *Corrected the same day: after Chris's rulings, the queue holds B1 (an unread score primary passes `wdl check` silently) and a narrowed G1; G2 is not queued.* Details: `docs/agent-skills.md`.
+
+- **2026-11-19: a cross-agent skill for writing workouts in WDL.** `.agents/skills/wdl-author/` (`SKILL.md`, `references/{cheatsheet,known-gaps,gap-report-template}.md`, `scripts/{check-movements.ts,verify-cheatsheet.sh}`), symlinked as `.claude/skills/wdl-author` the way `AGENTS.md` links to `CLAUDE.md`. Gap reports go to the new `docs/syntax-gaps/` inbox (one seed report: a per-round change in load, distance or time). Overview and the open guesses: `docs/agent-skills.md`. No core, grammar or spec change; `make test` **2072/2072**.
+
 - **2026-10-28 — a rep scheme written as a step's count is reported (spec
   §4).** `- 8..1 Jump Squats` / `- 21-15-9 Thruster` used to fold the run into
   the movement name (`quantity: open`, no registry match) with `wdl check`
@@ -1598,7 +1606,7 @@
     `.backup` is SQLite's online hot-copy (captures `pb_data/data.db` only — not
     `auxiliary.db` logs or `storage/`), 30-day prune on the box.
   - **Off-box copy — a pull** from Chris's machine over the same `~/.ssh/config`
-    alias `make deploy` uses (`rsync -az dreamhost.ae.wex:pb/pb_backups/
+    alias `make deploy` uses (`rsync -az <ssh-alias>:pb/pb_backups/
     ~/wdl-pb-backups/`, no `--delete` so local history outlives the VPS prune;
     wrapped as **`make backups:pull`** in the follow-up above),
     chosen over a VPS push cron (which would need an outbound keypair minted on
@@ -2001,8 +2009,8 @@
   suite 2051 passing, 1 pending. Verified light + dark and at 1680 / 1024 /
   900 / 760px (drag, keyboard, reset, persist-across-reload, resize re-clamp).
 
-- **2026-08-31 — `make deploy` defaults `WDL_DEPLOY_SSH` to `dreamhost.ae.wex`.**
-  The Makefile now sets `export WDL_DEPLOY_SSH ?= dreamhost.ae.wex`, so a bare
+- **2026-08-31 — `make deploy` defaults `WDL_DEPLOY_SSH` to `<ssh-alias>`.**
+  The Makefile now sets `export WDL_DEPLOY_SSH ?= <ssh-alias>`, so a bare
   `make deploy` / `make deploy:dry` works on Chris's box without prefixing the
   env var. `?=` still defers to the environment when it is set (any other host
   wins), and the value is a `~/.ssh/config` alias — no host, user or secret —

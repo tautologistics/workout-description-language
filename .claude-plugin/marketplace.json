@@ -1,0 +1,12 @@
+{
+  "name": "wdl",
+  "description": "Agent skills for the Workout Definition Language (WDL): write workouts as whiteboard-readable .wdl text.",
+  "owner": { "name": "Chris Winberry" },
+  "plugins": [
+    {
+      "name": "wdl-skills",
+      "source": "./.agents",
+      "description": "wdl-author: turn a workout request into canonical WDL, and report what the syntax can't yet express."
+    }
+  ]
+}

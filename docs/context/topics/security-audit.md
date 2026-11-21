@@ -150,8 +150,17 @@ settled decision the finding bears on.
   on the collection — if a public `POST` works today, that half is the more
   urgent one. **Also commit the box's `1788125462_updated_users.js` snapshot
   into the repo** so the real `users` schema is reviewable and reproducible.
-- **Status.** Unfixed — blast radius (auth collection, migration re-apply on
-  prod). Filed in [known-debts.md](known-debts.md). Reported to Chris.
+- **Status.** **Fix landed 2026-11-21, not yet deployed:**
+  `deploy/pocketbase/pb_migrations/1757600000_lock_users_rules.js` (SEC-1).
+  Both exploits were reproduced locally on stock rules and are blocked by the
+  migration (verification in its header). The create rule is
+  `@request.body.admin != true && @request.body.org != true` rather than
+  `null`, so Google sign-up can't be broken. The prod box stays exposed until
+  Chris runs `make deploy:db`. Still open from the recommendation: committing
+  the box's `1788125462_updated_users.js` snapshot, and deciding whether to
+  disable password auth on `users`. Earlier status: unfixed, because of the
+  blast radius (auth collection, migration re-apply on prod). Filed in
+  [known-debts.md](known-debts.md). Reported to Chris.
 
 ### H-1 — Namespace keys (`wdlId` / `setId` / `goalId`) are client-forced only; a raw API client can spoof another org's namespace
 
@@ -288,7 +297,7 @@ settled decision the finding bears on.
 ### M-3 — Port 8090 reachable in plaintext past the TLS proxy (already tracked)
 
 - **What it is.** The DreamHost panel proxy connects over the VPS public IP, so
-  PocketBase binds `0.0.0.0:8090` and `http://173.236.218.180:8090` answers
+  PocketBase binds `0.0.0.0:8090` and `http://<vps-ip>:8090` answers
   from the internet, bypassing HTTPS. Documented in `deploy/README.md`
   "Known issue: port 8090 exposure" and
   [what-exists.md](what-exists.md) / [../current/next-steps.md](../current/next-steps.md).

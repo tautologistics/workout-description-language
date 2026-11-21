@@ -253,3 +253,13 @@ supersedes it. From then on the collection schema is reproducible: a fresh
   a re-`up` reapplies cleanly. `make test` 2064/2064, unchanged. **Not yet
   applied on the box** — `make deploy:db` lands it at D6. Glance at the admin UI
   on the box after deploy, same caveat as the workouts migration.
+
+- `1757600000_lock_users_rules.js` — puts the `users` collection's five API
+  rules under version control and makes `admin`/`org` client-unwritable (queue
+  task SEC-1, security audit C-1). list/view/delete: `id = @request.auth.id`.
+  create: `@request.body.admin != true && @request.body.org != true` (not
+  `null`, so Google sign-up keeps working). update: self only, and only if the
+  body leaves `admin`/`org` unset or unchanged. `down` restores PocketBase's
+  stock auth rules. Verified up / down / up against a real v0.40.1
+  (darwin_arm64) binary and a throwaway `pb_data`, with exploit probes before
+  and after. See the file header.

@@ -23,7 +23,7 @@ make movements:load  # movements-to-db.mjs — idempotent upsert of registry/mov
 make movements:dump  # movements-from-db.mjs — dump the movements collection back to registry/movements.json (ARGS=--dry-run / --check)
 make workouts:load   # workouts-to-db.mjs — idempotent upsert of examples/workouts/**/*.wdl into the workouts collection over /api + regenerate fixtures (ARGS=--dry-run)
 make vocab:load      # vocab-to-db.mjs — idempotent upsert of registry/{equipment,patterns}.json into the equipment + patterns collections over /api (ARGS=--dry-run)
-make deploy      # node scripts/deploy-web.mjs — static apps into pb_public/  (WDL_DEPLOY_SSH defaults to dreamhost.ae.wex — see "## Hosting")
+make deploy      # node scripts/deploy-web.mjs — static apps into pb_public/  (WDL_DEPLOY_SSH defaults to <ssh-alias> — see "## Hosting")
 make deploy:dry  # same, rsync with -n
 make deploy:db   # rsync deploy/pocketbase/pb_migrations/*.js to the VPS + restart PocketBase to apply
 make backups:pull  # rsync the VPS DB backups off the box into db-backups/ (WDL_BACKUP_DIR; no --delete)
@@ -386,12 +386,12 @@ to `/apps/builder/`. Item 20 adds the frontend that calls `/api/…`.
 Deploy the static apps (needs SSH to the VPS):
 
 ```bash
-make deploy       # static apps into pb_public/. WDL_DEPLOY_SSH defaults to dreamhost.ae.wex (Chris's ~/.ssh/config alias)
+make deploy       # static apps into pb_public/. WDL_DEPLOY_SSH defaults to <ssh-alias> (Chris's ~/.ssh/config alias)
 make deploy:dry   # no-write rsync -n
 make deploy:db    # rsync deploy/pocketbase/pb_migrations/*.js to the VPS, then restart PocketBase to apply
 make backups:pull # rsync the VPS ~/pb/pb_backups/ off the box into db-backups/ (WDL_BACKUP_DIR; no --delete, so history accrues)
 # From another box, override the alias:
-WDL_DEPLOY_SSH=androidempathy_wex@wex.androidempathy.com make deploy
+WDL_DEPLOY_SSH=<ssh-user>@<vps-host> make deploy
 # Raw form (bypasses the Makefile default):
 # node scripts/deploy-web.mjs [--ssh …] [--dry-run] [--stage-only] [--skip-tests]
 ```
@@ -402,7 +402,7 @@ also holds admin-UI-generated snapshot migrations that are not in the repo) and
 restarts PocketBase so any new migration applies. A migration already applied is
 a harmless no-op on restart.
 
-The `Makefile` sets `export WDL_DEPLOY_SSH ?= dreamhost.ae.wex`, so a bare
+The `Makefile` sets `export WDL_DEPLOY_SSH ?= <ssh-alias>`, so a bare
 `make deploy` works on Chris's box; `?=` still defers to the environment when
 it is set, and the value is safe in the repo — it is an SSH-config alias, no
 host / user / secret in it. The raw `node scripts/deploy-web.mjs` form does
@@ -463,7 +463,7 @@ detail — the MIME finding (`.ohm`/`.wdlg` land as `text/plain`, and are
   (03:17 UTC, 30-day prune) plus **`make backups:pull`** — an off-box `rsync`
   **pull** into the repo-relative **`db-backups/`** (`WDL_BACKUP_DIR` default;
   contents git-ignored, `db-backups/README.md` tracked; no `--delete`) over the
-  `dreamhost.ae.wex` alias, with PocketBase's built-in *Settings → Backups* as
+  `<ssh-alias>` alias, with PocketBase's built-in *Settings → Backups* as
   the fallback and aligned restore steps. **Installed, running, and pulled
   off-box as of 2026-09-02** — cron wrote `~/pb/pb_backups/data-2026-09-02.db`
   at 03:17 UTC (`backup.log` clean) and `make backups:pull` copied both

@@ -27,7 +27,7 @@ were rejected, are in
 | Thing            | Value                                                        |
 |------------------|-------------------------------------------------------------|
 | Host             | DreamHost **managed** VPS `vps28777` — Ubuntu 22.04, **no root** |
-| OS account       | `androidempathy_wex`, home `/home/androidempathy_wex`       |
+| OS account       | `<ssh-user>`, home `/home/<ssh-user>`       |
 | Domain           | `https://wex.androidempathy.com`                            |
 | PocketBase       | v0.40.1, `~/pb/pocketbase`, data `~/pb/pb_data`             |
 | Bind             | `0.0.0.0:8090` (see "Known issue" below)                    |
@@ -60,7 +60,7 @@ convenience backup, mode `600`) in `deploy/pocketbase/pocketbase.env` on the box
 ## 0. Architecture
 
 ```
-  browser ──HTTPS──▶ DreamHost panel Proxy Server ──HTTP──▶ 173.236.218.180:8090
+  browser ──HTTPS──▶ DreamHost panel Proxy Server ──HTTP──▶ <vps-ip>:8090
   https://wex.androidempathy.com   (terminates TLS,          (PocketBase, user
                                     Let's Encrypt cert)        systemd service)
                                                               ├─ /api/  REST + OAuth
@@ -173,7 +173,7 @@ and `https://wex.androidempathy.com/_/` loads the admin UI.
 ### Known issue: port 8090 exposure
 
 The panel proxy connects to the daemon over the VPS **public IP**, so PocketBase
-must bind `0.0.0.0` and `http://173.236.218.180:8090` is reachable from the
+must bind `0.0.0.0` and `http://<vps-ip>:8090` is reachable from the
 internet, bypassing the HTTPS proxy. Loopback and private-IP binds were both
 tested and both make the proxy 503.
 
@@ -250,6 +250,11 @@ so the migration on its own changes nothing.
 `users`* → open Chris's row (`chris@winberry.net`) → tick **admin** → Save. The
 migration can't do this — it doesn't know the user id. Do the same for any other
 account that should curate global movements.
+
+**Since `1757600000_lock_users_rules.js` (SEC-1), granting admin is
+superuser-only.** The `users` rules reject any client write that sets `admin`
+or `org`, including a user's write to their own row. The admin UI (a
+superuser) is unaffected, and so is this step.
 
 ---
 
@@ -486,7 +491,7 @@ it next to the keepalive):
 outbound credential). From a repo checkout:
 
 ```sh
-make backups:pull   # rsync -av dreamhost.ae.wex:pb/pb_backups/ db-backups/  (WDL_BACKUP_DIR to override)
+make backups:pull   # rsync -av <ssh-alias>:pb/pb_backups/ db-backups/  (WDL_BACKUP_DIR to override)
 ```
 
 The snapshots land in **`db-backups/`** at the repo root — repo-relative on
@@ -597,7 +602,7 @@ renders a "not found" line rather than failing.
 
 ```sh
 # from the repo root, with SSH access to the VPS
-WDL_DEPLOY_SSH=androidempathy_wex@wex.androidempathy.com node scripts/deploy-web.mjs
+WDL_DEPLOY_SSH=<ssh-user>@<vps-host> node scripts/deploy-web.mjs
 ```
 
 It (1) runs `npm --prefix packages/core test` and bails on a red suite,
@@ -666,7 +671,7 @@ a `deploy/pocketbase/pb_hooks/` middleware setting `Cache-Control: no-cache` on
 - **PocketBase:** v0.40.1, linux_amd64, `~/pb`. Idles ~10-15 MB RSS.
 - **Proxy:** panel Proxy Server, path `/`, port `8090`. Panel Let's Encrypt.
 - **Bind:** `0.0.0.0:8090` forced by the proxy connecting over the public IP —
-  loopback and `10.221.116.205` (private) both 503 the proxy. Port 8090 is
+  loopback and `<private-ip>` (private) both 503 the proxy. Port 8090 is
   therefore internet-reachable in plaintext; **DreamHost support ticket to
   firewall it is open** (see "Known issue" above).
 - **Superuser:** `chris@winberry.net` (password manager).

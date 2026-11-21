@@ -15,8 +15,21 @@ on `origin/main`; `make deploy:db` against the VPS stays Chris's own explicit
 call. The one fix that did land already (H-2, `filter=` injection in
 `apps/shared/pocketbase.js`) is not a debt — it is in commit `b76deb8`.
 
+- **`users.handle`'s unique index treats every empty handle as the same
+  value.** *Found 2026-11-21 while verifying SEC-1 against a local v0.40.1.*
+  `idx_users_handle` (from `1756900000_add_users_handle_and_orgs.js`) is a
+  plain `UNIQUE (handle)`, and PocketBase stores an unset text field as `''`,
+  not NULL. So once one `users` row has an empty handle, **every further
+  create fails** with `handle: validation_not_unique`. That includes a new
+  person's first Google sign-in. The apps assign a handle right after sign-in,
+  so in practice the window is a user who signed in and never got one. Fix:
+  rebuild the index as partial, `... WHERE handle != ''`, the predicate
+  `1757500000_add_soft_delete.js` already established for optional unique
+  fields. It's a natural companion to SEC-4 (handle validation).
 - **CRITICAL — the `users` collection has no access rules in version control.**
-  **→ SEC-1.**
+  **→ SEC-1.** *Fix landed 2026-11-21 (`1757600000_lock_users_rules.js`),
+  verified locally. This stays a live debt until `make deploy:db` runs on the
+  box.*
   No `deploy/pocketbase/pb_migrations/*.js` file sets `users` list/view/create/
   update/delete rules or any field-level guard on the M2 `admin` / L1 `org` /
   L1 `handle` fields; the live rules are PocketBase's auth-collection defaults
