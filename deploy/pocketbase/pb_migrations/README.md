@@ -263,3 +263,10 @@ supersedes it. From then on the collection schema is reproducible: a fresh
   stock auth rules. Verified up / down / up against a real v0.40.1
   (darwin_arm64) binary and a throwaway `pb_data`, with exploit probes before
   and after. See the file header.
+- `1757700000_partial_users_handle_index.js` — rebuilds `idx_users_handle` as
+  partial (`... WHERE \`handle\` != ''`), so handle-less accounts no longer
+  collide. Before this, once one account had an empty handle, every new
+  sign-up failed with `handle: validation_not_unique`. The old index is dropped
+  by name. `down` restores the plain index, and fails, by design, while two or
+  more accounts lack a handle. Verified up / down / up against a real v0.40.1
+  binary, with probes before and after. See the file header.
