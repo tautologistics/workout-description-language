@@ -204,7 +204,7 @@ settled decision the finding bears on.
   available, a `pb_hooks/` `onRecordCreate`/`onRecordUpdate` that recomputes
   the key server-side from `owner`'s handle is the robust form. Until then the
   client force is the only guard.
-- **Status.** **Fix landed 2026-11-21 (SEC-2), not yet deployed:** `deploy/pocketbase/pb_hooks/wdl_guards.pb.js` rejects a non-superuser create, or a key change, unless the key starts with the writer's `<handle>:` (`user`-scoped goals only; `global` stays admin-only by rule). Reproduced locally before the fix, blocked after. *Earlier: Unfixed. Filed in [known-debts.md](known-debts.md). Reported.*
+- **Status.** **Fixed and deployed 2026-11-21 (SEC-2)** (Chris ran `make deploy:db` and `make deploy:unit`; healthy restarts). *Earlier the same day: fix landed, not yet deployed:* `deploy/pocketbase/pb_hooks/wdl_guards.pb.js` rejects a non-superuser create, or a key change, unless the key starts with the writer's `<handle>:` (`user`-scoped goals only; `global` stays admin-only by rule). Reproduced locally before the fix, blocked after. *Earlier: Unfixed. Filed in [known-debts.md](known-debts.md). Reported.*
 
 ### H-2 — Filter-string injection via `?w=` / `setId` / `goalId` in `apps/shared/pocketbase.js` — **fixed in this commit**
 
@@ -263,7 +263,7 @@ settled decision the finding bears on.
   the `user` / `scope` equivalents for `goals`). Same `@request.body` spelling
   caveat as C-1. Confirm the `goals` `scope`-flip behaviour on the box either
   way.
-- **Status.** **Fix landed 2026-11-21 (SEC-3), not yet deployed:** `1757800000_guard_ownership_rules.js`. PocketBase evaluates a rule's field names against the pre-write record, so the `goals` scope flip was exploitable. It was reproduced locally before the fix and blocked after, along with owner reassignment on `workouts` and `movement_sets`. *Earlier: Unfixed. Filed in [known-debts.md](known-debts.md). Reported.*
+- **Status.** **Fixed and deployed 2026-11-21 (SEC-3)** (Chris ran `make deploy:db` and `make deploy:unit`; healthy restarts). *Earlier the same day: fix landed, not yet deployed:* `1757800000_guard_ownership_rules.js`. PocketBase evaluates a rule's field names against the pre-write record, so the `goals` scope flip was exploitable. It was reproduced locally before the fix and blocked after, along with owner reassignment on `workouts` and `movement_sets`. *Earlier: Unfixed. Filed in [known-debts.md](known-debts.md). Reported.*
 
 ### M-2 — Handle shape and reserved-word rules are client-only
 
@@ -292,7 +292,7 @@ settled decision the finding bears on.
   `@request.body.handle != "admin" && … != "api" && … != "_"`. A `pb_hooks`
   `onRecordUpdate` validator is cleaner for the full rule set (min length,
   no-colon, not-all-digits). The unique index already covers "taken".
-- **Status.** **Fix landed 2026-11-21 (SEC-4), not yet deployed:** a `users` create/update hook in `pb_hooks/wdl_guards.pb.js` ports `validateHandle()`. An empty handle is still allowed on create, for Google sign-up; a set handle can't be cleared; superusers are exempt. *Earlier: Unfixed. Filed in [known-debts.md](known-debts.md). Reported.*
+- **Status.** **Fixed and deployed 2026-11-21 (SEC-4)** (Chris ran `make deploy:db` and `make deploy:unit`; healthy restarts). *Earlier the same day: fix landed, not yet deployed:* a `users` create/update hook in `pb_hooks/wdl_guards.pb.js` ports `validateHandle()`. An empty handle is still allowed on create, for Google sign-up; a set handle can't be cleared; superusers are exempt. *Earlier: Unfixed. Filed in [known-debts.md](known-debts.md). Reported.*
 
 ### M-3 — Port 8090 reachable in plaintext past the TLS proxy (already tracked)
 
@@ -323,7 +323,7 @@ settled decision the finding bears on.
   `workouts` guard but chose the shorter form.
 - **Recommended fix (low priority).** Align with `workouts` / `goals`:
   `@request.auth.id != "" && @request.auth.id = owner`. Defence-in-depth only.
-- **Status.** **Fix landed 2026-11-21 (SEC-6), not yet deployed:** `1757800000_guard_ownership_rules.js`. *Earlier: Unfixed, low. Filed in [known-debts.md](known-debts.md) as a*
+- **Status.** **Fixed and deployed 2026-11-21 (SEC-6)** (Chris ran `make deploy:db` and `make deploy:unit`; healthy restarts). *Earlier the same day: fix landed, not yet deployed:* `1757800000_guard_ownership_rules.js`. *Earlier: Unfixed, low. Filed in [known-debts.md](known-debts.md) as a*
   one-liner. Reported.
 
 ### L-2 — PocketBase default CORS is permissive
@@ -337,7 +337,7 @@ settled decision the finding bears on.
 - **Recommended fix (low priority).** If the PocketBase version exposes a CORS
   allowlist setting, set it to `https://wex.androidempathy.com`. Not a code
   change in this repo.
-- **Status.** **Fix landed 2026-11-21 (SEC-7), not yet deployed:** PocketBase v0.40.1 has no CORS setting in the admin UI, but `serve --origins` exists. It's added to all three launch paths (`pocketbase.user.service`, `pocketbase.service`, `run-pocketbase.sh`). Verified locally: a foreign origin gets no `Access-Control-Allow-Origin`, and the site's own origin does. Needs `make deploy:unit`, a new target that installs the unit and restarts. *Earlier: Informational/low. Not filed as a debt.*
+- **Status.** **Fixed and deployed 2026-11-21 (SEC-7)** (Chris ran `make deploy:db` and `make deploy:unit`; healthy restarts). *Earlier the same day: fix landed, not yet deployed:* PocketBase v0.40.1 has no CORS setting in the admin UI, but `serve --origins` exists. It's added to all three launch paths (`pocketbase.user.service`, `pocketbase.service`, `run-pocketbase.sh`). Verified locally: a foreign origin gets no `Access-Control-Allow-Origin`, and the site's own origin does. Needs `make deploy:unit`, a new target that installs the unit and restarts. *Earlier: Informational/low. Not filed as a debt.*
 
 ### I-1 — `updateMovement` / vocab writes pass the patch body straight through
 

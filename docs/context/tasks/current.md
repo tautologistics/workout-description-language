@@ -439,7 +439,7 @@ other migration here does ("verified locally against…").
 
 ### SEC-2 (High) — bind `wdlId`/`setId`/`goalId` to the owner's handle server-side
 
-**LANDED 2026-11-21, AWAITING `make deploy:db`.** The rule DSL can't concatenate, so this is a hook, `deploy/pocketbase/pb_hooks/wdl_guards.pb.js` (with `lib/guards.js`). Verified locally; see `pb_migrations/README.md`.
+**DEPLOYED 2026-11-21:** Chris ran `make deploy:db` (migration 1757800000 plus the first `pb_hooks` sync) and `make deploy:unit` (the `--origins` unit); both restarts were healthy. No production write probe, by design. *Previously: landed 2026-11-21, awaiting `make deploy:db`.* The rule DSL can't concatenate, so this is a hook, `deploy/pocketbase/pb_hooks/wdl_guards.pb.js` (with `lib/guards.js`). Verified locally; see `pb_migrations/README.md`.
 
 **Finding H-1.** The `<owner-handle>:<slug>` rule (DEC-021/027/028) is enforced
 only client-side in `apps/shared/pocketbase.js`. A raw `POST`/`PATCH` can set
@@ -474,7 +474,7 @@ idiom the later migrations use), or a new `pb_hooks/`. DEC-021/027/028.*
 
 ### SEC-3 (Medium) — guard `owner`/`user`/`scope` against reassignment on update
 
-**LANDED 2026-11-21, AWAITING `make deploy:db`.** `1757800000_guard_ownership_rules.js`. The open question is answered: rule fields are the *pre*-write record, so the goals scope flip was real (reproduced, then blocked).
+**DEPLOYED 2026-11-21:** Chris ran `make deploy:db` (migration 1757800000 plus the first `pb_hooks` sync) and `make deploy:unit` (the `--origins` unit); both restarts were healthy. No production write probe, by design. *Previously: landed 2026-11-21, awaiting `make deploy:db`.* `1757800000_guard_ownership_rules.js`. The open question is answered: rule fields are the *pre*-write record, so the goals scope flip was real (reproduced, then blocked).
 
 **Finding M-1.** `workouts`/`movement_sets`/`goals` update rules check *who*
 writes, never *what* they set. A user can `PATCH` their own row
@@ -504,7 +504,7 @@ edits). DEC-028.*
 
 ### SEC-4 (Medium) — server-side handle shape / reserved-word validation
 
-**LANDED 2026-11-21, AWAITING `make deploy:db`.** It's a hook, not a rule, as this ticket predicted (`~` is LIKE). It's in `pb_hooks/wdl_guards.pb.js`. Verified locally.
+**DEPLOYED 2026-11-21:** Chris ran `make deploy:db` (migration 1757800000 plus the first `pb_hooks` sync) and `make deploy:unit` (the `--origins` unit); both restarts were healthy. No production write probe, by design. *Previously: landed 2026-11-21, awaiting `make deploy:db`.* It's a hook, not a rule, as this ticket predicted (`~` is LIKE). It's in `pb_hooks/wdl_guards.pb.js`. Verified locally.
 
 **Finding M-2.** `apps/shared/handle.js`'s `validateHandle` (shape, length,
 not-all-digits, reserved words `api`/`admin`/`_`) is client-only; the server
@@ -541,7 +541,7 @@ task; listed here only so the queue is the complete picture of open findings.
 
 ### SEC-6 (Low, trivial — dispatchable as-is, no open question) — `movement_sets` create rule: explicit `!= ""` guard
 
-**LANDED 2026-11-21, AWAITING `make deploy:db`.** It's in `1757800000_guard_ownership_rules.js`.
+**DEPLOYED 2026-11-21:** Chris ran `make deploy:db` (migration 1757800000 plus the first `pb_hooks` sync) and `make deploy:unit` (the `--origins` unit); both restarts were healthy. No production write probe, by design. *Previously: landed 2026-11-21, awaiting `make deploy:db`.* It's in `1757800000_guard_ownership_rules.js`.
 
 **Finding L-1.** `createRule = "@request.auth.id = owner"` is safe today only
 because `owner` is `required` — the same shape that bit `goals` at G1 when
@@ -555,7 +555,7 @@ beyond "go."
 
 ### SEC-7 (Low) — restrict PocketBase's CORS to the known origin
 
-**LANDED 2026-11-21, AWAITING `make deploy:unit`.** The open question is answered: there's no admin-UI CORS setting in v0.40.1, but `serve --origins` exists. It's added to all three launch paths. Verified locally.
+**DEPLOYED 2026-11-21:** Chris ran `make deploy:db` (migration 1757800000 plus the first `pb_hooks` sync) and `make deploy:unit` (the `--origins` unit); both restarts were healthy. No production write probe, by design. *Previously: landed 2026-11-21, awaiting `make deploy:unit`.* The open question is answered: there's no admin-UI CORS setting in v0.40.1, but `serve --origins` exists. It's added to all three launch paths. Verified locally.
 
 **Finding L-2.** Default CORS is permissive; low-impact since the token lives
 in `localStorage`/an `Authorization` header, not a cookie (no CSRF, no ambient
