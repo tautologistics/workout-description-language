@@ -25,7 +25,8 @@ make workouts:load   # workouts-to-db.mjs — idempotent upsert of examples/work
 make vocab:load      # vocab-to-db.mjs — idempotent upsert of registry/{equipment,patterns}.json into the equipment + patterns collections over /api (ARGS=--dry-run)
 make deploy      # node scripts/deploy-web.mjs — static apps into pb_public/  (WDL_DEPLOY_SSH defaults to <ssh-alias> — see "## Hosting")
 make deploy:dry  # same, rsync with -n
-make deploy:db   # rsync deploy/pocketbase/pb_migrations/*.js to the VPS + restart PocketBase to apply
+make deploy:db   # rsync deploy/pocketbase/pb_migrations/*.js and pb_hooks/ to the VPS + restart PocketBase to apply
+make deploy:unit # install deploy/pocketbase/pocketbase.user.service on the VPS, daemon-reload, restart (since 2026-11-21, SEC-7)
 make backups:pull  # rsync the VPS DB backups off the box into db-backups/ (WDL_BACKUP_DIR; no --delete)
 make clean       # rm -rf build pairs.json curation-sheet.csv
 make install     # prints "nothing to install" — the repo is install-free, on purpose

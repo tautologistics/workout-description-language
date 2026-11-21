@@ -384,6 +384,24 @@ index by hand to match the above, then snapshot the schema
 
 ---
 
+## 7e. Server-side write guards and CORS (security audit, 2026-11-21)
+
+- **`pb_hooks/wdl_guards.pb.js`** (SEC-2, SEC-4): a non-superuser can only
+  save a namespaced key (`wdlId`, `setId`, a `user` goal's `goalId`) under
+  their own `<handle>:`, and only a handle that passes the app's
+  `validateHandle()` rules. `make deploy:db` syncs `pb_hooks/` to
+  `~/pb/pb_hooks` (with `--delete`), and PocketBase loads it by default.
+- **`1757800000_guard_ownership_rules.js`** (SEC-3, SEC-6): rows can't be
+  handed to another account, and a goal can't be flipped into the global tier
+  by its owner.
+- **CORS** (SEC-7): the unit passes `--origins https://wex.androidempathy.com`,
+  so browsers on other sites can't call the API. A unit change needs `make
+  deploy:unit`, which overwrites `~/.config/systemd/user/pocketbase.service`
+  with the repo's copy, then daemon-reloads and restarts. If the box's unit has
+  diverged from the repo, diff it first.
+
+---
+
 ## 8. Google OAuth2
 
 Cloud Console half (Chris's Google account):

@@ -28,7 +28,8 @@ WorkingDirectory=%h/pb
 ExecStart=%h/pb/pocketbase serve \
   --http 0.0.0.0:8090 \
   --dir %h/pb/pb_data \
-  --migrationsDir %h/pb/pb_migrations
+  --migrationsDir %h/pb/pb_migrations \
+  --origins https://wex.androidempathy.com
 Restart=always
 RestartSec=5
 

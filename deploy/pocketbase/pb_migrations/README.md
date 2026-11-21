@@ -270,3 +270,38 @@ supersedes it. From then on the collection schema is reproducible: a fresh
   by name. `down` restores the plain index, and fails, by design, while two or
   more accounts lack a handle. Verified up / down / up against a real v0.40.1
   binary, with probes before and after. See the file header.
+- `1757800000_guard_ownership_rules.js` — security audit M-1 / L-1 (SEC-3,
+  SEC-6). The update rules of `workouts`, `movement_sets` and `goals` now
+  require the body to leave `owner` (and, on `goals`, `scope` and `user`)
+  unset or unchanged. An admin may still change a goal's scope.
+  `movement_sets.createRule` gains `@request.auth.id != ""`. `down` restores
+  the exact previous strings.
+
+**`../pb_hooks/` (SEC-2, SEC-4)** isn't a migration. It's PocketBase JS hooks,
+synced by `make deploy:db` into `~/pb/pb_hooks`, which PocketBase loads by
+default. `wdl_guards.pb.js` (with `lib/guards.js`) rejects a non-superuser
+write that sets a namespaced key (`wdlId` / `setId` / a `user` goal's
+`goalId`) not starting with the writer's `<handle>:`. It also rejects a
+`users.handle` failing `validateHandle()`'s rules. Superusers are exempt.
+
+**Verified 2026-11-21** against a real v0.40.1 (darwin_arm64) binary and a
+throwaway `pb_data`, with every migration, the hooks, and the `--origins`
+flag. *Before* the fix, four exploits reproduced: saving `crossfit:fran` on
+your own row, handing a workout to the `crossfit` org, flipping a `user` goal
+to `global`, and claiming the handle `admin`. This also settled SEC-3's open
+question: a rule's plain field names are the pre-write record. *After*: 38/38
+probes passed. Those probes check:
+- spoofed and prefix-trick keys rejected on create and rename; your own keys,
+  empty keys and soft-delete PATCHes accepted
+- `movement_sets` and `goals` keys bound the same way
+- admin global goals and superuser org rows exempt
+- owner/scope/user reassignment rejected, while ordinary edits and echoing
+  the owner back still work
+- anonymous `movement_sets` create rejected
+- bad handles rejected (`admin`, `api`, too short, uppercase, `:`, leading
+  hyphen, all digits, clearing a set handle); a handle-less Google-style
+  sign-up accepted
+- `--origins` withholding `Access-Control-Allow-Origin` from a foreign origin
+- `migrate down 1` restoring the old rules, and a re-`up` reapplying them
+
+Binary and data discarded.

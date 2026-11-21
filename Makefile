@@ -44,7 +44,7 @@ WDL_BACKUP_DIR ?= db-backups
 
 .PHONY: help install test build serve registry goldens aliases corpora \
         curation\:sheet curation\:check curation\:apply movements\:load movements\:dump \
-        workouts\:load vocab\:load goals\:load deploy deploy\:dry deploy\:db backups\:pull clean
+        workouts\:load vocab\:load goals\:load deploy deploy\:dry deploy\:db deploy\:unit backups\:pull clean
 
 help: ## List the targets
 	@grep -hE '^[a-z][a-z:\\-]*:.*## ' $(MAKEFILE_LIST) \
@@ -109,10 +109,16 @@ deploy: ## Deploy the static apps  (needs WDL_DEPLOY_SSH in .env)
 deploy\:dry: ## Same as deploy, but rsync runs with -n (no writes)
 	node scripts/deploy-web.mjs --dry-run
 
-deploy\:db: ## Sync deploy/pocketbase/pb_migrations/ to the VPS and restart PocketBase to apply
+deploy\:db: ## Sync pb_migrations/ and pb_hooks/ to the VPS and restart PocketBase to apply
 	$(need_ssh)
 	rsync -av deploy/pocketbase/pb_migrations/*.js $(WDL_DEPLOY_SSH):pb/pb_migrations/
+	rsync -av --delete deploy/pocketbase/pb_hooks/ $(WDL_DEPLOY_SSH):pb/pb_hooks/
 	ssh $(WDL_DEPLOY_SSH) 'systemctl --user restart pocketbase && sleep 2 && curl -fsS http://127.0.0.1:8090/api/health && echo'
+
+deploy\:unit: ## Install deploy/pocketbase/pocketbase.user.service on the VPS (daemon-reload + restart)
+	$(need_ssh)
+	rsync -av deploy/pocketbase/pocketbase.user.service $(WDL_DEPLOY_SSH):.config/systemd/user/pocketbase.service
+	ssh $(WDL_DEPLOY_SSH) 'systemctl --user daemon-reload && systemctl --user restart pocketbase && sleep 2 && curl -fsS http://127.0.0.1:8090/api/health && echo'
 
 backups\:pull: ## Pull the VPS DB backups off the box into db-backups/ (WDL_BACKUP_DIR; no --delete)
 	$(need_ssh)

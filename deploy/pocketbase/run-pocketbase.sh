@@ -26,6 +26,7 @@ nohup ./pocketbase serve \
   --http "127.0.0.1:$PB_PORT" \
   --dir "$PB_DIR/pb_data" \
   --migrationsDir "$PB_DIR/pb_migrations" \
+  --origins "${PB_ORIGINS:-https://wex.androidempathy.com}" \
   >> "$LOG" 2>&1 &
 echo $! > "$PIDFILE"
 echo "$(date -u +%FT%TZ) started pocketbase pid $(cat "$PIDFILE")" >> "$LOG"

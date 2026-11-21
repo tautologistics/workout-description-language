@@ -53,7 +53,7 @@ call. The one fix that did land already (H-2, `filter=` injection in
   self-assignable.*
 
 - **HIGH — namespace keys (`wdlId` / `setId` / `goalId`) are client-forced
-  only.** **→ SEC-2.** The `<owner-handle>:<slug>` rule (DEC-021 / DEC-027 / DEC-028) is
+  only.** **→ SEC-2.** **Fix landed 2026-11-21, verified locally, not yet deployed** (`make deploy:db`; SEC-7 also needs `make deploy:unit`): `deploy/pocketbase/pb_hooks/wdl_guards.pb.js`. The `<owner-handle>:<slug>` rule (DEC-021 / DEC-027 / DEC-028) is
   enforced only in `apps/shared/pocketbase.js`; no collection rule constrains
   the value on write, and `workouts.wdlId` is a non-unique index. A raw
   `POST`/`PATCH` can set `wdlId: "crossfit:fran"` on an attacker-owned public
@@ -66,7 +66,7 @@ call. The one fix that did land already (H-2, `filter=` injection in
   implementation diverges, model is fine.*
 
 - **MEDIUM — no mutating rule guards which fields change; `owner`/`user` can be
-  reassigned on update.** **→ SEC-3.** `workouts` / `movement_sets` / `goals` update rules
+  reassigned on update.** **→ SEC-3.** **Fix landed 2026-11-21, verified locally, not yet deployed** (`make deploy:db`; SEC-7 also needs `make deploy:unit`): `1757800000_guard_ownership_rules.js`. The open question is answered: rule field names are the pre-write record, so the `goals` scope flip **was** exploitable (reproduced locally). `workouts` / `movement_sets` / `goals` update rules
   check *who* writes, never *what*. A user can `PATCH` their own row
   `{ owner: <org id> }` (compounds the HIGH above), and a `goals`
   `scope:"user"` owner may be able to `PATCH { scope: "global", user: null }`
@@ -77,7 +77,7 @@ call. The one fix that did land already (H-2, `filter=` injection in
   *Touches: the three create/harden migrations. DEC-028 (goals scope tiers).*
 
 - **MEDIUM — handle shape / reserved-word validation is client-only.**
-  **→ SEC-4.** The
+  **→ SEC-4.** **Fix landed 2026-11-21, verified locally, not yet deployed** (`make deploy:db`; SEC-7 also needs `make deploy:unit`): `pb_hooks/wdl_guards.pb.js`, a hook because the rule DSL's `~` is LIKE, not a regex. The
   server enforces only the unique index and `max: 63`; `validateHandle` in
   `apps/shared/handle.js` (`^[a-z0-9-]+$`, 3–63, not all-digits, no `-` ends,
   reserved `api`/`admin`/`_`) has no server mirror. A raw `PATCH` can claim
@@ -91,7 +91,7 @@ call. The one fix that did land already (H-2, `filter=` injection in
 
 - **LOW — `movement_sets` create rule relies on field validation, not an
   explicit `!= ""` guard.** **→ SEC-6** (trivial, no open question, dispatchable
-  as-is). `createRule = "@request.auth.id = owner"` is safe
+  as-is). **Fix landed 2026-11-21, verified locally, not yet deployed** (`make deploy:db`; SEC-7 also needs `make deploy:unit`): `1757800000_guard_ownership_rules.js`. `createRule = "@request.auth.id = owner"` was safe
   only because `owner` is `required` — the same shape that bit `goals` at G1
   when `user` was nullable. One schema change reopens it silently. Fix: align
   with `workouts` / `goals` — `@request.auth.id != "" && @request.auth.id =

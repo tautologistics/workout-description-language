@@ -26,7 +26,8 @@ WorkingDirectory=/home/pbuser/pb
 ExecStart=/home/pbuser/pb/pocketbase serve \
   --http 127.0.0.1:8090 \
   --dir /home/pbuser/pb/pb_data \
-  --migrationsDir /home/pbuser/pb/pb_migrations
+  --migrationsDir /home/pbuser/pb/pb_migrations \
+  --origins https://wex.androidempathy.com
 Restart=always
 RestartSec=5
 LimitNOFILE=4096
