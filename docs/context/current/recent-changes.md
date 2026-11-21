@@ -2,7 +2,7 @@
 
 ## Changes
 
-- **2026-11-21: the `users.handle` unique index is partial (landed, not deployed).** `1757700000_partial_users_handle_index.js` rebuilds `idx_users_handle` with `WHERE handle != ''`, so any number of handle-less accounts can exist. Before this, a second one, such as a new partner's first Google sign-in while another account lacked a handle, failed with `validation_not_unique`. Verified on a local v0.40.1. Needs `make deploy:db`.
+- **2026-11-21: the `users.handle` unique index is partial (deployed the same day: Chris ran `make deploy:db`, and the restart was healthy).** `1757700000_partial_users_handle_index.js` rebuilds `idx_users_handle` with `WHERE handle != ''`, so any number of handle-less accounts can exist. Before this, a second one, such as a new partner's first Google sign-in while another account lacked a handle, failed with `validation_not_unique`. Verified on a local v0.40.1.
 
 - **2026-11-21: SEC-1 deployed.** Chris ran `make deploy:db`, and PocketBase restarted healthy with `1757600000_lock_users_rules.js` applied on boot. Before that, the VPS's SSH host keys had all changed at the same IP; this is consistent with a DreamHost rebuild, and Chris re-trusted them after checking. Chris's `~/.ssh/known_hosts` also had two obsolete `ssh-dss` lines that blocked `ssh-keygen -R`. OpenSSH now warns that the server's key exchange isn't post-quantum: the server-side OpenSSH is older, which isn't a project issue.
 

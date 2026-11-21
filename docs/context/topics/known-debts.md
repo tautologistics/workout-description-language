@@ -17,9 +17,10 @@ call. The one fix that did land already (H-2, `filter=` injection in
 
 - **`users.handle`'s unique index treats every empty handle as the same
   value.** *Found 2026-11-21 while verifying SEC-1 against a local v0.40.1.*
-  **Fix landed 2026-11-21, not yet deployed:**
-  `1757700000_partial_users_handle_index.js`, verified locally. It stays
-  live until `make deploy:db`.
+  ~~Live debt~~ **Closed 2026-11-21:**
+  `1757700000_partial_users_handle_index.js` was verified locally and
+  deployed (`make deploy:db`, healthy restart). The rest of this entry is kept
+  as the record of what was wrong.
   `idx_users_handle` (from `1756900000_add_users_handle_and_orgs.js`) is a
   plain `UNIQUE (handle)`, and PocketBase stores an unset text field as `''`,
   not NULL. So once one `users` row has an empty handle, **every further
