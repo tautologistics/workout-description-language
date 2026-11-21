@@ -33,7 +33,7 @@ were rejected, are in
 | Bind             | `0.0.0.0:8090` (see "Known issue" below)                    |
 | Process          | **user** systemd unit `~/.config/systemd/user/pocketbase.service`, linger enabled |
 | Web / TLS        | DreamHost panel **Proxy Server** (`/` → port 8090) + panel Let's Encrypt |
-| Admin UI         | `https://wex.androidempathy.com/_/` , superuser `chris@winberry.net` (pw in password manager) |
+| Admin UI         | `https://wex.androidempathy.com/_/` , superuser `<superuser-email>` (pw in password manager) |
 | API              | `https://wex.androidempathy.com/api/...`                    |
 | OAuth redirect   | `https://wex.androidempathy.com/api/oauth2-redirect`        |
 
@@ -179,7 +179,8 @@ tested and both make the proxy 503.
 
 - **Mitigation in place:** every PocketBase route requires auth; collection
   rules are the real gate; superuser password is strong and in a password
-  manager; the app sets **Application URL** = `https://wex.androidempathy.com`
+  manager; PocketBase's built-in rate limiting is on (Chris enabled it 2026-11-21);
+  the app sets **Application URL** = `https://wex.androidempathy.com`
   so all generated links/redirects are HTTPS regardless of which port a request
   came in on. All real traffic uses the `https://` origin.
 - **Residual risk:** an on-path attacker could read a token *if* a client ever
@@ -195,7 +196,7 @@ tested and both make the proxy 503.
 cd ~/pb && ./pocketbase superuser create you@example.com 'a-strong-password'
 ```
 
-Chris created `chris@winberry.net`. Credentials in his password manager — not
+Chris created the superuser. Its email and password are in his password manager — not
 the repo, not `pocketbase.env`. Log in at `https://wex.androidempathy.com/_/`.
 
 ---
@@ -247,7 +248,7 @@ collection (task M1) can gate create/update/delete on
 so the migration on its own changes nothing.
 
 **After the migration applies, grant yourself admin:** admin UI → *Collections →
-`users`* → open Chris's row (`chris@winberry.net`) → tick **admin** → Save. The
+`users`* → open your own row (your Google sign-in email) → tick **admin** → Save. The
 migration can't do this — it doesn't know the user id. Do the same for any other
 account that should curate global movements.
 
@@ -692,7 +693,7 @@ a `deploy/pocketbase/pb_hooks/` middleware setting `Cache-Control: no-cache` on
   loopback and `<private-ip>` (private) both 503 the proxy. Port 8090 is
   therefore internet-reachable in plaintext; **DreamHost support ticket to
   firewall it is open** (see "Known issue" above).
-- **Superuser:** `chris@winberry.net` (password manager).
+- **Superuser:** `<superuser-email>` (password manager).
 - **Migration:** `1756600000_create_workouts.js` applied clean on v0.40.1;
   `workouts` collection + rules verified in the admin UI.
 - **Reboot test:** _pending_

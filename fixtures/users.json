@@ -5,7 +5,7 @@
       "id": "u_mock_chris_0001",
       "collectionId": "_pb_users_auth_",
       "collectionName": "users",
-      "email": "chris@winberry.net",
+      "email": "chris@example.com",
       "emailVisibility": false,
       "verified": true,
       "name": "Chris (local mock)",

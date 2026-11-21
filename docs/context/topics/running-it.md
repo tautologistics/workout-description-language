@@ -421,7 +421,7 @@ detail — the MIME finding (`.ohm`/`.wdlg` land as `text/plain`, and are
 `Last-Modified` only; accepted as-is) — is in
 [`deploy/README.md`](../../../deploy/README.md) "## 10. Static apps".
 
-- **Admin UI:** `https://wex.androidempathy.com/_/` (superuser `chris@winberry.net`,
+- **Admin UI:** `https://wex.androidempathy.com/_/` (superuser `<superuser-email>`,
   password in Chris's password manager — not the repo).
 - **Runbook:** [`deploy/README.md`](../../../deploy/README.md) — install, the
   panel proxy setup, PocketBase upgrade, SQLite backup/restore, and the

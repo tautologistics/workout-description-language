@@ -530,7 +530,7 @@ answer from the start here, not a fallback.
 
 ### SEC-5 (Medium, not a coding task) — the port-8090 DreamHost firewall ticket
 
-**STILL OPEN, Chris's DreamHost ticket.** Nothing in code can close it: the panel proxy needs the `0.0.0.0` bind. Re-checked 2026-11-21.
+**STILL OPEN, Chris's DreamHost ticket.** Nothing in code can close it: the panel proxy needs the `0.0.0.0` bind. Re-checked 2026-11-21. Rate limiting enabled in the admin UI 2026-11-21 (partial mitigation, not the fix). Assessed 2026-11-21 as low real risk: same process, same rules and hooks on `:8090`; the exposure is plaintext only if a client uses that port, plus scanner discovery.
 
 **Finding M-3, pre-existing.** `deploy/README.md` "Known issue: port 8090
 exposure" — the support ticket asking DreamHost to firewall external inbound
